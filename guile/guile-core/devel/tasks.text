@@ -12,6 +12,7 @@ niibe	NIIBE Yutaka <gniibe@chroot.org>
 dirk	Dirk Herrmann <dirk@ida.ing.tu-bs.de>
 rlb	Rob Browning <rlb@cs.utexas.edu>
 ryanw	Ryan Weaver <ryanw@infohwy.com>
+moore	Eric Moore <moore@chem.cmu.edu>
 
 * Assigned core tasks
 
@@ -110,8 +111,7 @@ thi
 
 *** GOOPS C API
 
-mvo
-dirk
+moore
 
 * Core tasks in need of attention
 
