@@ -60,7 +60,7 @@
 extern SCM scm_multi_byte_string_p SCM_P ((SCM obj));
 extern SCM scm_regular_string_p SCM_P ((SCM obj));
 extern SCM scm_multi_byte_string SCM_P ((SCM chrs));
-extern int scm_mb_ilength SCM_P ((unsigned char * data, int size));
+extern int scm_mb_ilength SCM_P ((char * data, int size));
 extern SCM scm_multi_byte_string_length SCM_P ((SCM str));
 extern SCM scm_symbol_multi_byte_p SCM_P ((SCM symbol));
 extern SCM scm_set_symbol_multi_byte_x SCM_P ((SCM symbol, SCM val));

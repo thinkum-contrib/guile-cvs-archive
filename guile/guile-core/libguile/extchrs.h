@@ -69,6 +69,6 @@ typedef unsigned short xwchar_t;
 
 extern int xmblen SCM_P ((const char * str, size_t size));
 extern int xwctomb SCM_P ((char * _str, int c));
-extern int xmbtowc SCM_P ((xwchar_t * result, const unsigned char * _str, size_t size));
+extern int xmbtowc SCM_P ((xwchar_t * result, const char * _str, size_t size));
 
 #endif  /* EXTCHRSH */

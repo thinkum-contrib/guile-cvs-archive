@@ -100,7 +100,7 @@ xwctomb (_str, c)
 int
 xmbtowc (result, _str, size)
      xwchar_t * result;
-     const unsigned char * _str;
+     const char * _str;
      size_t size;
 {
   const unsigned char * str;

@@ -115,9 +115,7 @@ scm_multi_byte_string (chrs)
 
 
 int
-scm_mb_ilength (data, size)
-     unsigned char * data;
-     int size;
+scm_mb_ilength (char *data, int size)
 {
   int pos;
   int len;
@@ -151,9 +149,10 @@ scm_multi_byte_string_length (str)
 {
   int size;
   int len;
-  unsigned char * data;
+  char * data;
 
-  SCM_ASSERT (SCM_NIMP (str) && SCM_ROSTRINGP (str), str, SCM_ARG1, s_multi_byte_string_length);
+  SCM_ASSERT (SCM_NIMP (str) && SCM_ROSTRINGP (str), str, SCM_ARG1,
+	      s_multi_byte_string_length);
 
   data = SCM_ROCHARS (str);
   size = SCM_ROLENGTH (str);
