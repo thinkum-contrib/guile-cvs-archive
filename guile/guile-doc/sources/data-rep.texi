@@ -1238,6 +1238,10 @@ init_image_type ()
 @}
 @end example
 
+Note that checking types is a little more complicated during garbage
+collection; see the description of @code{SCM_GCTYP16} in @ref{Garbage
+Collecting Smobs}.
+
 
 @node Garbage Collecting Smobs
 @subsection Garbage Collecting Smobs
