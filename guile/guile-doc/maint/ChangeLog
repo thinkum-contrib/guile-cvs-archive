@@ -1,3 +1,13 @@
+2000-08-18  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* docstring.el (c-doc-string-data): Handle SCM_DEFINE1 forms.
+
+2000-08-15  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* docstring.el (c-doc-string-data): (Re-)Initialize @deffn summary
+	line at start of every iteration of look-for-Scheme-primitive-name
+	loop.
+	
 2000-08-12  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* docstring.el (c-doc-string-replace): Where a docstring contains

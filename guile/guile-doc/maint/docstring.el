@@ -249,7 +249,7 @@
   (save-excursion
     (goto-char (point-min))
     (let ((region nil)
-          (deffn (concat "@deffn primitive " proc-name)))
+          (deffn nil))
 
       ;; Search for occurrences of the target procedure name, enclosed
       ;; in double quotes.
@@ -257,23 +257,40 @@
                   (search-forward (concat "\"" proc-name "\"") nil t))
         (let ((name-end (match-end 0)))
 
+	  ;; (Re-)Initialize the deffn summary string.
+	  (setq deffn (concat "@deffn primitive " proc-name))
+
           ;; Find the start of the preceding SCM_DEFINE form.
           (save-excursion
-            (if (re-search-backward "^SCM_DEFINE" nil t)
+            (if (re-search-backward "^SCM_DEFINE1?" nil t)
                 (let (def-end)
 
                   ;; Auto-generate a @deffn line from the argument list.
                   (save-excursion
                     (let (req opt rst (opttail ""))
-                      (re-search-forward "SCM_DEFINE *(")
-                      (forward-sexp 2)
-                      (re-search-forward ", *\\([0-9]+\\), *\\([0-9]+\\), *\\([0-9]+\\),[^(]*(")
-                      (setq req (string-to-int (buffer-substring (match-beginning 1)
-                                                                 (match-end 1)))
-                            opt (string-to-int (buffer-substring (match-beginning 2)
-                                                                 (match-end 2)))
-                            rst (string-to-int (buffer-substring (match-beginning 3)
-                                                                 (match-end 3))))
+		      (cond
+		       ((looking-at "SCM_DEFINE1")
+			(re-search-forward "SCM_DEFINE1 *(")
+			(forward-sexp 2)
+			(re-search-forward ", *\\([^,]+\\),[^(]*(")
+			(let ((proc-type (buffer-substring (match-beginning 1)
+							   (match-end 1))))
+			  (cond
+			   ((string-equal proc-type "scm_tc7_rpsubr")
+			    (setq req 2 opt 0 rst 0))
+			   (t
+			    (error "Unhandled SCM_DEFINE1 procedure type: %s" proc-type)))))
+
+		       (t ;; SCM_DEFINE
+			(re-search-forward "SCM_DEFINE *(")
+			(forward-sexp 2)
+			(re-search-forward ", *\\([0-9]+\\), *\\([0-9]+\\), *\\([0-9]+\\),[^(]*(")
+			(setq req (string-to-int (buffer-substring (match-beginning 1)
+								   (match-end 1)))
+			      opt (string-to-int (buffer-substring (match-beginning 2)
+								   (match-end 2)))
+			      rst (string-to-int (buffer-substring (match-beginning 3)
+								   (match-end 3))))))
 
                       (while (> req 0)
                         (re-search-forward " *SCM *\\([^,)]+\\)[,)]")
