@@ -449,8 +449,12 @@ iconv.]]
 @node Multibyte Character Tables, Multibyte Character Categories, Exchanging Text With The Outside World, Functions for Operating on Multibyte Text
 @subsection Multibyte Character Tables
 
-[[This will describe an ADT mapping characters onto Guile values.]]
+A @dfn{character table} is a table mapping characters onto Guile
+objects.  Guile provides functions for creating character tables,
+setting entries in character tables, and looking up characters in
+character tables.
 
+[[incomplete]]
 
 @node Multibyte Character Categories,  , Multibyte Character Tables, Functions for Operating on Multibyte Text
 @subsection Multibyte Character Categories
@@ -463,7 +467,7 @@ set.]]
 @section Multibyte Text Processing Errors
 
 This section describes error conditions which code can raise to indicate
-problems encountered while processing 
+problems encountered while processing multibyte text.
 
 @deffn Condition text:not-char-boundary func message args object offset
 By calling @var{func}, the program attempted to access a character at
