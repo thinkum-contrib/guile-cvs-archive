@@ -46,6 +46,10 @@
 #include <stdlib.h>
 #include <gh.h>
 
+
+
+/* Testing multibyte text handling functions.  */
+
 struct pair {
   scm_char_t character;
   unsigned char encoding[10];
@@ -149,20 +153,38 @@ test_one_char_encodings ()
     }
 }
 
+
+/* A very simple random number generator.  */
 
+/* It's important that the test suite run consistently each time.
+   Changes to Guile's random number generator shouldn't change the set
+   of permutations tried.  */
+
+static unsigned long test_rand_seed;
+
+static unsigned long test_rand ()
+{
+  test_rand_seed = ((test_rand_seed * 1103515245) + 12345) & 0x7fffffff;
+  return test_rand_seed >> 4;
+}
+
+
+
 /* Fill BUFFER with LEN random numbers in the range 0 to MODULUS - 1.
    Use SEED to choose the random numbers.  */
+
 static void
 make_permutation (int modulus, int len, int *buffer, unsigned int seed)
 {
   int i;
 
-  srandom (seed);
+  test_rand_seed = seed;
+
   for (i = 0; i < len; i++)
-    buffer[i] = (unsigned long) random () % modulus;
+    buffer[i] = test_rand () % modulus;
 
   if (len > 0)
-    buffer[(unsigned long) random % len] = seed % modulus;
+    buffer[test_rand () % len] = seed % modulus;
 }
 
 #define MAX_STRING_LEN 20
@@ -264,11 +286,11 @@ test_string_encodings ()
 	    for (i = 0; i < len; i++)
 	      index[i] = i;
 
-	    srandom (seed + len + 1);
+	    test_rand_seed = seed + len + 1;
 	    for (i = 0; i < len; i++)
 	      {
 		int j, temp;
-		j = (unsigned long) random () % len;
+		j = test_rand () % len;
 		temp = index[i];
 		index[i] = index[j];
 		index[j] = temp;
@@ -308,11 +330,210 @@ test_string_encodings ()
       }
 }
 
+
+/* Testing conversion functions.  */
+
+char *all_encodings[] = {
+  "Emacs-Mule", "Guile", 
+  "ISO-8859-1", "Latin-1",
+  "ISO-8859-2", "Latin-2",
+  "ISO-8859-3", "Latin-3",
+  "ISO-8859-4", "Latin-4",
+  "ISO-8859-5", "Latin-5",
+  "ISO-8859-6", "Latin-6",
+  "ISO-8859-7", "Latin-7",
+  "ISO-8859-8", "Latin-8",
+  "ISO-8859-9", "Latin-9",
+  "US-ASCII", "ASCII",
+  0
+};
+
+struct text {
+  char *encoding;		/* an encoding name */
+  char *original;		/* some text in that encoding */
+  char *guile;			/* the same text in Guile's encoding */
+};
+
+struct text texts[] = {
+  { "Emacs-Mule", "hi\x81\xE1\x92\xA5\xAB", "hi\x81\xE1\x92\xA5\xAB" },
+  { "ISO-8859-1",
+    "\x00hello\x7f\x80\x9F\xA0\xFE\xFF", 
+    "\x00hello\x7f\x81\xA0\x81\xFE\x81\xFF" },
+  { "ISO-8859-1",
+    "\x00hello\x7f\x80\x9F\xA0\xFE\xFF", 
+    "\x00hello\x7f*\xA0*\xFE*\xFF" },
+  { "ISO-8859-1",
+    "\x00hello\x7f\x80\x9F\xA0\xFE\xFF", 
+    "\x00hello\x7f\x81\xA0\x81\xFE\x81\xFF" },
+  { "ISO-8859-2",
+    "\x00hello\x7f\x80\x9F\xA0\xFE\xFF", 
+    "\x00hello\x7f\x82\xA0\x82\xFE\x82\xFF" },
+  { "ISO-8859-3",
+    "\x00hello\x7f\x80\x9F\xA0\xFE\xFF", 
+    "\x00hello\x7f\x83\xA0\x83\xFE\x83\xFF" },
+  { "ISO-8859-4",
+    "\x00hello\x7f\x80\x9F\xA0\xFE\xFF", 
+    "\x00hello\x7f\x84\xA0\x84\xFE\x84\xFF" },
+  { "ISO-8859-5",
+    "\x00hello\x7f\x80\x9F\xA0\xFE\xFF", 
+    "\x00hello\x7f\x8C\xA0\x8C\xFE\x8C\xFF" },
+  { "ISO-8859-6",
+    "\x00hello\x7f\x80\x9F\xA0\xFE\xFF", 
+    "\x00hello\x7f\x87\xA0\x87\xFE\x87\xFF" },
+  { "ISO-8859-7",
+    "\x00hello\x7f\x80\x9F\xA0\xFE\xFF", 
+    "\x00hello\x7f\x86\xA0\x86\xFE\x86\xFF" },
+  { "ISO-8859-8",
+    "\x00hello\x7f\x80\x9F\xA0\xFE\xFF", 
+    "\x00hello\x7f\x88\xA0\x88\xFE\x88\xFF" },
+  { "ISO-8859-9",
+    "\x00hello\x7f\x80\x9F\xA0\xFE\xFF", 
+    "\x00hello\x7f\x8D\xA0\x8D\xFE\x8D\xFF" },
+  { "US-ASCII",
+    "\x00hello\x7f\x80\x9F\xA0\xFE\xFF",
+    "\x00hello\x7f" },
+  { 0, 0, 0 }
+};
+
+
+static void
+one_conversion (const char *code1, const char *code2,
+		char *text1, char *text2)
+{
+  int split;
+  int text1_len = strlen (text1);
+  int text2_len = strlen (text2);
+  char *buf = malloc (text2_len + text1_len);
+  const char *inptr;
+  char *outptr;
+  size_t inbytesleft, outbytesleft;
+  struct scm_mb_iconv *context;
+
+  /* Convert from code1 to code2.  */
+  context = scm_mb_iconv_open (code2, code1);
+  inptr = text1;
+  inbytesleft = text1_len;
+  outptr = buf;
+  outbytesleft = text2_len;
+  if (scm_mb_iconv (context, &inptr, &inbytesleft, &outptr, &outbytesleft)
+      != 0)
+    exit (1);
+  if (outptr - buf != text2_len
+      || outbytesleft != 0
+      || inptr - text1 != text1_len
+      || inbytesleft != 0
+      || memcmp (buf, text2, text2_len))
+    exit (1);
+  scm_mb_iconv_close (context);
+
+  /* Split the input string at various points, and convert in two
+     steps.  */
+  for (split = 0; split <= text1_len; split++)
+    {
+      int result;
+
+      context = scm_mb_iconv_open (code2, code1);
+      inptr = text1;
+      inbytesleft = split;
+      outptr = buf;
+      outbytesleft = text2_len;
+      result = scm_mb_iconv (context,
+			     &inptr, &inbytesleft,
+			     &outptr, &outbytesleft);
+      if (result != 0
+	  && result != scm_mb_iconv_incomplete_encoding)
+	exit (1);
+      inbytesleft += text1_len - split;
+      result = scm_mb_iconv (context,
+			     &inptr, &inbytesleft, &outptr, &outbytesleft);
+      if (result != 0)
+	exit (1);
+      if (outptr - buf != text2_len
+	  || outbytesleft != 0
+	  || inptr - text1 != text1_len
+	  || inbytesleft != 0
+	  || memcmp (buf, text2, text2_len))
+	exit (1);
+      scm_mb_iconv_close (context);
+    }
+
+  /* Split the output buffer at various points, and convert in two
+     steps.  */
+  for (split = 0; split <= text2_len; split++)
+    {
+      int result;
+
+      context = scm_mb_iconv_open (code2, code1);
+      inptr = text1;
+      inbytesleft = text1_len;
+      outptr = buf;
+      outbytesleft = split;
+      result = scm_mb_iconv (context,
+			     &inptr, &inbytesleft,
+			     &outptr, &outbytesleft);
+      if (split < text2_len)
+	{
+	  if (result != scm_mb_iconv_more_room)
+	    exit (1);
+	}
+      else
+	{
+	  if (result != 0)
+	    exit (1);
+	}
+      outbytesleft += text2_len - split;
+      if (scm_mb_iconv (context, &inptr, &inbytesleft, &outptr, &outbytesleft)
+	  != 0)
+	exit (1);
+      if (outptr - buf != text2_len
+	  || outbytesleft != 0
+	  || inptr - text1 != text1_len
+	  || inbytesleft != 0
+	  || memcmp (buf, text2, text2_len))
+	exit (1);
+      scm_mb_iconv_close (context);
+    }
+}
+
+
+static void
+test_conversions ()
+{
+  int i;
+  struct scm_mb_iconv *context;
+
+  /* Just try opening each conversion, each way.  */
+  for (i = 0; all_encodings[i]; i++)
+    {
+      context = scm_mb_iconv_open ("guile", all_encodings[i]);
+      scm_mb_iconv_close (context);
+
+      context = scm_mb_iconv_open (all_encodings[i], "guile");
+      scm_mb_iconv_close (context);
+    }
+
+  /* Convert some text back and forth.  */
+  for (i = 0; texts[i].encoding; i++)
+    {
+      struct text *text= &texts[i];
+
+      /* Go in both directions.  */
+      one_conversion ("guile", text->encoding,
+		      text->guile, text->original);
+      one_conversion (text->encoding, "guile",
+		      text->original, text->guile);
+    }
+}
+
+
+/* Main function.  */
+
 static void 
 main_prog (int argc, char *argv[])
 {
   test_one_char_encodings ();
   test_string_encodings ();
+  test_conversions ();
 }
 
 int 
