@@ -884,7 +884,7 @@ set_slot_value_if_unbound (SCM classe, SCM obj, SCM slot_name, SCM form)
   if (SCM_UNBNDP (old_val))
     set_slot_value (classe, obj,
 		    slot_name,
-		    scm_apply (form, scm_listofnull, SCM_EOL));
+		    scm_apply (form, SCM_EOL, SCM_EOL));
 }
 
 
