@@ -1758,8 +1758,12 @@ scm_sys_invalidate_method_cache_x (SCM gf)
 	   methods = SCM_CDR (methods))
 	SCM_SLOT (SCM_CAR (methods), scm_si_code_table) = SCM_EOL;
     }
-  SCM_SET_MCACHE_N_SPECIALIZED (SCM_ENTITY_PROCEDURE (gf),
-				SCM_SLOT (gf, scm_si_n_specialized));
+  {
+    int n = SCM_INUM (SCM_SLOT (gf, scm_si_n_specialized));
+    /* The sign of n is a flag indicating rest args. */
+    SCM_SET_MCACHE_N_SPECIALIZED (SCM_ENTITY_PROCEDURE (gf),
+				  SCM_MAKINUM (n >= 0 ? n : -n));
+  }
   return SCM_UNSPECIFIED;
 }
 
