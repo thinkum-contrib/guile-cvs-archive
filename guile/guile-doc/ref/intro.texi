@@ -40,16 +40,54 @@ application uses Guile as its extension language, users can extend it in
 the language of their choice, rather than having the tastes of the
 application's author imposed on them.
 
+This manual assumes you know Scheme, as described in R4RS.  From there,
+it describes:
+@table @b
+
+@item Part I
+how to use Guile interactively and as an interpreter, how to link Guile
+into your own applications, and how to write modules of interpreted and
+compiled code for use with Guile,
+
+@item Part II
+Guile's extensions to the language described in R4RS,
+
+@item Part III
+how to call Guile from C code, and how to add new functions written in C
+to Guile, using C functions which (we hope) will also someday work with
+other Scheme interpreters, allowing you to write C code which will work
+with any of several Scheme systems, and
+
+@item Part IV
+further functions available to the C level which are specific to Guile,
+but provide more thorough access to Guile's internals.
+
+@end table
+
+Finally, the appendices explain how to obtain the latest version of
+Guile, how to install it, where to find modules to work with Guile, and
+how to use the Guile debugger.
+
 
 @node Running Guile Interactively
 @chapter Running Guile Interactively
 
-
+In its simplest form, Guile is an interactive interpreter for the Scheme
+programming language.  
 
 @node Guile Scripts
 @chapter Guile Scripts
+
+@menu
+* The Top of a script file::    
+* Invoking Guile::              
+@end menu
+
+@node The Top of a script file
+@section The Top of a script file
 @node Invoking Guile
 @section Invoking Guile
+
 @node Linking Programs With Guile
 @chapter Linking Programs With Guile
 @node Writing Guile Modules

@@ -28,11 +28,17 @@ libraries. It will also install the Guile tutorial and reference manual.
 
 @c [[include instructions for getting R4RS]]
 
-Since in this manual we frequently refer to the Scheme ``standard'',
-also known as R4RS, or the ``Revised(4) Report on the Algorithmic
-Language Scheme'', so we have included the report in the Guile
-distribution (@pxref{Top, Revised(4) Report on the Algorithmic Language
-Scheme, , r4rs}).  This will also be installed in your info directory.
+Since this manual frequently refers to the Scheme ``standard'', also
+known as R4RS, or the
+@iftex
+``Revised$^4$ Report on the Algorithmic Language Scheme'',
+@end iftex
+@ifinfo
+``Revised^4 Report on the Algorithmic Language Scheme'',
+@end ifinfo
+we have included the report in the Guile distribution;
+@xref{Top, , Introduction, r4rs, Revised(4) Report on the Algorithmic Language Scheme}.
+This will also be installed in your info directory.
 
 @page
 @node Reporting Bugs
@@ -151,13 +157,6 @@ iteration.  Using @code{trace} here helps us see why this is so.
 @node Backtrace
 @appendixsec Backtrace
 
-@page
-@node Indices
-@unnumbered Indices
-	--- At the top of the function/variable index, remind people
-            to look for functions under their Scheme names as well as
-            their C names.
-
 @node Concept Index
 @unnumbered Concept Index
 @printindex cp
@@ -166,6 +165,8 @@ iteration.  Using @code{trace} here helps us see why this is so.
 @node Procedure Index
 @unnumbered Procedure Index
 This is an alphabetical list of all the procedures and macros in Guile.
+[[Remind people to look for functions under their Scheme names as well
+as their C names.]]
 @printindex fn
 
 
@@ -173,6 +174,8 @@ This is an alphabetical list of all the procedures and macros in Guile.
 @unnumbered Variable Index
 This is an alphabetical list of all the important variables and
 constants in Guile.
+[[Remind people to look for variables under their Scheme names as well
+as their C names.]]
 @printindex vr
 
 
