@@ -15,3 +15,6 @@ handle E[MN]FILE well.  OTOH, it's also good to explicitly close
 descriptors - if close() reports an error, we want to see where it
 came from.
 
+Kevin: Even getting close to ENFILE (ie. the system-wide limit) would
+be very bad, it could easily cause all sorts of errors for daemons,
+other users, etc.
