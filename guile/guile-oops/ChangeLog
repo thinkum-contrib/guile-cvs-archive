@@ -1,3 +1,7 @@
+1999-06-17  Mikael Djurfeldt  <mdj@mdj-pc.nada.kth.se>
+
+	* goops.scm (add-method!): Made generic => added to the MOP.
+
 1999-06-15  Mikael Djurfeldt  <mdj@mdj-pc.nada.kth.se>
 
 	* goops.scm (method): Allow empty method bodies.
