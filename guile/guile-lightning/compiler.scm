@@ -865,7 +865,7 @@
     (let ((proc (cadr exp))
 	  (args (cddr exp)))
       (cond ((eq? target :tail)
-	     `(,@(compile-tail-args (list* (cons 'r0 proc)
+	     `(,@(compile-tail-args (cons* (cons 'r0 proc)
 					   (stackify
 					    (cons '(local :ret)
 						  args)))
@@ -873,7 +873,7 @@
 	       (mov r1 ,(* 4 (length args)))
 	       (jmp (code ,invoke-code))))
 	    (else
-	     `(,@(compile-tail-args (list* (cons 'r0 proc)
+	     `(,@(compile-tail-args (cons* (cons 'r0 proc)
 					   (stackify args))
 				    env env)
 	       (mov r1 ,(* 4 (length args)))
@@ -906,7 +906,7 @@
 	    ((null? (cdr body))
 	     (compile-expression (car body) env target))
 	    (else
-	     (append! (compile-expression (car body) env 'r0)
+	     (append! (compile-expression (car body) env :none)
 		      (loop (cdr body)))))))
 
    ((form? 'labels exp)

@@ -7,6 +7,10 @@
 (define jitop-rgx 
   (make-regexp "^ *#define *jit_([a-z]*)(_([a-z]*))?\\((.*)\\)"))
 
+(debug-enable 'debug)
+(debug-enable 'backtrace)
+(read-enable 'positions)
+
 ;; Operation kinds
 ;;
 ;; - 3op
@@ -235,7 +239,7 @@
 		 (@ "  r = AS_REG (insn_1);\n")
 		 (if (op-type op)
 		     (@ "  jit_~A_~A (r);\n" (op-name op) (op-type op))
-		     (@ "  jit_~A (r);\n" (op-name op) (op-type op))))
+		     (@ "  jit_~A (r);\n" (op-name op))))
 		((2rop)
 		 (@ "  int r1, r2;\n")
 		 (@ "  ASSERT_LEN (2);\n")
@@ -299,7 +303,7 @@
 	      (@ "} else ")))
 	  (reverse ops))
 (@ "{\n")
-(format #t "  scm_misc_error (~S, ~S, SCM_LIST1 (SCM_CAR(insn)));\n"
+(format #t "  scm_misc_error (~S, ~S, scm_list_1 (SCM_CAR(insn)));\n"
 	"assemble" "unrecognized instruction: ~A")
 (format #t "}\n")
 

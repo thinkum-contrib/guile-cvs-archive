@@ -47,7 +47,7 @@
 
 #include "disassemble.h"
 
-static SCM scm_tc16_codevector;
+static scm_t_bits scm_tc16_codevector;
 
 struct codevector {
   size_t size;
@@ -75,7 +75,7 @@ codevector_print (SCM obj, SCM port, scm_print_state *pstate)
   return 1;
 }
 
-static scm_sizet
+static size_t
 codevector_free (SCM obj)
 {
   struct codevector *c = CODEVECTOR_DATA(obj);
@@ -98,7 +98,7 @@ make_codevector (struct codevector *c)
   return z;
 }
 
-static SCM scm_tc16_code;
+static scm_t_bits scm_tc16_code;
 
 #define CODE_P(x)    (SCM_NIMP(x) && SCM_CELL_WORD_0(x) == scm_tc16_code)
 #define CODE_INSN(x) ((jit_insn *)SCM_CELL_WORD_1(x))
@@ -121,7 +121,7 @@ code_print (SCM obj, SCM port, scm_print_state *pstate)
   return 1;
 }
 
-static scm_sizet
+static size_t
 code_free (SCM obj)
 {
   return 0;
@@ -212,7 +212,7 @@ static SCM
 code_apply (SCM smob, SCM args)
 {
 #define FUNC_NAME "code_apply"
-  SCM_VALIDATE_LIST (SCM_ARG1, args);
+  SCM_VALIDATE_LIST (1, args);
   return call_tc (CODE_INSN(smob),
 		  scm_reverse_x (args, SCM_EOL),
 		  CODE_ENV (smob));
@@ -279,7 +279,7 @@ scm_invoke (SCM proc, int n, SCM *args)
 #endif
 	floerr:
 	  SCM_WTA_DISPATCH_1 (*SCM_SUBR_GENERIC (proc), args[0],
-			      SCM_ARG1, SCM_SYMBOL_CHARS (SCM_SNAME (proc)));
+			      1, SCM_SYMBOL_CHARS (SCM_SNAME (proc)));
 	}
       proc = SCM_SNAME (proc);
       {
@@ -288,7 +288,7 @@ scm_invoke (SCM proc, int n, SCM *args)
 	while ('c' != *--chrs)
 	  {
 	    SCM_ASSERT (SCM_CONSP (args[0]),
-		    args[0], SCM_ARG1, SCM_SYMBOL_CHARS (proc));
+		    args[0], 1, SCM_SYMBOL_CHARS (proc));
 	    x = ('a' == *chrs) ? SCM_CAR (x) : SCM_CDR (x);
 	  }
 	return (x);
@@ -371,7 +371,7 @@ scm_invoke (SCM proc, int n, SCM *args)
 	proc = SCM_PROCEDURE (proc);
 	goto tail;
       }
-    case scm_tcs_cons_gloc:
+    case scm_tcs_struct:
       {
 	if (SCM_OBJ_CLASS_FLAGS (proc) & SCM_CLASSF_PURE_GENERIC)
 	  {
@@ -397,7 +397,7 @@ scm_invoke (SCM proc, int n, SCM *args)
       scm_wrong_num_args (proc);
     default:
     badproc:
-      scm_wrong_type_arg ("invoke", SCM_ARG1, proc);
+      scm_wrong_type_arg ("invoke", 1, proc);
       return (args[0]);
     }
 }
@@ -418,7 +418,7 @@ do_label_def (SCM label_hash, SCM label)
     {
       /* Label has already been defined.  Complain. */
       scm_misc_error ("assemble", "label ~S defined twice",
-		      SCM_LIST1 (label));
+		      scm_list_1 (label));
     }
   else
     {
@@ -430,7 +430,7 @@ do_label_def (SCM label_hash, SCM label)
       for (refs = SCM_CDR (cell); SCM_CONSP (refs); refs = SCM_CDR (refs))
 	{
 	  jit_insn *ref = (jit_insn *)scm_num2ulong (SCM_CAR (refs),
-						     (char *)SCM_ARG1,
+						     1,
 						     "assemble");
 	  jit_patch (ref);
 	}
@@ -444,8 +444,7 @@ get_label_def (SCM label_hash, SCM label)
 
   if (cell == SCM_BOOL_F || SCM_CAR(cell) == SCM_BOOL_F)
     return NULL;
-  return (jit_insn *)scm_num2ulong (SCM_CAR (cell), (char *)SCM_ARG1,
-				    "assemble");
+  return (jit_insn *)scm_num2ulong (SCM_CAR (cell), 1, "assemble");
 }
 
 static void
@@ -471,7 +470,7 @@ static SCM
 check_label (void *closure, SCM label, SCM defrefs, SCM ununsed)
 {
   if (SCM_CAR (defrefs) == SCM_BOOL_F)
-    scm_misc_error ("assemble", "label ~S is undefined", SCM_LIST1(label));
+    scm_misc_error ("assemble", "label ~S is undefined", scm_list_1 (label));
   return SCM_BOOL_F;
 }
 
@@ -492,7 +491,7 @@ get_arg (SCM arg_hash, SCM sym)
 {
   SCM id = scm_hashq_ref (arg_hash, sym, SCM_BOOL_F);
   if (id == SCM_BOOL_F)
-    scm_misc_error ("assemble", "undefined argument: ~S", SCM_LIST1 (sym));
+    scm_misc_error ("assemble", "undefined argument: ~S", scm_list_1 (sym));
   return SCM_INUM (id);
 }
 
@@ -513,14 +512,14 @@ imm2int (SCM imm, SCM label_hash, struct codevector *c)
 	  SCM x = SCM_CADR (imm);
 	  if (SCM_NIMP (x))
 	    c->protects = scm_cons (x, c->protects);
-	  return x;
+	  return (scm_t_bits)x;
 	}
       else if (SCM_CAR (imm) == sym_subr && SCM_STRINGP (SCM_CADR (imm)))
 	{
 	  void *addr;
-	  addr = dlsym (NULL, SCM_CHARS (SCM_CADR (imm)));
+	  addr = dlsym (NULL, SCM_STRING_CHARS (SCM_CADR (imm)));
 	  if (addr == NULL)
-	    scm_misc_error ("assemble", "undefined subr: ~S", SCM_LIST1 (imm));
+	    scm_misc_error ("assemble", "undefined subr: ~S", scm_list_1 (imm));
 	  return (unsigned long)addr;
 	}
       else if (SCM_CAR (imm) == sym_label && SCM_SYMBOLP (SCM_CADR (imm)))
@@ -528,14 +527,14 @@ imm2int (SCM imm, SCM label_hash, struct codevector *c)
 	  jit_insn *lab = get_label_def (label_hash, SCM_CADR (imm));
 	  if (lab == NULL)
 	    scm_misc_error ("assemble", "undefined label: ~S",
-			    SCM_LIST1 (imm));
+			    scm_list_1 (imm));
 	  return (unsigned long)lab;
 	}
       else if (SCM_CAR (imm) == sym_code)
 	{
 	  #define FUNC_NAME "assemble"
 	  SCM x = SCM_CADR (imm);
-	  SCM_VALIDATE_SMOB (SCM_ARG1, x, codevector);
+	  SCM_VALIDATE_SMOB (1, x, codevector);
 	  c->protects = scm_cons (x, c->protects);
 	  return (unsigned long)CODEVECTOR_DATA(x)->start;
 	  #undef FUNC_NAME
@@ -544,16 +543,15 @@ imm2int (SCM imm, SCM label_hash, struct codevector *c)
 	{
 	  #define FUNC_NAME "assemble"
 	  SCM x = SCM_CADR (imm);
-	  SCM_VALIDATE_VARIABLE (SCM_ARG1, x);
-	  x = SCM_VARVCELL (x);
+	  SCM_VALIDATE_VARIABLE (1, x);
 	  c->protects = scm_cons (x, c->protects);
-	  return (unsigned long)SCM_CDRLOC(x);
+	  return (unsigned long)SCM_VARIABLE_LOC(x);
           #undef FUNC_NAME
 	}
     }
   else if (SCM_CONSP (imm) && SCM_CAR (imm) == sym_codetag)
     {
-      return scm_tc16_code;
+      return (unsigned long)scm_tc16_code;
     }
   else if (SCM_STRINGP (imm))
     {
@@ -561,9 +559,9 @@ imm2int (SCM imm, SCM label_hash, struct codevector *c)
       return (unsigned long)SCM_STRING_CHARS (imm);
     }
   else if (SCM_NUMBERP (imm))
-    return scm_num2ulong (imm, (char *)SCM_ARG1, "assemble");
+    return scm_num2ulong (imm, 1, "assemble");
   
-  scm_misc_error ("assemble", "unrecognized immediate: ~S", SCM_LIST1 (imm));
+  scm_misc_error ("assemble", "unrecognized immediate: ~S", scm_list_1 (imm));
 }
 
 static int
@@ -587,12 +585,12 @@ sym2reg (SCM sym)
   int i;
 
   if (!SCM_SYMBOLP (sym))
-    scm_misc_error ("assemble", "not a register: ~S", SCM_LIST1 (sym));
+    scm_misc_error ("assemble", "not a register: ~S", scm_list_1 (sym));
 
   for (i = 0; table[i].sym; i++)
-    if (!strcmp (table[i].sym, SCM_CHARS(sym)))
+    if (!strcmp (table[i].sym, SCM_SYMBOL_CHARS(sym)))
       return table[i].reg;
-  scm_misc_error ("assemble", "unrecognized register: ~S", SCM_LIST1 (sym));
+  scm_misc_error ("assemble", "unrecognized register: ~S", scm_list_1 (sym));
 }
 
 /* Assemble one instruction.  The guts is generated by `rod.scm'
@@ -621,7 +619,7 @@ assemble1 (SCM insn, SCM label_hash, SCM arg_hash, struct codevector *c)
 
       if (insn_len < 1 || !SCM_SYMBOLP (SCM_CAR (insn)))
 	scm_misc_error ("assemble", "invalid instruction: ~S",
-			SCM_LIST1 (insn));
+			scm_list_1 (insn));
       insn_op = SCM_SYMBOL_CHARS (SCM_CAR (insn));
       switch (insn_len)
 	{
@@ -638,11 +636,11 @@ assemble1 (SCM insn, SCM label_hash, SCM arg_hash, struct codevector *c)
 #define ASSERT_LEN(n) if (insn_len-1 != (n)) \
                        scm_misc_error ("assemble", \
                                        "wrong number of operands: ~S", \
-                                       SCM_LIST1 (insn));
+                                       scm_list_1 (insn));
 #define ASSERT_SYM(s) if (!SCM_SYMBOLP ((s))) \
                        scm_misc_error ("assemble", \
                                        "in ~S, not a symbol: ~S", \
-                                       SCM_LIST2 (insn, s));
+                                       scm_list_2 (insn, s));
 
 #define AS_INT(x)     (imm2int ((x), label_hash, c))
 #define AS_REG(x)     (sym2reg ((x)))
@@ -696,7 +694,7 @@ SCM_DEFINE(scm_assemble, "assemble", 1, 0, 0,
   SCM z;
   int asm_len;
 
-  SCM_VALIDATE_LIST_COPYLEN (SCM_ARG1, asm_code, asm_len);
+  SCM_VALIDATE_LIST_COPYLEN (1, asm_code, asm_len);
 
   sz = sizeof(struct codevector) + sizeof(jit_insn)*JIT_MAX_INSNS*asm_len;
   c  = scm_must_malloc (sz, "code");
@@ -722,7 +720,7 @@ SCM_DEFINE(scm_disassemble, "disassemble", 1, 0, 0,
   if (CODE_P (codevector))
     return scm_disassemble (CODE_VEC (codevector));
 
-  SCM_VALIDATE_SMOB (SCM_ARG1, codevector, codevector);
+  SCM_VALIDATE_SMOB (1, codevector, codevector);
   c = CODEVECTOR_DATA (codevector);
 
   disassemble (stderr, (bfd_byte *)c->start, (bfd_byte *)c->end);
@@ -736,7 +734,7 @@ SCM_DEFINE(scm_make_closure, "make-closure", 2, 0, 0,
 	   "Create a clsoure from a codevector and an environment.")
 #define FUNC_NAME s_scm_make_closure
 {
-  SCM_VALIDATE_SMOB (SCM_ARG1, codevector, codevector);
+  SCM_VALIDATE_SMOB (1, codevector, codevector);
   return make_code (codevector, env);
 }
 #undef FUNC_NAME
