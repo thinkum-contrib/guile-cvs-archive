@@ -1,3 +1,0 @@
-AC_INIT(Makefile.in)
-AM_INIT_AUTOMAKE(guile-doc, 1.4)
-AC_OUTPUT(Makefile ref/Makefile tutorial/Makefile sources/Makefile)
