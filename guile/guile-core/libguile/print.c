@@ -74,7 +74,7 @@
 
 char *scm_isymnames[] =
 {
-  /* This table must agree with the declarations */
+  /* This table must agree with the list of SCM_IM_ constants in tags.h */
   "#@and",
   "#@begin",
   "#@case",
@@ -115,9 +115,6 @@ char *scm_isymnames[] =
   "#@nil-cond",
   "#@nil-ify",
   "#@t-ify",
-  "#@0-cond",
-  "#@0-ify",
-  "#@1-ify",
   "#@bind",
   
   "#@delay",

@@ -24,7 +24,7 @@ AUTOMAKE_OPTIONS = gnu
 # These should be installed and distributed.
 elisp_sources =								   \
 	buffers.scm emacs.scm features.scm format.scm fset.scm keymaps.scm \
-	load.scm signal.scm symprop.scm transform.scm
+	lists.scm load.scm signal.scm symprop.scm transform.scm
 
 subpkgdatadir = $(pkgdatadir)/$(VERSION)/lang/elisp
 subpkgdata_DATA = $(elisp_sources)

@@ -1027,11 +1027,6 @@ scm_m_cont (SCM xorig, SCM env SCM_UNUSED)
   return scm_cons (SCM_IM_CONT, SCM_CDR (xorig));
 }
 
-/* Multi-language support */
-
-SCM_GLOBAL_SYMBOL (scm_lisp_nil, "nil");
-SCM_GLOBAL_SYMBOL (scm_lisp_t, "t");
-
 SCM_SYNTAX (s_nil_cond, "nil-cond", scm_makmmacro, scm_m_nil_cond);
 
 SCM
@@ -1058,34 +1053,6 @@ scm_m_t_ify (SCM xorig, SCM env SCM_UNUSED)
 {
   SCM_ASSYNT (scm_ilength (SCM_CDR (xorig)) == 1, scm_s_expression, "t-ify");
   return scm_cons (SCM_IM_T_IFY, SCM_CDR (xorig));
-}
-
-SCM_SYNTAX (s_0_cond, "0-cond", scm_makmmacro, scm_m_0_cond);
-
-SCM
-scm_m_0_cond (SCM xorig, SCM env SCM_UNUSED)
-{
-  long len = scm_ilength (SCM_CDR (xorig));
-  SCM_ASSYNT (len >= 1 && (len & 1) == 1, scm_s_expression, "0-cond");
-  return scm_cons (SCM_IM_0_COND, SCM_CDR (xorig));
-}
-
-SCM_SYNTAX (s_0_ify, "0-ify", scm_makmmacro, scm_m_0_ify);
-
-SCM
-scm_m_0_ify (SCM xorig, SCM env SCM_UNUSED)
-{
-  SCM_ASSYNT (scm_ilength (SCM_CDR (xorig)) == 1, scm_s_expression, "0-ify");
-  return scm_cons (SCM_IM_0_IFY, SCM_CDR (xorig));
-}
-
-SCM_SYNTAX (s_1_ify, "1-ify", scm_makmmacro, scm_m_1_ify);
-
-SCM
-scm_m_1_ify (SCM xorig, SCM env SCM_UNUSED)
-{
-  SCM_ASSYNT (scm_ilength (SCM_CDR (xorig)) == 1, scm_s_expression, "1-ify");
-  return scm_cons (SCM_IM_1_IFY, SCM_CDR (xorig));
 }
 
 SCM_SYNTAX (s_atfop, "@fop", scm_makmmacro, scm_m_atfop);
@@ -2421,7 +2388,7 @@ dispatch:
 	  while (SCM_NIMP (x = SCM_CDR (proc)))
 	    {
 	      if (!(SCM_FALSEP (t.arg1 = EVALCAR (proc, env))
-		    || SCM_EQ_P (t.arg1, scm_lisp_nil)))
+		    || SCM_NULLP (t.arg1)))
 		{
 		  if (SCM_EQ_P (SCM_CAR (x), SCM_UNSPECIFIED))
 		    RETURN (t.arg1);
@@ -2437,42 +2404,12 @@ dispatch:
 	case (SCM_ISYMNUM (SCM_IM_NIL_IFY)):
 	  x = SCM_CDR (x);
 	  RETURN ((SCM_FALSEP (proc = EVALCAR (x, env)) || SCM_NULLP (proc))
-		   ? scm_lisp_nil
+		   ? SCM_BOOL_F
 		   : proc)
 	    
 	case (SCM_ISYMNUM (SCM_IM_T_IFY)):
 	  x = SCM_CDR (x);
-	  RETURN (!SCM_FALSEP (EVALCAR (x, env)) ? scm_lisp_t : scm_lisp_nil)
-	    
-	case (SCM_ISYMNUM (SCM_IM_0_COND)):
-	  proc = SCM_CDR (x);
-	  while (SCM_NIMP (x = SCM_CDR (proc)))
-	    {
-	      if (!(SCM_FALSEP (t.arg1 = EVALCAR (proc, env))
-		    || SCM_EQ_P (t.arg1, SCM_INUM0)))
-		{
-		  if (SCM_EQ_P (SCM_CAR (x), SCM_UNSPECIFIED))
-		    RETURN (t.arg1);
-		  PREP_APPLY (SCM_UNDEFINED, SCM_EOL);
-		  goto carloop;
-		}
-	      proc = SCM_CDR (x);
-	    }
-	  x = proc;
-	  PREP_APPLY (SCM_UNDEFINED, SCM_EOL);
-	  goto carloop;
-
-	case (SCM_ISYMNUM (SCM_IM_0_IFY)):
-	  x = SCM_CDR (x);
-	  RETURN (SCM_FALSEP (proc = EVALCAR (x, env))
-		  ? SCM_INUM0
-		  : proc)
-	    
-	case (SCM_ISYMNUM (SCM_IM_1_IFY)):
-	  x = SCM_CDR (x);
-	  RETURN (!SCM_FALSEP (EVALCAR (x, env))
-		  ? SCM_MAKINUM (1)
-		  : SCM_INUM0)
+	  RETURN (SCM_BOOL (!SCM_FALSEP (EVALCAR (x, env))))
 
 	case (SCM_ISYMNUM (SCM_IM_BIND)):
 	  {
@@ -4127,9 +4064,6 @@ scm_init_eval ()
 #ifndef SCM_MAGIC_SNARFER
 #include "libguile/eval.x"
 #endif
-
-  scm_c_define ("nil", scm_lisp_nil);
-  scm_c_define ("t", scm_lisp_t);
   
   scm_add_feature ("delay");
 }

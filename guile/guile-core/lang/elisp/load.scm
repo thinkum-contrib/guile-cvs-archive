@@ -4,7 +4,7 @@
   #:use-module (lang elisp format)
   #:use-module (lang elisp fset))
 
-(define the-elisp-module (resolve-module '(lang elisp)))
+(define the-elisp-module (resolve-module '(lang elisp emacs)))
 
 (define load-path '("/usr/share/emacs/20.7/lisp/"))
 
@@ -26,14 +26,8 @@
 		  (or (eof-object? form)
 		      (begin
 			;; Note that `eval' already incorporates use
-			;; of the specified module's transformer, so
-			;; we only need to call transformer explicitly
-			;; here if it is possible for `load' to be
-			;; used before the `use-syntax' below has
-			;; taken effect.
-			(eval ;(transformer form)
-			      form
-			      the-elisp-module)
+			;; of the specified module's transformer.
+			(eval form the-elisp-module)
 			(loop (read)))))))
 	    (or nomessage
 		(message "Loading %s...done" pathname))

@@ -60,9 +60,14 @@
 #include "libguile/validate.h"
 #include "libguile/read.h"
 
+#ifdef HAVE_STRING_H
+#include <string.h>
+#endif
+
 
 
 SCM_SYMBOL (scm_keyword_prefix, "prefix");
+SCM_SYMBOL (scm_sym_elisp, "elisp");
 
 scm_t_option scm_read_opts[] = {
   { SCM_OPTION_BOOLEAN, "copy", 0,
@@ -72,7 +77,9 @@ scm_t_option scm_read_opts[] = {
   { SCM_OPTION_BOOLEAN, "case-insensitive", 0,
     "Convert symbols to lower case."},
   { SCM_OPTION_SCM, "keywords", SCM_UNPACK (SCM_BOOL_F),
-    "Style of keyword recognition: #f or 'prefix"}
+    "Style of keyword recognition: #f or 'prefix."},
+  { SCM_OPTION_SCM, "language", SCM_UNPACK (SCM_BOOL_F),
+    "Reader language: #f (standard scheme) or 'elisp."}
 };
 
 SCM_DEFINE (scm_read_options, "read-options-interface", 0, 1, 0, 
@@ -548,6 +555,16 @@ scm_lreadr (SCM *tok_buf,SCM port,SCM *copy)
       /* fallthrough */
 
     tok:
+      if (SCM_EQ_P (SCM_PACK (SCM_READ_LANGUAGE), scm_sym_elisp))
+	{
+	  /* Special handling for elisp's `nil' and `t'. */
+	  if ((j == 1) &&
+	      (SCM_STRING_CHARS (*tok_buf) [0] == 't'))
+	    return SCM_BOOL_T;
+	  if ((j == 3) &&
+	      !strncmp (SCM_STRING_CHARS (*tok_buf), "nil", 3))
+	    return SCM_BOOL_F;
+	}
       return scm_mem2symbol (SCM_STRING_CHARS (*tok_buf), j);
     }
 }

@@ -75,7 +75,8 @@ extern scm_t_option scm_read_opts[];
 #define SCM_RECORD_POSITIONS_P scm_read_opts[1].val
 #define SCM_CASE_INSENSITIVE_P scm_read_opts[2].val
 #define SCM_KEYWORD_STYLE      scm_read_opts[3].val
-#define SCM_N_READ_OPTIONS 4
+#define SCM_READ_LANGUAGE      scm_read_opts[4].val
+#define SCM_N_READ_OPTIONS 5
 
 
 

@@ -1,3 +1,32 @@
+2001-10-19  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* eval.c (scm_lisp_t, scm_lisp_nil, scm_m_0_cond, scm_m_0_ify,
+	scm_m_1_ify): Removed.
+	(SCM_CEVAL): Removed code for SCM_IM_0_COND, SCM_IM_0_IFY,
+	SCM_IM_1_IFY.  In SCM_IM_NIL_COND code, use SCM_NULLP (x) instead
+	of SCM_EQ_P (x, scm_lisp_nil).  In SCM_IM_NIL_IFY code, return
+	SCM_BOOL_F instead of scm_lisp_nil.  In SCM_IM_T_IFY code, return
+	SCM_BOOL_F/T instead of scm_lisp_nil/t.
+	(scm_init_eval): Don't define `nil' and `t'.
+	(scm_null): Return SCM_UNSPECIFIED.
+	
+	* lang.c (scm_nil_cons, scm_nil_car, scm_nil_cdr, scm_m_while,
+	scm_nil_eq): Removed.
+
+	* lang.h (SCM_NILP, SCM_NILNULLP, SCM_NIL2EOL, SCM_EOL2NIL,
+	SCM_EOL_IFY, SCM_NIL_IFY): Removed.
+
+	* print.c (scm_isymnames): Removed entries for 0-cond, 0-ify and
+	1-ify.
+
+	* read.c (scm_sym_elisp): New.
+	(scm_read_opts): New option to specify reading language.  (To
+	control tweaks such as `nil', `t' and character syntax.)
+	(scm_lreadr): Read `nil' and `t' as #f and #t respectively.
+
+	* tags.h (SCM_IM_0_COND, SCM_IM_0_IFY, SCM_IM_1_IFY): Removed.
+	ISYM numbers for following constants shuffled down accordingly.
+	
 2001-10-14  Dirk Herrmann  <D.Herrmann@tu-bs.de>
 
 	* eval.c (scm_lookupcar, scm_m_letstar, scm_m_do, iqq,

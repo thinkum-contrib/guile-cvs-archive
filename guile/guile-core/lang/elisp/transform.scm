@@ -233,7 +233,7 @@
 
 (define (cars->nil ls)
   (cond ((not (pair? ls)) ls)
-	((null? (car ls)) (cons 'nil (cars->nil (cdr ls))))
+	((null? (car ls)) (cons '() (cars->nil (cdr ls))))
 	(else (cons (cars->nil (car ls))
 		    (cars->nil (cdr ls))))))
 
@@ -252,7 +252,7 @@
 			      (variable-set! var #f))
 			  (cons (list 'set! (car ls) (transformer (cadr ls)))
 				(loop (cddr ls))))))))
-    (cond ((null? varvals) 'nil)
+    (cond ((null? varvals) '())
 	  ((null? (cdr varvals)) (car varvals))
 	  (else (cons 'begin varvals)))))
 
@@ -305,7 +305,7 @@
 		      (begin ,@(transform-list else-case)))))))
 
 (define (m-and exp env)
-  (cond ((null? (cdr exp)) 't)
+  (cond ((null? (cdr exp)) #t)
 	((null? (cddr exp)) (transformer (cadr exp)))
 	(else
 	 (cons 'nil-cond
@@ -313,11 +313,11 @@
 		 (if (null? (cdr args))
 		     (list (transformer (car args)))
 		     (cons (list 'not (transformer (car args)))
-			   (cons 'nil
+			   (cons '()
 				 (loop (cdr args))))))))))
 
 (define (m-or exp env)
-  (cond ((null? (cdr exp)) 'nil)
+  (cond ((null? (cdr exp)) #f)
 	((null? (cddr exp)) (transformer (cadr exp)))
 	(else
 	 (cons 'nil-cond
@@ -331,14 +331,14 @@
 (define m-cond
   (lambda (exp env)
     (if (null? (cdr exp))
-	'nil
+	#f
 	(cons
 	 'nil-cond
 	 (let loop ((clauses (cdr exp)))
 	   (if (null? clauses)
 	       '(nil)
 	       (let ((clause (car clauses)))
-		 (if (eq? (car clause) 't)
+		 (if (eq? (car clause) #t)
 		     (cond ((null? (cdr clause)) '(t))
 			   ((null? (cddr clause))
 			    (list (transformer (cadr clause))))

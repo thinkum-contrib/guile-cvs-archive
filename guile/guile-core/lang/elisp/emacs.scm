@@ -1,4 +1,4 @@
-(define-module (lang elisp)
+(define-module (lang elisp emacs)
   #:use-module (ice-9 optargs)
   #:use-module (lang elisp transform))
 
@@ -22,6 +22,7 @@
 
 (use-modules (lang elisp fset)
 	     (lang elisp signal)
+	     (lang elisp lists)
 	     (lang elisp load)
 	     (lang elisp features)
 	     (lang elisp format)
@@ -88,18 +89,12 @@
 
 (fset 'logior logior)
 (fset 'list list)
-(fset 'cons nil-cons)
-(fset 'car  nil-car)
-(fset 'cdr  nil-cdr)
-(fset 'eq   nil-eq)
 
 (for-each (lambda (sym+proc)
 	    (fset (car sym+proc)
 		  (lambda (x) (t-ify ((cdr sym+proc) x)))))
 
-	  `((not      . ,null)
-	    (null     . ,null)
-	    (integerp . ,integer?)
+	  `((integerp . ,integer?)
 	    (symbolp  . ,symbol?)))
 
 (for-each (lambda (sym+proc)
@@ -165,6 +160,7 @@
 ;;; in all its standard elisp code before dumping.
 
 (read-set! keywords 'prefix)
+(read-set! language 'elisp)
 
 (set-module-transformer! (current-module) transformer)
 
