@@ -5,8 +5,8 @@
 @c See the file guile.texi for copying conditions.
 
 
-@node The @code{SCM} Type
-@section The @code{SCM} Type
+@node The SCM Type
+@section The SCM Type
 
 Guile represents all Scheme values with the single C type @code{SCM}.
 For an introduction to this topic, @xref{Dynamic Types}.

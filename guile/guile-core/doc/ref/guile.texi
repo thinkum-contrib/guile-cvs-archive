@@ -274,7 +274,7 @@ available through both Scheme and C interfaces.
 
 @menu
 * API Overview::                Overview of the Guile API.
-* The @code{SCM} Type::              The fundamental data type for C code.
+* The SCM Type::                The fundamental data type for C code.
 * Initialization::              Initializing Guile.
 * Snarfing Macros::             Macros for snarfing initialization actions.
 * Simple Data Types::           Numbers, strings, booleans and so on.
