@@ -8,7 +8,7 @@
     - regen guile-api.alist all branches
   - update (gscripts) api-diff to be group-aware [ttn]
   - back port auto* tools versioning requirement fixes
-  - write maintainer script dist-guile [ttn]
+  + write maintainer script dist-guile [ttn]
 
 
 - Guile 1.6
