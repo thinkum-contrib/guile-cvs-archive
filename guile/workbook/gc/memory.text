@@ -1,6 +1,5 @@
 The following is gathered from a shortish discussion on the
-guile-devel mailing list.  I plan to implement this in the next
-days. -mvo
+guile-devel mailing list.  It has been implemented in HEAD.
 
 Improving memory handling in Guile
 ----------------------------------
