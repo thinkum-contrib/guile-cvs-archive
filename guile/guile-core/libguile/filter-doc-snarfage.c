@@ -100,6 +100,8 @@ process ()
       switch (c) {
       case '(':
         state = STRINGS;
+	/* in case there are no spare spaces to be consumed.  */
+	ungetc ('(', stdin);
         break;
       case '%':
         state = MULTILINE_BEGINNING_OF_LINE;
@@ -188,7 +190,10 @@ process_strings ()
         break;
       default:
         if (!isspace (c))
-          die ("stray stuff where should be only strings");
+	  {
+	    fprintf (stderr, "got: %c\n", c);
+	    die ("stray stuff where should be only strings");
+	  }
         break;
       }
       break;
