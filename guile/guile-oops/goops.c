@@ -291,17 +291,34 @@ scm_sys_compute_slots (SCM class)
  *
  ******************************************************************************/
 
+SCM_KEYWORD (k_init_value, "init-value");
+SCM_KEYWORD (k_init_thunk, "init-thunk");
+
 static SCM
 compute_getters_n_setters (SCM slots)
 {
-  SCM  res = SCM_EOL;
+  SCM res = SCM_EOL;
+  SCM *cdrloc = &res;
   long i   = 0;
 
-  for (  ; SCM_NNULLP(slots); slots = SCM_CDR(slots)) 
-    res = scm_cons (scm_cons (SCM_CAAR (slots),
-			      scm_cons (SCM_BOOL_F, 
-					SCM_MAKINUM (i++))),
-		    res);
+  for (  ; SCM_NNULLP(slots); slots = SCM_CDR(slots))
+    {
+      SCM init = SCM_BOOL_F;
+      SCM options = SCM_CDAR (slots);
+      if (SCM_NNULLP (options))
+	{
+	  init = scm_get_keyword (k_init_value, options, 0);
+	  if (init)
+	    init = scm_closure (SCM_LIST2 (SCM_EOL, init), SCM_EOL);
+	  else
+	    init = scm_get_keyword (k_init_thunk, options, SCM_BOOL_F);
+	}
+      *cdrloc = scm_cons (scm_cons (SCM_CAAR (slots),
+				    scm_cons (init,
+					      SCM_MAKINUM (i++))),
+			  SCM_EOL);
+      cdrloc = SCM_CDRLOC (*cdrloc);
+    }
   return res;
 }
 
@@ -1740,10 +1757,44 @@ scm_m_hash_dispatch (SCM xorig, SCM env)
 }
 #endif
 
+#ifdef USE_THREADS
+static void
+lock_cache_mutex (void *m)
+{
+  SCM mutex = (SCM) m;
+  scm_lock_mutex (mutex);
+}
+
+static void
+unlock_cache_mutex (void *m)
+{
+  SCM mutex = (SCM) m;
+  scm_unlock_mutex (mutex);
+}
+#endif
+
+static SCM
+call_memoize_method (void *a)
+{
+  SCM args = (SCM) a;
+  SCM gf = SCM_CAR (args);
+  SCM x = SCM_CADR (args);
+  return CALL_GF3 ("memoize-method!", gf, SCM_CDDR (args), x);
+}
+
 static void
 memoize_method (SCM x, SCM args)
 {
-  CALL_GF3 ("memoize-method!", SCM_CAR (scm_last_pair (x)), args, x);
+  SCM gf = SCM_CAR (scm_last_pair (x));
+#ifdef USE_THREADS
+  scm_internal_dynamic_wind (lock_cache_mutex,
+			     call_memoize_method,
+			     unlock_cache_mutex,
+			     (void *) scm_cons2 (gf, x, args),
+			     (void *) SCM_SLOT (gf, scm_si_cache_mutex));
+#else
+  call_memoize_method ((void *) scm_cons2 (gf, x, args));
+#endif
 }
 
 /******************************************************************************
@@ -1780,13 +1831,21 @@ scm_make (SCM args)
 
   if (class == scm_class_generic || class == scm_class_generic_with_setter)
     {
-      z = scm_make_struct (class, SCM_INUM0, SCM_LIST2 (SCM_EOL, SCM_INUM0));
+#ifdef USE_THREADS
+      z = scm_make_struct (class, SCM_INUM0,
+			   SCM_LIST4 (SCM_EOL,
+				      SCM_INUM0,
+				      SCM_BOOL_F,
+				      scm_make_mutex ()));
+#else
+      z = scm_make_struct (class, SCM_INUM0,
+			   SCM_LIST3 (SCM_EOL, SCM_INUM0, SCM_BOOL_F));
+#endif
       scm_set_procedure_property_x (z, scm_sym_name,
 				    scm_get_keyword (k_name,
 						     args,
 						     SCM_BOOL_F));
       clear_method_cache (z);
-      SCM_SLOT (z, scm_si_used_by) = SCM_BOOL_F;
       if (class == scm_class_generic_with_setter)
 	{
 	  SCM setter = scm_get_keyword (k_setter, args, SCM_BOOL_F);
@@ -1926,9 +1985,22 @@ create_standard_classes (void)
 			Intern ("specializers"), 
 			Intern ("procedure"),
 			Intern ("code-table"));
-  SCM tmp2 = SCM_LIST3 (Intern ("methods"),
-			Intern ("n-specialized"),
-			Intern ("used-by"));
+#ifdef USE_THREADS
+  SCM tmp2 = SCM_LIST1 (Intern ("make-mutex"));
+#else
+  SCM tmp2 = SCM_BOOL_F;
+#endif
+  SCM tmp3 = SCM_LIST4 (Intern ("methods"),
+			SCM_LIST3 (Intern ("n-specialized"),
+				   k_init_value,
+				   SCM_INUM0),
+			SCM_LIST3 (Intern ("used-by"),
+				   k_init_value,
+				   SCM_BOOL_F),
+			SCM_LIST3 (Intern ("cache-mutex"),
+				   k_init_thunk,
+				   scm_closure (SCM_LIST2 (SCM_EOL, tmp2),
+						SCM_EOL)));
 
   /* Foreign class slot classes */
   make_stdcls (&scm_class_foreign_slot,	   "<foreign-slot>",
@@ -2003,7 +2075,7 @@ create_standard_classes (void)
   make_stdcls (&scm_class_entity_with_setter, "<entity-with-setter>",
 	       scm_class_entity_class, scm_class_entity,   SCM_EOL);
   make_stdcls (&scm_class_generic,	   "<generic>",
-	       scm_class_entity_class, scm_class_entity,   tmp2);
+	       scm_class_entity_class, scm_class_entity,   tmp3);
   SCM_SET_CLASS_FLAGS (scm_class_generic, SCM_CLASSF_PURE_GENERIC);
   make_stdcls (&scm_class_generic_with_setter, "<generic-with-setter>",
 	       scm_class_entity_class,
