@@ -241,6 +241,7 @@ Part III: Guile Modules
 
 * SLIB::                        Using the SLIB Scheme library.
 * POSIX::                       POSIX system calls and networking.
+* SRFI-13/14::                  String library and character set library.
 * Expect::			Controlling interactive programs with Guile.
 * The Scheme shell (scsh)::
 	The SCSH compatibility module has been made an
@@ -321,6 +322,7 @@ Indices
 
 @include slib.texi
 @include posix.texi
+@include srfi-13-14.texi
 @include expect.texi
 @include scsh.texi
 @include tcltk.texi
