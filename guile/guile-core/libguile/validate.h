@@ -63,6 +63,9 @@
 #define SCM_MISC_ERROR(str, args) \
   do { scm_misc_error (FUNC_NAME, str, args); } while (0)
 
+#define SCM_WRONG_NUM_ARGS() \
+  do { scm_wrong_num_args (scm_makfrom0str (FUNC_NAME)); } while (0)
+
 #define SCM_WRONG_TYPE_ARG(pos, obj) \
   do { scm_wrong_type_arg (FUNC_NAME, pos, obj); } while (0)
 
