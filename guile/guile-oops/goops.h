@@ -53,7 +53,7 @@
 
 #define STKLOS_VERSION	"3.99.1"
 
-#define SCM_METACLASS_GOOPS_LAYOUT "pwpwpopopopopwpwpwpwpwpwpwpwpw"
+#define SCM_METACLASS_GOOPS_LAYOUT "pwpwpopopopopwpwpwpwpwpwpwpwpwuwuwuwuwuwuwuwuw"
 struct scm_metaclass_goops {
   SCM layout;
   SCM vcell;
@@ -74,6 +74,14 @@ struct scm_metaclass_goops {
   SCM getters_n_setters;
   SCM redefined;
   SCM environment;
+  int h0;
+  int h1;
+  int h2;
+  int h3;
+  int h4;
+  int h5;
+  int h6;
+  int h7;
 };
 
 typedef struct scm_method_t {
@@ -134,7 +142,8 @@ typedef struct scm_method_t {
 /* Also defined in libguile/objects.c: */
 #define scm_si_redefined	 17	/* The class to which class was redefined. */
 #define scm_si_environment	 18	/* The environme in which class is built  */
-#define SCM_N_CLASS_SLOTS	 19
+#define scm_si_hashsets		 19
+#define SCM_N_CLASS_SLOTS	 27
 
 #define scm_si_methods		  1	/* offset of methods slot in a <generic> */
 
@@ -151,7 +160,6 @@ SCM scm_basic_make_class (SCM class, SCM name, SCM dsupers, SCM dslots);
 SCM scm_sys_allocate_instance (SCM class);
 SCM scm_slot_ref (SCM obj, SCM slot_name);
 SCM scm_slot_set_x (SCM obj, SCM slot_name, SCM value);
-SCM scm_class_of (SCM obj);
 
 SCM scm_compute_applicable_methods (SCM gf, SCM args, int len, int scm_find_method);
 SCM scm_apply_next_method(SCM args);
