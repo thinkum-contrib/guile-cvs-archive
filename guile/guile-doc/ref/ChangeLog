@@ -1,0 +1,14 @@
+Mon Jun 23 12:35:57 1997  Tim Pierce  <twpierce@bio-5.bsd.uchicago.edu>
+
+	* appendices.texi (debugger user interface): new text.
+	(Single-Step, Trace, Backtrace): new nodes.
+
+	* scheme.texi (Binary Numeric Operations): new text, from SCM manual.
+	(Association Lists and Hash Tables, Dictionary Types, Association
+	Lists, Hash Tables): new text.
+	(Input/Output Ports, File Ports, Soft Ports, String Ports): new
+	text, from SCM/SLIB manuals.
+	(Rx Interface): new node, renamed from old `Regular Expressions' node.
+	(Regular Expressions): new text.
+	(Regexp Functions, Match Functions, Backslash Escapes): new nodes.
+
