@@ -1,3 +1,8 @@
+Tue Jun 17 01:45:59 1997  Tim Pierce  <twp@twp.tezcat.com>
+
+	* http.scm (http:request): Change calling conventions to
+	accept a method and a URL rather than a port and request string.
+
 Mon Jun 16 17:49:20 1997  Tim Pierce  <twpierce@bio-5.bsd.uchicago.edu>
 
 	Release preparations.
@@ -5,6 +10,14 @@ Mon Jun 16 17:49:20 1997  Tim Pierce  <twpierce@bio-5.bsd.uchicago.edu>
 	New files.
 	* (Makefile.in, configure, aclocal.m4): Generated, not re.
 	* (README): New file.
+
+Sun Jun 15 00:50:22 1997  Tim Pierce  <twp@twp.tezcat.com>
+
+	* http.scm: add some support for persistent connections.
+	(http:connect): check get-open-connection before creating a new
+	socket, and call add-open-connection! after creating one.
+	(add-open-connection!): New function.
+	(get-open-connection): New function.
 
 Mon Jun  9 23:42:32 1997  Tim Pierce  <twp@twp.tezcat.com>
 

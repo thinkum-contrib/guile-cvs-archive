@@ -2,7 +2,8 @@
 ;;;;
 
 (define-module (www http)
-  :use-module (ice-9 regex))
+  :use-module (ice-9 regex)
+  :use-module (www url))
 
 ;;;; 	Copyright (C) 1997 Free Software Foundation, Inc.
 ;;;; 
@@ -128,20 +129,20 @@
 ;;; Common methods: GET, POST etc.
 
 (define-public (http:get host port document)
-  ;; FIXME: if http:connect returns an old connection that has been
+  ;; FIXME: if http:open returns an old connection that has been
   ;; closed remotely, this will fail.
-  (let ((p (http:connect host (or port 80)))
+  (let ((p (http:open host (or port 80)))
 	(path (or document "/")))
     (http:request p (string-append "GET " path " " http:version-string))))
 
 ;;; Connection-oriented functions:
 ;;;
-;;; (http:connect HOST [PORT])
+;;; (http:open HOST [PORT])
 ;;;     Return an HTTP connection to HOST on TCP port PORT (default 80).
 ;;;     If an open connection already exists, use it; otherwise, create
 ;;;     a new socket.
 
-(define-public (http:connect host . args)
+(define-public (http:open host . args)
   (let ((port (if (null? args) 80 (car args))))
     (or (get-open-connection host port)
 	(let* ((tcp (vector-ref (getproto "tcp") 2))
@@ -151,39 +152,28 @@
 	  (add-open-connection! host port sock)
 	  sock))))
 
-;;; Jim's suggestion:
-;;; (http:request METHOD URL BODY1) => BODY2
-;;; METHOD and URL are both strings.  BODY1 and BODY2 are RFC822-like
-;;; structures.
-
-;;; (http:request SOCK METHOD [HEADERS [BODY]])
-;;;	Submit an HTTP request.  SOCK is a port to a remote HTTP server
-;;;     (returned by a previous call to http:connect).  METHOD is a
-
-;;; , with optional HEADERS and
-;;;	BODY, to a server via socket SOCK.  HEADERS and
-;;;	BODY, if present, are both lists of strings.
-;;;	These strings should not be terminated with CR or LF;
-;;;	line terminators will be appended automatically.  Returns
-;;;	any response from the server.  Note: there MUST NOT
-;;;	be a Content-Length header in HEADERS; this will be added
-;;;	automatically.
-;;;
-;;;     This API was inspired by George Carrette's Web work in SIOD.
+;;; (http:request METHOD URL [HEADERS [BODY]])
+;;;	Submit an HTTP request.  METHOD is the name of some HTTP method
+;;;     (e.g. "GET" or "POST").  URL is a structure returned by url:parse.
+;;;     The optional HEADERS and BODY arguments are lists of strings
+;;;     which describe HTTP messages.  The `Content-Length' header
+;;;     is calculated automatically and should not be supplied.
 ;;;
 ;;;	Example usage:
-;;;	  (http:request sok "GET /blurp/glirp/index.html HTTP/1.0"
-;;;			    (list "User-Agent: GuileHTTP 0.1"
-;;;				  "Content-Type: text/plain"))
-;;;       (http:request sok "POST /fiz/bot/search.cgi HTTP/1.0"
-;;;			    (list "User-Agent: GuileHTTP 0.1"
-;;;				 "Content-Type: unknown/x-www-form-urlencoded")
-;;;			    (list "search=Gosper"
-;;;				  "case=no"
-;;;				  "max_hits=50"))
+;;;	  (http:request "get" parsed-url
+;;;			(list "User-Agent: GuileHTTP 0.1"
+;;;			      "Content-Type: text/plain"))
+;;;       (http:request "post" parsed-url
+;;;			(list "User-Agent: GuileHTTP 0.1"
+;;;			      "Content-Type: unknown/x-www-form-urlencoded")
+;;;			(list "search=Gosper"
+;;;			      "case=no"
+;;;			      "max_hits=50"))
 
-(define-public (http:request sock req . args)
-  (let ((headers (if (pair? args) (car args) '()))
+(define-public (http:request method url . args)
+  (let ((sock (http:open (url:host url) (url:port url)))
+	(request (string-append method " " (url:path url)))
+	(headers (if (pair? args) (car args) '()))
 	(body    (if (and (pair? args) (pair? (cdr args)))
 		     (cadr args)
 		     '())))
@@ -198,13 +188,12 @@
 			      headers)
 			headers)))
 
-      (display-with-crlf req sock)
-
-      (for-each (lambda (line)
-		  (display-with-crlf line sock))
-		(append headers
-			'("")
-			body))
+      (with-output-to-port sock
+	(lambda ()
+	  (display-with-crlf request)
+	  (for-each display-with-crlf headers)
+	  (display "\r\n")
+	  (for-each display-with-crlf body)))
 
       ;; parse and add status line
       ;; also cons up a list of response headers
