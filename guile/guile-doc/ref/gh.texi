@@ -108,7 +108,7 @@ of arguments, such as @code{gh_list()}.
 @chapter Starting and controlling the interpreter
 @cindex libguile - start interpreter
 
-In almost every case, your first @code{gh_} call will be
+In almost every case, your first @code{gh_} call will be:
 
 @deftypefun void gh_enter (int @var{argc}, char *@var{argv}[], void (*@var{main_prog})())
 Starts up a Scheme interpreter with all the builtin Scheme primitives.
@@ -121,46 +121,15 @@ This is the user's main program.  It will be invoked by
 @code{gh_enter()} after Guile has been started up.
 @end deftypefun
 
-Please note that @code{gh_enter} does not load @file{ice-9/boot-9.scm}, which
-contains much of Guile's basic functionality, including some necessary
-parts of Scheme.  This is a limitation, and it is only so because the
-basic Scheme language functions have not yet been separated from the
-higher-level functionality provided by the @file{ice-9/boot-9.scm} module.
-
-Here is a note from the Guile mailing list describing how to get around
-this problem if you want to run some Guile code before you invoke
-@code{gh_repl()}.  It is a temporary solution, and a better way of
-handling the loading of @file{ice-9/boot-9.scm} will soon be introduced.
-
-@example
-The next problem is that boot-9.scm may only be executed once, otherwise
-you get a stack overflow. When entering the read-eval-print-loop (repl)
-with gh_repl, guile loads boot-9.scm. Thus, if you did load boot-9.scm
-yourself and then later enter the repl, guile will abort with a stack
-overflow.
-
-If you look a little into the guile mailing list archives, you can find a
-temporary solution to the problem which I posted quite some time ago. It's
-a trivial fix: 
-1) rename boot-9.scm into boot-9-tail.scm
-2) create a new boot-9.scm, which only contains the following code:
-
-(if (not (defined? 'provide))
-    (primitive-load-path "ice-9/boot-9-tail.scm"))
-
-With this modification, boot-9.scm can be read several times.
-@end example
-
-Also note that you can use @code{gh_repl} inside @code{gh_enter} if you
-want the program to be controled by a Scheme read--eval--print--loop.
-Invoking @code{gh_repl} will load @file{ice-9/boot-9.scm}.
-
+Note that you can use @code{gh_repl} inside @code{gh_enter} (in other
+words, inside the code for @code{main-prog}) if you want the program to
+be controled by a Scheme read-eval-print loop.
 @end deftypefun
 
 @cindex read eval print loop -- from the gh_ interface
 @cindex REPL -- from the gh_ interface
 A convenience routine which enters the Guile interpreter with the
-standard Guile read--eval--print--loop (@dfn{REPL}) is:
+standard Guile read-eval-print loop (@dfn{REPL}) is:
 
 @deftypefun void gh_repl (int @var{argc}, char *@var{argv}[])
 Enters the Scheme interpreter giving control to the Scheme REPL.
@@ -177,7 +146,7 @@ useful features).  Use straight C code inside @code{gh_enter} if you
 want to maintain execution control in your C program.
 @end deftypefun
 
-You will typically use @code{gh_enter} and @code{gh_repl()} when you
+You will typically use @code{gh_enter} and @code{gh_repl} when you
 want a Guile interpreter enhanced by your own libraries, but otherwise
 quite normal.  For example, to build a Guile--derived program that
 includes some random number routines @dfn{GSL} (GNU Scientific Library),
@@ -243,8 +212,7 @@ Then, supposing the C program is in @file{guile-gsl.c}, you could
 compile it with @kbd{gcc -o guile-gsl guile-gsl.c -lguile -lgsl}.
 
 The resulting program @file{guile-gsl} would have new primitive
-procedures @code{(gsl-ran-random)}, @code{(gsl-ran-gaussian)} and so
-forth.
+procedures @code{gsl-ran-random}, @code{gsl-ran-gaussian} and so forth.
 
 
 @page
