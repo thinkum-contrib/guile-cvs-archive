@@ -14,10 +14,10 @@
 
 #### Parameters:
 
-#### CVSROOT_PATH - the name of the parent directory in the local CVS
-####   repository containing the directories we want to copy over to
-####   the public CVS repository.
-#### PUBLISHED_SUBDIRS - list of subdirectories of LOCAL_CVSROOT_PATH
+#### PRIVATE_CVSROOT_PATH - the name of the parent directory in the
+####   private CVS repository containing the directories we want to
+####   copy over to the public CVS repository.
+#### PUBLISHED_SUBDIRS - list of subdirectories of PRIVATE_CVSROOT_PATH
 ####   that should be copied.  Space-delimited.
 #### PUBLIC_SERVER - name of the machine containing the public repository.
 ####   Note that this isn't necessarily the public CVS server; they might
@@ -27,30 +27,41 @@
 
 progname="`basename $0`"
 
-[ -d "${CVSROOT_PATH}" ] || {
-  echo "${progname}: CVSROOT_PATH is not a directory: ${CVSROOT_PATH}" >&2
+private="${PRIVATE_CVSROOT_PATH}"
+server="${PUBLIC_SERVER}"
+public="${PUBLIC_CVSROOT_PATH}"
+
+#### Some sanity checking:
+
+[ -d "${private}" ] || {
+  echo "${progname}: PRIVATE_CVSROOT_PATH is not a directory: ${private}" >&2
   exit 1
 }
 
 for subdir in ${PUBLISHED_SUBDIRS}; do
-  [ -d "${CVSROOT_PATH}/${subdir}" ] || {
-    echo "${progname}: published directory does not exist: ${CVSROOT_PATH}/${subdir}" >&2
+  [ -d "${private}/${subdir}" ] || {
+    echo -n "${progname}: published directory does not exist: " >&2
+    echo "${private}/${subdir}" >&2
     exit 1
   }
 done
 
-ssh ${PUBLIC_SERVER} true || {
-  echo "${progname}: could not connect to ${PUBLIC_SERVER} via ssh" >&2
+ssh ${server} true || {
+  echo "${progname}: could not connect to ${server} via ssh" >&2
   exit 1
 }
 
-ssh ${PUBLIC_SERVER} "test -d ${PUBLIC_CVSROOT_PATH}" || {
-  echo "${progname}: not a directory: ${PUBLIC_SERVER}:${PUBLIC_CVSROOT_PATH}" >&2
-  exit 1
-}
 
-ssh ${PUBLIC_SERVER} "test -w ${PUBLIC_CVSROOT_PATH}" || {
-  echo "${progname}: not a directory: ${PUBLIC_SERVER}:${PUBLIC_CVSROOT_PATH}" >&2
-  exit 1
-}
+#### Transfer over the script for the public side.
+scp update-anon-cvs-public "${server}:${public}/public" || exit $?
 
+#### Tar up the source directories and send them across.
+(
+  cd ${private}
+  tar cvf - ${PUBLISHED_SUBDIRS} \
+  | gzip --best
+) \
+| ssh -o 'Compression yes' -o 'CompressionLevel 6' ${server} \
+    "${public}/public ${PUBLIC_CVSROOT_PATH}" || exit $?
+
+exit 0

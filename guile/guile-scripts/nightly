@@ -5,11 +5,12 @@
 ### See the comments atop update-anon-cvs for exactly what these
 ### environment variables are supposed to mean.
 
-export CVSROOT_PATH=/u/src/master
-export PUBLISHED_SUBDIRS="
-  guile-comp guile-core guile-doc guile-rgx-ctax
-  guile-scsh guile-tcltk guile-tk guile-www
-"
+export PRIVATE_CVSROOT_PATH=/u/src/master
+export PUBLISHED_SUBDIRS=guile-scripts
+## export PUBLISHED_SUBDIRS="
+##   guile-comp guile-core guile-doc guile-rgx-ctax
+##   guile-scsh guile-tcltk guile-tk guile-www
+## "
 export PUBLIC_SERVER=egcs.cygnus.com
 export PUBLIC_CVSROOT_PATH=/egcs/carton/cvsfiles/guile
 
