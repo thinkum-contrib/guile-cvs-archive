@@ -1,3 +1,8 @@
+2000-03-30  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
+
+	* configure.in (LIBS): Put GUILE_LDFLAGS first in case it is
+	installed under /usr/local.
+
 2000-03-30  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* threads.scm (gtkthreads-handler?, gtkthreads-ensure-handler):

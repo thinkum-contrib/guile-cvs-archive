@@ -1592,7 +1592,7 @@ echo "configure:1583: checking for Guile" >&5
 
 
 CFLAGS="$CFLAGS $GUILE_CFLAGS"
-LIBS="$LIBS $GUILE_LDFLAGS"
+LIBS="$GUILE_LDFLAGS $LIBS"
 
 echo $ac_n "checking that Guile is recent enough""... $ac_c" 1>&6
 echo "configure:1599: checking that Guile is recent enough" >&5
