@@ -1,6 +1,6 @@
 summary: interaction of dynamic-wind, call/cc, exceptions and/or handler causes segfault
 reported: Gary Houston <ghouston@arglist.com>, 2002-04-08
-affects: 1.4, HEAD
+affects: HEAD branch_release-1-4
 
 This example is from workbook/extension/dynamic-root.txt.  It's
 probably not surprising that nesting exception handlers and dynamic
