@@ -28,7 +28,7 @@
 
 (define-module (oop goops)
   :use-module (oop goops goopscore)
-  :no-backtrace
+;  :no-backtrace
   )
 
 (export			  ; Define the exported symbols of this file
@@ -551,6 +551,14 @@
 			#:specializers (list <generic> <method>)
 			#:procedure internal-add-method!))
 
+(define (%compute-applicable-methods gf args)
+  (apply find-method gf args))
+
+;;; Redefined as a generic below
+(define compute-applicable-methods %compute-applicable-methods)
+
+(load "goops/dispatch.scm")
+
 ;;;
 ;;; {Access to meta objects}
 ;;;
@@ -843,6 +851,7 @@
   ;; Invalidate class so that subsequent instances slot accesses invoke
   ;; change-object-class
   (slot-set! new 'redefined old)
+  (%invalidate-class new) ;must come after slot-set!
 
   old)
 
@@ -1215,11 +1224,7 @@
 	(name (get-keyword #:name initargs #f)))
     ;; Primitive apply-generic-<n> for direct instances of <generic>
     (next-method generic (append initargs
-				 (list #:procedure
-				       (list apply-generic-0
-					     apply-generic-1
-					     apply-generic-2
-					     apply-generic-3))))
+				 (list #:procedure (make-apply-generic))))
     (slot-set! generic 'methods (if (is-a? previous-definition <procedure>)
 				    (list (make <method>
 						#:specializers <top>
@@ -1236,7 +1241,8 @@
   (next-method)
   (slot-set! method 'generic-function (get-keyword #:generic-function initargs #f))
   (slot-set! method 'specializers (get-keyword #:specializers initargs '()))
-  (slot-set! method 'procedure (get-keyword #:procedure initargs (lambda l '()))))
+  (slot-set! method 'procedure (get-keyword #:procedure initargs (lambda l '())))
+  (slot-set! method 'code-table '()))
 
 (define-method initialize ((obj <foreign-object>) initargs))
 
@@ -1315,8 +1321,11 @@
 	(apply-methods gf (sort-applicable-methods gf methods args) args)
 	(no-applicable-method gf args))))
 
+(set! compute-applicable-methods #f)
+(define-generic compute-applicable-methods)
+
 (define-method compute-applicable-methods ((gf <generic>) args)
-  (apply find-method gf args))
+  (%compute-applicable-methods fd args))
 
 (define-method sort-applicable-methods ((gf <generic>) methods args)
   (let ((targs (map class-of args)))
