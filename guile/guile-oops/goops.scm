@@ -623,6 +623,17 @@
 	  (display #\> file))
 	(next-method))))
 
+(define-method write-object ((o <foreign-object>) file)
+  (let ((class (class-of o)))
+    (if (slot-bound? class 'name)
+	(begin
+	  (display "#<foreign-object " file)
+	  (display (class-name class) file)
+	  (display #\space file)
+	  (display-address o file)
+	  (display #\> file))
+	(next-method))))
+
 (define-method write-object ((class <class>) file)
   (let ((meta (class-of class)))
     (if (and (slot-bound? class 'name)
@@ -689,7 +700,12 @@
 		<number> <complex> <real> <integer>
 		<keyword>
 		<unknown>
-		<procedure>))
+		<procedure>
+		<foreign-object> <foreign-class> <foreign-slot>
+		<protected-slot> <opaque-slot> <read-only-slot> <self-slot>
+		<protected-opaque-slot> <protected-read-only-slot>
+		<scm-slot> <int-slot> <float-slot> <double-slot>
+		))
 
 ;; Display (do the same thing as write by default)
 (define-method display-object (o file) 
@@ -1141,6 +1157,8 @@
   (slot-set! method 'specializers (get-keyword #:specializers initargs '()))
   (slot-set! method 'procedure (get-keyword #:procedure initargs (lambda l '()))))
 
+(define-method initialize ((obj <foreign-object>) initargs))
+
 ;;;
 ;;; {Change-class}
 ;;;
@@ -1185,7 +1203,7 @@
 ;;;
 
 (define-method allocate-instance ((class <class>) initargs)
-  (%allocate-instance class))
+  (%allocate-instance class initargs))
 
 (define-method make-instance ((class <class>) . initargs)
   (let ((instance (allocate-instance class initargs)))
