@@ -1609,6 +1609,7 @@ make_image (SCM name, SCM s_width, SCM s_height)
 @}
 @end example
 
+
 @node Type checking
 @subsection Type checking
 
