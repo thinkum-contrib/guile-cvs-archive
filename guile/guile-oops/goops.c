@@ -375,7 +375,7 @@ scm_sys_prep_layout_x (SCM class)
 		    "bad value in nfields slot: %S",
 		    SCM_LIST1 (nfields));
   n = 2 * SCM_INUM (nfields);
-  s  = scm_must_malloc (n, s_sys_prep_layout_x);
+  s  = n > 0 ? scm_must_malloc (n, s_sys_prep_layout_x) : 0;
   for (i = 0; i < n; i += 2)
     {
       s[i] = 'p';
@@ -393,7 +393,8 @@ scm_sys_prep_layout_x (SCM class)
       strncpy (s, "pruosrpwpopopopopo", 16);
     }
   SCM_SLOT (class, scm_si_layout) = SCM_CAR (scm_intern (s, n));
-  scm_must_free (s);
+  if (s)
+    scm_must_free (s);
   return SCM_UNSPECIFIED;
 }
 
@@ -1021,6 +1022,10 @@ scm_sys_allocate_instance (SCM class)
 	      class, SCM_ARG1, s_sys_allocate_instance);
  
   n = SCM_INUM (SCM_SLOT (class, scm_si_nfields));
+  if (n == 0)
+    scm_misc_error (s_sys_allocate_instance,
+		    "Can't allocate instance of zero size",
+		    SCM_EOL);
   if (SCM_CLASS_FLAGS (class) & SCM_CLASSF_METACLASS)
     {
       /* allocate class object */
