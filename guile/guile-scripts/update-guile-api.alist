@@ -22,6 +22,6 @@ alist=doc/guile-api.alist
 set -ex
 cvs edit $alist
 $scan pre-inst-guile libguile/.libs/libguile.so.[0-9]*.* > $alist
-cvs checkin -m 'Update.' $alist
+cvs ci -m 'Update.' $alist
 
 # update-guile-api.alist ends here
