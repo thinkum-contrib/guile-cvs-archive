@@ -2,7 +2,7 @@
 
 #ifndef GOOPSSNARFH
 #define GOOPSSNARFH
-/*	Copyright (C) 1999 Free Software Foundation, Inc.
+/*	Copyright (C) 1999, 2000 Free Software Foundation, Inc.
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -161,7 +161,7 @@ SCM_I_SLOT (C_CLASS, C_TYPE, C_SLOT, SCM_SLOT, scm_class_double,	\
 	    A)
 
 #define SCM_SLOT_SCM(C_CLASS, C_TYPE, C_SLOT, SCM_SLOT, A)		\
-SCM_I_SLOT (C_CLASS, C_TYPE, C_SLOT, SCM_SLOT, scm_class_SCM,		\
+SCM_I_SLOT (C_CLASS, C_TYPE, C_SLOT, SCM_SLOT, scm_class_scm,		\
 	    1,								\
 	    o->C_SLOT,							\
 	    o->C_SLOT = x,						\
