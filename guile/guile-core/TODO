@@ -18,6 +18,7 @@ that user-visible changes are reflected in NEWS.
 
 * Eventually
 
+- Make all syscalls block only the current thread, using scm_internal_select.
 - Unify SRFI-4 and the existing uniform array code, cleaning it up in
   the process.
 - [after signal handling and threading have been fixed] remove the code
