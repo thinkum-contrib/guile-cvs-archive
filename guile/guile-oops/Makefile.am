@@ -39,11 +39,11 @@ EXTRA_DIST = ANON-CVS COPYRIGHTS GOOPS-VERSION HACKING SNAPSHOTS TAGS TODO \
 
 install-exec-hook:
 	$(mkinstalldirs) $(goopsdatadir)
-	(test ! -r $(libdir)/libgoopscore.so.0 \
+	(test ! -r $(libdir)/libgoopscore.so.1 \
 	 || (cd $(goopsdatadir) \
-	     && rm -f libgoopscore.la libgoopscore.so.0 \
+	     && rm -f libgoopscore.la libgoopscore.so.1 \
 	     && $(LN_S) $(libdir)/libgoopscore.la \
-	     && $(LN_S) $(libdir)/libgoopscore.so.0))
+	     && $(LN_S) $(libdir)/libgoopscore.so.1))
 
 dist-hook: goops.ps
 	cp -p $(top_builddir)/goops.ps $(distdir)
