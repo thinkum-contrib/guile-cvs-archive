@@ -432,13 +432,15 @@
 	    (let ((gf (car head)))
 	      (cond ((and (pair? gf)
 			  (eq? (car gf) 'setter)
-			  (pair? (cdr name))
-			  (symbol? (cadr name))
-			  (null? (cddr name)))
+			  (pair? (cdr gf))
+			  (symbol? (cadr gf))
+			  (null? (cddr gf)))
 		     ;; named setter method
-		     (let ((name (cadr name)))
+		     (let ((name (cadr gf)))
 		       (cond ((not (symbol? name))
-			      (goops-error "bad method name: ~S" name))
+			      `(add-method! (setter ,name)
+					    (method ,(cdadr exp)
+						    ,@(cddr exp))))
 			     ((defined? name env)
 			      `(begin
 				 ;; *fixme* Temporary hack for the current
@@ -725,7 +727,7 @@
 	(next-method))))
 
 ;; Display (do the same thing as write by default)
-(define-method display (o file) 
+(define-method (display o file) 
   (write-object o file))
 
 ;;;
@@ -795,7 +797,7 @@
 	      slots)
     clone))
 
-(define-method deep-clone  ((self <object>))
+(define-method (deep-clone  (self <object>))
   (let ((clone (%allocate-instance (class-of self) '()))
 	(slots (map slot-definition-name
 		    (class-slots (class-of self)))))
@@ -1425,7 +1427,7 @@
 (define %%compute-applicable-methods
   (make <generic> #:name 'compute-applicable-methods))
 
-(define-method %%compute-applicable-methods ((gf <generic>) args)
+(define-method (%%compute-applicable-methods (gf <generic>) args)
   (%compute-applicable-methods gf args))
 
 (set! compute-applicable-methods %%compute-applicable-methods)

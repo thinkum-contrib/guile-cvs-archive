@@ -566,7 +566,7 @@ Setter methods for an accessor are defined by specifying ``(setter
 call.
 
 @example
-(define-method (setter perimeter) ((s <square>) (n <number>))
+(define-method ((setter perimeter) (s <square>) (n <number>))
   (set! (side-length s) (/ n 4)))
 @end example
 
