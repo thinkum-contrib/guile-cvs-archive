@@ -2,6 +2,11 @@
 
 * Test, correct bugs
 
+* Get the autoload mechanism to work
+
+* Use the autoload mechanism to autoload `sort' from slib
+  so that apply-generic can begin to work.
+
 * Fix some *fixme*'s
 
 * Make sure that all of Guile's primitive types are represented in the
@@ -11,6 +16,8 @@
 
 * README-file with "How to get started"
 
+** Warn that current generic methods aren't tail recursive!
+
 * Introduction to Goops
 
 * Make sure that Makefile.am mentions all files which should go into
@@ -18,10 +25,23 @@
 
 * Test that `make dist' yields a nice distribution
 
-* Release Goops 1.0!
+* Beta-release Goops 0.9!
 
 * Optimize
 
+** Free-list of next-methods (c.f. print-states in print.c)
+
+** Move the guts of scm_make_struct into scm_sys_allocate_instance and
+   optimize!
+
+** Faster slot access
+
 * Design a new MOP for generic method application
 
-* Implementing ditto and optimize!
+* Implement ditto and optimize!
+
+** New evaluator primitive: SCM_IM_DISPATCH
+
+Self-mutating form which cache type --> method mappings.
+
+This will also make generic methods tail-recursive.
