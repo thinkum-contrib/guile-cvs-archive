@@ -342,6 +342,9 @@ scm_init_symbols ()
 #ifndef SCM_MAGIC_SNARFER
 #include "libguile/symbols.x"
 #endif
+#if SCM_ENABLE_VCELLS
+  scm_init_symbols_deprecated ();
+#endif
 }
 
 /*
