@@ -15,3 +15,6 @@ ported STKlos and documentation and prepared the GOOPS tutorial.
 
 Neil Jerram:
 wrote the GOOPS reference manual.
+
+Michael Livshin:
+wrote the class linearization algorithm compute-std-cpl.

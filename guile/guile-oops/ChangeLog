@@ -1,3 +1,14 @@
+2000-03-13  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
+
+	* goops.scm (compute-std-cpl): Modified to linearize according to
+	the C3 algorithm in
+	http://www.webcom.com/haahr/dylan/linearization-oopsla96.html.
+	(Thanks to Michael Livshin.)
+
+	* util.scm (any, every, filter): New procedures.
+
+	* goops.c, goops.h: Adapt GOOPS to new definition of the SCM type.
+
 2000-03-08  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* goops.texi: Updated.
