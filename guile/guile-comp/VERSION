@@ -1,0 +1,3 @@
+# For automake.
+VERSION=0.1
+PACKAGE=guile-comp
