@@ -5,43 +5,6 @@
 - Guile 1.8
   (NOTE: Please update NEWS if appropriate when finishing/removing an item.)
 
-  - consider letrec error msg bug report:
-
-    In addition to the following complaint, there's mention that guile
-    should better report *where* the error occurred.
-
-    From: Shriram Krishnamurthi (sk@cs.brown.edu)
-    Subject: Re: optional, rest, and keyword arguments
-    Newsgroups: comp.lang.scheme
-    Date: 2004-08-18 09:55:00 PST
-
-    Ray Dillinger <bear@sonic.net> writes:
-
-    > Shriram Krishnamurthi wrote:
-    > > Marcin 'Qrczak' Kowalczyk <qrczak@knm.org.pl> writes:
-    > > 
-    > >>guile> (letrec ((x x)) x)
-    > >>standard input:1:1: In expression (letrec (#) x):
-    > >>standard input:1:1: Unbound variable: x
-    > >>ABORT: (unbound-variable)
-    > > Per the scope rules of LETREC, this is a buggy error report.
-    > 
-    > 
-    > I do not see it so.  He referred to the value of a
-    > variable in its own initializer; the system is justified
-    > in complaining.
-
-    Read the error message.  It says X is not *bound*.  This contradicts
-    the scope rules of LETREC, according to which, in the expression
-    (letrec ((x x)) x), there are NO unbound references to X.
-
-    I have clarified in a separate message that I'm objecting not to the
-    system complaining, but to the prose of the error message.
-
-    Shriram
-
-  - fix srfi-4; rewrite similarly to new 1.6 version, but adjust for 1.7 config
-
   - stime.c should use a mutex on temporary changes to the TZ
     environment variable.  SCM_DEFER_INTS is not designed for such
     things.  scm_getenv and scm_putenv_getenv will need to use this
@@ -62,6 +25,7 @@
       looks like perhaps trailing slashes are stripped too agressively.
 
   - consider (and likely use) pkg-config for guile.
+
   - add support for srfi-30 (multi-line-comments) - follow std *carefully*.
 
   - Implement scm replacements for all of GH
@@ -79,7 +43,6 @@
 
   - Allow the deprecation mechanism to be controlled via a preprocessor
     macro analogous to _GNU_SOURCE. [talk to mvo about this]
-  - Properly integrate system asyncs and signals with threads. [mvo]
 
   - Cleanup threading code and document it.  Especially the roles of
     the different APIs (C low level, Scheme, Plugin) [mvo, mikael]
@@ -101,8 +64,6 @@
     However, the services provided by gc_os_dep.c are optional.  So it
     would be good to just ignore it when it can't be compiled instead
     of letting the whole Guile build fail.
-
-  - Make 1.8 backwards compatible again with 1.6. [mvo]
 
   - Investigate performance drop from Dec. 8, 2002 to Dec. 12, 2000.
 
