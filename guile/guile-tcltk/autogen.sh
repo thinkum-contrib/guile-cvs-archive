@@ -10,8 +10,10 @@ if test -z "$AUTOMAKE" ; then
  done
 fi
 
-./guile-tcltk-aclocal &&
+./guile-tcltk-aclocal.sh &&
 libtoolize --copy --automake &&
-autoconf && 
-AUTOMAKE --add-missing &&
+echo autoconf &&
+autoconf &&
+echo $AUTOMAKE --add-missing &&
+$AUTOMAKE --add-missing &&
 echo Now run configure and make.
