@@ -1,5 +1,7 @@
 1998-11-27  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
+	* Makefile.am (subpkgdata_DATA): Added goops/describe.scm.
+
 	* goops/goops.scm: Use module (goops core).
 	(initialize <class>): %inherit-magic! before initializing layout
 	slot.
