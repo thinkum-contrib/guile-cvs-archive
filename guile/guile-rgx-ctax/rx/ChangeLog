@@ -1,3 +1,9 @@
+Sun Dec  1 00:00:25 1996  Tom Tromey  <tromey@cygnus.com>
+
+	* PLUGIN/greet: Removed.
+	* Makefile.am, aclocal.m4: New files.
+	* configure.in: Updated for Automake.
+
 Wed Nov 27 22:16:32 1996  Jim Blandy  <jimb@baalperazim.frob.com>
 
 	* PLUGIN/guile.config (xtra_dependencies): Add final newline.

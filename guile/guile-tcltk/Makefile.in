@@ -1,128 +1,375 @@
-# Makefile for libgtcltk
-# Copyright (C) 1994 Free Software Foundation, Inc.
-# 
-# This file is part of GNU Gtcltk
-# 
-# GNU Gtcltk is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2, or (at your option)
-# any later version.
-# 
-# GNU Gtcltk is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with GNU SED; see the file COPYING.  If not, write to
-# the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+# Makefile.in generated automatically by automake 1.1i from Makefile.am
+
+# Copyright (C) 1994, 1995, 1996 Free Software Foundation, Inc.
+# This Makefile.in is free software; the Free Software Foundation
+# gives unlimited permission to copy, distribute and modify it.
+
 
 SHELL = /bin/sh
 
-VERSION=@GUILE_VERSION@
-
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+prefix = @prefix@
 exec_prefix = @exec_prefix@
 
-srcdir     = @srcdir@
-VPATH      = @srcdir@
-prefix     = @prefix@
-datadir    = @datadir@
-bindir     = @bindir@
-libdir     = @libdir@
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
 includedir = @includedir@
-infodir    = @infodir@
+oldincludedir = /usr/include
 
-#### Start of system configuration section. ####
+pkgdatadir = $(datadir)/@PACKAGE@
+pkglibdir = $(libdir)/@PACKAGE@
+pkgincludedir = $(includedir)/@PACKAGE@
 
-CC = @CC@
+top_builddir = .
+
 INSTALL = @INSTALL@
-DEFS = @DEFS@
-CFLAGS = @CFLAGS@
-X_CFLAGS = @X_CFLAGS@
-
-GTCLTK_INCLUDES = -I. -I$(srcdir)
-LIBGUILE_INCLUDES = -I.. -I$(srcdir)/.. -I$(srcdir)/../libguile
-ALL_CFLAGS = $(CFLAGS) $(X_CFLAGS) $(GTCLTK_INCLUDES) $(LIBGUILE_INCLUDES)
-AR = ar
-AR_FLAGS = rc
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_SCRIPT = @INSTALL_SCRIPT@
+transform = @program_transform_name@
 RANLIB = @RANLIB@
-source=guile-tcl.c guile-tk.c 
-xfiles=guile-tcl.x guile-tk.x 
-headers=guile-tcl.h guile-tk.h
-ancillary= .cvsignore \
-	   COPYING \
-	   ChangeLog \
-	   Makefile.in \
-	   configure \
-	   configure.in
+DL_LIBS = @DL_LIBS@
+GTCLTK = @GTCLTK@
+CC = @CC@
 
-distfiles=$(source) $(headers) $(ancillary) 
-libobjs=guile-tcl.o guile-tk.o
+AUTOMAKE_OPTIONS = foreign
+
+SUBDIRS = PLUGIN
+
+INCLUDES = -I$(srcdir)/../libguile -I$(srcdir)/.. -I../
+
+lib_LIBRARIES = @GTCLTK@
+EXTRA_LIBRARIES = libgtcltk.a
+
+libgtcltk_a_SOURCES = guile-tcl.c guile-tk.c guile-tcl.h guile-tk.h
+
+SUFFIXES = .x
+
+MKDEP = gcc -M -MG $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
+ACLOCAL = $(top_srcdir)/aclocal.m4
+mkinstalldirs = $(SHELL) $(top_srcdir)/../mkinstalldirs
+CONFIG_CLEAN_FILES = 
+LIBRARIES =  $(lib_LIBRARIES)
+
+
+DEFS = @DEFS@ -I. -I$(srcdir) 
+CPPFLAGS = @CPPFLAGS@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
+X_CFLAGS = @X_CFLAGS@
+X_LIBS = @X_LIBS@
+X_EXTRA_LIBS = @X_EXTRA_LIBS@
+X_PRE_LIBS = @X_PRE_LIBS@
+libgtcltk_a_LIBADD = 
+libgtcltk_a_OBJECTS =  guile-tcl.o guile-tk.o
+AR = ar
+CFLAGS = @CFLAGS@
+COMPILE = $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
+LINK = $(CC) $(LDFLAGS) -o $@
+DIST_COMMON =  COPYING ChangeLog Makefile.am Makefile.in aclocal.m4 \
+configure configure.in
+
+
+PACKAGE = @PACKAGE@
+VERSION = @VERSION@
+
+DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) \
+	$(TEXINFOS) $(MANS) $(EXTRA_DIST)
+
+TAR = tar
+DEP_FILES =  .deps/guile-tcl.P .deps/guile-tk.P
+SOURCES = $(libgtcltk_a_SOURCES)
+OBJECTS = $(libgtcltk_a_OBJECTS)
+
+default: all
+
 .SUFFIXES:
-.SUFFIXES: .o .c .h .ps .dvi .info .texinfo .scm .cd .x
+.SUFFIXES: .c .o .x
+$(srcdir)/aclocal.m4: configure.in
+	cd $(srcdir) && aclocal
 
-.c.x:
-	$(CC) $(ALL_CFLAGS) -DSCM_MAGIC_SNARFER -E $< | grep "^%%%" | sed -e "s/^%%%//" > $@ ; \
+$(srcdir)/Makefile.in: Makefile.am configure.in
+	cd $(srcdir) && automake --strictness=foreign Makefile
+
+# For an explanation of the following Makefile rules, see node
+# `Automatic Remaking' in GNU Autoconf documentation.
+Makefile: $(srcdir)/Makefile.in config.status $(BUILT_SOURCES)
+	CONFIG_FILES=$@ CONFIG_HEADERS= $(SHELL) ./config.status
+config.status: configure
+	$(SHELL) ./config.status --recheck
+$(srcdir)/configure: configure.in $(ACLOCAL) $(CONFIGURE_DEPENDENCIES)
+	cd $(srcdir) && autoconf
+
+mostlyclean-libLIBRARIES:
+
+clean-libLIBRARIES:
+	test -z "$(lib_LIBRARIES)" || rm -f $(lib_LIBRARIES)
+
+distclean-libLIBRARIES:
+
+maintainer-clean-libLIBRARIES:
+
+install-libLIBRARIES: $(lib_LIBRARIES)
+	$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(libdir)
+	list="$(lib_LIBRARIES)"; for p in $$list; do \
+	  if test -f $$p; then \
+	    $(INSTALL_DATA) $$p $(libdir)/$$p; \
+	  else :; fi; \
+	done
+	$(POST_INSTALL)
+	list="$(lib_LIBRARIES)"; for p in $$list; do \
+	  if test -f $$p; then \
+	    $(RANLIB) $(libdir)/$$p; \
+	  else :; fi; \
+	done
+
+uninstall-libLIBRARIES:
+	list="$(lib_LIBRARIES)"; for p in $$list; do \
+	  rm -f $(libdir)/$$p; \
+	done
 
 .c.o:
-	$(CC) -c $(ALL_CFLAGS) $(DEFS) -I$(srcdir) $<
+	$(COMPILE) -c $<
 
-all: libgtcltk.a
+mostlyclean-compile:
+	rm -f *.o core
 
-install: all
-	test -d $(prefix)        || mkdir $(prefix)
-	test -d $(includedir)    || mkdir $(includedir)
-	test -d $(libdir)        || mkdir $(libdir)
-	$(INSTALL) $(srcdir)/guile-tk.h  $(includedir)/guile-tk.h
-	$(INSTALL) $(srcdir)/guile-tcl.h $(includedir)/guile-tcl.h
-	$(INSTALL) libgtcltk.a $(libdir)/libgtcltk.a
+clean-compile:
 
-uninstall:
-	-rm -f $(libdir)/libgtcltk.a
-	-rm -f $(includedir)/guile-tk.h
-	-rm -f $(includedir)/guile-tcl.h
+distclean-compile:
+	rm -f *.tab.c
 
-clean:
-	-rm -f $(libobjs) $(xfiles) libgtcltk.a
+maintainer-clean-compile:
 
-distclean: clean
-	-rm Makefile config.status
-
-mostlyclean: clean
-
-realclean: distclean
-
-TAGS:
-	etags $(source)
-
-info:
-
-install-info:
-
-clean-info:
-
-dvi:
-
-check:
-
-# The `dist' target in the top-level Makefile uses this `dist-dir'
-# target to select the appropriate files for distribution from the
-# directory containing this Makefile.
-.PHONY: dist-dir
-dist-dir:
-	mkdir ${DISTDIR}
-	for f in $(distfiles); do \
-	  ln ${srcdir}/$$f ${DISTDIR}; \
-	done
-	mkdir ${DISTDIR}/PLUGIN
-	for f in .cvsignore REQ greet guile.config.in guile.inits guile.libs; do \
-	  ln ${srcdir}/PLUGIN/$$f ${DISTDIR}/PLUGIN; \
-	done
-
-libgtcltk.a: $(libobjs)
+libgtcltk.a: $(libgtcltk_a_OBJECTS) $(libgtcltk_a_DEPENDENCIES)
 	rm -f libgtcltk.a
-	$(AR) $(AR_FLAGS) libgtcltk.a $(libobjs)
+	$(AR) cru libgtcltk.a $(libgtcltk_a_OBJECTS) $(libgtcltk_a_LIBADD)
 	$(RANLIB) libgtcltk.a
 
-guile-tcl.o: guile-tcl.c guile-tcl.h guile-tcl.x
-guile-tk.o: guile-tk.c guile-tk.h guile-tcl.h guile-tk.x
+# This directory's subdirectories are mostly independent; you can cd
+# into them and run `make' without going through this Makefile.
+# To change the values of `make' variables: instead of editing Makefiles,
+# (1) if the variable is set in `config.status', edit `config.status'
+#     (which will cause the Makefiles to be regenerated when you run `make');
+# (2) otherwise, pass the desired values on the `make' command line.
+
+@SET_MAKE@
+
+all-recursive install-data-recursive install-exec-recursive \
+installdirs-recursive install-recursive uninstall-recursive  \
+check-recursive installcheck-recursive info-recursive dvi-recursive \
+mostlyclean-recursive clean-recursive distclean-recursive \
+maintainer-clean-recursive:
+	for subdir in $(SUBDIRS); do		\
+	  target=`echo $@ | sed s/-recursive//`; \
+	  (cd $$subdir && $(MAKE) $$target)	\
+	   || case "$(MFLAGS)" in *k*) fail=yes;; *) exit 1;; esac; \
+	done && test -z "$$fail"
+tags-recursive:
+	list="$(SUBDIRS)"; for subdir in $$list; do \
+	  (cd $$subdir && $(MAKE) tags); \
+	done
+
+tags: TAGS
+
+ID: $(HEADERS) $(SOURCES)
+	here=`pwd` && cd $(srcdir) && mkid -f$$here/ID $(SOURCES) $(HEADERS)
+
+TAGS: tags-recursive $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES)
+	tags=; \
+	here=`pwd`; \
+	list="$(SUBDIRS)"; for subdir in $$list; do \
+	  test -f $$subdir/TAGS && tags="$$tags -i $$here/$$subdir/TAGS"; \
+	done; \
+	test -z "$(ETAGS_ARGS)$(SOURCES)$(HEADERS)$$tags" \
+	  || cd $(srcdir) && etags $(ETAGS_ARGS) $$tags  $(SOURCES) $(HEADERS) -o $$here/TAGS
+
+mostlyclean-tags:
+
+clean-tags:
+
+distclean-tags:
+	rm -f TAGS ID
+
+maintainer-clean-tags:
+
+distdir = $(PACKAGE)-$(VERSION)
+# This target untars the dist file and tries a VPATH configuration.  Then
+# it guarantees that the distribution is self-contained by making another
+# tarfile.
+distcheck: dist
+	rm -rf $(distdir)
+	$(TAR) zxf $(distdir).tar.gz
+	mkdir $(distdir)/=build
+	mkdir $(distdir)/=inst
+	dc_install_base=`cd $(distdir)/=inst && pwd`; \
+	cd $(distdir)/=build \
+	  && ../configure --srcdir=.. --prefix=$$dc_install_base \
+	  && $(MAKE) \
+	  && $(MAKE) dvi \
+	  && $(MAKE) check \
+	  && $(MAKE) install \
+	  && $(MAKE) installcheck \
+	  && $(MAKE) dist
+	rm -rf $(distdir)
+	@echo "========================"; \
+	echo "$(distdir).tar.gz is ready for distribution"; \
+	echo "========================"
+dist: distdir
+	-chmod -R a+r $(distdir)
+	$(TAR) chozf $(distdir).tar.gz $(distdir)
+	rm -rf $(distdir)
+dist-all: distdir
+	-chmod -R a+r $(distdir)
+	$(TAR) chozf $(distdir).tar.gz $(distdir)
+	rm -rf $(distdir)
+distdir: $(DISTFILES)
+	rm -rf $(distdir)
+	mkdir $(distdir)
+	-chmod 755 $(distdir)
+	here=`pwd`; distdir=`cd $(distdir) && pwd` \
+	  && cd $(srcdir) \
+	  && automake --include-deps --build-dir=$$here --srcdir-name=$(srcdir) --output-dir=$$distdir --strictness=foreign
+	@for file in $(DISTFILES); do \
+	  d=$(srcdir); \
+	  test -f $(distdir)/$$file \
+	  || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
+	  || cp -p $$d/$$file $(distdir)/$$file; \
+	done
+	for subdir in $(SUBDIRS); do		\
+	  test -d $(distdir)/$$subdir		\
+	  || mkdir $(distdir)/$$subdir		\
+	  || exit 1;				\
+	  chmod 755 $(distdir)/$$subdir;	\
+	  (cd $$subdir && $(MAKE) distdir=../$(distdir)/$$subdir distdir) \
+	    || exit 1; \
+	done
+.deps/.P:
+	test -d .deps || mkdir .deps
+	echo > $@
+
+-include $(DEP_FILES)
+$(DEP_FILES): .deps/.P
+
+mostlyclean-depend:
+
+clean-depend:
+
+distclean-depend:
+
+maintainer-clean-depend:
+	rm -rf .deps
+
+.deps/%.P: $(srcdir)/%.c
+	@echo "Computing dependencies for $<..."
+	@$(MKDEP) $< > $@-tmp
+	@if test -n "$o"; then			\
+	  sed 's/\.o:/$$o:/' $@-tmp > $@;	\
+	  rm $@-tmp;				\
+	else					\
+	  mv $@-tmp $@;				\
+	fi
+info: info-recursive
+dvi: dvi-recursive
+check: all-am
+	$(MAKE) check-recursive
+installcheck: installcheck-recursive
+all-am: $(LIBRARIES) Makefile
+
+install-exec-am: install-libLIBRARIES
+
+uninstall-am: uninstall-libLIBRARIES
+
+install-exec: install-exec-recursive install-exec-am
+	$(NORMAL_INSTALL)
+
+install-data: install-data-recursive
+	$(NORMAL_INSTALL)
+
+install: install-recursive install-exec-am
+	@:
+
+uninstall: uninstall-recursive uninstall-am
+
+all: all-recursive all-am
+
+install-strip:
+	$(MAKE) INSTALL_PROGRAM='$(INSTALL_PROGRAM) -s' install
+installdirs: installdirs-recursive
+	$(mkinstalldirs)  $(libdir)
+
+
+mostlyclean-generic:
+	test -z "$(MOSTLYCLEANFILES)" || rm -f $(MOSTLYCLEANFILES)
+
+clean-generic:
+	test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
+
+distclean-generic:
+	rm -f Makefile $(DISTCLEANFILES)
+	rm -f config.cache config.log stamp-h
+	test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
+
+maintainer-clean-generic:
+	test -z "$(MAINTAINERCLEANFILES)" || rm -f $(MAINTAINERCLEANFILES)
+	test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
+mostlyclean-am:  mostlyclean-libLIBRARIES mostlyclean-compile \
+		mostlyclean-tags mostlyclean-depend mostlyclean-generic
+
+clean-am:  clean-libLIBRARIES clean-compile clean-tags clean-depend \
+		clean-generic mostlyclean-am 
+
+distclean-am:  distclean-libLIBRARIES distclean-compile distclean-tags \
+		distclean-depend distclean-generic clean-am 
+
+maintainer-clean-am:  maintainer-clean-libLIBRARIES \
+		maintainer-clean-compile maintainer-clean-tags \
+		maintainer-clean-depend maintainer-clean-generic \
+		distclean-am 
+
+mostlyclean:  mostlyclean-am mostlyclean-recursive
+
+clean:  clean-am clean-recursive
+
+distclean:  distclean-am distclean-recursive
+	rm -f config.status
+
+maintainer-clean:  maintainer-clean-am maintainer-clean-recursive
+	@echo "This command is intended for maintainers to use;"
+	@echo "it deletes files that may require special tools to rebuild."
+	rm -f config.status
+
+.PHONY: default mostlyclean-libLIBRARIES distclean-libLIBRARIES \
+clean-libLIBRARIES maintainer-clean-libLIBRARIES uninstall-libLIBRARIES \
+install-libLIBRARIES mostlyclean-compile distclean-compile \
+clean-compile maintainer-clean-compile install-data-recursive \
+uninstall-data-recursive install-exec-recursive \
+uninstall-exec-recursive installdirs-recursive uninstalldirs-recursive \
+all-recursive check-recursive installcheck-recursive info-recursive \
+dvi-recursive mostlyclean-recursive distclean-recursive clean-recursive \
+maintainer-clean-recursive tags tags-recursive mostlyclean-tags \
+distclean-tags clean-tags maintainer-clean-tags distdir \
+mostlyclean-depend distclean-depend clean-depend \
+maintainer-clean-depend info dvi installcheck all-am install-exec-am \
+uninstall-am install-exec install-data install uninstall all \
+installdirs mostlyclean-generic distclean-generic clean-generic \
+maintainer-clean-generic clean mostlyclean distclean maintainer-clean
+
+.c.x:
+	$(CPP) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) \
+	   -DSCM_MAGIC_SNARFER $< | grep "^%%%" | sed -e "s/^%%%//" > $@
+
+# Tell versions [3.59,3.63) of GNU make to not export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

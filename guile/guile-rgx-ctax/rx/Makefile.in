@@ -1,199 +1,354 @@
-# Makefile for librx
-# Copyright (C) 1994 Free Software Foundation, Inc.
-# 
-# This file is part of GNU Rx
-# 
-# GNU Rx is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2, or (at your option)
-# any later version.
-# 
-# GNU Rx is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with GNU Rx; see the file COPYING.LIB.  If not, write to
-# the Free Software Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+# Makefile.in generated automatically by automake 1.1i from Makefile.am
+
+# Copyright (C) 1994, 1995, 1996 Free Software Foundation, Inc.
+# This Makefile.in is free software; the Free Software Foundation
+# gives unlimited permission to copy, distribute and modify it.
 
 
 SHELL = /bin/sh
 
 srcdir = @srcdir@
+top_srcdir = @top_srcdir@
 VPATH = @srcdir@
 prefix = @prefix@
 exec_prefix = @exec_prefix@
+
 bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
 libdir = @libdir@
-includedir = @includedir@
 infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
 
-#### Start of system configuration section. ####
+pkgdatadir = $(datadir)/@PACKAGE@
+pkglibdir = $(libdir)/@PACKAGE@
+pkgincludedir = $(includedir)/@PACKAGE@
 
-CC = @CC@
+top_builddir = .
+
 INSTALL = @INSTALL@
-DEFS = @DEFS@
-CFLAGS = @CFLAGS@
-ALL_CFLAGS = @opt_cflags@ -I. -I$(srcdir) $(CFLAGS)
-AR = ar
-AR_FLAGS = rc
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_SCRIPT = @INSTALL_SCRIPT@
+transform = @program_transform_name@
 RANLIB = @RANLIB@
-opt_objs=@opt_objs@
+CC = @CC@
 
-source= hashrexp.c runtests.c rx.c rxanal.c rxbasic.c rxbitset.c rxcset.c rxdbug.c rxgnucomp.c rxhash.c rxnfa.c rxnode.c rxposix.c rxsimp.c rxspencer.c rxstr.c rxsuper.c rxunfa.c rgx.c
+AUTOMAKE_OPTIONS = foreign
 
-headers=_rx.h rx.h rgx.h rxanal.h rxbasic.h rxbitset.h rxcontext.h rxcset.h rxgnucomp.h rxhash.h rxnfa.h rxnode.h inst-rxposix.h  rxposix.h rxproto.h rxsimp.h rxspencer.h rxstr.h rxsuper.h rxunfa.h testcases.h rxall.h
+INCLUDES = -I$(srcdir)/../libguile -I$(srcdir)/.. -I../
 
-ancillery = \
-	COPYING.LIB \
-	ChangeLog \
-	Makefile.in \
-	TESTS \
-	TESTS2C.sed \
-	W32 \
-	configure.in \
-	configure
+lib_LIBRARIES = librx.a
+librx_a_SOURCES = rx.h hashrexp.c inst-rxposix.h rgx.c rgx.h rx.c \
+rx.h rxall.h rxanal.c rxanal.h rxbasic.c rxbasic.h rxbitset.c rxbitset.h \
+rxcontext.h rxcset.c rxcset.h rxdbug.c rxgnucomp.c rxgnucomp.h rxhash.c \
+rxhash.h rxnfa.c rxnfa.h rxnode.c rxnode.h rxposix.c rxposix.h rxproto.h \
+rxsimp.c rxsimp.h rxspencer.c rxspencer.h rxstr.c rxstr.h rxsuper.c \
+rxsuper.h rxunfa.c rxunfa.h _rx.h
 
-distfiles=$(source) $(headers) $(ancillery)
-libobjs= hashrexp.o rx.o rxanal.o rxbasic.o rxbitset.o rxcset.o rxdbug.o rxgnucomp.o rxhash.o rxnfa.o rxnode.o rxposix.o rxsimp.o rxspencer.o rxstr.o rxsuper.o rxunfa.o
-gen_c_files=rgx.x
+check_PROGRAMS = runtests
+runtests_SOURCES = runtests.c testcases.h
+runtests_LDADD = librx.a
+
+EXTRA_DIST = TESTS TESTS2C.sed W32 PLUGIN/OPT PLUGIN/guile.config \
+PLUGIN/guile.inits PLUGIN/guile.libs
+
+SUFFIXES = .x
+
+MKDEP = gcc -M -MG $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
+ACLOCAL = $(top_srcdir)/aclocal.m4
+mkinstalldirs = $(SHELL) $(top_srcdir)/../mkinstalldirs
+CONFIG_CLEAN_FILES = 
+LIBRARIES =  $(lib_LIBRARIES)
+
+
+DEFS = @DEFS@ -I. -I$(srcdir) 
+CPPFLAGS = @CPPFLAGS@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
+librx_a_LIBADD = 
+librx_a_OBJECTS =  hashrexp.o rgx.o rx.o rxanal.o rxbasic.o rxbitset.o \
+rxcset.o rxdbug.o rxgnucomp.o rxhash.o rxnfa.o rxnode.o rxposix.o \
+rxsimp.o rxspencer.o rxstr.o rxsuper.o rxunfa.o
+AR = ar
+runtests_OBJECTS =  runtests.o
+runtests_DEPENDENCIES =  librx.a
+runtests_LDFLAGS = 
+CFLAGS = @CFLAGS@
+COMPILE = $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
+LINK = $(CC) $(LDFLAGS) -o $@
+DIST_COMMON =  COPYING.LIB ChangeLog Makefile.am Makefile.in aclocal.m4 \
+configure configure.in
+
+
+PACKAGE = @PACKAGE@
+VERSION = @VERSION@
+
+DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) \
+	$(TEXINFOS) $(MANS) $(EXTRA_DIST)
+
+TAR = tar
+DEP_FILES =  .deps/hashrexp.P .deps/rgx.P .deps/runtests.P .deps/rx.P \
+.deps/rxanal.P .deps/rxbasic.P .deps/rxbitset.P .deps/rxcset.P \
+.deps/rxdbug.P .deps/rxgnucomp.P .deps/rxhash.P .deps/rxnfa.P \
+.deps/rxnode.P .deps/rxposix.P .deps/rxsimp.P .deps/rxspencer.P \
+.deps/rxstr.P .deps/rxsuper.P .deps/rxunfa.P
+SOURCES = $(librx_a_SOURCES) $(runtests_SOURCES)
+OBJECTS = $(librx_a_OBJECTS) $(runtests_OBJECTS)
+
+default: all
 
 .SUFFIXES:
-.SUFFIXES: .o .c .h .ps .dvi .info .texinfo .scm .cd .x
+.SUFFIXES: .c .o .x
+$(srcdir)/aclocal.m4: configure.in
+	cd $(srcdir) && aclocal
 
-.c.x:
-	$(CC) $(ALL_CFLAGS) -DSCM_MAGIC_SNARFER -E $< | grep "^%%%" | sed -e "s/^%%%//" > $@ ; \
+$(srcdir)/Makefile.in: Makefile.am configure.in
+	cd $(srcdir) && automake --strictness=foreign Makefile
+
+# For an explanation of the following Makefile rules, see node
+# `Automatic Remaking' in GNU Autoconf documentation.
+Makefile: $(srcdir)/Makefile.in config.status $(BUILT_SOURCES)
+	CONFIG_FILES=$@ CONFIG_HEADERS= $(SHELL) ./config.status
+config.status: configure
+	$(SHELL) ./config.status --recheck
+$(srcdir)/configure: configure.in $(ACLOCAL) $(CONFIGURE_DEPENDENCIES)
+	cd $(srcdir) && autoconf
+
+mostlyclean-libLIBRARIES:
+
+clean-libLIBRARIES:
+	test -z "$(lib_LIBRARIES)" || rm -f $(lib_LIBRARIES)
+
+distclean-libLIBRARIES:
+
+maintainer-clean-libLIBRARIES:
+
+install-libLIBRARIES: $(lib_LIBRARIES)
+	$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(libdir)
+	list="$(lib_LIBRARIES)"; for p in $$list; do \
+	  if test -f $$p; then \
+	    $(INSTALL_DATA) $$p $(libdir)/$$p; \
+	  else :; fi; \
+	done
+	$(POST_INSTALL)
+	list="$(lib_LIBRARIES)"; for p in $$list; do \
+	  if test -f $$p; then \
+	    $(RANLIB) $(libdir)/$$p; \
+	  else :; fi; \
+	done
+
+uninstall-libLIBRARIES:
+	list="$(lib_LIBRARIES)"; for p in $$list; do \
+	  rm -f $(libdir)/$$p; \
+	done
 
 .c.o:
-	$(CC) -c $(ALL_CFLAGS) $(DEFS) -I$(srcdir) $<
+	$(COMPILE) -c $<
 
-all: librx.a
+mostlyclean-compile:
+	rm -f *.o core
 
-install: all
-	test -d $(libdir) || mkdir $(libdir)
-	test -d $(includedir) || mkdir $(includedir)
-	$(INSTALL) librx.a $(libdir)/librx.a
-	$(RANLIB) $(libdir)/librx.a
-	$(INSTALL) $(srcdir)/inst-rxposix.h $(includedir)/rxposix.h
+clean-compile:
 
+distclean-compile:
+	rm -f *.tab.c
 
-uninstall:
-	-rm -f $(libdir)/librx.a
-	-rm -f $(includedir)/rxposix.h
+maintainer-clean-compile:
 
-clean:
-	-rm -f $(libobjs) librx.a  $(opt_objs)
-
-distclean: clean
-	-rm Makefile config.status config.log rgx.x
-
-mostlyclean: clean
-
-realclean: distclean
-
-TAGS:
-	etags $(source)
-
-info:
-
-install-info:
-
-clean-info:
-
-dvi:
-
-check:
-
-# The `dist' target in the top-level Makefile uses this `dist-dir'
-# target to select the appropriate files for distribution from the
-# directory containing this Makefile.
-.PHONY: dist-dir
-dist-dir:
-	mkdir ${DISTDIR}
-	for f in $(distfiles); do \
-	  ln ${srcdir}/$$f ${DISTDIR}; \
-	done
-	mkdir ${DISTDIR}/PLUGIN
-	for f in OPT greet guile.config guile.inits guile.libs; do \
-	  ln ${srcdir}/PLUGIN/$$f ${DISTDIR}/PLUGIN; \
-	done
-
-dist:	$(distfiles)
-	echo rx-`sed -e '/version_string/!d' -e 's/[^0-9.]*\([0-9.]*\).*/\1/' -e q rx.c` > .fname
-	rm -rf `cat .fname`
-	mkdir `cat .fname`
-	ln $(distfiles) `cat .fname`
-	tar chzf `cat .fname`.tar.gz `cat .fname`
-	rm -rf `cat .fname` .fname
-
-
-librx.a: $(libobjs) $(opt_objs)
+librx.a: $(librx_a_OBJECTS) $(librx_a_DEPENDENCIES)
 	rm -f librx.a
-	$(AR) $(AR_FLAGS) librx.a $(libobjs) $(opt_objs)
+	$(AR) cru librx.a $(librx_a_OBJECTS) $(librx_a_LIBADD)
 	$(RANLIB) librx.a
 
+mostlyclean-checkPROGRAMS:
 
-depends:
-	touch $(gen_c_files)
-	rm -f Makefile.in.tmp
-	sed '/^###$$/q' Makefile.in > Makefile.in.tmp
-	gcc -MM -I. -I.. -I../libguile $(source) >> Makefile.in.tmp
-	mv Makefile.in.tmp Makefile.in
-	rm $(gen_c_files)
+clean-checkPROGRAMS:
+	test -z "$(check_PROGRAMS)" || rm -f $(check_PROGRAMS)
+
+distclean-checkPROGRAMS:
+
+maintainer-clean-checkPROGRAMS:
+
+runtests: $(runtests_OBJECTS) $(runtests_DEPENDENCIES)
+	$(LINK) $(runtests_LDFLAGS) $(runtests_OBJECTS) $(runtests_LDADD) $(LIBS)
+
+tags: TAGS
+
+ID: $(HEADERS) $(SOURCES)
+	here=`pwd` && cd $(srcdir) && mkid -f$$here/ID $(SOURCES) $(HEADERS)
+
+TAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES)
+	tags=; \
+	here=`pwd`; \
+	list="$(SUBDIRS)"; for subdir in $$list; do \
+	  test -f $$subdir/TAGS && tags="$$tags -i $$here/$$subdir/TAGS"; \
+	done; \
+	test -z "$(ETAGS_ARGS)$(SOURCES)$(HEADERS)$$tags" \
+	  || cd $(srcdir) && etags $(ETAGS_ARGS) $$tags  $(SOURCES) $(HEADERS) -o $$here/TAGS
+
+mostlyclean-tags:
+
+clean-tags:
+
+distclean-tags:
+	rm -f TAGS ID
+
+maintainer-clean-tags:
+
+distdir = $(PACKAGE)-$(VERSION)
+# This target untars the dist file and tries a VPATH configuration.  Then
+# it guarantees that the distribution is self-contained by making another
+# tarfile.
+distcheck: dist
+	rm -rf $(distdir)
+	$(TAR) zxf $(distdir).tar.gz
+	mkdir $(distdir)/=build
+	mkdir $(distdir)/=inst
+	dc_install_base=`cd $(distdir)/=inst && pwd`; \
+	cd $(distdir)/=build \
+	  && ../configure --srcdir=.. --prefix=$$dc_install_base \
+	  && $(MAKE) \
+	  && $(MAKE) dvi \
+	  && $(MAKE) check \
+	  && $(MAKE) install \
+	  && $(MAKE) installcheck \
+	  && $(MAKE) dist
+	rm -rf $(distdir)
+	@echo "========================"; \
+	echo "$(distdir).tar.gz is ready for distribution"; \
+	echo "========================"
+dist: distdir
+	-chmod -R a+r $(distdir)
+	$(TAR) chozf $(distdir).tar.gz $(distdir)
+	rm -rf $(distdir)
+dist-all: distdir
+	-chmod -R a+r $(distdir)
+	$(TAR) chozf $(distdir).tar.gz $(distdir)
+	rm -rf $(distdir)
+distdir: $(DISTFILES)
+	rm -rf $(distdir)
+	mkdir $(distdir)
+	-chmod 755 $(distdir)
+	here=`pwd`; distdir=`cd $(distdir) && pwd` \
+	  && cd $(srcdir) \
+	  && automake --include-deps --build-dir=$$here --srcdir-name=$(srcdir) --output-dir=$$distdir --strictness=foreign
+	$(mkinstalldirs) $(distdir)/PLUGIN
+	@for file in $(DISTFILES); do \
+	  d=$(srcdir); \
+	  test -f $(distdir)/$$file \
+	  || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
+	  || cp -p $$d/$$file $(distdir)/$$file; \
+	done
+.deps/.P:
+	test -d .deps || mkdir .deps
+	echo > $@
+
+-include $(DEP_FILES)
+$(DEP_FILES): .deps/.P
+
+mostlyclean-depend:
+
+clean-depend:
+
+distclean-depend:
+
+maintainer-clean-depend:
+	rm -rf .deps
+
+.deps/%.P: $(srcdir)/%.c
+	@echo "Computing dependencies for $<..."
+	@$(MKDEP) $< > $@-tmp
+	@if test -n "$o"; then			\
+	  sed 's/\.o:/$$o:/' $@-tmp > $@;	\
+	  rm $@-tmp;				\
+	else					\
+	  mv $@-tmp $@;				\
+	fi
+info:
+dvi:
+check: all $(check_PROGRAMS)
+	$(MAKE)
+installcheck:
+install-exec: install-libLIBRARIES
+	$(NORMAL_INSTALL)
+
+install-data: 
+	$(NORMAL_INSTALL)
+
+install: install-exec install-data all
+	@:
+
+uninstall: uninstall-libLIBRARIES
+
+all: $(LIBRARIES) Makefile
+
+install-strip:
+	$(MAKE) INSTALL_PROGRAM='$(INSTALL_PROGRAM) -s' install
+installdirs:
+	$(mkinstalldirs)  $(libdir)
+
+
+mostlyclean-generic:
+	test -z "$(MOSTLYCLEANFILES)" || rm -f $(MOSTLYCLEANFILES)
+
+clean-generic:
+	test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
+
+distclean-generic:
+	rm -f Makefile $(DISTCLEANFILES)
+	rm -f config.cache config.log stamp-h
+	test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
+
+maintainer-clean-generic:
+	test -z "$(MAINTAINERCLEANFILES)" || rm -f $(MAINTAINERCLEANFILES)
+	test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
+mostlyclean:  mostlyclean-libLIBRARIES mostlyclean-compile \
+		mostlyclean-checkPROGRAMS mostlyclean-tags \
+		mostlyclean-depend mostlyclean-generic
+
+clean:  clean-libLIBRARIES clean-compile clean-checkPROGRAMS clean-tags \
+		clean-depend clean-generic mostlyclean 
+
+distclean:  distclean-libLIBRARIES distclean-compile \
+		distclean-checkPROGRAMS distclean-tags distclean-depend \
+		distclean-generic clean 
+	rm -f config.status
+
+maintainer-clean:  maintainer-clean-libLIBRARIES \
+		maintainer-clean-compile maintainer-clean-checkPROGRAMS \
+		maintainer-clean-tags maintainer-clean-depend \
+		maintainer-clean-generic distclean 
+	@echo "This command is intended for maintainers to use;"
+	@echo "it deletes files that may require special tools to rebuild."
+	rm -f config.status
+
+.PHONY: default mostlyclean-libLIBRARIES distclean-libLIBRARIES \
+clean-libLIBRARIES maintainer-clean-libLIBRARIES uninstall-libLIBRARIES \
+install-libLIBRARIES mostlyclean-compile distclean-compile \
+clean-compile maintainer-clean-compile mostlyclean-checkPROGRAMS \
+distclean-checkPROGRAMS clean-checkPROGRAMS \
+maintainer-clean-checkPROGRAMS tags mostlyclean-tags distclean-tags \
+clean-tags maintainer-clean-tags distdir mostlyclean-depend \
+distclean-depend clean-depend maintainer-clean-depend info dvi \
+installcheck install-exec install-data install uninstall all \
+installdirs mostlyclean-generic distclean-generic clean-generic \
+maintainer-clean-generic clean mostlyclean distclean maintainer-clean
+
 
 $(srcdir)/testcases.h: TESTS TESTS2C.sed
 	sed -f $(srcdir)/TESTS2C.sed $(srcdir)/TESTS > $(srcdir)/testcases.h
+.c.x:
+	$(CPP) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) \
+	   -DSCM_MAGIC_SNARFER $< | grep "^%%%" | sed -e "s/^%%%//" > $@
 
-runtests: runtests.o librx.a rxdbug.o
-	$(CC) -g -o runtests runtests.o rxdbug.o librx.a 
-
-
-###
-hashrexp.o: hashrexp.c rxall.h rxnode.h rxbitset.h rxcset.h rxhash.h
-runtests.o: runtests.c rxall.h rxposix.h rxspencer.h rxproto.h \
- rxnode.h rxbitset.h rxcset.h rxunfa.h _rx.h rxhash.h rxanal.h \
- rxsuper.h rxnfa.h inst-rxposix.h rxcontext.h testcases.h
-rx.o: rx.c rx.h rxhash.h rxbitset.h rxall.h rxnfa.h _rx.h rxcset.h \
- rxnode.h rxsuper.h
-rxanal.o: rxanal.c rxall.h rxanal.h rxcset.h rxbitset.h rxnode.h \
- rxsuper.h rxnfa.h _rx.h rxhash.h
-rxbasic.o: rxbasic.c rxall.h rxbasic.h rxcontext.h rxnode.h rxbitset.h \
- rxcset.h rxspencer.h rxproto.h rxunfa.h _rx.h rxhash.h rxanal.h \
- rxsuper.h rxnfa.h inst-rxposix.h rxstr.h
-rxbitset.o: rxbitset.c rxall.h rxbitset.h
-rxcset.o: rxcset.c rxall.h rxcset.h rxbitset.h
-rxdbug.o: rxdbug.c rxall.h rxgnucomp.h rxcset.h rxbitset.h rxnode.h \
- rxnfa.h _rx.h rxhash.h
-rxgnucomp.o: rxgnucomp.c rxall.h rxgnucomp.h rxcset.h rxbitset.h \
- rxnode.h
-rxhash.o: rxhash.c rxall.h rxhash.h rxbitset.h
-rxnfa.o: rxnfa.c rxall.h rxnfa.h _rx.h rxhash.h rxbitset.h rxcset.h \
- rxnode.h
-rxnode.o: rxnode.c rxall.h rxnode.h rxbitset.h rxcset.h
-rxposix.o: rxposix.c rxall.h rxposix.h rxspencer.h rxproto.h rxnode.h \
- rxbitset.h rxcset.h rxunfa.h _rx.h rxhash.h rxanal.h rxsuper.h \
- rxnfa.h inst-rxposix.h rxcontext.h rxgnucomp.h rxbasic.h rxsimp.h
-rxsimp.o: rxsimp.c rxall.h rxsimp.h rxcset.h rxbitset.h rxnode.h
-rxspencer.o: rxspencer.c rxall.h rxspencer.h rxproto.h rxnode.h \
- rxbitset.h rxcset.h rxunfa.h _rx.h rxhash.h rxanal.h rxsuper.h \
- rxnfa.h inst-rxposix.h rxsimp.h
-rxstr.o: rxstr.c rxall.h rxstr.h rxspencer.h rxproto.h rxnode.h \
- rxbitset.h rxcset.h rxunfa.h _rx.h rxhash.h rxanal.h rxsuper.h \
- rxnfa.h inst-rxposix.h rxcontext.h
-rxsuper.o: rxsuper.c rxall.h rxsuper.h rxnfa.h _rx.h rxhash.h \
- rxbitset.h rxcset.h rxnode.h
-rxunfa.o: rxunfa.c rxall.h rx.h rxhash.h rxbitset.h rxunfa.h _rx.h \
- rxcset.h rxnfa.h rxnode.h
-rgx.o: rgx.c ../libguile/_scm.h ../libguile/__scm.h \
- ../libguile/scmconfig.h ../libguile/tags.h ../libguile/error.h \
- ../libguile/print.h ../libguile/options.h ../libguile/pairs.h \
- ../libguile/list.h ../libguile/gc.h ../libguile/gsubr.h \
- ../libguile/procs.h ../libguile/numbers.h ../libguile/symbols.h \
- ../libguile/boolean.h ../libguile/strings.h ../libguile/vectors.h \
- ../libguile/root.h ../libguile/debug.h ../libguile/ports.h \
- ../libguile/async.h ../libguile/smob.h ../libguile/genio.h \
- ../libguile/markers.h ../libguile/mallocs.h ../libguile/chars.h \
- ../libguile/feature.h rgx.h inst-rxposix.h rxgnucomp.h rxcset.h \
- rxbitset.h rxnode.h rxanal.h rxsuper.h rxnfa.h _rx.h rxhash.h \
- rxunfa.h rxbasic.h rxcontext.h rxspencer.h rxproto.h rgx.x
+# Tell versions [3.59,3.63) of GNU make to not export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

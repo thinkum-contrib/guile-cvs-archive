@@ -1,3 +1,9 @@
+Sat Nov 30 23:58:42 1996  Tom Tromey  <tromey@cygnus.com>
+
+	* PLUGIN/greet, PLUGIN/split.sed, PLUGIN/this.configure: Removed.
+	* Makefile.am, aclocal.m4: New files.
+	* configure.in: Updated for Automake.
+
 Thu Aug 29 23:37:56 1996  Thomas Morgan  <tmorgan@gnu.ai.mit.edu>
 
 	* Makefile.in (datadir, pkgdatadir, pkgverdatadir, subpkgdatadir,

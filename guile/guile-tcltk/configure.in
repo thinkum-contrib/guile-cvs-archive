@@ -1,13 +1,12 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(guile-tcl.c)
 
-. $srcdir/../GUILE-VERSION
+AC_INIT(guile-tcl.c)
+AM_INIT_GUILE_MODULE(gtcltk-lib)
 
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CPP
 AC_PROG_RANLIB
-AC_PROG_INSTALL
 
 dnl Checks for libraries.
 AC_PATH_XTRA
@@ -17,12 +16,13 @@ AC_PATH_XTRA
 ### to include that.
 AC_CHECK_LIB(dl, dlopen, DL_LIBS='-ldl', DL_LIBS='')
 
-dnl Checks for header files.
-
-dnl Checks for typedefs, structures, and compiler characteristics.
+### Use gtcltk-lib only if we seem to have Tcl installed on the
+### system.  We really should check for Tk as well, but that involves
+### finding all the X libraries that we need to do a complete link.
+AC_CHECK_LIB(tcl7.5, Tcl_CreateInterp, GTCLTK=libgtcltk.a, GTCLTK=, -lm)
+AC_SUBST(GTCLTK)
 
 dnl Checks for library functions.
 AC_FUNC_ALLOCA
 AC_SUBST(DL_LIBS)
-AC_SUBST(GUILE_VERSION)
-AC_OUTPUT(Makefile PLUGIN/guile.config)
+AC_OUTPUT(Makefile PLUGIN/Makefile)
