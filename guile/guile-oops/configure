@@ -1256,6 +1256,15 @@ $libtool_flags --no-verify $ac_aux_dir/ltmain.sh $host \
 || { echo "configure: error: libtool configure failed" 1>&2; exit 1; }
 
 
+## If we're using GCC, ask for aggressive warnings.
+case "$GCC" in
+  yes)
+    ## We had -Wstrict-prototypes in here for a bit, but Guile does too
+    ## much stuff with generic function pointers for that to really be
+    ## less than exasperating.
+    CFLAGS="$CFLAGS -Wall -Wpointer-arith -Wmissing-prototypes" ;;
+esac
+
 ### Add the Guile libraries to the link command.
 LIBS="$LIBS `guile-config link`"
 
