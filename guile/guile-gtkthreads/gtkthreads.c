@@ -1,5 +1,5 @@
 /* Component of libguilegtkthreads.a
- * Copyright (C) 2000 Free Software Foundation
+ * Copyright (C) 2000, 2001 Free Software Foundation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -167,11 +167,15 @@ sgtk_gdk_threads_leave ()
 
 #endif /* HAVE_SGTK_GDK_THREADS_ENTER */
 
+#ifndef HAVE_SCM_SET_CURRENT_MODULE
+#define scm_set_current_module scm_select_module
+#endif
+
 void
 scm_init_gtkthreads ()
 {
   SCM threads_module = scm_make_module (scm_read_0str ("(gtk threads)"));
-  SCM old_module = scm_select_module (threads_module);
+  SCM old_module = scm_set_current_module (threads_module);
   scm_init_gthread ();
   g_main_set_poll_func (g_poll);
 #ifdef GUILE_GTKTHREADS_UPDATE
@@ -184,7 +188,7 @@ scm_init_gtkthreads ()
   g_main_add_poll (&wake_up_rec, 0);
 #endif
 #include "gtkthreads.x"
-  scm_select_module (old_module);
+  scm_set_current_module (old_module);
 }
 
 void

@@ -1,3 +1,10 @@
+2001-02-17  Mikael Djurfeldt  <mdj@linnaeus.mit.edu>
+
+	* configure.in: Check for scm_set_current_module.
+
+	* gtkthreads.c (scm_set_current_module): Define as
+	scm_select_module if scm_set_current_module isn't found.
+
 2000-04-09  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* GTKTHREADS-VERSION: Release of 1.0.

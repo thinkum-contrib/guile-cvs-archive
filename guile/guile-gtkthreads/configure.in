@@ -60,7 +60,7 @@ if test $ac_cv_struct_thread_create = yes; then
   AC_DEFINE(HAVE_THREAD_CREATE)
 fi
 
-AC_CHECK_FUNCS(sgtk_gdk_threads_enter)
+AC_CHECK_FUNCS(sgtk_gdk_threads_enter scm_set_current_module)
 
 AC_OUTPUT(Makefile)
 
