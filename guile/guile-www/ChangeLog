@@ -1,3 +1,11 @@
+Mon Jun 16 17:49:20 1997  Tim Pierce  <twpierce@bio-5.bsd.uchicago.edu>
+
+	Release preparations.
+	* (Makefile.am, configure.in, install-sh, mkinstalldirs, missing):
+	New files.
+	* (Makefile.in, configure, aclocal.m4): Generated, not re.
+	* (README): New file.
+
 Mon Jun  9 23:42:32 1997  Tim Pierce  <twp@twp.tezcat.com>
 
 	New WWW module.
