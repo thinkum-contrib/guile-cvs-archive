@@ -34,7 +34,7 @@
     - Passing "/" to start from the root directory doesn't work, it
       looks like perhaps trailing slashes are stripped too agressively.
 
-  - Fix srfi-1:  provide a list-copy function that can copy improper lists.
+  + Fix srfi-1:  provide a list-copy function that can copy improper lists.
   - Finish and test GMP support for bignums.  If it works out, add it.
   - consider (and likely use) pkg-config for guile.
   - add support for srfi-30 (multi-line-comments) - follow std *carefully*.
