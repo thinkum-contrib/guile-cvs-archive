@@ -633,9 +633,9 @@ Consider the following definitions:
 
 @lisp
 (define-generic G)
-(define-method  G ((a <integer>) b) 'integer)
-(define-method  G ((a <real>) b) 'real)
-(define-method  G (a b) 'top)
+(define-method  (G (a <integer>) b) 'integer)
+(define-method  (G (a <real>) b) 'real)
+(define-method  (G a b) 'top)
 @end lisp
 
 The @code{define-generic} call defines @var{G} as a generic
@@ -652,7 +652,7 @@ equivalent to
 
 @cindex parameter specializers
 @lisp
-(define-method G ((a <integer>) (b <top>)) 'integer)
+(define-method (G (a <integer>) (b <top>)) 'integer)
 @end lisp
 
 Now, let us look at some possible calls to generic function @var{G}:
@@ -672,10 +672,10 @@ parameter list is scanned from left to right to determine the
 applicability of a method. Suppose we declare now
 
 @lisp
-(define-method G ((a <integer>) (b <number>))  'integer-number)
-(define-method G ((a <integer>) (b <real>))    'integer-real)
-(define-method G ((a <integer>) (b <integer>)) 'integer-integer)
-(define-method G (a (b <number>))              'top-number)
+(define-method (G (a <integer>) (b <number>))  'integer-number)
+(define-method (G (a <integer>) (b <real>))    'integer-real)
+(define-method (G (a <integer>) (b <integer>)) 'integer-integer)
+(define-method (G a (b <number>))              'top-number)
 @end lisp
 
 In this case,
@@ -697,9 +697,9 @@ the next method in the list of applicable methods. This is done by using
 the special form @code{next-method}. Consider the following definitions
 
 @lisp
-(define-method Test ((a <integer>)) (cons 'integer (next-method)))
-(define-method Test ((a <number>))  (cons 'number  (next-method)))
-(define-method Test (a)             (list 'top))
+(define-method (Test (a <integer>)) (cons 'integer (next-method)))
+(define-method (Test (a <number>))  (cons 'number  (next-method)))
+(define-method (Test a)             (list 'top))
 @end lisp
 
 With those definitions,
@@ -719,7 +719,7 @@ complex numbers completely. For instance a definition for the addition of
 two complexes could be
 
 @lisp
-(define-method new-+ ((a <complex>) (b <complex>))
+(define-method (new-+ (a <complex>) (b <complex>))
   (make-rectangular (+ (real-part a) (real-part b))
                     (+ (imag-part a) (imag-part b))))
 @end lisp
@@ -731,7 +731,7 @@ addition we can do:
 (define-generic new-+)
 
 (let ((+ +))
-  (define-method new-+ ((a <complex>) (b <complex>))
+  (define-method (new-+ (a <complex>) (b <complex>))
     (make-rectangular (+ (real-part a) (real-part b))
                       (+ (imag-part a) (imag-part b)))))
 @end lisp
@@ -749,24 +749,25 @@ Figure@ 3.
 
 (let ((+ +))
 
-  (define-method new-+ ((a <real>) (b <real>)) (+ a b))
+  (define-method (new-+ (a <real>) (b <real>)) (+ a b))
 
-  (define-method new-+ ((a <real>) (b <complex>)) 
+  (define-method (new-+ (a <real>) (b <complex>)) 
     (make-rectangular (+ a (real-part b)) (imag-part b)))
 
-  (define-method new-+ ((a <complex>) (b <real>))
+  (define-method (new-+ (a <complex>) (b <real>))
     (make-rectangular (+ (real-part a) b) (imag-part a)))
 
-  (define-method new-+ ((a <complex>) (b <complex>))
+  (define-method (new-+ (a <complex>) (b <complex>))
     (make-rectangular (+ (real-part a) (real-part b))
                       (+ (imag-part a) (imag-part b))))
 
-  (define-method new-+ ((a <number>))  a)
+  (define-method (new-+ (a <number>))  a)
   
-  (define-method new-+ () 0)
+  (define-method (new-+) 0)
 
-  (define-method new-+ args  (new-+ (car args) 
-                                    (apply new-+ (cdr args)))))
+  (define-method (new-+ . args)
+    (new-+ (car args) 
+      (apply new-+ (cdr args)))))
 
 (set! + new-+)
 @end lisp
@@ -781,25 +782,25 @@ same number of parameters, contrarily to CLOS.  The four first methods
 implement the dyadic addition. The fifth method says that the addition
 of a single element is this element itself. The sixth method says that
 using the addition with no parameter always return 0. The last method
-takes an arbitrary number of parameters@footnote{The third parameter of
-a @code{define-method} is a parameter list which follow the conventions
-used for lambda expressions. In particular it can use the dot notation
-or a symbol to denote an arbitrary number of parameters}.  This method
-acts as a kind of @code{reduce}: it calls the dyadic addition on the
-@emph{car} of the list and on the result of applying it on its rest.  To
-finish, the @code{set!} permits to redefine the @code{+} symbol to our
-extended addition.
+takes an arbitrary number of parameters@footnote{The parameter list for
+a @code{define-method} follows the conventions used for Scheme
+procedures. In particular it can use the dot notation or a symbol to
+denote an arbitrary number of parameters}.  This method acts as a kind
+of @code{reduce}: it calls the dyadic addition on the @emph{car} of the
+list and on the result of applying it on its rest.  To finish, the
+@code{set!} permits to redefine the @code{+} symbol to our extended
+addition.
 
 @sp 3
 To terminate our implementation (integration?) of  complex numbers, we can 
 redefine standard Scheme predicates in the following manner:
 
 @lisp
-(define-method complex? (c <complex>) #t)
-(define-method complex? (c)           #f)
+(define-method (complex? c <complex>) #t)
+(define-method (complex? c)           #f)
 
-(define-method number? (n <number>) #t)
-(define-method number? (n)          #f)
+(define-method (number? n <number>) #t)
+(define-method (number? n)          #f)
 @dots{}
 @dots{}
 @end lisp
