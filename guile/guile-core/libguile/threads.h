@@ -37,8 +37,8 @@ SCM_API scm_t_bits scm_tc16_thread;
 SCM_API scm_t_bits scm_tc16_mutex;
 SCM_API scm_t_bits scm_tc16_condvar;
 
-typedef struct scm_thread {
-  struct scm_thread *next_thread;
+typedef struct scm_i_thread {
+  struct scm_i_thread *next_thread;
 
   SCM handle;
   pthread_t pthread;
@@ -87,8 +87,8 @@ typedef struct scm_thread {
      extent can also only be invoked during it.
 
      We use pairs where the car is the thread handle and the cdr links
-     to the previous pair.  This is used for better error messages but
-     is not essential for identifying continuation roots.
+     to the previous pair.  This might be used for better error
+     messages but is not essential for identifying continuation roots.
 
      The continuation base is the far end of the stack upto which it
      needs to be copied.
@@ -101,27 +101,17 @@ typedef struct scm_thread {
   SCM_STACKITEM *top;
   jmp_buf regs;
 
-} scm_thread;
+} scm_i_thread;
 
-#define SCM_THREADP(x)        SCM_SMOB_PREDICATE (scm_tc16_thread, x)
-#define SCM_THREAD_DATA(x)    ((scm_thread *) SCM_SMOB_DATA (x))
-
-#define SCM_MUTEXP(x)         SCM_SMOB_PREDICATE (scm_tc16_mutex, x)
-#define SCM_MUTEX_DATA(x)     ((fat_mutex *) SCM_SMOB_DATA (x))
-
-#define SCM_CONDVARP(x)       SCM_SMOB_PREDICATE (scm_tc16_condvar, x)
-#define SCM_CONDVAR_DATA(x)   ((fat_cond *) SCM_SMOB_DATA (x))
+#define SCM_I_IS_THREAD(x)    SCM_SMOB_PREDICATE (scm_tc16_thread, x)
+#define SCM_I_THREAD_DATA(x)  ((scm_i_thread *) SCM_SMOB_DATA (x))
 
 #define SCM_VALIDATE_THREAD(pos, a) \
- SCM_MAKE_VALIDATE_MSG (pos, a, THREADP, "thread")
-
+  scm_assert_smob_type (scm_tc16_thread, (a))
 #define SCM_VALIDATE_MUTEX(pos, a) \
- SCM_ASSERT_TYPE (SCM_MUTEXP (a), \
-                  a, pos, FUNC_NAME, "mutex");
-
+  scm_assert_smob_type (scm_tc16_mutex, (a))
 #define SCM_VALIDATE_CONDVAR(pos, a) \
- SCM_ASSERT_TYPE (SCM_CONDVARP (a), \
-                  a, pos, FUNC_NAME, "condition variable");
+  scm_assert_smob_type (scm_tc16_condvar, (a))
 
 SCM_API SCM scm_spawn_thread (scm_t_catch_body body, void *body_data,
 			      scm_t_catch_handler handler, void *handler_data);
@@ -152,7 +142,7 @@ void scm_i_thread_put_to_sleep (void);
 void scm_i_thread_wake_up (void);
 void scm_i_thread_invalidate_freelists (void);
 void scm_i_thread_sleep_for_gc (void);
-SCM_API void scm_frame_single_threaded (void);
+SCM_API void scm_i_frame_single_threaded (void);
 
 void scm_threads_prehistory (SCM_STACKITEM *);
 void scm_threads_init_first_thread (void);
@@ -168,11 +158,6 @@ do { \
     scm_i_thread_sleep_for_gc (); \
 } while (0)
 
-SCM scm_i_create_thread (scm_t_catch_body body, void *body_data,
-			 scm_t_catch_handler handler, void *handler_data,
-			 SCM protects);
-
-/* The C versions of the Scheme-visible thread functions.  */
 SCM_API SCM scm_call_with_new_thread (SCM thunk, SCM handler);
 SCM_API SCM scm_yield (void);
 SCM_API SCM scm_join_thread (SCM t);
@@ -182,8 +167,6 @@ SCM_API SCM scm_make_recursive_mutex (void);
 SCM_API SCM scm_lock_mutex (SCM m);
 SCM_API SCM scm_try_mutex (SCM m);
 SCM_API SCM scm_unlock_mutex (SCM m);
-SCM_API SCM scm_mutex_owner (SCM mx);
-SCM_API SCM scm_mutex_level (SCM mx);
 
 SCM_API SCM scm_make_condition_variable (void);
 SCM_API SCM scm_wait_condition_variable (SCM cond, SCM mutex);
@@ -198,15 +181,15 @@ SCM_API SCM scm_all_threads (void);
 SCM_API int scm_c_thread_exited_p (SCM thread);
 SCM_API SCM scm_thread_exited_p (SCM thread);
 
-#define SCM_CURRENT_THREAD \
-  ((scm_thread *) pthread_getspecific (scm_i_thread_key))
+#define SCM_I_CURRENT_THREAD \
+  ((scm_i_thread *) pthread_getspecific (scm_i_thread_key))
 SCM_API pthread_key_t scm_i_thread_key;
 
-#define scm_i_dynwinds()         (SCM_CURRENT_THREAD->dynwinds)
-#define scm_i_set_dynwinds(w)    (SCM_CURRENT_THREAD->dynwinds = (w))
-#define scm_i_last_debug_frame() (SCM_CURRENT_THREAD->last_debug_frame)
+#define scm_i_dynwinds()         (SCM_I_CURRENT_THREAD->dynwinds)
+#define scm_i_set_dynwinds(w)    (SCM_I_CURRENT_THREAD->dynwinds = (w))
+#define scm_i_last_debug_frame() (SCM_I_CURRENT_THREAD->last_debug_frame)
 #define scm_i_set_last_debug_frame(f) \
-                                 (SCM_CURRENT_THREAD->last_debug_frame = (f))
+                                 (SCM_I_CURRENT_THREAD->last_debug_frame = (f))
 
 SCM_API pthread_mutex_t scm_i_misc_mutex;
 
@@ -221,8 +204,8 @@ SCM_API int scm_pthread_cond_wait (pthread_cond_t *cond,
 SCM_API int scm_pthread_cond_timedwait (pthread_cond_t *cond,
 					pthread_mutex_t *mutex,
 					const struct timespec *abstime);
-SCM_API unsigned long scm_thread_sleep (unsigned long);
-SCM_API unsigned long scm_thread_usleep (unsigned long);
+SCM_API unsigned int scm_std_sleep (unsigned int);
+SCM_API unsigned long scm_std_usleep (unsigned long);
 
 #endif  /* SCM_THREADS_H */
 

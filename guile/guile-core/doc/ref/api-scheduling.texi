@@ -17,6 +17,7 @@ reviewed and largely reorganized.]
 * Asyncs::                      Asynchronous procedure invocation.
 * Continuation Barriers::       Protection from non-local control flow.
 * Threads::                     Multiple threads of execution.
+* Blocking::                    How to block properly in guile mode.
 * Fluids and Dynamic States::   Thread-local variables, etc.
 * Futures::                     Delayed execution in new threads.
 * Parallel Forms::              Parallel execution of forms.
@@ -228,11 +229,6 @@ Like @code{scm_with_continuation_barrier} but call @var{func} on
 @cindex Guile threads
 @cindex POSIX threads
 
-Guile threads are implemented using POSIX threads, they run
-pre-emptively and concurrently through both Scheme code and system
-calls.  The only exception is for garbage collection, where all
-threads must rendezvous.
-
 @deffn {Scheme Procedure} all-threads
 @deffnx {C Function} scm_all_threads ()
 Return a list of all threads.
@@ -246,8 +242,8 @@ Return the thread that called this function.
 @c begin (texi-doc-string "guile" "call-with-new-thread")
 @deffn {Scheme Procedure} call-with-new-thread thunk handler
 Call @code{thunk} in a new thread and with a new dynamic state,
-returning a new thread object representing the thread.  The procedure
-@var{thunk} is called via @code{with-continuation-barrier}.
+returning the new thread.  The procedure @var{thunk} is called via
+@code{with-continuation-barrier}.
 
 When @var{handler} is specified, then @var{thunk} is called from
 within a @code{catch} with tag @code{#t} that has @var{handler} as its
@@ -256,6 +252,20 @@ handler.  This catch is established inside the continuation barrier.
 Once @var{thunk} or @var{handler} returns, the return value is made
 the @emph{exit value} of the thread and the thread is terminated.
 @end deffn
+
+@deftypefn {C Function} SCM scm_spawn_thread (scm_t_catch_body body, void *body_data, scm_t_catch_handler handler, void *handler_data)
+Call @var{body} in a new thread, passing it @var{body_data}, returning
+the new thread.  The function @var{body} is called via
+@code{scm_c_with_continuation_barrier}.
+
+When @var{handler} is non-@code{NULL}, @var{body} is called via
+@code{scm_internal_catch} with tag @code{SCM_BOOL_T} that has
+@var{handler} and @var{handler_data} as the handler and its data.  This
+catch is established inside the continuation barrier.
+
+Once @var{body} or @var{handler} returns, the return value is made the
+@emph{exit value} of the thread and the thread is terminated.
+@end deftypefn
 
 @c begin (texi-doc-string "guile" "join-thread")
 @deffn {Scheme Procedure} join-thread thread
@@ -291,6 +301,60 @@ Evaluate forms @var{first} and @var{rest} in a new thread formed by
 @code{call-with-new-thread} using a default error handler that display
 the error to the current error port.
 @end deffn
+
+@node Blocking
+@subsection Blocking in Guile Mode
+
+A thread must not block outside of a libguile function while it is in
+guile mode.  The following functions can be used to temporily leave
+guile mode or to perform some common blocking operations in a supported
+way.
+
+@deftypefn {C Function} scm_t_guile_ticket scm_leave_guile ()
+Leave guile mode and return a ticket that can be used with
+@code{scm_enter_guile} to enter it again.
+
+While a thread has left guile mode, it must not call any libguile
+functions except @code{scm_enter_guile} and must not use any libguile
+macros.  Also, local variables of type @code{SCM} that are allocated
+while not in guile mode are not protected from the garbage collector.
+@end deftypefn
+
+@deftypefn {C Function} void scm_enter_guile (scm_t_guile_ticket ticket)
+Enter guile mode again.
+@end deftypefn
+
+@deftypefn {C Function} void *scm_without_guile (void *(*func) (void *), void *data)
+Leave guile mode, call @var{func} on @var{data}, enter guile mode and
+return the result of calling @var{func}.
+@end deftypefn
+
+@deftypefn {C Function} int scm_pthread_mutex_lock (pthread_mutex_t *mutex)
+Like @code{pthread_mutex_lock}, but leaves guile mode while waiting for
+the mutex.
+@end deftypefn
+
+@deftypefn  {C Function} int scm_pthread_cond_wait (pthread_cond_t *cond, pthread_mutex_t *mutex)
+@deftypefnx {C Function} int scm_pthread_cond_timedwait (pthread_cond_t *cond, pthread_mutex_t *mutex, struct timespec *abstime)
+Like @code{pthread_cond_wait} and @code{pthread_cond_timedwait}, but
+leaves guile mode while waiting for the condition variable.
+@end deftypefn
+
+@deftypefn {C Function} int scm_std_select (int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout)
+Like @code{select} but leaves guile mode while waiting.  Also, the
+delivery of a system async causes this function to be interrupted with
+error code @code{EINTR}.
+@end deftypefn
+
+@deftypefn {C Function} {unsigned int} scm_std_sleep ({unsigned int} seconds)
+Like @code{sleep}, but leaves guile mode while sleeping.  Also, the
+delivery of a system async causes this function to be interrupted.
+@end deftypefn
+
+@deftypefn {C Function} {unsigned long} scm_std_usleep ({unsigned long} usecs)
+Like @code{usleep}, but leaves guile mode while sleeping.  Also, the
+delivery of a system async causes this function to be interrupted.
+@end deftypefn
 
 
 @node Fluids and Dynamic States

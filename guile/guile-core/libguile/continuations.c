@@ -109,7 +109,7 @@ extern struct rv ia64_getcontext (ucontext_t *) __asm__ ("getcontext");
 SCM 
 scm_make_continuation (int *first)
 {
-  scm_thread *thread = SCM_CURRENT_THREAD;
+  scm_i_thread *thread = SCM_I_CURRENT_THREAD;
   SCM cont;
   scm_t_contregs *continuation;
   long stack_size;
@@ -264,7 +264,7 @@ copy_stack_and_call (scm_t_contregs *continuation, SCM val,
 static void 
 scm_dynthrow (SCM cont, SCM val)
 {
-  scm_thread *thread = SCM_CURRENT_THREAD;
+  scm_i_thread *thread = SCM_I_CURRENT_THREAD;
   scm_t_contregs *continuation = SCM_CONTREGS (cont);
   SCM_STACKITEM *dst = thread->continuation_base;
   SCM_STACKITEM stack_top_element;
@@ -287,7 +287,7 @@ static SCM
 continuation_apply (SCM cont, SCM args)
 #define FUNC_NAME "continuation_apply"
 {
-  scm_thread *thread = SCM_CURRENT_THREAD;
+  scm_i_thread *thread = SCM_I_CURRENT_THREAD;
   scm_t_contregs *continuation = SCM_CONTREGS (cont);
 
   if (continuation->root != thread->continuation_root)
@@ -309,7 +309,7 @@ scm_i_with_continuation_barrier (scm_t_catch_body body,
 				 void *handler_data)
 {
   SCM_STACKITEM stack_item;
-  scm_thread *thread = SCM_CURRENT_THREAD;
+  scm_i_thread *thread = SCM_I_CURRENT_THREAD;
   SCM old_controot;
   SCM_STACKITEM *old_contbase;
   scm_t_debug_frame *old_lastframe;

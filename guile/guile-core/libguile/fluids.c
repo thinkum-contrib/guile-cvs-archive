@@ -109,7 +109,7 @@ ensure_all_state_sizes ()
   SCM state;
 
   scm_frame_begin (0);
-  scm_frame_single_threaded ();
+  scm_i_frame_single_threaded ();
 
   scm_gc ();
   for (state = all_dynamic_states; !scm_is_null (state);
@@ -301,7 +301,7 @@ SCM_DEFINE (scm_fluid_ref, "fluid-ref", 1, 0, 0,
 	    "@code{#f}.")
 #define FUNC_NAME s_scm_fluid_ref
 {
-  SCM fluids = DYNAMIC_STATE_FLUIDS (SCM_CURRENT_THREAD->dynamic_state);
+  SCM fluids = DYNAMIC_STATE_FLUIDS (SCM_I_CURRENT_THREAD->dynamic_state);
 
   SCM_VALIDATE_FLUID (1, fluid);
   return SCM_SIMPLE_VECTOR_REF (fluids, FLUID_NUM (fluid));
@@ -311,7 +311,7 @@ SCM_DEFINE (scm_fluid_ref, "fluid-ref", 1, 0, 0,
 SCM
 scm_i_fast_fluid_ref (size_t n)
 {
-  SCM fluids = DYNAMIC_STATE_FLUIDS (SCM_CURRENT_THREAD->dynamic_state);
+  SCM fluids = DYNAMIC_STATE_FLUIDS (SCM_I_CURRENT_THREAD->dynamic_state);
   return SCM_SIMPLE_VECTOR_REF (fluids, n);
 }
 
@@ -320,7 +320,7 @@ SCM_DEFINE (scm_fluid_set_x, "fluid-set!", 2, 0, 0,
 	    "Set the value associated with @var{fluid} in the current dynamic root.")
 #define FUNC_NAME s_scm_fluid_set_x
 {
-  SCM fluids = DYNAMIC_STATE_FLUIDS (SCM_CURRENT_THREAD->dynamic_state);
+  SCM fluids = DYNAMIC_STATE_FLUIDS (SCM_I_CURRENT_THREAD->dynamic_state);
 
   SCM_VALIDATE_FLUID (1, fluid);
   SCM_SIMPLE_VECTOR_SET (fluids, FLUID_NUM (fluid), value);
@@ -331,7 +331,7 @@ SCM_DEFINE (scm_fluid_set_x, "fluid-set!", 2, 0, 0,
 void
 scm_i_fast_fluid_set_x (size_t n, SCM value)
 {
-  SCM fluids = DYNAMIC_STATE_FLUIDS (SCM_CURRENT_THREAD->dynamic_state);
+  SCM fluids = DYNAMIC_STATE_FLUIDS (SCM_I_CURRENT_THREAD->dynamic_state);
   SCM_SIMPLE_VECTOR_SET (fluids, n, value);
 }
 
@@ -524,7 +524,7 @@ SCM_DEFINE (scm_current_dynamic_state, "current-dynamic-state", 0, 0, 0,
 	    "Return the current dynamic state object.")
 #define FUNC_NAME s_scm_current_dynamic_state
 {
-  return SCM_CURRENT_THREAD->dynamic_state;
+  return SCM_I_CURRENT_THREAD->dynamic_state;
 }
 #undef FUNC_NAME
 
@@ -534,7 +534,7 @@ SCM_DEFINE (scm_set_current_dynamic_state, "set-current-dynamic-state", 1,0,0,
 	    "and return the previous current dynamic state object.")
 #define FUNC_NAME s_scm_set_current_dynamic_state
 {
-  scm_thread *t = SCM_CURRENT_THREAD;
+  scm_i_thread *t = SCM_I_CURRENT_THREAD;
   SCM old = t->dynamic_state;
   scm_assert_smob_type (tc16_dynamic_state, state);
   t->dynamic_state = state;

@@ -1419,7 +1419,7 @@ scm_i_stack_base (void)
 {
   scm_c_issue_deprecation_warning
     ("scm_stack_base is deprecated.  Do not use it.");
-  return SCM_CURRENT_THREAD->base;
+  return SCM_I_CURRENT_THREAD->base;
 }
 
 int

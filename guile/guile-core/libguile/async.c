@@ -143,7 +143,7 @@ static pthread_mutex_t async_mutex = PTHREAD_MUTEX_INITIALIZER;
 void
 scm_async_click ()
 {
-  scm_thread *t = SCM_CURRENT_THREAD;
+  scm_i_thread *t = SCM_I_CURRENT_THREAD;
   SCM asyncs;
 
   /* Reset pending_asyncs even when asyncs are blocked and not really
@@ -188,7 +188,7 @@ SCM_DEFINE (scm_system_async, "system-async", 1, 0, 0,
 #endif /* SCM_ENABLE_DEPRECATED == 1 */
 
 void
-scm_i_queue_async_cell (SCM c, scm_thread *t)
+scm_i_queue_async_cell (SCM c, scm_i_thread *t)
 {
   SCM sleep_object;
   pthread_mutex_t *sleep_mutex;
@@ -254,7 +254,7 @@ scm_i_queue_async_cell (SCM c, scm_thread *t)
 }
 
 int
-scm_i_setup_sleep (scm_thread *t,
+scm_i_setup_sleep (scm_i_thread *t,
 		   SCM sleep_object, pthread_mutex_t *sleep_mutex,
 		   int sleep_fd)
 {
@@ -273,7 +273,7 @@ scm_i_setup_sleep (scm_thread *t,
 }
 
 void
-scm_i_reset_sleep (scm_thread *t)
+scm_i_reset_sleep (scm_i_thread *t)
 {
   scm_pthread_mutex_lock (&async_mutex);
   t->sleep_object = SCM_BOOL_F;
@@ -300,16 +300,16 @@ SCM_DEFINE (scm_system_async_mark_for_thread, "system-async-mark", 1, 1, 0,
      not use scm_current_thread here.
   */
 
-  scm_thread *t;
+  scm_i_thread *t;
 
   if (SCM_UNBNDP (thread))
-    t = SCM_CURRENT_THREAD;
+    t = SCM_I_CURRENT_THREAD;
   else
     {
       SCM_VALIDATE_THREAD (2, thread);
       if (scm_c_thread_exited_p (thread))
 	SCM_MISC_ERROR ("thread has already exited", SCM_EOL);
-      t = SCM_THREAD_DATA (thread);
+      t = SCM_I_THREAD_DATA (thread);
     }
   scm_i_queue_async_cell (scm_cons (proc, SCM_BOOL_F), t);
   return SCM_UNSPECIFIED;
@@ -348,7 +348,7 @@ SCM_DEFINE (scm_unmask_signals, "unmask-signals", 0, 0, 0,
 	    "Unmask signals. The returned value is not specified.")
 #define FUNC_NAME s_scm_unmask_signals
 {
-  scm_thread *t = SCM_CURRENT_THREAD;
+  scm_i_thread *t = SCM_I_CURRENT_THREAD;
 
   scm_c_issue_deprecation_warning 
     ("'unmask-signals' is deprecated.  "
@@ -368,7 +368,7 @@ SCM_DEFINE (scm_mask_signals, "mask-signals", 0, 0, 0,
 	    "Mask signals. The returned value is not specified.")
 #define FUNC_NAME s_scm_mask_signals
 {
-  scm_thread *t = SCM_CURRENT_THREAD;
+  scm_i_thread *t = SCM_I_CURRENT_THREAD;
 
   scm_c_issue_deprecation_warning 
     ("'mask-signals' is deprecated.  Use 'call-with-blocked-asyncs' instead.");
@@ -385,13 +385,13 @@ SCM_DEFINE (scm_mask_signals, "mask-signals", 0, 0, 0,
 static void
 increase_block (void *data)
 {
-  ((scm_thread *)data)->block_asyncs++;
+  ((scm_i_thread *)data)->block_asyncs++;
 }
 
 static void
 decrease_block (void *data)
 {
-  if (--((scm_thread *)data)->block_asyncs == 0)
+  if (--((scm_i_thread *)data)->block_asyncs == 0)
     scm_async_click ();
 }
 
@@ -406,7 +406,7 @@ SCM_DEFINE (scm_call_with_blocked_asyncs, "call-with-blocked-asyncs", 1, 0, 0,
 				    (scm_t_inner) scm_call_0,
 				    decrease_block,
 				    (void *)proc,
-				    SCM_CURRENT_THREAD);
+				    SCM_I_CURRENT_THREAD);
 }
 #undef FUNC_NAME
 
@@ -417,7 +417,7 @@ scm_c_call_with_blocked_asyncs (void *(*proc) (void *data), void *data)
 					    (scm_t_inner) proc,
 					    decrease_block,
 					    data,
-					    SCM_CURRENT_THREAD);
+					    SCM_I_CURRENT_THREAD);
 }
 
 
@@ -428,33 +428,33 @@ SCM_DEFINE (scm_call_with_unblocked_asyncs, "call-with-unblocked-asyncs", 1, 0, 
 	    "it is running.  Return the value returned by @var{proc}.\n")
 #define FUNC_NAME s_scm_call_with_unblocked_asyncs
 {
-  if (SCM_CURRENT_THREAD->block_asyncs == 0)
+  if (SCM_I_CURRENT_THREAD->block_asyncs == 0)
     SCM_MISC_ERROR ("asyncs already unblocked", SCM_EOL);
   return scm_internal_dynamic_wind (decrease_block,
 				    (scm_t_inner) scm_call_0,
 				    increase_block,
 				    (void *)proc,
-				    SCM_CURRENT_THREAD);
+				    SCM_I_CURRENT_THREAD);
 }
 #undef FUNC_NAME
 
 void *
 scm_c_call_with_unblocked_asyncs (void *(*proc) (void *data), void *data)
 {
-  if (SCM_CURRENT_THREAD->block_asyncs == 0)
+  if (SCM_I_CURRENT_THREAD->block_asyncs == 0)
     scm_misc_error ("scm_c_call_with_unblocked_asyncs",
 		    "asyncs already unblocked", SCM_EOL);
   return (void *)scm_internal_dynamic_wind (decrease_block,
 					    (scm_t_inner) proc,
 					    increase_block,
 					    data,
-					    SCM_CURRENT_THREAD);
+					    SCM_I_CURRENT_THREAD);
 }
 
 void
 scm_frame_block_asyncs ()
 {
-  scm_thread *t = SCM_CURRENT_THREAD;
+  scm_i_thread *t = SCM_I_CURRENT_THREAD;
   scm_frame_rewind_handler (increase_block, t, SCM_F_WIND_EXPLICITLY);
   scm_frame_unwind_handler (decrease_block, t, SCM_F_WIND_EXPLICITLY);
 }
@@ -462,7 +462,7 @@ scm_frame_block_asyncs ()
 void
 scm_frame_unblock_asyncs ()
 {
-  scm_thread *t = SCM_CURRENT_THREAD;
+  scm_i_thread *t = SCM_I_CURRENT_THREAD;
   if (t->block_asyncs == 0)
     scm_misc_error ("scm_with_unblocked_asyncs", 
 		    "asyncs already unblocked", SCM_EOL);

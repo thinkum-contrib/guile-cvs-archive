@@ -545,7 +545,7 @@ fport_wait_for_input (SCM port)
 	  {
 	    FD_ZERO (&readfds);
 	    FD_SET (fdes, &readfds);
-	    n = scm_internal_select (fdes + 1, &readfds, NULL, NULL, NULL);
+	    n = scm_std_select (fdes + 1, &readfds, NULL, NULL, NULL);
 	  }
 	while (n == -1 && errno == EINTR);
     }

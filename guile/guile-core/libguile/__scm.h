@@ -454,7 +454,7 @@ typedef long SCM_STACKITEM;
 
 #define SCM_ASYNC_TICK /*fixme* should change names */ \
 do { \
-  if (SCM_CURRENT_THREAD->pending_asyncs) \
+  if (SCM_I_CURRENT_THREAD->pending_asyncs) \
     scm_async_click (); \
 } while (0)
 

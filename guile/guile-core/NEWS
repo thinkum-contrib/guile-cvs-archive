@@ -1150,6 +1150,11 @@ Scheme, using 'define-macro'.
 This function is like scm_port_for_each but takes a pointer to a C
 function as the callback instead of a SCM value.
 
+** The names scm_internal_select, scm_thread_sleep, and
+   scm_thread_usleep have been discouraged.
+
+Use scm_std_select, scm_std_sleep, scm_std_usleep instead.
+
 ** Many definitions have been removed that were previously deprecated.
 
 scm_lisp_nil, scm_lisp_t, s_nil_ify, scm_m_nil_ify, s_t_ify,

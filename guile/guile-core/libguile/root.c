@@ -202,7 +202,7 @@ SCM_DEFINE (scm_dynamic_root, "dynamic-root", 0, 0, 0,
 	    "These objects are only useful for comparison using @code{eq?}.\n")
 #define FUNC_NAME s_scm_dynamic_root
 {
-  return SCM_CURRENT_THREAD->continuation_root;
+  return SCM_I_CURRENT_THREAD->continuation_root;
 }
 #undef FUNC_NAME
 

@@ -114,7 +114,7 @@ dequeue (SCM q)
 static SCM
 thread_mark (SCM obj)
 {
-  scm_thread *t = SCM_THREAD_DATA (obj);
+  scm_i_thread *t = SCM_I_THREAD_DATA (obj);
   scm_gc_mark (t->result);
   scm_gc_mark (t->join_queue);
   scm_gc_mark (t->dynwinds);
@@ -127,7 +127,7 @@ thread_mark (SCM obj)
 static int
 thread_print (SCM exp, SCM port, scm_print_state *pstate SCM_UNUSED)
 {
-  scm_thread *t = SCM_THREAD_DATA (exp);
+  scm_i_thread *t = SCM_I_THREAD_DATA (exp);
   scm_puts ("#<thread ", port);
   scm_uintprint ((size_t)t->pthread, 10, port);
   scm_puts (" (", port);
@@ -139,7 +139,7 @@ thread_print (SCM exp, SCM port, scm_print_state *pstate SCM_UNUSED)
 static size_t
 thread_free (SCM obj)
 {
-  scm_thread *t = SCM_THREAD_DATA (obj);
+  scm_i_thread *t = SCM_I_THREAD_DATA (obj);
   assert (t->exited);
   scm_gc_free (t, sizeof (*t), "thread");
   return 0;
@@ -153,14 +153,15 @@ thread_free (SCM obj)
 
 /* Put the current thread on QUEUE and go to sleep, waiting for it to
    be woken up by a call to 'unblock_from_queue', or to be
-   interrupted.
+   interrupted.  Upon return of this function, the current thread is
+   no longer on QUEUE, even when the sleep has been interrupted.
 
    The QUEUE data structure is assumed to be protected by MUTEX and
    the caller of block_self must hold MUTEX.  It will be atomically
    unlocked while sleeping, just as with pthread_cond_wait.
 
-   SLEEP_OBJECT is a arbitrary SCM value that is kept alive as long as
-   MUTEX is needed.
+   SLEEP_OBJECT is an arbitrary SCM value that is kept alive as long
+   as MUTEX is needed.
 
    When WAITTIME is not NULL, the sleep will be aborted at that time.
 
@@ -170,21 +171,18 @@ thread_free (SCM obj)
    delivery of a system async, and ETIMEDOUT when the timeout has
    expired.
 
-   The systems asyncs themselves are not executed by block_self.
+   The system asyncs themselves are not executed by block_self.
 */
 static int
 block_self (SCM queue, SCM sleep_object, pthread_mutex_t *mutex,
 	    const scm_t_timespec *waittime)
 {
-  scm_thread *t = SCM_CURRENT_THREAD;
+  scm_i_thread *t = SCM_I_CURRENT_THREAD;
   SCM q_handle;
   int err;
 
   if (scm_i_setup_sleep (t, sleep_object, mutex, -1))
-    {
-      fprintf (stderr, "should not sleep\n");
-      err = EINTR;
-    }
+    err = EINTR;
   else
     {
       t->block_asyncs++;
@@ -194,32 +192,29 @@ block_self (SCM queue, SCM sleep_object, pthread_mutex_t *mutex,
       else
 	err = scm_pthread_cond_timedwait (&t->sleep_cond, mutex, waittime);
 
-      fprintf (stderr, "unblocked %d\n", err);
-
       /* When we are still on QUEUE, we have been interrupted.  We
 	 report this only when no other error (such as a timeout) has
 	 happened above.
       */
-      if(remqueue (queue, q_handle) && err == 0)
-	{
-	  fprintf (stderr, "still on queue\n");
-	  err = EINTR;
-	}
+      if (remqueue (queue, q_handle) && err == 0)
+	err = EINTR;
       t->block_asyncs--;
       scm_i_reset_sleep (t);
     }
+
   return err;
 }
 
 /* Wake up the first thread on QUEUE, if any.  The caller must hold
-   the mutex that protects QUEUE.
+   the mutex that protects QUEUE.  The awoken thread is returned, or
+   #f when the queue was empty.
  */
 static SCM
 unblock_from_queue (SCM queue)
 {
   SCM thread = dequeue (queue);
   if (scm_is_true (thread))
-    pthread_cond_signal (&SCM_THREAD_DATA(thread)->sleep_cond);
+    pthread_cond_signal (&SCM_I_THREAD_DATA(thread)->sleep_cond);
   return thread;
 }
 
@@ -229,7 +224,7 @@ unblock_from_queue (SCM queue)
 pthread_key_t scm_i_thread_key;
 
 static void
-resume (scm_thread *t)
+resume (scm_i_thread *t)
 {
   t->top = NULL;
   if (t->clear_freelists_p)
@@ -243,7 +238,7 @@ resume (scm_thread *t)
 void
 scm_enter_guile (scm_t_guile_ticket ticket)
 {
-  scm_thread *t = (scm_thread *)ticket;
+  scm_i_thread *t = (scm_i_thread *)ticket;
   if (t)
     {
       pthread_mutex_lock (&t->heap_mutex);
@@ -251,10 +246,10 @@ scm_enter_guile (scm_t_guile_ticket ticket)
     }
 }
 
-static scm_thread *
+static scm_i_thread *
 suspend (void)
 {
-  scm_thread *t = SCM_CURRENT_THREAD;
+  scm_i_thread *t = SCM_I_CURRENT_THREAD;
 
   /* record top of stack for the GC */
   t->top = SCM_STACK_PTR (&t);
@@ -267,13 +262,13 @@ suspend (void)
 scm_t_guile_ticket
 scm_leave_guile ()
 {
-  scm_thread *t = suspend ();
+  scm_i_thread *t = suspend ();
   pthread_mutex_unlock (&t->heap_mutex);
   return (scm_t_guile_ticket) t;
 }
 
 static pthread_mutex_t thread_admin_mutex = PTHREAD_MUTEX_INITIALIZER;
-static scm_thread *all_threads = NULL;
+static scm_i_thread *all_threads = NULL;
 static int thread_count;
 
 static SCM scm_i_default_dynamic_state;
@@ -283,7 +278,7 @@ static SCM scm_i_default_dynamic_state;
 static void
 guilify_self_1 (SCM_STACKITEM *base)
 {
-  scm_thread *t = malloc (sizeof (scm_thread));
+  scm_i_thread *t = malloc (sizeof (scm_i_thread));
 
   t->pthread = pthread_self ();
   t->handle = SCM_BOOL_F;
@@ -328,10 +323,10 @@ guilify_self_1 (SCM_STACKITEM *base)
 static void
 guilify_self_2 (SCM parent)
 {
-  scm_thread *t = SCM_CURRENT_THREAD;
+  scm_i_thread *t = SCM_I_CURRENT_THREAD;
 
   SCM_NEWSMOB (t->handle, scm_tc16_thread, t);
-  scm_gc_register_collectable_memory (t, sizeof (scm_thread), "thread");
+  scm_gc_register_collectable_memory (t, sizeof (scm_i_thread), "thread");
   t->continuation_root = scm_cons (t->handle, SCM_EOL);
   t->continuation_base = t->base;
 
@@ -349,7 +344,7 @@ guilify_self_2 (SCM parent)
 static void *
 do_thread_exit (void *v)
 {
-  scm_thread *t = (scm_thread *)v, **tp;
+  scm_i_thread *t = (scm_i_thread *)v, **tp;
 
   scm_pthread_mutex_lock (&thread_admin_mutex);
 
@@ -400,11 +395,11 @@ init_thread_key (void)
 static int
 scm_i_init_thread_for_guile (SCM_STACKITEM *base, SCM parent)
 {
-  scm_thread *t;
+  scm_i_thread *t;
 
   pthread_once (&init_thread_key_once, init_thread_key);
 
-  if ((t = SCM_CURRENT_THREAD) == NULL)
+  if ((t = SCM_I_CURRENT_THREAD) == NULL)
     {
       /* This thread has not been guilified yet.
        */
@@ -448,6 +443,9 @@ scm_i_init_thread_for_guile (SCM_STACKITEM *base, SCM parent)
     }
 }
 
+#ifdef SCM_HAVE_PTHREAD_ATTR_GETSTACK
+#ifdef SCM_HAVE___LIBC_STACK_END
+
 extern void *__libc_stack_end;
 
 static SCM_STACKITEM *
@@ -484,6 +482,9 @@ scm_init_guile ()
   scm_i_init_thread_for_guile (get_thread_stack_base (),
 			       scm_i_default_dynamic_state);
 }
+
+#endif
+#endif
 
 void *
 scm_with_guile (void *(*func)(void *), void *data)
@@ -533,9 +534,9 @@ really_launch (void *d)
 {
   launch_data *data = (launch_data *)d;
   SCM thunk = data->thunk, handler = data->handler;
-  scm_thread *t;
+  scm_i_thread *t;
 
-  t = SCM_CURRENT_THREAD;
+  t = SCM_I_CURRENT_THREAD;
 
   scm_pthread_mutex_lock (&data->mutex);
   data->thread = scm_current_thread ();
@@ -619,16 +620,19 @@ really_spawn (void *d)
   void *body_data = data->body_data;
   scm_t_catch_handler handler = data->handler;
   void *handler_data = data->handler_data;
-  scm_thread *t = SCM_CURRENT_THREAD;
+  scm_i_thread *t = SCM_I_CURRENT_THREAD;
 
   scm_pthread_mutex_lock (&data->mutex);
   data->thread = scm_current_thread ();
   pthread_cond_signal (&data->cond);
   pthread_mutex_unlock (&data->mutex);
 
-  t->result = scm_internal_catch (SCM_BOOL_T,
-				  body, body_data,
-				  handler, handler_data);
+  if (handler == NULL)
+    t->result = body (body_data);
+  else
+    t->result = scm_internal_catch (SCM_BOOL_T,
+				    body, body_data,
+				    handler, handler_data);
 
   return 0;
 }
@@ -637,8 +641,8 @@ static void *
 spawn_thread (void *d)
 {
   spawn_data *data = (spawn_data *)d;
-  scm_i_with_guile_and_parent (really_spawn, d, data->parent);
   pthread_detach (pthread_self ());
+  scm_i_with_guile_and_parent (really_spawn, d, data->parent);
   return NULL;
 }
 
@@ -685,7 +689,7 @@ SCM_DEFINE (scm_join_thread, "join-thread", 1, 0, 0,
 "terminates, unless the target @var{thread} has already terminated. ")
 #define FUNC_NAME s_scm_join_thread
 {
-  scm_thread *t;
+  scm_i_thread *t;
   SCM res;
 
   SCM_VALIDATE_THREAD (1, thread);
@@ -694,7 +698,7 @@ SCM_DEFINE (scm_join_thread, "join-thread", 1, 0, 0,
 
   scm_pthread_mutex_lock (&thread_admin_mutex);
 
-  t = SCM_THREAD_DATA (thread);
+  t = SCM_I_THREAD_DATA (thread);
   if (!t->exited)
     {
       while (1)
@@ -729,6 +733,9 @@ typedef struct {
 		     < 0 for non-recursive mutexes */
   SCM waiting;    /* the threads waiting for this mutex. */
 } fat_mutex;
+
+#define SCM_MUTEXP(x)         SCM_SMOB_PREDICATE (scm_tc16_mutex, x)
+#define SCM_MUTEX_DATA(x)     ((fat_mutex *) SCM_SMOB_DATA (x))
 
 static SCM
 fat_mutex_mark (SCM mx)
@@ -927,6 +934,8 @@ SCM_DEFINE (scm_unlock_mutex, "unlock-mutex", 1, 0, 0,
 }
 #undef FUNC_NAME
 
+#if 0
+
 SCM_DEFINE (scm_mutex_owner, "mutex-owner", 1, 0, 0,
 	    (SCM mx),
 	    "Return the thread owning @var{mx}, or @code{#f}.")
@@ -948,12 +957,17 @@ SCM_DEFINE (scm_mutex_level, "mutex-level", 1, 0, 0,
 }
 #undef FUNC_NAME
 
+#endif
+
 /*** Fat condition variables */
 
 typedef struct {
   pthread_mutex_t lock;
   SCM waiting;               /* the threads waiting for this condition. */
 } fat_cond;
+
+#define SCM_CONDVARP(x)       SCM_SMOB_PREDICATE (scm_tc16_condvar, x)
+#define SCM_CONDVAR_DATA(x)   ((fat_cond *) SCM_SMOB_DATA (x))
 
 static SCM
 fat_cond_mark (SCM cv)
@@ -1002,7 +1016,7 @@ static int
 fat_cond_timedwait (SCM cond, SCM mutex,
 		    const scm_t_timespec *waittime)
 {
-  scm_thread *t = SCM_CURRENT_THREAD;
+  scm_i_thread *t = SCM_I_CURRENT_THREAD;
   fat_cond *c = SCM_CONDVAR_DATA (cond);
   fat_mutex *m = SCM_MUTEX_DATA (mutex);
   const char *msg;
@@ -1147,7 +1161,7 @@ SCM_DEFINE (scm_broadcast_condition_variable, "broadcast-condition-variable", 1,
 void
 scm_threads_mark_stacks (void)
 {
-  scm_thread *t;
+  scm_i_thread *t;
   for (t = all_threads; t; t = t->next_thread)
     {
       /* Check that thread has indeed been suspended.
@@ -1172,15 +1186,15 @@ scm_threads_mark_stacks (void)
 /*** Select */
 
 int
-scm_internal_select (int nfds,
-		     SELECT_TYPE *readfds,
-		     SELECT_TYPE *writefds,
-		     SELECT_TYPE *exceptfds,
-		     struct timeval *timeout)
+scm_std_select (int nfds,
+		SELECT_TYPE *readfds,
+		SELECT_TYPE *writefds,
+		SELECT_TYPE *exceptfds,
+		struct timeval *timeout)
 {
   fd_set my_readfds;
   int res, eno, wakeup_fd;
-  scm_thread *t = SCM_CURRENT_THREAD;
+  scm_i_thread *t = SCM_I_CURRENT_THREAD;
   scm_t_guile_ticket ticket;
 
   if (readfds == NULL)
@@ -1265,22 +1279,22 @@ scm_pthread_cond_timedwait (pthread_cond_t *cond,
 }
 
 unsigned long
-scm_thread_usleep (unsigned long usecs)
+scm_std_usleep (unsigned long usecs)
 {
   struct timeval tv;
   tv.tv_usec = usecs % 1000000;
   tv.tv_sec = usecs / 1000000;
-  scm_internal_select (0, NULL, NULL, NULL, &tv);
-  return tv.tv_usec + tv.tv_sec*1000000;
+  scm_std_select (0, NULL, NULL, NULL, &tv);
+  return tv.tv_sec * 1000000 + tv.tv_usec;
 }
 
-unsigned long
-scm_thread_sleep (unsigned long secs)
+unsigned int
+scm_std_sleep (unsigned int secs)
 {
   struct timeval tv;
   tv.tv_usec = 0;
   tv.tv_sec = secs;
-  scm_internal_select (0, NULL, NULL, NULL, &tv);
+  scm_std_select (0, NULL, NULL, NULL, &tv);
   return tv.tv_sec;
 }
 
@@ -1291,7 +1305,7 @@ SCM_DEFINE (scm_current_thread, "current-thread", 0, 0, 0,
 	    "Return the thread that called this function.")
 #define FUNC_NAME s_scm_current_thread
 {
-  return SCM_CURRENT_THREAD->handle;
+  return SCM_I_CURRENT_THREAD->handle;
 }
 #undef FUNC_NAME
 
@@ -1313,7 +1327,7 @@ SCM_DEFINE (scm_all_threads, "all-threads", 0, 0, 0,
      of the way GC is done.
   */
   int n = thread_count;
-  scm_thread *t;
+  scm_i_thread *t;
   SCM list = scm_c_make_list (n, SCM_UNSPECIFIED), *l;
 
   pthread_mutex_lock (&thread_admin_mutex);
@@ -1343,9 +1357,9 @@ int
 scm_c_thread_exited_p (SCM thread)
 #define FUNC_NAME  s_scm_thread_exited_p
 {
-  scm_thread *t;
+  scm_i_thread *t;
   SCM_VALIDATE_THREAD (1, thread);
-  t = SCM_THREAD_DATA (thread);
+  t = SCM_I_THREAD_DATA (thread);
   return t->exited;
 }
 #undef FUNC_NAME
@@ -1360,7 +1374,7 @@ scm_i_thread_put_to_sleep ()
 {
   if (threads_initialized_p)
     {
-      scm_thread *t;
+      scm_i_thread *t;
 
       scm_leave_guile ();
       pthread_mutex_lock (&thread_admin_mutex);
@@ -1393,9 +1407,9 @@ scm_i_thread_invalidate_freelists ()
 {
   /* thread_admin_mutex is already locked. */
 
-  scm_thread *t;
+  scm_i_thread *t;
   for (t = all_threads; t; t = t->next_thread)
-    if (t != SCM_CURRENT_THREAD)
+    if (t != SCM_I_CURRENT_THREAD)
       t->clear_freelists_p = 1;
 }
 
@@ -1404,7 +1418,7 @@ scm_i_thread_wake_up ()
 {
   if (threads_initialized_p)
     {
-      scm_thread *t;
+      scm_i_thread *t;
       pthread_mutex_lock (&thread_admin_mutex);
 
       sleep_level -= 1;
@@ -1418,14 +1432,14 @@ scm_i_thread_wake_up ()
 	fprintf (stderr, "recursive wakeup\n");
 
       pthread_mutex_unlock (&thread_admin_mutex);
-      scm_enter_guile ((scm_t_guile_ticket) SCM_CURRENT_THREAD);
+      scm_enter_guile ((scm_t_guile_ticket) SCM_I_CURRENT_THREAD);
     }
 }
 
 void
 scm_i_thread_sleep_for_gc ()
 {
-  scm_thread *t = suspend ();
+  scm_i_thread *t = suspend ();
   pthread_cond_wait (&wake_up_cond, &t->heap_mutex);
   resume (t);
 }
@@ -1443,7 +1457,7 @@ wake_up (void *unused)
 }
 
 void
-scm_frame_single_threaded ()
+scm_i_frame_single_threaded ()
 {
   scm_frame_rewind_handler (put_to_sleep, NULL, SCM_F_WIND_EXPLICITLY);
   scm_frame_unwind_handler (wake_up, NULL, SCM_F_WIND_EXPLICITLY);
@@ -1476,7 +1490,7 @@ scm_t_bits scm_tc16_condvar;
 void
 scm_init_threads ()
 {
-  scm_tc16_thread = scm_make_smob_type ("thread", sizeof (scm_thread));
+  scm_tc16_thread = scm_make_smob_type ("thread", sizeof (scm_i_thread));
   scm_set_smob_mark (scm_tc16_thread, thread_mark);
   scm_set_smob_print (scm_tc16_thread, thread_print);
   scm_set_smob_free (scm_tc16_thread, thread_free);
@@ -1508,13 +1522,6 @@ void
 scm_init_thread_procs ()
 {
 #include "libguile/threads.x"
-}
-
-/* XXX */
-
-void
-scm_init_iselect ()
-{
 }
 
 /*
