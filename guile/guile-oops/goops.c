@@ -938,10 +938,21 @@ scm_unbound_p (SCM obj)
 SCM_PROC (s_assert_bound, "assert-bound", 2, 0, 0, scm_assert_bound);
 
 static SCM
-scm_assert_bound (SCM value, SCM object)
+scm_assert_bound (SCM value, SCM obj)
 {
   if (SCM_GOOPS_UNBOUNDP (value))
-    return CALL_GF1 ("slot-unbound", object);
+    return CALL_GF1 ("slot-unbound", obj);
+  return value;
+}
+
+SCM_PROC (s_at_assert_bound_ref, "@assert-bound-ref", 2, 0, 0, scm_at_assert_bound_ref);
+
+static SCM
+scm_at_assert_bound_ref (SCM obj, SCM index)
+{
+  SCM value = SCM_SLOT (obj, SCM_INUM (index));
+  if (SCM_GOOPS_UNBOUNDP (value))
+    return CALL_GF1 ("slot-unbound", obj);
   return value;
 }
 
@@ -958,8 +969,7 @@ scm_sys_fast_slot_ref (SCM obj, SCM index)
   i = SCM_INUM (index);
   SCM_ASSERT (i >= 0 && i < SCM_NUMBER_OF_SLOTS (obj),
 	      index, SCM_OUTOFRANGE, s_sys_fast_slot_ref);
-
-  return SCM_SLOT (obj, i);
+  return scm_at_assert_bound_ref (obj, index);
 }
 
 SCM_PROC (s_sys_fast_slot_set_x, "%fast-slot-set!", 3, 0, 0, scm_sys_fast_slot_set_x);
@@ -970,13 +980,13 @@ scm_sys_fast_slot_set_x (SCM obj, SCM index, SCM value)
   register long i;
 
   SCM_ASSERT (SCM_NIMP (obj) && SCM_INSTANCEP (obj),
-	      obj, SCM_ARG1, s_sys_fast_slot_ref);
-  SCM_ASSERT (SCM_INUMP (index), index, SCM_ARG2, s_sys_fast_slot_ref);
+	      obj, SCM_ARG1, s_sys_fast_slot_set_x);
+  SCM_ASSERT (SCM_INUMP (index), index, SCM_ARG2, s_sys_fast_slot_set_x);
   i = SCM_INUM (index);
   SCM_ASSERT (i >= 0 && i < SCM_NUMBER_OF_SLOTS (obj),
-	      index, SCM_OUTOFRANGE, s_sys_fast_slot_ref);
+	      index, SCM_OUTOFRANGE, s_sys_fast_slot_set_x);
 
-  SCM_SLOT(obj, i) = value;
+  SCM_SLOT (obj, i) = value;
   return SCM_UNSPECIFIED;
 }
 
