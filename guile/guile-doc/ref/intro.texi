@@ -248,7 +248,7 @@ command line.
 @item -e @var{function}
 Make @var{function} the @dfn{entry point} of the script.  After loading
 the script file (with @code{-s}) or evaluating the expression (with
-@code{-e}), apply @var{function} to a list containing the program name
+@code{-c}), apply @var{function} to a list containing the program name
 and the command-line arguments --- the list provided by the
 @code{command-line} function.
 
