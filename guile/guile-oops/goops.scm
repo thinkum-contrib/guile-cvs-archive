@@ -1182,7 +1182,7 @@
     (slot-set! class 'cpl		(compute-cpl class))
     (slot-set! class 'redefined		#f)
     (slot-set! class 'environment	env)
-    (let ((slots (%compute-slots class)))
+    (let ((slots (compute-slots class)))
       (slot-set! class 'slots	  	  slots)
       (slot-set! class 'nfields	  	  0)
       (slot-set! class 'getters-n-setters (compute-getters-n-setters class 
