@@ -1,3 +1,8 @@
+Mon Oct 14 06:08:18 1996  Mikael Djurfeldt  <mdj@woody.nada.kth.se>
+
+	* rgx.c (scm_regex_error): Renamed lgh_error --> scm_error.
+	(I suppose we have to do this until lgh is finished.)
+
 Sun Oct 13 08:50:08 1996  Gary Houston  <ghouston@actrix.gen.nz>
 
 	* rxposix.c (rx_regexec): was returning REG_NOMATCH if anchored,
