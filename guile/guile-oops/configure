@@ -1517,6 +1517,39 @@ exec 5>>./config.log
 CFLAGS="$CFLAGS $GUILE_CFLAGS"
 LIBS="$LIBS $GUILE_LDFLAGS"
 
+echo $ac_n "checking for two argument scm_mutex_init""... $ac_c" 1>&6
+echo "configure:1522: checking for two argument scm_mutex_init" >&5
+if eval "test \"`echo '$''{'ac_cv_func_scm_mutex_init_two_args'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  cat > conftest.$ac_ext <<EOF
+#line 1527 "configure"
+#include "confdefs.h"
+#include <libguile.h>
+int main() {
+scm_mutex_init (NULL, NULL);
+; return 0; }
+EOF
+if { (eval echo configure:1534: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+  rm -rf conftest*
+  ac_cv_func_scm_mutex_init_two_args=yes
+else
+  echo "configure: failed program was:" >&5
+  cat conftest.$ac_ext >&5
+  rm -rf conftest*
+  ac_cv_func_scm_mutex_init_two_args=no
+fi
+rm -f conftest*
+fi
+
+echo "$ac_t""$ac_cv_func_scm_mutex_init_two_args" 1>&6
+if test "$ac_cv_func_scm_mutex_init_two_args" = "yes"; then
+  cat >> confdefs.h <<\EOF
+#define SCM_MUTEX_INIT_TWO_ARGS 1
+EOF
+
+fi
+
 ## If we're using GCC, ask for aggressive warnings.
 case "$GCC" in
   yes)
