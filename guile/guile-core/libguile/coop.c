@@ -536,10 +536,10 @@ coop_condition_variable_destroy (coop_c *c)
 #ifdef GUILE_PTHREAD_COMPAT
 
 /* 1K room for the cond wait routine */
-#ifdef SCM_STACK_GROWS_UP
-#define COOP_STACK_ROOM (256)
+#if SCM_STACK_GROWS_UP
+# define COOP_STACK_ROOM (256)
 #else
-#define COOP_STACK_ROOM (-256)
+# define COOP_STACK_ROOM (-256)
 #endif
 
 static void *
