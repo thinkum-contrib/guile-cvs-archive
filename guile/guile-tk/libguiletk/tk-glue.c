@@ -24,22 +24,33 @@
  *
  */
 
-#include "_scm.h"
+#include <libguile.h>
 
-#include "ports.h"
-#include "throw.h"
+/* #include "libguile/ports.h" */
+/* #include "libguile/throw.h" */
+/* #include "libguile/snarf.h" */
 
-#ifdef USE_TK
 #include "gstk.h"
+#include "tkcmd.h"
 #include "tk-glue.h"
 /* #include "gc.h" */
 #include "tkInt.h"
 
 #define MAXARG 64	/* Max args on stack. Use malloc if greater */
 
+SCM_SYMBOL (scm_tk_error_key, "tk-error");
+void
+scm_tk_error (subr, message, args)
+     char *subr;
+     char *message;
+     SCM args;
+{
+  scm_error (scm_tk_error_key, subr, message, args, SCM_BOOL_F);
+}
+
 /* Scheme objects used to represent the "." pseudo widget and its name */
 SCM STk_root_window;
-SCM STk_root_window_name;
+/* SCM STk_root_window_name; */
 
 /* Last result of Tcl_GlobalEval (as a SCM object rather than a string) */
 SCM STk_last_Tk_result; /*fixme* Need to get this thread safe. */
@@ -70,19 +81,22 @@ static SCM
 scm_safe_read (SCM port, int *errp)
 {
   struct sr_data data = { port, errp };
-  return scm_internal_catch (SCM_BOOL_T, sr_body, data, sr_handler, data);
+  return scm_internal_catch (SCM_BOOL_T,
+			     (scm_catch_body_t) sr_body, &data,
+			     (scm_catch_handler_t) sr_handler, &data);
 }
 
+/*fixme* need to handle #pxxxx tokens */
 static SCM TkResult2Scheme(Tcl_Interp *interp)
 {
   register char *s = interp->result;
   register SCM tmp1, tmp2, z, port;
-  SCM result = NIL;
+  SCM result = SCM_EOL;
   int errp;
 
   if (*s) {
     port = scm_mkstrport (SCM_MAKINUM (0),
-			  scm_makfrom0str (expr),
+			  scm_makfrom0str (s),
 			  SCM_OPN | SCM_RDNG,
 			  "TkResult2Scheme");    
     result = scm_read (port);
@@ -90,25 +104,26 @@ static SCM TkResult2Scheme(Tcl_Interp *interp)
 
     if (!SCM_EOF_OBJECT_P (result)) {
       /*  Result was a list of value, build a proper Scheme list */
-      tmp1 = result = LIST1 (result);
+      tmp1 = result = SCM_LIST1 (result);
       for ( ; ; ) {
 	z = scm_safe_read (port, &errp);
 	if (errp || SCM_EOF_OBJECT_P (z)) break;
 	if (z == scm_sym_dot) z = STk_root_window;
-	NEWCELL(tmp2, tc_cons);
-	CAR(tmp2) = z; 
-	CDR(tmp1) = tmp2;
+	SCM_NEWCELL (tmp2);
+	SCM_SETCAR (tmp2, z); 
+	SCM_SETCDR (tmp1, tmp2);
 	tmp1      = tmp2;
       }
-      CDR(tmp1) = NIL;
+      SCM_SETCDR (tmp1, SCM_EOL);
     }
     /* close_string_port(port); */
   }
 
   Tcl_ResetResult(interp); 
-  return errp ? UNDEFINED : result;
+  return errp ? SCM_UNSPECIFIED : result;
 }
 
+/*fixme* need to output ports as #filexxxx */
 char *
 STk_convert_for_Tk (SCM obj, SCM *res)
 {
@@ -123,11 +138,12 @@ STk_convert_for_Tk (SCM obj, SCM *res)
 	return "#t";
       else if (obj == SCM_BOOL_F)
 	return "#f";
+      goto dflt;
     }
   else
     switch (SCM_TYP7 (obj))
       {
-      case scm_tc7_symbol:
+      case scm_tcs_symbols:
       case scm_tc7_string:
 	*res = obj;
 	return SCM_ROCHARS (obj);
@@ -137,80 +153,44 @@ STk_convert_for_Tk (SCM obj, SCM *res)
 	    *res = scm_number_to_string (obj, SCM_MAKINUM (10L));
 	    return SCM_ROCHARS (*res);
 	  }
-      case tc_tkcommand: return (obj->storage_as.tk.data)->Id;
-    case tc_keyword:   *res = obj; return obj->storage_as.keyword.data;
-    case tc_boolean:   return (obj == Truth)? "#t" : "#f";
-    default:           /* Ok, take the big hammer (i.e. use a string port for 
-			* type coercion) Here, use write (and not display) 
-			* since it handles complex data structures containing
-			* eventually special chars which must be escaped
-			* Ex: (bind .w "<Enter>" '(display "<Enter>"))
-			*     First <Enter> is unquotted and second is not
-			*/
-		       {
-			 SCM port;
-			 
-			 port = STk_open_output_string();
-			 STk_print(obj, port, TK_MODE); 
-			 *res = STk_get_output_string(port);
-			 return CHARS(*res);
-		       }
-  }
+	if (SCM_KEYWORDP (obj))
+	  {
+	    *res = obj;
+	    return SCM_CHARS (SCM_CDR (obj));
+	  }
+	goto dflt;
+      case scm_tcs_cons_gloc:
+	if (SCM_TKCMDP (obj))
+	  {
+	    *res = obj;
+	    return SCM_TKCMD (obj)->Id;
+	  }
+      default:          /* Ok, take the big hammer (i.e. use a string port for 
+			 * type coercion) Here, use write (and not display) 
+			 * since it handles complex data structures containing
+			 * eventually special chars which must be escaped
+			 * Ex: (bind .w "<Enter>" '(display "<Enter>"))
+			 *     First <Enter> is unquotted and second is not
+			 */
+      dflt:
+	{
+	  SCM port;
+	  
+	  port = scm_mkstrport (SCM_INUM0,
+				scm_make_string(SCM_MAKINUM(30),
+						SCM_UNDEFINED),
+				SCM_OPN | SCM_WRTNG,
+				"STk_convert_for_Tk");
+	  scm_write (obj, port); 
+	  *res = scm_makfromstr (SCM_CHARS (SCM_CDR (SCM_STREAM (port))),
+				 SCM_INUM (SCM_CAR (SCM_STREAM (port))),
+				 0);
+	  return SCM_CHARS (*res);
+	}
+      }
 }
 
  
-SCM STk_execute_Tcl_lib_cmd(SCM cmd, SCM args, SCM env, int eval_args)
-{
-  char *buffer[MAXARG+2];
-  int tkres;
-  char **argv 	       = buffer;
-  int argc  	       = STk_llength(args);
-  SCM conv_res, start  = args;
-  struct Tk_command *W = cmd->storage_as.tk.data;
-
- 
-  if (argc >= MAXARG) {
-    /* allocate dynamically the argv array (one extra for argv[0] and one 
-     * for the NULL terminator -dsf
-     */
-    argv=(char **) must_malloc((argc+2) * sizeof(char *));
-  }
-
-  /* 
-   * conv_res is (roughly) a vector of the values returned by convert_for_Tk. 
-   * It serves only to have pointers in the stack on the converted values. 
-   * This permits to avoid GC problems (i.e. a GC between 1 and argc 
-   * whereas convert_for_Tk has created new cells in a previous iteration 
-   */
-  conv_res = STk_makevect(argc+2, NIL);
-
-  /* First initialize an argv array */
-  argv[0] = cmd->storage_as.tk.data->Id;
-  
-  for (argc = 1; NNULLP(args); argc++, args=CDR(args)) {
-    if (NCONSP(args)) Err("Malformed list of arguments", start);
-    argv[argc] = STk_convert_for_Tk(eval_args ? STk_eval(CAR(args), env):CAR(args), 
-				    	      &(VECT(conv_res)[argc]));
-  }
-  argv[argc] = NULL;
-
-  /* Now, call the Tk library function */
-  Tcl_ResetResult(STk_main_interp);
-
-  tkres = (*W->fct)(W->ptr, STk_main_interp, argc, argv);
-  
-  if (argv != buffer) {
-    /* argv was allocated dynamically. Dispose it */
-    free(argv);
-  }
-
-  /* return result as a string or "evaluated" depending of string_result field */
-  if (tkres == TCL_OK)
-    return TkResult2Scheme(STk_main_interp);
-  
-  Err(STk_main_interp->result, NIL);
-}
-
 /******************************************************************************
  *
  * Callback management
@@ -234,13 +214,13 @@ int STk_valid_callback(char *s, void **closure)
     if (s[0] == '#' && s[1] == 'p') {
       /* Verify that the rest of the string only contains hexadecimal digits */
       for (p = s + 2; *p; p++)
-	if (!isxdigit(*p)) return FALSE;
+	if (!isxdigit(*p)) return 0;
 
       sscanf(s+2, "%lx", (unsigned long) closure);
-      if (!STk_valid_address((SCM) *closure)) return FALSE;
+      if (!scm_cellp((SCM) *closure)) return 0;
     }
   }
-  return TRUE;
+  return 1;
 }
 
 void STk_add_callback(char *key1, char *key2, char *key3, SCM closure)
@@ -256,7 +236,9 @@ void STk_add_callback(char *key1, char *key2, char *key3, SCM closure)
       /* Key already in hash table */
       secondary_hash_table = Tcl_GetHashValue(entry);
     else {
-      secondary_hash_table = (Tcl_HashTable *) must_malloc(sizeof(Tcl_HashTable));
+      secondary_hash_table = ((Tcl_HashTable *)
+			      scm_must_malloc (sizeof(Tcl_HashTable),
+					       "STk_add_callback"));
       Tcl_InitHashTable(secondary_hash_table, TCL_STRING_KEYS);
       entry = Tcl_CreateHashEntry(&Tk_callbacks, (char *) key1, &new);
       Tcl_SetHashValue(entry, secondary_hash_table);
@@ -292,7 +274,7 @@ void STk_delete_callback(char *key)
       /* Delete the secondary hash table associated to this entry */
       secondary_hash_table = Tcl_GetHashValue(entry);
       Tcl_DeleteHashTable(secondary_hash_table);
-      free(secondary_hash_table);
+      scm_must_free ((char*) secondary_hash_table);
     }
     /* Delete the entry itself */
     Tcl_DeleteHashEntry(entry);
@@ -313,7 +295,7 @@ void STk_mark_callbacks(void)
     key = Tcl_GetHashKey(&Tk_callbacks, entry1);
     if (*key == 'a' && strncmp(key, "after#", 6) == 0) {
       /* No secondary hash table */
-      STk_gc_mark((SCM) Tcl_GetHashValue(entry1));
+      scm_gc_mark((SCM) Tcl_GetHashValue(entry1));
     }
     else {
       /* We have a secondary hash table. Scan it  */
@@ -322,7 +304,7 @@ void STk_mark_callbacks(void)
 	   entry2;
 	   entry2 = Tcl_NextHashEntry(&search2)) {
 	
-	STk_gc_mark((SCM) Tcl_GetHashValue(entry2));
+	scm_gc_mark((SCM) Tcl_GetHashValue(entry2));
       }
     }
   }
@@ -333,18 +315,39 @@ void STk_mark_callbacks(void)
  * in the value parameter. If an error occurs, this function returns NULL
  *
  */
-char *STk_append_callback_parameters(SCM proc)
+static char s_STk_append_callback_parameters[] = "STk_append_callback_parameters";
+char *
+STk_append_callback_parameters (SCM proc)
 {
   SCM param, port;
 
-  if (!CLOSUREP(proc)) return NULL;
-  param = CLOSURE_PARAMETERS(proc);
+  if (!(SCM_NIMP (proc) && SCM_CLOSUREP(proc)))
+    return NULL;
+  param = SCM_CAR (SCM_CODE (proc));
 
-  if (NULLP(param) || CONSP(param)) {
-    port = STk_open_output_string();
-    STk_print(Cons(proc, param) , port, TK_MODE); 
-    return CHARS(STk_get_output_string(port));
-  }
+  if (SCM_NULLP(param) || (SCM_NIMP (param) && SCM_CONSP(param)))
+    {
+      char *new;
+      int len;
+      SCM pstate;
+      port = scm_mkstrport (SCM_INUM0,
+			    scm_make_string(SCM_MAKINUM(30),
+					    SCM_UNDEFINED),
+			    SCM_OPN | SCM_WRTNG,
+			    s_STk_append_callback_parameters);
+      scm_gen_puts (scm_regular_string, "(#p", port);
+      scm_intprint (proc, 16, port);
+      pstate = scm_make_print_state ();
+      scm_iprlist (" ", param, ')', port, SCM_PRINT_STATE (pstate));
+      scm_free_print_state (pstate);
+      len = SCM_INUM (SCM_CAR (SCM_STREAM (port)));
+      /*fixme* Code should be reorganized so that the following isn't
+               necessary */
+      new = ckalloc (len + 1);
+      strncpy (new, SCM_CHARS (SCM_CDR (SCM_STREAM (port))), len);
+      new[len] = '\0';
+      return new;
+    }
   return NULL;
 }
 
@@ -361,7 +364,7 @@ void STk_sharp_dot_result(Tcl_Interp *interp, char *value)
   int len = strlen(value);
   char *s;
 
-  s = (char *) STk_must_malloc(len + 3);
+  s = (char *) scm_must_malloc (len + 3, "STk_sharp_dot_result");
   s[0] = '#';
   s[1] = '.';
   strcpy(s+2, value);
@@ -382,7 +385,7 @@ SCM STk_last_Tk_as_SCM(void)
 
 SCM STk_get_NIL_value(void)
 {
-  return NIL;
+  return SCM_EOL;
 }
 
 
@@ -395,8 +398,10 @@ char *STk_stringify(char *s, int free_original)
 {
   char *res, *d;
   
-  if (s == NULL) s = "";
-  res = d = must_malloc(2 * strlen(s) + 3); /* worst overestimation */
+  if (s == NULL)
+    s = "";
+  /* worst overestimation */
+  res = d = scm_must_malloc(2 * strlen(s) + 3, "STk_stringify");
   
   for ( *d++ = '"'; *s; s++, d++) {
     if (*s == '"' || *s == '\\') *d++ = '\\';
@@ -405,7 +410,8 @@ char *STk_stringify(char *s, int free_original)
   *d++ = '"';
   *d   = '\0';
   
-  if (free_original) free(s);
+  if (free_original)
+    scm_must_free (s);
   return res;
 }
 
@@ -422,17 +428,18 @@ char *STk_stringify(char *s, int free_original)
 static SCM get_Motif(char *s)
 {
   TkWindow *p = (TkWindow *) Tk_MainWindow(STk_main_interp);
-  return (p->mainPtr->strictMotif) ? Truth: Ntruth;
+  return (p->mainPtr->strictMotif) ? SCM_BOOL_T: SCM_BOOL_F;
 }
 
 static void set_Motif(char *s, SCM value)
 { 
   TkWindow *p = (TkWindow *) Tk_MainWindow(STk_main_interp);
-  p->mainPtr->strictMotif = !(value == Ntruth);
+  p->mainPtr->strictMotif = !(value == SCM_BOOL_F);
 }
 
 
-void STk_init_glue(void)
+void
+scm_init_tk_glue (void)
 {
   /* 
    * Take into account the fact that Tk main window  name (i.e. ``.'') 
@@ -441,16 +448,12 @@ void STk_init_glue(void)
    * pair).
    *
    */
-  STk_root_window_name=Intern(ROOT_WINDOW);   STk_gc_protect(&STk_root_window_name);
-  STk_root_window     =STk_eval(Sym_dot, NIL);STk_gc_protect(&STk_root_window);
-
-  VCELL(STk_root_window_name) = STk_root_window;
-
+  STk_root_window     = SCM_CDR (scm_sysintern (ROOT_WINDOW,
+						scm_eval (scm_sym_dot)));
+  
   /* Init the callback table */
   Tcl_InitHashTable(&Tk_callbacks, TCL_STRING_KEYS);
   
   /* Associate a getter and a setter for the global variable *Tk-strict-Motif*  */
-  STk_define_C_variable("*tk-strict-motif*", get_Motif, set_Motif);
+  /* STk_define_C_variable("*tk-strict-motif*", get_Motif, set_Motif); */
 }
-
-#endif /* USE_TK */

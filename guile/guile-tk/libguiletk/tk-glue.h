@@ -25,7 +25,7 @@
 
 /* Scheme objects used to represent the "." pseudo widget and its name */
 extern SCM STk_root_window;
-extern SCM STk_root_window_name;
+/* extern SCM STk_root_window_name; */
 
 /* Last result of Tcl_GlobalEval (as a SCM object rather than a string) */
 extern SCM STk_last_Tk_result;

@@ -1,8 +1,14 @@
-# Makefile.in generated automatically by automake 1.1p from Makefile.am
+# Makefile.in generated automatically by automake 1.2c from Makefile.am
 
-# Copyright (C) 1994, 1995, 1996 Free Software Foundation, Inc.
+# Copyright (C) 1994, 1995, 1996, 1997 Free Software Foundation, Inc.
 # This Makefile.in is free software; the Free Software Foundation
-# gives unlimited permission to copy, distribute and modify it.
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY, to the extent permitted by law; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
 
 
 SHELL = /bin/sh
@@ -51,10 +57,6 @@ PRE_UNINSTALL = true
 POST_UNINSTALL = true
 host_alias = @host_alias@
 host_triplet = @host@
-ACLOCAL = @ACLOCAL@
-AUTOCONF = @AUTOCONF@
-AUTOHEADER = @AUTOHEADER@
-AUTOMAKE = @AUTOMAKE@
 CC = @CC@
 CPP = @CPP@
 LD = @LD@
@@ -62,6 +64,7 @@ LIBTOOL = @LIBTOOL@
 LN_S = @LN_S@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
+NM = @NM@
 PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
 TCL_EXTRA_LIBS = @TCL_EXTRA_LIBS@
@@ -69,10 +72,15 @@ VERSION = @VERSION@
 
 AUTOMAKE_OPTIONS = foreign
 
+CFLAGS = -DUSE_TK @CFLAGS@
+
+INCLUDES = -I$(srcdir)/../Tcl -I$(srcdir)/../Tk/generic
+
 lib_LTLIBRARIES = libguiletk.la
 bin_PROGRAMS = guile-tk
 
-libguiletk_la_SOURCES = gtk-module.c foo.c foo.h
+libguiletk_la_SOURCES = \
+    gtk-module.c tk-glue.c tk-glue.h tkcmd.c tkcmd.h tcl-lib.c
 libguiletk_la_LDFLAGS = -version-info 0:0 -rpath $(libdir)
 
 guile_tk_LDADD = libguiletk.la ../Tk/unix/libtk.a ../Tcl/libtcl.a
@@ -97,7 +105,7 @@ X_LIBS = @X_LIBS@
 X_EXTRA_LIBS = @X_EXTRA_LIBS@
 X_PRE_LIBS = @X_PRE_LIBS@
 libguiletk_la_LIBADD = 
-libguiletk_la_OBJECTS =  gtk-module.lo foo.lo
+libguiletk_la_OBJECTS =  gtk-module.lo tk-glue.lo tkcmd.lo tcl-lib.lo
 PROGRAMS =  $(bin_PROGRAMS)
 
 guile_tk_SOURCES = guile-tk.c
@@ -105,7 +113,6 @@ guile_tk_OBJECTS =  guile-tk.o
 guile_tk_DEPENDENCIES =  libguiletk.la ../Tk/unix/libtk.a \
 ../Tcl/libtcl.a
 guile_tk_LDFLAGS = 
-CFLAGS = @CFLAGS@
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
 LINK = $(LIBTOOL) --mode=link $(CC) $(CFLAGS) $(LDFLAGS) -o $@
 DIST_COMMON =  ChangeLog Makefile.am Makefile.in
@@ -115,7 +122,8 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP = --best
-DEP_FILES =  .deps/foo.P .deps/gtk-module.P .deps/guile-tk.P
+DEP_FILES =  .deps/gtk-module.P .deps/guile-tk.P .deps/tcl-lib.P \
+.deps/tk-glue.P .deps/tkcmd.P
 SOURCES = $(libguiletk_la_SOURCES) guile-tk.c
 OBJECTS = $(libguiletk_la_OBJECTS) guile-tk.o
 
@@ -134,7 +142,7 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status $(BUILT_SOURCES)
 mostlyclean-libLTLIBRARIES:
 
 clean-libLTLIBRARIES:
-	test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
+	-test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
 
 distclean-libLTLIBRARIES:
 
@@ -160,12 +168,12 @@ uninstall-libLTLIBRARIES:
 	$(COMPILE) -c $<
 
 mostlyclean-compile:
-	rm -f *.o core
+	-rm -f *.o core
 
 clean-compile:
 
 distclean-compile:
-	rm -f *.tab.c
+	-rm -f *.tab.c
 
 maintainer-clean-compile:
 
@@ -173,10 +181,10 @@ maintainer-clean-compile:
 	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
 
 mostlyclean-libtool:
-	rm -f *.lo
+	-rm -f *.lo
 
 clean-libtool:
-	rm -rf .libs
+	-rm -rf .libs
 
 distclean-libtool:
 
@@ -188,7 +196,7 @@ libguiletk.la: $(libguiletk_la_OBJECTS) $(libguiletk_la_DEPENDENCIES)
 mostlyclean-binPROGRAMS:
 
 clean-binPROGRAMS:
-	test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
+	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
 
 distclean-binPROGRAMS:
 
@@ -230,7 +238,7 @@ mostlyclean-tags:
 clean-tags:
 
 distclean-tags:
-	rm -f TAGS ID
+	-rm -f TAGS ID
 
 maintainer-clean-tags:
 
@@ -241,6 +249,7 @@ subdir = libguiletk
 distdir: $(DISTFILES)
 	here=`cd $(top_builddir) && pwd`; \
 	top_distdir=`cd $(top_distdir) && pwd`; \
+	distdir=`cd $(distdir) && pwd`; \
 	cd $(top_srcdir) \
 	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --foreign libguiletk/Makefile
 	@for file in $(DISTFILES); do \
@@ -249,12 +258,13 @@ distdir: $(DISTFILES)
 	  || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
 	  || cp -p $$d/$$file $(distdir)/$$file; \
 	done
-.deps/.P:
-	test -d .deps || mkdir .deps
+
+DEPS_MAGIC := $(shell mkdir .deps > /dev/null 2>&1 || :)
+-include .deps/.P
+.deps/.P: $(BUILT_SOURCES)
 	echo > $@
 
 -include $(DEP_FILES)
-$(DEP_FILES): .deps/.P
 
 mostlyclean-depend:
 
@@ -263,13 +273,15 @@ clean-depend:
 distclean-depend:
 
 maintainer-clean-depend:
-	rm -rf .deps
+	-rm -rf .deps
 
 .deps/%.P: %.c
 	@echo "Computing dependencies for $<..."
 	@o='o'; \
 	test -n "$o" && o='$$o'; \
-	$(MKDEP) $< | sed "s,^\(.*\)\.o:,\1.$$o \1.l$$o $@:," > $@
+	$(MKDEP) $< >$@.tmp \
+	  && sed "s,^\(.*\)\.o:,\1.$$o \1.l$$o $@:," < $@.tmp > $@ \
+	  && rm -f $@.tmp
 info:
 dvi:
 check: all
@@ -289,25 +301,25 @@ uninstall: uninstall-libLTLIBRARIES uninstall-binPROGRAMS
 all: Makefile $(LTLIBRARIES) $(PROGRAMS)
 
 install-strip:
-	$(MAKE) INSTALL_PROGRAM='$(INSTALL_PROGRAM) -s' install
+	$(MAKE) INSTALL_PROGRAM='$(INSTALL_PROGRAM) -s' INSTALL_SCRIPT='$(INSTALL_PROGRAM)' install
 installdirs:
 	$(mkinstalldirs)  $(libdir) $(bindir)
 
 
 mostlyclean-generic:
-	test -z "$(MOSTLYCLEANFILES)" || rm -f $(MOSTLYCLEANFILES)
+	-test -z "$(MOSTLYCLEANFILES)" || rm -f $(MOSTLYCLEANFILES)
 
 clean-generic:
-	test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
+	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
 
 distclean-generic:
-	rm -f Makefile $(DISTCLEANFILES)
-	rm -f config.cache config.log stamp-h stamp-h[0-9]*
-	test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
+	-rm -f Makefile $(DISTCLEANFILES)
+	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
+	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 
 maintainer-clean-generic:
-	test -z "$(MAINTAINERCLEANFILES)" || rm -f $(MAINTAINERCLEANFILES)
-	test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
+	-test -z "$(MAINTAINERCLEANFILES)" || rm -f $(MAINTAINERCLEANFILES)
+	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 mostlyclean:  mostlyclean-libLTLIBRARIES mostlyclean-compile \
 		mostlyclean-libtool mostlyclean-binPROGRAMS \
 		mostlyclean-tags mostlyclean-depend mostlyclean-generic
@@ -319,8 +331,8 @@ clean:  clean-libLTLIBRARIES clean-compile clean-libtool \
 distclean:  distclean-libLTLIBRARIES distclean-compile distclean-libtool \
 		distclean-binPROGRAMS distclean-tags distclean-depend \
 		distclean-generic clean
-	rm -f config.status
-	rm -f libtool
+	-rm -f config.status
+	-rm -f libtool
 
 maintainer-clean:  maintainer-clean-libLTLIBRARIES \
 		maintainer-clean-compile maintainer-clean-libtool \
