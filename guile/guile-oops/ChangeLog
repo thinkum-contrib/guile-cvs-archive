@@ -1,5 +1,18 @@
 2000-06-30  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
+	* Version 0.9.0 released.
+
+	* GOOPS-VERSION: Bumped to GOOPS version 0.9.0 and LIBGOOPSCORE
+	version 4.0.0.
+
+	* configure.in: Substitute LIBGOOPSCORE version variables.
+
+	* Makefile.am (libgoopscore_la_LDFLAGS): Use LIBGOOPSCORE version
+	numbers.
+
+	* GOOPS-VERSION: Updated for shell compatibility, and added
+	LIBGOOPSCORE versions.  (Thanks to Karl M. Hegbloom.)
+
 	* goops.h, goops.c (scm_module_goops): New variable.
 
 	* goops.c (scm_sys_invalidate_method_cache_x): Strip rest args
