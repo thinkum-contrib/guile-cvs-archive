@@ -166,7 +166,7 @@ SCM scm_slot_set_x (SCM obj, SCM slot_name, SCM value);
 
 SCM scm_compute_applicable_methods (SCM gf, SCM args, int len, int scm_find_method);
 SCM scm_apply_next_method(SCM args);
-extern void scm_init_oop_goopscore_module (void);
+extern void scm_init_oop_goops_goopscore_module (void);
 
 SCM scm_sys_compute_slots(SCM class); 
 SCM scm_i_get_keyword(SCM key, SCM l, int len, SCM default_value, const char *subr); 

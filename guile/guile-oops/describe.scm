@@ -26,7 +26,7 @@
 ;;;; Erick Gallesio <eg@unice.fr>.
 ;;;;
 
-(define-module (oop describe)
+(define-module (oop goops describe)
   :use-module (oop goops)
   :use-module (ice-9 session)
   :use-module (ice-9 slib))

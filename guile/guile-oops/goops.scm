@@ -27,7 +27,7 @@
 ;;;;
 
 (define-module (oop goops)
-  :use-module (oop goopscore)
+  :use-module (oop goops goopscore)
   :no-backtrace
   )
 
