@@ -40,7 +40,10 @@
 						   %module-public-interface)))
 
 ;; ...but replace the following bindings:
-(export define-class)
+(export define-class define-method)
+
+;; Also export the following
+(export write-object)
 
 ;;; Enable keyword support (*fixme*---currently this has global effect)
 (read-set! keywords 'prefix)
@@ -60,3 +63,36 @@
 	 `(define-class ,(name exp) ,(supers exp) ,@(slots exp)
 	    ,@(rest exp))
 	 env)))))
+
+(define define-method
+  (procedure->memoizing-macro
+    (lambda (exp env)
+      (let ((name (cadr exp)))
+	(if (and (pair? name)
+		 (eq? (car name) 'setter)
+		 (pair? (cdr name))
+		 (null? (cddr name)))
+	    (let ((name (cadr name)))
+	      (cond ((not (symbol? name))
+		     (goops-error "bad method name: %S" name))
+		    ((defined? name env)
+		     `(begin
+			(if (not (is-a? ,name <generic-with-setter>))
+			    (define-accessor ,name))
+			(add-method! (setter ,name) (method ,@(cddr exp)))))
+		    (else
+		     `(begin
+			(define-accessor ,name)
+			(add-method! (setter ,name) (method ,@(cddr exp)))))))
+	    (cond ((not (symbol? name))
+		   (goops-error "bad method name: %S" name))
+		  ((defined? name env)
+		   `(begin
+		      (if (not (or (is-a? ,name <generic>)
+				   (is-a? ,name <primitive-generic>)))
+			  (define-generic ,name))
+		      (add-method! ,name (method ,@(cddr exp)))))
+		  (else
+		   `(begin
+		      (define-generic ,name)
+		      (add-method! ,name (method ,@(cddr exp)))))))))))
