@@ -968,7 +968,7 @@ get_slot_value (SCM class, SCM obj, SCM slot_name)
 	    {
 	      /* We must evaluate (apply (car l) (list obj)) 
 	       * where (car l) is known to be a closure of arity 1  */
-	      register SCM code, next, env;
+	      register SCM code, env;
 
 	      code = SCM_CAR (l);
 	      if (!SCM_CLOSUREP (code))
@@ -977,24 +977,7 @@ get_slot_value (SCM class, SCM obj, SCM slot_name)
 				     SCM_LIST1 (obj),
 				     SCM_ENV (code));
 	      /* Evaluate the closure body */
-	      code = SCM_CDR (SCM_CODE (code));
-	    again:
-	      next = code;
-	      while (SCM_NNULLP (next = SCM_CDR (next)))
-		{
-		  if (SCM_IMP (SCM_CAR (code)))
-		    {
-		      if (SCM_ISYMP (SCM_CAR (code)))
-			{
-			  code = scm_m_expand_body (code, env);
-			  goto again;
-			}
-		    }
-		  else
-		    SCM_XEVAL (SCM_CAR (code), env);
-		  code = next;
-		}
-	      return SCM_XEVALCAR (code, env);
+	      return scm_eval_body (SCM_CDR (SCM_CODE (code)), env);
 	    }
 	}
     }
@@ -1032,21 +1015,7 @@ set_slot_value (SCM class, SCM obj, SCM slot_name, SCM value)
 					 SCM_LIST2 (obj, value),
 					 SCM_ENV (code));
 		  /* Evaluate the closure body */
-		  code = SCM_CDR (SCM_CODE (code));
-		  while (SCM_NNULLP (code))
-		    {
-		      if (SCM_IMP (SCM_CAR (code)))
-			{
-			  if (SCM_ISYMP (SCM_CAR (code)))
-			    {
-			      code = scm_m_expand_body (code, env);
-			      continue;
-			    }
-			}
-		      else
-			SCM_XEVAL (SCM_CAR (code), env);
-		      code = SCM_CDR (code);
-		    }
+		  scm_eval_body (SCM_CDR (SCM_CODE (code)), env);
 		}
 	    }
 	  return SCM_UNSPECIFIED;
@@ -2067,7 +2036,7 @@ create_standard_classes (void)
 				     k_class,
 				     scm_class_opaque)));
   make_stdcls (&scm_class_foreign_object,  "<foreign-object>",
-	       scm_class_foreign_class, scm_class_top,	   SCM_EOL);
+	       scm_class_foreign_class, scm_class_object,   SCM_EOL);
   SCM_SET_CLASS_FLAGS (scm_class_foreign_object, SCM_CLASSF_FOREIGN);
 
   /* scm_class_generic functions classes */
