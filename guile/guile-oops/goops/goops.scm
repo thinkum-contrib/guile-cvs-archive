@@ -863,14 +863,14 @@
   (let ((new-instance (allocate-instance new-class ())))
     ;; Initalize the slot of the new instance
     (for-each (lambda (slot)
-		(if (slot-exists-using-class? old-class old-instance slot)
+		(if (and (slot-exists-using-class? old-class old-instance slot)
+			 (slot-bound-using-class? old-class old-instance slot))
 		    ;; Slot was present in old instance; set it 
-		    (if (slot-bound-using-class? old-class old-instance slot)
 			(slot-set-using-class!
 			     new-class 
 			     new-instance 
 			     slot 
-			     (slot-ref-using-class old-class old-instance slot)))
+		          (slot-ref-using-class old-class old-instance slot))
 		    ;; slot was absent; initialize it with its default value
 		    (let ((init (slot-init-function new-class slot)))
 		      (if init
