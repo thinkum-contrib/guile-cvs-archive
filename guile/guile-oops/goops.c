@@ -1234,13 +1234,30 @@ static SCM f_apply_0_arity_method;
 
 static void clear_method_cache (SCM);
 
+static SCM
+wrap_init (SCM class, SCM *m, int n)
+{
+  SCM z;
+  int i;
+  
+  /* Set all slots to unbound */
+  for (i = 0; i < n; i++)
+    m[i] = SCM_GOOPS_UNBOUND;
+
+  SCM_NEWCELL (z);
+  SCM_SETCDR (z, m);
+  SCM_SETCAR (z, (SCM) SCM_STRUCT_DATA (class) + scm_tc3_cons_gloc);
+
+  return z;
+}
+
 SCM_PROC (s_sys_allocate_instance, "%allocate-instance", 2, 0, 0, scm_sys_allocate_instance);
 
 SCM
 scm_sys_allocate_instance (SCM class, SCM initargs)
 {
-  int n, i;
-  SCM z, *m;
+  SCM *m;
+  int n;
 
   SCM_ASSERT (SCM_NIMP (class) && CLASSP (class),
 	      class, SCM_ARG1, s_sys_allocate_instance);
@@ -1248,73 +1265,69 @@ scm_sys_allocate_instance (SCM class, SCM initargs)
   /* Most instances */
   if (SCM_CLASS_FLAGS (class) & SCM_STRUCTF_LIGHT)
     {
-      SCM_NEWCELL (z);
       n = SCM_INUM (SCM_SLOT (class, scm_si_nfields));
       m = (SCM *) scm_must_malloc (n * sizeof (SCM), "instance");
+      return wrap_init (class, m, n);
     }
+  
   /* Foreign objects */
-  else if (SCM_CLASS_FLAGS (class) & SCM_CLASSF_FOREIGN)
+  if (SCM_CLASS_FLAGS (class) & SCM_CLASSF_FOREIGN)
     return scm_make_foreign_object (class, initargs);
-  else
+
+  n = SCM_INUM (SCM_SLOT (class, scm_si_nfields));
+  
+  /* Entities */
+  if (SCM_CLASS_FLAGS (class) & SCM_CLASSF_ENTITY)
     {
-      SCM_NEWCELL (z);
-      n = SCM_INUM (SCM_SLOT (class, scm_si_nfields));
-      /* Entities */
-      if (SCM_CLASS_FLAGS (class) & SCM_CLASSF_ENTITY)
+      m = (SCM *) scm_alloc_struct (n,
+				    scm_struct_entity_n_extra_words,
+				    "instance");
+      /* Generic functions */
+      if (SCM_CLASS_FLAGS (class) & SCM_CLASSF_PURE_GENERIC)
 	{
-	  m = (SCM *) scm_alloc_struct (n,
-					scm_struct_entity_n_extra_words,
-					"instance");
-	  /* Generic functions */
-	  if (SCM_CLASS_FLAGS (class) & SCM_CLASSF_PURE_GENERIC)
-	    {
-	      SCM_SETCDR (z, m);
-	      clear_method_cache (z);
-	    }
-	  else
-	    {
-	      m[scm_struct_i_proc + 0] = SCM_BOOL_F;
-	      m[scm_struct_i_proc + 1] = SCM_BOOL_F;
-	      m[scm_struct_i_proc + 2] = SCM_BOOL_F;
-	      m[scm_struct_i_proc + 3] = SCM_BOOL_F;
-	    }
+	  SCM gf = wrap_init (class, m, n);
 	  m[scm_struct_i_setter] = SCM_BOOL_F;
+	  clear_method_cache (gf);
+	  return gf;
 	}
-      /* Class objects */
-      else if (SCM_CLASS_FLAGS (class) & SCM_CLASSF_METACLASS)
-	{
-	  /* allocate class object */
-	  z = scm_make_struct (class, SCM_INUM0, SCM_EOL);
-
-	  SCM_SLOT (z, scm_si_print) = SCM_GOOPS_UNBOUND;
-	  for (i = scm_si_goops_fields; i < n; i++)
-	    SCM_SLOT (z, i) = SCM_GOOPS_UNBOUND;
-
-	  if (SCM_SUBCLASSP (class, scm_class_entity_class))
-	    SCM_SET_CLASS_FLAGS (z, SCM_CLASSF_OPERATOR | SCM_CLASSF_ENTITY);
-	  else if (SCM_SUBCLASSP (class, scm_class_operator_class))
-	    SCM_SET_CLASS_FLAGS (z, SCM_CLASSF_OPERATOR);
-
-	  return z;
-	}
-      /* Non-light instances */
       else
 	{
-	  SCM_NEWCELL (z);
-	  m = (SCM *) scm_alloc_struct (n,
-					scm_struct_n_extra_words,
-					"instance");
+	  m[scm_struct_i_setter] = SCM_BOOL_F;
+	  m[scm_struct_i_proc + 0] = SCM_BOOL_F;
+	  m[scm_struct_i_proc + 1] = SCM_BOOL_F;
+	  m[scm_struct_i_proc + 2] = SCM_BOOL_F;
+	  m[scm_struct_i_proc + 3] = SCM_BOOL_F;
+	  return wrap_init (class, m, n);
 	}
     }
   
-  /* Set all slots to unbound */
-  for (i = 0; i < n; i++)
-    m[i] = SCM_GOOPS_UNBOUND;
+  /* Class objects */
+  if (SCM_CLASS_FLAGS (class) & SCM_CLASSF_METACLASS)
+    {
+      int i;
 
-  SCM_SETCDR (z, m);
-  SCM_SETCAR (z, (SCM) SCM_STRUCT_DATA (class) + scm_tc3_cons_gloc);
+      /* allocate class object */
+      SCM z = scm_make_struct (class, SCM_INUM0, SCM_EOL);
 
-  return z;
+      SCM_SLOT (z, scm_si_print) = SCM_GOOPS_UNBOUND;
+      for (i = scm_si_goops_fields; i < n; i++)
+	SCM_SLOT (z, i) = SCM_GOOPS_UNBOUND;
+
+      if (SCM_SUBCLASSP (class, scm_class_entity_class))
+	SCM_SET_CLASS_FLAGS (z, SCM_CLASSF_OPERATOR | SCM_CLASSF_ENTITY);
+      else if (SCM_SUBCLASSP (class, scm_class_operator_class))
+	SCM_SET_CLASS_FLAGS (z, SCM_CLASSF_OPERATOR);
+
+      return z;
+    }
+  
+  /* Non-light instances */
+  {
+    m = (SCM *) scm_alloc_struct (n,
+				  scm_struct_n_extra_words,
+				  "instance");
+    return wrap_init (class, m, n);
+  }
 }
 
 SCM_PROC (s_sys_set_object_setter_x, "%set-object-setter!", 2, 0, 0, scm_sys_set_object_setter_x);
