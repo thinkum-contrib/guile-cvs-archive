@@ -148,6 +148,30 @@ is returned if @var{condition} holds, and that @samp{#f} is returned
 otherwise.
 @cindex iff
 
+@item
+In examples and procedure descriptions and all other places where the
+evaluation of Scheme expression is shown, we use some notation for
+denoting the output and evaluation results of expressions.
+
+The symbol @code{@result{}} is used to tell which value is returned by
+an evaluation:
+
+@lisp
+(+ 1 2)
+@result{}
+3
+@end lisp
+
+Some procedures produce some output besides returning a value.  This
+is denoted by the symbol @code{@print{}}.
+
+@lisp
+(begin (display 1) (newline) 'hooray)
+@print{} 1
+@result{}
+hooray
+@end lisp
+
 @c Add other conventions here.
 
 @end itemize
