@@ -13,32 +13,8 @@
   - fix bugs
 
 
-- Guile 1.6 (branched: only modify items according to ../build/release.txt)
-  + document libtool conventions [rlb]
-  + write workbook/build/maintainer-dirs.text [ttn]
-  + write guile-core/am/maintainer-dirs [ttn]
-  +R merge HEAD and branch_release-1-6 TODO files into this one [ttn]
-  + write dist-hook to include TODO snapshot [ttn]
-  + delete HEAD and branch_release-1-6 TODO files [ttn]
-  + convert bug tracking/summarization process
-    +R define bugs db format (see bugs/README) [mvo]
-    + import current BUGS [mvo]
-    + write stub for render-bugs [ttn]
-    + write autogen.sh frag to call render-bugs to create BUGS [ttn]
-    + delete HEAD and branch_release-1-6 BUGS files [ttn]
-  +R factor guile-core/ administration files [ttn]
-  +R factor RELEASE (prefer 1-6) into build/release.text [ttn]
-  + show news on guile webpage [ttn]
-  + write build/bugs-triage.text [ttn]
-  + complete build/stability.text [ttn]
-  + make sure all bugs have required headers
-  + fix bugs
-    + 15 (summary: (expt 0 0) -> 0)
-    + string-tokenize-is-wrong
-    + instructions-to-distributors
-    + COPYING-is-wrong
-  + make sure that libltdl has the patch #1 at the end of this file,
-    or is more recent than 1.4.2d.
+- Guile 1.6.1 (branched: only modify items according to ../build/release.txt)
+
 
 - Eventually
   - Allow the deprecation mechanism to be controlled via a preprocessor
