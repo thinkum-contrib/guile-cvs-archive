@@ -531,11 +531,17 @@
 			#:procedure internal-add-method!))
 
 (define-method add-method! ((proc <procedure>) (m <method>))
-  (enable-primitive-generic! proc)
-  (add-method! proc m))
+  (if (generic-capability? proc)
+      (begin
+	(enable-primitive-generic! proc)
+	(add-method! proc m))
+      (next-method)))
 
 (define-method add-method! ((pg <primitive-generic>) (m <method>))
   (add-method! (primitive-generic-generic pg) m))
+
+(define-method add-method! (obj (m <method>))
+  (goops-error "%S is not a valid generic function" obj))
 
 ;;;
 ;;; {Access to meta objects}
