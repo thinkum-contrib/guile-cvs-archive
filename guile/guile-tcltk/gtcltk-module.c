@@ -42,7 +42,7 @@
 
 #include "libguile.h"
 
-static void
+void
 scm_init_gtcltk ()
 {
     scm_init_gtcl ();
@@ -52,5 +52,6 @@ scm_init_gtcltk ()
 void
 scm_init_tcltk_gtcltk_module ()
 {
-    scm_register_module_xxx ("tcltk gtcltk", scm_init_gtcltk);
+    scm_register_module_xxx ("tcltk %static-initfuncs% scm_init_gtcltk",
+			     scm_init_gtcltk);
 }
