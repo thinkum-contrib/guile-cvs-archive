@@ -2,7 +2,7 @@ guile-oops (1.0.0-1) unstable; urgency=high
 
   * New upstream version.
 
- --
+ -- Mikael Djurfeldt <mdj@linnaeus.mit.edu>  Sun,  4 Mar 2001 21:56:55 -0500
 
 guile-oops (0.1.6-5) frozen unstable; urgency=high
 
