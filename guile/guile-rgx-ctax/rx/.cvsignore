@@ -5,3 +5,5 @@ config.status
 .deps
 *.lo
 libtool
+.libs
+*.la

@@ -1,3 +1,11 @@
+Wed Apr  9 17:57:44 1997  Jim Blandy  <jimb@floss.cyclic.com>
+
+	Changes to work with automake-1.1n, which has better libtool support.
+	* Makefile.am: Use lib_LTLIBRARIES instead of lib_PROGRAMS.
+	Use EXTRA_LTLIBRARIES instead of EXTRA_PROGRAMS.
+	(libgtcltk_la_SOURCES): Formatting fix.
+	* Makefile.in: Regenerated.
+
 Mon Mar 17 01:27:37 1997  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 *	* configure.in: Added configuration options --with-tcltk for
