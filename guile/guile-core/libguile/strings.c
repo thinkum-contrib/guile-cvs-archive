@@ -92,9 +92,9 @@ SCM_MUTEX (stringbuf_refcount_mutex);
 static void
 stringbuf_ref (SCM buf)
 {
-  scm_mutex_lock (&stringbuf_refcount_mutex);
+  scm_i_plugin_mutex_lock (&stringbuf_refcount_mutex);
   SET_STRINGBUF_REFCOUNT (buf, STRINGBUF_REFCOUNT (buf) + 1);
-  scm_mutex_unlock (&stringbuf_refcount_mutex);
+  scm_i_plugin_mutex_unlock (&stringbuf_refcount_mutex);
 }
 
 /* Copy-on-write strings.
@@ -150,6 +150,7 @@ scm_i_substring_copy (SCM str, size_t start, size_t end)
   SCM buf = STRING_STRINGBUF (str);
   SCM my_buf = make_stringbuf (len);
   memcpy (STRINGBUF_CHARS (my_buf), STRINGBUF_CHARS (buf) + start, len);
+  scm_remember_upto_here_1 (buf);
   return scm_double_cell (STRING_TAG, SCM_UNPACK(my_buf),
 			  (scm_t_bits)0, (scm_t_bits) len);
 }
@@ -279,7 +280,7 @@ scm_i_string_writable_chars (SCM str)
       start += STRING_START (str);
     }
   buf = STRING_STRINGBUF (str);
-  scm_mutex_lock (&stringbuf_refcount_mutex);
+  scm_i_plugin_mutex_lock (&stringbuf_refcount_mutex);
   if (STRINGBUF_REFCOUNT (buf) > 1)
     {
       /* Clone stringbuf.  For this, we put all threads to sleep.
@@ -288,7 +289,7 @@ scm_i_string_writable_chars (SCM str)
       size_t len = STRING_LENGTH (str);
       SCM new_buf;
 
-      scm_mutex_unlock (&stringbuf_refcount_mutex);
+      scm_i_plugin_mutex_unlock (&stringbuf_refcount_mutex);
 
       new_buf = make_stringbuf (len);
       memcpy (STRINGBUF_CHARS (new_buf),
@@ -303,7 +304,7 @@ scm_i_string_writable_chars (SCM str)
 
       buf = new_buf;
 
-      scm_mutex_lock (&stringbuf_refcount_mutex);
+      scm_i_plugin_mutex_lock (&stringbuf_refcount_mutex);
     }
 
   return STRINGBUF_CHARS (buf) + start;
@@ -312,7 +313,7 @@ scm_i_string_writable_chars (SCM str)
 void
 scm_i_string_stop_writing (void)
 {
-  scm_mutex_unlock (&stringbuf_refcount_mutex);
+  scm_i_plugin_mutex_unlock (&stringbuf_refcount_mutex);
 }
 
 
