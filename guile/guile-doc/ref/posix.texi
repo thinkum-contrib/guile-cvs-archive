@@ -1051,6 +1051,16 @@ Returns the signal number which stopped the
 process, if any, otherwise @code{#f}.
 @end deffn
 
+@deffn procedure system [cmd]
+Executes @var{cmd} using the operating system's "command processor".
+Under Unix this is usually the default shell @code{sh}.  The value
+returned is @var{cmd}'s exit status as returned by @code{waitpid}, which
+can be interpreted using the functions above.
+
+If @code{system} is called without arguments, it returns a boolean
+indicating whether the command processor is available.
+@end deffn
+
 @deffn procedure primitive-exit [status]
 Terminate the current process without unwinding the Scheme stack.
 This is would typically be useful after a fork.  The exit status
@@ -1313,8 +1323,8 @@ Equivalent to @code{(open-pipe command OPEN_WRITE)}.
 @findex pclose
 @deffn procedure close-pipe port
 Closes the pipe created by @code{open-pipe}, then waits for the process
-to terminate and returns its status value, as for the @code{system}
-procedure.
+to terminate and returns its status value, @xref{Processes, waitpid}, for
+information on how to interpret this value.
 
 @code{close-port} (@pxref{Closing Ports, close-port}) can also be used to
 close a pipe, but doesn't return the status.

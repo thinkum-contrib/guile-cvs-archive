@@ -1,3 +1,7 @@
+Sun Dec  7 22:47:22 1997  Gary Houston  <ghouston@actrix.gen.nz>
+
+	* posix.texi (Processes): add "system" procedure.
+
 1997-11-19  Tim Pierce  <twp@twp.tezcat.com>
 
 	* scheme.texi (String Fun): New node.
