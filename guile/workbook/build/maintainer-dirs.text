@@ -1,0 +1,11 @@
+To ease upkeep of non-branch-specific files, we keep them in the workbook.
+Also, there are some scripts that are useful only to Guile maintainers.
+
+The directories for the workbook and maintainer scripts are represented by
+vars `workbook' and `mscripts' respectively.  These can be made available
+(when configured w/ "--enable-maintainer-mode") by adding the line:
+
+	include $(top_srcdir)/am/maintainer-dirs
+
+to a particular Makefile.am.  At this time both dirs are expected as siblings
+to guile-core (supported by the standard "cvs co hack").
