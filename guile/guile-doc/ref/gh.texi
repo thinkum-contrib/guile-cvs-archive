@@ -422,7 +422,7 @@ Make a scheme vector containing the @var{n} ints or doubles at memory
 location @var{dptr}.
 @end deftypefun
 
-@deftypefun SCM gh_chars2byvect (double *@var{dptr}, int @var{n})
+@deftypefun SCM gh_chars2byvect (char *@var{dptr}, int @var{n})
 @deftypefunx SCM gh_shorts2svect (short *@var{dptr}, int @var{n})
 @deftypefunx SCM gh_longs2ivect (long *@var{dptr}, int @var{n})
 @deftypefunx SCM gh_ulongs2uvect (ulong *@var{dptr}, int @var{n})
