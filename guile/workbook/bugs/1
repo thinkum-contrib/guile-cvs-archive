@@ -1,5 +1,6 @@
 summary: (debug-disable 'debug) has no effect if first form in ~/.guile
 reported: Sven.Hartrumpf@fernuni-hagen.de, 2001-08-31
+affects: HEAD branch_release-1-6 branch_release-1-4
 fixed: Neil Jerram, 2001-11-07, guile-core, HEAD
 
 ttn sez:
