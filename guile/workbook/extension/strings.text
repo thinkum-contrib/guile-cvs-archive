@@ -87,7 +87,8 @@ string: stringbuf
 (define (make-substring str start end shared)
   (lock-string-mutex
     (let ((buf (string-stringbuf str)))
-      (inc! (stringbuf-refcount buf))
+      (if (not shared)
+        (inc! (stringbuf-refcount buf)))
       (make <string>
             :stringbuf buf
             :start start
@@ -113,7 +114,9 @@ string: stringbuf
   (free (stringbuf-chars buf)))
 
 (define (collect-string str)
-  ;; XXX (string-stringbuf str) might be invalid
+  ;; XXX - the following needs to be safe even for already
+  ;; swept stringbufs.  It is safe when the refcount is kept
+  ;; in a different field as the cdr of the freelist.
   (dec! (stringbuf-string str)))
 
 ;; Exported
