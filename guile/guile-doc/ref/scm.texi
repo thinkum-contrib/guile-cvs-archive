@@ -18,6 +18,9 @@
 @node I/O internals
 @chapter I/O internals
 
+@xref{C Port Interface}
+
+@xref{Port Implementation}
 @node libguile error handling
 @chapter libguile error handling
 

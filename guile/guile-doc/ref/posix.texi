@@ -1214,15 +1214,14 @@ handles the signal, or @code{#f} if a non-Scheme procedure handles the
 signal.  The CDR contains the current @code{sigaction} flags for the handler.
 
 If @var{action} is provided, it is installed as the new handler for
-@var{signum}.
-@var{action} can be a Scheme procedure taking one argument, or the value of
-@code{SIG_DFL} (default action) or @code{SIG_IGN} (ignore), or @code{#f}
-to restore
-whatever signal handler was installed before @code{sigaction} was first used.
-Flags can optionally be specified for the new handler (@code{SA_RESTART} is
-always used if the system provides it, so need not be specified.)  The
-return value is a pair with information about the old handler as
-described above.
+@var{signum}.  @var{action} can be a Scheme procedure taking one
+argument, or the value of @code{SIG_DFL} (default action) or
+@code{SIG_IGN} (ignore), or @code{#f} to restore whatever signal handler
+was installed before @code{sigaction} was first used.  Flags can
+optionally be specified for the new handler (@code{SA_RESTART} will
+always be added if it's available and the system is using rstartable
+system calls.)  The return value is a pair with information about the
+old handler as described above.
 
 This interface does not provide access to the "signal blocking"
 facility.  Maybe this is not needed, since the thread support may

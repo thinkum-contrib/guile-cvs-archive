@@ -1,3 +1,7 @@
+1999-09-22  Gary Houston  <ghouston@freewire.co.uk>
+
+	* scheme.texi: added a bit of documentation for port internals.
+
 1999-09-12  Gary Houston  <ghouston@easynet.co.uk>
 
 	* posix.texi (File System): make that "directory-stream?".
