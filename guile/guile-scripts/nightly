@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/local/bin/bash
 
 ### Copy our latest repository files over to the public CVS server.
 ###
