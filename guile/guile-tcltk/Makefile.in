@@ -32,8 +32,6 @@ libdir     = @libdir@
 includedir = @includedir@
 infodir    = @infodir@
 
-pkgincludedir = $(includedir)/guile$(VERSION)
-
 #### Start of system configuration section. ####
 
 CC = @CC@
@@ -42,7 +40,7 @@ DEFS = @DEFS@
 CFLAGS = @CFLAGS@
 X_CFLAGS = @X_CFLAGS@
 
-ALL_CFLAGS = $(CFLAGS) $(X_CFLAGS) -I. -I$(srcdir)/../libguile -I../libguile -I$(srcdir)/../gtcl -I$(srcdir)/../gtk
+ALL_CFLAGS = $(CFLAGS) $(X_CFLAGS) -I. -I$(srcdir)/../libguile -I$(srcdir)/.. -I../libguile
 AR = ar
 AR_FLAGS = rc
 RANLIB = @RANLIB@
@@ -72,17 +70,15 @@ all: libgtcltk.a
 install: all
 	test -d $(prefix)        || mkdir $(prefix)
 	test -d $(includedir)    || mkdir $(includedir)
-	test -d $(pkgincludedir) || mkdir $(pkgincludedir)
 	test -d $(libdir)        || mkdir $(libdir)
-	$(INSTALL) $(srcdir)/guile-tk.h  $(pkgincludedir)/guile-tk.h
-	$(INSTALL) $(srcdir)/guile-tcl.h $(pkgincludedir)/guile-tcl.h
+	$(INSTALL) $(srcdir)/guile-tk.h  $(includedir)/guile-tk.h
+	$(INSTALL) $(srcdir)/guile-tcl.h $(includedir)/guile-tcl.h
 	$(INSTALL) libgtcltk.a $(libdir)/libgtcltk.a
 
 uninstall:
 	-rm -f $(libdir)/libgtcltk.a
-	-rm -f $(pkgincludedir)/guile-tk.h
-	-rm -f $(pkgincludedir)/guile-tcl.h
-	-rmdir $(pkgincludedir)
+	-rm -f $(includedir)/guile-tk.h
+	-rm -f $(includedir)/guile-tcl.h
 
 clean:
 	-rm -f $(libobjs) $(xfiles) libgtcltk.a
