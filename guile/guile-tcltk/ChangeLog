@@ -1,3 +1,9 @@
+1998-04-15  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* configure.in: If library names aren't supplied by the user
+	through --with-tcl and --with-tk, then test both tcl7.6 and
+	tcl7.5 as well as tk4.2 and tk4.1.
+
 1998-04-14  Mikael Djurfeldt  <mdj@nada.kth.se>
 
 	* Makefile.am (BUILT_SOURCES): Added.  Used to build .x-files.

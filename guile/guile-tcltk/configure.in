@@ -52,18 +52,6 @@ if test -n "$with_tkdir"; then
   TK_LIBDIR="-L$with_tkdir/lib"
 fi
 
-if test -n "$with_tcl"; then
-  TCLNAME=$with_tcl
-else
-  TCLNAME=tcl7.6
-fi
-
-if test -n "$with_tk"; then
-  TKNAME=$with_tk
-else
-  TKNAME=tk4.2
-fi
-
 dnl Checks for libraries.
 CFLAGS="$TCLTK_INCLUDE $TK_INCLUDE $TCLTK_LIBDIR $TK_LIBDIR $CFLAGS"
 
@@ -93,10 +81,28 @@ AC_HAVE_HEADERS(unistd.h)
     exit 2
 }
 
+if test -n "$with_tcl"; then
+  TCLNAME=$with_tcl
+  AC_CHECK_LIB($TCLNAME, Tcl_CreateInterp)
+else
+  TCLNAME=tcl7.6
+  AC_CHECK_LIB($TCLNAME, Tcl_CreateInterp, ,
+  [TCLNAME=tcl7.5
+   AC_CHECK_LIB($TCLNAME, Tcl_CreateInterp)])
+fi
+
+if test -n "$with_tk"; then
+  TKNAME=$with_tk
+  AC_CHECK_LIB($TKNAME, Tk_Init)
+else
+  TKNAME=tk4.2
+  AC_CHECK_LIB($TKNAME, Tk_Init, ,
+  [TKNAME=tk4.1
+   AC_CHECK_LIB($TKNAME, Tk_Init)])
+fi
+
 ### Use gtcltk-lib only if we seem to have Tcl and Tk installed on the
 ### system.
-AC_CHECK_LIB($TCLNAME, Tcl_CreateInterp)
-AC_CHECK_LIB($TKNAME, Tk_Init)
 case "$LIBS" in
   *"-l${TCLNAME}"*"-l${TKNAME}"* ) ;;
   *"-l${TKNAME}"*"-l${TCLNAME}"* ) ;;
