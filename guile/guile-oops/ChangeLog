@@ -1,3 +1,11 @@
+2000-04-19  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
+
+	* goops.c (scm_sys_allocate_instance): Bugfix: Initialize setter
+	and procedure in entities before doing things which can cause GC.
+	Give more specific about information "what" to scm_must_malloc.
+	(scm_sys_inherit_magic_x): Make 0-slot instances have standard
+	(non-light) allocation.  This fixes a memory leak.
+
 2000-04-15  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
 	* save.scm: Rewritten in a more sensible way.
