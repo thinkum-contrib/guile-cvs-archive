@@ -40,6 +40,7 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <malloc.h>
 #include <tcl.h>
 #include "_scm.h"
 #include "alist.h"
