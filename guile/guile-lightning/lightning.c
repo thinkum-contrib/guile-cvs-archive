@@ -220,171 +220,131 @@ code_apply (SCM smob, SCM args)
 }
 
 static SCM
-nlistify (int n, va_list ap)
+nlistify (int n, SCM *ap)
 {
+  int i;
   SCM l = SCM_EOL;
   SCM *t = &l;
-  while (--n >= 0)
+  for (i = 0; i < n; i++)
     {
-      *t = scm_cons (va_arg (ap, SCM), SCM_EOL);
+      *t = scm_cons (ap[i], SCM_EOL);
       t = SCM_CDRLOC (*t);
     }
   return l;
 }
 
-static SCM
-nlistify2 (int n, SCM e1, SCM e2, va_list ap)
-{
-  SCM l = nlistify (n-2, ap);
-  if (n >= 2)
-    l = scm_cons (e2, l);
-  if (n >= 1)
-    l = scm_cons (e1, l);
-  return l;
-}
-
 SCM 
-scm_invoke (SCM proc, int _n, void *retaddress,
-	    SCM arg1, SCM arg2, ...)
+scm_invoke (SCM proc, int n, SCM *args)
 {
-  // We MUST not change `n' and `retaddress', they are used by the
-  // caller.
-
-  int n;
-
   SCM_ASRTGO (SCM_NIMP (proc), badproc);
 
-  n = _n / sizeof(SCM);
+  n = n / sizeof(SCM);
 
  tail:
   switch (SCM_TYP7 (proc))
     {
     case scm_tc7_subr_2o:
-      return (SCM_SUBRF (proc) (arg1, (n > 1)? arg2 : SCM_UNDEFINED));
+      return (SCM_SUBRF (proc) ((n > 0)? args[0] : SCM_UNDEFINED,
+				(n > 1)? args[1] : SCM_UNDEFINED));
     case scm_tc7_subr_2:
       SCM_ASRTGO (n == 2, wrongnumargs);
-      return (SCM_SUBRF (proc) (arg1, arg2));
+      return (SCM_SUBRF (proc) (args[0], args[1]));
     case scm_tc7_subr_0:
       SCM_ASRTGO (n == 0, wrongnumargs);
       return (SCM_SUBRF (proc) ());
     case scm_tc7_subr_1:
       SCM_ASRTGO (n == 1, wrongnumargs);
-      return (SCM_SUBRF (proc) (arg1));
+      return (SCM_SUBRF (proc) (args[0]));
     case scm_tc7_subr_1o:
       SCM_ASRTGO (n <= 1, wrongnumargs);
-      return (SCM_SUBRF (proc) ((n < 1)? SCM_UNDEFINED : arg1));
+      return (SCM_SUBRF (proc) ((n < 1)? SCM_UNDEFINED : args[0]));
     case scm_tc7_cxr:
       SCM_ASRTGO (n == 1, wrongnumargs);
       if (SCM_SUBRF (proc))
 	{
-	  if (SCM_INUMP (arg1))
+	  if (SCM_INUMP (args[0]))
 	    {
 	      return 
-		(scm_make_real (SCM_DSUBRF (proc) ((double) SCM_INUM (arg1))));
+		(scm_make_real (SCM_DSUBRF(proc)((double)SCM_INUM (args[0]))));
 	    }
-	  SCM_ASRTGO (SCM_NIMP (arg1), floerr);
-	  if (SCM_REALP (arg1))
+	  SCM_ASRTGO (SCM_NIMP (args[0]), floerr);
+	  if (SCM_REALP (args[0]))
 	    {
 	      return 
-		(scm_make_real (SCM_DSUBRF (proc) (SCM_REAL_VALUE (arg1))));
+		(scm_make_real (SCM_DSUBRF (proc) (SCM_REAL_VALUE (args[0]))));
 	    }
 #ifdef SCM_BIGDIG
-	  if (SCM_BIGP (arg1))
-	    return (scm_make_real (SCM_DSUBRF (proc) (scm_big2dbl (arg1))));
+	  if (SCM_BIGP (args[0]))
+	    return (scm_make_real (SCM_DSUBRF (proc) (scm_big2dbl (args[0]))));
 #endif
 	floerr:
-	  SCM_WTA_DISPATCH_1 (*SCM_SUBR_GENERIC (proc), arg1,
+	  SCM_WTA_DISPATCH_1 (*SCM_SUBR_GENERIC (proc), args[0],
 			      SCM_ARG1, SCM_SYMBOL_CHARS (SCM_SNAME (proc)));
 	}
       proc = SCM_SNAME (proc);
       {
 	char *chrs = SCM_SYMBOL_CHARS (proc) + SCM_SYMBOL_LENGTH (proc) - 1;
+	SCM x = args[0];
 	while ('c' != *--chrs)
 	  {
-	    SCM_ASSERT (SCM_CONSP (arg1),
-		    arg1, SCM_ARG1, SCM_SYMBOL_CHARS (proc));
-	    arg1 = ('a' == *chrs) ? SCM_CAR (arg1) : SCM_CDR (arg1);
+	    SCM_ASSERT (SCM_CONSP (args[0]),
+		    args[0], SCM_ARG1, SCM_SYMBOL_CHARS (proc));
+	    x = ('a' == *chrs) ? SCM_CAR (x) : SCM_CDR (x);
 	  }
-	return (arg1);
+	return (x);
       }
     case scm_tc7_subr_3:
       {
-	va_list ap;
-	SCM arg3;
 	SCM_ASRTGO (n == 3, wrongnumargs);
-	va_start (ap, arg2);
-	arg3 = va_arg (ap, SCM);
-	va_end (ap);
-	return (SCM_SUBRF (proc) (arg1, arg2, arg3));
+	return (SCM_SUBRF (proc) (args[0], args[1], args[2]));
       }
     case scm_tc7_lsubr:
       {
-	va_list ap;
-	SCM x;
-	va_start (ap, arg2);
-	x = nlistify2 (n, arg1, arg2, ap);
-	va_end (ap);
-	return (SCM_SUBRF (proc) (x));
+	return (SCM_SUBRF (proc) (nlistify (n, args)));
       }
     case scm_tc7_lsubr_2:
       {
-	va_list ap;
-	SCM x;
 	SCM_ASRTGO (n >= 2, wrongnumargs);
-	va_start (ap, arg2);
-	x = nlistify (n-2, ap);
-	va_end (ap);
-	return (SCM_SUBRF (proc) (arg1, arg2, x));
+	return (SCM_SUBRF (proc) (args[0], args[1], nlistify (n-2, args+2)));
       }
     case scm_tc7_asubr:
       {
-	va_list ap;
 	SCM x;
+	int i;
 	if (n == 0)
 	  return (SCM_SUBRF (proc) (SCM_UNDEFINED, SCM_UNDEFINED));
 	if (n == 1)
-	  return (SCM_SUBRF (proc) (arg1, SCM_UNDEFINED));
-	x = SCM_SUBRF (proc) (arg1, arg2);
-	va_start (ap, arg2);
-	while (n > 2)
-	  {
-	    x = SCM_SUBRF (proc) (x, va_arg (ap, SCM));
-	    n--;
-	  }
-	va_end (ap);
+	  return (SCM_SUBRF (proc) (args[0], SCM_UNDEFINED));
+	x = SCM_SUBRF (proc) (args[0], args[1]);
+	i = 2;
+	for (i = 2; i < n; i++)
+	  x = SCM_SUBRF (proc) (x, args[i]);
 	return x;
       }
     case scm_tc7_rpsubr:
       {
-	va_list ap;
 	SCM x;
+	int i;
 	if (n <= 1)
 	  return (SCM_BOOL_T);
-	if (SCM_FALSEP (SCM_SUBRF (proc) (arg1, arg2)))
+	if (SCM_FALSEP (SCM_SUBRF (proc) (args[0], args[1])))
 	  return SCM_BOOL_F;
 	if (n == 2)
 	  return SCM_BOOL_T;
-	va_start (ap, arg2);
-	x = arg2;
-	while (n > 2)
+	x = args[1];
+	for (i = 2; i < n; i++)
 	  {
-	    SCM y = va_arg (ap, SCM);
+	    SCM y = args[i];
 	    if (SCM_FALSEP (SCM_SUBRF (proc) (x, y)))
-	      {
-		va_end (ap);
-		return (SCM_BOOL_F);
-	      }
+	      return (SCM_BOOL_F);
 	    x = y;
-	    n--;
 	  }
-	va_end (ap);
 	return (SCM_BOOL_T);
       }
     case scm_tcs_closures:
       {
-	scm_misc_error ("invoke", 
-			"can't invoke interpreted code"
-			" from compiled code yet.", SCM_EOL);
+	/* XXX - this chickens out to scm_apply */
+	return scm_apply (proc, nlistify (n, args), SCM_EOL);
       }
     case scm_tc7_smob:
       {
@@ -393,29 +353,18 @@ scm_invoke (SCM proc, int _n, void *retaddress,
 	if (n == 0)
 	  return (SCM_SMOB_APPLY_0 (proc));
 	else if (n == 1)
-	  return (SCM_SMOB_APPLY_1 (proc, arg1));
+	  return (SCM_SMOB_APPLY_1 (proc, args[0]));
 	else if (n == 2)
-	  return (SCM_SMOB_APPLY_2 (proc, arg1, arg2));
+	  return (SCM_SMOB_APPLY_2 (proc, args[0], args[1]));
 	else
-	  {
-	    va_list ap;
-	    SCM x;
-	    va_start (ap, arg2);
-	    x = nlistify (n-2, ap);
-	    va_end (ap);
-	    return (SCM_SMOB_APPLY_3 (proc, arg1, arg2, x));
-	  }
+	  return (SCM_SMOB_APPLY_3 (proc, args[0], args[1],
+				    nlistify (n-2, args+2)));
       }
     case scm_tc7_cclo:
       {
 	/* XXX - this chickens out to scm_apply */
-	va_list ap;
-	SCM args;
-	va_start (ap, arg2);
-	args = nlistify2 (n, arg1, arg2, ap);
-	va_end (ap);
-	args = scm_cons (proc, args);
-	return scm_apply (SCM_CCLO_SUBR (proc), args, SCM_EOL);
+	SCM x = scm_cons (proc, nlistify (n, args));
+	return scm_apply (SCM_CCLO_SUBR (proc), x, SCM_EOL);
       }
     case scm_tc7_pws:
       {
@@ -426,29 +375,20 @@ scm_invoke (SCM proc, int _n, void *retaddress,
       {
 	if (SCM_OBJ_CLASS_FLAGS (proc) & SCM_CLASSF_PURE_GENERIC)
 	  {
-	    va_list ap;
-	    SCM x;
-	    va_start (ap, arg2);
-	    x = nlistify2 (n, arg1, arg2, ap);
-	    va_end (ap);
-	    return (scm_apply_generic (proc, x));
+	    return (scm_apply_generic (proc, nlistify (n, args)));
 	  }
 	else if (!SCM_I_OPERATORP (proc))
 	  goto badproc;
 	else
 	  {
 	    /* XXX - this chickens out to scm_apply */
-	    va_list ap;
-	    SCM args;
-	    va_start (ap, arg2);
-	    args = nlistify2 (n, arg1, arg2, ap);
-	    va_end (ap);
-	    args = scm_cons (proc, args);
+	    SCM x;
+	    x = scm_cons (proc, nlistify (n, args));
 	    proc = (SCM_I_ENTITYP (proc)
 		    ? SCM_ENTITY_PROCEDURE (proc)
 		    : SCM_OPERATOR_PROCEDURE (proc));
 	    if (SCM_NIMP (proc))
-	      return scm_apply (proc, args, SCM_EOL);
+	      return scm_apply (proc, x, SCM_EOL);
 	    else
 	      goto badproc;
 	  }
@@ -458,7 +398,7 @@ scm_invoke (SCM proc, int _n, void *retaddress,
     default:
     badproc:
       scm_wrong_type_arg ("invoke", SCM_ARG1, proc);
-      return (arg1);
+      return (args[0]);
     }
 }
 
@@ -778,6 +718,9 @@ SCM_DEFINE(scm_disassemble, "disassemble", 1, 0, 0,
 #define FUNC_NAME s_scm_disassemble
 {
   struct codevector *c;
+
+  if (CODE_P (codevector))
+    return scm_disassemble (CODE_VEC (codevector));
 
   SCM_VALIDATE_SMOB (SCM_ARG1, codevector, codevector);
   c = CODEVECTOR_DATA (codevector);
