@@ -1,3 +1,24 @@
+1999-09-06  James Blandy  <jimb@mule.m17n.org>
+
+	* mbconv.c: New file.
+	* init.c: #include "mbconv.h".
+	(scm_boot_guile_1): call scm_init_mbconv.
+	* mbconv.h: Add extern declaration for scm_init_mbconv.
+	* Makefile.am (libguile_la_SOURCES, BUILT_SOURCES,
+	modinclude_HEADERS): Include the `mbconv' files in the lists.
+	* Makefile.in: Regenerated.
+	* scmconfig.h.in: Regenerated (see configure.in changes).
+
+	* mb.c (scm_text_not_char_boundary, scm_text_bad_encoding,
+	scm_text_not_guile_char): Make these globally visible, and rename
+	them with `scm_' at the beginning of their names.
+	* mb.h: Add extern declarations.
+
+	* mbconv.h: Add extern declaration for scm_text_unknown_encoding
+	exception.
+	
+	* mb.c: Correct copyright notice.
+
 1999-09-02  James Blandy  <jimb@mule.m17n.org>
 
 	* mbconv.h: New file.
