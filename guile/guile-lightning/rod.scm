@@ -152,6 +152,8 @@
        (else
 	(loop (read-line)))))))
 
+(add-op 'b "jmpi" #f 'unconditional-branch)
+
 (define (@ . args)
   (apply format #t args))
 
@@ -217,11 +219,21 @@
 		    (op-name op) (op-type op))
 		 (@ "  }\n")
 		 (@ "  add_label_ref (label_hash, insn_1, ref);\n"))
+		((unconditional-branch)
+		 (@ "  jit_insn *lab, *ref;\n")
+		 (@ "  ASSERT_LEN (1);\n")
+		 (@ "  ASSERT_SYM (insn_1);\n")
+		 (@ "  lab = get_label_def (label_hash, insn_1);\n")
+		 (@ "  if (lab == NULL) lab = jit_forward ();\n")
+		 (@ "  ref = jit_~A (lab);\n" (op-name op))
+		 (@ "  add_label_ref (label_hash, insn_1, ref);\n"))
 		((1rop)
 		 (@ "  int r;\n")
 		 (@ "  ASSERT_LEN (1);\n")
 		 (@ "  r = AS_REG (insn_1);\n")
-		 (@ "  jit_~A_~A (r);\n" (op-name op) (op-type op)))
+		 (if (op-type op)
+		     (@ "  jit_~A_~A (r);\n" (op-name op) (op-type op))
+		     (@ "  jit_~A (r);\n" (op-name op) (op-type op))))
 		((2rop)
 		 (@ "  int r1, r2;\n")
 		 (@ "  ASSERT_LEN (2);\n")
