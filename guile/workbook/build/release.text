@@ -317,7 +317,7 @@ Releasing Guile
 
         - Tag the release "cvs tag release_1-5-2".
 
-        - Run 'make dist' again to get the official tarfile.
+        - Run 'make distcheck' again to get the official tarfile.
 
         - Upload the tarfile.
 
@@ -350,7 +350,7 @@ Releasing Guile
       - Tag the entire source tree with a tag of the form "release_X-Y-Z",
         i.e for release 1.6.1, use release_1-6-1
 
-      - Do a 'make dist'.
+      - Do a 'make distcheck' to get the final tarfile.
 
       - Upload the tarfile to gnudist.gnu.org:~ftp/pub/gnu/guile and
         check the permissions.
@@ -361,12 +361,12 @@ Releasing Guile
       guile-user@gnu.org, and guile-devel@gnu.org.  See the list
       archives for announcement examples.
 
-    - Update the News on www.guile.org.
+    - Update the news on www.guile.org.
 
         - cd template
         - edit news.html
         - make singlefile=news.html one-no-commit
-        - check ../news.html
+        - check ../news.html with your favorite browser.
         - commit changes from ../
 
     - Change the topic on irc.freenode.net #guile.
