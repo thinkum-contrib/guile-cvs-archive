@@ -1,0 +1,70 @@
+#!/bin/sh -x
+# usage: dist-guile
+#
+# This must be run in a branched top-level guile-core dir (so
+# that CVS/Tag looks something like: branch_release-X-Y).
+#
+# Behavior:
+# - check all files under cwd are unmodified (sync'ed w/ cvs repo)
+# - sh -x autogen.sh
+# - cvs tag release_X-Y
+# - create distdir ../dist.$branch
+# - in $distdir do configure, make, make check
+# - in $distdir do make distcheck
+#
+# TODO: Handle non-standard workbook location (pass $1 to autogen.sh).
+#       Support skipping steps, for restarts.
+
+set -e
+
+me=`basename $0`
+startdir=`pwd`
+branch=""
+distdir=""
+tag=""
+
+set_branch_and_derived_vars ()
+{
+if [ -f pre-inst-guile.in -a -d CVS -a -f CVS/Tag ] ; then
+    branch=`sed s/^.//g CVS/Tag`
+else
+    echo $me: "ERROR: Need to be in (branched) guile-core so"
+    echo $me: "       that CVS/Tag file can be found"
+    exit 1
+fi
+
+# must be peer w/ startdir
+distdir="../dist.$branch"
+
+# see $w/build/dist-files/HACKING
+tag=`echo $branch | sed s/^branch_release-/release_/g`
+
+}
+
+check_unmodified_tag_and_autogen ()
+{
+cvs tag -c $tag && sh -x autogen.sh
+}
+
+cd_distdir_configure_build_and_check ()
+{
+test -d $distdir || mkdir $distdir
+cd $distdir
+$startdir/configure --enable-maintainer-mode --with-threads
+make
+make check
+}
+
+cd_distdir_and_make_distcheck ()
+{
+cd $distdir
+make distcheck
+}
+
+# todo: support command-line options to skip any of these steps
+set_branch_and_derived_vars
+check_unmodified_tag_and_autogen
+cd_distdir_configure_build_and_check
+cd_distdir_and_make_distcheck
+
+# dist-guile ends here
