@@ -19,11 +19,11 @@ goopsdir = $(subpkgdatadir)/goops
 
 install-exec-hook:
 	$(mkinstalldirs) $(goopsdir)
-	(test -e $(libdir)/libgoops.so.0 \
-	&& cd $(goopsdir) \
-	&& rm -f libgoops.la libgoops.so.0 \
-	&& $(LN_S) $(libdir)/libgoops.la \
-	&& $(LN_S) $(libdir)/libgoops.so.0)
+	(test ! -e $(libdir)/libgoops.so.0 \
+	 || (cd $(goopsdir) \
+	     && rm -f libgoops.la libgoops.so.0 \
+	     && $(LN_S) $(libdir)/libgoops.la \
+	     && $(LN_S) $(libdir)/libgoops.so.0))
 
 SUFFIXES = .x
 ## We assume the user has already installed Guile.
