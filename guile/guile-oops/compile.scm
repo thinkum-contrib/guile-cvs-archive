@@ -20,7 +20,7 @@
 (define-module (oop goops compile)
   :use-module (oop goops)
   :use-module (oop goops util)
-;  :no-backtrace
+  :no-backtrace
   )
 
 (export compile-method cmethod-code cmethod-environment)
@@ -58,17 +58,23 @@
   (let* ((proc (method-procedure (car methods)))
 	 (src (procedure-source proc))
 	 (formals (source-formals src))
-	 (vcell (cons 'goops:make-next-method #f)))
-    (set-cdr! vcell
-	      (make-make-next-method vcell
-				     (method-generic-function (car methods))
-				     (cdr methods) types))
-    ;;*fixme*
-    `(,(cons vcell (procedure-environment proc))
-      ,formals
-      ;;*fixme* Only do this on source where next-method can't be inlined
-      (let ((next-method ,(if (list? formals)
-			      `(goops:make-next-method ,@formals)
-			      `(apply goops:make-next-method
-				      ,@(improper->proper formals)))))
-	,@(source-body src)))))
+	 (body (source-body src)))
+    (if (source-property (car body) 'standard-accessor-method)
+	(cons (procedure-environment proc)
+	      (cons formals
+		    body))
+	(let ((vcell (cons 'goops:make-next-method #f)))
+	  (set-cdr! vcell
+		    (make-make-next-method
+		     vcell
+		     (method-generic-function (car methods))
+		     (cdr methods) types))
+	  ;;*fixme*
+	  `(,(cons vcell (procedure-environment proc))
+	    ,formals
+	    ;;*fixme* Only do this on source where next-method can't be inlined
+	    (let ((next-method ,(if (list? formals)
+				    `(goops:make-next-method ,@formals)
+				    `(apply goops:make-next-method
+					    ,@(improper->proper formals)))))
+	      ,@body))))))

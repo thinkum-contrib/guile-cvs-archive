@@ -21,7 +21,7 @@
   :use-module (oop goops)
   :use-module (oop goops util)
   :use-module (oop goops compile)
-;  :no-backtrace
+  :no-backtrace
   )
 
 (export memoize-method!)
@@ -80,7 +80,6 @@
   (vector-set! (method-cache-entries exp)
 	       (method-cache-n-methods exp)
 	       entry)
-  ;;(write-line (list 'method-cache-insert! '--> d))
   )
 
 (define (method-cache-generic-function exp)
@@ -111,7 +110,6 @@
 	   (best #f))
       (do ((hashset 0 (+ 1 hashset)))
 	  ((= hashset hashsets))
-	;;(write-line (list "*** hashset " hashset))
 	(let* ((test-cache (make-vector size '(#f)))
 	       (misses (cache-try-hash! min-misses hashset test-cache entries)))
 	  (cond ((zero? misses)
@@ -120,11 +118,9 @@
 		 (set! cache test-cache)
 		 (set! hashset (- hashsets 1)))
 		((< misses min-misses)
-		 ;;(write-line "*")
 		 (set! min-misses misses)
 		 (set! best hashset)
 		 (set! cache test-cache)))))
-      ;;(write-line (list "=== hashset" best "was selected with" min-misses "misses"))
       (set-hashed-method-cache-hashset! exp best)
       (set-hashed-method-cache-entries! exp cache))))
 
@@ -149,10 +145,7 @@
 	       (do ((i (logand mask (cache-hashval hashset (car ls)))
 		       (logand mask (+ i 1))))
 		   ((not (car (vector-ref cache i)))
-		    ;;(write-line (list (car ls) 'at i))
 		    (vector-set! cache i (car ls)))
-		 ;;(write-line (list i 'occupied))
-		 ;;(display "-")
 		 (set! misses (+ 1 misses))
 		 (if (>= misses min-misses)
 		     (throw 'misses misses)))))
