@@ -1,9 +1,8 @@
 1999-07-25  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
-	* goops.c, goops.h (scm_class_port, scm_class_input_port,
+	* goops.c (scm_class_port, scm_class_input_port,
 	scm_class_output_port, scm_class_input_output_port): Added.
-
-	* goops.c (make_standard_classes): Initialize new classes.
+	(make_standard_classes): Initialize new classes.
 	(make_class_from_template): Added.
 	(make_extended_class): Use make_class_from_template.
 	(local_make_port_classes): Added. Plugs into
