@@ -113,8 +113,8 @@ CFLAGS = @CFLAGS@
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
 LINK = $(LIBTOOL) --mode=link $(CC) $(CFLAGS) $(LDFLAGS) -o $@
 DIST_COMMON =  README COPYING ChangeLog INSTALL Makefile.am Makefile.in \
-aclocal.m4 config.guess config.sub configure configure.in install-sh \
-ltconfig ltmain.sh missing mkinstalldirs
+THANKS aclocal.m4 config.guess config.sub configure configure.in \
+install-sh ltconfig ltmain.sh missing mkinstalldirs
 
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
