@@ -23,12 +23,7 @@
     - write render-bugs, add to mscripts or guile-tools [evan:ttn]
     - write dist-hook to call render-bugs to create BUGS
     - delete HEAD and branch_release-1-6 BUGS files
-  - factor guile-core/ administration files
-    - determine list of files [ttn]
-    - generally, for each file:
-      - add it somewhere under workbook/
-      - add dist-hook action to appropriate Makefile.am
-      - delete file in guile-core/
+  +R factor guile-core/ administration files [ttn]
   - write build/bugs-triage.text
   - complete build/stability.text
   - make sure all bugs have required headers
