@@ -1,3 +1,7 @@
+1999-07-27  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
+
+	* configure.in: Check that libguile is fresh enough.
+
 1999-07-25  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
 	* goops.c (prep_hashsets): Added.
