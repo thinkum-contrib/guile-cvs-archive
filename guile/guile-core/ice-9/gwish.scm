@@ -27,35 +27,12 @@
 ;;; *******************************
 
 (define-module (ice-9 gwish)
-  :use-module (guile)
   :use-module (ice-9 threads)
   :use-module (ice-9 nonblocking)
   :use-module (ice-9 gtcl))
 
 
-;;; {The Interpreter}
-;;;
-
-(set! the-interpreter (tcl-create-interp))
-
-(define gtcl-module (local-ref '(app modules ice-9 gtcl)))
-(define tcl-binder (make-tcl-binder the-interpreter))
-
-(set-module-binder! (module-public-interface gtcl-module) tcl-binder)
-
-;;; {Namespace cleaning}
-;;;
-
-;; These are the names of procedures already defined 
-;; in Scheme but which, in this context, ought to refer
-;; to Tcl/Tk commands.
-
-(define override-scheme-list '(bind raise))
-
-(for-each
- (lambda (name)
-   (eval `(set! ,name (reify-tcl-command the-interpreter ',name))))
- override-scheme-list)
+(new-interpreter)
 
 ;;; {Non-blocking ports}
 

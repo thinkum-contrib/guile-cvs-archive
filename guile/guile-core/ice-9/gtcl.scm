@@ -241,6 +241,21 @@
     (#t val)))
 
 
+;;; {Namespace cleaning}
+;;;
+
+;; These are the names of procedures already defined 
+;; in Scheme but which, in this context, ought to refer
+;; to Tcl/Tk commands.
+
+(define override-scheme-list '(bind raise))
+
+(define override-scheme-table (make-vector 137 '()))
+
+(for-each (lambda (name)
+	    (hashq-set! override-scheme-table name #t))
+	  override-scheme-list)
+
 ;;; {An Implicit Default Interpreter}
 ;;;
 ;;; For programs like "wish" in which there is one designated default
@@ -249,6 +264,11 @@
 
 (define-public the-interpreter #f)
 
+(define-public (new-interpreter)
+  (set! the-interpreter (tcl-create-interp))
+  (let ((gtcl-module (nested-ref the-root-module '(app modules ice-9 gtcl)))
+	(tcl-binder (make-tcl-binder the-interpreter)))
+    (set-module-binder! (module-public-interface gtcl-module) tcl-binder)))
 
 ;; Use defined-tcl-command to extend the global namespace
 ;; with commands from the default Tcl interpreter.
@@ -265,18 +285,21 @@
 ;; is a true value.
 ;;
 (define-public (make-tcl-binder interp)
-  (lambda (m s define?)
-    (if define?
-	(let ((b (make-undefined-variable s)))
-	  (module-obarray-set! (module-obarray m) s b)
-	  (if (tcl-defined? the-interpreter s)
-	      (variable-set! b (tcl-command interp s)))
-	  b)
-	(and (tcl-defined? interp s)
+  (let* ((root-module the-scm-module)
+	 (root-binder (module-binder root-module)))
+    (lambda (m s define?)
+      (cond ((and (not (hashq-ref override-scheme-table s))
+		  (root-binder root-module s #f)))
+	    ((module-obarray-ref (module-obarray m) s))
+	    ((tcl-defined? interp s)
 	     (let ((b (make-undefined-variable s)))
 	       (module-obarray-set! (module-obarray m) s b)
 	       (variable-set! b (tcl-command interp s))
-	       b)))))
+	       b))
+	    (else (and define?
+		       (let ((b (make-undefined-variable s)))
+			 (module-obarray-set! (module-obarray m) s b)
+			 b)))))))
 
 ;; Used to define Scheme procedures which are also Tcl commands.
 ;; The declarations syntax is;
