@@ -3,6 +3,13 @@
 @settitle Multibyte API
 @setchapternewpage off
 
+@c Open issues:
+
+@c What's the best way to report errors?  Should functions return a
+@c magic value, according to C tradition, or should they signal a
+@c Guile exception?
+
+
 @node Working With Multibyte Strings in C
 @chapter Working With Multibyte Strings in C
 
@@ -18,7 +25,16 @@ character as a sequence of one or more bytes.  We call this
 variable-width encoding a @dfn{multibyte} encoding.  Guile uses it for
 all strings, symbol names, error messages, and so on.
 
-Since variable-width encodings are clumsier to work with than simple
+This encoding is mostly invisible to Scheme code.  Strings are still
+indexed by character number, not by byte offset; @code{string-length}
+still returns the length of a string in characters, not in bytes.
+@code{string-ref} and @code{string-set!} are no longer constant-time
+operations, but Guile uses various strategies to reduct the impact of
+this change.
+
+However, the encoding is visible via Guile's C API; this chapter
+explains how to work with Guile multibyte text in C code.  Since
+variable-width encodings are clumsier to work with than simple
 fixed-width encodings, Guile provides a set of standard macros and
 functions for manipulating multibyte text.  Furthermore, Guile makes
 some promises about the encoding which you can use in writing your own
@@ -90,7 +106,7 @@ example, under a particular encoding, a given string of bytes might not
 correspond to any number.  For example, the byte sequence @samp{128 128}
 is not a valid encoding of any number under UTF-8.
 
-Having carefully defined our terminology, we now proceed to abuse it.
+Having carefully defined our terminology, we will now abuse it.
 
 We will sometimes use the word @dfn{character} to refer to the number
 assigned to a character by a character set, in contexts where the
@@ -147,6 +163,7 @@ addition to storing the string's length explicitly, Guile always either
 terminates the string's storage with a zero byte, or shares it with
 another string which is terminated this way.
 
+
 @node Functions for Operating on Multibyte Text, Multibyte Text Processing Errors, Promised Properties of the Guile Multibyte Encoding, Working With Multibyte Strings in C
 @section Functions for Operating on Multibyte Text
 
@@ -158,11 +175,9 @@ refer to text encoded with Guile's encoding.
 * Basic Multibyte Character Processing::  
 * Finding Character Encoding Boundaries::  
 * Multibyte String Functions::  
-* Guile Character Properties::  
-* Exchanging Text With The Outside World::  
-* Multibyte Character Tables::  
-* Multibyte Character Categories::  
+* Exchanging Guile Text With the Outside World in C::  
 @end menu
+
 
 @node Basic Multibyte Character Processing, Finding Character Encoding Boundaries, Functions for Operating on Multibyte Text, Functions for Operating on Multibyte Text
 @subsection Basic Multibyte Character Processing
@@ -172,7 +187,7 @@ This is a signed integral type large enough to hold any character in
 Guile's character set.  All character numbers are positive.
 @end deftp
 
-@deftypefn {Libguile Function} scm_mb_char_t scm_mb_get (unsigned char *@var{p})
+@deftypefn {Libguile Function} scm_mb_char_t scm_mb_get (const unsigned char *@var{p})
 Return the character whose encoding starts at @var{p}, or -1 if @var{p}
 does not point to a valid character encoding.
 
@@ -182,7 +197,8 @@ argument may be evaluated several times.
 
 @deftypefn {Libguile Function} int scm_mb_put (scm_mb_char_t @var{c}, unsigned char *@var{p})
 Place the encoded form of the Guile character @var{c} at @var{p}, and
-return its length in bytes.
+return its length in bytes.  If @var{c} is not the number of a Guile
+character, return 0.
 @end deftypefn
 
 @deftypevr {Libguile Constant} int scm_mb_max_len
@@ -213,7 +229,7 @@ it may evaluate its argument several times.
 These are functions for finding the boundaries between characters in
 multibyte text.
 
-@deftypefn {Libguile Function} int scm_mb_boundary_p (unsigned char *@var{p})
+@deftypefn {Libguile Function} int scm_mb_boundary_p (const unsigned char *@var{p})
 Return non-zero iff @var{p} points to the start of a character in
 multibyte text.
 @end deftypefn
@@ -244,19 +260,19 @@ byte offsets; instead, your code should signal a
 offset.  @xref{Multibyte Text Processing Errors}.
 
 
-@node Multibyte String Functions, Guile Character Properties, Finding Character Encoding Boundaries, Functions for Operating on Multibyte Text
+@node Multibyte String Functions, Exchanging Guile Text With the Outside World in C, Finding Character Encoding Boundaries, Functions for Operating on Multibyte Text
 @subsection Multibyte String Functions
 
 These functions allow you to operate on multibyte strings: sequences of
 character encodings.
 
-@deftypefn {Libguile Function} int scm_mb_count (unsigned char *@var{p}, int @var{len})
+@deftypefn {Libguile Function} int scm_mb_count (const unsigned char *@var{p}, int @var{len})
 Return the number of Guile characters encoded by the @var{len} bytes at
 @var{p}.  Return -1 if the sequence contains any invalid character
 encodings, or if the last character encoding is incomplete.
 @end deftypefn
 
-@deftypefn {Libguile Function} scm_mb_char_t scm_mb_walk (unsigned char **@var{pp})
+@deftypefn {Libguile Function} scm_mb_char_t scm_mb_walk (const unsigned char **@var{pp})
 Return the character whose encoding starts at @code{*@var{pp}}, and
 advance @code{*@var{pp}} to the start of the next character.  Return -1
 if @code{*@var{pp}} does not point to a valid character encoding.
@@ -282,7 +298,7 @@ be after @var{p}.  If you use this function to drive an iteration, it
 guarantees forward progress.
 @end deftypefn
 
-@deftypefn {Libguile Function} unsigned char *scm_mb_index (unsigned char *@var{p}, int @var{len}, int @var{i})
+@deftypefn {Libguile Function} unsigned char *scm_mb_index (const unsigned char *@var{p}, int @var{len}, int @var{i})
 Assuming that the @var{len} bytes starting at @var{p} are a
 concatenation of valid character encodings, return a pointer to the
 start of the @var{i}'th character encoding in the sequence.
@@ -303,7 +319,7 @@ time proportional to at least the square of the length of the text.  To
 avoid this poor performance, you can use a @code{scm_mb_cache}
 structure and the @code{scm_mb_index_cached} function.
 
-@deftp {Libguile Type} struct scm_mb_cache
+@deftp {Libguile Type} {struct scm_mb_cache}
 This structure holds information that allows a string indexing operation
 to remember the result of a previous scan of the string.  It has the
 following members:
@@ -325,7 +341,7 @@ initialized to zero before its first use, and whenever the string's text
 changes.
 @end deftp
 
-@deftypefn {Libguile Function} unsigned char *scm_mb_index_cached (unsigned char *@var{p}, int @var{len}, int @var{i}, struct scm_mb_cache *@var{cache})
+@deftypefn {Libguile Function} unsigned char *scm_mb_index_cached (const unsigned char *@var{p}, int @var{len}, int @var{i}, struct scm_mb_cache *@var{cache})
 This function is identical to @code{scm_mb_index}, except that it may
 consult and update *@var{cache} in order to avoid scanning the string
 from the beginning.
@@ -337,16 +353,15 @@ right in time proportional to the length of the string.
 Guile also provides functions to convert between an encoded sequence of
 characters, and an array of @code{scm_mb_char_t} objects.
 
-@deftypefn {Libguile Function} scm_mb_char_t *scm_mb_multibyte_to_fixed (unsigned char *@var{p}, int @var{len}, int *@var{result_len})
+@deftypefn {Libguile Function} scm_mb_char_t *scm_mb_multibyte_to_fixed (const unsigned char *@var{p}, int @var{len}, int *@var{result_len})
 Convert the variable-width text in the @var{len} bytes at @var{p}
 to an array of @code{scm_mb_char_t} values.  Return a pointer to the array,
 and set @code{*@var{result_len}} to the number of elements it contains.
 The returned array is allocated with @code{malloc}, and it is the
 caller's responsibility to free it.
 
-[[When we specify the conversion functions, we will probably have an
-argument that says how they should react to invalid or out-of-charset
-sequences.  This function should take another argument of that type.]]
+If the text is not a sequence of valid character encodings, this
+function will signal a @code{text:bad-encoding} error.
 @end deftypefn
 
 @deftypefn {Libguile Function} unsigned char
@@ -356,112 +371,253 @@ variable-width character encodings.  Return a pointer to the array of
 bytes, and set @code{*@var{result_len}} to its length, in bytes.  The
 returned byte sequence is allocated with @code{malloc}; it is the
 caller's responsibility to free it.
+
+If the text is not a sequence of valid character encodings, this
+function will signal a @code{text:bad-encoding} error.
 @end deftypefn
 
 
-@node Guile Character Properties, Exchanging Text With The Outside World, Multibyte String Functions, Functions for Operating on Multibyte Text
-@subsection Guile Character Properties
+@node Exchanging Guile Text With the Outside World in C,  , Multibyte String Functions, Functions for Operating on Multibyte Text
+@subsection Exchanging Guile Text With the Outside World in C
 
-These functions give information about the nature of a given Guile
-character.  These are defined for any @code{scm_mb_char_t} value.
+Guile provides functions for converting between Guile's internal text
+representation and encodings popular in the outside world.  These
+functions are closely modeled after the @code{iconv} functions available
+on some systems.
 
-@deftypefn {Libguile Function} int scm_mb_isalnum (scm_mb_char_t @var{c})
-Return non-zero iff @var{c} is an alphabetic or numeric character.
+To convert text between two encodings, you should first call
+@code{scm_mb_iconv_open} to indicate the source and destination
+encodings; this function returns a context object which records the
+conversion to perform, and carries any necessary state for the
+conversion process.
+
+Then, you should call @code{scm_mb_iconv} to actually convert the text.
+This function expects input and output buffers, and a pointer to the
+context you got from @var{scm_mb_iconv_open}.  You don't need to pass
+all your input to @code{scm_mb_iconv} at once; you can invoke it on
+successive blocks of input (as you read it from a file, say), and it
+will convert as much as it can each time, indicating when you should
+grow your output buffer.
+
+@deftp {Libguile Type} {struct scm_mb_iconv}
+This is the type for context objects, which represent the current state
+of an ongoing text conversion.  A @code{struct scm_mb_iconv} records the
+source and destination encodings, and keeps track of any information
+needed to handle stateful encodings.
+@end deftp
+
+@deftypefn {Libguile Function} {struct scm_mb_iconv *} scm_mb_iconv_open (const char *@var{tocode}, const char *@var{fromcode})
+Return a pointer to a new @code{struct scm_mb_iconv} context object,
+ready to convert from the encoding named @var{fromcode} to the encoding
+named @var{tocode}.  For state-dependent encodings, the context object
+is in some appropriate initial state, ready for use with the
+@code{scm_mb_iconv} function.
+
+If either @var{tocode} or @var{fromcode} is not the name of a known
+encoding, this function will signal the @code{text:unknown-encoding}
+error, described below.  Guile supports at least these encodings:
+
+@table @samp 
+@item guile
+This is always Guile's current internal multibyte encoding.  The actual
+encoding this name represents may change over time, but you will need to
+use this when converting data between external sources and Guile
+objects.
+@item ASCII
+US-ASCII, in the standard one-character-per-byte encoding.
+@item ISO-8859-1
+@item Emacs-Mule
+This is the variable-length encoding for multi-lingual text by GNU
+Emacs, at least through version 20.4.  You probably should not use this
+encoding, as it is designed only for Emacs's internal use.  However, we
+provide it here because it's trivial to support, and some people
+probably do have @samp{emacs-mule}-format files lying around.
+@end itemize
+
+Case is not significant in encoding names.
+
+You can also define your own conversions; see @ref{Implementing Your Own
+Text Conversions}.
 @end deftypefn
 
-@deftypefn {Libguile Function} int scm_mb_is_alpha (scm_mb_char_t @var{c})
-Return non-zero iff @var{c} is an alphabetic character.
-@end deftypefn
+@deftypefn {Libguile Function} size_t scm_mb_iconv (struct scm_mb_iconv
+*@var{context}, const char **@var{inbuf}, size_t *@var{inbytesleft},
+char **@var{outbuf}, size_t *@var{outbytesleft})
+Convert a sequence of characters from one encoding to another.  The argument
+@var{context} specifies the encodings to use for the input and output;
+use @code{scm_mb_iconv_open} to create a @var{context} object for a
+particular conversion.
 
-@deftypefn {Libguile Function} int scm_mb_iscntrl (scm_mb_char_t @var{c})
-Return non-zero iff @var{c} is a control character.
-@end deftypefn
+Upon entry to the function, @code{*@var{inbuf}} should point to the
+input buffer, and @code{*@var{inbytesleft}} should hold the number of
+input bytes present in the buffer; @code{*@var{outbuf}} should point to
+the output buffer, and @code{*@var{outbytesleft}} should hold the number
+of bytes available to hold the conversion results in that buffer.
 
-@deftypefn {Libguile Function} int scm_mb_isdigit (scm_mb_char_t @var{c})
-Return non-zero iff @var{c} is a digit.
-@end deftypefn
+Upon exit from the function, @code{*@var{inbuf}} points to the first
+unconsumed byte of input, and @code{*@var{inbytesleft}} holds the number
+of unconsumed input bytes; @code{*@var{outbuf}} points to the byte after
+the last output byte, and @code{*@var{outbyteleft}} holds the number of
+bytes left unused in the output buffer.
 
-@deftypefn {Libguile Function} int scm_mb_isgraph (scm_mb_char_t @var{c})
-Return non-zero iff @var{c} is a visible character.
-@end deftypefn
+Some encodings use byte sequences which do not correspond to any textual
+character, but instead modify the meanings of subsequent bytes; such
+encodings are called @dfn{stateful}, since the meaning of a given byte
+depends on a potentially unbounded number of preceding bytes.  In a
+stateful encoding, we call byte sequences which change the state of the
+conversion but produce no text @dfn{shift sequences}.  When a
+conversion's input encoding is stateful, then a call to
+@code{scm_mb_iconv} might consume input but produce no output, since the
+input sequence might contain only shift sequences.
 
-@deftypefn {Libguile Function} int scm_mb_isupper (scm_mb_char_t @var{c})
-Return non-zero iff @var{c} is an upper-case character.
-@end deftypefn
+For stateful encodings, @var{context} carries encoding state from one
+call to @code{scm_mb_iconv} to the next.  Thus, successive calls to
+@var{scm_mb_iconv} which use the same context object can convert a
+stream of data one chunk at a time.  
 
-@deftypefn {Libguile Function} int scm_mb_islower (scm_mb_char_t @var{c})
-Return non-zero iff @var{c} is a lower-case character.
-@end deftypefn
-
-@deftypefn {Libguile Function} int scm_mb_istitle (scm_mb_char_t @var{c})
-Return non-zero iff @var{c} is a title-case character.  See the Unicode
-standard for an explanation of title case.
-@end deftypefn
-
-@deftypefn {Libguile Function} int scm_mb_isprint (scm_mb_char_t @var{c})
-Return non-zero iff @var{c} is a printable character.
-@end deftypefn
-
-@deftypefn {Libguile Function} int scm_mb_ispunct (scm_mb_char_t @var{c})
-Return non-zero iff @var{c} is a punctuation character.
-@end deftypefn
-
-@deftypefn {Libguile Function} int scm_mb_isspace (scm_mb_char_t @var{c})
-Return non-zero iff @var{c} is a whitespace character.
-@end deftypefn
-
-@deftypefn {Libguile Function} int scm_mb_isxdigit (scm_mb_char_t @var{c})
-Return non-zero iff @var{c} is a hexidecimal digit.
-@end deftypefn
-
-@deftypefn {Libguile Function} int scm_mb_isdefined (scm_mb_char_t @var{c})
-Return non-zero iff @var{c} is a valid character.
-@end deftypefn
-
-@deftypefn {Libguile Function} scm_mb_char_t scm_mb_char_toupper (scm_mb_char_t @var{c})
-@deftypefnx {Libguile Function} scm_mb_char_t scm_mb_char_tolower (scm_mb_char_t @var{c})
-@deftypefnx {Libguile Function} scm_mb_char_t scm_mb_char_totitle (scm_mb_char_t @var{c})
-Convert @var{c} to upper, lower, or title case.  If @var{c} has no
-equivalent in the requested case, or is already in that case, return it
+If either @var{inbuf} or @code{*@var{inbuf}} is zero, then
+@code{scm_mb_iconv} will reset @var{context} to its initial state for
+both the input and output encodings.  If neither @var{outbuf} nor
+@code{*@var{outbuf}} are zero, then @code{scm_mb_iconv} will store a
+byte sequence to put the output string in its initial state.  If the
+output buffer is not large enough to hold this byte sequence,
+@var{scm_mb_iconv} will return @code{scm_mb_iconv_more_room}.  In this
+case, the shift states of @var{context}'s input and output encodings are
 unchanged.
+
+The @code{scm_mb_iconv} function always consumes only complete
+characters or shift sequences from the input buffer, and the output
+buffer always contains a sequence of complete characters or shift
+sequences.  Note that the conversion may not be able to consume all the
+input bytes if the input contains an incomplete character encoding, or
+if the output buffer is too small to contain the full conversion
+results.  The conversion may not fill the output buffer if the converted
+input text is not long enough, or if converting another complete
+character from the input would overflow the output buffer.
+
+If the input sequence contains an invalid character encoding, conversion
+stops before the invalid input character, and @code{scm_mb_iconv}
+returns the constant value @code{scm_mb_iconv_bad_encoding}.
+
+If the input sequence contains characters which are not expressible in
+the output encoding, @code{scm_mb_iconv} converts it in an
+implementation-defined way.  It may simply delete the character.
+
+If the output buffer does not contain enough room to hold the converted
+form of the complete input text, @code{scm_mb_iconv} converts as much as
+it can, changes the input and output pointers to reflect the amount of
+text successfully converted, and then returns
+@code{scm_mb_iconv_more_room}.
+
+Normally, @code{scm_mb_iconv} returns the number of input characters it
+could not convert perfectly to the ouput encoding.  However, it may
+return one of the @code{scm_mb_iconv_} codes described below, to
+indicate an error.  All of these codes are negative values.
+
+This interface is meant to be compatible with the @code{iconv} function
+available on some systems, and with the @code{unicode_iconv} function
+provided by the GNOME Project's @file{libunicode} library.
 @end deftypefn
 
-@deftypefn {Libguile Function} in scm_mb_digit_value (scm_mb_char_t @var{c})
-If @var{c} is a hexidecimal digit (according to
-@code{scm_mb_isxdigit}), then return its numeric value.  Otherwise
-return -1.
-@end deftypefn
+Here are the status codes that might be returned by @code{scm_mb_iconv}.
+They are all negative integers.
+@table @code
 
-@deftypefn {Libguile Function} in scm_mb_digit_value (scm_mb_char_t @var{c})
-If @var{c} is a digit (according to @code{scm_mb_isdigit}), then
-return its numeric value.  Otherwise return -1.
-@end deftypefn
+@item scm_mb_iconv_more_room
+The conversion needs more room in the output buffer.  Some characters
+may have been consumed from the input buffer, and some characters may
+have been placed in the available space in the output buffer.
 
-
-@node Exchanging Text With The Outside World, Multibyte Character Tables, Guile Character Properties, Functions for Operating on Multibyte Text
-@subsection Exchanging Text With The Outside World
-
-[[This will document conversion functions.  We'll probably imitate
-iconv.]]
-[[conversions between Guile text and wchar_t arrays?]]
+@item scm_mb_iconv_bad_encoding
+@code{scm_mb_iconv} encountered an invalid character encoding in the
+input buffer.  Conversion stopped before the invalid character, so there
+may be some characters consumed from the input buffer, and some
+converted text in the output buffer.
+@end table
 
 
-@node Multibyte Character Tables, Multibyte Character Categories, Exchanging Text With The Outside World, Functions for Operating on Multibyte Text
-@subsection Multibyte Character Tables
+@node Implementing Your Own Text Conversions
+@subsection Implementing Your Own Text Conversions
 
-A @dfn{character table} is a table mapping characters onto Guile
-objects.  Guile provides functions for creating character tables,
-setting entries in character tables, and looking up characters in
-character tables.
+This section describes the interface for adding your own encoding
+conversions for use with @code{scm_mb_iconv}.
 
-[[incomplete]]
+enum unicode_read_result {
+  /* Read was okay, consumed at least one byte or produced at least one
+     character.  */
+  unicode_read_okay,
 
-@node Multibyte Character Categories,  , Multibyte Character Tables, Functions for Operating on Multibyte Text
-@subsection Multibyte Character Categories
+  /* Input is incomplete, nothing was consumed or produced.
+     This could be okay, if you have more text to pass through, but it's
+     an error if you've provided all the input text you've got.  */
+  unicode_read_incomplete,
 
-[[This will describe an ADT representing subsets of the Guile character
-set.]]
+  /* Invalid sequence.  */
+  unicode_read_error
+};
 
+enum unicode_write_result {
+  /* Write was okay.  */
+  unicode_write_okay,
+
+  /* Write needs more room.  */
+  unicode_write_more_room 
+};
+
+typedef struct unicode_encoding_t
+{
+  /* Name of encoding.  */
+  const char *name;
+
+  /* Initialize private data.  NULL means no init necessary.  Return 0
+     on error.  */
+  int (*init) (void **privp);
+
+  /* Destroy private data.  NULL means no destroy necessary.  */
+  void (*destroy) (void **privp);
+
+  /* Put output buffer into initial shift state.  If NULL, this
+     encoding doesn't use a shift state.  Returns error indicator like
+     iconv(); see man page.  */
+  int (*reset) (void *priv);
+
+  /* Read some bytes and convert into an array of UCS4 characters.
+
+     On entry, there are *INBYTESLEFT bytes of text at *INBUF to
+     be converted, and *OUTCHARSLEFT characters available at *OUTBUF
+     to hold the results.
+
+     On exit, *INBYTESLEFT and *INBUF indicate the input bytes still not
+     consumed.  *OUTCHARSLEFT and *OUTBUF indicate the output buffer
+     space still not filled.  (By exclusion, these indicate which input
+     bytes were consumed, and which output characters were produced.)
+
+     Return one of the unicode_read_ values.  */
+  enum unicode_read_result
+    (*read) (void *priv,
+             const char     **inbuf,  size_t *inbytesleft,
+	     unicode_char_t **outbuf, size_t *outcharsleft);
+
+  /* Convert an array of UCS4 characters to output bytes.
+
+     On entry, there are *INCHARSLEFT UCS4 characters available at
+     *INBUF, and *OUTBYTESLEFT bytes available to store output at
+     *OUTBUF.
+
+     On exit, *INCHARSLEFT and *INBUF indicate the number of unicode
+     characters left unconverted (because there was insufficient room in
+     the output buffer to hold their converted forms), and *OUTBYTESLEFT
+     and *OUTBUF indicate the unused portion of the output buffer.
+
+     Return one of the unicode_write_ values.  */
+  enum unicode_write_result
+    (*write) (void *priv,
+              unicode_char_t **inbuf,  size_t *incharsleft,
+              char           **outbuf, size_t *outbytesleft);
+
+  /* Link.  */
+  struct unicode_encoding_t *next;
+} unicode_encoding_t;
 
 @node Multibyte Text Processing Errors, Why Guile Does Not Use a Fixed-Width Encoding, Functions for Operating on Multibyte Text, Working With Multibyte Strings in C
 @section Multibyte Text Processing Errors
@@ -479,10 +635,16 @@ the error cannot find the Guile object that contains the text it is
 inspecting, it should use @code{#f} for @var{object}.
 @end deffn
 
-@deffn Condition text:bad-encoding func message args object offset
+@deffn Condition text:bad-encoding
 By calling @var{func}, the program attempted to interpret the text in
 @var{object}, but @var{object} contains a byte sequence which is not a
 valid encoding for any character.
+@end deffn
+
+@deffn Condition text:not-guile-char func message args number
+By calling @var{func}, the program attempted to treat @var{number} as the
+number of a character in the Guile character set, but @var{number} does
+not correspond to any character in the Guile character set.
 @end deffn
 
 
