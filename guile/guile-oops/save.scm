@@ -23,7 +23,7 @@
   :use-module (oop goops internal)
   )
 
-(export save-objects make-object
+(export save-objects restore
 	enumerate! enumerate-component!
 	write-readably write-component write-circref
 	literal?)
@@ -227,7 +227,7 @@
 	    (class-slots class)
 	    (slot-ref class 'getters-n-setters)))
 
-(define (make-object class . values)
+(define (restore class . values)
   (let ((o (%allocate-instance class '())))
     (get-set-for-each (lambda (get set)
 			(set o (car values))
@@ -243,7 +243,7 @@
 
 (define-method write-readably ((o <object>) file env)
   (let ((class (class-of o)))
-    (display "(make-object " file)
+    (display "(restore " file)
     (display (class-name class) file)
     (access-for-each (lambda (name aname get set)
 		       (display #\space file)
