@@ -113,8 +113,11 @@ main_loop (SCM loop_invocation)
       do
 	{
 	  SCM_DEFER_INTS;
+	  scm_mask_ints = 1;
 	  events = Tcl_DoOneEvent (TCL_ALL_EVENTS | TCL_DONT_WAIT);
-	  SCM_ALLOW_INTS; /* Here because of SCM_ASYNC_TICK. */
+	  scm_mask_ints = 0;
+	  SCM_ALLOW_INTS;
+	  SCM_ASYNC_TICK;
 	}
       while (events);
     }
@@ -130,6 +133,7 @@ main_loop_handler (SCM loop_invocation, SCM tag, SCM throw_args)
   scm_mutex_unlock (&scm_tcl_mutex);
   SCM_SETCAR (loop_invocation, SCM_BOOL_F);
   in_tk_loop_p = 0;
+  scm_mask_ints = 0;
   scm_ithrow (tag, throw_args, 1);
   return SCM_UNSPECIFIED;
 }
@@ -148,6 +152,7 @@ io_loop (SCM loop_invocation)
       SCM_DEFER_INTS;
       Tcl_GetCheckMasks (&nfds, masks);
       SCM_ALLOW_INTS;
+      SCM_ASYNC_TICK;
       scm_mutex_unlock (&scm_tcl_mutex);
       scm_internal_select (nfds, &masks[0], &masks[1], &masks[2], 0);
       scm_tcl_handle_event_p = 1;
@@ -161,6 +166,7 @@ io_loop_handler (void *dummy, SCM tag, SCM throw_args)
 {
   scm_puts ("Internal error in io_loop_handler\n\
 Please send a bug-report to bug-guile@gnu.org\n", scm_cur_errp);
+  scm_mask_ints = 0;
   scm_handle_by_message (0, tag, throw_args);
   return SCM_UNSPECIFIED;
 }
