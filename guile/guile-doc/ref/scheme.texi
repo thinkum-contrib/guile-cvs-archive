@@ -4505,6 +4505,302 @@ Set using @code{scm_set_port_truncate}.
 @end table
 
 
+@page
+@node Numbers
+@chapter Numbers
+
+@c docstring begin (c-doc-string "numbers.c" "exact?")
+@c docstring md5 "5b0462f8eabd2a9edd490e1796755098"
+@deffn primitive exact? x
+Return #t if X is an exact number, #f otherwise.
+@end deffn
+
+@c docstring begin (c-doc-string "numbers.c" "odd?")
+@c docstring md5 "89a1df727df411063148bf3e614abe94"
+@deffn primitive odd? n
+Return #t if N is an odd number, #f otherwise.
+@end deffn
+
+@c docstring begin (c-doc-string "numbers.c" "even?")
+@c docstring md5 "b430ab220f028e41717b1b9e0611b7a7"
+@deffn primitive even? n
+Return #t if N is an even number, #f otherwise.
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "abs")
+@deffn primitive abs
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "quotient")
+@deffn primitive quotient
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "remainder")
+@deffn primitive remainder
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "modulo")
+@deffn primitive modulo
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "gcd")
+@deffn primitive gcd
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "lcm")
+@deffn primitive lcm
+@end deffn
+
+@c docstring begin (c-doc-string "numbers.c" "number->string")
+@c docstring md5 "b414ea1d857b2039c14aeeff405fafa5"
+@deffn primitive number->string n [radix]
+Return a string holding the external representation of the
+number N in the given RADIX.  If N is inexact, a radix of 10
+will be used.
+@end deffn
+
+@c docstring begin (c-doc-string "numbers.c" "string->number")
+@c docstring md5 "176295e3ecc0f7a248a881bdb0bf913d"
+@deffn primitive string->number string [radix]
+Returns a number of the maximally precise representation
+expressed by the given STRING. RADIX must be an exact integer,
+either 2, 8, 10, or 16. If supplied, RADIX is a default radix
+that may be overridden by an explicit radix prefix in STRING
+(e.g. "#o177"). If RADIX is not supplied, then the default
+radix is 10. If string is not a syntactically valid notation
+for a number, then `string->number' returns #f.  (r5rs)
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "number?")
+@deffn primitive number? x
+Return #t if X is any kind of number, #f else.
+@end deffn
+
+@c docstring begin (c-doc-string "numbers.c" "complex?")
+@c docstring md5 "6b5bcd5b7adfa1240624236007c6357d"
+@deffn primitive complex? x
+Return #t if X is a complex number, #f else.  Note that the
+sets of real, rational and integer values form subsets of the
+set of complex numbers, i. e. the predicate will also be
+fulfilled if X is a real, rational or integer number.
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "real?")
+@deffn primitive real? x
+Return #t if X is a real number, #f else.  Note that the
+sets of integer and rational values form subsets of the set of real
+numbers, i.e. the predicate will also be fulfilled if X is an
+integer number or a rational number.
+@end deffn
+
+@c docstring begin (c-doc-string "numbers.c" "rational?")
+@c docstring md5 "d5323eae3dab88b0d4b13f5ea18ec427"
+@deffn primitive rational? x
+Return #t if X is a rational number, #f else.  Note that the
+set of integer values forms a subset of the set of rational
+numbers, i. e. the predicate will also be fulfilled if X is an
+integer number.
+@end deffn
+
+@c docstring begin (c-doc-string "numbers.c" "integer?")
+@c docstring md5 "0948d1f1758127dfa9798b1e7ff133ea"
+@deffn primitive integer? x
+Return #t if X is an integer number, #f else.
+@end deffn
+
+@c docstring begin (c-doc-string "numbers.c" "inexact?")
+@c docstring md5 "dec1546af70e3ea24843470d9153be09"
+@deffn primitive inexact? x
+Return #t if X is an inexact number, #f else.
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "=")
+@deffn primitive =
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "<")
+@deffn primitive <
+@end deffn
+
+@c begin (c-doc-string "numbers.c" ">")
+@deffn primitive >
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "<=")
+@deffn primitive <=
+@end deffn
+
+@c begin (c-doc-string "numbers.c" ">=")
+@deffn primitive >=
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "zero?")
+@deffn primitive zero?
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "positive?")
+@deffn primitive positive?
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "negative?")
+@deffn primitive negative?
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "max")
+@deffn primitive max
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "min")
+@deffn primitive min
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "+")
+@deffn primitive +
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "-")
+@deffn primitive -
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "*")
+@deffn primitive *
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "/")
+@deffn primitive /
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "$asinh")
+@deffn primitive $asinh
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "$acosh")
+@deffn primitive $acosh
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "$atanh")
+@deffn primitive $atanh
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "truncate")
+@deffn primitive truncate
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "round")
+@deffn primitive round
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "exact->inexact")
+@deffn primitive exact->inexact
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "floor")
+@deffn primitive floor
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "ceiling")
+@deffn primitive ceiling
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "$sqrt")
+@deffn primitive $sqrt
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "$abs")
+@deffn primitive $abs
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "$exp")
+@deffn primitive $exp
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "$log")
+@deffn primitive $log
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "$sin")
+@deffn primitive $sin
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "$cos")
+@deffn primitive $cos
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "$tan")
+@deffn primitive $tan
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "$asin")
+@deffn primitive $asin
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "$acos")
+@deffn primitive $acos
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "$atan")
+@deffn primitive $atan
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "$sinh")
+@deffn primitive $sinh
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "$cosh")
+@deffn primitive $cosh
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "$tanh")
+@deffn primitive $tanh
+@end deffn
+
+@c docstring begin (c-doc-string "numbers.c" "$expt")
+@c docstring md5 "c0d8151c5c2c8c9e1b37cc2576b664d3"
+@deffn primitive $expt z1 z2
+
+@end deffn
+
+@c docstring begin (c-doc-string "numbers.c" "$atan2")
+@c docstring md5 "c53521a27931169da95813c65437cfcf"
+@deffn primitive $atan2 z1 z2
+
+@end deffn
+
+@c docstring begin (c-doc-string "numbers.c" "make-rectangular")
+@c docstring md5 "81d3cb3729f7853d49e3591d7f8a2bae"
+@deffn primitive make-rectangular real imaginary
+Return a complex number constructed of the given REAL and
+IMAGINARY parts.
+@end deffn
+
+@c docstring begin (c-doc-string "numbers.c" "make-polar")
+@c docstring md5 "976bce3c496772d9e63c36f00a052f7e"
+@deffn primitive make-polar z1 z2
+Return the complex number Z1 * e^(i * Z2).
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "real-part")
+@deffn primitive real-part
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "imag-part")
+@deffn primitive imag-part
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "magnitude")
+@deffn primitive magnitude
+@end deffn
+
+@c begin (c-doc-string "numbers.c" "angle")
+@deffn primitive angle
+@end deffn
+
+@c docstring begin (c-doc-string "numbers.c" "inexact->exact")
+@c docstring md5 "042c6574b95f672ed52e38d2056bb586"
+@deffn primitive inexact->exact z
+Returns an exact number that is numerically closest to Z.
+@end deffn
+
 
 @page
 @node Bitwise Operations

@@ -227,6 +227,7 @@ Part II: Guile Scheme
 * Hooks::                       User-customizable event lists.
 * Property Lists::              Managing metainformation about Scheme objects.
 * Ports::                       I/O in Scheme.
+* Numbers::                     Numerical operations.
 * Bitwise Operations::          Logical AND, OR, NOT, and so on.
 * Regular Expressions::         Pattern matching and substitution.
 * Dynamic Linking from Marius::
