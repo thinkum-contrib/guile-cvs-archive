@@ -3,9 +3,9 @@
 @setfilename r4rs.info
 @settitle Revised(4) Scheme
 
-@dircategory Scheme Programming
+@dircategory The Algorithmic Language Scheme
 @direntry
-* r4rs: (r4rs).                                 Revised(4) Report on Scheme
+* R4RS: (r4rs).         The Revised(4) Report on Scheme
 @end direntry
 
 @setchapternewpage on

@@ -92,7 +92,7 @@
 @c @cropmarks
 @c @end iftex
 
-@dircategory Scheme Programming
+@dircategory The Algorithmic Language Scheme
 @direntry
 * guile-ref: (guile-ref).  The Guile Reference Manual.
 @end direntry
