@@ -624,7 +624,7 @@ Tk_CreateBinding(interp, bindingTable, object, eventString, command, append)
        * execution
        */
       if ((new=STk_append_callback_parameters(p)) == NULL) goto BadSpec;
-      /* new will be  automatically GC'ed. */
+      /* command must be freed. */
       command = new;
     }
 #endif
@@ -653,6 +653,7 @@ Tk_CreateBinding(interp, bindingTable, object, eventString, command, append)
 	strcpy(psPtr->command, command);
     }
 #ifdef STk_CODE
+    ckfree ((char *) command);
     if (eventMask) STk_add_callback(str1, eventString, str2, p);
 #endif
     return eventMask;
