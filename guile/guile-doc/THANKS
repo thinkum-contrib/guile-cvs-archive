@@ -1,6 +1,0 @@
-The Guile reference manual:
-- Mark Galassi, for general stewardship
-- Tim Pierce, for writing sections on script interpreter triggers, alists,
-  function tracing, and splitting the manual into its own module.
-Doc bug fixes from:
-Marcus Daniels
