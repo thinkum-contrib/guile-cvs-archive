@@ -445,12 +445,13 @@
 (define-public (tk-make-main-window . args)
   (if (not the-interpreter)
       (new-interpreter))
-  (let ((init-status (tk-init-main-window the-interpreter
-					  (or (getenv "DISPLAY") ":0")
-					  "gwish"
-					  "Gwish")))
-    (if (not (eq? #t init-status))
-	(error init-status)))
+  (if (not (tcl-defined? the-interpreter "."))
+      (let ((init-status (tk-init-main-window the-interpreter
+					      (or (getenv "DISPLAY") ":0")
+					      "gwish"
+					      "Gwish")))
+	(if (not (eq? #t init-status))
+	    (error init-status))))
   
   (if (not (null? args))
       (begin
@@ -460,15 +461,20 @@
 	    (tcl-global-eval the-interpreter
 			     (string-append "wm geometry . " (cadr args)))))))
 
+(define-public (tk-main-window?)
+  (and the-interpreter
+       (tcl-defined? the-interpreter ".")))
+
 (if (memq 'threads *features*)
     (begin
       (define-public (tk-spawn-handler)
-	(begin-thread
-	 (error-catching-loop
-	  (lambda ()
-	    (if (= (tk-num-main-windows) 0)
-		(throw 'quit))
-	    (guile-tk-main-loop)))))
+	(if (not (tk-loop?))
+	    (begin-thread
+	     (error-catching-loop
+	      (lambda ()
+		(if (= (tk-num-main-windows) 0)
+		    (throw 'quit))
+		(tk-main-loop))))))
 
       (define-public (tk-main-window . args)
 	(apply tk-make-main-window args)

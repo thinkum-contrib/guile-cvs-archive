@@ -90,7 +90,7 @@ libgtcltk_la_LDFLAGS = -version-info 0:0
 guile_tcltk_LDADD = libgtcltk.la
 
 subpkgdatadir = @TCLTKDIR@
-subpkgdata_DATA = tcltk.scm
+subpkgdata_DATA = tcltk.scm graph.scm breakout.scm
 
 EXTRA_DIST = license.terms $(subpkgdata_DATA)
 

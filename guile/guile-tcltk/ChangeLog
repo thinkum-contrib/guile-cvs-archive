@@ -1,3 +1,21 @@
+1998-04-19  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* README: Some minor docs.
+
+	* graph.scm, breakout.scm: Demos.
+
+	* guile-tk.c (scm_init_main_window, scm_main_loop,
+	scm_num_main_windows): Renamed to scm_tk_init_main_window,
+	scm_tk_main_loop, scm_tk_num_main_windows.
+	(scm_tk_loop_p): New procedure: Returns #t if the tk handler loop
+	is active.
+
+1998-04-18  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* tcltk.scm (tk-make-main-window): Don't create main application
+	window if it already exists.
+	(tk-main-window?): New procedure.
+
 1998-04-15  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* configure.in: If library names aren't supplied by the user

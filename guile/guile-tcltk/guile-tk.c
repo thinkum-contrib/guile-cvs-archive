@@ -49,10 +49,10 @@
 
 
 
-SCM_PROC(s_init_main_window, "tk-init-main-window", 4, 0, 0, scm_init_main_window);
-SCM scm_init_main_window SCM_P ((SCM tobj, SCM display, SCM name, SCM class));
+SCM_PROC(s_tk_init_main_window, "tk-init-main-window", 4, 0, 0, scm_tk_init_main_window);
+SCM scm_tk_init_main_window SCM_P ((SCM tobj, SCM display, SCM name, SCM class));
 SCM
-scm_init_main_window (tobj, display, name, class)
+scm_tk_init_main_window (tobj, display, name, class)
      SCM tobj;
      SCM display;
      SCM name;
@@ -61,13 +61,13 @@ scm_init_main_window (tobj, display, name, class)
   int status;
 
   SCM_ASSERT (SCM_NIMP (tobj) && SCM_TERPP (tobj), tobj, SCM_ARG1,
-	      s_init_main_window);
+	      s_tk_init_main_window);
   SCM_ASSERT (SCM_NIMP (display) && SCM_STRINGP (display),
-	  display, SCM_ARG2, s_init_main_window);
+	  display, SCM_ARG2, s_tk_init_main_window);
   SCM_ASSERT (SCM_NIMP (name) && SCM_STRINGP (name), name, SCM_ARG3,
-	      s_init_main_window);
+	      s_tk_init_main_window);
   SCM_ASSERT (SCM_NIMP (class) && SCM_STRINGP (class), class, SCM_ARG4,
-	      s_init_main_window);
+	      s_tk_init_main_window);
 
   SCM_DEFER_INTS;
   status = Tcl_Init(SCM_TERP (tobj));
@@ -89,27 +89,22 @@ scm_init_main_window (tobj, display, name, class)
   return SCM_BOOL_T;
 }
 
+static int in_tk_loop_p = 0;
 
-SCM_PROC(s_main_loop, "tk-main-loop", 0, 0, 0, scm_main_loop);
-SCM scm_main_loop SCM_P ((void));
+SCM_PROC (s_tk_loop_p, "tk-loop?", 0, 0, 0, scm_tk_loop_p);
 SCM
-scm_main_loop ()
+scm_tk_loop_p ()
 {
-  SCM_DEFER_INTS;
-  Tk_MainLoop ();
-  SCM_ALLOW_INTS;
-  return SCM_UNSPECIFIED;
+  return in_tk_loop_p ? SCM_BOOL_T : SCM_BOOL_F;
 }
 
 #ifdef USE_THREADS
-
-static int in_guile_tk_loop_p = 0;
 
 static SCM
 main_loop (SCM loop_invocation)
 {
   int events;
-  in_guile_tk_loop_p = 1;
+  in_tk_loop_p = 1;
   while (Tk_GetNumMainWindows () > 0)
     {
       if (!scm_tcl_handle_event_p)
@@ -125,7 +120,7 @@ main_loop (SCM loop_invocation)
     }
   scm_mutex_unlock (&scm_tcl_mutex);
   SCM_SETCAR (loop_invocation, SCM_BOOL_F);
-  in_guile_tk_loop_p = 0;
+  in_tk_loop_p = 0;
   return SCM_UNSPECIFIED;
 }
 
@@ -134,7 +129,7 @@ main_loop_handler (SCM loop_invocation, SCM tag, SCM throw_args)
 {
   scm_mutex_unlock (&scm_tcl_mutex);
   SCM_SETCAR (loop_invocation, SCM_BOOL_F);
-  in_guile_tk_loop_p = 0;
+  in_tk_loop_p = 0;
   scm_ithrow (tag, throw_args, 1);
   return SCM_UNSPECIFIED;
 }
@@ -170,15 +165,19 @@ Please send a bug-report to bug-guile@gnu.org\n", scm_cur_errp);
   return SCM_UNSPECIFIED;
 }
 
-SCM_PROC (s_guile_tk_main_loop, "guile-tk-main-loop", 0, 0, 0, scm_guile_tk_main_loop);
+#endif /* USE_THREADS */
+
+SCM_PROC(s_tk_main_loop, "tk-main-loop", 0, 0, 0, scm_tk_main_loop);
+SCM scm_tk_main_loop SCM_P ((void));
 SCM
-scm_guile_tk_main_loop ()
+scm_tk_main_loop ()
 {
+#ifdef USE_THREADS
   SCM loop_invocation = scm_cons (SCM_BOOL_T, SCM_BOOL_F);
-  if (in_guile_tk_loop_p)
-    scm_misc_error (s_guile_tk_main_loop, "Loop already active", SCM_EOL);
+  if (in_tk_loop_p)
+    scm_misc_error (s_tk_main_loop, "Loop already active", SCM_EOL);
   if (Tk_GetNumMainWindows () == 0)
-    scm_misc_error (s_guile_tk_main_loop, "No main window active", SCM_EOL);
+    scm_misc_error (s_tk_main_loop, "No main window active", SCM_EOL);
   scm_spawn_thread ((scm_catch_body_t) io_loop, (void*) loop_invocation,
 		    (scm_catch_handler_t) io_loop_handler, NULL);
   scm_tcl_handle_event_p = 1; /* Request an initial call to Tcl_DoOneEvent */
@@ -187,15 +186,21 @@ scm_guile_tk_main_loop ()
 		      (void*) loop_invocation,
 		      (scm_catch_handler_t) main_loop_handler,
 		      (void*) loop_invocation);
+#else
+  SCM_DEFER_INTS;
+  in_tk_loop_p = 1;
+  Tk_MainLoop ();
+  in_tk_loop_p = 0;
+  SCM_ALLOW_INTS;
+#endif
   return SCM_UNSPECIFIED;
 }
 
-#endif /* USE_THREADS */
 
-SCM_PROC(s_num_main_windows, "tk-num-main-windows", 0, 0, 0, scm_num_main_windows);
-SCM scm_num_main_windows SCM_P ((void));
+SCM_PROC(s_tk_num_main_windows, "tk-num-main-windows", 0, 0, 0, scm_tk_num_main_windows);
+SCM scm_tk_num_main_windows SCM_P ((void));
 SCM
-scm_num_main_windows ()
+scm_tk_num_main_windows ()
 {
   int n;
 #ifdef USE_THREADS
