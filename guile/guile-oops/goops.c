@@ -1654,6 +1654,7 @@ burnin (SCM o)
 static void
 go_to_hell (void *o)
 {
+  SCM obj = (SCM) o;
 #ifdef USE_THREADS
   scm_mutex_lock (&hell_mutex);
 #endif
@@ -1663,7 +1664,7 @@ go_to_hell (void *o)
       hell = scm_must_realloc (hell, hell_size, new_size, "hell");
       hell_size = new_size;
     }
-  hell[n_hell++] = SCM_INST (o);
+  hell[n_hell++] = SCM_INST (obj);
 #ifdef USE_THREADS
   scm_mutex_unlock (&hell_mutex);
 #endif
