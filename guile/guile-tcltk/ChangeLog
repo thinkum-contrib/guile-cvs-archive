@@ -1,3 +1,8 @@
+2004-03-31  Mikael Djurfeldt  <djurfeldt@nada.kth.se>
+
+	* dynlink.scm (search-path-extended): Escape escape char in regexp
+	strings.
+
 2002-12-10  Mikael Djurfeldt  <djurfeldt@nada.kth.se>
 
 	* guile-tcl.h (SCM_ENTER_TCL, SCM_LEAVE_TCL): New macros

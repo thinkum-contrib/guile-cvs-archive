@@ -50,9 +50,9 @@
       name
       (or-map (lambda (p)
 		(let ((file-list (list))
-		      (pattern (if (string-match "\.(so|la)$" name)
+		      (pattern (if (string-match "\\.(so|la)$" name)
 				   (string-append name "*")
-				   (string-append name "\.so*"))
+				   (string-append name "\\.so*"))
 			       ))
 		  (and (file-exists? p)
 		       (file-is-directory? p)

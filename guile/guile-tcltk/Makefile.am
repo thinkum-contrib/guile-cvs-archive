@@ -23,7 +23,7 @@ libguiledlopenhelper_la_SOURCES = guiledlopenhelper.c
 libguiledlopenhelper_la_LDFLAGS = -version-info 0:0:0 -export-dynamic
 
 modincludedir = $(includedir)/guile-tcltk
-modinclude_HEADERS = guile-tcl.h guile-tk.h
+modinclude_HEADERS = guile-tcl.h guile-tk.h compat.h
 
 subpkgdatadir = @TCLTKDIR@
 subpkgdata_DATA = tcltk.scm dynlink.scm gtcltk.scm \
