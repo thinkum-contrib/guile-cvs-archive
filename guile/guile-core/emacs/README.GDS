@@ -1,0 +1,4 @@
+
+GDS is an Emacs frontend for developing and debugging Guile programs.
+
+To use GDS, add `(require 'gds)' to your .emacs file.
