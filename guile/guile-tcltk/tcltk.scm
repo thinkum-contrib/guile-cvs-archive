@@ -29,6 +29,14 @@
   :use-module (ice-9 threads)
   :use-module (tcltk gtcltk))
 
+;; Re-export bindings from the gtcltk module
+(export
+  tcl-create-interp tcl-global-eval tcl-create-command
+  tcl-delete-command tcl-get-int tcl-get-double tcl-get-boolean
+  tcl-split-list tcl-merge tcl-trace-var2 tcl-untrace-var2
+  tcl-set-var2 tcl-get-var2 tcl-defined? tcl-do-one-event
+  tk-init-main-window tk-loop? tk-main-loop tk-num-main-windows)
+
 (define widgets '(button checkbutton radiobutton menubutton menu canvas
 			 label entry message listbox text scrollbar
 			 scale frame toplevel))
@@ -435,6 +443,14 @@
 	((integer? x) x)
 	(#t (tcl-error "Expected integer but got" x))))
 
+;;; Get variable from tcl:
+
+(define-public (tcl-get-var name)
+  (tcl-get-var2 the-interpreter name #f 0))
+
+(define-public (tcl-get-number name)
+  (string->number (get-var name)))
+
 ;;; To support stack handling:
 
 (define v (builtin-variable 'tk-stack-mark))
@@ -453,6 +469,8 @@
 
 ;;; {The application window}
 
+(define-public top #f)
+
 ;; (tk-main-window [name] [geometry])
 (define-public (tk-make-main-window . args)
   (if (not the-interpreter)
@@ -464,7 +482,7 @@
 					      "Gwish")))
 	(if (not (eq? #t init-status))
 	    (error init-status))))
-  
+  (set! top (tcl-command the-interpreter "."))
   (if (not (null? args))
       (begin
 	(tcl-global-eval the-interpreter
