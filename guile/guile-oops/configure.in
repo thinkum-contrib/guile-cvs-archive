@@ -24,6 +24,16 @@ AM_PROG_LIBTOOL
 CFLAGS="$CFLAGS $GUILE_CFLAGS"
 LIBS="$LIBS $GUILE_LDFLAGS"
 
+AC_CACHE_CHECK(for two argument scm_mutex_init,
+ac_cv_func_scm_mutex_init_two_args,
+AC_TRY_COMPILE([#include <libguile.h>],[scm_mutex_init (NULL, NULL);],
+ac_cv_func_scm_mutex_init_two_args=yes,
+ac_cv_func_scm_mutex_init_two_args=no))
+if test "$ac_cv_func_scm_mutex_init_two_args" = "yes"; then
+  AC_DEFINE(SCM_MUTEX_INIT_TWO_ARGS, 1,
+	    [define if scm_mutex_init takes two arguments])
+fi
+
 ## If we're using GCC, ask for aggressive warnings.
 case "$GCC" in
   yes)
