@@ -155,13 +155,8 @@ AC_CHECK_FUNCS(scm_internal_select)
 LIBS="$saved_LIBS"
 	
 if test "$ac_cv_func_scm_internal_select" = "yes"; then
-    LIBOBJS="tclUnixNotfy.o $LIBOBJS"
-    ## If we're creating a shared library (using libtool!), then we'll
-    ## need to generate a list of .lo files corresponding to the .o files
-    ## given in LIBOBJS.  We'll call it LIBLOBJS.
-    LIBLOBJS="`echo ${LIBOBJS} | sed 's/\.o/.lo/g'`"
+  AC_LIBOBJ(tclUnixNotfy)
 fi
-AC_SUBST(LIBLOBJS)
 
 TCLTKDIR="`$GUILE_CONFIG info pkgdatadir`/tcltk"
 AC_SUBST(TCLTKDIR)

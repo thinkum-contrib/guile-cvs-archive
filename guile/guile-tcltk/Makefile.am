@@ -11,8 +11,8 @@ libguile_tcltk_gtcltk_la_SOURCES = guile-tcl.c guile-tk.c \
 		       guile-tcl.h guile-tk.h gtcltk-module.c
 EXTRA_libguile_tcltk_gtcltk_la_SOURCES = tclInt.h tclUnixPort.h tclUnixNotfy.c
 BUILT_SOURCES = guile-tcl.x guile-tk.x
-libguile_tcltk_gtcltk_la_DEPENDENCIES = @LIBLOBJS@
-libguile_tcltk_gtcltk_la_LIBADD = @LIBLOBJS@
+#libguile_tcltk_gtcltk_la_DEPENDENCIES = @LIBLOBJS@
+#libguile_tcltk_gtcltk_la_LIBADD = @LIBLOBJS@
 libguile_tcltk_gtcltk_la_LDFLAGS = -version-info 1:0 -export-dynamic
 
 guile_tcltk_LDADD = libguile-tcltk-gtcltk.la $(GUILE_LIBS)
