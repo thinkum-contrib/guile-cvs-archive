@@ -1,3 +1,10 @@
+1999-09-19  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
+
+	* goops.scm (define-method): Don't automatically pick up a
+	pre-existing procedure as default method if a binding with the
+	same name as the generic function referred to exists.  Instead
+	require that it really is a generic function, or equivalent.
+
 1999-09-15  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
 	* README, goops.texi (Introduction): Revised the presentation of
