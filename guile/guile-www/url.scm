@@ -1,22 +1,22 @@
-;;;; www/url.scm: URL manipulation tools.
+;;; www/url.scm --- URL manipulation tools
 
-;;;; 	Copyright (C) 1997,2001 Free Software Foundation, Inc.
-;;;;
-;;;; This program is free software; you can redistribute it and/or modify
-;;;; it under the terms of the GNU General Public License as published by
-;;;; the Free Software Foundation; either version 2, or (at your option)
-;;;; any later version.
-;;;;
-;;;; This program is distributed in the hope that it will be useful,
-;;;; but WITHOUT ANY WARRANTY; without even the implied warranty of
-;;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-;;;; GNU General Public License for more details.
-;;;;
-;;;; You should have received a copy of the GNU General Public License
-;;;; along with this software; see the file COPYING.  If not, write to
-;;;; the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
-;;;; Boston, MA 02111-1307 USA
-;;;;
+;; 	Copyright (C) 1997,2001,2002 Free Software Foundation, Inc.
+;;
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation; either version 2, or (at your option)
+;; any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this software; see the file COPYING.  If not, write to
+;; the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
+;; Boston, MA 02111-1307 USA
+;;
 
 ;;; Commentary:
 
@@ -40,12 +40,12 @@
 ;;; Code:
 
 
-;;;; TODO:
-;;;;   * support `user:password@' strings where appropriate in URLs.
-;;;;   * make URL parsing smarter.  This is good for most TCP/IP-based
-;;;;	 URL schemes, but parsing is actually specific to each URL scheme.
-;;;;   * fill out url:encode, include facilities for URL-scheme-specific
-;;;;     encoding methods (e.g. a url-scheme-reserved-char-alist)
+;; TODO:
+;;   * support `user:password@' strings where appropriate in URLs.
+;;   * make URL parsing smarter.  This is good for most TCP/IP-based
+;;	 URL schemes, but parsing is actually specific to each URL scheme.
+;;   * fill out url:encode, include facilities for URL-scheme-specific
+;;     encoding methods (e.g. a url-scheme-reserved-char-alist)
 
 (define-module (www url)
   :use-module (ice-9 regex))
@@ -101,24 +101,18 @@
 
 
 (define-public (url:unparse url)
-  (define (pathy scheme username host port path)
-    (string-append (symbol->string scheme)
-		   "://" host
-		   (if port (string-append ":" (number->string port))
-		       "")
-		   (if path (string-append "/" path)
-		       "")))
+  (define (pathy scheme username url)   ; username not used!
+    (format #f "~A://~A~A~A"
+            scheme
+            (url:host url)
+            (cond ((url:port url) => (lambda (port) (format #f ":~A" port)))
+                  (else ""))
+            (cond ((url:path url) => (lambda (path) (format #f "/~A" path)))
+                  (else ""))))
   (case (url:scheme url)
-    ((http) (pathy 'http #f
-		   (url:host url)
-		   (url:port url)
-		   (url:path url)))
-    ((ftp)  (pathy 'ftp
-		   (url:user url)
-		   (url:host url)
-		   (url:port url)
-		   (url:path url)))
-    ((mailto) (string-append "mailto:" (url:address url)))
+    ((http) (pathy 'http #f url))
+    ((ftp)  (pathy 'ftp (url:user url) url))
+    ((mailto) (format #f "mailto:~A" (url:address url)))
     ((unknown) (url:unknown url))))
 
 
@@ -130,15 +124,16 @@
 ;; important for code that frequently gets restarted)?
 
 (define-public (url:decode str)
-  (regexp-substitute/global #f "\\+|%([0-9A-Fa-f][0-9A-Fa-f])" str
-    'pre
-    (lambda (m)
-      (cond ((string=? "+" (match:substring m 0)) " ")
-	    (else (integer->char
-		   (string->number
-		    (match:substring m 1)
-		    16)))))
-    'post))
+  (regexp-substitute/global
+   #f "\\+|%([0-9A-Fa-f][0-9A-Fa-f])" str
+   'pre
+   (lambda (m)
+     (cond ((string=? "+" (match:substring m 0)) " ")
+           (else (integer->char
+                  (string->number
+                   (match:substring m 1)
+                   16)))))
+   'post))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; (url-encode STR)
