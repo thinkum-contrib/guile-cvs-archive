@@ -12,6 +12,8 @@ etc.).  These environment variables are documented in comments at the
 top of each script.
 
 By the way, if you accidentally check in a new script w/o +x, that's
-ok.  Just add it to the Makefile and do "make".
+ok.  Just add it to the Makefile and do "make" (see Makefile for other
+goodies).
 
 - Jim Blandy <jimb@red-bean.com>
+  and others
