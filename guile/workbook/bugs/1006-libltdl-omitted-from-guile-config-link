@@ -1,0 +1,27 @@
+summary: "guile-config link" command does not include "-lltdl"
+reported: David Allouche <me@davidallouche.net>, 2002-05-09
+affects: HEAD branch_release-1-6 branch_release-1-4
+
+David Allouche sez:
+
+> I am a TeXmacs developper and I currently have problems with statically
+> linking a binary against libguile 1.4 on Debian.
+>
+> The problem is that:
+> david@nemesis david$ guile-config link
+> -L/usr/lib -lguile -lqthreads -lpthread -lm
+>
+> But at link time, I get the following error:
+> /usr/local/guile-1.4/lib/libguile.a(dynl.o): In function
+> `sysdep_dynl_link':
+> /home/david/Desktop/guile-core-1.4/libguile/dynl.c:243: undefined
+> reference to `lt_dlopenext'
+>
+> The link command being:
+> c++  Objects/basic_group.o [...] Objects/std_widget_group.o -Wl,-Bstatic
+> -L /home/david/Desktop/TeXmacs/TeXmacs-src/TeXmacs-1.0.0.4/lib -lm
+> -Wl,-rpath, -L/usr/X11R6/lib -lXext -lX11 -L/usr/local/guile-1.4/lib
+> -lguile -lm -ldl -o
+> /home/david/Desktop/TeXmacs/TeXmacs-src/TeXmacs-1.0.0.4/bin/texmacs.bin
+>
+> That problem is fixed if I add -lltdl to the link command.
