@@ -10,7 +10,7 @@ guile_oops_DEPENDENCIES = @LIBLOBJS@
 guile_oops_LDADD = @LIBLOBJS@ libgoopscore.la
 
 libgoopscore_la_SOURCES = goops.c
-libgoopscore_la_LDFLAGS = -version-info 3:0 -export-dynamic
+libgoopscore_la_LDFLAGS = -version-info @LIBGOOPSCORE_MAJOR_VERSION@:@LIBGOOPSCORE_MINOR_VERSION@:@LIBGOOPSCORE_REVISION_VERSION@ -export-dynamic
 BUILT_SOURCES = goops.x fdi.x
 
 EXTRA_guile_oops_SOURCES = fdi.c
