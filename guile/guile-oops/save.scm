@@ -90,7 +90,9 @@
 (define-method enumerate! ((o <top>) env) #t)
 
 (define-method write-readably ((o <top>) file env)
-  (goops-error "No read-syntax defined for object `~S'" o))
+  ;;(goops-error "No read-syntax defined for object `~S'" o)
+  (write o file) ;doesn't catch bugs, but is much more flexible
+  )
 
 (define-method write-readably ((o <null>) file env) (write o file))
 (define-method write-readably ((o <number>) file env) (write o file))
