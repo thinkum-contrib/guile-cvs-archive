@@ -20,4 +20,4 @@ assemble-ops.c: rod.scm lightning.ops
 	guile -s rod.scm >$@
 
 scmdir = $(datadir)/guile/lightning
-scm_DATA = assembler.scm compiler.scm
+scm_DATA = assembler.scm compiler.scm peephole.scm
