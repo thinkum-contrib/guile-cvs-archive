@@ -1,0 +1,14 @@
+- Eventually
+  - merge HEAD and branch_release-1-6 TODO files into this one
+  - make/implement policy: include TODO snapshot on release
+  - delete HEAD and branch_release-1-6 TODO files
+
+
+
+	Local Variables:
+	mode: outline
+	outline-regexp: "\\([ ][ ]\\)*-"
+	End:
+
+
+[TODO ends here]

@@ -1,0 +1,67 @@
+In contrast to most of its sibling directories, this directory is
+concerned with the enumeration and ownership of tasks, and the
+conventional way of doing and communicating these things.
+
+
+The TODO File
+
+	Items are grouped by target release version.  The first group is
+	"Eventually", which is not associated w/ any particular version.
+	Items should be initially added to this group, and then later
+	moved under a version upon either ownership or sponsorship.
+
+	Maintainers (w/ write privs) indicate ownership by `[USERNAME]'.
+	Use `[ACTUAL-OWNER:MAINTAINER]' to indicate sponsorship, where
+	both elements are usernames.
+
+	Upon completion, simply change the "-" to a "+", but do not
+	delete the item.  At release time, the "+" entries will be
+	deleted after review to make sure that user-visible changes are
+	reflected in NEWS.
+
+	During the time between ownership (sponsorship) and completion,
+	a task is said to be work-in-progress.  If you wish to record
+	some finer gradation of status, use one of these markers
+	immediately following the "-":
+
+	D -- design/discussion phase (i.e., "don't expect a checkin
+	     or patch any time soon")
+
+	X -- blocked on external dependency (for example, waiting for
+	     paperwork, or profiling survey results)
+
+	N% (N a number) -- N% "complete"
+
+	R -- review requested (the task is done and you've asked for
+	     some kind of (in)sanity check or review, for possible
+	     redirection and followup)
+
+	Feel free to define (and document above) additional markers.
+
+	Note that even though lots of things related to specific task
+	are under discussion (for a long time in some cases), in the
+	interests of promoting a clean TODO protocol, you should avoid
+	setting "D" until actual ownership or sponsorship.
+
+
+How Bugs Fit In
+
+	Some tasks are related to fixing bugs.  At this time there is no
+	special convention for handling or indicating this in TODO.
+
+	[Probably after some discussion this section can be written.]
+
+
+Individual TODO Files
+
+	Feel free to keep individual todo files either in this directory
+	or under ../journal/ in any format under any discipline you want
+	(or use the above conventions if you want to make use of scripts
+	that grok the TODO file).
+
+	Individual TODO files are useful if you want to break a task
+	down into constituent subtasks, or (to go the other direction in
+	scope) for long-running over-arching background tasks for which
+	the main TODO file actually *IS* the breakdown (for example,
+	"improve hacker coordination" or "make guile compiler-friendly
+	again" or "practice my meager project manglement skills").
