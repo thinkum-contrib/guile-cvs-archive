@@ -13,6 +13,7 @@
     - regen guile-api.alist all branches
   - update (gscripts) api-diff to be group-aware [ttn]
   - back port auto* tools versioning requirement fixes
+  - write maintainer script dist-guile
 
 
 - Guile 1.6
@@ -52,7 +53,6 @@
       - 2002-02
       - 2002-03
       - 2002-04
-  - write maintainer script dist-guile
   - write why-not-release? scanner
   - forward port guile-1.6.x stuff
     - guile-snarf and docs
