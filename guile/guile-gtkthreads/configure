@@ -1576,28 +1576,29 @@ LIBTOOL='$(SHELL) $(top_builddir)/libtool'
 exec 5>>./config.log
 
 
+echo $ac_n "checking for gtk""... $ac_c" 1>&6
+echo "configure:1581: checking for gtk" >&5
+gtk-config --libs gthread > /dev/null || {
+  echo "configure: cannot find gtk-config: Is gtk installed?" 1>&2
+  exit 1
+}
+LIBS="`gtk-config --libs gthread` $LIBS"
+echo "$ac_t""yes" 1>&6
 
-  ## First, let's just see if we can find Guile at all.
-  echo $ac_n "checking for Guile""... $ac_c" 1>&6
-echo "configure:1583: checking for Guile" >&5
-  guile-config link > /dev/null || {
-    echo "configure: cannot find guile-config; is Guile installed?" 1>&2
-    exit 1
-  }
-  GUILE_CFLAGS="`guile-config compile`"
-  GUILE_LDFLAGS="`guile-config link`"
-  
-  
-  echo "$ac_t""yes" 1>&6
-
-
-CFLAGS="$CFLAGS $GUILE_CFLAGS"
-LIBS="$GUILE_LDFLAGS $LIBS"
+echo $ac_n "checking for guile-gtk""... $ac_c" 1>&6
+echo "configure:1590: checking for guile-gtk" >&5
+build-guile-gtk cflags > /dev/null || {
+  echo "configure: cannot find build-guile-gtk: Is guile-gtk installed?" 1>&2
+  exit 1
+}
+CFLAGS="`build-guile-gtk cflags` $CFLAGS"
+LIBS="`build-guile-gtk libs` $LIBS"
+echo "$ac_t""yes" 1>&6
 
 echo $ac_n "checking that Guile is recent enough""... $ac_c" 1>&6
-echo "configure:1599: checking that Guile is recent enough" >&5
+echo "configure:1600: checking that Guile is recent enough" >&5
 cat > conftest.$ac_ext <<EOF
-#line 1601 "configure"
+#line 1602 "configure"
 #include "confdefs.h"
 #include <libguile/boolean.h>
 	      #ifdef SCM_TRUE_P
@@ -1631,23 +1632,20 @@ case "$GCC" in
     CFLAGS="$CFLAGS -Wall -Wpointer-arith -Wmissing-prototypes" ;;
 esac
 
-CFLAGS="`gtk-config --cflags` $CFLAGS"
-LIBS="$LIBS `gtk-config --libs gthread`"
-
 echo $ac_n "checking for thread_create in GThreadFunctions""... $ac_c" 1>&6
-echo "configure:1639: checking for thread_create in GThreadFunctions" >&5
+echo "configure:1637: checking for thread_create in GThreadFunctions" >&5
 if eval "test \"`echo '$''{'ac_cv_struct_thread_create'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 1644 "configure"
+#line 1642 "configure"
 #include "confdefs.h"
 #include <glib.h>
 int main() {
 GThreadFunctions g; g.thread_create;
 ; return 0; }
 EOF
-if { (eval echo configure:1651: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+if { (eval echo configure:1649: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
   rm -rf conftest*
   ac_cv_struct_thread_create=yes
 else
@@ -1666,6 +1664,62 @@ if test $ac_cv_struct_thread_create = yes; then
 EOF
 
 fi
+
+for ac_func in sgtk_gdk_threads_enter
+do
+echo $ac_n "checking for $ac_func""... $ac_c" 1>&6
+echo "configure:1672: checking for $ac_func" >&5
+if eval "test \"`echo '$''{'ac_cv_func_$ac_func'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  cat > conftest.$ac_ext <<EOF
+#line 1677 "configure"
+#include "confdefs.h"
+/* System header to define __stub macros and hopefully few prototypes,
+    which can conflict with char $ac_func(); below.  */
+#include <assert.h>
+/* Override any gcc2 internal prototype to avoid an error.  */
+/* We use char because int might match the return type of a gcc2
+    builtin and then its argument prototype would still apply.  */
+char $ac_func();
+
+int main() {
+
+/* The GNU C library defines this for functions which it implements
+    to always fail with ENOSYS.  Some functions are actually named
+    something starting with __ and the normal name is an alias.  */
+#if defined (__stub_$ac_func) || defined (__stub___$ac_func)
+choke me
+#else
+$ac_func();
+#endif
+
+; return 0; }
+EOF
+if { (eval echo configure:1700: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+  rm -rf conftest*
+  eval "ac_cv_func_$ac_func=yes"
+else
+  echo "configure: failed program was:" >&5
+  cat conftest.$ac_ext >&5
+  rm -rf conftest*
+  eval "ac_cv_func_$ac_func=no"
+fi
+rm -f conftest*
+fi
+
+if eval "test \"`echo '$ac_cv_func_'$ac_func`\" = yes"; then
+  echo "$ac_t""yes" 1>&6
+    ac_tr_func=HAVE_`echo $ac_func | tr 'abcdefghijklmnopqrstuvwxyz' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'`
+  cat >> confdefs.h <<EOF
+#define $ac_tr_func 1
+EOF
+ 
+else
+  echo "$ac_t""no" 1>&6
+fi
+done
+
 
 trap '' 1 2 15
 cat > confcache <<\EOF
@@ -1841,8 +1895,6 @@ s%@build_os@%$build_os%g
 s%@RANLIB@%$RANLIB%g
 s%@LN_S@%$LN_S%g
 s%@LIBTOOL@%$LIBTOOL%g
-s%@GUILE_CFLAGS@%$GUILE_CFLAGS%g
-s%@GUILE_LDFLAGS@%$GUILE_LDFLAGS%g
 
 CEOF
 EOF
