@@ -1,3 +1,9 @@
+1998-12-08  Christian Lynbech  <chl@tbit.dk>
+
+	* goops/goops.scm (change-object-class): Attempt initialization
+	from init function even if slot was present (but unbound) in old
+	class.
+
 1998-12-05  Christian Lynbech  <chl@tbit.dk>
 
 	* goops/goops.scm: Reexport setf! and setter.
