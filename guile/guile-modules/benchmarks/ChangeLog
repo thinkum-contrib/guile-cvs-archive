@@ -1,5 +1,8 @@
 1999-09-15  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
+	* gc.scm: New file: Testing GC performance.
+	(gc-time-run): New test.
+
 	* goops.scm: New file: Tests for goops.
 	(type-dispatch-run): Test for efficiency of type dispatch.
 
