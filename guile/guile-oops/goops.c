@@ -1468,8 +1468,15 @@ wrap_init (SCM class, SCM *m, int n)
   for (i = 0; i < n; i++)
     m[i] = SCM_GOOPS_UNBOUND;
 
+#ifdef SCM_STRUCT_GC_CHAIN
+  SCM_NEWCELL2 (z);
+#else
   SCM_NEWCELL (z);
+#endif
   SCM_SETCDR (z, (SCM) m);
+#ifdef SCM_STRUCT_GC_CHAIN
+  SCM_SET_STRUCT_GC_CHAIN (z, 0);
+#endif
   SCM_SETCAR (z, (scm_bits_t) SCM_STRUCT_DATA (class) | scm_tc3_cons_gloc);
 
   return z;
@@ -2757,8 +2764,15 @@ SCM
 scm_wrap_object (SCM class, void *data)
 {
   SCM z;
+#ifdef SCM_STRUCT_GC_CHAIN
+  SCM_NEWCELL2 (z);
+#else
   SCM_NEWCELL (z);
+#endif
   SCM_SETCDR (z, (SCM) data);
+#ifdef SCM_STRUCT_GC_CHAIN
+  SCM_SET_STRUCT_GC_CHAIN (z, 0);
+#endif
   SCM_SETCAR (z, SCM_UNPACK (SCM_CDR (class)) | scm_tc3_cons_gloc);
   return z;
 }
