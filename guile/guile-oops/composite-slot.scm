@@ -31,6 +31,23 @@
 
 (export <composite-class>)
 
+;;;
+;;; (define-class CLASS SUPERS
+;;;   ...
+;;;   (OBJECT ...)
+;;;   ...
+;;;   (SLOT #:allocation #:propagated
+;;;         #:propagated-to '(PROPAGATION ...))
+;;;   ...
+;;;   #:metaclass <composite-class>)
+;;;
+;;; PROPAGATION ::= OBJECT | (OBJECT TARGETSLOT)
+;;;
+;;; The slot SLOT will be propagated to the slot TARGETSLOT in the object
+;;; stored in slot OBJECT.  If TARGETSLOT is omitted, assume that the target
+;;; slot is named SLOT.
+;;;
+
 (define-class <composite-class> (<class>))
 
 (define-method compute-get-n-set ((class <composite-class>) slot)
@@ -40,17 +57,7 @@
 
 (define (compute-propagated-get-n-set s)
   (let ((prop   	(get-keyword #:propagate-to (cdr s) #f))
-	(s-name   	(slot-definition-name s))
-	(build-reader   (lambda (s default)
-			  (let ((
-			  (if (pair? s)
-			      (lambda (o)
-				
-			      (set! s (list s default)))
-			  `(slot-ref (slot-ref o ',(car s)) ',(cadr s))))
-	(build-writer	(lambda (s default)
-			  (unless (pair? s) (set! s (list s default)))
-			  `(slot-set! (slot-ref o ',(car s)) ',(cadr s) v))))))))
+	(s-name   	(slot-definition-name s)))
     
     (if (not prop)
 	(goops-error "Propagation not specified for slot %s" s-name))
