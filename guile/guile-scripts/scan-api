@@ -27,6 +27,10 @@ nm $sofile \
     | sort
 }
 
+echo ';; Generated' `date` 'by guile-scripts/scan-api -- do not edit!'
+echo ';; guile:' $guile
+echo ';; sofile:' $sofile
+echo
 echo '('
 echo '(scheme' ; scheme ; echo ') ;; end of scheme'
 echo '(C     ' ; C      ; echo ') ;; end of C'
