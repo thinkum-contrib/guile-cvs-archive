@@ -7,11 +7,6 @@
     - performance
     - translators (already done?)
     
-- doc snarfing
-  - rationalize / integrate various scripts
-  - document
-  - re-enable install
-
 - write
   - scripts/find
   - scripts/alist-db
