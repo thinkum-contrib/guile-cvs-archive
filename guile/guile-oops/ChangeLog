@@ -1,3 +1,11 @@
+1999-01-21  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* goops.c (scm_class_of, CLASS_REDEF): Moved to
+	libguile/objects.[hc].
+
+	* goops.h (scm_si_hashsets): New slots.  Hashvalues for fast
+	multimethod lookup.
+
 1999-01-21  Mikael Djurfeldt  <mdj@barbara.nada.kth.se>
 
 	* goops.c (scm_init_goops_goopscore_module): Added cast for
