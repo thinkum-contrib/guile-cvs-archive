@@ -55,8 +55,8 @@ Object System (`CLtL2') but is adapted for the Scheme language.
 
 Briefly stated, the GOOPS extension gives the user a full object
 oriented system with multiple inheritance and generic functions with
-multi-method dispatch.  Furthermore, the whole implementation relies on
-a true meta object protocol, in the spirit of the one defined for CLOS
+multi-method dispatch.  Furthermore, the implementation relies on a true
+meta object protocol, in the spirit of the one defined for CLOS
 (`Gregor Kiczales: A Metaobject Protocol').
 
 
@@ -224,8 +224,8 @@ Object System (`CLtL2') but is adapted for the Scheme language.
 
 Briefly stated, the GOOPS extension gives the user a full object
 oriented system with multiple inheritance and generic functions with
-multi-method dispatch.  Furthermore, the whole implementation relies on
-a true meta object protocol, in the spirit of the one defined for CLOS
+multi-method dispatch.  Furthermore, the implementation relies on a true
+meta object protocol, in the spirit of the one defined for CLOS
 (`Gregor Kiczales: A Metaobject Protocol').
 
 The purpose of this tutorial is to introduce briefly the GOOPS package
@@ -930,34 +930,34 @@ Function and Variable Index
 Tag Table:
 Node: Top481
 Node: Introduction973
-Node: Getting Started1683
-Node: Running GOOPS2069
-Node: Methods2569
-Node: User-defined types2829
-Node: Asking for the type of an object3670
-Node: Reference Manual4046
-Node: MOP specification4203
-Node: Tutorial4355
-Node: Copyright4710
-Node: Intro5593
-Node: Class definition and instantiation6703
-Node: Class definition6917
-Ref: Class definition-Footnote-18431
-Ref: Class definition-Footnote-28484
-Ref: Class definition-Footnote-38667
-Node: Inheritance8992
-Node: Class hierarchy and inheritance of slots9281
-Node: Instance creation and slot access11503
-Node: Slot description12989
-Node: Class precedence list20563
-Ref: Class precedence list-Footnote-123105
-Node: Generic functions23206
-Node: Generic functions and methods23396
-Node: Next-method26542
-Node: Example27360
-Ref: Example-Footnote-130557
-Node: Index30779
-Node: Concept Index30875
-Node: Function and Variable Index31852
+Node: Getting Started1677
+Node: Running GOOPS2063
+Node: Methods2563
+Node: User-defined types2823
+Node: Asking for the type of an object3664
+Node: Reference Manual4040
+Node: MOP specification4197
+Node: Tutorial4349
+Node: Copyright4704
+Node: Intro5587
+Node: Class definition and instantiation6691
+Node: Class definition6905
+Ref: Class definition-Footnote-18419
+Ref: Class definition-Footnote-28472
+Ref: Class definition-Footnote-38655
+Node: Inheritance8980
+Node: Class hierarchy and inheritance of slots9269
+Node: Instance creation and slot access11491
+Node: Slot description12977
+Node: Class precedence list20551
+Ref: Class precedence list-Footnote-123093
+Node: Generic functions23194
+Node: Generic functions and methods23384
+Node: Next-method26530
+Node: Example27348
+Ref: Example-Footnote-130545
+Node: Index30767
+Node: Concept Index30863
+Node: Function and Variable Index31840
 
 End Tag Table

@@ -1,3 +1,5 @@
+* display + write
+
 * Method compilation:
 
   0. expand macros!
@@ -17,8 +19,6 @@
 * with-slots, with-accessors
 
 * Update mop.text
-
-* Read and correct documentation.
 
 * Optimizations
 
