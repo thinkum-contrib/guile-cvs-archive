@@ -247,7 +247,8 @@
 			    (let ((old ,name)
 				  (new (class ,@(cddr exp) #:name ',name)))
 			      (if (is-a? old <class>)
-				  (class-redefinition old new))))
+				  (class-redefinition old new)
+				  new)))
 		      
 			 ;; define a new class
 			 `(define ,name
@@ -882,24 +883,53 @@
   (compute-std-cpl class))
 
 (define (compute-std-cpl class)
-  
-  (define (filter-cpl class)
-    (let ((res  '()))
-      (for-each (lambda (item)
-		  (if (not (or (eq? item <object>) 
-			       (eq? item <top>) 
-			       (member item res)))
-		   (set! res (cons item res))))
-	      class)
-      res))
-
-  (let* ((supers   (slot-ref class 'direct-supers))
-	 (big-list (apply append
-			  (cons class supers)
-			  (map compute-cpl supers))))
-    (reverse (cons <top>
-		   (cons <object>
-			 (filter-cpl big-list))))))
+  (let* ((h (make-vector 7 '()))
+	 (tail (list <object> <top>))
+	 (anchor (cons #f '()))
+	 (ls anchor))
+    ;; Do a depth first traversal of inheritance tree and convert it
+    ;; to a list of descriptors of the form (<class> . #dependencies)
+    ;; Each time a class is encountered, the dependency count is
+    ;; incremented.  (0 actually means 1 dependency.)
+    (let traverse ((class class))
+      (if (not (memq class tail))
+	  (begin
+	    (let* ((handle (hashq-create-handle! h class -1))
+		   (el (list handle)))
+	      (set-cdr! handle (+ (cdr handle) 1))
+	      (set-cdr! ls el)
+	      (set! ls el))
+	    (do ((classes (slot-ref class 'direct-supers)
+			  (cdr classes)))
+		((null? classes))
+	      (traverse (car classes))))))
+    ;; Convert the descriptor list to a list of classes while
+    ;; decrementing the dependency counts.  Skip descriptors with
+    ;; non-zero dependency count.
+    (do ((dls (cdr anchor) (cdr dls))
+	 (cpl (cdr anchor)))
+	((null? dls)
+	 ;; We are finished.  Patch the tail of the list.
+	 (if (null? cpl)
+	     ;; We had a 1-1 correspondence between dls and cpl
+	     ;; ls countains the last pair of the original list
+	     (set-cdr! ls tail)
+	     ;; We skipped one or more descriptors.  Replace the
+	     ;; pair after the computed classes with the tail.
+	     (begin
+	       (set-car! cpl (car tail))
+	       (set-cdr! cpl (cdr tail))))
+	 ;; The result
+	 (cdr anchor))
+      ;; Check dependency count
+      (if (zero? (cdar dls))
+	  (begin
+	    ;; Replace the descriptor with the actual class
+	    ;; and move to next pair
+	    (set-car! cpl (caar dls))
+	    (set! cpl (cdr cpl)))
+	  ;; Decrement dependency count and skip class
+	  (set-cdr! (car dls) (- (cdar dls) 1))))))
 
 
 ;;; compute-get-n-set
