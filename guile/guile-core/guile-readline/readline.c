@@ -142,7 +142,7 @@ redisplay ()
 
 static int in_readline = 0;
 #ifdef USE_THREADS
-static scm_mutex_t reentry_barrier_mutex;
+static SCM reentry_barrier_mutex;
 #endif
 
 static SCM internal_readline (SCM text);
@@ -221,14 +221,14 @@ reentry_barrier ()
   int reentryp = 0;
 #ifdef USE_THREADS
   /* We should rather use scm_mutex_try_lock when it becomes available */
-  scm_mutex_lock (&reentry_barrier_mutex);
+  scm_mutex_lock (reentry_barrier_mutex);
 #endif
   if (in_readline)
     reentryp = 1;
   else
     ++in_readline;
 #ifdef USE_THREADS
-  scm_mutex_unlock (&reentry_barrier_mutex);
+  scm_mutex_unlock (reentry_barrier_mutex);
 #endif
   if (reentryp)
     scm_misc_error (s_scm_readline, "readline is not reentrant", SCM_EOL);
@@ -513,8 +513,10 @@ scm_init_readline ()
   rl_readline_name = "Guile";
 
 #ifdef USE_THREADS
-  scm_mutex_init (&reentry_barrier_mutex);
+  reentry_barrier_mutex = scm_make_mutex ();
+  scm_protect_object (reentry_barrier_mutex);
 #endif
+
   scm_init_opts (scm_readline_options,
 		 scm_readline_opts,
 		 SCM_N_READLINE_OPTIONS);

@@ -1,7 +1,7 @@
 /* classes: h_files */
 
-#ifndef COOP_DEFSH
-#define COOP_DEFSH
+#ifndef COOPH
+#define COOPH
 
 /*	Copyright (C) 1996, 1997, 1998, 1999, 2000 Free Software Foundation, Inc.
  * 
@@ -48,33 +48,73 @@
    gjb@cs.washington.edu, http://www.cs.washington.edu/homes/gjb */
 
 
-# ifdef TIME_WITH_SYS_TIME
+#include "libguile/__scm.h"
+
+#ifdef TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# ifdef HAVE_SYS_TIME_H
 #  include <sys/time.h>
-#  include <time.h>
 # else
-#  ifdef HAVE_SYS_TIME_H
-#   include <sys/time.h>
-#  else
-#   ifdef HAVE_TIME_H
-#    include <time.h>
-#   endif
+#  ifdef HAVE_TIME_H
+#   include <time.h>
 #  endif
 # endif
+#endif
+
+
+/*****************************************************************************
+Here starts the content of iselect.h:
+*****************************************************************************/
+
+
+/* Needed for FD_SET on some systems.  */
+#include <sys/types.h>
+
+
+#ifdef HAVE_SYS_SELECT_H
+#include <sys/select.h>
+#endif
+
+#ifdef FD_SET
+
+#define SELECT_TYPE fd_set
+#define SELECT_SET_SIZE FD_SETSIZE
+
+#else /* no FD_SET */
+
+/* Define the macros to access a single-int bitmap of descriptors.  */
+#define SELECT_SET_SIZE 32
+#define SELECT_TYPE int
+#define FD_SET(n, p) (*(p) |= (1 << (n)))
+#define FD_CLR(n, p) (*(p) &= ~(1 << (n)))
+#define FD_ISSET(n, p) (*(p) & (1 << (n)))
+#define FD_ZERO(p) (*(p) = 0)
+
+#endif /* no FD_SET */
+
+extern int scm_internal_select (int fds,
+				SELECT_TYPE *rfds,
+				SELECT_TYPE *wfds,
+				SELECT_TYPE *efds,
+				struct timeval *timeout);
 
 #ifdef GUILE_ISELECT
-#include "libguile/iselect.h"
-#endif
+
+extern int scm_I_am_dead;
+
+#endif /* GUILE_ISELECT */
+
+
+/*****************************************************************************
+Here ends the content of iselect.h:
+*****************************************************************************/
+
 
 #ifdef GUILE_PTHREAD_COMPAT
 #include <pthread.h>
 #endif
-
-/* This file is included by threads.h, which, in turn, is included by
-   libguile.h while coop-threads.h only is included by
-   coop-threads.c. */
-
-/* The coop_t struct must be declared here, since macros in this file
-   refer to the data member. */
 
 /* The notion of a thread is merged with the notion of a queue.
    Thread stuff: thread status (sp) and stuff to use during
@@ -121,6 +161,9 @@ typedef struct coop_t {
 #endif
 } coop_t;
 
+extern coop_t coop_global_main;        /* Thread for the process. */  /* FIXME: needed? */
+
+
 /* A queue is a circular list of threads.  The queue head is a
    designated list element.  If this is a uniprocessor-only
    implementation we can store the `main' thread in this, but in a
@@ -143,19 +186,12 @@ typedef struct coop_m {
 
 typedef int coop_mattr;
 
-typedef coop_m scm_mutex_t;
-
 extern int coop_mutex_init (coop_m*);
 extern int coop_new_mutex_init (coop_m*, coop_mattr*);
 extern int coop_mutex_lock (coop_m*);
 extern int coop_mutex_trylock (coop_m*);
 extern int coop_mutex_unlock (coop_m*);
 extern int coop_mutex_destroy (coop_m*);
-#define scm_mutex_init coop_mutex_init
-#define scm_mutex_lock coop_mutex_lock
-#define scm_mutex_trylock coop_mutex_lock
-#define scm_mutex_unlock coop_mutex_unlock
-#define scm_mutex_destroy coop_mutex_destroy
 
 /* A Condition variable is made up of a list of threads waiting on the
    condition. */
@@ -165,8 +201,6 @@ typedef struct coop_c {
 } coop_c;
 
 typedef int coop_cattr;
-
-typedef coop_c scm_cond_t;
 
 #ifndef HAVE_STRUCT_TIMESPEC
 /* POSIX.4 structure for a time value.  This is like a `struct timeval' but
@@ -186,101 +220,62 @@ extern int coop_condition_variable_timed_wait_mutex (coop_c*,
 						     const struct timespec *abstime);
 extern int coop_condition_variable_signal (coop_c*);
 extern int coop_condition_variable_destroy (coop_c*);
-#define scm_cond_init coop_new_condition_variable_init
-#define scm_cond_wait coop_condition_variable_wait_mutex
-#define scm_cond_timedwait coop_condition_variable_timed_wait_mutex
-#define scm_cond_signal coop_condition_variable_signal
-#define scm_cond_broadcast coop_condition_variable_signal /* yes */
-#define scm_cond_destroy coop_condition_variable_destroy
 
 typedef int coop_k;
-
-typedef coop_k scm_key_t;
 
 extern int coop_key_create (coop_k *keyp, void (*destructor) (void *value));
 extern int coop_setspecific (coop_k key, const void *value);
 extern void *coop_getspecific (coop_k key);
 extern int coop_key_delete (coop_k);
-#define scm_key_create coop_key_create
-#define scm_setspecific coop_setspecific
-#define scm_getspecific coop_getspecific
-#define scm_key_delete coop_key_delete
-
-extern coop_t *coop_global_curr;       	/* Currently-executing thread. */
 
 extern void coop_join (coop_t *t);
 extern void coop_yield (void);
 
-extern size_t scm_switch_counter;
-extern size_t scm_thread_count;
-
-
-/* Some iselect functions.  */ 
-
-/* I'm not sure whether these three declarations should be here.
-   They're really defined in iselect.c, so you'd think they'd go in
-   iselect.h, but they use coop_t, defined above, which uses things
-   defined in iselect.h.  Basically, we're making at best a flailing
-   (and failing) attempt at modularity here, and I don't have time to
-   rethink this at the moment.  This code awaits a Hero.  --JimB */
-#ifdef GUILE_ISELECT
-void coop_timeout_qinsert (coop_q_t *, coop_t *);
-#endif
-extern coop_t *coop_next_runnable_thread (void);
-extern coop_t *coop_wait_for_runnable_thread_now (struct timeval *);
-extern coop_t *coop_wait_for_runnable_thread (void);
-
-
 
 
-/* Cooperative threads don't need to have these defined */
+/* Each thread starts by calling a user-supplied function of this
+   type. */
 
-#define SCM_THREAD_CRITICAL_SECTION_START 
-#define SCM_THREAD_CRITICAL_SECTION_END 
+typedef void (coop_userf_t)(void *p0);
 
-
+/* Call this before any other primitives. */
+extern void coop_init (void);
 
-#define SCM_NO_CRITICAL_SECTION_OWNER 0
-#define SCM_THREAD_SWITCH_COUNT       50 /* was 10 /mdj */
+/* When one or more threads are created by the main thread,
+   the system goes multithread when this is called.  It is done
+   (no more runable threads) when this returns. */
 
-
+extern void coop_start (void);
 
-#define SCM_THREAD_DEFER
-#define SCM_THREAD_ALLOW
-#define SCM_THREAD_REDEFER
-#define SCM_THREAD_REALLOW_1
-#define SCM_THREAD_REALLOW_2
+/* Create a thread and make it runable.  When the thread starts
+   running it will call `f' with arguments `p0' and `p1'. */
 
-#if 0
-#define SCM_THREAD_SWITCHING_CODE \
-do { \
-  if (scm_thread_count > 1) \
-    coop_yield(); \
-} while (0)
+extern coop_t *coop_create (coop_userf_t *f, void *p0);
 
-#else
-#define SCM_THREAD_SWITCHING_CODE \
-do { \
-  if (scm_thread_count > 1) \
-  { \
-    scm_switch_counter--; \
-    if (scm_switch_counter == 0) \
-      { \
-        scm_switch_counter = SCM_THREAD_SWITCH_COUNT; \
-        coop_yield(); \
-      } \
-  } \
-} while (0)
+/* The current thread stops running but stays runable.
+   It is an error to call `coop_yield' before `coop_start'
+   is called or after `coop_start' returns. */
 
-#endif
+extern void coop_yield (void);
+extern int coop_select
+  (int nfds, SELECT_TYPE *readfds, SELECT_TYPE *writefds, SELECT_TYPE *exceptfds, struct timeval *timeout);
 
-/* For pthreads, this is a value associated with a specific key.
- * For coop, we use a special field for increased efficiency.
- */
-#define SCM_THREAD_LOCAL_DATA (coop_global_curr->data)
-#define SCM_SET_THREAD_LOCAL_DATA(ptr) (coop_global_curr->data = (ptr))
+/* Like `coop_yield' but the thread is discarded.  Any intermediate
+   state is lost.  The thread can also terminate by simply
+   returning. */
 
-#endif /* COOP_DEFSH */
+extern void coop_abort (void);
+
+/* Dirk:Note:: The following are needed(?) in guile-coop.c */
+
+extern coop_q_t coop_global_runq;	/* A queue of runable threads. */
+extern coop_q_t coop_global_allq;	/* A queue of all threads. */
+extern coop_t *coop_global_curr;       	/* Currently-executing thread. */
+
+extern void coop_all_qput (coop_q_t *q, coop_t *t);
+
+
+#endif /* COOPH */
 
 /*
   Local Variables:

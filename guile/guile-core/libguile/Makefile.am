@@ -75,12 +75,6 @@ EXTRA_libguile_la_SOURCES = _scm.h		\
     filesys.c posix.c net_db.c socket.c \
     ramap.c unif.c debug-malloc.c
 
-## This is kind of nasty... there are ".c" files that we don't want to
-## compile, since they are #included in threads.c.  So instead we list
-## them here.  Perhaps we can deal with them normally once the merge
-## seems to be working.
-noinst_HEADERS = coop-threads.c coop-threads.h coop.c
-
 libguile_la_DEPENDENCIES = @LIBLOBJS@
 libguile_la_LIBADD = @LIBLOBJS@ $(LIBLTDL)
 libguile_la_LDFLAGS = -version-info @LIBGUILE_MAJOR_VERSION@:@LIBGUILE_MINOR_VERSION@:@LIBGUILE_REVISION_VERSION@ -export-dynamic
@@ -102,8 +96,7 @@ modinclude_HEADERS =							\
     smob.h socket.h sort.h srcprop.h stackchk.h stacks.h stime.h	\
     strings.h strop.h strorder.h strports.h struct.h symbols.h tag.h	\
     tags.h throw.h unif.h variable.h vectors.h version.h vports.h	\
-    weaks.h snarf.h threads.h coop-defs.h fluids.h iselect.h		\
-    debug-malloc.h
+    weaks.h snarf.h threads.h fluids.h iselect.h debug-malloc.h
 
 ## This file is generated at configure time.  That is why it is DATA
 ## and not a header -- headers are included in the distribution.

@@ -1,3 +1,10 @@
+2000-06-06  Dirk Herrmann  <D.Herrmann@tu-bs.de>
+
+	* readline.c (reentry_barrier_mutex, reentry_barrier,
+	scm_init_readline):  Made reentry_barrier_mutex into a SCM mutex
+	as long as the C level threads interface is not fully spefified
+	and functional.
+
 2000-06-01  Michael Livshin  <mlivshin@bigfoot.com>
 
 	* autogen.sh: call ../guile-aclocal.sh instead of aclocal

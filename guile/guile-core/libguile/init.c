@@ -82,9 +82,6 @@
 #include "libguile/hash.h"
 #include "libguile/hashtab.h"
 #include "libguile/hooks.h"
-#ifdef GUILE_ISELECT
-#include "libguile/iselect.h"
-#endif
 #include "libguile/ioext.h"
 #include "libguile/keywords.h"
 #include "libguile/lang.h"
@@ -487,11 +484,11 @@ scm_boot_guile_1 (SCM_STACKITEM *base, struct main_func_closure *closure)
       scm_weaks_prehistory ();	/* Must come after scm_init_storage */
       scm_init_subr_table ();
       scm_init_root ();
-#ifdef USE_THREADS
-      scm_init_threads (base);
-#endif
-      start_stack (base);
       scm_init_gsubr ();
+#ifdef USE_THREADS
+      scm_init_threads (base);  /* Requires gsubr */
+#endif
+      start_stack (base);       /* Requires threads */
       scm_init_feature ();
       scm_init_alist ();
       scm_init_arbiters ();
@@ -514,9 +511,6 @@ scm_boot_guile_1 (SCM_STACKITEM *base, struct main_func_closure *closure)
       scm_init_objprop ();
       scm_init_hooks ();        /* Requires objprop until hook names are removed */
       scm_init_gc ();		/* Requires hooks */
-#ifdef GUILE_ISELECT
-      scm_init_iselect ();
-#endif
       scm_init_ioext ();
       scm_init_keywords ();
       scm_init_list ();

@@ -1,4 +1,9 @@
-/*	Copyright (C) 1997, 1998, 2000 Free Software Foundation, Inc.
+/* classes: h_files */
+
+#ifndef GUILECOOPH
+#define GUILECOOPH
+
+/*	Copyright (C) 1995,1996 Free Software Foundation, Inc.
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,28 +45,13 @@
  * If you do not wish that, delete this exception notice.  */
 
 
-#include "libguile/_scm.h"
-#include "libguile/async.h"
-#include "libguile/threads.h"
-#include "libguile/iselect.h"
+#include "libguile/__scm.h"
 
 
 
-int
-scm_internal_select (int nfds,
-		     SELECT_TYPE *readfds,
-		     SELECT_TYPE *writefds,
-		     SELECT_TYPE *exceptfds,
-		     struct timeval *timeout)
-{
-#ifndef GUILE_ISELECT
-  int res = select (nfds, readfds, writefds, exceptfds, timeout);
-#else /* GUILE_ISELECT */
-  int res = scm_c_thread_select (nfds, readfds, writefds, exceptfds, timeout);
-#endif /* GUILE_ISELECT */
-  SCM_ASYNC_TICK;
-  return res;
-}
+extern void scm_threads_init (SCM_STACKITEM *);
+
+#endif  /* GUILECOOPH */
 
 /*
   Local Variables:

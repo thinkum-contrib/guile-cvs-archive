@@ -307,11 +307,27 @@ typedef long SCM_STACKITEM;
 #endif
 
 
-#ifndef USE_THREADS
+/* Dirk:FIXME:: This works for coop threads, but generally? */
 #define SCM_THREAD_DEFER
 #define SCM_THREAD_ALLOW
 #define SCM_THREAD_REDEFER
+
+#ifndef USE_THREADS
 #define SCM_THREAD_SWITCHING_CODE
+#else
+#define SCM_THREAD_SWITCH_COUNT       50 /* was 10 /mdj */
+#define SCM_THREAD_SWITCHING_CODE \
+do { \
+  if (scm_thread_count > 1) \
+  { \
+    scm_switch_counter--; \
+    if (scm_switch_counter == 0) \
+      { \
+        scm_switch_counter = SCM_THREAD_SWITCH_COUNT; \
+        scm_c_thread_yield (); \
+      } \
+  } \
+} while (0)
 #endif
 
 #ifdef GUILE_OLD_ASYNC_CLICK
