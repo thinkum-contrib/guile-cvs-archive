@@ -26,10 +26,9 @@
 ;;;; Erick Gallesio <eg@unice.fr>.
 ;;;;
 
-(define-module (goops goops)
-  :use-module (goops goopscore)
-  :use-module (goops compat)
-  :use-module (ice-9 setf))
+(define-module (oop goops)
+  :use-module (oop goopscore)
+  :use-module (oop compat))
 
 (export			  ; Define the exported symbols of this file
     find-class is-a?
