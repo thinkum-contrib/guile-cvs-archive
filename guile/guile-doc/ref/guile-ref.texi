@@ -63,21 +63,26 @@ by the Free Software Foundation.
 @subtitle $Id$
 @subtitle For use with Guile @value{VERSION}
 @author Mark Galassi
+@author Cygnus Solutions and
 @author Los Alamos National Laboratory
 @author @email{rosalia@@nis.lanl.gov}
 @author
 @author Jim Blandy
 @author Free Software Foundation
-@author @email{jimb@@cyclic.com}
+@author @email{jimb@@red-bean.com}
 @author
 @author Gary Houston
 @author @email{ghouston@@actrix.gen.nz}
-
+@author
+@author Tim Pierce
+@author University of Chicago
+@author @email{twpierce@@midway.uchicago.edu}
 @c The following two commands start the copyright page.
 @page
 @vskip 0pt plus 1filll
 @vskip 0pt plus 1filll
 Copyright @copyright{} 1996 Free Software Foundation
+
 Copyright @copyright{} 1997 Free Software Foundation
 
 Permission is granted to make and distribute verbatim copies of
