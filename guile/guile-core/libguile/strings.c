@@ -1,4 +1,4 @@
-/* Copyright (C) 1995,1996,1998,2000,2001 Free Software Foundation, Inc.
+/* Copyright (C) 1995,1996,1998,2000,2001, 2004 Free Software Foundation, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -62,6 +62,8 @@ make_stringbuf (size_t len)
 SCM
 scm_i_stringbuf_mark (SCM buf)
 {
+  // fprintf (stderr, "%p: 0\n", buf);
+  SET_STRINGBUF_REFCOUNT (buf, 0);
   return SCM_BOOL_F;
 }
 
@@ -79,6 +81,7 @@ stringbuf_ref (SCM buf)
 {
   scm_mutex_lock (&stringbuf_refcount_mutex);
   SET_STRINGBUF_REFCOUNT (buf, STRINGBUF_REFCOUNT (buf) + 1);
+  // fprintf (stderr, "- %p: %d\n", buf, STRINGBUF_REFCOUNT (buf));
   scm_mutex_unlock (&stringbuf_refcount_mutex);
 }
 
@@ -151,7 +154,13 @@ scm_i_string_mark (SCM str)
   if (IS_SH_STRING (str))
     return SH_STRING_STRING (str);
   else
-    return STRING_STRINGBUF (str);
+    {
+      SCM buf = STRING_STRINGBUF (str);
+      scm_gc_mark (buf);
+      SET_STRINGBUF_REFCOUNT(buf, STRINGBUF_REFCOUNT(buf) + 1);
+      // fprintf (stderr, "%p: %d\n", buf, STRINGBUF_REFCOUNT(buf));
+      return SCM_BOOL_F;
+    }
 }
 
 void
@@ -170,6 +179,36 @@ scm_i_string_free (SCM str)
     }
 }
 
+/* Debugging
+ */
+
+SCM scm_sys_string_dump (SCM str);
+
+SCM_DEFINE (scm_sys_string_dump, "%string-dump", 1, 0, 0,
+	    (SCM str),
+	    "")
+#define FUNC_NAME s_scm_sys_string_dump
+{
+  SCM_VALIDATE_STRING (1, str);
+  fprintf (stderr, "%p:\n", str);
+  fprintf (stderr, " start: %u\n", STRING_START (str));
+  fprintf (stderr, " len:   %u\n", STRING_LENGTH (str));
+  if (IS_SH_STRING (str))
+    {
+      fprintf (stderr, " string: %p\n", SH_STRING_STRING (str));
+      fprintf (stderr, "\n");
+      scm_sys_string_dump (SH_STRING_STRING (str));
+    }
+  else
+    {
+      SCM buf = STRING_STRINGBUF (str);
+      fprintf (stderr, " buf:   %p\n", buf);
+      fprintf (stderr, "  length: %u\n", STRINGBUF_LENGTH (buf));
+      fprintf (stderr, "  refcnt: %u\n", STRINGBUF_REFCOUNT (buf));
+    }
+  return SCM_UNSPECIFIED;
+}
+#undef FUNC_NAME
 
 /* Internal accessors
  */
