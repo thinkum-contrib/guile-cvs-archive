@@ -1,0 +1,9 @@
+@node Deprecated
+@chapter Deprecated
+
+@c docstring begin (c-doc-string "tag.c" "tag")
+@c docstring md5 "2394df80237371075cf861c3cec2f136"
+@deffn primitive tag x
+Return an integer corresponding to the type of X.  Deprecated.
+@end deffn
+
