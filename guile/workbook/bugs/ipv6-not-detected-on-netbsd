@@ -1,0 +1,65 @@
+summary: ipv6 in guile 1.5.6: configure bug and fix for NetBSD-1.5.2
+reported: Greg Troxel <gdt@ir.bbn.com>, 2002-03-13
+assigned: <mvo@zagadka.de>, 2002-04-24
+tags: release-critical-1.6
+
+This configure check:
+
+  AC_MSG_CHECKING(for working IPv6 support)
+  AC_CACHE_VAL(guile_cv_have_ipv6,
+  [AC_TRY_COMPILE([#include <netinet/in.h>
+  #include <sys/socket.h>],
+  [struct sockaddr_in6 a;  a.sin6_family = AF_INET6;],
+  guile_cv_have_ipv6=yes, guile_cv_have_ipv6=no)])
+  AC_MSG_RESULT($guile_cv_have_ipv6)
+  if test $guile_cv_have_ipv6 = yes; then
+    AC_DEFINE(HAVE_IPV6)
+  fi
+
+loses on NetBSD 1.5.2-stable (i.e., fails to declare HAVE_IPV6).  This
+is because the test does not include <sys/types.h>, which man inet6
+indicates should be included, and the test program fails with syntax
+errors due to lacking u_int8_t etc.
+
+RFC2553 does not appear to mandate including <sys/types.h>, so perhaps
+this is a NetBSD bug, but I think it's good for guile to accomodate
+it.  Perhaps the include of sys/types.h should be protected by a
+HAVE_SYS_TYPES_H conditional, so as not to break systems without
+sys/types.h that work with just netinet/in.h.
+
+The following patch (only tested the configure patch because autoconf
+is at 2.13 on the system in question) caused configure to define
+HAVE_IPV6.
+
+Index: configure
+===================================================================
+RCS file: /QUIST-CVS/guile/configure,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 configure
+--- configure	2002/03/04 23:33:18	1.1.1.1
++++ configure	2002/03/13 13:22:36
+@@ -11261,6 +11261,7 @@
+   cat >conftest.$ac_ext <<_ACEOF
+ #line 11262 "configure"
+ #include "confdefs.h"
++#include <sys/types.h>
+ #include <netinet/in.h>
+ #include <sys/socket.h>
+ int
+Index: configure.in
+===================================================================
+RCS file: /QUIST-CVS/guile/configure.in,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 configure.in
+--- configure.in	2002/03/04 23:24:38	1.1.1.1
++++ configure.in	2002/03/13 13:20:26
+@@ -325,7 +325,8 @@
+ 
+ AC_MSG_CHECKING(for working IPv6 support)
+ AC_CACHE_VAL(guile_cv_have_ipv6,
+-[AC_TRY_COMPILE([#include <netinet/in.h>
++[AC_TRY_COMPILE([#include <sys/types.h>
++#include <netinet/in.h>
+ #include <sys/socket.h>],
+ [struct sockaddr_in6 a;  a.sin6_family = AF_INET6;],
+ guile_cv_have_ipv6=yes, guile_cv_have_ipv6=no)])

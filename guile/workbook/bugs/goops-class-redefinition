@@ -1,0 +1,170 @@
+summary: possible goops class redefinition bug
+reported: "Neil W. Van Dyke" <nwv@neilvandyke.org>, 2002-03-15
+
+Unless I'm making a stupid late-night error, there appears to be a bug
+related to Goops class redefinition in Guile 1.5.6 from CVS...
+
+Under some circumstances of class redefinition, some slot accessors
+subsequently work incorrectly both for instances instantiated *before*
+the class redefinition and also for those instantiated *after* the
+redefinition.
+
+The following scenario shows class <c> with slot s1 being redefined to
+have slots s0 and s1 (in that order):
+
+    (define <c> #f)
+    (define o1  #f)
+    (define o2  #f)
+
+    (define-class <c> ()
+      (s1 #:init-value 'c1-s1 #:getter a-s1))
+
+    (set! o1 (make <c>))
+
+    (slot-ref o1 's1) => c1-s1
+    (a-s1     o1)     => c1-s1
+
+    (define-class <c> ()
+      (s0 #:init-value 'c2-s0 #:getter a-s0)
+      (s1 #:init-value 'c2-s1 #:getter a-s1))
+
+    (slot-ref o1 's1) => c1-s1  ;; Correct.
+    (a-s1     o1)     => c2-s0  ;; *ERROR* Should be: c1-s1
+
+    (set! o2 (make <c>))
+
+    (slot-ref o2 's1) => c2-s1  ;; Correct.
+    (a-s1     o2)     => c2-s0  ;; *ERROR* Should be: c2-s1
+
+The following test program reproduces this behavior (along with
+debugging information).
+
+    (use-modules (oop goops)
+                 (oop goops describe))
+
+    (define (dump-gf gf . args)
+      (newline)
+      (format #t "DUMP OF GENERIC ~S FOR ARGS ~S:\n" gf args)
+      (let ((methods (compute-applicable-methods gf args)))
+        (format #t "    Applicable: ~S\n" methods)
+        (format #t "    Sorted:     ~S\n"
+                (sort-applicable-methods gf methods args))))
+
+    (define <c> #f)
+    (define o1 #f)
+    (define o2 #f)
+
+    (newline)
+    (display "(define-class <c> ...)\n")
+    (define-class <c> ()
+      (s1 #:init-value 'c1-s1 #:getter a-s1))
+    (format #t "<c> => ~S\n" <c>)
+
+    (newline)
+    (format #t "(class-slots <c>)\n=> ~S\n"
+                (class-slots <c>))
+
+    (newline)
+    (format #t "(class-direct-methods <c>)\n=> ~S\n"
+                (class-direct-methods <c>))
+
+    (newline)
+    (format #t "a-s1 => ~S\n"
+                a-s1)
+
+    (newline)
+    (format #t "(generic-function-methods a-s1)\n=> ~S\n"
+                (generic-function-methods a-s1))
+
+    (newline)
+    (map (lambda (m) (format #t "(method-source ~S)\n=> ~S\n"
+                             m (method-source m)))
+         (generic-function-methods a-s1))
+
+    (newline)
+    (display "(set! o1 (make <c>))\n")
+    (set! o1 (make <c>))
+
+    (newline)
+    (format #t "o1                => ~S\n"
+                o1)
+    (format #t "(class-of o1)     => ~S\n"
+                (class-of o1))
+    (format #t "(slot-ref o1 's1) => ~S ; c1-s1 [OK]\n"
+                (slot-ref o1 's1))
+    (format #t "(a-s1 o1)         => ~S ; c1-s1 [OK]\n"
+                (a-s1 o1))
+    ; (display "(describe o1) :-\n")
+    ;           (describe o1)
+
+    (dump-gf a-s1 o1)
+
+    (newline)
+    (display "(define-class <c> ...)\n")
+    (define-class <c> ()
+      (s0 #:init-value 'c2-s0 #:getter a-s0)
+      (s1 #:init-value 'c2-s1 #:getter a-s1))
+    (format #t "<c> => ~S\n" <c>)
+
+    (newline)
+    (format #t "(class-slots <c>)\n=> ~S\n"
+                (class-slots <c>))
+
+    (newline)
+    (format #t "(class-direct-methods <c>)\n=> ~S\n"
+                (class-direct-methods <c>))
+
+    (newline)
+    ; (format #t "a-s0 => ~S\n"
+    ;             a-s0)
+    (format #t "a-s1 => ~S\n"
+                a-s1)
+
+    (newline)
+    (format #t "(generic-function-methods a-s1)\n=> ~S\n"
+                (generic-function-methods a-s1))
+
+    (newline)
+    (map (lambda (m) (format #t "(method-source ~S)\n=> ~S\n"
+                             m (method-source m)))
+         (generic-function-methods a-s1))
+
+    (newline)
+    (display "(set! o2 (make <c>))\n")
+    (set! o2 (make <c>))
+
+    (newline)
+    (format #t "o1                => ~S\n"
+                o1)
+    (format #t "(class-of o1)     => ~S\n"
+                (class-of o1))
+    ; (format #t "(slot-ref o1 's0) => ~S ; c2-s0 [OK]\n"
+    ;             (slot-ref o1 's0))
+    (format #t "(slot-ref o1 's1) => ~S ; c1-s1 [OK]\n"
+                (slot-ref o1 's1))
+    ; (format #t "(a-s0 o1)         => ~S ; c2-s0 [OK]\n"
+    ;             (a-s0 o1))
+    (format #t "(a-s1 o1)         => ~S ; c1-s1 ***ERROR***\n"
+                (a-s1 o1))
+    ; (display "(describe o1) :-\n")
+    ;           (describe o1)
+
+    (newline)
+    (format #t "o2                => ~S\n"
+                o2)
+    (format #t "(class-of o2)     => ~S\n"
+                (class-of o2))
+    ; (format #t "(slot-ref o2 's0) => ~S ; c2-s0 [OK]\n"
+    ;             (slot-ref o2 's0))
+    (format #t "(slot-ref o2 's1) => ~S ; c2-s1 [OK]\n"
+                (slot-ref o2 's1))
+    ; (format #t "(a-s0 o2)         => ~S ; c2-s0 [OK]\n"
+    ;             (a-s0 o2))
+    (format #t "(a-s1 o2)         => ~S ; c2-s1 ***ERROR***\n"
+                (a-s1 o2))
+    ; (display "(describe o2) :-\n")
+    ;           (describe o2)
+
+    (dump-gf a-s1 o1)
+    (dump-gf a-s1 o2)
+
