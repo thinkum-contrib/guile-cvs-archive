@@ -826,11 +826,10 @@ create_basic_classes (void)
   /**** <scm_class_class> ****/
   SCM cs = scm_makfrom0str (SCM_CLASS_CLASS_LAYOUT
 			    + 2 * scm_vtable_offset_user);
-  SCM cl = scm_make_struct_layout (cs);
   SCM name = Intern ("<class>");
-  scm_class_class = scm_permanent_object (scm_make_vtable_vtable (cl,
-							SCM_INUM0,
-							SCM_EOL));
+  scm_class_class = scm_permanent_object (scm_make_vtable_vtable (cs,
+								  SCM_INUM0,
+								  SCM_EOL));
   SCM_SET_CLASS_FLAGS (scm_class_class, (SCM_CLASSF_GOOPS_OR_VALID
 					 | SCM_CLASSF_METACLASS));
 
