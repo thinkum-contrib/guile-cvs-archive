@@ -41,9 +41,10 @@
 #include <assert.h>
 #include <stdio.h>
 #include <tcl.h>
-#include "guile-tcl.h"
 #include "_scm.h"
-#include "gscm.h"
+#include "smob.h"
+
+#include "guile-tcl.h"
 
 
 static scm_sizet free_interp SCM_P ((SCM obj));
