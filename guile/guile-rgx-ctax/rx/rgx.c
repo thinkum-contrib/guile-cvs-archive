@@ -42,7 +42,10 @@
 
 
 #include <stdio.h>
-#include <_scm.h>
+#include <libguile/_scm.h>
+#include <libguile/smob.h>
+#include <libguile/mallocs.h>
+#include <libguile/chars.h>
 
 #ifdef STDC_HEADERS
 #include <string.h>
