@@ -1,3 +1,15 @@
+2000-11-09  Gary Houston  <ghouston@arglist.com>
+
+	* posix.texi (Ports and File Descriptors): updated
+	close-all-ports-except.
+
+2000-11-07  Gary Houston  <ghouston@arglist.com>
+
+	* posix.texi (Ports and File Descriptors): added dup2, close-fdes
+	and port-for-each.
+	(Pipes): synchronise open-input-pipe, open-output-pipe with
+	popen.scm.
+
 2000-11-04  Gary Houston  <ghouston@arglist.com>
 
 	* scheme.texi (Generic Port Operations): "port?" added.

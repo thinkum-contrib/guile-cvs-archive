@@ -274,6 +274,15 @@ descriptor are moved to a different file descriptor and have
 their revealed counts set to zero.
 @end deffn
 
+@c docstring begin (texi-doc-string "guile" "close-fdes")
+@deffn primitive close-fdes fd
+A simple wrapper for the @code{close} system call.
+Close file descriptor @var{fd}, which must be an integer.
+Unlike close (@pxref{Ports and File Descriptors, close}),
+the file descriptor will be closed even if a port is using it.
+The return value is unspecified.
+@end deffn
+
 @c docstring begin (texi-doc-string "guile" "unread-char")
 @deffn primitive unread-char char [port]
 Place @var{char} in @var{port} so that it will be read by the
@@ -371,6 +380,18 @@ This procedure does not have any side effects on other ports or
 revealed counts.
 @end deffn
 
+@c docstring begin (texi-doc-string "guile" "dup2")
+@deffn primitive dup2 oldfd newfd
+A simple wrapper for the @code{dup2} system call.
+Copies the file descriptor @var{oldfd} to descriptor
+number @var{newfd}, replacing the previous meaning
+of @var{newfd}.  Both @var{oldfd} and @var{newfd} must
+be integers.
+Unlike for dup->fdes or primitive-move->fdes, no attempt
+is made to move away ports which are using @var{newfd}.
+The return value is unspecified.
+@end deffn
+
 @c docstring begin (texi-doc-string "guile" "port-mode")
 @deffn primitive port-mode port
 Returns the port modes associated with the open port @var{port}.  These
@@ -381,10 +402,18 @@ port creation are not retained.
 
 @c docstring begin (texi-doc-string "guile" "close-all-ports-except")
 @deffn primitive close-all-ports-except . ports
-Close all open file ports used by the interpreter
+[DEPRECATED] Close all open file ports used by the interpreter
 except for those supplied as arguments.  This procedure
-is intended to be used before an exec call to close file descriptors
-which are not needed in the new process.
+was intended to be used before an exec call to close file descriptors
+which are not needed in the new process.  However it has the
+undesirable side-effect of flushing buffes, so it's deprecated.
+Use port-for-each instead.
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "port-for-each")
+@deffn primitive port-for-each proc
+Apply @var{proc} to each port in the Guile port table
+in turn.  The return value is unspecified.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "setvbuf")
@@ -1497,11 +1526,11 @@ be the value of @code{OPEN_READ} or @code{OPEN_WRITE}.
 @end deffn
 
 @deffn procedure open-input-pipe command
-Equivalent to @code{(open-pipe command OPEN_READ)}.
+Equivalent to @code{open-pipe} with mode @code{OPEN_READ}.
 @end deffn
 
 @deffn procedure open-output-pipe command
-Equivalent to @code{(open-pipe command OPEN_WRITE)}.
+Equivalent to @code{open-pipe} with mode @code{OPEN_WRITE}.
 @end deffn
 
 @findex pclose
