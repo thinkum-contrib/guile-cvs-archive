@@ -6,7 +6,7 @@ AM_INIT_GUILE_MODULE(gtcltk-lib)
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CPP
-AC_PROG_RANLIB
+AM_PROG_LIBTOOL
 
 ### Some compilers don't check /usr/local/include and /usr/local/lib
 ### by default.  However, that's where Tcl and Tk are usually installed. 
@@ -36,7 +36,7 @@ AC_CHECK_LIB(nsl, main, TCL_EXTRA_LIBS="$TCL_EXTRA_LIBS -lnsl")
 ### Use gtcltk-lib only if we seem to have Tcl installed on the
 ### system.  We really should check for Tk as well, but that involves
 ### finding all the X libraries that we need to do a complete link.
-AC_CHECK_LIB(tcl7.5, Tcl_CreateInterp, GTCLTK=libgtcltk.a, GTCLTK=, $TCL_EXTRA_LIBS -lm)
+AC_CHECK_LIB(tcl7.5, Tcl_CreateInterp, GTCLTK=libgtcltk.la, GTCLTK=, $TCL_EXTRA_LIBS -lm)
 AC_SUBST(GTCLTK)
 
 dnl Checks for library functions.

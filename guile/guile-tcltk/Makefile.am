@@ -6,10 +6,11 @@ SUBDIRS = PLUGIN
 
 INCLUDES = -I$(srcdir)/../libguile -I$(srcdir)/.. -I../
 
-lib_LIBRARIES = @GTCLTK@
-EXTRA_LIBRARIES = libgtcltk.a
+lib_PROGRAMS = @GTCLTK@
+EXTRA_PROGRAMS = libgtcltk.la
 
-libgtcltk_a_SOURCES = guile-tcl.c guile-tk.c guile-tcl.h guile-tk.h
+libgtcltk_la_SOURCES = guile-tcl.c guile-tk.c guile-tcl.h guile-tk.h
+libgtcltk_la_LDFLAGS = -version-info 0:0 -rpath $(libdir)
 
 SUFFIXES = .x
 .c.x:
