@@ -2482,6 +2482,8 @@ create_smob_classes (void)
 
 #ifdef scm_tc16_big
   scm_smob_class[SCM_TC2SMOBNUM (scm_tc16_big)] = scm_class_integer;
+  scm_smob_class[SCM_TC2SMOBNUM (scm_tc16_real)] = scm_class_real;
+  scm_smob_class[SCM_TC2SMOBNUM (scm_tc16_complex)] = scm_class_complex;
 #else
   scm_smob_class[SCM_TC2SMOBNUM (scm_tc16_bigpos)] = scm_class_integer;
   scm_smob_class[SCM_TC2SMOBNUM (scm_tc16_bigneg)] = scm_class_integer;
