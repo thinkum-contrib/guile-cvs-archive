@@ -1,38 +1,56 @@
 summary: unhandled keywords to goops "make" (etc) should signal errors
 reported: "Neil W. Van Dyke" <nwv@neilvandyke.org>, 2002-03-09
 
-Currently (latest Guile 1.5.4 from CVS), keyword arguments to the Goops
-"make" method that are not handled do not generate errors.
+Neil W. Van Dyke sez:
 
-Unless I misunderstand the way that Goops is to be used, I think that
-the default behavior should be to consider unhandled keyword arguments
-invalid.
+> Currently (latest Guile 1.5.4 from CVS), keyword arguments to the Goops
+> "make" method that are not handled do not generate errors.
+>
+> Unless I misunderstand the way that Goops is to be used, I think that
+> the default behavior should be to consider unhandled keyword arguments
+> invalid.
+>
+> Considering unhandled keyword arguments invalid would catch some serious
+> programming errors, such as mistyped initializer keywords, and
+> accidental neglect to define an initializer keyword for a slot.
+>
+> The example below illustrates an unhandled keyword being ignored.
+>
+>     (use-modules (oop goops)
+>                  (oop goops describe))
+>
+>     (define-class <my-class> ()
+>       (xxx #:init-value #f #:init-keyword #:foo)
+>       (yyy #:init-value #f #:init-keyword #:bar))
+>
+>     (define obj (make <my-class> #:foo 42 #:xxxyyyzzz 69 #:bar 24))
+>     ;;                                    ^^^^^^^^^^^
+>     ;;                                    Unhandled keyword
+>
+>     (describe obj)
+>
+> When run, the above produces output something like the following, which
+> shows that both xxx and yyy were set and that no error was generated.
+>
+>     #<<my-class> 8086bc0> is an instance of class <my-class>
+>     Slots are:
+>          xxx = 42
+>          yyy = 24
+>
+> Thank you for considering this suggestion.
 
-Considering unhandled keyword arguments invalid would catch some serious
-programming errors, such as mistyped initializer keywords, and
-accidental neglect to define an initializer keyword for a slot.
+2002-04-25 ttn sez:
 
-The example below illustrates an unhandled keyword being ignored.
+> because my personal coding has not yet advanced to using goops
+> regularly, my conjecture from reading related material is that keyword
+> handling in goops follows a non-blocking scheme reflecting its original
+> design model.  i imagine when i do finally get to designing classes and
+> instantiating objects, i would view mixin techniques darkly if they were
+> (in return) so opaque.
 
-    (use-modules (oop goops)
-                 (oop goops describe))
+  (this just means an object system that allows easy (low-stress) passing of
+  specialization args around is good for implementing orthogonal features.)
 
-    (define-class <my-class> ()
-      (xxx #:init-value #f #:init-keyword #:foo)
-      (yyy #:init-value #f #:init-keyword #:bar))
-
-    (define obj (make <my-class> #:foo 42 #:xxxyyyzzz 69 #:bar 24))
-    ;;                                    ^^^^^^^^^^^
-    ;;                                    Unhandled keyword
-
-    (describe obj)
-
-When run, the above produces output something like the following, which
-shows that both xxx and yyy were set and that no error was generated.
-
-    #<<my-class> 8086bc0> is an instance of class <my-class>
-    Slots are: 
-         xxx = 42
-         yyy = 24
-
-Thank you for considering this suggestion.
+  the real question is: what are the mechanisms required to implement such
+  "error" checking as an orthogonal feature to guile?  if these mechanisms are
+  available to the user, this bug can be closed.
