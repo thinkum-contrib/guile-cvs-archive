@@ -3,9 +3,12 @@ Also, there are some scripts that are useful only to Guile maintainers.
 
 The directories for the workbook and maintainer scripts are represented by
 vars `workbook' and `mscripts' respectively.  These can be made available
-(when configured w/ "--enable-maintainer-mode") by adding the line:
+by adding the line:
 
 	include $(top_srcdir)/am/maintainer-dirs
 
 to a particular Makefile.am.  At this time both dirs are expected as siblings
-to guile-core (supported by the standard "cvs co hack").
+to guile-core (supported by the standard "cvs co hack").  It's probably a good
+idea to surround the directive and related code w/ "if MAINTAINER_MODE" (this
+used to be done in am/maintainer-dirs directly but that causes some versions
+of automake to choke).
