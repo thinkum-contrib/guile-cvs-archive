@@ -1,3 +1,13 @@
+2001-10-26  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* eval.c (scm_m_if): Use s_if rather than making another string
+	constant.
+	(scm_m_atfop): New scheme for transforming procedure arguments
+	while leaving macro args untransformed.  (See also associated
+	change in lang/elisp.)
+	(scm_m_atbind, scm_unmemocopy): Fix a couple of typos in
+	comments.
+
 2001-10-21  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* tags.h (SCM_IM_NIL_IFY, SCM_IM_T_IFY): Removed.  ISYM numbers

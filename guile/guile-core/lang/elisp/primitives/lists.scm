@@ -86,3 +86,23 @@
 		   ((vector? sequence) (vector->list sequence))
 		   ((string? sequence) (map char->integer (string->list sequence)))
 		   (else (wta 'sequencep sequence 2))))))
+
+(fset 'nth
+      (lambda (n list)
+	(if (or (null list)
+		(>= n (length list)))
+	    #f
+	    (list-ref list n))))
+
+(fset 'listp
+      (lambda (object)
+	(or (null object)
+	    (list? object))))
+
+(fset 'consp pair?)
+
+(fset 'nconc
+      (lambda args
+	(apply append! (map (lambda (arg)
+			      (if arg arg '()))
+			    args))))

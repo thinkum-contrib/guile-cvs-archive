@@ -9,3 +9,9 @@
 (fset 'eval
       (lambda (form)
 	(eval form the-elisp-module)))
+
+(fset 'autoload
+      (lambda args
+	#t))
+
+(define-public current-load-list #f)

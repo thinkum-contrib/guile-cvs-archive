@@ -232,9 +232,17 @@
 						,@(transform-list (cdddr exp)))))))))))))))
 
 (define (transform-application x)
-  (cons '@fop
-	(cons (car x)
-	      (map transformer (cdr x)))))
+  `(@fop ,(car x)
+	 (,transformer-macro ,@(cdr x))))
+
+(define transformer-macro
+  (procedure->memoizing-macro
+   (lambda (exp env)
+     (cons 'list (map transformer (cdr exp))))))
+
+;  (cons '@fop
+;	(cons (car x)
+;	      (map transformer (cdr x)))))
 
 (define (cars->nil ls)
   (cond ((not (pair? ls)) ls)
@@ -381,7 +389,7 @@
 
 (define (m-defconst exp env)
   (trc 'defconst (cadr exp))
-  `(begin (,macro-setq ,(cadr exp) ,(caddr exp))
+  `(begin ,(m-setq (list (car exp) (cadr exp) (caddr exp)) env)
 	  ',(cadr exp)))
 
 ;(export-mmacros

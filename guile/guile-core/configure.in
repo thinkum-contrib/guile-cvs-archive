@@ -627,6 +627,8 @@ AC_CONFIG_FILES([
   ice-9/Makefile
   lang/Makefile
   lang/elisp/Makefile
+  lang/elisp/internals/Makefile
+  lang/elisp/primitives/Makefile
   oop/Makefile
   oop/goops/Makefile
   scripts/Makefile

@@ -21,15 +21,28 @@
 
 AUTOMAKE_OPTIONS = gnu
 
-SUBDIRS = internals primitives
-
 # These should be installed and distributed.
 
 elisp_sources = \
-	emacs.scm \
-	transform.scm
+	buffers.scm \
+	features.scm \
+	fns.scm \
+	format.scm \
+	guile.scm \
+	keymaps.scm \
+	lists.scm \
+	load.scm \
+	match.scm \
+	numbers.scm \
+	pure.scm \
+	read.scm \
+	signal.scm \
+	strings.scm \
+	symprop.scm \
+	system.scm \
+	time.scm
 
-subpkgdatadir = $(pkgdatadir)/$(VERSION)/lang/elisp
+subpkgdatadir = $(pkgdatadir)/$(VERSION)/lang/elisp/primitives
 subpkgdata_DATA = $(elisp_sources)
 ETAGS_ARGS = $(subpkgdata_DATA)
 

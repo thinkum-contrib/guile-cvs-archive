@@ -540,7 +540,7 @@ SCM
 scm_m_if (SCM xorig, SCM env SCM_UNUSED)
 {
   long len = scm_ilength (SCM_CDR (xorig));
-  SCM_ASSYNT (len >= 2 && len <= 3, scm_s_expression, "if");
+  SCM_ASSYNT (len >= 2 && len <= 3, scm_s_expression, s_if);
   return scm_cons (SCM_IM_IF, SCM_CDR (xorig));
 }
 
@@ -1058,6 +1058,19 @@ scm_m_atfop (SCM xorig, SCM env SCM_UNUSED)
      former allows for automatically picking up redefinitions of the
      corresponding symbol. */
   SCM_SETCAR (x, var);
+  /* If the variable contains a procedure, leave the
+     `transformer-macro' in place so that the procedure's arguments
+     get properly transformed, and change the initial @fop to
+     SCM_IM_APPLY. */
+  if (!SCM_MACROP (SCM_VARIABLE_REF (var)))
+    {
+      SCM_SETCAR (xorig, SCM_IM_APPLY);
+      return xorig;
+    }
+  /* Otherwise (the variable contains a macro), the arguments should
+     not be transformed, so cut the `transformer-macro' out and return
+     the resulting expression starting with the variable. */
+  SCM_SETCDR (x, SCM_CDADR (x));
   return x;
 }
 
@@ -1071,7 +1084,7 @@ scm_m_atfop (SCM xorig, SCM env SCM_UNUSED)
   error when a symbol appears more than once among the `var's.
   All `exp's are evaluated before any `var' is set.
 
-  This of this as `let' for dynamic scope.
+  Think of this as `let' for dynamic scope.
 
   It is memoized into (#@bind ((var ...) . (reversed-val ...)) body ...).
 
@@ -1236,7 +1249,7 @@ scm_macroexp (SCM x, SCM env)
  * generating the source for a stackframe in a backtrace, and in
  * display_expression.
  *
- * Unmemoizing is not a realiable process.  You can not in general
+ * Unmemoizing is not a reliable process.  You cannot in general
  * expect to get the original source back.
  *
  * However, GOOPS currently relies on this for method compilation.

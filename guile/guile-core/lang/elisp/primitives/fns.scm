@@ -29,3 +29,17 @@
 (fset 'subrp
       (lambda (obj)
 	(not (not-subr? obj))))
+
+(fset 'byte-code-function-p
+      (lambda (object)
+	#f))
+
+(fset 'run-hooks
+      (lambda (hooks)
+	(cond ((null hooks))
+	      ((list? hooks)
+	       (for-each (lambda (hook)
+			   (elisp-apply hook '()))
+			 hooks))
+	      (else
+	       (elisp-apply hooks '())))))

@@ -1,5 +1,8 @@
 (define-module (lang elisp primitives symprop)
-  #:use-module (lang elisp internals fset))
+  #:use-module (lang elisp internals set)
+  #:use-module (lang elisp internals fset)
+  #:use-module (lang elisp internals evaluation)
+  #:use-module (ice-9 optargs))
 
 ;;; {Elisp Exports}
 
@@ -7,15 +10,29 @@
 
 (fset 'get symbol-property)
 
-(fset 'set
-      (lambda (sym val)
-	(local-define (list sym) val)))
+(fset 'set set)
 
-(fset 'boundp defined?)
+(fset 'set-default 'set)
+
+(fset 'boundp
+      (lambda (sym)
+	(module-defined? the-elisp-module sym)))
+
+(fset 'default-boundp 'boundp)
 
 (fset 'symbol-value
       (lambda (sym)
-	(or (local-ref (list sym))
+	(if (module-defined? the-elisp-module sym)
+	    (module-ref the-elisp-module sym)
 	    (error "Symbol's value as variable is void:" sym))))
 
-(fset 'symbolp symbol?)
+(fset 'default-value 'symbol-value)
+
+(fset 'symbolp
+      (lambda (object)
+	(or (symbol? object)
+	    (keyword? object))))
+
+(fset 'local-variable-if-set-p
+      (lambda* (variable #:optional buffer)
+	#f))

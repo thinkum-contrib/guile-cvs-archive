@@ -1,5 +1,36 @@
 2001-10-26  Neil Jerram  <neil@ossau.uklinux.net>
 
+	* primitives/symprop.scm (set, boundp, symbol-value): Changed to
+	use (module-xx the-elisp-module ...) rather than (local-xx ...).
+	(symbolp): Accept either symbols or keywords.
+	(set-default, default-boundp, default-value,
+	local-variable-if-set-p): New.
+
+	* primitives/match.scm (string-match, match-data): Store last
+	match data in Emacs rather than Guile form, to simplify
+	implementation of ...
+	(set-match-data, store-match-data): New.
+
+	* primitives/load.scm (autoload, current-load-list): New.  (But
+	autoload is just stubbed, not properly implemented.)
+
+	* primitives/lists.scm (nth, listp, consp, nconc): New.
+
+	* primitives/fns.scm (byte-code-function-p, run-hooks): New.
+
+	* transform.scm (transform-application, transformer-macro): New
+	scheme for transforming procedure arguments while leaving macro
+	args untransformed.  (See also associated change in libguile.)
+	(m-defconst): Simplified, now uses m-setq.
+
+	* Makefile.am: Changed so that it only deals with files directly
+	in this directory; otherwise files don't install cleanly.
+
+	* internals/Makefile.am, primitives/Makefile.am,
+	internals/.cvsignore, primitives/.cvsignore: New files.
+
+2001-10-26  Neil Jerram  <neil@ossau.uklinux.net>
+
 	* transform.scm (transformer): New handling for (1) quasiquoting
 	syntax like "(` ...)" as well as the more normal "` ..."; (2)
 	`function'; (3) interactive specification in lambda body.
@@ -16,7 +47,7 @@
 	Plus big hierarchy reorganization, in which most of the previous
 	occupants of lang/elisp moved to lang/elisp/primitives, with some
 	internal processing being split out into lang/elisp/internals.
-	The upshot looks like this.
+	The upshot looks like this:
 
 	* internals/trace.scm, internals/set.scm, internals/load.scm,
 	internals/fset.scm, internals/signal.scm, internals/time.scm,
