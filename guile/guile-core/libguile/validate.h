@@ -231,6 +231,13 @@
                       && ((unsigned) SCM_INUM (k)) < high)); \
   } while (0)
 
+#define SCM_VALIDATE_INUM_RANGE_COPY(pos, k, low, high, cvar) \
+  do { \
+    SCM_ASSERT (SCM_INUMP (k), k, pos, FUNC_NAME); \
+    cvar = SCM_INUM (k); \
+    SCM_ASSERT_RANGE (pos, k, cvar >= low && cvar < high); \
+  } while (0)
+
 #define SCM_VALIDATE_NULL(pos, scm) SCM_MAKE_VALIDATE (pos, scm, NULLP)
 
 #define SCM_VALIDATE_CONS(pos, scm) SCM_MAKE_VALIDATE (pos, scm, CONSP)
