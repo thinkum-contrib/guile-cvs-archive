@@ -1,0 +1,50 @@
+arch-survey.text --- overview of plug-in architectures
+
+
+The idea of "module system" is often extended to include loading into the
+system functionality provided by shared-object libraries or the like.  The
+idea is that the Scheme programmer can consider these libraries in similar
+vein as Scheme modules.
+
+Systems that support this usage are called "plug-in" because "standard binary
+interface for extension" is too much to say, and the analog of an electrical
+plug (simple, standard, widespread) is typically the goal.
+
+This file is a collection of plug-in architectures that we've encountered,
+and some notes about them, organized around these attributes:
+
+ 00 -- namespace-translation-is-2-phase
+ 01 -- namespace-translation-is-3-phase
+ 02 -- has-hook
+ 03 -- is-hooks-based
+ 04 -- depends-on-env-vars
+ 05 -- passes-through-env-vars-prefixing
+ 06 -- passes-through-env-vars-modifying-in-some-weird-way
+ 07 -- unloadable
+ 08 -- part-of-ABSTRACTION-PROGRAM-feature-list
+ 09 -- build-plugin-program-available
+ 0A -- requires-filesystem-direct-mapping
+       [your attributes here]
+
+See last page for WWW links.
+
+
+- Apache
+
+- Perl
+
+- Python
+
+- Linux Kernel
+
+- Emacs
+
+- XEmacs
+
+- GIMP
+
+- ACL
+
+
+
+WWW links
