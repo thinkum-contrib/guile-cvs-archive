@@ -8,21 +8,11 @@
 
 set -e
 
-branch_HEAD ()
-{
-echo core
-}
-
-branch_release_X ()
-{
-echo core-$1 | sed 's/[.]/-/g'
-}
-
 branch_dir ()
 {
 b=$1
-case $b in HEAD)      branch_HEAD ;;
-           1.4|1.6)   branch_release_X $b ;;
+case $b in HEAD)      echo core                      ;;
+           1.4|1.6)   echo core-$b | sed 's/[.]/-/g' ;;
            # add more branches here.
 esac
 }
