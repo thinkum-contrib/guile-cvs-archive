@@ -1,3 +1,7 @@
+2000-03-14  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* eval2.scm: New file: Testing float performance.
+
 1999-12-22  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* eval1.scm: New file: Testing evaluator performance.
