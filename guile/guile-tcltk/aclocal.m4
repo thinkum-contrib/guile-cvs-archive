@@ -1,4 +1,4 @@
-dnl aclocal.m4 generated automatically by aclocal 1.2a
+dnl aclocal.m4 generated automatically by aclocal 1.2c
 
 dnl Copyright (C) 1994, 1995, 1996, 1997 Free Software Foundation, Inc.
 dnl This Makefile.in is free software; the Free Software Foundation
@@ -68,7 +68,7 @@ echo timestamp > conftestfile
 # directory).
 if (
    set X `ls -Lt $srcdir/configure conftestfile 2> /dev/null`
-   if test "$@" = "X"; then
+   if test "[$]*" = "X"; then
       # -L didn't work.
       set X `ls -t $srcdir/configure conftestfile`
    fi
@@ -124,7 +124,7 @@ AC_DEFUN(AM_MAINTAINER_MODE,
 )
 
 
-# serial 11 AM_PROG_LIBTOOL
+# serial 15 AM_PROG_LIBTOOL
 AC_DEFUN(AM_PROG_LIBTOOL,
 [AC_REQUIRE([AC_CANONICAL_HOST])
 AC_REQUIRE([AC_PROG_RANLIB])
@@ -134,7 +134,7 @@ AC_REQUIRE([AM_PROG_NM])
 AC_REQUIRE([AC_PROG_LN_S])
 
 # Always use our own libtool.
-LIBTOOL='$(top_builddir)/libtool'
+LIBTOOL='$(SHELL) $(top_builddir)/libtool'
 AC_SUBST(LIBTOOL)
 
 dnl Allow the --disable-shared flag to stop us from building shared libs.
@@ -206,7 +206,9 @@ if test "$ac_cv_prog_gcc" = yes; then
   ac_prog=`($CC -print-prog-name=ld) 2>&5`
   case "$ac_prog" in
   # Accept absolute paths.
-  /*) ;;
+  /*)
+    test -z "$LD" && LD="$ac_prog"
+    ;;
   "")
     # If it fails, then pretend we aren't using GCC.
     ac_prog=ld
@@ -222,12 +224,7 @@ else
   AC_MSG_CHECKING([for non-GNU ld])
 fi
 AC_CACHE_VAL(ac_cv_path_LD,
-[LD=${LD-$ac_prog}
-case "$LD" in
-  /*)
-  ac_cv_path_LD="$LD" # Let the user override the test with a path.
-  ;;
-  *)
+[if test -z "$LD"; then
   IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS="${IFS}:"
   for ac_dir in $PATH; do
     test -z "$ac_dir" && ac_dir=.
@@ -244,8 +241,9 @@ case "$LD" in
     fi
   done
   IFS="$ac_save_ifs"
-  ;;
-esac])
+else
+  ac_cv_path_LD="$LD" # Let the user override the test with a path.
+fi])
 LD="$ac_cv_path_LD"
 if test -n "$LD"; then
   AC_MSG_RESULT($LD)
@@ -258,9 +256,9 @@ AM_PROG_LD_GNU
 ])
 
 AC_DEFUN(AM_PROG_LD_GNU,
-[AC_CACHE_CHECK([whether we are using GNU ld], ac_cv_prog_gnu_ld,
+[AC_CACHE_CHECK([if the linker ($LD) is GNU ld], ac_cv_prog_gnu_ld,
 [# I'd rather use --version here, but apparently some GNU ld's only accept -v.
-if $LD -v 2>&1 </dev/null | egrep '(GNU|with BFD)' > /dev/null; then
+if $LD -v 2>&1 </dev/null | egrep '(GNU|with BFD)' 1>&5; then
   ac_cv_prog_gnu_ld=yes
 else
   ac_cv_prog_gnu_ld=no
@@ -277,7 +275,7 @@ AC_CACHE_VAL(ac_cv_path_NM,
   ;;
 *)
   IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS="${IFS}:"
-  for ac_dir in /usr/ucb:$PATH:/bin; do
+  for ac_dir in /usr/ucb $PATH /bin; do
     test -z "$ac_dir" && dir=.
     if test -f $ac_dir/nm; then
       # Check to see if the nm accepts a BSD-compat flag.
