@@ -107,65 +107,60 @@
 	  (match:suffix match))))
 
 
+;;; HTTP connection management functions.
+;;;
+;;; Open connections are cached on hostname in the connection-table.
+;;; If an HTTP connection is already open to a particular host and TCP port,
+;;; looking up the hostname and port number in connection-table will yield
+;;; a Scheme port that may be used to communicate with that server.
 
-;;; HTTP high-level funcs
+(define connection-table '())
+(define (add-open-connection! host tcp-port port)
+  (setq connection-table
+	(assoc-set! connection-table (cons host tcp-port) port)))
+(define (get-open-connection host tcp-port)
+  (assoc-ref connection-table (cons host tcp-port)))
+
+
+
+;;; HTTP methods.
 ;;;
 ;;; Common methods: GET, POST etc.
 
 (define-public (http:get host port document)
+  ;; FIXME: if http:connect returns an old connection that has been
+  ;; closed remotely, this will fail.
   (let ((p (http:connect host (or port 80)))
 	(path (or document "/")))
-    (http:request p (string-append "GET " path " " http:version-string)
-		    (list
-		     (string-append "User-Agent: " http:user-agent)))))
+    (http:request p (string-append "GET " path " " http:version-string))))
 
 ;;; Connection-oriented functions:
 ;;;
 ;;; (http:connect HOST [PORT])
-;;;	Open an HTTP connection to HOST on port PORT (default 80).
-;;;	Returns a socket to that host.  A new connection is opened
-;;;	even if one already exists.
+;;;     Return an HTTP connection to HOST on TCP port PORT (default 80).
+;;;     If an open connection already exists, use it; otherwise, create
+;;;     a new socket.
 
 (define-public (http:connect host . args)
-  (let* ((port (if (null? args) 80 (car args)))
-	 (tcp (vector-ref (getproto "tcp") 2))
-	 (addr (car (vector-ref (gethost host) 4)))
-	 (sock (socket AF_INET SOCK_STREAM tcp)))
-    (connect sock AF_INET addr port)
-    sock))
+  (let ((port (if (null? args) 80 (car args))))
+    (or (get-open-connection host port)
+	(let* ((tcp (vector-ref (getproto "tcp") 2))
+	       (addr (car (vector-ref (gethost host) 4)))
+	       (sock (socket AF_INET SOCK_STREAM tcp)))
+	  (connect sock AF_INET addr port)
+	  (add-open-connection! host port sock)
+	  sock))))
 
-;;; (http:open HOST [PORT])
-;;;     Open an HTTP connection to HOST on port PORT (default 80).
-;;;     http:open returns a procedure: an `HTTP agent' which behaves
-;;;     as follows.
-;;;
-;;;     (<http:agent> CMD ARG [HEADERS [BODY]])
-;;;       Make a request to the HTTP server named in the call to
-;;;	  http:open (the one which returned this agent).  Send
-;;;	  a request using method CMD and argument ARG.  If HEADERS
-;;;	  is supplied, it is a list of strings to send as headers;
-;;;	  if BODY is supplied, it is a list of strings to send as
-;;;	  the message body.
-;;;
-;;; FIXME: the <http:agent> functionality will not really be
-;;;    effective until some Keep-Alive is implemented.  For now,
-;;;    don't use it.
+;;; Jim's suggestion:
+;;; (http:request METHOD URL BODY1) => BODY2
+;;; METHOD and URL are both strings.  BODY1 and BODY2 are RFC822-like
+;;; structures.
 
-(define-public (http:open host . args)
-  (let ((server-socket (apply http:connect host args)))
-    (lambda (method object . args)
-      (let ((headers (if (pair? args) (car args) '()))
-	    (body    (if (and (pair? args)
-			      (pair? (cdr args)))
-			 (cadr args)
-			 '())))
-	(http:request server-socket
-		      (string-append method " " object " " http:version-string)
-		      headers
-		      body)))))
+;;; (http:request SOCK METHOD [HEADERS [BODY]])
+;;;	Submit an HTTP request.  SOCK is a port to a remote HTTP server
+;;;     (returned by a previous call to http:connect).  METHOD is a
 
-;;; (http:request SOCK REQUEST [HEADERS [BODY]])
-;;;	Submit an HTTP request, with optional HEADERS and
+;;; , with optional HEADERS and
 ;;;	BODY, to a server via socket SOCK.  HEADERS and
 ;;;	BODY, if present, are both lists of strings.
 ;;;	These strings should not be terminated with CR or LF;
