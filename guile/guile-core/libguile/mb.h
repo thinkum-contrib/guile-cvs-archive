@@ -75,10 +75,10 @@ extern SCM scm_text_not_guile_char;
   ((unsigned char) *(p) < 128 ? *(p) : scm_mb_get_func (p))
 extern scm_char_t scm_mb_get_func (const unsigned char *p);
 
-/* Store the encoding of the character C at P, and return the
+/* Store the encoding of the Guile character C at P, and return the
    encoding's length in bytes.  */
 #define scm_mb_put(c, p) \
-  ((unsigned char) (c) < 128 ? (*(p) = c, 1) : scm_mb_put_func ((c), (p)))
+  ((c) < 128 ? (*(p) = c, 1) : scm_mb_put_func ((c), (p)))
 extern int scm_mb_put_func (scm_char_t c, unsigned char *p);
 
 /* The length of the longest character encoding, in bytes.  */

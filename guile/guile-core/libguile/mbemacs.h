@@ -193,7 +193,7 @@
    | ((pos1) << 7)				\
    | (pos2))
 
-#define IS_ASCII_CHAR(c) ((unsigned char) (c) < 0x80)
+#define IS_ASCII_CHAR(c) ((unsigned) (c) < 0x80)
 
 #define FIRST_CHAR1O (BUILD_CHAR1 (0x81, 0x20))
 #define LAST_CHAR1O  (BUILD_CHAR1 (0x8f, 0x7F))
