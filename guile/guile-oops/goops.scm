@@ -446,25 +446,31 @@
 				 (if (not ,name)
 				     (define-accessor ,name))
 				 (add-method! (setter ,name)
-					      (method ,@(cddr exp)))))
+					      (method ,(cdadr exp)
+						      ,@(cddr exp)))))
 			     (else
 			      `(begin
 				 (define-accessor ,name)
 				 (add-method! (setter ,name)
-					      (method ,@(cddr exp))))))))
+					      (method ,(cdadr exp)
+						      ,@(cddr exp))))))))
 		    ((not (symbol? gf))
-		     `(add-method! ,gf (method ,@(cddr exp))))
+		     `(add-method! ,gf (method ,(cdadr exp) ,@(cddr exp))))
 		    ((defined? gf env)
 		     `(begin
 			;; *fixme* Temporary hack for the current
 			;;         module system
 			(if (not ,gf)
 			    (define-generic ,gf))
-			(add-method! ,gf (method ,@(cddr exp)))))
+			(add-method! ,gf
+				     (method ,(cdadr exp)
+					     ,@(cddr exp)))))
 		    (else
 		     `(begin
 			(define-generic ,gf)
-			(add-method! ,gf (method ,@(cddr exp))))))))))))
+			(add-method! ,gf
+				     (method ,(cdadr exp)
+					     ,@(cddr exp))))))))))))
 
 (define (make-method specializers procedure)
   (make <method>
