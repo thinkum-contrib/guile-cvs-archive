@@ -193,5 +193,5 @@
 
 (define-public (grammar-cache g)
   (or (object-property g 'grammar-cache)
-      (set-object-property! g 'grammar-cache (make-weak-hash-table 509))))
+      (set-object-property! g 'grammar-cache (make-weak-key-hash-table 509))))
 

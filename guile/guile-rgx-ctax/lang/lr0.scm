@@ -223,7 +223,7 @@
 (define item-closure
   (let (;; A memo of closures already computed.
 	;;
-	(memo (make-weak-hash-table 1031))
+	(memo (make-weak-key-hash-table 1031))
 	
 	;; symbol-item-set-kernel g s
 	;;   Return all the initial items for non-terminal S.
