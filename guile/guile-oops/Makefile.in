@@ -59,13 +59,17 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 host_alias = @host_alias@
 host_triplet = @host@
+AS = @AS@
 CC = @CC@
+DLLTOOL = @DLLTOOL@
 LD = @LD@
+LIBLOBJS = @LIBLOBJS@
 LIBTOOL = @LIBTOOL@
 LN_S = @LN_S@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 NM = @NM@
+OBJDUMP = @OBJDUMP@
 PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
 VERSION = @VERSION@
@@ -76,11 +80,16 @@ lib_LTLIBRARIES = libgoopscore.la
 bin_PROGRAMS = guile-oops
 
 guile_oops_SOURCES = guile-oops.c
-guile_oops_LDADD = libgoopscore.la
+guile_oops_DEPENDENCIES = @LIBLOBJS@
+guile_oops_LDADD = @LIBLOBJS@ libgoopscore.la
 
-libgoopscore_la_SOURCES = goops.c
+libgoopscore_la_SOURCES = goops.c goops.h goops-snarf.h
 libgoopscore_la_LDFLAGS = -version-info 0:0 -export-dynamic
-BUILT_SOURCES = goops.x
+BUILT_SOURCES = goops.x fdi.x
+
+EXTRA_guile_oops_SOURCES = fdi.c
+
+include_HEADERS = goops.h goops-snarf.h
 
 subpkgdatadir = $(datadir)/guile/oop
 subpkgdata_DATA = goops.scm
@@ -107,7 +116,6 @@ libgoopscore_la_OBJECTS =  goops.lo
 PROGRAMS =  $(bin_PROGRAMS)
 
 guile_oops_OBJECTS =  guile-oops.o
-guile_oops_DEPENDENCIES =  libgoopscore.la
 guile_oops_LDFLAGS = 
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -115,6 +123,8 @@ LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $
 CCLD = $(CC)
 LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
 DATA =  $(goopsdata_DATA) $(subpkgdata_DATA)
+
+HEADERS =  $(include_HEADERS)
 
 DIST_COMMON =  README AUTHORS COPYING ChangeLog INSTALL Makefile.am \
 Makefile.in NEWS THANKS TODO aclocal.m4 config.guess config.sub \
@@ -126,8 +136,8 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
-DEP_FILES =  .deps/goops.P .deps/guile-oops.P
-SOURCES = $(libgoopscore_la_SOURCES) $(guile_oops_SOURCES)
+DEP_FILES =  .deps/fdi.P .deps/goops.P .deps/guile-oops.P
+SOURCES = $(libgoopscore_la_SOURCES) $(guile_oops_SOURCES) $(EXTRA_guile_oops_SOURCES)
 OBJECTS = $(libgoopscore_la_OBJECTS) $(guile_oops_OBJECTS)
 
 all: all-redirect
@@ -275,6 +285,21 @@ uninstall-subpkgdataDATA:
 	  rm -f $(DESTDIR)$(subpkgdatadir)/$$p; \
 	done
 
+install-includeHEADERS: $(include_HEADERS)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(includedir)
+	@list='$(include_HEADERS)'; for p in $$list; do \
+	  if test -f "$$p"; then d= ; else d="$(srcdir)/"; fi; \
+	  echo " $(INSTALL_DATA) $$d$$p $(DESTDIR)$(includedir)/$$p"; \
+	  $(INSTALL_DATA) $$d$$p $(DESTDIR)$(includedir)/$$p; \
+	done
+
+uninstall-includeHEADERS:
+	@$(NORMAL_UNINSTALL)
+	list='$(include_HEADERS)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(includedir)/$$p; \
+	done
+
 tags: TAGS
 
 ID: $(HEADERS) $(SOURCES) $(LISP)
@@ -402,22 +427,25 @@ install-exec-am: install-libLTLIBRARIES install-binPROGRAMS
 	$(MAKE) $(AM_MAKEFLAGS) install-exec-hook
 install-exec: install-exec-am
 
-install-data-am: install-goopsdataDATA install-subpkgdataDATA
+install-data-am: install-goopsdataDATA install-subpkgdataDATA \
+		install-includeHEADERS
 install-data: install-data-am
 
 install-am: all-am
 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
 install: install-am
 uninstall-am: uninstall-libLTLIBRARIES uninstall-binPROGRAMS \
-		uninstall-goopsdataDATA uninstall-subpkgdataDATA
+		uninstall-goopsdataDATA uninstall-subpkgdataDATA \
+		uninstall-includeHEADERS
 uninstall: uninstall-am
-all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(DATA)
+all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(DATA) $(HEADERS)
 all-redirect: all-am
 install-strip:
 	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
 installdirs:
 	$(mkinstalldirs)  $(DESTDIR)$(libdir) $(DESTDIR)$(bindir) \
-		$(DESTDIR)$(goopsdatadir) $(DESTDIR)$(subpkgdatadir)
+		$(DESTDIR)$(goopsdatadir) $(DESTDIR)$(subpkgdatadir) \
+		$(DESTDIR)$(includedir)
 
 
 mostlyclean-generic:
@@ -469,7 +497,8 @@ mostlyclean-libtool distclean-libtool clean-libtool \
 maintainer-clean-libtool mostlyclean-binPROGRAMS distclean-binPROGRAMS \
 clean-binPROGRAMS maintainer-clean-binPROGRAMS uninstall-binPROGRAMS \
 install-binPROGRAMS uninstall-goopsdataDATA install-goopsdataDATA \
-uninstall-subpkgdataDATA install-subpkgdataDATA tags mostlyclean-tags \
+uninstall-subpkgdataDATA install-subpkgdataDATA \
+uninstall-includeHEADERS install-includeHEADERS tags mostlyclean-tags \
 distclean-tags clean-tags maintainer-clean-tags distdir \
 mostlyclean-depend distclean-depend clean-depend \
 maintainer-clean-depend info-am info dvi-am dvi check check-am \
