@@ -5,10 +5,11 @@ conventional way of doing and communicating these things.
 
 The TODO File
 
-	Items are grouped by target release version.  The first group is
-	"Eventually", which is not associated w/ any particular version.
-	Items should be initially added to this group, and then later
-	moved under a version upon either ownership or sponsorship.
+	Items are grouped by target release version, most imminent
+	first.  The last group is "Eventually", which is not associated
+	w/ any particular version.  Items should be initially added to
+	this group, and then later moved up under a version upon either
+	ownership or sponsorship.
 
 	Maintainers (w/ write privs) indicate ownership by `[USERNAME]'.
 	Use `[ACTUAL-OWNER:MAINTAINER]' to indicate sponsorship, where
@@ -65,3 +66,7 @@ Individual TODO Files
 	the main TODO file actually *IS* the breakdown (for example,
 	"improve hacker coordination" or "make guile compiler-friendly
 	again" or "practice my meager project manglement skills").
+
+	Individual TODO files should not replace the TODO file for
+	communicating intent to do some task (i.e., the Guile status
+	summarization program only looks at the global TODO).
