@@ -52,7 +52,8 @@ Library code in the application uses the debug channel to:
 
 - send tracing information (without pausing the application).
 
-The Emacs frontend uses the debug channel to:
+The Emacs frontend will be modelled after Edebug; under the covers, it
+uses the debug channel to:
 
 - set breakpoints
 
