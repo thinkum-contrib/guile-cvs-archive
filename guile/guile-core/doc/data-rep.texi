@@ -1647,7 +1647,7 @@ Here is a sample build and interaction with the code from the
 zwingli:example-smob$ make CC=gcc
 gcc `guile-config compile`   -c image-type.c -o image-type.o
 gcc `guile-config compile`   -c myguile.c -o myguile.o
-gcc `guile-config link` image-type.o myguile.o -o myguile
+gcc image-type.o myguile.o `guile-config link` -o myguile
 zwingli:example-smob$ ./myguile
 guile> make-image
 #<primitive-procedure make-image>
