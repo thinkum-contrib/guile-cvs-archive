@@ -1021,7 +1021,7 @@ SCM_PROC (s_accessor_method_slot_definition, "accessor-method-slot-definition", 
 SCM
 scm_accessor_method_slot_definition (SCM obj)
 {
-  SCM_ASSERT (SCM_NIMP (obj) && METHODP (obj),
+  SCM_ASSERT (SCM_NIMP (obj) && SCM_ACCESSORP (obj),
 	      obj, SCM_ARG1, s_method_procedure);
   return scm_slot_ref (obj, Intern ("slot-definition"));
 }  

@@ -75,7 +75,8 @@
     generic-function-name
     generic-function-methods method-generic-function method-specializers
     primitive-generic-generic enable-primitive-generic!
-    method-procedure slot-exists? make find-method get-keyword
+    method-procedure accessor-method-slot-definition
+    slot-exists? make find-method get-keyword
     %logand)
 
 
