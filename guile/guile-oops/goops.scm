@@ -521,11 +521,18 @@
 		methods)
 	      (loop (cdr l)))))))
 
-(define (add-method! gf m)
+(define (internal-add-method! next-method gf m)
   (slot-set! m  'generic-function gf)
   (slot-set! gf 'methods (compute-new-list-of-methods gf m))
   (add-method-in-classes! m)
   *unspecified*)
+
+(define-generic add-method!)
+
+(internal-add-method! #f add-method!
+		      (make <method>
+			#:specializers (list <generic> <method>)
+			#:procedure internal-add-method!))
 
 ;;;
 ;;; {Access to meta objects}
