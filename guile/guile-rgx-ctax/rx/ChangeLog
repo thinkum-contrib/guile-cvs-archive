@@ -1,3 +1,7 @@
+Fri Mar 14 19:23:57 1997  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* configure.in: AC_STDC_HEADERS --> AC_HEADER_STDC
+
 Mon Feb 24 21:47:50 1997  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* configure.in: Added AM_MAINTAINER_MODE
