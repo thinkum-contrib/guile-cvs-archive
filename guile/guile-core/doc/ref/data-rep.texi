@@ -1918,6 +1918,11 @@ while code is still using it.
 Create a reference to the given object or objects, so they're certain
 to be present on the stack or in a register and hence will not be
 freed by the garbage collector before this point.
+
+Note that these functions can only be applied to ordinary C local
+variables (ie.@: ``automatics'').  Objects held in global or static
+variables or some malloced block or the like cannot be protected with
+this mechanism.
 @end deftypefn
 
 For example, consider a procedure to convert image data to a list of
