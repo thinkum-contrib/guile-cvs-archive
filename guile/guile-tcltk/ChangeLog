@@ -1,3 +1,7 @@
+Mon Feb 24 21:45:53 1997  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* configure.in: Added AM_MAINTAINER_MODE
+
 Sun Jan 12 21:03:55 1997  Marius Vollmer  <mvo@zagadka.ping.de>
 
 	* gtcltk-module.c: New file. See libguile/DYNAMIC-LINKING.

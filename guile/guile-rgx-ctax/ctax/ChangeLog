@@ -1,3 +1,7 @@
+Mon Feb 24 21:44:44 1997  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* configure.in: Added AM_MAINTAINER_MODE
+
 Sat Nov 30 23:46:22 1996  Tom Tromey  <tromey@cygnus.com>
 
 	* PLUGIN/greet, PLUGIN/split.sed, PLUGIN/this.configure: Removed.

@@ -1,5 +1,6 @@
 AC_INIT(qt.c)
 AM_INIT_GUILE_MODULE(qt)
+AM_MAINTAINER_MODE
 
 dnl Checks for programs.
 AC_PROG_CC

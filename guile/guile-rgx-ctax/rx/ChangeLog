@@ -1,3 +1,7 @@
+Mon Feb 24 21:47:50 1997  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* configure.in: Added AM_MAINTAINER_MODE
+
 Thu Jan 30 20:13:29 1997  Mikael Djurfeldt  <mdj@syk-0606.pdc.kth.se>
 
 	* rxanal.h (rx_answers): Removed trailing comma.
