@@ -1,8 +1,3 @@
-+ guile-www 1.1.1 [ttn]
-  + integrate cgi enhancement patch from Aaron VanDevender [ttn]
-  + create examples/ and move wwwcat there [ttn]
-
-
 - Guile 1.4.1
   - back port ice-9/and-let*.scm naming fix [ttn]
   + write TODO summarizer [ttn]
@@ -13,7 +8,7 @@
     - regen guile-api.alist all branches
   - update (gscripts) api-diff to be group-aware [ttn]
   - back port auto* tools versioning requirement fixes
-  - write maintainer script dist-guile
+  - write maintainer script dist-guile [ttn]
 
 
 - Guile 1.6
