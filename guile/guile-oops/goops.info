@@ -7,7 +7,7 @@ END-INFO-DIR-ENTRY
 
 This file documents GOOPS, an object oriented extension for Guile.
 
-Copyright (C) 1999 Free Software Foundation
+Copyright (C) 1999, 2000 Free Software Foundation
 
 Permission is granted to make and distribute verbatim copies of this
 manual provided the copyright notice and this permission notice are
@@ -48,9 +48,9 @@ File: goops.info,  Node: Introduction,  Next: Getting Started,  Prev: Top,  Up: 
 Introduction
 ============
 
-GOOPS is the object oriented extention to Guile. Its implementation is
+GOOPS is the object oriented extension to Guile. Its implementation is
 derived from STk-3.99.3 by Erick Gallesio and version 1.3 of Gregor
-Kickzales `Tiny-Clos'.  It is very close in spirit to CLOS, the Common
+Kiczales `Tiny-Clos'.  It is very close in spirit to CLOS, the Common
 Lisp Object System (`CLtL2') but is adapted for the Scheme language.
 While GOOPS is not compatible with any of these systems, GOOPS contains
 a compatibility module which allows for execution of STKlos programs.
@@ -195,21 +195,16 @@ Copyright
 
 Original attribution:
 
-STk Reference manual (Appendix: An Introdution to STklos)
+STk Reference manual (Appendix: An Introduction to STklos)
 
-Copyright (C) 1993,1994,1995 Erick Gallesio - I3S-CNRS/ESSI
-<eg@unice.fr>
-
-Permission to use, copy, and/or distribute this software and its
-documentation for any purpose and without fee is hereby granted,
-provided that both the above copyright notice and this permission
-notice appear in all copies and derived works.  Fees for distribution
-or use of this software or derived works may only be charged with
-express written permission of the copyright holder.  This software is
-provided "as is" without express or implied warranty.
-
-Author: Erick Gallesio [eg@unice.fr]    Creation date: 22-May-1994 22:13
-Last file update: 22-Apr-1998 11:04
+Copyright © 1993-1999 Erick Gallesio - I3S-CNRS/ESSI <eg@unice.fr>
+Permission to use, copy, modify, distribute,and license this software
+and its documentation for any purpose is hereby granted, provided that
+existing copyright notices are retained in all copies and that this
+notice is included verbatim in any distributions.  No written
+agreement, license, or royalty fee is required for any of the
+authorized uses.  This software is provided "AS IS" without express or
+implied warranty.
 
 Adapted for use in Guile with the authors permission
 
@@ -219,10 +214,10 @@ File: goops.info,  Node: Intro,  Next: Class definition and instantiation,  Prev
 Introduction
 ============
 
-GOOPS is the object oriented extention to Guile. Its implementation is
+GOOPS is the object oriented extension to Guile. Its implementation is
 derived from STk-3.99.3 by Erick Gallesio and version 1.3 of the Gregor
-Kickzales `Tiny-Clos'.  It is very close to CLOS, the Common Lisp
-Object System (`CLtL2') but is adapted for the Scheme language.
+Kiczales `Tiny-Clos'.  It is very close to CLOS, the Common Lisp Object
+System (`CLtL2') but is adapted for the Scheme language.
 
 Briefly stated, the GOOPS extension gives the user a full object
 oriented system with multiple inheritance and generic functions with
@@ -423,7 +418,7 @@ Slot description
 ----------------
 
 When specifying a slot, a set of options can be given to the system.
-Each option is specified with a keyword. The list of authorised
+Each option is specified with a keyword. The list of authorized
 keywords is given below:
 
    * `#:init-value' permits to supply a default value for the slot. This
@@ -635,11 +630,7 @@ of `Z'.
 
 These two rules are not always enough to determine a unique order,
 however, but they give an idea of how things work.  Taking the `F'
-class shown in Figure 1, the GOOPS calculated class precedence list is
-
-     (f d e a b c <object> <top>)
-
-whereas it would be the following list with a CLOS-like algorithm:
+class shown in Figure 1, the class precedence list is
 
      (f d e a c b <object> <top>)
 
@@ -690,7 +681,7 @@ the evaluator requested the application of a generic function, all the
 methods of this generic function will be grabbed and the most specific
 among them will be applied. We say that a method M is _more specific_
 than a method M' if the class of its parameters are more specific than
-the M' ones.  To be more precise, when a generic funtion must be
+the M' ones.  To be more precise, when a generic function must be
 "called" the system will:
 
   1. search among all the generic function those which are applicable
@@ -930,36 +921,36 @@ Function and Variable Index
 
 
 Tag Table:
-Node: Top479
-Node: Introduction971
-Node: Getting Started1823
-Node: Running GOOPS2209
-Node: Methods2709
-Node: User-defined types2969
-Node: Asking for the type of an object3803
-Node: Reference Manual4179
-Node: MOP specification4336
-Node: Tutorial4488
-Node: Copyright4843
-Node: Intro5726
-Node: Class definition and instantiation6830
-Node: Class definition7044
-Ref: Class definition-Footnote-18558
-Ref: Class definition-Footnote-28611
-Ref: Class definition-Footnote-38794
-Node: Inheritance9119
-Node: Class hierarchy and inheritance of slots9408
-Node: Instance creation and slot access11630
-Node: Slot description13116
-Node: Class precedence list20690
-Ref: Class precedence list-Footnote-123232
-Node: Generic functions23333
-Node: Generic functions and methods23523
-Node: Next-method26669
-Node: Example27487
-Ref: Example-Footnote-130684
-Node: Index30906
-Node: Concept Index31002
-Node: Function and Variable Index31979
+Node: Top485
+Node: Introduction977
+Node: Getting Started1828
+Node: Running GOOPS2214
+Node: Methods2714
+Node: User-defined types2974
+Node: Asking for the type of an object3808
+Node: Reference Manual4184
+Node: MOP specification4341
+Node: Tutorial4493
+Node: Copyright4848
+Node: Intro5580
+Node: Class definition and instantiation6683
+Node: Class definition6897
+Ref: Class definition-Footnote-18411
+Ref: Class definition-Footnote-28464
+Ref: Class definition-Footnote-38647
+Node: Inheritance8972
+Node: Class hierarchy and inheritance of slots9261
+Node: Instance creation and slot access11483
+Node: Slot description12969
+Node: Class precedence list20543
+Ref: Class precedence list-Footnote-122965
+Node: Generic functions23066
+Node: Generic functions and methods23256
+Node: Next-method26403
+Node: Example27221
+Ref: Example-Footnote-130418
+Node: Index30640
+Node: Concept Index30736
+Node: Function and Variable Index31713
 
 End Tag Table
