@@ -90,6 +90,7 @@
 #include "procs.h"
 #include "ramap.h"
 #include "read.h"
+#include "readline.h"
 #include "scmsigs.h"
 #include "script.h"
 #include "simpos.h"
@@ -459,6 +460,9 @@ scm_boot_guile_1 (base, closure)
       scm_init_unif ();
       scm_init_simpos ();
       scm_init_load_path ();
+#ifdef HAVE_LIBREADLINE
+      scm_init_readline ();
+#endif
       scm_init_standard_ports ();
       scm_init_dynamic_linking ();
       scm_init_script ();
