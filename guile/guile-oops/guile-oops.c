@@ -47,6 +47,8 @@
 
 #include <libguile.h>
 
+#include "goops.h"
+
 /* Debugger interface (don't change the order of the following lines) */
 #define GDB_TYPE SCM
 #include <libguile/gdb_interface.h>
@@ -56,7 +58,7 @@ static void
 inner_main (void *closure, int argc, char **argv)
 {
   /* module initializations go here */
-  scm_init_goops ();
+  scm_init_goops_goops_module ();
   scm_shell (argc, argv);
 }
 
