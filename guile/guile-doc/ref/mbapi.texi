@@ -264,14 +264,14 @@ pointer to the first byte of the encoding of the next character.  If
 @var{p} unchanged.
 @end deftypefn
 
-Note that it is not friendly for functions to silently correct byte
-offsets that point into the middle of a character's encoding.  Such
+Note that it is usually not friendly for functions to silently correct
+byte offsets that point into the middle of a character's encoding.  Such
 offsets almost always indicate a programming error, and they should be
 reported as early as possible.  So, when you write code which operates
-on multibyte text, you do not use functions like these to ``clean up''
-byte offsets; instead, your code should signal a
-@code{text:not-char-boundary} error as soon as it detects an invalid
-offset.  @xref{Multibyte Text Processing Errors}.
+on multibyte text, you should not use functions like these to ``clean
+up'' byte offsets which the originator believes to be correct; instead,
+your code should signal a @code{text:not-char-boundary} error as soon as
+it detects an invalid offset.  @xref{Multibyte Text Processing Errors}.
 
 
 @node Multibyte String Functions, Exchanging Guile Text With the Outside World in C, Finding Character Encoding Boundaries, Functions for Operating on Multibyte Text
