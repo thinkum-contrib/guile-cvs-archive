@@ -1,3 +1,13 @@
+Fri Apr 11 20:09:14 1997  Jim Blandy  <jimb@floss.cyclic.com>
+
+	Don't run the snarfer if Tcl/Tk support isn't enabled.
+	* Makefile.am: Let the configure script specify the name of the
+	snarfer, via the @SNARF@ substitution.
+	* configure.in: Set @SNARF@ to the real snarfer name iff Tcl/Tk
+	support is actually enabled; otherwise, set it to ":", so the
+	snarfing commands don't do anything.
+	* Makefile.in, configure: Rebuilt.
+
 Thu Apr 10 15:07:23 1997  Jim Blandy  <jimb@floss.cyclic.com>
 
 	* Makefile.am (MKDEP): Use -MM, not -M, so we don't get
