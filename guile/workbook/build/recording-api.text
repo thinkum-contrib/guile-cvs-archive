@@ -1,9 +1,10 @@
-Part of the release process: record the API.
+Part of the build process is recording the API and its groupings.
+This should be done after changing Scheme or C interface, or
+                    after changing doc/groupings.alist.
 
-To do this, in top-level builddir, do:
+To do this:
 
-  $mscripts/update-guile-api.alist
+  cd $(top_builddir)/doc
+  make guile-api.alist
 
-This checks out $top_srcdir/doc/guile-api.alist,
-     runs $mscripts/scan-api to update it,
-     and finally commits the new file.
+The new guile-api.alist is actually deposited in $(top_srcdir)/doc.
