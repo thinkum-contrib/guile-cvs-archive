@@ -518,7 +518,8 @@ scm_undump (SCM dstate)
 
 SCM_DEFINE (scm_binary_write, "binary-write", 1, 1, 0, 
 	    (SCM obj, SCM port),
-	    "Write OBJ to PORT in a binary format.")
+	    "Write @var{obj} to @var{port} in a binary format.\n"
+            "If omitted, @var{port} defaults to the current output port.")
 #define FUNC_NAME s_scm_binary_write
 {
   struct scm_dstate *p;
@@ -553,7 +554,8 @@ SCM_DEFINE (scm_binary_write, "binary-write", 1, 1, 0,
 
 SCM_DEFINE (scm_binary_read, "binary-read", 0, 1, 0, 
 	    (SCM port),
-	    "Read an object from PORT in a binary format.")
+	    "Read and return an object from @var{port} in a binary format.\n"
+            "If omitted, @var{port} defaults to the current output port.")
 #define FUNC_NAME s_scm_binary_read
 {
   int i, nobjs;
