@@ -1,0 +1,1 @@
+(define (ice-9-config-stamp) "@GUILE_STAMP@")
