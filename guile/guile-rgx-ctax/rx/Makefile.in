@@ -37,9 +37,12 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 transform = @program_transform_name@
+host_triplet = @host@
+host_alias = @host_alias@
 RANLIB = @RANLIB@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 PACKAGE = @PACKAGE@
+LIBTOOL = @LIBTOOL@
 VERSION = @VERSION@
 module = @module@
 CC = @CC@
@@ -48,17 +51,18 @@ AUTOMAKE_OPTIONS = foreign
 
 INCLUDES = -I$(srcdir)/../libguile -I$(srcdir)/.. -I../
 
-lib_LIBRARIES = librx.a
-librx_a_SOURCES = rx.h hashrexp.c inst-rxposix.h rgx.c rgx.h rx.c \
+lib_PROGRAMS = librx.la
+librx_la_SOURCES = rx.h hashrexp.c inst-rxposix.h rgx.c rgx.h rx.c \
 rx.h rxall.h rxanal.c rxanal.h rxbasic.c rxbasic.h rxbitset.c rxbitset.h \
 rxcontext.h rxcset.c rxcset.h rxdbug.c rxgnucomp.c rxgnucomp.h rxhash.c \
 rxhash.h rxnfa.c rxnfa.h rxnode.c rxnode.h rxposix.c rxposix.h rxproto.h \
 rxsimp.c rxsimp.h rxspencer.c rxspencer.h rxstr.c rxstr.h rxsuper.c \
 rxsuper.h rxunfa.c rxunfa.h _rx.h
+librx_la_LDFLAGS = -version-info 0:0 -rpath $(libdir)
 
 check_PROGRAMS = runtests
 runtests_SOURCES = runtests.c testcases.h
-runtests_LDADD = librx.a
+runtests_LDADD = librx.la
 
 EXTRA_DIST = TESTS TESTS2C.sed W32 PLUGIN/OPT PLUGIN/guile.config \
 PLUGIN/guile.inits PLUGIN/guile.libs
@@ -69,26 +73,26 @@ MKDEP = gcc -M -MG $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
 ACLOCAL = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/../mkinstalldirs
 CONFIG_CLEAN_FILES = 
-LIBRARIES =  $(lib_LIBRARIES)
+PROGRAMS =  $(lib_PROGRAMS)
 
 
 DEFS = @DEFS@ -I. -I$(srcdir) 
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
-librx_a_LIBADD = 
-librx_a_OBJECTS =  hashrexp.o rgx.o rx.o rxanal.o rxbasic.o rxbitset.o \
-rxcset.o rxdbug.o rxgnucomp.o rxhash.o rxnfa.o rxnode.o rxposix.o \
-rxsimp.o rxspencer.o rxstr.o rxsuper.o rxunfa.o
-AR = ar
+librx_la_OBJECTS =  hashrexp.lo rgx.lo rx.lo rxanal.lo rxbasic.lo \
+rxbitset.lo rxcset.lo rxdbug.lo rxgnucomp.lo rxhash.lo rxnfa.lo \
+rxnode.lo rxposix.lo rxsimp.lo rxspencer.lo rxstr.lo rxsuper.lo \
+rxunfa.lo
+librx_la_LDADD = $(LDADD)
 runtests_OBJECTS =  runtests.o
-runtests_DEPENDENCIES =  librx.a
+runtests_DEPENDENCIES =  librx.la
 runtests_LDFLAGS = 
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
-LINK = $(CC) $(LDFLAGS) -o $@
+LINK = $(LIBTOOL) --mode=link $(CC) $(LDFLAGS) -o $@
 DIST_COMMON =  COPYING.LIB ChangeLog Makefile.am Makefile.in aclocal.m4 \
-configure configure.in
+config.guess config.sub configure configure.in
 
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) \
@@ -100,13 +104,13 @@ DEP_FILES =  .deps/hashrexp.P .deps/rgx.P .deps/runtests.P .deps/rx.P \
 .deps/rxdbug.P .deps/rxgnucomp.P .deps/rxhash.P .deps/rxnfa.P \
 .deps/rxnode.P .deps/rxposix.P .deps/rxsimp.P .deps/rxspencer.P \
 .deps/rxstr.P .deps/rxsuper.P .deps/rxunfa.P
-SOURCES = $(librx_a_SOURCES) $(runtests_SOURCES)
-OBJECTS = $(librx_a_OBJECTS) $(runtests_OBJECTS)
+SOURCES = $(librx_la_SOURCES) $(runtests_SOURCES)
+OBJECTS = $(librx_la_OBJECTS) $(runtests_OBJECTS)
 
 default: all
 
 .SUFFIXES:
-.SUFFIXES: .c .o .x
+.SUFFIXES: .c .o .lo .x
 $(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL) 
 	cd $(top_srcdir) && automake --foreign Makefile
 
@@ -122,36 +126,38 @@ config.status: configure
 $(srcdir)/configure: configure.in $(ACLOCAL) $(CONFIGURE_DEPENDENCIES)
 	cd $(srcdir) && autoconf
 
-mostlyclean-libLIBRARIES:
+mostlyclean-libPROGRAMS:
 
-clean-libLIBRARIES:
-	test -z "$(lib_LIBRARIES)" || rm -f $(lib_LIBRARIES)
+clean-libPROGRAMS:
+	test -z "$(lib_PROGRAMS)" || rm -f $(lib_PROGRAMS)
 
-distclean-libLIBRARIES:
+distclean-libPROGRAMS:
 
-maintainer-clean-libLIBRARIES:
+maintainer-clean-libPROGRAMS:
 
-install-libLIBRARIES: $(lib_LIBRARIES)
+install-libPROGRAMS: $(lib_PROGRAMS)
 	$(NORMAL_INSTALL)
 	$(mkinstalldirs) $(libdir)
-	list="$(lib_LIBRARIES)"; for p in $$list; do \
+	@list="$(lib_PROGRAMS)"; for p in $$list; do \
 	  if test -f $$p; then \
-	    echo "$(INSTALL_DATA) $$p $(libdir)/$$p"; \
-	    $(INSTALL_DATA) $$p $(libdir)/$$p; \
-	  else :; fi; \
-	done
-	$(POST_INSTALL)
-	@list="$(lib_LIBRARIES)"; for p in $$list; do \
-	  if test -f $$p; then \
-	    echo "$(RANLIB) $(libdir)/$$p"; \
-	    $(RANLIB) $(libdir)/$$p; \
+	    echo "$(LIBTOOL) --mode=install $(INSTALL_PROGRAM) $$p $(libdir)/$$p"; \
+	    $(LIBTOOL) --mode=install $(INSTALL_PROGRAM) $$p $(libdir)/$$p; \
 	  else :; fi; \
 	done
 
-uninstall-libLIBRARIES:
-	list="$(lib_LIBRARIES)"; for p in $$list; do \
-	  rm -f $(libdir)/$$p; \
+uninstall-libPROGRAMS:
+	list="$(lib_PROGRAMS)"; for p in $$list; do \
+	  $(LIBTOOL) --mode=uninstall rm -f $(libdir)/$$p; \
 	done
+
+mostlyclean-checkPROGRAMS:
+
+clean-checkPROGRAMS:
+	test -z "$(check_PROGRAMS)" || rm -f $(check_PROGRAMS)
+
+distclean-checkPROGRAMS:
+
+maintainer-clean-checkPROGRAMS:
 
 .c.o:
 	$(COMPILE) -c $<
@@ -166,19 +172,21 @@ distclean-compile:
 
 maintainer-clean-compile:
 
-librx.a: $(librx_a_OBJECTS) $(librx_a_DEPENDENCIES)
-	rm -f librx.a
-	$(AR) cru librx.a $(librx_a_OBJECTS) $(librx_a_LIBADD)
-	$(RANLIB) librx.a
+.c.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
 
-mostlyclean-checkPROGRAMS:
+mostlyclean-libtool:
+	rm -f *.lo
 
-clean-checkPROGRAMS:
-	test -z "$(check_PROGRAMS)" || rm -f $(check_PROGRAMS)
+clean-libtool:
+	rm -rf .libs
 
-distclean-checkPROGRAMS:
+distclean-libtool:
 
-maintainer-clean-checkPROGRAMS:
+maintainer-clean-libtool:
+
+librx.la: $(librx_la_OBJECTS) $(librx_la_DEPENDENCIES)
+	$(LINK) $(librx_la_LDFLAGS) $(librx_la_OBJECTS) $(librx_la_LDADD) $(LIBS)
 
 runtests: $(runtests_OBJECTS) $(runtests_DEPENDENCIES)
 	$(LINK) $(runtests_LDFLAGS) $(runtests_OBJECTS) $(runtests_LDADD) $(LIBS)
@@ -276,7 +284,7 @@ dvi:
 check: all $(check_PROGRAMS)
 	$(MAKE)
 installcheck:
-install-exec: install-libLIBRARIES
+install-exec: install-libPROGRAMS
 	$(NORMAL_INSTALL)
 
 install-data: 
@@ -285,9 +293,9 @@ install-data:
 install: install-exec install-data all
 	@:
 
-uninstall: uninstall-libLIBRARIES
+uninstall: uninstall-libPROGRAMS
 
-all: $(LIBRARIES) Makefile
+all: $(PROGRAMS) Makefile
 
 install-strip:
 	$(MAKE) INSTALL_PROGRAM='$(INSTALL_PROGRAM) -s' install
@@ -309,32 +317,36 @@ distclean-generic:
 maintainer-clean-generic:
 	test -z "$(MAINTAINERCLEANFILES)" || rm -f $(MAINTAINERCLEANFILES)
 	test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
-mostlyclean:  mostlyclean-libLIBRARIES mostlyclean-compile \
-		mostlyclean-checkPROGRAMS mostlyclean-tags \
-		mostlyclean-depend mostlyclean-generic
+mostlyclean:  mostlyclean-libPROGRAMS mostlyclean-checkPROGRAMS \
+		mostlyclean-compile mostlyclean-libtool \
+		mostlyclean-tags mostlyclean-depend mostlyclean-generic
 
-clean:  clean-libLIBRARIES clean-compile clean-checkPROGRAMS clean-tags \
-		clean-depend clean-generic mostlyclean
+clean:  clean-libPROGRAMS clean-checkPROGRAMS clean-compile \
+		clean-libtool clean-tags clean-depend clean-generic \
+		mostlyclean
 
-distclean:  distclean-libLIBRARIES distclean-compile \
-		distclean-checkPROGRAMS distclean-tags distclean-depend \
-		distclean-generic clean
+distclean:  distclean-libPROGRAMS distclean-checkPROGRAMS \
+		distclean-compile distclean-libtool distclean-tags \
+		distclean-depend distclean-generic clean
 	rm -f config.status
+	rm -f libtool
 
-maintainer-clean:  maintainer-clean-libLIBRARIES \
-		maintainer-clean-compile maintainer-clean-checkPROGRAMS \
-		maintainer-clean-tags maintainer-clean-depend \
-		maintainer-clean-generic distclean
+maintainer-clean:  maintainer-clean-libPROGRAMS \
+		maintainer-clean-checkPROGRAMS maintainer-clean-compile \
+		maintainer-clean-libtool maintainer-clean-tags \
+		maintainer-clean-depend maintainer-clean-generic \
+		distclean
 	@echo "This command is intended for maintainers to use;"
 	@echo "it deletes files that may require special tools to rebuild."
 	rm -f config.status
 
-.PHONY: default mostlyclean-libLIBRARIES distclean-libLIBRARIES \
-clean-libLIBRARIES maintainer-clean-libLIBRARIES uninstall-libLIBRARIES \
-install-libLIBRARIES mostlyclean-compile distclean-compile \
-clean-compile maintainer-clean-compile mostlyclean-checkPROGRAMS \
-distclean-checkPROGRAMS clean-checkPROGRAMS \
-maintainer-clean-checkPROGRAMS tags mostlyclean-tags distclean-tags \
+.PHONY: default mostlyclean-libPROGRAMS distclean-libPROGRAMS \
+clean-libPROGRAMS maintainer-clean-libPROGRAMS uninstall-libPROGRAMS \
+install-libPROGRAMS mostlyclean-checkPROGRAMS distclean-checkPROGRAMS \
+clean-checkPROGRAMS maintainer-clean-checkPROGRAMS mostlyclean-compile \
+distclean-compile clean-compile maintainer-clean-compile \
+mostlyclean-libtool distclean-libtool clean-libtool \
+maintainer-clean-libtool tags mostlyclean-tags distclean-tags \
 clean-tags maintainer-clean-tags distdir mostlyclean-depend \
 distclean-depend clean-depend maintainer-clean-depend info dvi \
 installcheck install-exec install-data install uninstall all \
