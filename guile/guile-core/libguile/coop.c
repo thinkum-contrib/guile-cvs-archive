@@ -739,3 +739,9 @@ scm_thread_usleep (unsigned long usec)
 }
 
 #endif /* GUILE_ISELECT */
+
+/*
+  Local Variables:
+  c-file-style: "gnu"
+  End:
+*/

@@ -167,3 +167,9 @@ struct scm_pthread_create_info_type
 } scm_pthread_create_info;
 
 #endif
+
+/*
+  Local Variables:
+  c-file-style: "gnu"
+  End:
+*/

@@ -289,3 +289,9 @@
   do { SCM_ASSERT (SCM_VECTORP (v) && len == SCM_LENGTH(v), v, pos, FUNC_NAME); } while (0)
 
 #endif
+
+/*
+  Local Variables:
+  c-file-style: "gnu"
+  End:
+*/

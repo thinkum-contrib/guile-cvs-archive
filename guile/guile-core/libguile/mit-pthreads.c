@@ -398,3 +398,9 @@ scm_signal_condition_variable (SCM c)
   pthread_cond_signal (SCM_CONDVAR_DATA (c));
   return SCM_BOOL_T;
 }
+
+/*
+  Local Variables:
+  c-file-style: "gnu"
+  End:
+*/

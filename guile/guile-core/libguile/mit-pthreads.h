@@ -188,3 +188,9 @@ struct scm_pthread_create_info_type
 } scm_pthread_create_info;
 
 #endif /* MIT_PTHREADSH */
+
+/*
+  Local Variables:
+  c-file-style: "gnu"
+  End:
+*/

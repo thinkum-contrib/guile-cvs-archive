@@ -51,3 +51,9 @@
 extern int scm_tc16_kw;
 
 #endif  /* KWH */
+
+/*
+  Local Variables:
+  c-file-style: "gnu"
+  End:
+*/

@@ -140,3 +140,9 @@ extern "C" {
 
 
 #endif  /* LIBGUILEH */
+
+/*
+  Local Variables:
+  c-file-style: "gnu"
+  End:
+*/
