@@ -1523,6 +1523,10 @@ case "$GCC" in
     CFLAGS="$CFLAGS -Wall -Wpointer-arith -Wmissing-prototypes" ;;
 esac
 
+
+
+
+
 CFLAGS="$CFLAGS $GUILE_CFLAGS"
 LIBS="$LIBS $GUILE_LDFLAGS"
 
@@ -1646,7 +1650,7 @@ done
 ac_given_srcdir=$srcdir
 ac_given_INSTALL="$INSTALL"
 
-trap 'rm -fr `echo "Makefile" | sed "s/:[^ ]*//g"` conftest*; exit 1' 1 2 15
+trap 'rm -fr `echo "Makefile versiondat.h" | sed "s/:[^ ]*//g"` conftest*; exit 1' 1 2 15
 EOF
 cat >> $CONFIG_STATUS <<EOF
 
@@ -1710,6 +1714,9 @@ s%@RANLIB@%$RANLIB%g
 s%@LD@%$LD%g
 s%@NM@%$NM%g
 s%@LIBTOOL@%$LIBTOOL%g
+s%@GOOPS_MAJOR_VERSION@%$GOOPS_MAJOR_VERSION%g
+s%@GOOPS_MINOR_VERSION@%$GOOPS_MINOR_VERSION%g
+s%@GOOPS_VERSION@%$GOOPS_VERSION%g
 s%@LIBLOBJS@%$LIBLOBJS%g
 
 CEOF
@@ -1752,7 +1759,7 @@ EOF
 
 cat >> $CONFIG_STATUS <<EOF
 
-CONFIG_FILES=\${CONFIG_FILES-"Makefile"}
+CONFIG_FILES=\${CONFIG_FILES-"Makefile versiondat.h"}
 EOF
 cat >> $CONFIG_STATUS <<\EOF
 for ac_file in .. $CONFIG_FILES; do if test "x$ac_file" != x..; then
