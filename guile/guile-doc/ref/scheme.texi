@@ -1078,27 +1078,35 @@ the @var{fill} argument is supplied, the returned array is filled with
 this value.
 @end defun
 
-@defun uniform-array-read! ura
-@defunx uniform-array-read! ura port
-@defunx uniform-vector-read! uve
-@defunx uniform-vector-read! uve port
+@defun uniform-array-read! ura [port-or-fdes] [start] [end]
+@defunx uniform-vector-read! uve [port-or-fdes] [start] [end]
 Attempts to read all elements of @var{ura}, in lexicographic order, as
-binary objects from @var{port}.  If an end of file is encountered during
+binary objects from @var{port-or-fdes}.
+If an end of file is encountered during
 uniform-array-read! the objects up to that point only are put into @var{ura}
 (starting at the beginning) and the remainder of the array is
 unchanged.
 
+The optional arguments @var{start} and @var{end} allow
+a specified region of a vector (or linearized array) to be read,
+leaving the remainder of the vector unchanged.
+
 @code{uniform-array-read!} returns the number of objects read.
-@var{port} may be omitted, in which case it defaults to the value
+@var{port-or-fdes} may be omitted, in which case it defaults to the value
 returned by @code{(current-input-port)}.
 @end defun
 
-@defun uniform-array-write ura
-@defunx uniform-array-write ura port
-@defunx uniform-vector-write uve
-@defunx uniform-vector-write uve port
-Writes all elements of @var{ura} as binary objects to @var{port}. The
-number of objects actually written is returned. @var{port} may be
+@defun uniform-array-write ura [port-or-fdes] [start] [end]
+@defunx uniform-vector-write uve [port-or-fdes] [start] [end]
+Writes all elements of @var{ura} as binary objects to
+@var{port-or-fdes}.
+
+The optional arguments @var{start}
+and @var{end} allow
+a specified region of a vector (or linearized array) to be written.
+
+The
+number of objects actually written is returned. @var{port-or-fdes} may be
 omitted, in which case it defaults to the value returned by
 @code{(current-output-port)}.
 @end defun

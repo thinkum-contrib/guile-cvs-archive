@@ -1,3 +1,8 @@
+Sat Aug 30 19:31:22 1997  Gary Houston  <ghouston@actrix.gen.nz>
+
+	* scheme.texi (Uniform Array): mention start and end arguments 
+	for uniform-array-read! and uniform-array-write.
+
 Sat Aug 23 19:05:08 1997  Gary Houston  <ghouston@actrix.gen.nz>
 
 	* guile-ref.texi (Top): corresponding changes.
