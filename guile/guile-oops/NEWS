@@ -21,6 +21,9 @@ primitive
 
   enable-primitive-generic! PRIMITIVE ...
 
+[This primitive will disappear again in Guile-1.4 when all primitives
+ will be primitive generics.]
+
 It is then possible to extend the primitive(s) by defining methods for
 them without loss of efficiency in normal evaluation.
 
