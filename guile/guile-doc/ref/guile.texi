@@ -220,6 +220,8 @@ Part II: Guile Scheme
 * Evaluation::                  Running and evaluating code on the fly.
 * Lists::                       Special list functions supported by Guile.
 * Data Structures::		Records, hash tables, etc.
+* Booleans::                    True/false values.
+* Equality::                    When are two values `the same'?
 * Strings::                     Special things about strings.
 * Characters::			New character names.
 * Property Lists::              Managing metainformation about Scheme objects.

@@ -1968,7 +1968,7 @@ are identical to strings:
 
 @noindent
 Unshared uniform arrays of booleans with a single zero-based dimension 
-are indentical to @ref{Bit Vectors, bit-vectors}.
+are identical to @ref{Bit Vectors, bit-vectors}.
 
 @example
 (make-uniform-array #t 3) @result{}
@@ -2850,6 +2850,59 @@ table size.  @code{assoc} must be an associator function, like
 @code{assoc}, @code{assq} or @code{assv}.
 @end deffn
 
+
+@page
+@node Booleans
+@chapter Booleans
+
+@c docstring begin (c-doc-string "boolean.c" "not")
+@c docstring md5 "ebf38c18d80e363fde5f7d7e8f2eaaed"
+@deffn primitive not x
+Return @code{#t} iff @var{x} is @code{#f}, else return @code{#f}.
+@end deffn
+
+@c docstring begin (c-doc-string "boolean.c" "boolean?")
+@c docstring md5 "1f50026211725e3ee5649d9b28a8f46f"
+@deffn primitive boolean? obj
+Return @code{#t} iff @var{obj} is either @code{#t} or @code{#f}.
+@end deffn
+
+
+@page
+@node Equality
+@chapter Equality
+
+@c docstring begin (c-doc-string "eq.c" "eq?")
+@c docstring md5 "89ea474f62e36a96f719465a15eabf56"
+@deffn primitive eq? x y
+Return @code{#t} iff @var{x} references the same object as @var{y}.
+@code{eq?} is similar to @code{eqv?} except that in some cases it is
+capable of discerning distinctions finer than those detectable by
+@code{eqv?}.
+@end deffn
+
+@c docstring begin (c-doc-string "eq.c" "eqv?")
+@c docstring md5 "29b474ae9c244acc8c01e40dd20eaa15"
+@deffn primitive eqv? x y
+The @code{eqv?} procedure defines a useful equivalence relation on objects.
+Briefly, it returns @code{#t} if @var{x} and @var{y} should normally be
+regarded as the same object.  This relation is left slightly open to
+interpretation, but works for comparing immediate integers, characters,
+and inexact numbers.
+@end deffn
+
+@c docstring begin (c-doc-string "eq.c" "equal?")
+@c docstring md5 "db2940c6cea679d77448418d30962289"
+@deffn primitive equal? x y
+Return @code{#t} iff @var{x} and @var{y} are recursively @code{eqv?} equivalent.
+@code{equal?} recursively compares the contents of pairs,
+vectors, and strings, applying @code{eqv?} on other objects such as
+numbers and symbols.  A rule of thumb is that objects are generally
+@code{equal?}  if they print the same.  @code{equal?} may fail to
+terminate if its arguments are circular data structures.
+@end deffn
+
+
 @page
 @node Strings
 @chapter Strings
@@ -3254,6 +3307,150 @@ Several characters have more than one name:
 @item
 #\null, #\nul
 @end itemize
+
+@c docstring begin (c-doc-string "chars.c" "char?")
+@c docstring md5 "5cc0007d96ece7a13b313d1f7011a6b3"
+@deffn primitive char? x
+Return @code{#t} iff @var{x} is a character, else @code{#f}.
+@end deffn
+
+@c docstring begin (c-doc-string "chars.c" "char=?")
+@c docstring md5 "b6a884eb768fdab41ff05d70c5c0859f"
+@deffn primitive char=? x y
+Return @code{#t} iff @var{x} is the same character as @var{y}, else @code{#f}.
+@end deffn
+
+@c docstring begin (c-doc-string "chars.c" "char<?")
+@c docstring md5 "638bf99b2f77ddabf07577aafeddb8a9"
+@deffn primitive char<? x y
+Return @code{#t} iff @var{x} is less than @var{y} in the ASCII sequence,
+else @code{#f}.
+@end deffn
+
+@c docstring begin (c-doc-string "chars.c" "char<=?")
+@c docstring md5 "b3dc3ca5d8ccc9236c9adb3c14654901"
+@deffn primitive char<=? x y
+Return @code{#t} iff @var{x} is less than or equal to @var{y} in the
+ASCII sequence, else @code{#f}.
+@end deffn
+
+@c docstring begin (c-doc-string "chars.c" "char>?")
+@c docstring md5 "1fb86873faba01eeafccbe357c22cf56"
+@deffn primitive char>? x y
+Return @code{#t} iff @var{x} is greater than @var{y} in the ASCII
+sequence, else @code{#f}.
+@end deffn
+
+@c docstring begin (c-doc-string "chars.c" "char>=?")
+@c docstring md5 "c8700e25268998e370fa2b84cc6c0294"
+@deffn primitive char>=? x y
+Return @code{#t} iff @var{x} is greater than or equal to @var{y} in the
+ASCII sequence, else @code{#f}.
+@end deffn
+
+@c docstring begin (c-doc-string "chars.c" "char-ci=?")
+@c docstring md5 "fd91ff7b7d1b97257dcf5406d2effb6f"
+@deffn primitive char-ci=? x y
+Return @code{#t} iff @var{x} is the same character as @var{y} ignoring
+case, else @code{#f}.
+@end deffn
+
+@c docstring begin (c-doc-string "chars.c" "char-ci<?")
+@c docstring md5 "51966f9cd8a841ac630955735213ca0e"
+@deffn primitive char-ci<? x y
+Return @code{#t} iff @var{x} is less than @var{y} in the ASCII sequence
+ignoring case, else @code{#f}.
+@end deffn
+
+@c docstring begin (c-doc-string "chars.c" "char-ci<=?")
+@c docstring md5 "60900d5285bec7167bc8610c1d7c0707"
+@deffn primitive char-ci<=? x y
+Return @code{#t} iff @var{x} is less than or equal to @var{y} in the
+ASCII sequence ignoring case, else @code{#f}.
+@end deffn
+
+@c docstring begin (c-doc-string "chars.c" "char-ci>?")
+@c docstring md5 "a67bcf8a46bce567a26806e59cec0f8c"
+@deffn primitive char-ci>? x y
+Return @code{#t} iff @var{x} is greater than @var{y} in the ASCII
+sequence ignoring case, else @code{#f}.
+@end deffn
+
+@c docstring begin (c-doc-string "chars.c" "char-ci>=?")
+@c docstring md5 "967176678eedc75de4ea02ea062c0c6e"
+@deffn primitive char-ci>=? x y
+Return @code{#t} iff @var{x} is greater than or equal to @var{y} in the
+ASCII sequence ignoring case, else @code{#f}.
+@end deffn
+
+@c docstring begin (c-doc-string "chars.c" "char-alphabetic?")
+@c docstring md5 "2e67961c9d58a00c2a81ee7db8ce8c33"
+@deffn primitive char-alphabetic? chr
+Return @code{#t} iff @var{chr} is alphabetic, else @code{#f}.
+Alphabetic means the same thing as the isalpha C library function.
+@end deffn
+
+@c docstring begin (c-doc-string "chars.c" "char-numeric?")
+@c docstring md5 "9c4fd1b877463a2e0bf0085384be605f"
+@deffn primitive char-numeric? chr
+Return @code{#t} iff @var{chr} is numeric, else @code{#f}.
+Numeric means the same thing as the isdigit C library function.
+@end deffn
+
+@c docstring begin (c-doc-string "chars.c" "char-whitespace?")
+@c docstring md5 "142a0c5405198e728e5f4bfefd94ea5d"
+@deffn primitive char-whitespace? chr
+Return @code{#t} iff @var{chr} is whitespace, else @code{#f}.
+Whitespace means the same thing as the isspace C library function.
+@end deffn
+
+@c docstring begin (c-doc-string "chars.c" "char-upper-case?")
+@c docstring md5 "dc6cdf08d6d6f5d18bbf129858be9b9a"
+@deffn primitive char-upper-case? chr
+Return @code{#t} iff @var{chr} is uppercase, else @code{#f}.
+Uppercase means the same thing as the isupper C library function.
+@end deffn
+
+@c docstring begin (c-doc-string "chars.c" "char-lower-case?")
+@c docstring md5 "ef2bae2b20aed6dd8747b0be3dfb5e39"
+@deffn primitive char-lower-case? chr
+Return @code{#t} iff @var{chr} is lowercase, else @code{#f}.
+Lowercase means the same thing as the islower C library function.
+@end deffn
+
+@c docstring begin (c-doc-string "chars.c" "char-is-both?")
+@c docstring md5 "c147b87171e8074960e8abe996520f23"
+@deffn primitive char-is-both? chr
+Return @code{#t} iff @var{chr} is either uppercase or lowercase, else @code{#f}.
+Uppercase and lowercase are as defined by the isupper and islower
+C library functions.
+@end deffn
+
+@c docstring begin (c-doc-string "chars.c" "char->integer")
+@c docstring md5 "673412cb0c3ed258a471592a0026e525"
+@deffn primitive char->integer chr
+Return the number corresponding to ordinal position of @var{chr} in the
+ASCII sequence.
+@end deffn
+
+@c docstring begin (c-doc-string "chars.c" "integer->char")
+@c docstring md5 "d8b295198a875b6c3e0029887ea9bbeb"
+@deffn primitive integer->char n
+Return the character at position @var{n} in the ASCII sequence.
+@end deffn
+
+@c docstring begin (c-doc-string "chars.c" "char-upcase")
+@c docstring md5 "176af27092da02a3609e73f95ce55ca7"
+@deffn primitive char-upcase chr
+Return the uppercase character version of @var{chr}.
+@end deffn
+
+@c docstring begin (c-doc-string "chars.c" "char-downcase")
+@c docstring md5 "62b73bf1358b40ff93fb3d39602649fd"
+@deffn primitive char-downcase chr
+Return the lowercase character version of @var{chr}.
+@end deffn
+
 
 @page
 @node Property Lists
@@ -3862,7 +4059,7 @@ without encountering a delimiter, this value is @var{#f}.
 @end deffn
 
 @c docstring begin (c-doc-string "ioext.c" "%read-line")
-@c docstring md5 "3cc8b6e7b6646441a460b6c6e39df48f"
+@c docstring md5 "7e85de9b97a27bf9c27b1d5167b3bdcd"
 @deffn primitive %read-line [port]
 Read a newline-terminated line from @var{port}, allocating storage as
 necessary.  The newline terminator (if any) is removed from the string,
@@ -5176,9 +5373,86 @@ reviewed and largely reorganized.]
 
 
 @menu
+* Arbiters::
+* Asyncs::
 * Dynamic Roots::               
 * Threads::                     
 @end menu
+
+@node Arbiters
+@section Arbiters
+
+@c docstring begin (c-doc-string "arbiters.c" "make-arbiter")
+@c docstring md5 "c0d57a88e7cf7e3e7c058d242cbe410e"
+@deffn primitive make-arbiter name
+Returns an object of type arbiter and name name. Its state is initially unlocked.
+Arbiters are a way to achieve process synchronization.
+@end deffn
+
+@c docstring begin (c-doc-string "arbiters.c" "try-arbiter")
+@c docstring md5 "513d99b1d2ad51cfc438de2418448d62"
+@deffn primitive try-arbiter arb
+Returns #t and locks arbiter if arbiter was unlocked. Otherwise, returns #f.
+@end deffn
+
+@c docstring begin (c-doc-string "arbiters.c" "release-arbiter")
+@c docstring md5 "d71214327dc517a1472912ea60514dce"
+@deffn primitive release-arbiter arb
+Returns #t and unlocks arbiter if arbiter was locked. Otherwise, returns #f.
+@end deffn
+
+
+@node Asyncs
+@section Asyncs
+
+@c docstring begin (c-doc-string "async.c" "async")
+@c docstring md5 "1ba8bc14d9f1b9dc2f7d582fda148cb1"
+@deffn primitive async thunk
+
+@end deffn
+
+@c docstring begin (c-doc-string "async.c" "system-async")
+@c docstring md5 "6692c2e509241911c42042d1b509ac34"
+@deffn primitive system-async thunk
+
+@end deffn
+
+@c docstring begin (c-doc-string "async.c" "async-mark")
+@c docstring md5 "3b092bbfb5b3da39b47883492da3d548"
+@deffn primitive async-mark a
+
+@end deffn
+
+@c docstring begin (c-doc-string "async.c" "system-async-mark")
+@c docstring md5 "90b6038e8f2c129a26828dbdb029ad4e"
+@deffn primitive system-async-mark a
+
+@end deffn
+
+@c docstring begin (c-doc-string "async.c" "run-asyncs")
+@c docstring md5 "16b23c885ea450cecd453efadbb7757c"
+@deffn primitive run-asyncs list_of_a
+
+@end deffn
+
+@c docstring begin (c-doc-string "async.c" "noop")
+@c docstring md5 "17922f5acb291feb44658da6f3ed932b"
+@deffn primitive noop . args
+
+@end deffn
+
+@c docstring begin (c-doc-string "async.c" "unmask-signals")
+@c docstring md5 "b3810f713812dfaf78901ac38949db15"
+@deffn primitive unmask-signals
+
+@end deffn
+
+@c docstring begin (c-doc-string "async.c" "mask-signals")
+@c docstring md5 "496bc62429e144f2e3ca7c31b1cff5b9"
+@deffn primitive mask-signals
+
+@end deffn
+
 
 @node Dynamic Roots
 @section Dynamic Roots
@@ -5619,6 +5893,92 @@ modules and libraries.
 --- The name of this chapter needs to clearly distinguish it
     from the appendix describing the debugger UI.  The intro
     should have a pointer to the UI appendix.
+
+@c docstring begin (c-doc-string "backtrace.c" "display-error")
+@c docstring md5 "a3036873a9aee06b7924ee5d24e2f80d"
+@deffn primitive display-error stack port subr message args rest
+
+@end deffn
+
+@c docstring begin (c-doc-string "backtrace.c" "display-application")
+@c docstring md5 "da88d585e12ec83bdfe8aaa732fcfda4"
+@deffn primitive display-application frame [port [indent]]
+
+@end deffn
+
+@c docstring begin (c-doc-string "backtrace.c" "display-backtrace")
+@c docstring md5 "d56f09f684341734d397ca05fa66e8ad"
+@deffn primitive display-backtrace stack port [first [depth]]
+
+@end deffn
+
+@c docstring begin (c-doc-string "backtrace.c" "backtrace")
+@c docstring md5 "812d0266a89bf7f8d48c2babbe60400e"
+@deffn primitive backtrace
+
+@end deffn
+
+@c docstring begin (c-doc-string "debug-malloc.c" "malloc-stats")
+@c docstring md5 "f8db9cce4d1d42758ac18389871674ba"
+@deffn primitive malloc-stats
+Return an alist ((WHAT . N) ...) describing number of malloced objects.
+WHAT is the second argument to scm_must_malloc, N is the number of objects
+of that type currently allocated.
+@end deffn
+
+@c docstring begin (c-doc-string "debug.c" "debug-options-interface")
+@c docstring md5 "bd502f9bf0d18ca692cc5d1037c78525"
+@deffn primitive debug-options-interface [setting]
+
+@end deffn
+
+@c docstring begin (c-doc-string "debug.c" "with-traps")
+@c docstring md5 "a1352488c9f5d22816d36535197b4acc"
+@deffn primitive with-traps thunk
+
+@end deffn
+
+@c docstring begin (c-doc-string "debug.c" "memoized?")
+@c docstring md5 "f6f0510f72879010790afe9c34324644"
+@deffn primitive memoized? obj
+
+@end deffn
+
+@c docstring begin (c-doc-string "debug.c" "unmemoize")
+@c docstring md5 "5949830c1bc5077c9e04c70523fa29e8"
+@deffn primitive unmemoize m
+
+@end deffn
+
+@c docstring begin (c-doc-string "debug.c" "memoized-environment")
+@c docstring md5 "bf388c2b928e3d55b94841cc91cfa072"
+@deffn primitive memoized-environment m
+
+@end deffn
+
+@c docstring begin (c-doc-string "debug.c" "procedure-name")
+@c docstring md5 "f5bdf8c7aac7b84c06d9a1056b6face1"
+@deffn primitive procedure-name proc
+
+@end deffn
+
+@c docstring begin (c-doc-string "debug.c" "procedure-source")
+@c docstring md5 "53dea5c18780648ad3e4c00f4cc65465"
+@deffn primitive procedure-source proc
+
+@end deffn
+
+@c docstring begin (c-doc-string "debug.c" "procedure-environment")
+@c docstring md5 "397e11607bba4b4175a0edabf7820e7e"
+@deffn primitive procedure-environment proc
+
+@end deffn
+
+@c docstring begin (c-doc-string "debug.c" "debug-object?")
+@c docstring md5 "ccdd28b85ff0d1149b83159202141add"
+@deffn primitive debug-object? obj
+
+@end deffn
 
 
 @page
