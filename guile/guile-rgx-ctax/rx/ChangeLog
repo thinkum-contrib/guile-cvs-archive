@@ -1,3 +1,8 @@
+Thu Aug 15 02:07:40 1996  Jim Blandy  <jimb@totoro.cyclic.com>
+
+	* PLUGIN/guile.inits: Add scm_init_rgx here.  The Guile shell
+	should call it, not libguile itself.
+
 Wed Aug  7 08:27:03 1996  Gary Houston  <ghouston@actrix.gen.nz>
 
 	* Fixes motivated by Petr Adamek <adamek@mit.edu>:
