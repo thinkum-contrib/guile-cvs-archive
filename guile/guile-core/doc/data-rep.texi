@@ -10,7 +10,7 @@
 @c essay @dircategory The Algorithmic Language Scheme
 @c essay @direntry
 @c essay * data-rep: (data-rep).  Data Representation in Guile --- how to use
-                         Guile objects in your C code.
+@c essay                 Guile objects in your C code.
 @c essay @end direntry
 
 @c essay @setchapternewpage off
