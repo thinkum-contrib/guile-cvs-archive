@@ -1,8 +1,0 @@
-#
-# Process this file with autoconf to produce a configure script.
-#
-
-AC_INIT(lr1.scm)
-AM_INIT_GUILE_MODULE(lang)
-AM_MAINTAINER_MODE
-AC_OUTPUT(Makefile)

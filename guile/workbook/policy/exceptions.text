@@ -1,8 +1,0 @@
-we have no exception handling policy at this time (2002-02-08).
-
-$ grep 'exit[ ]*(' *.[hc] | wc -l ; grep 'abort[ ]*(' *.[ch] | wc -l
-     28
-     54
-
-there is a TODO item:
-- make the set of error signalling functions more consistent
