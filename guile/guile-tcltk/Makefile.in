@@ -40,7 +40,9 @@ DEFS = @DEFS@
 CFLAGS = @CFLAGS@
 X_CFLAGS = @X_CFLAGS@
 
-ALL_CFLAGS = $(CFLAGS) $(X_CFLAGS) -I. -I$(srcdir)/../libguile -I$(srcdir)/.. -I../libguile
+GTCLTK_INCLUDES = -I. -I$(srcdir)
+LIBGUILE_INCLUDES = -I.. -I$(srcdir)/.. -I$(srcdir)/../libguile
+ALL_CFLAGS = $(CFLAGS) $(X_CFLAGS) $(GTCLTK_INCLUDES) $(LIBGUILE_INCLUDES)
 AR = ar
 AR_FLAGS = rc
 RANLIB = @RANLIB@
