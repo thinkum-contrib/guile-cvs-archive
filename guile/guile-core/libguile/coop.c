@@ -574,11 +574,14 @@ mother (void *dummy)
   pthread_mutex_lock (&coop_mutex_create);
   while (!coop_quitting_p)
     {
+      int res;
       pthread_create (&coop_child->dummy_thread,
 		      NULL,
 		      dummy_start,
 		      coop_child);
-      pthread_cond_wait (&coop_cond_create, &coop_mutex_create);
+      do
+	res = pthread_cond_wait (&coop_cond_create, &coop_mutex_create);
+      while (res == EINTR);
     }
   return 0;
 }
