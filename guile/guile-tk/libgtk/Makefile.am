@@ -8,7 +8,7 @@ bin_PROGRAMS = guile-tk
 libgtk_la_SOURCES = gtk-module.c foo.c foo.h
 libgtk_la_LDFLAGS = -version-info 0:0 -rpath $(libdir)
 
-guile_tk_LDADD = libgtk.la
+guile_tk_LDADD = libgtk.la ../Tk/unix/libtk.a ../Tcl/libtcl.a
 
 SUFFIXES = .x
 ## We assume the user has already installed Guile.
