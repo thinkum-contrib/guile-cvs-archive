@@ -1,3 +1,20 @@
+Sat Oct 25 03:09:02 1997  Jim Blandy  <jimb@totoro.red-bean.com>
+
+	* guile-tcl.c: Accomodate the removal of Guile's mbstring support:
+	Call scm_puts and scm_putc, not scm_gen_puts and scm_gen_putc.
+
+	* configure.in: Don't check for -lqt and -lguile in the usual way.
+  	Run "build-guile link" to make sure Guile's installed, and tack
+ 	its output onto the end of LIBS.  (For some vague reason, I'd
+ 	rather call build-guile at make time, rather than configure time,
+ 	but this seems to work okay...)
+	* configure: Regenerated.
+	
+	* Makefile.in, aclocal.m4: Regenerated with automake-1.2c.
+	* ltconfig, ltmain.sh, config.guess, config.sub: Updated to
+	libtool 1.0e.
+	* configure: Regenerated.
+
 Wed Oct  1 21:48:41 1997  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* ltconfig, ltmain.sh: Updated to libtool-1.0c.
