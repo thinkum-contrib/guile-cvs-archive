@@ -604,8 +604,11 @@ scm_class_of (SCM x)
 	  }
 	case scm_tcs_cons_gloc:
 	  /* must be a struct */
-	  return SCM_CLASS_OF (x);
-
+	  {
+	    SCM c;
+	    TEST_CHANGE_CLASS (x, c);
+	    return SCM_CLASS_OF (x);
+	  }
 	default:
 	  if (SCM_CONSP (x))
 	    return Pair;
