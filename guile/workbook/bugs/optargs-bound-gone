@@ -1,0 +1,26 @@
+summary: 'bound?' from (ice-9 optargs) has been removed but is useful.
+reported: Steve Tell <tell@telltronics.org>, 2002-03-29
+affects: HEAD branch_release-1-6
+tags: release-critical-1.6
+
+The macro 'bound?' has been removed from (ice-9 optargs) since it used
+the magical SCM_UNDEFINED value in a Scheme visible way.
+
+However, 'bound?' is a useful (but not critical) service provided by
+(ice-9 optargs) that should be reimplemented for 1.6.
+
+We can just make a special, private value and use this for the default
+default value, like
+
+    (define unbound-value (cons* 'unbound))
+
+    (define-public (bound? val)
+      (eq? val unbound-value))
+
+    (define (let-o-k-template REST-ARG BINDINGS BODY let-type proc)
+      (let ((bindings (map (lambda (x)
+			     (if (list? x)
+				 x
+				 (list x unbound-value)))
+			   BINDINGS)))
+	`(,let-type ,(map proc bindings) ,@BODY)))
