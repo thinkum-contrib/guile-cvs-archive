@@ -529,7 +529,7 @@
 		<list> <pair> <null>
 		<string> <symbol>
 		<vector>
-		<number> <real> <integer>
+		<number> <complex> <real> <integer>
 		<keyword>
 		<unknown>
 		<procedure>))
