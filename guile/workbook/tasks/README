@@ -3,6 +3,21 @@ concerned with the enumeration and ownership of tasks, and the
 conventional way of doing and communicating these things.
 
 
+Parallel Development
+
+	The whole idea behind all the process described below is to
+	support organized parallel development where possible, w/ a
+	minimum of duplicated work or "stepping on toes".
+
+	The system is still being refined (please feel free to discuss
+	on guile-devel mailing list).  Open questions:
+
+	* What does it mean when someone claims a parent
+	  task of an already claimed subtask?
+	* What kind of dependency does this set up?
+	* What is the proposed conflict resolution protocol?
+
+
 The TODO File
 
 	Items are grouped by target release version, most imminent
@@ -40,6 +55,7 @@ The TODO File
 	     redirection and followup)
 
 	Feel free to define (and document above) additional markers.
+	[Remember to maintain guile-core/scripts/summarize-guile-TODO.]
 
 	Note that even though lots of things related to specific task
 	are under discussion (for a long time in some cases), in the
