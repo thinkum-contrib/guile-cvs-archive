@@ -1,0 +1,2 @@
+This directory is a tree of Guile modules.  It is laid out to be
+included directly in your GUILE_PATH.
