@@ -85,10 +85,6 @@
 @c   * should be documented in a section on debugging or Guile internals:
 @c       ports.c: pt-size, pt-member
 @c       eval.c: apply:nconc2last
-@c   * trivial underlying implementations of R4RS functions:
-@c       numbers.c: $asinh, $acosh, $atanh, $sqrt, $abs, $exp, $log, $sin,
-@c              $cos, $tan, $asin, $acos, $atan, $sinh, $cosh, $tanh, $expt,
-@c              $atan2
 @c
 @c Thanks. -twp
 

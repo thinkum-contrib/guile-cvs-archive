@@ -324,7 +324,7 @@ Justification.
 
 @table @asis
 @item @code{~I}
-print a R4RS complex number as @code{~F~@@Fi} with passed parameters for
+print an R5RS complex number as @code{~F~@@Fi} with passed parameters for
 @code{~F}.
 @item @code{~Y}
 Pretty print formatting of an argument for scheme code lists.

@@ -37,18 +37,18 @@ This will install the Guile executable @file{guile}, the Guile library
 @file{libguile.a} and various associated header files and support
 libraries. It will also install the Guile tutorial and reference manual.
 
-@c [[include instructions for getting R4RS]]
+@c [[include instructions for getting R5RS]]
 
 Since this manual frequently refers to the Scheme ``standard'', also
-known as R4RS, or the
+known as R5RS, or the
 @iftex
-``Revised$^4$ Report on the Algorithmic Language Scheme'',
+``Revised$^5$ Report on the Algorithmic Language Scheme'',
 @end iftex
 @ifinfo
-``Revised^4 Report on the Algorithmic Language Scheme'',
+``Revised^5 Report on the Algorithmic Language Scheme'',
 @end ifinfo
 we have included the report in the Guile distribution;
-@xref{Top, , Introduction, r4rs, Revised(4) Report on the Algorithmic
+@xref{Top, , Introduction, r5rs, Revised(5) Report on the Algorithmic
 Language Scheme}.
 This will also be installed in your info directory.
 
@@ -57,9 +57,8 @@ This will also be installed in your info directory.
 @section Packages not shipped with Guile
 
 We ship the Guile tutorial and reference manual with the Guile
-distribution [FIXME: this is not currently true (Sat Sep 20 14:13:33 MDT
-1997), but will be soon.]  Since the Scheme standard (R4RS) is a stable
-document, we ship that too.
+distribution.  Since the Scheme standard (R5RS) is a stable document, we
+ship that too.
 
 Here are references (usually World Wide Web URLs) to some other freely
 redistributable documents and packages which you might find useful if
