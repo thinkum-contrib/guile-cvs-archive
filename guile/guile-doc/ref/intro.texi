@@ -134,6 +134,7 @@ the beginning which tells the operating system how to invoke Guile, and
 then tells Guile how to handle the Scheme code.
 
 Before we present the details, here is a trivial Guile script:
+
 @example
 #!/usr/local/bin/guile -s
 !#
@@ -152,6 +153,7 @@ Before we present the details, here is a trivial Guile script:
 The first line of a Guile script must tell the operating system to use
 Guile to evaluate the script, and then tell Guile how to go about doing
 that.  Here is the simplest case:
+
 @itemize @bullet
 
 @item

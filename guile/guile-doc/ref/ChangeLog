@@ -1,3 +1,7 @@
+2000-08-12  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* intro.texi (Guile Scripts): Added a couple of blank lines.
+
 2000-08-11  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* scheme.texi: Add docstring comments and sync up existing
