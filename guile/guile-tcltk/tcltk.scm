@@ -185,23 +185,27 @@
 	 (widget-name-prefix (string-append widget-name-string "#"))
 	 (proc
 	  (lambda (parent . args)
-	    (let* ((name (if (symbol? parent)
-			     (symbol->string parent)
-			     (string-append
-			      (if parent
-				  (procedure-property parent 'name)
-				  "")
-			      "."
-			      (let ((hit (list-index args '#:name)))
-				(if hit
-				    (let ((name (list-ref args (+ hit 1))))
-				      (if (zero? hit)
-					  (set! args (cddr args))
-					  (let ((pred (list-tail args
-								 (- hit 1))))
-					    (set-cdr! pred (cddr pred))))
-				      (symbol->string name))
-				    (uniq-command widget-name-prefix))))))
+	    (let* ((name (cond ((or (not parent)
+				    (procedure? parent))
+				(string-append
+				 (if parent
+				     (procedure-property parent 'name)
+				     "")
+				 "."
+				 (let ((hit (list-index args '#:name)))
+				   (if hit
+				       (let ((name (list-ref args (+ hit 1))))
+					 (if (zero? hit)
+					     (set! args (cddr args))
+					     (let ((pred (list-tail args
+								    (- hit 1))))
+					       (set-cdr! pred (cddr pred))))
+					 (symbol->string name))
+				       (uniq-command widget-name-prefix)))))
+			       ((string? parent) parent)
+			       ((symbol? parent) (symbol->string parent))
+			       (else (throw 'tcl-error
+					    "Parent must be #f, a widget, or a symbol"))))
 		   (status (tcl-global-eval
 			    the-interpreter
 			    (tcl-merge the-interpreter
