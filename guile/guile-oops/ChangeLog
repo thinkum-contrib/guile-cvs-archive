@@ -1,5 +1,10 @@
 2000-07-02  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
+	* dispatch.scm (memoize-method!): Reimplemented the previous
+	change on the scheme level.
+
+	* goops.c (call_memoize_method): Reverted previous change.
+
 	* goops.c (call_memoize_method): Made thread safe.  Method
 	memoization is synchronized between threads via a mutex, but the
 	case where one thread is dispatching using the method cache being
