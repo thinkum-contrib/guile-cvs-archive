@@ -1,3 +1,7 @@
+2004-08-26  Marius Vollmer  <marius.vollmer@uni-dortmund.de>
+
+	* Makefile.am: Bumped version number of libguile-ltdl to 2.
+
 2003-05-29  Stefan Jahn  <stefan@lkcc.org>
 
 	* raw-ltdl.c: Some more modifications for mingw32 platforms.
