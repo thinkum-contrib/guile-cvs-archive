@@ -50,7 +50,10 @@
 
 
 - Eventually
-  - forward port guile-1.6.x guile-snarf and docs
+  - write why-not-release? scanner
+  - forward port guile-1.6.x stuff
+    - guile-snarf and docs
+    - determine rest of list
   - write 1.4-1.6 compatibility header
   - determine/document policy on how/why/when of removing things
   - extend render-bugs to harvest (and run?) test cases
