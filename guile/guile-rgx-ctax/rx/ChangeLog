@@ -1,3 +1,7 @@
+Wed Nov 27 22:16:32 1996  Jim Blandy  <jimb@baalperazim.frob.com>
+
+	* PLUGIN/guile.config (xtra_dependencies): Add final newline.
+
 Sun Oct 27 01:27:24 1996  Gary Houston  <ghouston@actrix.gen.nz>
 
 	* rgx.c (scm_regex_error): use SCM_SYMBOL to declare
