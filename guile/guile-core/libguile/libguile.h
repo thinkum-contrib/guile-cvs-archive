@@ -1,7 +1,7 @@
 #ifndef LIBGUILEH
 #define LIBGUILEH
 
-/*	Copyright (C) 1995, 1996, 1997, 1998 Free Software Foundation, Inc.
+/* Copyright (C) 1995, 1996, 1997, 1998, 1999 Free Software Foundation, Inc.
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -92,6 +92,7 @@ extern "C" {
 #include "libguile/macros.h"
 #include "libguile/mallocs.h"
 #include "libguile/mb.h"
+#include "libguile/mbconv.h"
 #include "libguile/modules.h"
 #include "libguile/net_db.h"
 #include "libguile/numbers.h"
