@@ -17,7 +17,7 @@ if [ ! -x $scan ] ; then
     exit 1
 fi
 
-alist=doc/ref/guile-api.alist
+alist=doc/guile-api.alist
 
 set -ex
 cvs edit $alist
