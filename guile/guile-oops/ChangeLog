@@ -1,3 +1,8 @@
+1999-03-15  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* Makefile.am: oop directory removed.
+	* goops.scm, describe.scm: Moved here from old directory oop.
+
 1999-03-15  Mikael Djurfeldt  <mdj@barbara.nada.kth.se>
 
 	* oop: New directory.  Renamed from goops.
