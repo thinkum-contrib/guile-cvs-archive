@@ -1,3 +1,9 @@
+2000-01-10  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
+
+	* goops.scm (make-generic-bound-check-getter): Inserted missing
+	comma which ties down the value of `assert-bound' in the compiled
+	closure.  (Thanks to Thierry Bezecourt.)
+
 2000-01-07  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
 	* goops.h, goops.c: Export the C variables for all classes defined
