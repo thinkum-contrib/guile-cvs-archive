@@ -178,10 +178,10 @@ references.
 
 @itemize @bullet
 @item
-REFFIXME, to read about using @code{define} other than at top level in a
-Scheme program, including a discussion of when it works to use
-@code{define} rather than @code{set!} to change the value of an existing
-variable.
+@xref{Internal Definitions}, to read about using @code{define} other
+than at top level in a Scheme program, including a discussion of when it
+works to use @code{define} rather than @code{set!} to change the value
+of an existing variable.
 
 @item
 @ref{Lambda Alternatives}, to read about an alternative form of the
@@ -815,39 +815,39 @@ expressions, simply so that you will recognize common special syntax
 when you see it.  For a full description of each of these syntaxes,
 follow the appropriate reference.
 
-@code{if} (REFFIXME) and @code{cond} (REFFIXME) provide conditional
+@code{if} and @code{cond} (@pxref{if cond case}) provide conditional
 evaluation of argument expressions depending on whether one or more
 conditions evaluate to ``true'' or ``false''.
 
-@code{case} (REFFIXME) provides conditional evaluation of argument
-expressions depending on whether a variable has one of a specified group
-of values.
+@code{case} (@pxref{if cond case}) provides conditional evaluation of
+argument expressions depending on whether a variable has one of a
+specified group of values.
 
 @code{define} (REFFIXME) is used to create a new variable and set its
 initial value.
 
 @code{set!} (REFFIXME) is used to modify an existing variable's value.
 
-@code{lambda} (REFFIXME) is used to construct procedure objects.
+@code{lambda} (@pxref{Lambda}) is used to construct procedure objects.
 
-@code{let} (REFFIXME), @code{let*} (REFFIXME) and @code{letrec}
-(REFFIXME) create an inner lexical environment for the evaluation of a
-sequence of expressions, in which a specified set of local variables is
-bound to the values of a corresponding set of expressions.  For an
-introduction to environments, see @xref{About Closure}.
+@code{let}, @code{let*} and @code{letrec} (@pxref{Local Bindings})
+create an inner lexical environment for the evaluation of a sequence of
+expressions, in which a specified set of local variables is bound to the
+values of a corresponding set of expressions.  For an introduction to
+environments, see @xref{About Closure}.
 
-@code{begin} (REFFIXME) executes a sequence of expressions in order and
-returns the value of the last expression.  Note that this is not the
+@code{begin} (@pxref{begin}) executes a sequence of expressions in order
+and returns the value of the last expression.  Note that this is not the
 same as a procedure which returns its last argument, because the
 evaluation of a procedure invocation expression does not guarantee to
 evaluate the arguments in order.
 
-@code{and} (REFFIXME) executes a sequence of expressions in order until
-either there are no expressions left, or one of them evaluates to
+@code{and} (@pxref{and or}) executes a sequence of expressions in order
+until either there are no expressions left, or one of them evaluates to
 ``false''.
 
-@code{or} (REFFIXME) executes a sequence of expressions in order until
-either there are no expressions left, or one of them evaluates to
+@code{or} (@pxref{and or}) executes a sequence of expressions in order
+until either there are no expressions left, or one of them evaluates to
 ``true''.
 
 
@@ -938,9 +938,9 @@ syntax (@pxref{Definition}).  It is often useful to create variables
 that are more limited in their scope, typically as part of a procedure
 body.  In Scheme, this is done using the @code{let} syntax, or one of
 its modified forms @code{let*} and @code{letrec}.  These syntaxes are
-described in full later in the manual (REFFIXME).  Here our purpose is
-to illustrate their use just enough that we can see how local variables
-work.
+described in full later in the manual (@pxref{Local Bindings}).  Here
+our purpose is to illustrate their use just enough that we can see how
+local variables work.
 
 For example, the following code uses a local variable @code{s} to
 simplify the computation of the area of a triangle given the lengths of

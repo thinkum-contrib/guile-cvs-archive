@@ -177,7 +177,7 @@ Part III: Guile Modules
 	add-on, so maybe it shouldn't be documented here
 	(though it is nice to have a link from here to the
 	Guile-scsh manual, if one exists).
-* Tcl/Tk Interface::
+@c * Tcl/Tk Interface::
 
 Part IV: Guile Scripting
 
@@ -255,7 +255,7 @@ Indices
 @include repl-modules.texi
 @include expect.texi
 @include scsh.texi
-@include tcltk.texi
+@c @include tcltk.texi
 
 @c Guile as an scripting language
 @iftex
