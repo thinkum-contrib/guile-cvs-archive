@@ -1,6 +1,13 @@
 TODO list for Guile
 -------------------
 
+- Make signals work with pthreads.
+
+- Channel all thread sleeping thru one place (scm_internal_select).
+
+- Wake up when an async is queued for a sleeping thread.
+
+
 - Squash bugs in workbook/bugs
 
 - 
