@@ -1,3 +1,52 @@
+1999-09-10  Jim Blandy  <jimb@savonarola.red-bean.com>
+
+	* mb.c (scm_mb_get_func): Don't use IS_ASCII_CHAR here --- that
+	predicate is for scm_char_t values, not bytes.
+
+	* mbconv.c (scm_mb_iconv): Make buffer pointer for output encoding
+	a const scm_char_t *, to match the prototype.
+
+	* mbconv.c (scm_mb_iconv): Don't return scm_mb_iconv_more_room
+	unless we actually have text to convert.  Remember that, even if
+	*inbytesleft is zero, there may be text remaining in the context's
+	buffer.
+
+	* mbbasic.c (iso8859_read): Make the input pointers unsigned
+	chars, not plain chars.  Don't use IS_ASCII_CHAR, even though it
+	works, because that's for Guile characters.  Drop characters in
+	the C1 control range (0x80 .. 0x9f).
+
+	* mb.h (scm_mb_put): Revert previous change; the argument to this
+	macro should be an scm_char_t, so the comparison is correct as it
+	stands.
+	* mbemacs.h (IS_ASCII_CHAR): Similar change --- cast to unsigned,
+	not unsigned char.
+
+	* libguile.h: Add 1999 to Copyright years.
+
+	* libguile.h: #include "mbconv.h".
+
+	* gh_test_c.c (main_prog): Make this static, to end warnings about
+	missing prototypes.
+	* gh_test_repl.c (main_prog): Same.
+
+	Use our own random number generator, so the tests don't depend on
+	a particular system or release.
+	* check_mb.c (test_rand): New function.
+	(test_rand_seed): New variable.
+	(make_permutation, test_string_encodings): Use them, instead of
+	srandom and random.
+
+	Add tests for the conversion functions.
+	* check_mb.c (all_encodings, texts): New variables.
+	(struct text): New type.
+	(one_conversion, test_conversions): New functions.
+	(main_prog): Run the new tests.
+
+	* mbbasic.c: Add support for the `US-ASCII' encoding.
+	(us_ascii_read, us_ascii_write): New functions.
+	(scm_init_mbbasic): Register it.
+
 1999-09-06  James Blandy  <jimb@mule.m17n.org>
 
 	* mbconv.h (scm_mb_register_encoding): Add prototype for this.
