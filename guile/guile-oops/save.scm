@@ -455,9 +455,7 @@
 (define-method (literal? o env)
   (or (immediate? o)
       (excluded? o env)
-      (let ((info (object-info o env)))
-	(or (literal? info)
-	    (eq? (visiting info) #:pass-2)))))
+      (literal? (object-info o env))))
 
 ;;;
 ;;; Enumeration
@@ -623,7 +621,6 @@
     (display #\space file)
     (if (literal? info)
 	(display #\' file))
-    (set! (visiting info) #:defining)
     (write-readably o file env)
     (set! (visiting info) #:defined)
     (display #\) file)))
