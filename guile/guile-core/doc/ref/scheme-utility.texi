@@ -584,7 +584,7 @@ Here is an example of how to handle Scheme-level hooks from C code using
 the above functions.
 
 @example
-if (SCM_NFALSEP (scm_hook_p (obj)))
+if (scm_is_true (scm_hook_p (obj)))
   /* handle Scheme-level hook using C functions */
   scm_reset_hook_x (obj);
 else
