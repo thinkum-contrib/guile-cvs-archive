@@ -420,7 +420,7 @@ character or a given substring, or a character from a set of characters.
 Search through the string @var{s} from left to right (right to left),
 returning the index of the first (last) occurence of a character which
 
-@itemize
+@itemize @bullet
 @item
 equals @var{char_pred}, if it is character,
 
@@ -438,7 +438,7 @@ is in the set @var{char_pred}, if it is a character set.
 Search through the string @var{s} from left to right (right to left),
 returning the index of the first (last) occurence of a character which
 
-@itemize
+@itemize @bullet
 @item
 does not equal @var{char_pred}, if it is character,
 
@@ -596,7 +596,7 @@ actual character and the last result of @var{kons}' application.
 @deffn primitive string-unfold p f g seed [base make_final]
 @deffnx primitive string-unfold-right p f g seed [base make_final]
 These are the fundamental string constructors.
-@itemize
+@itemize @bullet
 @item @var{g} is used to generate a series of @emph{seed}
 values from the initial @var{seed}: @var{seed}, (@var{g}
 @var{seed}), (@var{g}^2 @var{seed}), (@var{g}^3 @var{seed}),
