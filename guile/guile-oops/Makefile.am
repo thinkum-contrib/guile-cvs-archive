@@ -16,7 +16,7 @@ subpkgdatadir = $(datadir)/guile/oop
 subpkgdata_DATA = goops.scm
 
 goopsdatadir = $(datadir)/guile/oop/goops
-goopsdata_DATA = describe.scm
+goopsdata_DATA = describe.scm internal.scm active-slot.scm
 
 install-exec-hook:
 	$(mkinstalldirs) $(goopsdatadir)
