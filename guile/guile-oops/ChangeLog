@@ -1,3 +1,11 @@
+1998-12-05  Christian Lynbech  <chl@tbit.dk>
+
+	* goops/goops.scm: Reexport setf! and setter.
+
+	* goops/goops.scm (compute-slot-accessors): Changed handling of
+	:accessor option to use new setf functionality for setter.
+	Added import of module (ice-9 setf).
+
 1998-12-04  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* goops/goops.scm (goops-error): Call scm-error with correct
