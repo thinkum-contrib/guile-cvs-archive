@@ -1,0 +1,63 @@
+#!/bin/sh
+# usage: branch-diff -d RELSTEM OLD NEW [diff-options ...]
+#        where RELSTEM is a relative dir suffix like "doc" or "test-suite/tests"
+#        and OLD and NEW are one each of: HEAD 1.6 1.4
+#        and diff-options are extra options passed to diff, e.g., "-q"
+# Env var: GUILE_MAINTAINER_SCRIPTS
+# Data file: branch-diff.exclude
+
+set -e
+
+branch_HEAD ()
+{
+echo core
+}
+
+branch_release_X ()
+{
+echo core-$1 | sed 's/[.]/-/g'
+}
+
+branch_dir ()
+{
+b=$1
+case $b in HEAD)      branch_HEAD ;;
+           1.4|1.6)   branch_release_X $b ;;
+           # add more branches here.
+esac
+}
+
+do_diff ()
+{
+root=$1 ; old=$2 ; new=$3
+: root=$root old=$old new=$new
+shift ; shift ; shift
+diff -rP -X scripts/branch-diff.exclude "$@" $old/$root $new/$root \
+    | grep -v 'CVS/Base'
+}
+
+# main
+
+if [ x"$1" = x-d ] ; then
+    relstem=$2 ; shift ; shift
+else
+    relstem=""
+fi
+:
+: $relstem
+:
+
+old=$1 ; new=$2 ; shift ; shift
+:
+: $old $new
+:
+
+if [ x"$old" = x -o x"$new" = x ] ; then
+    sed '/^$/ q' $0
+    exit 1
+fi
+
+cd $GUILE_MAINTAINER_SCRIPTS/..
+do_diff "$relstem" `branch_dir $old` `branch_dir $new` "$@"
+
+# branch-diff ends here

@@ -1,0 +1,16 @@
+.cvsignore
+Tag
+Baserev
+Entries
+ChangeLog
+*.html
+*.cps
+*.tmp
+*.info*
+.#*
+*.lo
+*.Plo
+*.o
+*.x
+*.doc
+Makefile.in
