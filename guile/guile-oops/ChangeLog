@@ -1,5 +1,21 @@
 1998-11-25  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
+	* goops/goops.scm: Moved STk compatibility code to
+	goops/compat.scm.
+
+	* goops/compat.scm: New file.
+
+	* Makefile.am (subpkgdata_DATA): Added goops/compat.scm.
+
+	* goops.c (Operator_class): New metaclass: This is the class of
+	operator classes.  While an entity class keeps its procedure in
+	the object itself, an operator class keeps it in the class object.
+	(scm_basic_make_class): Set operator class flag for operator
+	classes.
+	(scm_sys_allocate_instance): Set entity and operator class flags
+	for entities (check superclasses too!) and operators.
+	(make_standard_classes): Initialize Operator_class.
+
 	* goops/goops.scm (*unbound*, make-unbound, unbound?): Replaced by
 	primitives.
 	(compute-get-n-set): Use an ordinary scheme variable for slots
