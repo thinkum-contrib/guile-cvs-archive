@@ -2,7 +2,6 @@ summary: 'bound?' from (ice-9 optargs) has been removed but is useful.
 reported: Steve Tell <tell@telltronics.org>, 2002-03-29
 affects: HEAD branch_release-1-6
 fixed: Marius Vollmer <mvo@zagadka.de>, 2002-02-22
-tags: release-critical-1.6
 
 The macro 'bound?' has been removed from (ice-9 optargs) since it used
 the magical SCM_UNDEFINED value in a Scheme visible way.
