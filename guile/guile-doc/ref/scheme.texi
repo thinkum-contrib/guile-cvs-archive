@@ -15,13 +15,13 @@ programming.  Some of the areas where Guile goes beyond R5RS are:
 
 @itemize @bullet
 @item
-to be filled in
+Guile's interactive documentation system
 
 @item
-in conjunction with creating
+Guile's support for POSIX-compliant network programming
 
 @item
-R5RS and non-R5RS indices.
+GOOPS -- Guile's framework for object oriented programming.
 @end itemize
 
 This reference manual documents all of Guile's Scheme-level language and
@@ -214,7 +214,8 @@ of a compound data structure.
 
 @menu
 * Procedures as Values::        Procedures are values just like everything else.
-* Invoking a Procedure::        How to write a procedure invocation.
+* Simple Invocation::           How to write a straightforward procedure invocation.
+* Creating a Procedure::        How to create your own procedures.
 @end menu
 
 
@@ -230,9 +231,184 @@ pre-defined top level variable called @code{open-input-file}, whose
 value is a procedure that implements what R5RS says that
 @code{open-input-file} should do.
 
+Note that this is quite different from many dialects of Lisp ---
+including Emacs Lisp --- in which a program can use the same name with
+two quite separate meanings: one meaning identifies a Lisp function,
+while the other meaning identifies a Lisp variable, whose value need
+have nothing to do with the function that is associated with the first
+meaning.  In these dialects, functions and variables are said to live in
+different @dfn{namespaces}.
 
-@node Invoking a Procedure
-@section Invoking a Procedure
+In Scheme, on the other hand, all names belong to a single unified
+namespace, and the variables that these names identify can hold any kind
+of Scheme value, including procedure values.
+
+One consequence of this is that, if you don't happen to like the
+standard name for a Scheme procedure, you can change it.
+
+For example, @code{call-with-current-continuation} is a very important
+standard Scheme procedure, but it also has a very long name!  So, many
+programmers use the following definition to assign the same procedure
+value to the more convenient name @code{call/cc}.
+
+@lisp
+(define call/cc call-with-current-continuation)
+@end lisp
+
+Let's undertand exactly how this works.  The definition creates a new
+variable @code{call/cc}, and then sets its value to the value of the
+variable @code{call-with-current-continuation}; the latter value is a
+procedure that implements the behaviour that R5RS specifies under the
+name ``call-with-current-continuation''.  So @code{call/cc} ends up
+holding this value as well.
+
+Now that @code{call/cc} holds the required procedure value, you could
+choose to use @code{call-with-current-continuation} for a completely
+different purpose, or just change its value so that you will get an
+error if you accidentally use @code{call-with-current-continuation} as a
+procedure in your program rather than @code{call/cc}.  For example:
+
+@lisp
+(set! call-with-current-continuation "Not a procedure any more!")
+@end lisp
+
+Or you could just leave @code{call-with-current-continuation} as it was.
+It's perfectly fine for more than one variable to hold the same
+procedure value.
+
+Another benefit of Scheme's approach to procedure values is that it
+simplifies the rules for creating new procedures and writing procedure
+invocations, as explained in the following sections.
+
+
+@node Simple Invocation
+@section Simple Procedure Invocation
+
+A procedure invocation in Scheme is written like this:
+
+@lisp
+(@var{procedure} [@var{param1} [@var{param2} @dots{}]])
+@end lisp
+
+In this expression, @var{procedure} can be any Scheme expression whose
+value is a procedure.  Most commonly, however, @var{procedure} is simply
+the name of a variable whose value is a procedure.
+
+For example, @code{string-append} is a standard Scheme procedure whose
+behaviour is to concatenate together all the arguments, which are
+expected to be strings, that it is given.  So the expression
+
+@lisp
+(string-append "/home" "/" "andrew")
+@end lisp
+
+is a procedure invocation whose result is the string value
+@code{"/home/andrew"}.
+
+Similarly, @code{string-length} is a standard Scheme procedure that
+returns the length of a single string argument, so
+
+@lisp
+(string-length "abc")
+@end lisp
+
+is a procedure invocation whose result is the numeric value 3.
+
+Each of the parameters in a procedure invocation can itself be any
+Scheme expression.  Since a procedure invocation is itself a type of
+expression, we can put these two examples together to get
+
+@lisp
+(string-length (string-append "/home" "/" "andrew"))
+@end lisp
+
+--- a procedure invocation whose result is the numeric value 12.
+
+(You may be wondering what happens if the two examples are combined the
+other way round.  If we do this, we can make a procedure invocation
+expression that is @emph{syntactically} correct:
+
+@lisp
+(string-append "/home" (string-length "abc"))
+@end lisp
+
+But when this expression is executed, it will cause an error, because
+the result of @code{(string-length "abc")} is a numeric value, and
+@code{string-append} is not designed to accept a numeric value as one of
+its arguments.)
+
+
+@node Creating a Procedure
+@section Creating and Using a New Procedure
+
+Scheme has lots of standard procedures, and Guile provides all of these
+via predefined top level variables.  All of these standard procedures
+are documented in the later chapters of this reference manual.
+
+Before very long, though, you will want to create new procedures that
+encapsulate aspects of your own applications' functionality.  To do
+this, you can use the famous @code{lambda} syntax.
+
+The value of the following Scheme expression ---
+
+@lisp
+(lambda (name address) @var{expression}@dots{})
+@end lisp
+
+--- is a newly created procedure that takes two arguments:
+@code{name} and @code{address}.  The behaviour of the
+new procedure is determined by the sequence of @var{expression}s in the
+@dfn{body} of the procedure definition.  (Typically, these
+@var{expression}s would use the arguments in some way, or else there
+wouldn't be any point in giving them to the procedure.)  When invoked,
+the new procedure returns a value that is the value of the last
+@var{expression} in the procedure body.
+
+To make things more concrete, let's suppose that the two arguments are
+both strings, and that the purpose of this procedure is to form a
+combined string that includes these arguments.  Then the full lambda
+expression might look like this:
+
+@lisp
+(lambda (name address)
+  (string-append "Name=" name ":Address=" address))
+@end lisp
+
+We noted in the previous section that the @var{procedure} part of a
+procedure invocation expression can be any Scheme expression whose value
+is a procedure.  But that's exactly what a lambda expression is!  So we
+can use a lambda expression directly in a procedure invocation, like this:
+
+@lisp
+((lambda (name address)
+   (string-append "Name=" name ":Address=" address))
+ "FSF"
+ "Cambridge") 
+@end lisp
+
+This is a valid procedure invocation expression, whose result is the
+string @code{"Name=FSF:Address=Cambridge"}.
+
+It it more common, though, to store the procedure value in a variable ---
+
+@lisp
+(define make-combined-string
+  (lambda (name address)
+    (string-append "Name=" name ":Address=" address)))
+@end lisp
+
+--- and then to use the variable name in the procedure invocation:
+
+@lisp
+(make-combined-string "FSF" "Cambridge") 
+@end lisp
+
+Which has exactly the same result.
+
+It's important to note that procedures created using @code{lambda} have
+exactly the same status as the standard built in Scheme procedures, and
+can be invoked, passed around, and stored in variables in exactly the
+same ways.
 
 
 @page

@@ -1,5 +1,9 @@
 2000-10-27  Neil Jerram  <neil@ossau.uklinux.net>
 
+	* scheme.texi (Guile and R5RS Scheme): Filled in examples of Guile
+	extensions.
+	(About Procedures): New introductory material.
+
 	* scheme-reading.texi: New file.
 
 	* scheme-indices.texi: New file.
