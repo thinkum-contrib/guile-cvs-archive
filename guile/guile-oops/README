@@ -23,7 +23,7 @@ Getting started ======================================================
 [Most of this section can be found in the texinfo documentation as well.]
 
 1. Make sure that you have a version of Guile later than or equal to
-   1.3.2 installed on your system.  (You can type
+   1.3.2 and earlier than 1.5 installed on your system.  (You can type
 
      guile -c '(write-line (version))'
 

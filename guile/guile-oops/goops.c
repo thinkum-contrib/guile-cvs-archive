@@ -1,4 +1,4 @@
-/*	Copyright (C) 1998, 1999, 2000 Free Software Foundation, Inc.
+/*	Copyright (C) 1998, 1999, 2000, 2001 Free Software Foundation, Inc.
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1034,6 +1034,13 @@ scm_accessor_method_slot_definition (SCM obj)
   return scm_slot_ref (obj, Intern ("slot-definition"));
 }  
 
+SCM_PROC (s_sys_tag_body, "%tag-body", 1, 0, 0, scm_sys_tag_body);
+
+SCM
+scm_sys_tag_body (SCM body)
+{
+  return scm_cons (SCM_IM_LAMBDA, body);
+}
 
 /******************************************************************************
  *
@@ -1137,7 +1144,7 @@ get_slot_value (SCM class, SCM obj, SCM slotdef)
   /* Two cases here:
    *	- access is an integer (the offset of this slot in the slots vector)
    *	- otherwise (car access) is the getter function to apply
-	   */
+   */
   if (SCM_INUMP (access))
     return SCM_SLOT (obj, SCM_INUM (access));
   else
@@ -1772,10 +1779,15 @@ scm_sys_invalidate_method_cache_x (SCM gf)
 	SCM_SLOT (SCM_CAR (methods), scm_si_code_table) = SCM_EOL;
     }
   {
-    int n = SCM_INUM (SCM_SLOT (gf, scm_si_n_specialized));
+    SCM n = SCM_SLOT (gf, scm_si_n_specialized);
     /* The sign of n is a flag indicating rest args. */
+    
+    /* In the separately packaged GOOPS, n-specialized in the cache
+     * is n-specialized in the gf + 1.  This is a workaround for a bug
+     * in the old SCM_IM_DISPATCH code in eval.c
+     */
     SCM_SET_MCACHE_N_SPECIALIZED (SCM_ENTITY_PROCEDURE (gf),
-				  SCM_MAKINUM (n >= 0 ? n : -n));
+				  SCM_MAKINUM (SCM_INUM (n) + 1));
   }
   return SCM_UNSPECIFIED;
 }
@@ -2914,3 +2926,9 @@ scm_init_oop_goops_goopscore_module ()
 {
   scm_register_module_xxx ("oop goops goopscore", (void *) scm_init_goops);
 }
+
+/*
+  Local Variables:
+  c-file-style: "gnu"
+  End:
+*/

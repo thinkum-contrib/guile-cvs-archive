@@ -2,7 +2,7 @@
 
 #ifndef GOOPSH
 #define GOOPSH
-/*	Copyright (C) 1998, 1999, 2000 Free Software Foundation, Inc.
+/*	Copyright (C) 1998, 1999, 2000, 2001 Free Software Foundation, Inc.
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -205,7 +205,7 @@ SCM scm_oldfmt (SCM);
 char *scm_c_oldfmt0 (char *);
 char *scm_c_oldfmt (char *, int n);
 void scm_load_goops (void);
-SCM scm_make_foreign_object (SCM class, SCM initargs);
+SCM scm_make_foreign_object (SCM cls, SCM initargs);
 SCM scm_make_class (SCM meta, char *s_name, SCM supers, size_t size,
 		    void * (*constructor) (SCM initargs),
 		    size_t (*destructor) (void *));
@@ -259,18 +259,19 @@ SCM scm_generic_function_methods (SCM obj);
 SCM scm_method_generic_function (SCM obj); 
 SCM scm_method_specializers (SCM obj); 
 SCM scm_method_procedure (SCM obj); 
-SCM scm_accessor_method_slot_definition (SCM obj); 
+SCM scm_accessor_method_slot_definition (SCM obj);
+SCM scm_sys_tag_body (SCM body);
 SCM scm_sys_fast_slot_ref (SCM obj, SCM index); 
 SCM scm_sys_fast_slot_set_x (SCM obj, SCM index, SCM value); 
-SCM scm_slot_ref_using_class (SCM class, SCM obj, SCM slot_name); 
-SCM scm_slot_set_using_class_x (SCM class, SCM obj, SCM slot_name, SCM value); 
-SCM scm_slot_bound_using_class_p (SCM class, SCM obj, SCM slot_name); 
-SCM scm_slot_exists_using_class_p (SCM class, SCM obj, SCM slot_name); 
+SCM scm_slot_ref_using_class (SCM cls, SCM obj, SCM slot_name); 
+SCM scm_slot_set_using_class_x (SCM cls, SCM obj, SCM slot_name, SCM value); 
+SCM scm_slot_bound_using_class_p (SCM cls, SCM obj, SCM slot_name); 
+SCM scm_slot_exists_using_class_p (SCM cls, SCM obj, SCM slot_name); 
 SCM scm_slot_bound_p (SCM obj, SCM slot_name); 
 SCM scm_slots_exists_p (SCM obj, SCM slot_name); 
-SCM scm_sys_modify_instance (SCM old, SCM new); 
-SCM scm_sys_modify_class (SCM old, SCM new); 
-SCM scm_sys_invalidate_class (SCM class);
+SCM scm_sys_modify_instance (SCM old, SCM newinst); 
+SCM scm_sys_modify_class (SCM old, SCM newclass); 
+SCM scm_sys_invalidate_class (SCM cls);
 SCM scm_make_method_cache (SCM gf);
 SCM scm_sys_invalidate_method_cache_x (SCM gf);
 SCM scm_generic_capability_p (SCM proc);

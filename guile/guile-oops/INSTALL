@@ -2,9 +2,9 @@ Brief Installation Instructions ===========================================
 
 To build GOOPS on unix, there are two (three) basic steps:
 
-	0. If you don't have Guile version 1.3.2 or higher installed
-	   on your system, you need to do that first.  (See README
-	   under "Obtaining GOOPS").
+	0. If you don't have a Guile version between 1.3.2 and 1.4,
+           inclusively, installed on your system, you need to do that
+           first.  (See README under "Obtaining GOOPS").
 
 	1. Type "./configure", to configure the package for your system.
 

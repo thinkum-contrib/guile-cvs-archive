@@ -1,6 +1,6 @@
 ;;; installed-scm-file
 
-;;;; 	Copyright (C) 1998, 1999, 2000 Free Software Foundation, Inc.
+;;;; 	Copyright (C) 1998, 1999, 2000, 2001 Free Software Foundation, Inc.
 ;;;; 
 ;;;; This program is free software; you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License as published by
@@ -469,7 +469,7 @@
 (define method
   (letrec ((specializers
 	    (lambda (ls)
-	      (cond ((null? ls) (list ls))
+	      (cond ((null? ls) '('()))
 		    ((pair? ls) (cons (if (pair? (car ls))
 					  (cadar ls)
 					  '<top>)
@@ -531,21 +531,8 @@
   (slot-set! gf 'methods (compute-new-list-of-methods gf m))
   (let ((specializers (slot-ref m 'specializers)))
     (slot-set! gf 'n-specialized
-	       (let ((n-specialized (slot-ref gf 'n-specialized)))
-		 ;; The magnitude indicates # specializers.
-		 ;; A negative value indicates that at least one
-		 ;; method has rest arguments. (Ugly but effective
-		 ;; space optimization saving one slot in GF objects.)
-		 (cond ((negative? n-specialized)
-			(- (max (+ 1 (length* specializers))
-				(abs n-specialized))))
-		       ((list? specializers)
-			(max (length specializers)
-			     n-specialized))
-		       (else
-			(- (+ 1 (max (length* specializers)
-				     n-specialized)))))
-		 )))
+	       (max (length* specializers)
+		    (slot-ref gf 'n-specialized))))
   (%invalidate-method-cache! gf)
   (add-method-in-classes! m)
   *unspecified*)
@@ -1328,11 +1315,14 @@
 	(set-procedure-property! generic 'name name))
     ))
 
+(define dummy-procedure (lambda args *unspecified*))
+
 (define-method initialize ((method <method>) initargs)
   (next-method)
   (slot-set! method 'generic-function (get-keyword #:generic-function initargs #f))
   (slot-set! method 'specializers (get-keyword #:specializers initargs '()))
-  (slot-set! method 'procedure (get-keyword #:procedure initargs (lambda l '())))
+  (slot-set! method 'procedure
+	     (get-keyword #:procedure initargs dummy-procedure))
   (slot-set! method 'code-table '()))
 
 (define-method initialize ((obj <foreign-object>) initargs))
@@ -1342,7 +1332,7 @@
 ;;;
 
 (define (change-object-class old-instance old-class new-class)
-  (let ((new-instance (allocate-instance new-class ())))
+  (let ((new-instance (allocate-instance new-class '())))
     ;; Initalize the slot of the new instance
     (for-each (lambda (slot)
 		(if (and (slot-exists-using-class? old-class old-instance slot)
