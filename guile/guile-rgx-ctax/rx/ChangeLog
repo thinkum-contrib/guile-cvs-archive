@@ -1,3 +1,7 @@
+Thu Jan 30 20:13:29 1997  Mikael Djurfeldt  <mdj@syk-0606.pdc.kth.se>
+
+	* rxanal.h (rx_answers): Removed trailing comma.
+
 Thu Jan  2 13:42:33 1997  Marius Vollmer  <mvo@zagadka.ping.de>
 
  	* configure.in: Replaced AC_PROG_RANLIB with AM_PROG_LIBTOOL.

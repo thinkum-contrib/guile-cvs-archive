@@ -34,7 +34,7 @@ enum rx_answers
   rx_yes = 0,
   rx_no = 1,
   rx_bogus = -1,
-  rx_start_state_with_too_many_futures = rx_bogus - 1,
+  rx_start_state_with_too_many_futures = rx_bogus - 1
   /* n < 0 -- error */
 };
 
