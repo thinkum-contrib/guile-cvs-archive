@@ -220,6 +220,7 @@ Part II: Programming with Guile
 * Data Representation::         Data representation in Guile.
 * GH::                          The deprecated GH interface.
 * Debugger User Interface::
+* Autoconf Support::            Guile-specific configure.in macros.
 * Further Reading::             Where to find out more about Scheme programming.
 
 Part III: Guile API Reference
@@ -300,6 +301,7 @@ options available.
 @include data-rep.texi
 @include gh.texi
 @include debugging.texi
+@include autoconf.texi
 @include scheme-reading.texi
 
 @page
