@@ -108,7 +108,7 @@ Mandatory:
           #define jit_push_i(rs)
           #define jit_pusharg_i(rs)
           #define jit_ret()
-          #define jit_retval_i(rd)
+          #define jit_retval(rd)
           #define jit_rshi_i(d, rs, is)
           #define jit_rshi_ui(d, rs, is)
           #define jit_rshr_i(d, r1, r2)
