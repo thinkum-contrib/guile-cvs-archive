@@ -82,11 +82,34 @@
   - Investigate performance drop from Dec. 8, 2002 to Dec. 12, 2000.
 
 - Eventually
+  - ice-9/ftw.scm should use closedir explicitly, to conserve file
+    descriptors.
+
+  - hashx-remove!, corresponding to other hash*-remove! functions.
+
+    scm_hashx_remove_x exists, but has never been documented, and
+    might be non-functional (looks like it's missing "&closure" in the
+    scm_hash_fn_remove_x call).
+
+    Might want to think about the procedures taken.  Separate assoc
+    and delete! suit existing such functions, but it's wasteful to
+    traverse a bucket list once to see if an element exists, then
+    again to delete it.  Think about maybe a function returning both a
+    modified list and a flag indicating whether a delete was done.  Or
+    maybe just returning the list tail of the target element.
+
+  - mapping.scm hash-table-mapping-hooks uses hashx-create-handle,
+    which doesn't exist.  Probably a typo for hashx-create-handle!,
+    just wants to get a little test program to exercise it.
+  - mapping.scm hash-table-mapping-hooks uses hashx-get-handle in its
+    constructed delete-proc, which is probably meant to be
+    hashx-remove!, if/when such a function exists.
 
   - in6addr_loopback made available as some sort of constant, like
     INADDR_LOOPBACK for ipv4.
   - in6addr_any made available as some sort of constant, like
     INADDR_ANY for ipv4.  Describe this under "bind" in the manual.
+
   - document the operation of the garbage collector (what's scanned, etc.)
   - add support for srfi-25 (multi-dimensional arrays).
     - How do we handle guile's existing support? srfi module overrides?
