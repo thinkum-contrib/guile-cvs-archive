@@ -1,0 +1,14 @@
+summary: ice-9 format fails for small floats and ~f or ~g
+reported: "Nelson H. F. Beebe" <beebe@math.utah.edu>, 2002-05-05
+
+(use-modules (ice-9 format))
+(format #t "~g~%" 1e-198)
+-| 1.0E-198
+=> #t
+
+(format #t "~g~%" 1e-199)
+-| format.scm:1598:9: In procedure string-set! in expression (string-set! format:fn-str i ...):
+-| format.scm:1598:9: Argument 2 out of range: 200
+-| ABORT: (out-of-range)
+
+A simple fix might be to increase format:fn-max.

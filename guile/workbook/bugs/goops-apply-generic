@@ -1,0 +1,22 @@
+summary: apply-generic does not work
+reported: Eric E Moore <e.e.moore@sheffield.ac.uk>, 2002-04-21
+
+The MOP for generic function application doesn't work.  Specifically,
+the apply-generic generic function, when called on a generic and the
+right number of arguments, complains with 
+
+ERROR: Wrong number of arguments to #<procedure #f (foo)>
+ABORT: (wrong-number-of-args)
+
+This seems to have to do with a mismatch between the protocol for
+generic application in goops.scm (which expects the proceedure to take
+an additional argument which it uses to bind next-method), and the C
+code (which doesn't) and the code for creating method objects (which
+don't do the appropriate re-writing).  I don't think I could fix it
+myself particularly quickly, as I don't really understand the C
+evaluation code, and the method cache, and how next-methods are
+actually computed...  
+
+But I do have an application I'd like before and after methods for,
+and can't do that without the apply-generic part of the MOP
+working....
