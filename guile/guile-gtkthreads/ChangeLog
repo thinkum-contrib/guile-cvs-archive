@@ -1,5 +1,7 @@
 2000-03-30  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
+	* GTKTHREADS-VERSION: Release of 0.1.2.
+	
 	* gtkthreads.c, threads.scm (gtkthreads-update): Disabled.  (Not
 	needed.  The true reason why things didn't get updated was simply
 	that the X queue wasn't flushed.  This can be done with
