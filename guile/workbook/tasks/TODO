@@ -1,8 +1,8 @@
 
-- Guile 1.6.5 (stable: only modify items according to ../build/release.txt)
+- Guile 1.6 (stable: only modify items according to ../build/release.txt)
   (NOTE: Please update NEWS if appropriate when finishing/removing an item.)
 
-- Guile 1.8.0
+- Guile 1.8
   (NOTE: Please update NEWS if appropriate when finishing/removing an item.)
 
   - consider letrec error msg bug report:
