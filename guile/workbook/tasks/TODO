@@ -16,6 +16,9 @@
 - Guile 1.6.1 (branched: only modify items according to ../build/release.txt)
 
   - Fix srfi-1:  provide a list-copy function that can copy improper lists.
+  - Fix lambda* to copy improper argument lists with srfi-1/list-copy.
+    (See message "[PATCH] lambda* fails with #:key and rest argument" from
+    "Christopher Cramer <crayc@pyro.net>" from Thu, 30 May 2002)
 
 - Guile 1.8.0
 
