@@ -1,5 +1,6 @@
 summary: SRFI-13 string-tokenize is wrong
 reported: Matthias Koeppe <mkoeppe@mail.Math.Uni-Magdeburg.De>, 2002-03-12
+affects: HEAD branch_release-1-6
 tags: release-critical-1.6
 assigned: <mvo@zagadka.de>, 2002-04-24
 

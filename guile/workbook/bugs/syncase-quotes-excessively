@@ -1,6 +1,7 @@
 summary: syncase quotes hashes and empty applications
 reported: Lynn Winebarger <owinebar@free-expression.org>, 2002-03-30
 reported: Eric E Moore <e.e.moore@sheffield.ac.uk>, 2002-04-23
+affects: HEAD branch_release-1-6 branch_release-1-4
 
 From Lynn:
 

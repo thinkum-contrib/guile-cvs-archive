@@ -1,6 +1,7 @@
 summary: issues to resolve while adding gmp bignums
 reported: Rob Browning <rlb@defaultvalue.org>, 2002-04-21
-Assigned: Rob Browning <rlb@defaultvalue.org>, 2002-04-21
+affects: HEAD branch_release-1-6 branch_release-1-4
+assigned: Rob Browning <rlb@defaultvalue.org>, 2002-04-21
 
 From: Bill Schottstaedt <bil@ccrma.Stanford.EDU>
 Subject: inexact integers in modulo etc

@@ -1,6 +1,7 @@
 summary: dynamic-link can not request a specific interface number
 reported: Rob Browning <rlb@defaultvalue.org>, 2001
-Assigned: Rob Browning <rlb@defaultvalue.org>, 2002-03-25
+affects: HEAD branch_release-1-6 branch_release-1-4
+assigned: Rob Browning <rlb@defaultvalue.org>, 2002-03-25
 
 When loading a shared library with dynamic-link (or indirectly via
 load-extension), you can not specify an interface number.  You will
@@ -12,7 +13,7 @@ libguilereadline.so will probably shadow the libguilereadline.la or
 libguilereadline.so of an already installed 1.4.  Guile 1.4 will then
 erroneously load 1.6's libguilereadline and will likely crash.
 
-To fix this, we need to 
+To fix this, we need to
 
 1) make sure that 1.4 will not accidentally find one of 1.6's shared libraries.
 

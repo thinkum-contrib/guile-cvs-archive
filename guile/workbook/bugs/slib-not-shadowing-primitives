@@ -1,5 +1,6 @@
 summary: Loading a SLIB module with require does not shadow primitives
 reported: Panagiotis Vossos <jacbre@internet.gr>, 2002-03-11
+affects: HEAD branch_release-1-6 branch_release-1-4
 
 Why does guile refuse to use slib's implementation of records and
 arrays?  Is anybody else having the same problem or have I done
