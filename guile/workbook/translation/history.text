@@ -1,0 +1,122 @@
+
+  Tom Lord, the first maintainer of Guile, has this to say about
+  translating other languages to Guile:
+
+As a point of history, being multi-lingual was _a_ goal, but certainly
+not _the_ goal.   RMS still highlights the multi-lingual goal in some
+of his talks, but I think he is misplacing emphasis.
+
+Having a standard, powerful, extension language was more of a
+priority.  Emacsen (and much else, besides) had proven that lisps are
+a good choice of extension languages, and we were interested in
+building on that observation.
+
+At the time that the Guile project started (back when it was called
+GEL), Sun was pushing Tcl as a proposed "universal scripting language"
+and the distinction, if there is one, between extension languages and
+scripting languages was not very clear.  This was shortly before Oak
+was released as Java.  The social dynamic around this kind of thing
+was somewhat different back then -- there was no /., no freshmeat, and
+barely a linux, for example.  Sun was not in so much of a slump, at
+the time.  When Sun started making press releases about Tcl as the
+universal scripting language, it seemed plausible that that would have
+a nearly irresistible impact.  Even Usenix got in on the act and
+started hosting conferences devoted to Tcl.
+
+In short, Tcl seemed to have a lot of "mindshare", especially with
+people who had only a casual interest in extensible applications and
+extension languages.  In my own rather unpleasant experience, I had a
+project to build an extensible application canceled out from under me
+because I had decided to use GEL (Guile) rather than Tcl.
+
+The experience of some of us, which assured us that Tcl was not a good
+choice for an extension language, was difficult to argue for.  The Tcl
+implementation was unusually clean and simple code.  The language was
+easy to learn.  Tk was an nearly unprecendented set of functionality
+to offer in a tiny interpreted language for unix-like environments.
+To a casual observer, those virtues of Tcl were the most important
+thing.
+
+Several of us agreed, though, that Tcl had some serious problems.
+While it was a clean language if compared to, say, sh -- it was
+nevertheless a string-based language with the weaknesses that that
+implied.  It didn't support garbage collected types and, generally,
+had limited data structures.  It didn't support closure but did
+support some vaguely similar constructs that had their own problems.
+And so on....
+
+When we started talking about using Guile instead of Tcl, people often
+replied with various things they liked about Tcl.   For many small
+programs, a string-based langauge is convenient.   Many people
+preferred Tcl's syntax to a lisp syntax.   Back then, people could
+still be taken seriously if they said "garbage collection is bad."
+
+So we pointed out that Scheme was more powerful, more flexible.  We
+pointed out that Tcl-like languages could be implemented (well) as
+libraries for Guile, but that the reverse was not true.  One of the
+graduate students who worked on Tcl even supported our arguments by
+implementing Rush -- a nearly-Tcl language -- in Guile.  He went on to
+suggest a set of changes that should be made to Tcl as a result of
+what he had learned (with the aim of making Tcl faster and more
+compilable, mostly by making it semantically cleaner).   (His work did
+have influence on the language design of Tcl and on implementation
+changes that made Tcl faster
+
+For my part, shortly after Java was released, I demonstrated a C-like
+syntax for Guile.   I think that, quite bitrotted now, that code is
+still floating around.
+
+So in the Propoganda, these ideas got very oversimplified.   I can't
+speak for RMS but for my part, I wanted to try to consciousness raise
+people to realize that the language wars were pointless.   You want to
+use a different syntax?   That's a trivial matter.   You want
+string-based data types?   That's just a library.   The important
+thing was to make the core of the extension language a powerful and
+fully general run-time system and interpreter, ideally based on a
+language with good prospects for efficient compilation.
+
+Nowadays, Tcl is mostly quiet (relatively speaking).  Python and Java
+have a lot of "mindshare" (as do some other languages).  As with
+Common Lisp, a large part of the economic effectiveness of those
+languages comes from the wide range of available libraries for them.
+
+The dominant importance of the libraries is, in retrospect, a quite
+obvious development.   It also puts a serious crimp in the value of 
+an extension language being "multi-lingual".   
+
+Sure, a multi-lingual framework can, in some sense, use the set-union
+of all of those libraries.  On the other hand, the "styles" of various
+languages are sufficiently different that such library sharing is of
+distinctly limited utility.  A good Python library is not necessarily
+a good Scheme library or a good Java library or a good Tcl library.
+You can glue the libraries together in a pinch -- but to make a
+programming environment that is comprehensive yet compact and clean,
+you're probably better off sticking to just one programming language.
+
+Nowadays, I don't think people care too much if you happen to be able
+to program Guile in Python.  (Evidence for this can be seen in the
+Real Soon Now translator for Python->Guile.)  Perhaps if
+Python-in-Guile offered significantly better performance or profoundly
+new capabilities for Python programmers it would be a bigger deal ---
+but merely being able to type in some Python syntax and sorta-kinda
+use Python libraries is not a very compelling story.
+
+So, in short, I would not recommend starting off the Guile manual in
+the way you have quoted above.    And, if _I_ were maintaining Guile,
+looking around at the scene, I think I'd be thinking about how to make
+a really great extended Scheme, fast, clean, and small.
+
+Finally, let me say this about Tcl: in some cases, garbage collection
+_is_ bad.  In some cases, a language that can be implemented well in
+<20K LOC is a serious virtue.  Tcl is not necessarily a great language
+design -- but it's implementation continues to have many virtues in
+some circumstances.  I now think that rather than just thinking about
+a "multi-lingual extensibility interpreter", there would be some value
+in thinking about how to design Tcl or Python-like languages that
+admit tiny, simple implementation -- but that also "pun" as a subset
+of a lisp dialect.  You can use the smaller language when you want --
+but then you also have the option of scaling to the larger language,
+sharing _some_ libraries between the languages, and exchanging data
+between the languages.
+
+-t

@@ -1,0 +1,200 @@
+One important part of the Guile API is concerned with the conversion
+between Scheme values and C values.  The functions that perform these
+conversions follow a common pattern.
+
+* Conversion from C to Scheme
+
+For a C type <type>, the function that converts it into a Scheme value
+has the prototype
+
+    SCM scm_from_<type> (<type> val);
+
+No error will be signalled, except when not enough memory is
+available.
+
+* Conversion from Scheme to C
+
+    <type> scm_to_<type> (SCM val, <additional constraints>);
+
+When VAL is not representable as a <type> or the <additional
+constraints> are not satisfied, an error is signalled.
+
+* Concrete conversion functions
+
+** Integers
+
+  - SCM scm_from_signed_integer (scm_t_intmax val);
+  - SCM scm_from_unsigned_integer (scm_t_uintmax val);
+
+    Return the SCM value representing the integer <val>.  The SCM
+    value will always be exact.
+
+  - scm_t_intmax scm_to_signed_integer (SCM val,
+                                        scm_t_intmax min, scm_t_intmax max);
+  - scm_t_uintmax scm_to_unsigned_integer (SCM val, scm_t_uintmax max);
+    
+    Convert the SCM value VAL to a C integer when it is representable
+    and when it is between min and max inclusive, or between 0 and max
+    inclusive.  Signal an error when it isn't.  The SCM value can be
+    exact or inexact, but it must be an integer.  That is,
+
+       scm_to_signed_integer (scm_from_double (3.0), -100, +100)
+
+    yields the C integer 3 while
+
+       scm_to_signed_integer (scm_from_double (3.5), -100, +100)
+
+    is an error.
+
+  - SCM scm_from_char (signed char);
+  - SCM scm_from_short (short);
+  - SCM scm_from_int (int val);
+  - SCM scm_from_long (long val);
+  - SCM scm_from_longlong (long long val);
+  - SCM scm_from_ssize (ssize_t val);
+    ...
+
+  - SCM scm_from_uchar (unsigned char);
+  - SCM scm_from_ushort (unsigned short);
+  - SCM scm_from_uint (unsigned int val);
+  - SCM scm_from_ulong (unsigned long val);
+  - SCM scm_from_ulonglong (unsigned long long val);
+  - SCM scm_from_size (size_t val);
+    ...
+
+  - signed char        scm_from_char (SCM);
+  - short              scm_from_short (SCM);
+  - int                scm_from_int (SCM);
+  - long               scm_from_long (SCM);
+  - long long          scm_from_longlong (SCM);
+  - ssize_t            scm_from_ssize (SCM);
+    ...
+
+  - unsigned char      scm_from_uchar (SCM);
+  - unsigned short     scm_from_ushort (SCM);
+  - unsigned int       scm_from_uint (SCM);
+  - unsigned long      scm_from_ulong (SCM);
+  - unsigned long long scm_from_ulonglong (SCM);
+  - size_t             scm_from_size (SCM);
+    ...
+
+    Convert from/to the indicated integral types, signalling errors
+    when the SCM value can not be represented.  For integer types that
+    are not provided for, you can use the general functions from
+    above.  For example, scm_from_short (x) is the same as
+
+        scm_from_signed_integer ((short)(x))
+
+    and scm_to_short (x) is the same as
+
+        ((short)(scm_to_signed_integer (x, SHORT_MIN, SHORT_MAX)))
+
+    Thus, these functions are merely a convenience.
+
+    Note that scm_to_char can not convert a Scheme character to a C
+    char integer.  See below.
+
+** Floating point numbers
+
+We don't go to such a great length to cover all possible types
+here. "double" ought to be enough, no?
+
+  - SCM scm_from_double (double val);
+
+    Return the SCM value corresponding to VAL.  The SCM value will be
+    'inexact' as far as scm_inexact_p is considered but will be
+    exactly equal to VAL.  When you want to have an exact SCM value,
+    use
+
+        scm_inexact_to_exact (scm_from_double (val))
+
+    this will yield an exact fraction.
+
+  - double scm_to_double (SCM);
+
+    Convert VAL to the closest number representable as a double.
+    Numbers that are outside the representable range of a double are
+    converted into +Inf or -Inf, respectively.
+
+** Complex numbers
+
+Complex numbers can be regarded as a compound type and need no
+dedicated conversion functions.  For example, you can do
+
+    scm_make_rectangular (scm_from_double (0.0), scm_from_double (1.0))
+
+or
+
+    double imag = scm_to_double (scm_imag_part (z));
+
+but there are also convenience functions that are actually a bit more
+efficient:
+
+  - SCM scm_from_complex_double (double re, double im);
+  - double scm_to_real_part_double (SCM z);
+  - double scm_to_imag_part_double (SCM z);
+
+But remember to use the generic functions scm_make_rectangular,
+scm_real_part, etc if you don't care whether the parts of a complex
+number are floating point numbers or not.  For example, Guile might
+someday offer complex numbers where the real part is a fraction
+(currently it is always a double) and it is good to be prepared for
+this by not treating the parts of a complex as doubles when it is not
+needed.
+
+** Characters
+
+A Scheme character in Guile is equivalent to a Unicode code point.
+
+  - long scm_to_unicode (SCM ch);
+  - SCM  scm_from_unicode (long code);
+
+** Strings
+
+Strings present the new problem that memory needs to be allocated or
+found for storing the result.  Also, when new memory has been
+allocated, one needs to make sure that it isn't leaked in the case of
+non-local exits (like from errors in subsequent conversions).  such a
+cleanup action can be registered with scm_frame_unwind_handler, which
+see.
+
+  - unsigned char *scm_to_locale_string (SCM str);
+
+  Convert STR into a C string that is encoded as specified by the
+  current locale.  Memory is allocated for the C string that can be
+  freed with 'free'.
+
+  When the current locale can not encode STR, an error is signalled.
+
+  - unsigned char *scm_to_locale_string_buf (SCM str,
+                                             unsigned char *buf,
+					     size_t buflen);
+
+  Convert STR into a C string that is encoded as specified by the
+  current locale.  Either the provided buffer is used to hold the
+  result, or new memory is allocated.  The buffer is used when BUFLEN
+  is large enough; in this case BUF is returned.  When the buffer is
+  not large enough, new memory is allocated that needs to be freed
+  eventually.
+
+  For example:
+
+    unsigned char buf[100];
+    unsigned char *str = scm_to_locale_string_buf (arg, buf, 100);
+    
+    if (str != buf)
+      scm_frame_unwind_handler (free, str);
+
+  - unsigned char *scm_to_utf8_string (SCM str);
+  - unsigned char *scm_to_utf8_string_buf (SCM str,
+                                           unsigned char *buf,
+				           size_t *buflen);
+
+  Same as above but returns a UTF-8 encoded string.  This will always
+  work.
+
+  [ More encodings can be specified later.  The above two, locale and
+    utf8, are needed for transitioning Guile to Unicode.  Right now,
+    strings are in the locale encoding but in the future they will be
+    in UTF-8. 
+  ]

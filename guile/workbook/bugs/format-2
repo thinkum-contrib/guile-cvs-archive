@@ -1,6 +1,7 @@
 summary: format with ######F
 reported: Bill Schottstaedt <bil@ccrma.Stanford.EDU>, 2003-06-17
 affects: HEAD branch_release-1-6
+fixed: mvo, HEAD
 
 Another oddity in ice-9/format.scm:
 
