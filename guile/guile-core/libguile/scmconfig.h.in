@@ -99,7 +99,7 @@
 #undef READER_EXTENSIONS
 
 /* Define this if you want to debug the free list (helps w/ GC bugs) */
-#undef DEBUG_FREELIST
+#undef GUILE_DEBUG_FREELIST
 
 /* Define this if your system defines S_ISLNK in sys/stat.h */
 #undef HAVE_S_ISLNK
@@ -153,8 +153,10 @@
 /* This is included as part of a workaround for a autoheader bug. */
 #undef HAVE_REGCOMP
 
+/* Define this if you want support for POSIX system calls in Guile.  */
 #undef HAVE_POSIX
 
+/* Define this if you want support for networking in Guile.  */
 #undef HAVE_NETWORKING
 
 /* Define if the operating system supplies bzero without declaring it. */
