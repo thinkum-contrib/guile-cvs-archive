@@ -1,5 +1,9 @@
 2001-10-26  Neil Jerram  <neil@ossau.uklinux.net>
 
+	* buffers.scm, calling.scm: Removed.  These should have
+	disappeared during the reorganization described below, but I
+	missed them by mistake.
+	
 	* primitives/symprop.scm (set, boundp, symbol-value): Changed to
 	use (module-xx the-elisp-module ...) rather than (local-xx ...).
 	(symbolp): Accept either symbols or keywords.
