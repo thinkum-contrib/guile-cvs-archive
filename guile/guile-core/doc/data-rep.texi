@@ -112,7 +112,8 @@ Scheme is a latently-typed language; this means that the system cannot,
 in general, determine the type of a given expression at compile time.
 Types only become apparent at run time.  Variables do not have fixed
 types; a variable may hold a pair at one point, an integer at the next,
-and a thousand-element vector later.  Instead, values have fixed types.
+and a thousand-element vector later.  Instead, values, not variables,
+have fixed types.
 
 In order to implement standard Scheme functions like @code{pair?} and
 @code{string?} and provide garbage collection, the representation of
