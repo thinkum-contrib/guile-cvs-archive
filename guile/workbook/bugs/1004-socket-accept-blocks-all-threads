@@ -1,0 +1,57 @@
+summary: all threads blocked on (accept socket)
+reported: Lamy Jean-Baptiste <jiba@tuxfamily.org>, 2002-03-04
+affects:
+see-also-dir: 1004.stuff
+test-case: socket-accept.scm
+patch:
+
+Lamy Jean-Baptiste sez:
+> I'm writing a peer-to-peer protocol to share objects between dynamic OO
+> language; i currently use Guile and Python.
+>
+> It is currently based on a thread that waits for connection on a socket,
+> and launches another thread to treat the request (as i want to be able to
+> serve many request at the same time). But it looks like, when the first
+> thread is waiting on a blocking "(accept socket)", all other threads are
+> blocked too and cannot treat their request...
+>
+> Is that due to the non-native thread used by Guile ? I've tried with
+> "(select )" and it works fine...
+
+Christopher Cramer <crayc@pyro.net> sez:
+> Hmm. I complained about this a looong time ago, I thought it was fixed,
+> but I guess not. What you can do is just call select on the socket,
+> when it's readable, accept won't block:
+>
+> (define (accept/no-block s)
+>     (let ((fd (list (port->fdes s))))
+> 	(if (null? (car (select fd '() '())))
+> 	    (accept/no-block s)
+> 	    (accept s))))
+>
+> I think I'll go fix this... just need to add a call to
+> scm_internal_select() in scm_accept().
+>
+> [patch]
+
+NJ sez:
+> Although your patch works for this case, I'm not sure it's the right
+> thing to change this in the C code.
+>
+> Firstly, one could argue that, with the current CVS code, the choice
+> of behaviours is good: if you _want_ the accept to block all threads,
+> just call `accept'; if you don't, call `select' first.
+>
+> Secondly, if we did make this change, we should logically make it in
+> lots of other places as well: connect, recv! etc.
+
+Rob Browning sez:
+> In the long run, I think there should be thread-blocking (not process
+> blocking) versions of all the common IO routines.  Whether or not
+> those should be the *only* versions I'm not sure.
+
+Christopher Cramer sez:
+> keep in mind that the current code isn't consistent
+> either, since reading from an fport already doesn't block. The code
+> I put into scm_accept() was mostly copied from fport_wait_for_input() in
+> fports.c.

@@ -1,0 +1,59 @@
+Fixed! Yay. I also added a comment about the fact that connect will
+block, but I haven't fixed it yet.
+
+Index: libguile/socket.c
+===================================================================
+RCS file: /cvsroot/guile/guile/guile-core/libguile/socket.c,v
+retrieving revision 1.80.2.1
+diff -u -r1.80.2.1 socket.c
+--- libguile/socket.c	9 Jul 2001 07:31:05 -0000	1.80.2.1
++++ libguile/socket.c	5 Mar 2002 04:54:04 -0000
+@@ -43,11 +43,13 @@
+ 
+
+ #include <errno.h>
++#include <fcntl.h>
+
+ #include "libguile/_scm.h"
+ #include "libguile/unif.h"
+ #include "libguile/feature.h"
+ #include "libguile/fports.h"
++#include "libguile/iselect.h"
+ #include "libguile/strings.h"
+ #include "libguile/vectors.h"
+
+@@ -809,6 +811,7 @@
+ 	    "The return value is unspecified.")
+ #define FUNC_NAME s_scm_connect
+ {
++  /* this will block coop threads; should be fixed */
+   int fd;
+   struct sockaddr *soka;
+   int size;
+@@ -1019,6 +1022,26 @@
+   sock = SCM_COERCE_OUTPORT (sock);
+   SCM_VALIDATE_OPFPORT (1, sock);
+   fd = SCM_FPORT_FDES (sock);
++
++#ifdef GUILE_ISELECT
++  {
++    int n;
++    SELECT_TYPE readfds;
++    int flags = fcntl (fd, F_GETFL);
++
++    if (flags == -1)
++      scm_syserror ("scm_accept");
++    if (!(flags & O_NONBLOCK))
++      do
++	{
++	  FD_ZERO (&readfds);
++	  FD_SET (fd, &readfds);
++	  n = scm_internal_select (fd + 1, &readfds, NULL, NULL, NULL);
++	}
++      while (n == -1 && errno == EINTR);
++  }
++#endif
++
+   newfd = accept (fd, addr, &addr_size);
+   if (newfd == -1)
+     SCM_SYSERROR;
