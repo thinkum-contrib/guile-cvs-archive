@@ -19,3 +19,4 @@ ltdl.c
 ltdl.h
 ltdl.lo
 stamp-h
+stamp-h.in
