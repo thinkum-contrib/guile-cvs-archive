@@ -1,3 +1,21 @@
+2001-10-13  Marius Vollmer  <mvo@zagadka.ping.de>
+
+	* compiler.scm, lightning.c, rod.scm: Adapted to 1.7 series of
+	Guile.
+
+2001-04-11  Marius Vollmer  <mvo@zagadka.ping.de>
+
+	* compiler.scm: Lotsa new stuff related to register allocation and
+	spilling.
+	(compile-to-asm): Invoke peephole optimizer, with an option to not
+	invoke it.
+	(compile-show): Pass peephole option to compile-to-asm.
+	
+	* peephole.scm: New file.
+	* Makefile.am (scm_DATA): Install it.
+
+	* lightning.ops (jit_die): Added.
+
 2001-04-09  Marius Vollmer  <mvo@zagadka.ping.de>
 
 	* lightning.c (nlistify, scm_invoke): Do not use va_lists to get
