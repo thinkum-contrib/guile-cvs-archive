@@ -1,5 +1,6 @@
 summary: exactness prefix doesn't do nothing gracefully
 reported: kwright@gis.net, 2001-10-09
+affects: HEAD branch_release-1-6 branch_release-1-4
 fixed: unknown, 2001-10-14, guile-core, branch_release-1-6
 fixed: unknown, 2001-10-14, guile-core, HEAD
 
