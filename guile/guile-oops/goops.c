@@ -935,6 +935,18 @@ scm_unbound_p (SCM obj)
   return SCM_GOOPS_UNBOUNDP (obj) ? SCM_BOOL_T : SCM_BOOL_F;
 }
 
+SCM_PROC (s_assert_bound, "assert-bound", 2, 0, 0, scm_assert_bound);
+
+static SCM
+scm_assert_bound (SCM value, SCM object)
+{
+  if (SCM_GOOPS_UNBOUNDP (value))
+    scm_misc_error (NULL,
+		    "Unbound slot in object %S",
+		    SCM_LIST1 (object));
+  return value;
+}
+
 SCM_PROC (s_sys_fast_slot_ref, "%fast-slot-ref", 2, 0, 0, scm_sys_fast_slot_ref);
 
 SCM
