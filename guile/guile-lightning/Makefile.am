@@ -18,3 +18,6 @@ SUFFIXES = .x
 
 assemble-ops.c: rod.scm lightning.ops
 	guile -s rod.scm >$@
+
+scmdir = $(datadir)/guile/lightning
+scm_DATA = assembler.scm compiler.scm
