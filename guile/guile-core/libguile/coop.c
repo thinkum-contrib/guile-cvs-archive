@@ -48,7 +48,7 @@
 #include "eval.h"
 
 /* #define COOP_STKSIZE (0x10000) */
-#define COOP_STKSIZE (SCM_EVAL_STACK)
+#define COOP_STKSIZE (scm_eval_stack)
 
 /* `alignment' must be a power of 2. */
 #define COOP_STKALIGN(sp, alignment) \
