@@ -13,8 +13,7 @@ libgtcltk_a_SOURCES = guile-tcl.c guile-tk.c guile-tcl.h guile-tk.h
 
 SUFFIXES = .x
 .c.x:
-	$(CPP) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) \
-	   -DSCM_MAGIC_SNARFER $< | grep "^%%%" | sed -e "s/^%%%//" > $@
+	../libguile/guile-snarf $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $< > $@
 
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $(X_CFLAGS)
 
