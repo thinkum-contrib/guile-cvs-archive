@@ -1,7 +1,10 @@
-2000-04-14  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
+2000-04-15  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
 	* save.scm: Rewritten in a more sensible way.
 	Added support for arrays and shared arrays.
+	(write-readably <pair>): Bugfix: Consider bindings when computing
+	properness of a list.
+	(restore, write-readably <object>): New restore syntax.
 
 2000-04-13  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
