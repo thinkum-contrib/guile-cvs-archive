@@ -81,13 +81,13 @@ free_regex_t (obj)
 
 #ifdef __STDC__
 int
-print_regex_t (SCM obj, SCM port, int writing)
+print_regex_t (SCM obj, SCM port, scm_print_state *pstate)
 #else
 int
-print_regex_t (obj, port, writing)
+print_regex_t (obj, port, pstate)
      SCM obj;
      SCM port;
-     int writing;
+     scm_print_states *pstate;
 #endif
 {
   regex_t *r;
@@ -405,13 +405,13 @@ free_dfa_t (obj)
 
 #ifdef __STDC__
 int
-print_dfa_t (SCM obj, SCM port, int writing)
+print_dfa_t (SCM obj, SCM port, scm_print_state *pstate)
 #else
 int
-print_dfa_t (obj, port, writing)
+print_dfa_t (obj, port, )
      SCM obj;
      SCM port;
-     int writing;
+     scm_print_state *pstate;
 #endif
 {
   struct rx_dfa_state *r;
