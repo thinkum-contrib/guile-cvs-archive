@@ -29,12 +29,32 @@
 	literal? readable make-readable)
 
 ;;;
-;;; save-objects ALIST PORT
+;;; save-objects ALIST PORT [EXCLUDED] [USES]
 ;;;
 ;;; ALIST ::= ((NAME . OBJECT) ...)
 ;;;
 ;;; Save OBJECT ... to PORT so that when the data is read and evaluated
 ;;; OBJECT ... are re-created under names NAME ... .
+;;; Exclude any references to objects in the list EXCLUDED.
+;;; Add a (use-modules . USES) line to the top of the saved text.
+;;;
+;;; In some instances, when `save-object' doesn't know how to produce
+;;; readable syntax for an object, you can explicitly register read
+;;; syntax for an object using the special form `readable'.
+;;;
+;;; Example:
+;;;
+;;;   The function `foo' produces an object of obscure structure.
+;;;   Only `foo' can construct such objects.  Because of this, an
+;;;   object such as
+;;;
+;;;     (define x (vector 1 (foo)))
+;;;
+;;;   cannot be saved by `save-objects'.  But if you instead write
+;;;
+;;;     (define x (vector 1 (readable (foo))))
+;;;
+;;;   `save-objects' will happily produce the necessary read syntax.
 ;;;
 ;;; To add new read syntax, hang methods on `enumerate!' and
 ;;; `write-readably'.
@@ -98,16 +118,17 @@
 (define readable
   (procedure->memoizing-macro
     (lambda (exp env)
-      `(make-readable ,(cadr exp) ',(cadr exp)))))
+      `(make-readable ,(cadr exp) ',(copy-tree (cadr exp))))))
 
 (define (make-readable obj expr)
   (hashq-set! readables obj expr)
   obj)
 
 (define (readable-expression obj)
-  (hashq-ref readables obj))
+  `(readable ,(hashq-ref readables obj)))
 
-(define readable? readable-expression)
+(define (readable? obj)
+  (hashq-get-handle readables obj))
 
 ;;;
 ;;; Strings
@@ -134,11 +155,14 @@
       (let ((n (vector-length o)))
 	(if (zero? n)
 	    (display "#()" file)
-	    (begin
-	      (display (if (literal? o env)
-			   "#("
-			   "(vector ")
+	    (let ((not-literal? (not (literal? o env))))
+	      (display (if not-literal?
+			   "(vector "
+			   "#(")
 		       file)
+	      (if (and not-literal?
+		       (literal? (vector-ref o 0) env))
+		  (display #\' file))
 	      (write-component (vector-ref o 0)
 			       `(vector-set! ,o 0 ,(vector-ref o 0))
 			       file
@@ -146,6 +170,9 @@
 	      (do ((i 1 (+ 1 i)))
 		  ((= i n))
 		(display #\space file)
+		(if (and not-literal?
+			 (literal? (vector-ref o i) env))
+		    (display #\' file))
 		(write-component (vector-ref o i)
 				 `(vector-set! ,o ,i ,(vector-ref o i))
 				 file
@@ -179,28 +206,32 @@
 		 (array-dimensions array)
 		 (shared-array-increments array))))))
 
-(define (write-array prefix o file env)
+(define (write-array prefix o not-literal? file env)
   (letrec ((inner (lambda (n indices)
 		    (if (not (zero? n))
-			(let ((indices (reverse (cons 0 indices))))
+			(let ((el (apply array-ref o
+					 (reverse (cons 0 indices)))))
+			  (if (and not-literal?
+				   (literal? el env))
+			      (display #\' file))
 			  (write-component
-			   (apply array-ref o indices)
-			   `(array-set! ,o
-					,(apply array-ref o indices)
-					,@indices)
+			   el
+			   `(array-set! ,o ,el ,@indices)
 			   file
 			   env)))
 		    (do ((i 1 (+ 1 i)))
 			((= i n))
 		      (display #\space file)
-		      (let ((indices (reverse (cons i indices))))
-			(write-component
-			 (apply array-ref o indices)
-			 `(array-set! ,o
-				      ,(apply array-ref o indices)
-				      ,@indices)
-			 file
-			 env))))))
+		      (let ((el (apply array-ref o
+					 (reverse (cons i indices)))))
+			  (if (and not-literal?
+				   (literal? el env))
+			      (display #\' file))
+			  (write-component
+			   el
+			   `(array-set! ,o ,el ,@indices)
+			   file
+			   env))))))
     (display prefix file)
     (let loop ((dims (array-dimensions o))
 	       (indices '()))
@@ -225,9 +256,11 @@
 	       (begin
 		 (display #\# file)
 		 (display (array-rank o) file)
-		 (write-array #\( o file env))))
+		 (write-array #\( o #f file env))))
 	  ((binding? root env)
 	   (display "(make-shared-array " file)
+	   (if (literal? root env)
+	       (display #\' file))
 	   (write-component root
 			    (goops-error "write-readably(<array>): internal error")
 			    file
@@ -261,17 +294,23 @@
 
 (define-method write-readably ((o <pair>) file env)
   (let ((proper? (let loop ((ls o))
-		   (or (and (null? ls) (binding? ls env))
-		       (and (pair? ls) (loop (cdr ls))))))
+		   (or (null? ls)
+		       (and (pair? ls)
+			    (not (binding? (cdr ls) env))
+			    (loop (cdr ls))))))
 	(1? (or (not (pair? (cdr o)))
 		(binding? (cdr o) env)))
-	(literal? (literal? o env))
-	(infos '()))
-    (display (cond (literal? #\()
+	(not-literal? (not (literal? o env)))
+	(infos '())
+	(refs (ref-stack env)))
+    (display (cond ((not not-literal?) #\()
 		   (proper? "(list ")
 		   (1? "(cons ")
 		   (else "(list* "))
 	     file)
+    (if (and not-literal?
+	     (literal? (car o) env))
+	(display #\' file))
     (write-component (car o) `(set-car! ,o ,(car o)) file env)
     (do ((ls (cdr o) (cdr ls))
 	 (prev o ls))
@@ -279,19 +318,27 @@
 	     (binding? ls env))
 	 (if (not (null? ls))
 	     (begin
-	       (if literal?
+	       (if (not not-literal?)
 		   (display " ." file))
 	       (display #\space file)
+	       (if (and not-literal?
+			(literal? ls env))
+		   (display #\' file))
 	       (write-component ls `(set-cdr! ,prev ,ls) file env)))
 	 (display #\) file))
       (display #\space file)
       (set! infos (cons (object-info ls env) infos))
+      (push-ref! ls) ;*fixme* optimize
       (set! (visiting? (car infos)) #t)
+      (if (and not-literal?
+	       (literal? (car ls) env))
+	  (display #\' file))
       (write-component (car ls) `(set-car! ,ls ,(car ls)) file env)
       )
     (for-each (lambda (info)
 		(set! (visiting? info) #f))
 	      infos)
+    (set! (ref-stack env) refs)
     ))
 
 ;;;
@@ -427,7 +474,8 @@
 		  #:init-form (make-hash-table 61))
   (pass-2?	  #:accessor pass-2?
 		  #:init-value #f)
-  (container-info #:accessor container-info)
+  (ref-stack	  #:accessor ref-stack
+		  #:init-value '())
   (objects	  #:accessor objects
 		  #:init-value '())
   (pre-defines	  #:accessor pre-defines
@@ -440,7 +488,17 @@
 		  #:init-value '())
   (patchers	  #:accessor patchers
 		  #:init-value '())
+  (multiple-bound #:accessor multiple-bound
+		  #:init-value '())
   )
+
+(define-method (initialize (env <environment>) initargs)
+  (next-method)
+  (cond ((get-keyword #:excluded initargs #f)
+	 => (lambda (excludees)
+	      (for-each (lambda (e)
+			  (hashq-create-handle! (excluded env) e #f))
+			excludees)))))
 
 (define-method (object-info o env)
   (hashq-ref (object-info env) o))
@@ -453,6 +511,15 @@
 
 (define (add-patcher! patcher env)
   (set! (patchers env) (cons patcher (patchers env))))
+
+(define (push-ref! o env)
+  (set! (ref-stack env) (cons o (ref-stack env))))
+
+(define (pop-ref! env)
+  (set! (ref-stack env) (cdr (ref-stack env))))
+
+(define (container env)
+  (car (ref-stack env)))
 
 (define-class <object-info> ()
   (visiting  #:accessor visiting
@@ -476,12 +543,21 @@
 (define-method (literal? (info <boolean>))
   #t)
 
+;;; Note that this method is intended to be used only during the
+;;; writing pass
+;;;
 (define-method (literal? o env)
   (or (immediate? o)
       (excluded? o env)
       (let ((info (object-info o env)))
-	(or (literal? info)
-	    (eq? (visiting info) #:pass-2)))))
+	;; write-component sets all bindings first to #:defining,
+	;; then to #:defined
+	(and (or (not (binding? info))
+		 ;; we might be using `literal?' in a write-readably method
+		 ;; to query about the object being defined
+		 (and (eq? (visiting info) #:defining)
+		      (null? (cdr (ref-stack env)))))
+	     (literal? info)))))
 
 ;;;
 ;;; Enumeration
@@ -500,7 +576,10 @@
 	((pass-2? env)
 	 (let ((info (object-info o env)))
 	   (if (binding? info)
-	       (not (visiting? info))
+	       ;; if circular reference, we print as a literal
+	       ;; (note that during pass-2, circular references are
+	       ;;  forward references, i.e. *not* yet marked with #:pass-2
+	       (not (eq? (visiting? info) #:pass-2))
 	       (and (enumerate! o env)
 		    (begin
 		      (set! (literal? info) #t)
@@ -510,21 +589,22 @@
 	      (set! (binding info) #t)
 	      (if (visiting? info)
 		  ;; circular reference--mark container
-		  (set! (binding (container-info env)) #t))))
+		  (set! (binding (object-info (container env) env)) #t))))
 	(else
 	 (let ((info (make <object-info>)))
 	   (set! (object-info o env) info)
-	   (set! (container-info env) info)
+	   (push-ref! o env)
 	   (set! (visiting? info) #t)
 	   (enumerate! o env)
 	   (set! (visiting? info) #f)
+	   (pop-ref! env)
 	   (set! (objects env) (cons o (objects env)))))))
 
 (define (write-component-procedure o file env)
   "Return #f if circular reference"
   (cond ((immediate? o) (write o file) #t)
 	((readable? o) (write (readable-expression o) file) #t)
-	((excluded? o env))
+	((excluded? o env) (display #f file) #t)
 	(else
 	 (let ((info (object-info o env)))
 	   (cond ((not (binding? info)) (write-readably o file env) #t)
@@ -564,8 +644,15 @@
 		(if (not (or (immediate? o)
 			     (readable? o)
 			     (excluded? o env)))
-		    (set! (binding (object-info o env))
-			  (binding-name b)))))
+		    (let ((info (object-info o env)))
+		      (if (symbol? (binding info))
+			  ;; already bound to a variable
+			  (set! (multiple-bound env)
+				(acons (binding info)
+				       (binding-name b)
+				       (multiple-bound env)))
+			  (set! (binding info)
+				(binding-name b)))))))
 	    alist)
   ;; Name rest of bindings and create stand-in and definition lists
   (let post-loop ((ls (objects env))
@@ -618,7 +705,7 @@
   (set! (pass-2? env) #t)
   (for-each (lambda (o)
 	      (let ((info (object-info o env)))
-		(set! (literal? (object-info o env)) (enumerate! o env))
+		(set! (literal? info) (enumerate! o env))
 		(set! (visiting info) #:pass-2)))
 	    (append (pre-defines env)
 		    (locals env)
@@ -647,9 +734,11 @@
     (display #\space file)
     (if (literal? info)
 	(display #\' file))
+    (push-ref! o env)
     (set! (visiting info) #:defining)
     (write-readably o file env)
     (set! (visiting info) #:defined)
+    (pop-ref! env)
     (display #\) file)))
 
 (define (write-let*-head! file env)
@@ -660,14 +749,14 @@
 	    (cdr (locals env)))
   (display ")\n" file))
 
-(define (write-stand-in-patches! file env)
+(define (write-rebindings! prefix bindings file env)
   (for-each (lambda (patch)
-	      (display "  (set! " file)
+	      (display prefix file)
 	      (display (cdr patch) file)
 	      (display #\space file)
 	      (display (car patch) file)
 	      (display ")\n" file))
-	    (stand-ins env)))
+	    bindings))
 
 (define (write-definitions! selector prefix file env)
   (for-each (lambda (o)
@@ -701,14 +790,25 @@
 				 file)))
 	    alist))
 
-(define (write-readables! alist file)
-  (for-each (lambda (b)
-	      (if (readable? (binding-object b))
-		  (write-define! (binding-name b)
-				 (readable-expression (binding-object b))
-				 #f
-				 file)))
-	    alist))
+(define (write-readables! alist file env)
+  (let ((written '()))
+    (for-each (lambda (b)
+		(cond ((not (readable? (binding-object b))))
+		      ((assq (binding-object b) written)
+		       => (lambda (p)
+			    (set! (multiple-bound env)
+				  (acons (cdr p)
+					 (binding-name b)
+					 (multiple-bound env)))))
+		      (else
+		       (write-define! (binding-name b)
+				      (readable-expression (binding-object b))
+				      #f
+				      file)
+		       (set! written (acons (binding-object b)
+					    (binding-name b)
+					    written)))))
+	      alist)))
 
 (define-method save-objects ((alist <pair>) (file <string>) . rest)
   (let ((port (open-output-file file)))
@@ -736,11 +836,12 @@
 	    (write-definitions! pre-defines "(define " file env)
 	    (write-empty-defines! file env)
 	    (write-let*-head! file env)
-	    (write-stand-in-patches! file env)
+	    (write-rebindings! "  (set! " (stand-ins env) file env)
 	    (write-definitions! post-defines "  (set! " file env)
 	    (write-patches! "  " file env)
 	    (display "  )\n" file)))
-      (write-readables! alist file))))
+      (write-readables! alist file env)
+      (write-rebindings! "(define " (reverse (multiple-bound env)) file env))))
 
 (define-method load-objects ((file <string>))
   (let* ((port (open-input-file file))
