@@ -2,6 +2,8 @@
 
 	* goops/goops.scm: Added <complex> to list of print slot
 	initializations.
+	(compute-getters-n-setters): Use `(procedure-property <proc> 'arity)'
+	instead of `%procedure-arity' in `verify-accessors'.
 
 	* goops.c (scm_class_of): Use TEST_CHANGE_CLASS to check for class
 	redefinition if argument is a goops instance.
