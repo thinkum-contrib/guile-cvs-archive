@@ -49,6 +49,8 @@
 #include "_scm.h"
 #include "mb.h"
 #include "mbconv.h"
+#include "mbbasic.h"
+
 #include "mbemacs.h"
 
 
@@ -92,8 +94,8 @@ emacs_mule_read (void *cookie,
 
 static enum scm_mb_write_result
 emacs_mule_write (void *cookie,
-		  scm_char_t **inbuf,  size_t *incharsleft,
-		  char       **outbuf, size_t *outbytesleft)
+		  const scm_char_t **inbuf,  size_t *incharsleft,
+		  char             **outbuf, size_t *outbytesleft)
 {
   const scm_char_t *in = *inbuf;
   const scm_char_t *in_end = in + *incharsleft;
@@ -142,48 +144,6 @@ emacs_mule_write (void *cookie,
    Perhaps we can cram CHARSET_KATAKANA_JISX0201 and
    CHARSET_LATIN_JISX0201 into this system, too.  */
 
-#define ISO8859_INIT(charset, number)			\
-static int						\
-iso8859_ ## number ## _init (void **privp)		\
-{							\
-  static unsigned char = number;			\
-  *privp = (void *) &charset_num;			\
-  return 1;						\
-}							\
-static char *iso8859_ ## number ##_names[] = {		\
-  "ISO-8859-" ## # number, "Latin-" ## #number, 0	\
-};
-
-ISO8859_INIT(CHARSET_LATIN_ISO8859_1, 1)
-ISO8859_INIT(CHARSET_LATIN_ISO8859_2, 2)
-ISO8859_INIT(CHARSET_LATIN_ISO8859_3, 3)
-ISO8859_INIT(CHARSET_LATIN_ISO8859_4, 4)
-ISO8859_INIT(CHARSET_CYRILLIC_ISO8859_5, 5)
-ISO8859_INIT(CHARSET_ARABIC_ISO8859_6, 6)
-ISO8859_INIT(CHARSET_GREEK_ISO8859_7, 7)
-ISO8859_INIT(CHARSET_HEBREW_ISO8859_8, 8)
-ISO8859_INIT(CHARSET_LATIN_ISO8859_9, 9)
-
-#define ISO8859_ENTRY(number)				\
-  {							\
-    iso8859_ ## number ## _names,			\
-    iso8859_ ## number ## _init,			\
-    0, 0, iso_iso8859_read, iso_iso8859_write, 0	\
-  }
-
-static struct scm_mb_encoding iso8859_encodings[] =
-{
-  ISO8859_ENTRY(1),
-  ISO8859_ENTRY(2),
-  ISO8859_ENTRY(3),
-  ISO8859_ENTRY(4),
-  ISO8859_ENTRY(5),
-  ISO8859_ENTRY(6),
-  ISO8859_ENTRY(7),
-  ISO8859_ENTRY(8),
-  ISO8859_ENTRY(9)
-};
-
 static enum scm_mb_read_result
 iso8859_read (void *priv,
 	      const char **inbuf,  size_t *inbytesleft,
@@ -213,8 +173,8 @@ iso8859_read (void *priv,
 
 static enum scm_mb_write_result
 iso8859_write (void *priv,
-	       scm_char_t **inbuf,  size_t *incharsleft,
-	       char       **outbuf, size_t *outbytesleft)
+	       const scm_char_t **inbuf,  size_t *incharsleft,
+	       char             **outbuf, size_t *outbytesleft)
 {
   unsigned char charset = * (unsigned char *) priv;
   const scm_char_t *in = *inbuf;
@@ -255,6 +215,48 @@ iso8859_write (void *priv,
 
   return scm_mb_write_ok;
 }
+
+#define ISO8859_INIT(charset, number)			\
+static int						\
+iso8859_ ## number ## _init (void **privp)		\
+{							\
+  static unsigned char charset_num = number;		\
+  *privp = (void *) &charset_num;			\
+  return 1;						\
+}							\
+static char *iso8859_ ## number ##_names[] = {		\
+  "ISO-8859-" ## # number, "Latin-" ## #number, 0	\
+};
+
+ISO8859_INIT(CHARSET_LATIN_ISO8859_1, 1)
+ISO8859_INIT(CHARSET_LATIN_ISO8859_2, 2)
+ISO8859_INIT(CHARSET_LATIN_ISO8859_3, 3)
+ISO8859_INIT(CHARSET_LATIN_ISO8859_4, 4)
+ISO8859_INIT(CHARSET_CYRILLIC_ISO8859_5, 5)
+ISO8859_INIT(CHARSET_ARABIC_ISO8859_6, 6)
+ISO8859_INIT(CHARSET_GREEK_ISO8859_7, 7)
+ISO8859_INIT(CHARSET_HEBREW_ISO8859_8, 8)
+ISO8859_INIT(CHARSET_LATIN_ISO8859_9, 9)
+
+#define ISO8859_ENTRY(number)				\
+  {							\
+    iso8859_ ## number ## _names,			\
+    iso8859_ ## number ## _init,			\
+    0, 0, iso8859_read, iso8859_write, 0		\
+  }
+
+static struct scm_mb_encoding iso8859_encodings[] =
+{
+  ISO8859_ENTRY(1),
+  ISO8859_ENTRY(2),
+  ISO8859_ENTRY(3),
+  ISO8859_ENTRY(4),
+  ISO8859_ENTRY(5),
+  ISO8859_ENTRY(6),
+  ISO8859_ENTRY(7),
+  ISO8859_ENTRY(8),
+  ISO8859_ENTRY(9)
+};
 
 
 /* Initialization.  */
