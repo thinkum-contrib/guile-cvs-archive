@@ -154,6 +154,7 @@ typedef struct scm_method_t {
 #define scm_si_methods		 0  /* offset of methods slot in a <generic> */
 #define scm_si_n_specialized	 1
 #define scm_si_used_by		 2
+#define scm_si_cache_mutex	 3
 
 #define scm_si_generic_function	 0  /* offset of gf    slot in a <method> */
 #define scm_si_specializers	 1  /* offset of spec. slot in a <method> */
