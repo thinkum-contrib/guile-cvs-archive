@@ -1,0 +1,11 @@
+Part of the release process: record the API.
+
+To do this, try something like:
+
+  cd ~/build/tmp/.tmp-1.6
+  ~/build/.gnu/guile-scripts/scan-api \
+    "/home/ttn/build/.gnu/guile-core-1.6/pre-inst-guile ." \
+    libguile/.libs/libguile.so.10.0.0 \
+    > ~/build/.gnu/guile-core-1.6/doc/guile-api.alist
+
+Note that the guile-api.alist location is fixed (other tools depend on it).
