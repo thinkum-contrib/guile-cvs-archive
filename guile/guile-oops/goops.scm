@@ -957,8 +957,7 @@
 		  m)))))
 
 (define (make-bound-check-get index)
-  (local-eval `(lambda (o) (assert-bound (@slot-ref o ,index) o))
-	      (the-environment)))
+  (local-eval `(lambda (o) (@assert-bound-ref o ,index)) (the-environment)))
 
 (define (make-get index)
   (local-eval `(lambda (o) (@slot-ref o ,index)) (the-environment)))
