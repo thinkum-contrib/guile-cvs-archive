@@ -1,7 +1,14 @@
 Overview
 ========
 
-Proposed new procedures:
+This proposal is for the introduction of three new procedures to
+replace the existing call-with-dynamic-root procedure and the
+corresponding C interfaces.  The new procedures are supposed to be
+more useful for programs embedding Guile and would also move the
+concept of "dynamic roots" from the external API to become a thread
+implementation detail.
+
+The proposed new procedures are:
 
 with-continuation-barrier, implemented by
 scm_with_continuation_barrier in C. Takes 2 SCM arguments: a body
@@ -52,7 +59,7 @@ dynamic state when the protected procedure is called.  In addition
 the implementation looks a bit heavy for use in every callback.
 
 scm_call_with_dynamic_root was implemented to support threading, so
-the needs of libguile itself should be considered.  Other
+the needs of guile-core itself should be considered.  Other
 considerations are how any new interface interacts with error handling
 and reporting; whether a new interface is convenient to use from C;
 whether a new interface should also be available to Scheme code.
@@ -113,7 +120,7 @@ Discussion
 Why bother providing this kind of facility?  Because otherwise most C
 applications that link Guile will need to find some other way to
 prevent the use of continuations across callbacks if they are to avoid
-a source of bugs.  It makes sense to provide this in libguile, where
+a source of bugs.  It makes sense to provide this in guile-core, where
 the ability to modify the internals of the continuation implementation
 is a significant advantage, as discussed further below.
 
