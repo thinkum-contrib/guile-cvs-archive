@@ -54,9 +54,6 @@
 #define SCM_SYSERROR_MSG(str,args,val) \
   do { scm_syserror_msg(FUNC_NAME,(str),(args),(val)); } while (0)
 
-#define SCM_SYSMISSING \
-  do { scm_sysmissing(FUNC_NAME); } while (0)
-
 #define SCM_WTA(pos,scm) \
   do { scm_wta(scm,(char *)pos,FUNC_NAME); } while (0)
 
