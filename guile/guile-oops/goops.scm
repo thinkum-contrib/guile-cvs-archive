@@ -252,7 +252,10 @@
 			 `(define ,name
 			    (let ((old ,name)
 				  (new (class ,@(cddr exp) #:name ',name)))
-			      (if (is-a? old <class>)
+			      (if (and (is-a? old <class>)
+				       ;; Prevent redefinition of non-objects
+				       (memq <object>
+					     (class-precedence-list old)))
 				  (class-redefinition old new)
 				  new)))
 		      
@@ -328,8 +331,11 @@
   (let ((env (or (get-keyword #:environment options #f)
 		 (top-level-env))))
     (let* ((name (get-keyword #:name options (make-unbound)))
-	   (supers (if (null? supers) 
-		       (list <object>)
+	   (supers (if (not (or-map (lambda (class)
+				      (memq <object>
+					    (class-precedence-list class)))
+				    supers))
+		       (append supers (list <object>))
 		       supers))
 	   (metaclass (or (get-keyword #:metaclass options #f)
 			  (ensure-metaclass supers env))))
@@ -873,7 +879,7 @@
 				      (new <class>))
   (let loop ((l (method-specializers m)))
     ;; Note: the <top> in dotted list is never used. 
-    ;; So we can work if we had only proper lists.
+    ;; So we can work as if we had only proper lists.
     (if (pair? l)       	  
 	(begin
 	  (if (eqv? (car l) old)  
