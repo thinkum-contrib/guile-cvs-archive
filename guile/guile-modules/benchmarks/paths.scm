@@ -1,2 +1,3 @@
 (define-module (benchmarks paths))
-(define-public datadir "/home/jimb/guile/src/modules/guile-modules/benchmarks")
+(define-public datadir 
+  (string-append (getenv "HOME") "/guile-modules/benchmarks"))
