@@ -1046,17 +1046,38 @@
 
 ;; Support
 
-(define (every test . lists)
-  (let scan ((tails lists))
-    (if (member #t (map null? tails))             ;(any null? lists)
-	#t
-	(and (apply test (map car tails))
-	     (scan (map cdr tails))))))
+(define (only-non-null lst)
+  (filter (lambda (l) (not (null? l))) lst))
 
-(define (collect-if test? list)
-  (cond ((null? list) '())
-	((test? (car list)) (cons (car list) (collect-if test? (cdr list))))
-	(else (collect-if test? (cdr list)))))
+(define (compute-std-cpl c get-direct-supers)
+  (let ((c-direct-supers (get-direct-supers c)))
+    (merge-lists (list c)
+                 (only-non-null (append (map class-precedence-list
+					     c-direct-supers)
+                                        (list c-direct-supers))))))
+
+(define (merge-lists reversed-partial-result inputs)
+  (cond
+   ((every null? inputs)
+    (reverse! reversed-partial-result))
+   (else
+    (let* ((candidate (lambda (c)
+                        (and (not (any (lambda (l)
+                                         (memq c (cdr l)))
+                                       inputs))
+                             c)))
+           (candidate-car (lambda (l)
+                            (and (not (null? l))
+                                 (candidate (car l)))))
+           (next (any candidate-car inputs)))
+      (if (not next)
+          (goops-error "merge-lists: Inconsistent precedence graph"))
+      (let ((remove-next (lambda (l)
+                           (if (eq? (car l) next)
+                               (cdr l)
+                             l))))
+        (merge-lists (cons next reversed-partial-result)
+                     (only-non-null (map remove-next inputs))))))))
 
 ;; Modified from TinyClos:
 ;;
@@ -1068,7 +1089,7 @@
 ;; Mendhekar <anurag@moose.cs.indiana.edu>.
 ;;
 
-(define (compute-std-cpl c get-direct-supers)
+(define (compute-clos-cpl c get-direct-supers)
   (top-sort ((build-transitive-closure get-direct-supers) c)
 	    ((build-constraints get-direct-supers) c)
 	    (std-tie-breaker get-direct-supers)))
@@ -1081,7 +1102,7 @@
     (if (null? elements)
 	result
 	(let ((can-go-in-now
-	       (collect-if
+	       (filter
 		(lambda (x)
 		  (every (lambda (constraint)
 			   (or (not (eq? (cadr constraint) x))
@@ -1095,7 +1116,7 @@
 				(tie-breaker result
 					     can-go-in-now))))
 		(loop
-		 (collect-if (lambda (x) (not (eq? x choice)))
+		 (filter (lambda (x) (not (eq? x choice)))
 			     elements)
 		 constraints
 		 (append result (list choice)))))))))
@@ -1105,7 +1126,7 @@
     (let loop ((pcpl (reverse partial-cpl)))
       (let ((current-elt (car pcpl)))
 	(let ((ds-of-ce (get-supers current-elt)))
-	  (let ((common (collect-if (lambda (x)
+	  (let ((common (filter (lambda (x)
 				      (memq x ds-of-ce))
 				    min-elts)))
 	    (if (null? common)
