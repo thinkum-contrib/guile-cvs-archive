@@ -950,7 +950,6 @@ void main_prog(int argc, char *argv[])
   gh_eval_str("(display \"hello Guile\")");
   gh_eval_str("(newline)");
 
-
   /* @r{for fun, evaluate some simple Scheme expressions here} */
   gh_eval_str("(define (square x) (* x x))");
   gh_eval_str("(define (fact n) (if (= n 1) 1 (* n (fact (- n 1)))))");
@@ -1042,9 +1041,11 @@ mechanism to go back and forth between C and Scheme data types.
 Here is a second program, @code{learn1}, which demonstrates these
 features.  It is split into three source files: @code{learn1.c},
 @code{c_builtins.h} and @code{c_builtins.c}.  I am including the code
-here, but you might just want to look at the online source code and the
-Makefile.am that come with Guile in the
-@file{doc/examples/c} directory.
+here.
+@c , but you might just want to look at the online source code and the
+@c Makefile.am that come with Guile in the
+@c @file{doc/examples/c} directory.
+
 Notice that @code{learn1} uses a Scheme master world, and the C routines
 in @code{c_builtins.c} are simply adding new primitives to Scheme.
 
@@ -1063,7 +1064,7 @@ Here is @file{learn1.c}:
 @smallexample
 #include <stdio.h>
 
-#include <gh.h>
+#include <guile/gh.h>
 
 #include "c_builtins.h"
 
@@ -1078,8 +1079,6 @@ void main_prog(int argc, char *argv[])
 @{
   char input_str[200];		/* @r{ugly hack: assume strlen(line) < 200} */
   int done;
-
-  gh_startup();
 
   /* @r{for fun, evaluate some simple Scheme expressions here} */
   gh_eval_str("(define (square x) (* x x))");
@@ -1117,7 +1116,7 @@ Here is @file{c_builtins.h}:
 @smallexample
 /* @r{builtin function prototypes} */
 
-#include <gh.h>
+#include <guile/gh.h>
 
 SCM c_factorial(SCM n);
 SCM c_sin(SCM n);
@@ -1132,7 +1131,7 @@ Here is @file{c_builtins.c}:
 #include <stdio.h>
 #include <math.h>
 
-#include <gh.h>
+#include <guile/gh.h>
 
 #include "c_builtins.h"
 
@@ -1167,15 +1166,14 @@ SCM c_sin(SCM s_x)
 SCM vector_test(SCM s_length)
 @{
   SCM xvec;
-  unsigned long c_length;
 
   c_length = gh_scm2ulong(s_length);
-  printf("requested length for vector: %ld\n", c_length);
+  printf("requested length for vector: %ld\n", gh_scm2ulong(s_length));
 
   /* create a vector */
-  xvec = gh_vector(c_length, gh_double2scm(0.0));
+  xvec = gh_make_vector(s_length, gh_double2scm(0.0));
   /* set the second element in it */
-  gh_vset(xvec, gh_int2scm(2), gh_double2scm(1.9));
+  gh_vector_set_x(xvec, gh_int2scm(2), gh_double2scm(1.9));
 
   return xvec;
 @}
@@ -1208,7 +1206,7 @@ adding callbacks.
 @cartouche
 @enumerate
 @item
-@code{#include <gh.h>}
+@code{#include <guile/gh.h>}
 @item
 You need to invoke the initialization routine @code{gh_enter()}.  This
 starts up a Scheme interpreter, handling many details.
@@ -1229,7 +1227,7 @@ i.e. define new builtin Scheme functions, with the
 You pass strings to the Scheme interpreter with the
 @code{gh_eval_str()} routine.
 @item
-You link your program with @code{-lguile -lgh}.
+You link your program with @code{-lguile}.
 @end enumerate
 @end cartouche
 
@@ -1242,9 +1240,9 @@ discussed at length in the @cite{Guile Programmer's Manual}.
 @subsection Compiling and running learn1
 
 @smallexample
-gcc -g -I/usr/local/include/guile   -c learn1.c -o learn1.o
-gcc -g -I/usr/local/include/guile   -c c_builtins.c -o c_builtins.o
-gcc -o learn1 learn1.o c_builtins.o -L/usr/local/lib/scm -L/usr/local/lib -lguile -lgh -lm
+gcc -g -c learn1.c -o learn1.o
+gcc -g -c c_builtins.c -o c_builtins.o
+gcc -o learn1 learn1.o c_builtins.o -lguile -lm
 @end smallexample
 
 If you run @code{learn1}, it will prompt you for a one-line Scheme
@@ -1263,9 +1261,7 @@ learn1> (display (c-factorial 20))
 learn1> (display (c-factorial 100))
 0
 learn1> (display (c-sin 1.5))
-997.494986604054e-3
-learn1> (display (c-sin 1.5))
-997.494986604054e-3
+0.997494986604054
 learn1> (display (v-t 10))
 requested length for vector: 10
 #(0.0 0.0 1.9 0.0 0.0 0.0 0.0 0.0 0.0 0.0)
