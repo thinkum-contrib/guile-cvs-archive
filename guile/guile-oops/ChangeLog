@@ -1,3 +1,13 @@
+1999-03-19  Mikael Djurfeldt  <mdj@barbara.nada.kth.se>
+
+	* Makefile.am (internal.scm, active-slot.scm): Added.
+	
+	* internal.scm (oop goops internal): New module.  Exports all
+	internal bindings in (oop goops).
+
+	* active-slot.scm (oop goops active-slot): New module.  Ported
+	from STKlos.
+
 1999-03-18  Mikael Djurfeldt  <mdj@barbara.nada.kth.se>
 
 	* goops.scm, Makefile.am, goops.c, goops.h, guile-oops.c: Renamed
