@@ -1,3 +1,42 @@
+2001-11-17  Thien-Thi Nguyen  <ttn@glug.org>
+
+	* configure.in: Bump version to 1.0 for release.
+
+	* wwwcat, cgi.scm, http.scm, main.scm, url.scm:
+	Update copyright.
+
+	* configure.in: Add copyright.
+
+	(AC_OUTPUT): Add doc/Makefile.
+
+	* AUTHORS, NEWS:
+	Initial revision.
+
+	* Makefile.am: Add copyright.
+
+	(AUTOMAKE_OPTIONS): Set to "gnu".
+	(SUBDIRS, EXTRA_DIST): New vars.
+	(dist-hook): New target.
+
+	* README: Rewrite.
+
+	* autogen.sh: Pass "--verbose" to automake.
+
+	* doc/guile-www.texi, doc/Makefile.am:
+	New file.
+
+2001-11-16  Thien-Thi Nguyen  <ttn@glug.org>
+
+	* cgi.scm, http.scm, main.scm, url.scm:
+	Add commentary; nfc.
+
+	* COPYING: New file.
+
+	* .cvsignore (Makefile.in, aclocal.m4, configure):
+	Add.
+
+	* configure: bye bye
+
 2001-11-15  Thien-Thi Nguyen  <ttn@glug.org>
 
 	* contrib/ssl-support.diff: New file.
