@@ -22,9 +22,10 @@ present in @sc{ASCII}.
 
 Instead, Guile uses a very large character set, and encodes each
 character as a sequence of one or more bytes.  We call this
-variable-width encoding a @dfn{multibyte} encoding.  Guile uses it
-internally for all strings, symbol names, error messages, etc., and
-performs appropriate conversions upon input or output.
+variable-width encoding a @dfn{multibyte} encoding.  Guile uses this
+single encoding internally for all strings, symbol names, error
+messages, etc., and performs appropriate conversions upon input or
+output.
 
 The use of this variable-width encoding is almost invisible to Scheme
 code.  Strings are still indexed by character number, not by byte
@@ -88,12 +89,17 @@ necessarily} onto bytes.  For example, the Unicode character set maps
 the Greek lower-case @samp{alpha} character onto the number 945, which
 is not a byte.
 
+(This is what Internet standards would call a "coding character set".)
+
 @item encoding
 An encoding maps numbers onto sequences of bytes.  For example, the
 UTF-8 encoding, defined in the Unicode Standard, would map the number
 945 onto the sequence of bytes @samp{206 177}.  When using the
 @sc{ASCII} character set, every number assigned also happens to be a
 byte, so there is an obvious trivial encoding for @sc{ASCII} in bytes.
+
+(This is what Internet standards would call a "character encoding
+scheme".)
 
 @end table
 
@@ -230,6 +236,15 @@ length of the character's encoding, in bytes.
 Return the length of the encoding of the character @var{c}, in bytes.
 @end deftypefn
 
+@deftypefn {Libguile Function} scm_char_t scm_mb_get_func (const unsigned char *@var{p})
+@deftypefnx {Libguile Function} int scm_mb_put_func (scm_char_t @var{c}, unsigned char *@var{p})
+@deftypefnx {Libguile Function} int scm_mb_len_func (unsigned char @var{b})
+@deftypefnx {Libguile Function} int scm_mb_len_char_func (scm_char_t @var{c})
+These are functions identical to the corresponding macros.  You can use
+them in situations where the overhead of a function call is acceptable,
+and the cleaner semantics of function application are desireable.
+@end deftypefn
+
 
 @node Finding Character Encoding Boundaries, Multibyte String Functions, Basic Multibyte Character Processing, Functions for Operating on Multibyte Text
 @subsection Finding Character Encoding Boundaries
@@ -248,7 +263,7 @@ multibyte text.
 This macro will evaluate its argument only once.
 @end deftypefn
 
-@deftypefn {Libguile Function} {unsigned char *} scm_mb_floor (unsigned char *@var{p})
+@deftypefn {Libguile Function} {const unsigned char *} scm_mb_floor (const unsigned char *@var{p})
 ``Round'' @var{p} to the previous character boundary.  That is, if
 @var{p} points to the middle of the encoding of a Guile character,
 return a pointer to the first byte of the encoding.  If @var{p} points
@@ -256,7 +271,7 @@ to the start of the encoding of a Guile character, return @var{p}
 unchanged.
 @end deftypefn
 
-@deftypefn {libguile Function} {unsigned char *} scm_mb_ceiling (unsigned char *@var{p})
+@deftypefn {libguile Function} {const unsigned char *} scm_mb_ceiling (const unsigned char *@var{p})
 ``Round'' @var{p} to the next character boundary.  That is, if @var{p}
 points to the middle of the encoding of a Guile character, return a
 pointer to the first byte of the encoding of the next character.  If
@@ -289,13 +304,13 @@ an incomplete character encoding, signal a @code{text:bad-encoding}
 error.
 @end deftypefn
 
-@deftypefn {Libguile Function} scm_char_t scm_mb_walk (const unsigned char **@var{pp})
+@deftypefn {Libguile Macro} scm_char_t scm_mb_walk (unsigned char **@var{pp})
 Return the character whose encoding starts at @code{*@var{pp}}, and
 advance @code{*@var{pp}} to the start of the next character.  Return -1
 if @code{*@var{pp}} does not point to a valid character encoding.
 @end deftypefn
 
-@deftypefn {Libguile Function} {unsigned char *} scm_mb_prev (const unsigned char *@var{p})
+@deftypefn {Libguile Function} {const unsigned char *} scm_mb_prev (const unsigned char *@var{p})
 If @var{p} points to the middle of the encoding of a Guile character,
 return a pointer to the first byte of the encoding.  If @var{p} points
 to the start of the encoding of a Guile character, return the start of
@@ -306,7 +321,7 @@ be before @var{p}.  If you use this function to drive an iteration, it
 guarantees backward progress.
 @end deftypefn
 
-@deftypefn {Libguile Function} {unsigned char *} scm_mb_next (const unsigned char *@var{p})
+@deftypefn {Libguile Function} {const unsigned char *} scm_mb_next (const unsigned char *@var{p})
 If @var{p} points to the encoding of a Guile character, return a pointer
 to the first byte of the encoding of the next character.
 
@@ -315,7 +330,7 @@ be after @var{p}.  If you use this function to drive an iteration, it
 guarantees forward progress.
 @end deftypefn
 
-@deftypefn {Libguile Function} unsigned char *scm_mb_index (const unsigned char *@var{p}, int @var{len}, int @var{i})
+@deftypefn {Libguile Function} {const unsigned char *} scm_mb_index (const unsigned char *@var{p}, int @var{len}, int @var{i})
 Assuming that the @var{len} bytes starting at @var{p} are a
 concatenation of valid character encodings, return a pointer to the
 start of the @var{i}'th character encoding in the sequence.
@@ -333,8 +348,8 @@ It is common to process the characters in a string from left to right.
 However, if you fetch each character using @code{scm_mb_index}, each
 call will scan the text from the beginning, so your loop will require
 time proportional to at least the square of the length of the text.  To
-avoid this poor performance, you can use a @code{scm_mb_cache}
-structure and the @code{scm_mb_index_cached} function.
+avoid this poor performance, you can use an @code{scm_mb_cache}
+structure and the @code{scm_mb_index_cached} macro.
 
 @deftp {Libguile Type} {struct scm_mb_cache}
 This structure holds information that allows a string scanning operation
@@ -361,14 +376,18 @@ initialized to zero before its first use, and whenever the string's text
 changes.
 @end deftp
 
-@deftypefn {Libguile Macro} unsigned char *scm_mb_index_cached (const unsigned char *@var{p}, int @var{len}, int @var{i}, struct scm_mb_cache *@var{cache})
-This macro is identical to @code{scm_mb_index}, except that it may
-consult and update *@var{cache} in order to avoid scanning the string
-from the beginning.  And since it is a macro, it may evaluate its
-arguments more than once.
+@deftypefn {Libguile Macro} const unsigned char *scm_mb_index_cached (const unsigned char *@var{p}, int @var{len}, int @var{i}, struct scm_mb_cache *@var{cache})
+@deftypefnx {Libguile Function} const unsigned char *scm_mb_index_cached_func (const unsigned char *@var{p}, int @var{len}, int @var{i}, struct scm_mb_cache *@var{cache})
+This macro and this function are identical to @code{scm_mb_index},
+except that they may consult and update *@var{cache} in order to avoid
+scanning the string from the beginning.  @code{scm_mb_index_cached} is a
+macro, so it may have less overhead than
+@code{scm_mb_index_cached_func}, but it may evaluate its arguments more
+than once.
 
-Using @code{scm_mb_index_cached}, you can scan a string from left to
-right in time proportional to the length of the string.
+Using @code{scm_mb_index_cached} or @code{scm_mb_index_cached_func}, you
+can scan a string from left to right in time proportional to the length
+of the string.
 @end deftypefn
 
 Guile also provides functions to convert between an encoded sequence of
@@ -385,12 +404,15 @@ If the text is not a sequence of valid character encodings, this
 function will signal a @code{text:bad-encoding} error.
 @end deftypefn
 
-@deftypefn {Libguile Function} unsigned char
-*scm_mb_fixed_to_multibyte (scm_char_t *@var{fixed}, int @var{len}, int *@var{result_len})
+@deftypefn {Libguile Function} unsigned char *scm_mb_fixed_to_multibyte (const scm_char_t *@var{fixed}, int @var{len}, int *@var{result_len})
 Convert the array of @code{scm_char_t} values to a sequence of
 variable-width character encodings.  Return a pointer to the array of
-bytes, and set @code{*@var{result_len}} to its length, in bytes.  The
-returned byte sequence is allocated with @code{malloc}; it is the
+bytes, and set @code{*@var{result_len}} to its length, in bytes.
+
+The returned byte sequence is terminated with a zero byte, which is not
+counted in the length returned in @code{*@var{result_len}}.
+
+The returned byte sequence is allocated with @code{malloc}; it is the
 caller's responsibility to free it.
 
 If the text is not a sequence of valid character encodings, this
@@ -424,16 +446,19 @@ encodings, a contiguous group of bytes from the sequence completely
 specifies a particular character; these are stateless encodings.
 However, some encodings require you to look back an unbounded number of
 bytes in the stream to assign a meaning to a particular byte sequence;
-such encodings are stateful.  For example, in the @samp{ISO-2022-JP}
-encoding for Japanese text, the byte sequence @samp{27 36 66} indicates
-that subsequent bytes should be taken in pairs and interpreted as
-characters from the JIS-0208 character set.  An arbitrary number of byte
-pairs may follow this sequence.  The byte sequence @samp{27 40 66}
-indicates that subsequent bytes should be interpreted as @sc{ASCII}.  In
-this encoding, you cannot tell whether a given byte is an @sc{ASCII}
-character without looking back an arbitrary distance for the most recent
-escape sequence, so it is a stateful encoding.  In Guile, if a
-conversion involves a stateful encodings are stateful, the context
+such encodings are stateful.
+
+For example, in the @samp{ISO-2022-JP} encoding for Japanese text, the
+byte sequence @samp{27 36 66} indicates that subsequent bytes should be
+taken in pairs and interpreted as characters from the JIS-0208 character
+set.  An arbitrary number of byte pairs may follow this sequence.  The
+byte sequence @samp{27 40 66} indicates that subsequent bytes should be
+interpreted as @sc{ASCII}.  In this encoding, you cannot tell whether a
+given byte is an @sc{ASCII} character without looking back an arbitrary
+distance for the most recent escape sequence, so it is a stateful
+encoding.
+
+In Guile, if a conversion involves a stateful encoding, the context
 object carries any necessary state.  Thus, you can have many independent
 conversions to or from stateful encodings taking place simultaneously,
 as long as each data stream uses its own context object for the
@@ -454,9 +479,11 @@ is in some appropriate initial state, ready for use with the
 @code{scm_mb_iconv} function.
 
 If either @var{tocode} or @var{fromcode} is not the name of a known
-encoding, this function will signal the @code{text:unknown-encoding}
+encoding, this function will signal the @code{text:unknown-conversion}
 error, described below.
 
+@c Try to use names here from the IANA list: 
+@c see ftp://ftp.isi.edu/in-notes/iana/assignments/character-sets
 Guile supports at least these encodings:
 @table @samp 
 @item guile
@@ -464,7 +491,7 @@ This is always Guile's current internal multibyte encoding.  The actual
 encoding this name represents may change over time, but you will need to
 use this when converting data between external sources and Guile
 objects.  Currently, this is equivalent to @samp{Emacs-Mule}.
-@item ASCII
+@item US-ASCII
 @sc{US-ASCII}, in the standard one-character-per-byte encoding.
 @item ISO-8859-1
 @item Emacs-Mule
@@ -623,7 +650,7 @@ maintain whatever state they like.
 The Guile conversion back end represents each available encoding with a
 @code{struct scm_mb_encoding} object.
 
-@deftp {Libguile Type} scm_mb_encoding
+@deftp {Libguile Type} {struct scm_mb_encoding}
 This data structure describes an encoding.  It has the following
 members:
 
@@ -666,10 +693,18 @@ The @code{destroy} member may be zero, indicating that this encoding
 doesn't need to perform any special action to destroy its local data.
 
 @item int (*reset) (void *@var{cookie}, char **@var{outbuf}, size_t *@var{outbytesleft})
-Put the output buffer into the initial shift state.  @var{outbuf} and
-@var{outbytesleft} should be handled just as for @code{scm_mb_iconv}.
-This function can return an @code{scm_mb_iconv_} error code.
-@xref{Exchanging Guile Text With the Outside World in C}.
+Put the encoding into its initial shift state.  Guile calls this
+function whether the encoding is being used for input or output, so this
+should take appropriate steps for both directions.  If @var{outbuf} and
+@var{outbytesleft} are valid, the reset function should emit an escape
+sequence to reset the output stream to its initial state; @var{outbuf}
+and @var{outbytesleft} should be handled just as for
+@code{scm_mb_iconv}.
+
+This function can return an @code{scm_mb_iconv_} error code
+(@pxref{Exchanging Guile Text With the Outside World in C}).  If it
+returns @code{scm_mb_iconv_more_room}, then the output buffer's shift
+state must be left unchanged.
 
 Note that @code{reset} receives the cookie's value itself, not a pointer
 to the cookie, as the @code{init} and @code{destroy} functions do.
@@ -715,7 +750,7 @@ Return one of the @code{scm_mb_write_result} values, described below.
 Note that @code{write} receives the cookie's value itself, not a pointer
 to the cookie, as the @code{init} and @code{destroy} functions do.
 
-@item struct unicode_encoding_t *next
+@item struct scm_mb_encoding *next
 This is used by Guile to maintain a linked list of encodings.  It is
 filled in when you call @code{scm_mb_register_encoding} to add your
 encoding to the list.
@@ -794,13 +829,25 @@ consumed input has been converted and placed in the output buffer.
 There is no ``flush'' operation to push any final results out of the
 encodings' buffers.
 
+Here is the function you call to register a new encoding with the
+conversion system:
+
+@deftypefn {Libguile Function} void scm_mb_register_encoding (struct scm_mb_encoding *@var{encoding})
+Add the encoding described by @code{*@var{encoding}} to the set
+understood by @code{scm_mb_iconv_open}.  Once you have registered your
+encoding, you can use it by calling @code{scm_mb_iconv_open} with one of
+the names in @code{@var{encoding}->names}.
+@end deftypefn
 
 
 @node Multibyte Text Processing Errors, Why Guile Does Not Use a Fixed-Width Encoding, Functions for Operating on Multibyte Text, Working With Multibyte Strings in C
 @section Multibyte Text Processing Errors
 
 This section describes error conditions which code can signal to
-indicate problems encountered while processing multibyte text.
+indicate problems encountered while processing multibyte text.  In each
+case, the arguments @var{message} and @var{args} are an error format
+string and arguments to be substituted into the string, as accepted by
+the @code{display-error} function.
 
 @deffn Condition text:not-char-boundary func message args object offset
 By calling @var{func}, the program attempted to access a character at
@@ -823,6 +870,20 @@ By calling @var{func}, the program attempted to treat @var{number} as the
 number of a character in the Guile character set, but @var{number} does
 not correspond to any character in the Guile character set.
 @end deffn
+
+@deffn Condition text:unknown-conversion func message args from to
+By calling @var{func}, the program attempted to convert from an encoding
+named @var{from} to an encoding named @var{to}, but Guile does not
+support such a conversion.
+@end deffn
+
+@deftypevr {Libguile Variable} SCM scm_text_not_char_boundary
+@deftypevrx {Libguile Variable} SCM scm_text_bad_encoding
+@deftypevrx {Libguile Variable} SCM scm_text_not_guile_char
+These variables hold the scheme symbol objects whose names are the
+condition symbols above.  You can use these when signalling these
+errors, instead of looking them up yourself.
+@end deftypevr
 
 
 @node Why Guile Does Not Use a Fixed-Width Encoding,  , Multibyte Text Processing Errors, Working With Multibyte Strings in C
