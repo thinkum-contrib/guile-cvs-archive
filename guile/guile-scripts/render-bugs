@@ -10,7 +10,7 @@ now=`date -u "+%Y-%m-%d %H:%M:%S"`
 echo 'Guile BUGS database snapshot' $now 'UTC -- do not edit!'
 echo 'Please send bug reports to bug-guile@gnu.org (after checking this file).'
 echo
-find . -name '[a-z0-9]*' -type f \
+find . -name '[a-z0-9]*' -type f -not -name '*~' \
     \( -printf "name: %f\n" \
        -exec sed '/^$/ q' '{}' \; \) \
     -maxdepth 1
