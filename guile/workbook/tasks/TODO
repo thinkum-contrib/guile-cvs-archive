@@ -33,7 +33,10 @@
   + complete build/stability.text [ttn]
   - make sure all bugs have required headers
   - fix bugs
-
+    + 15 (summary: (expt 0 0) -> 0)
+    - string-tokenize-is-wrong
+    - instructions-to-distributors
+    - COPYING-is-wrong
 
 - Eventually
   - also show bidi set-difference counts in api-diff [ttn]

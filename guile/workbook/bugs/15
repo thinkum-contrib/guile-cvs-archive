@@ -1,9 +1,10 @@
 summary: (expt 0 0) -> 0
 reported: rlb, 2001-03-21
-tags: release-critical-1.6
-affects: HEAD branch_release-1-6 branch_release-1-4
+affects: HEAD branch_release-1-4
 see-also-dir: 15.stuff
 test-case: expt-0-0.scm
 
 According to R5RS (expt 0 0) -> 1
 
+This is fixed in the 1.6 branch, and I'll be moving the fix to HEAD
+shortly.
