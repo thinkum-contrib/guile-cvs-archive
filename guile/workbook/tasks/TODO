@@ -14,6 +14,11 @@
 
 
 - Guile 1.6.1 (branched: only modify items according to ../build/release.txt)
+  - call-with-output-string seg faults if its port is closed, eg.
+       (call-with-output-string close-port)
+    What should happen?  Should this be an error, or should it be
+    possible to get the string out of a closed string port?
+    [Same situation in the cvs head.]
 
 - Guile 1.8.0
 
