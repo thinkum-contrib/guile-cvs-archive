@@ -1,0 +1,403 @@
+							-*-outline-*-
+* Guile's internal representation
+
+** Introduction
+
+The following code snippet was used for producing the internal
+representation dumps in the following sections.
+
+  (use-modules (srfi srfi-13))
+  (define (bin o)
+    (string-pad (number->string (object-address o) 2) 32 #\0))
+
+
+** General
+
+All Scheme values are represented by a 32-bit word.  This word encodes
+the data type (at least the group of types) a value belongs to.
+Additionally, this word may contain information about the value,
+either directly in the data word, or in another memory region.  In the
+letter case, the 32-bit word includes a pointer to that region.
+
+So for determining an object's type, it is first necessary to check
+the contents of this 32-bit word, and then the memory location pointed
+to, if it contains a pointer.
+
+This section focuses on this 32-bit word every value must have.  The
+following sections will describe how to interpret the referenced
+memory regions.
+
+
+*** A word on Scheme objects.
+
+It is normally not allowed in a variable of type SCM to have a 1 in
+bit #0.  There are exceptions for values in the CAR of cells, but more
+on that later.
+
+So if examining a value of type SCM, you can check if the lowest bit
+is 1.  If it is, you don't have a valid Scheme value.
+
+
+**** Most objects
+
+31            24|23           16|15            8|7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |0|
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+
+**** glocs and structs
+
+Values like this are only valid in the CAR of heap cells.
+
+31            24|23           16|15            8|7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |1|
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+
+*** Scheme objects
+
+Immediates can be determined by checking the bits #1 and #2.  If one
+of them is 1, it is an immediate, otherwise it is a heap pointer.
+
+
+**** Immediates integers (fixnums)
+
+Immediate integers are 30-bit two's-complement integers (aka fixnums),
+encoded as immediates for performance reasons.  Access to them is very
+fast, and creating them does not involve allocation of heap storage.
+
+31            24|23           16|15            8|7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |1|0|
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+ `---------------------------------------------------------'
+                fixnum value in two's-complement
+
+
+**** Immediates (no heap memory associated)
+
+Characters, immediate codes etc. are represented as immediates with
+100 in bit 2-0.
+
+31            24|23           16|15            8|7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | |1|0|0|
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+ `-------------------------------------------------------'
+                 type-dependent information
+
+
+**** Heap pointers
+
+Pointers into the Scheme heap can be determined by checking whether
+the three lowest bits are zero.  The complete 32-bit value can then be
+dereferenced, and the two (or four for double cells) words pointed to
+can be examined to get more detailed type information.  Normally, it
+is the first word of the heap region which contains the additional
+type information.  The complete word is a valid pointer into heap
+storage because heap cells are aligned on 8-byte boundaries.
+
+31            24|23           16|15            8|7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | |0|0|0|
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+ `-------------------------------------------------------------'
+                  pointer into the cell heap
+
+
+** Immediates
+
+*** Fixnums
+
+Fixnums are integers limited to the range -2^{29} to 2^29-1.  Larger
+integers are represented as `Bignums', described below.
+
+Fixnums are also known as INUMs (immediate numbers).  They always have
+the value 10 in the two lowest bits.  That is why the test for INUMs
+is as follows:
+
+#define SCM_INUMP(x)	(2 & SCM_UNPACK (x))
+
+guile> (bin 0)
+"00000000000000000000000000000010"
+guile> (bin 1)
+"00000000000000000000000000000110"
+guile> (bin -1)
+"11111111111111111111111111111110"
+guile> (bin 343434)
+"00000000000101001111011000101010"
+
+31            24|23           16|15            8|7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |1|0|
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+ `---------------------------------------------------------' `--'
+                           fixnum                          fixnum
+                           value                          indicator
+
+*** Characters
+
+Characters are immediates with 100 in bits #2-#0, and 11110 in the
+bits #7-#3.  The character code is stored in bits #15-#8 and the rest
+of the word is unused.  Switching to Unicode representation could
+easily be done by simply using the upper 16 bits for the character
+code.
+
+The test for checking for characters tests whether the lowest 8 bits
+are equal to the 8-bit character type code, which is 0xf4.
+
+#define SCM_CHARP(x) (SCM_ITAG8(x) == scm_tc8_char)
+
+guile> (bin #\a)
+"00000000000000000110000111110100"
+guile> (bin #\b)
+"00000000000000000110001011110100"
+guile> (bin #\nul)
+"00000000000000000000000011110100"
+
+31            24|23           16|15            8|7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+| | | | | | | | | | | | | | | | | | | | | | | | |1|1|1|1|0|1|0|0|
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+ `-----------------------------' `-------------' `-------------'
+             unused                 character       character
+                                      value         indicator
+
+*** Ilocs
+
+Ilocs are used for specifying lexical variables.  They are substituted
+for symbols which happen to be such variables by the evaluator.
+
+The test for checking for ilocs tests whether the lowest 8 bits are
+equal to the 8-bit iloc type code, which is 0xfc.
+
+31            24|23           16|15            8|7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+| | | | | | | | | | | | | | | | | | | | | | | | |1|1|1|1|1|1|0|0|
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+ `---------------------------------------------' `-------------'
+        FIXME: check out bit numbers                  iloc
+                                                    indicator
+
+
+*** Special symbols
+
+Special symbols are inserted into cons pairs when the evaluator finds
+them.
+
+FIXME: Details.
+
+** Heap objects
+
+Heap objects are thos objects which occupy memory on the Scheme heap.
+The SCM values are tagged with three zeros in the lowest bits and the
+whole SCM value is to be interpreted as a pointer to a heap cell.
+There are two types of heap cells.  The normal cells occupy two words
+each, and the double cells occupy four words.
+
+Double cells are used for objects which require more than two words,
+but for which malloc()ing another heap block is too expensive, for
+example real numbers.
+
+Other bigger objects, strings, vectors and bignums for example, store
+information in separate memory regions.
+
+
+*** Strings
+
+guile> (bin "")
+"00001000000001001010000000100000"
+guile> (bin (string))
+"01000000001010010000000000101000"
+guile> (bin (string #\a))
+"01000000001010001110010001001000"
+guile> (bin "foo")
+"01000000001010010100101110110000"
+
+The SCM of a string:
+
+31            24|23           16|15            8|7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | |0|0|0|
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+ `-------------------------------------------------------------'
+                   pointer into cell heap
+
+The cell layout for strings:
+
+31            24|23           16|15            8|7             0
+                 string length                    string type code
+ .---------------------------------------------.   .-----------.
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+| | | | | | | | | | | | | | | | | | | | | | | | | |0|0|1|0|1|0|1|
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+ `-------------------------------------------------------------'
+                  pointer to malloc()ed region
+
+
+*** Symbols
+
+Symbols are represented similarly to strings, but they occupy double
+cells.  The third word stores the hash value of the symbol name, and
+the fourth word is the head of a property list.  The CAR of this list
+holds the symbol's function slot (only used for emulating other Lisp
+dialects) and the CDR an association list of the symbol's properties.
+
+The SCM of a symbol:
+
+31            24|23           16|15            8|7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | |0|0|0|
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+ `-------------------------------------------------------------'
+                   pointer into cell heap
+
+The double cell layout for symbols:
+
+31            24|23           16|15            8|7             0
+                 symbol length                    symbol type code
+ .---------------------------------------------.   .-----------.
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+| | | | | | | | | | | | | | | | | | | | | | | | | |0|0|0|0|1|0|1|
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ `-------------------------------------------------------------'
+.                 pointer to malloc()ed region                  .
+.                                                               .
+.             symbol's hash value as a raw integer              .
+ .-------------------------------------------------------------.
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+ `-------------------------------------------------------------'
+                           property list
+
+
+*** Vectors
+
+Vectors (normal and weak vectors) are represented similar to strings.
+The 7-bit type codes are 13 (normal vectors) and 15 (weak vectors).
+
+The SCM of a vector:
+
+31            24|23           16|15            8|7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | |0|0|0|
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+ `-------------------------------------------------------------'
+                   pointer into cell heap
+
+The cell layout for vectors:
+
+31            24|23           16|15            8|7             0
+                 vector length                    vector type code
+ .---------------------------------------------.   .-----------.
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+| | | | | | | | | | | | | | | | | | | | | | | | | |0|0|0|1|1|0|1|
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+ `-------------------------------------------------------------'
+                  pointer to malloc()ed region
+
+
+There are several types of weak vectors.  The exact type (weak vector,
+weak hash table, value/key/both) is encoded in the malloc()ed memory
+block, by allocating the vector one element bigger, and then pointing
+to the second element.  The type is then stored one word before the
+vector contents (FIXME: how is it represented?)
+
+The cell layout for weak vectors:
+
+31            24|23           16|15            8|7             0
+                 vector length                 weak vector type code
+ .---------------------------------------------.   .-----------.
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+| | | | | | | | | | | | | | | | | | | | | | | | | |0|0|0|1|1|1|1|
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+ `-------------------------------------------------------------'
+                  pointer to malloc()ed region
+
+*** Real numbers
+
+Real numbers are stored in double cells.  In the first word of the
+cell, the type code for smobs is stored in the 8 lowest bits.  Numbers
+(reals, complex numbers and bignums) are special smobs, because they
+occupy the first three smob codes.  This makes it efficient to test
+whether a pointer into a heap points to a number.
+
+31            24|23           16|15            8|7             0
+                                             real smob type code
+                                             .-. .-------------.
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|1|0|1|1|1|1|1|1|1|1|
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ `-------------------------------------------------------------'
+.                             empty                             .
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+ `-------------------------------------------------------------'
+                      real number as a C double
+
+*** Bignums
+
+31            24|23           16|15            8|7             0
+                                           bignum smob type code
+                                             .-. .-------------.
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|1|0|1|1|1|1|1|1|1|1|
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ `-------------------------------------------------------------'
+                     pointer to digit memory
+
+*** Complex numbers
+
+31            24|23           16|15            8|7             0
+                                          complex smob type code
+                                             .-. .-------------.
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|1|1|1|1|1|1|1|1|1|1|
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ `-------------------------------------------------------------'
+                     pointer to `struct complex'
+
+*** Smobs
+
+Smobs (abbreviation for ``small objects'') are used for adding data
+types to Guile dynamically.  An extension library can request a new
+smob type code dynamically and can then create smobs of this type,
+passing these values around like all builtin types.  The Guile library
+can determine all necessary information from the smob number stored in
+each smob.  For example the procedures for marking used smobs and
+finalizing them can be retrieved from the smob table using this
+number.
+
+31            24|23           16|15            8|7             0
+                                   smob number    smob type code
+                                 .-------------. .-------------.
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0| | | | | | | | |1|1|1|1|1|1|1|1|
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ `-------------------------------------------------------------'
+                    dependant on the smob type
+
