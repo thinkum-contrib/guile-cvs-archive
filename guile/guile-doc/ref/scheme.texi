@@ -561,6 +561,12 @@ if an exception occurs then @code{#f} is returned instead.
 @end deffn
 @c end
 
+@c docstring begin (c-doc-string "throw.c" "lazy-catch")
+@c docstring md5 "6610205be1694688b362a2ffe3f57528"
+@deffn primitive lazy-catch tag thunk handler
+
+@end deffn
+
 It is traditional in Scheme to implement exception systems using
 @code{call-with-current-continuation}, but his has not been done, for
 performance reasons.  The implementation of
@@ -713,9 +719,13 @@ and standards for contributed modules.]
 @end deffn
 
 @c docstring begin (c-doc-string "modules.c" "interaction-environment")
-@c docstring md5 "71c1f0cddb6ff8139ad3fbf29af205f0"
+@c docstring md5 "0c735dd5a7fa6d0c947b9916a6365a8e"
 @deffn primitive interaction-environment
-This procedure returns a specifier for the environment thatcontains implementation-defined bindings, typically a superset ofthose listed in the report.  The intent is that this procedurewill return the environment in which the implementation wouldevaluate expressions dynamically typed by the user.
+This procedure returns a specifier for the environment that contains
+implementation-defined bindings, typically a superset of those listed in
+the report.  The intent is that this procedure will return the
+environment in which the implementation would evaluate expressions
+dynamically typed by the user.
 @end deffn
 
 Some modules are included in the Guile distribution; here are references
@@ -1031,9 +1041,11 @@ any other object.
 @end deffn
 
 @c docstring begin (c-doc-string "eval.c" "cons-source")
-@c docstring md5 "4d37da7bf9d30dcb7bb546634de93874"
+@c docstring md5 "1b57e02f8bf28c52492bca637b64615a"
 @deffn primitive cons-source xorig x y
-
+Create and return a new pair whose car and cdr are @var{x} and @var{y}.
+Any source properties associated with @var{xorig} are also associated
+with the new pair.
 @end deffn
 
 @c ARGFIXME environment/environment specifier
@@ -1475,6 +1487,7 @@ data structures not found in standard Scheme.
 * Structures::
 * Arrays::
 * Association Lists and Hash Tables::
+* Vectors::
 @end menu
 
 @node Records
@@ -1725,6 +1738,8 @@ Structure layouts are represented by specially interned symbols whose
 name is a string of type and protection codes.  To create a new
 structure layout, use this procedure:
 
+@c docstring begin (c-doc-string "struct.c" "make-struct-layout")
+@c docstring md5 "3db9fa14eec939642d6915c37115a9bf"
 @deffn primitive make-struct-layout fields
 Return a new structure layout object.
 
@@ -1732,7 +1747,7 @@ Return a new structure layout object.
 strung together.  The first character of each pair describes a field
 type, the second a field protection.  Allowed types are 'p' for
 GC-protected Scheme data, 'u' for unprotected binary data, and 's' for
-fields that should point to the structure itself.    Allowed protections
+a field that points to the structure itself.    Allowed protections
 are 'w' for mutable fields, 'r' for read-only fields, and 'o' for opaque 
 fields.  The last field protection specification may be capitalized to
 indicate that the field is a tail-array.
@@ -1746,7 +1761,9 @@ indicate that the field is a tail-array.
 This section describes the basic procedures for creating and accessing
 structures.
 
-@deffn primitive make-struct type tail-elts . inits
+@c docstring begin (c-doc-string "struct.c" "make-struct")
+@c docstring md5 "faf2cbc82f2fc9386cc47a8c1da462f5"
+@deffn primitive make-struct vtable tail_array_size . init
 Create a new structure.
 
 @var{type} must be a vtable structure (@xref{Vtables}).
@@ -1755,19 +1772,35 @@ Create a new structure.
 specification indicated by @var{type} includes a tail-array,
 this is the number of elements allocated to that array.
 
-The @var{inits} are optional arguments describing how successive fields
-of the structure should be initialized.  Only fields with protection 'r'
-or 'w' can be initialized -- fields of protection 's' are automatically
-initialized to point to the new structure itself;  fields of protection 'o'
-can not be initialized by Scheme programs.
+The @var{init1}, @dots{} are optional arguments describing how
+successive fields of the structure should be initialized.  Only fields
+with protection 'r' or 'w' can be initialized, except for fields of
+type 's', which are automatically initialized to point to the new
+structure itself; fields with protection 'o' can not be initialized by
+Scheme programs.
+
+If fewer optional arguments than initializable fields are supplied,
+fields of type 'p' get default value #f while fields of type 'u' are
+initialized to 0.
+
+Structs are currently the basic representation for record-like data
+structures in Guile.  The plan is to eventually replace them with a
+new representation which will at the same time be easier to use and
+more powerful.
+
+For more information, see the documentation for @code{make-vtable-vtable}.
 @end deffn
 
-@deffn primitive struct? obj
-Return #t iff @var{obj} is a structure object.
+@c docstring begin (c-doc-string "struct.c" "struct?")
+@c docstring md5 "976e05af8eccb70cacd9d9e3b7bb05ef"
+@deffn primitive struct? x
+Return #t iff @var{obj} is a structure object, else #f.
 @end deffn
 
 
-@deffn primitive struct-ref struct n
+@c docstring begin (c-doc-string "struct.c" "struct-ref")
+@c docstring md5 "eccf89dbedea2b9c3befdf233973539e"
+@deffn primitive struct-ref handle pos
 @deffnx primitive struct-set! struct n value
 Access (or modify) the @var{n}th field of @var{struct}.
 
@@ -1790,11 +1823,15 @@ which are used only internally to libguile.  The variable
 @code{vtable-offset-user} is bound to a field number.  Vtable fields
 at that position or greater are user definable.
 
-@deffn primitive struct-vtable struct
+@c docstring begin (c-doc-string "struct.c" "struct-vtable")
+@c docstring md5 "8fd40f6d2276ae117f3784982ac49cf7"
+@deffn primitive struct-vtable handle
 Return the vtable structure that describes the type of @var{struct}.
 @end deffn
 
-@deffn primitive struct-vtable? obj
+@c docstring begin (c-doc-string "struct.c" "struct-vtable?")
+@c docstring md5 "1dbf6a3ad479dd61df1f612faf4a8215"
+@deffn primitive struct-vtable? x
 Return #t iff obj is a vtable structure.
 @end deffn
 
@@ -1806,73 +1843,86 @@ created by using @code{(make-struct V' ...)}.  Another possibility is
 that @code{V} is an instance of the type it itself describes.  Vtable
 structures of the second sort are created by this procedure:
 
-@deffn primitive make-vtable-vtable new-fields tail-size . inits
+@c docstring begin (c-doc-string "struct.c" "make-vtable-vtable")
+@c docstring md5 "3e04c26524387b173f78e1bd8d4a3986"
+@deffn primitive make-vtable-vtable user_fields tail_array_size . init
 Return a new, self-describing vtable structure.
 
-@var{new-fields} is a layout specification describing fields
-of the resulting structure beginning at the position bound to
-@code{vtable-offset-user}.
+@var{user-fields} is a string describing user defined fields of the
+vtable beginning at index @code{vtable-offset-user}
+(see @code{make-struct-layout}).
 
 @var{tail-size} specifies the size of the tail-array (if any) of
 this vtable.
 
-@var{inits} initializes the fields of the vtable.  Minimally, one
-initializer must be provided: the layout specification for instances
-of the type this vtable will describe.  If a second initializer is
-provided, it will be interpreted as a print call-back function.
+@var{init1}, @dots{} are the optional initializers for the fields of
+the vtable.
+
+Vtables have one initializable system field---the struct printer.
+This field comes before the user fields in the initializers passed
+to @code{make-vtable-vtable} and @code{make-struct}, and thus works as
+a third optional argument to @code{make-vtable-vtable} and a fourth to
+@code{make-struct} when creating vtables:
+
+If the value is a procedure, it will be called instead of the standard
+printer whenever a struct described by this vtable is printed.
+The procedure will be called with arguments STRUCT and PORT.
+
+The structure of a struct is described by a vtable, so the vtable is
+in essence the type of the struct.  The vtable is itself a struct with
+a vtable.  This could go on forever if it weren't for the
+vtable-vtables which are self-describing vtables, and thus terminate
+the chain.
+
+There are several potential ways of using structs, but the standard
+one is to use three kinds of structs, together building up a type
+sub-system: one vtable-vtable working as the root and one or several
+"types", each with a set of "instances".  (The vtable-vtable should be
+compared to the class <class> which is the class of itself.)
 
 @example
-;;; loading ,a...
-(define x
-  (make-vtable-vtable (make-struct-layout (quote pw))
-                      0
-                      'foo))
+(define ball-root (make-vtable-vtable "pr" 0))
 
-(struct? x)
-@result{} #t
-(struct-vtable? x)
-@result{} #t
-(eq? x (struct-vtable x))
-@result{} #t
-(struct-ref x vtable-offset-user)
-@result{} foo
-(struct-ref x 0)
-@result{} pruosrpwpw
+(define (make-ball-type ball-color)
+  (make-struct ball-root 0
+	       (make-struct-layout "pw")
+               (lambda (ball port)
+                 (format port "#<a ~A ball owned by ~A>"
+                         (color ball)
+                         (owner ball)))
+               ball-color))
+(define (color ball) (struct-ref (struct-vtable ball) vtable-offset-user))
+(define (owner ball) (struct-ref ball 0))
 
+(define red (make-ball-type 'red))
+(define green (make-ball-type 'green))
 
-(define y
-  (make-struct x
-               0
-               (make-struct-layout (quote pwpwpw))
-               'bar))
+(define (make-ball type owner) (make-struct type 0 owner))
 
-(struct? y)
-@result{} #t
-(struct-vtable? y)
-@result{} #t
-(eq? x y)
-@result{} ()
-(eq? x (struct-vtable y))
-@result{} #t
-(struct-ref y 0)
-@result{} pwpwpw
-(struct-ref y vtable-offset-user)
-@result{} bar
-
-
-(define z (make-struct y 0 'a 'b 'c))
-
-(struct? z)
-@result{} #t
-(struct-vtable? z)
-@result{} ()
-(eq? y (struct-vtable z))
-@result{} #t
-(map (lambda (n) (struct-ref z n)) '(0 1 2))
-@result{} (a b c)
+(define ball (make-ball green 'Nisse))
+ball @result{} #<a green ball owned by Nisse>
 @end example
 
 @end deffn
+
+@c docstring begin (c-doc-string "struct.c" "struct-vtable-name")
+@c docstring md5 "da448bf82cdb7504a8f0d160a040d0ba"
+@deffn primitive struct-vtable-name vtable
+
+@end deffn
+
+@c docstring begin (c-doc-string "struct.c" "set-struct-vtable-name!")
+@c docstring md5 "f896da3fe6202dcdcd2c14933135ba07"
+@deffn primitive set-struct-vtable-name! vtable name
+
+@end deffn
+
+@c docstring begin (c-doc-string "struct.c" "struct-vtable-tag")
+@c docstring md5 "627dc539d0b8a22545fa904434cb21b2"
+@deffn primitive struct-vtable-tag handle
+
+@end deffn
+
 
 @page
 @node Arrays
@@ -1928,7 +1978,9 @@ a vector:
 
 The following procedures can be used with conventional arrays (or vectors).
 
-@deffn primitive array? obj [prototype]
+@c docstring begin (c-doc-string "unif.c" "array?")
+@c docstring md5 "d222507378723f16fee9ef538bcdf41e"
+@deffn primitive array? v [prot]
 Returns @code{#t} if the @var{obj} is an array, and @code{#f} if not.
 
 The @var{prototype} argument is used with uniform arrays and is described
@@ -1943,20 +1995,30 @@ Creates and returns an array that has as many dimensions as there are
 @c array-ref's type is `compiled-closure'.  There's some weird stuff
 @c going on in array.c, too.  Let's call it a primitive. -twp
 
-@deffn primitive array-ref array index1 index2 @dots{}
+@c docstring begin (c-doc-string "unif.c" "uniform-vector-ref")
+@c docstring md5 "322d9d2c70fba5b618aa7ac0bab4622d"
+@deffn primitive uniform-vector-ref v args
+@deffnx primitive array-ref v . args
 Returns the element at the @code{(index1, index2)} element in @var{array}.
 @end deffn
 
-@deffn primitive array-in-bounds? array index1 index2 @dots{}
+@c docstring begin (c-doc-string "unif.c" "array-in-bounds?")
+@c docstring md5 "7993315fd76aaa61aaf1878f69aea131"
+@deffn primitive array-in-bounds? v . args
 Returns @code{#t} if its arguments would be acceptable to array-ref.
 @end deffn
 
-@deffn primitive array-set! array new-value index1 index2 @dots{}
+@c docstring begin (c-doc-string "unif.c" "array-set!")
+@c docstring md5 "717e43270963f93d595c962357f42eea"
+@deffn primitive array-set! v obj . args
+@deffnx primitive uniform-array-set1! v obj args
 Sets the element at the @code{(index1, index2)} element in @var{array} to
 @var{new-value}.  The value returned by array-set! is unspecified.
 @end deffn
 
-@deffn primitive make-shared-array array mapper bound1 bound2 @dots{}
+@c docstring begin (c-doc-string "unif.c" "make-shared-array")
+@c docstring md5 "7fec65aa8a76540efb40fd0bb41b7bd8"
+@deffn primitive make-shared-array oldra mapfunc . dims
 @code{make-shared-array} can be used to create shared subarrays of other
 arrays.  The @var{mapper} is a function that translates coordinates in
 the new array into coordinates in the old array.  A @var{mapper} must be
@@ -1974,7 +2036,27 @@ it can be otherwise arbitrary.  A simple example:
 @end example
 @end deffn
 
-@deffn primitive transpose-array array dim0 dim1 @dots{}
+@c docstring begin (c-doc-string "unif.c" "shared-array-increments")
+@c docstring md5 "8285365ea9b2e4171c5b3517e4ae063a"
+@deffn primitive shared-array-increments ra
+For each dimension, return the distance between elements in the root vector.
+@end deffn
+
+@c docstring begin (c-doc-string "unif.c" "shared-array-offset")
+@c docstring md5 "9ddd2e75d82e4ae850e6476adb4daa73"
+@deffn primitive shared-array-offset ra
+Return the root vector index of the first element in the array.
+@end deffn
+
+@c docstring begin (c-doc-string "unif.c" "shared-array-root")
+@c docstring md5 "e1bfbe3d85d1cbad0df94d52ce7adbff"
+@deffn primitive shared-array-root ra
+Return the root vector of a shared array.
+@end deffn
+
+@c docstring begin (c-doc-string "unif.c" "transpose-array")
+@c docstring md5 "efd6ca08cca40b2d259da5dce64cc410"
+@deffn primitive transpose-array ra . args
 Returns an array sharing contents with @var{array}, but with dimensions
 arranged in a different order.  There must be one @var{dim} argument for
 each dimension of @var{array}.  @var{dim0}, @var{dim1}, @dots{} should
@@ -1996,7 +2078,9 @@ examples:
 @end example
 @end deffn
 
-@deffn primitive enclose-array array dim0 dim1 @dots{}
+@c docstring begin (c-doc-string "unif.c" "enclose-array")
+@c docstring md5 "76273492668070ba292ca6372100ab73"
+@deffn primitive enclose-array ra . axes
 @var{dim0}, @var{dim1} @dots{} should be nonnegative integers less than
 the rank of @var{array}.  @var{enclose-array} returns an array
 resembling an array of shared arrays.  The dimensions of each shared
@@ -2027,7 +2111,9 @@ Returns a list of inclusive bounds of integers.
 @end example
 @end deffn
 
-@deffn primitive array-dimensions array
+@c docstring begin (c-doc-string "unif.c" "array-dimensions")
+@c docstring md5 "fd28f6a64ba7ecb468d2e5582f2ac3ab"
+@deffn primitive array-dimensions ra
 @code{Array-dimensions} is similar to @code{array-shape} but replaces
 elements with a @code{0} minimum with one greater than the maximum. So:
 @example
@@ -2035,32 +2121,39 @@ elements with a @code{0} minimum with one greater than the maximum. So:
 @end example
 @end deffn
 
-@deffn primitive array-rank obj
+@c docstring begin (c-doc-string "unif.c" "array-rank")
+@c docstring md5 "02fe9bf3336946ee2442583fbdf571d0"
+@deffn primitive array-rank ra
 Returns the number of dimensions of @var{obj}.  If @var{obj} is not an
 array, @code{0} is returned.
 @end deffn
 
-@deffn primitive array->list array
+@c docstring begin (c-doc-string "unif.c" "array->list")
+@c docstring md5 "a54ba48675553a2bd5f6c99669be0c1c"
+@deffn primitive array->list v
 Returns a list consisting of all the elements, in order, of @var{array}.
 @end deffn
 
-@deffn primitive array-copy! source destination
+@c docstring begin (c-doc-string "ramap.c" "array-copy!")
+@c docstring md5 "8d7ebc78c36c9270799dc32457fd1602"
+@deffn primitive array-copy! src dst
+@deffnx primitive array-copy-in-order! src dst
 Copies every element from vector or array @var{source} to the
 corresponding element of @var{destination}.  @var{destination} must have
 the same rank as @var{source}, and be at least as large in each
 dimension.  The order is unspecified.
 @end deffn
 
-@deffn primitive serial-array-copy! source destination
-Same as @code{array-copy!} but guaranteed to copy in row-major order.
-@end deffn
-
-@deffn primitive array-fill! array fill
+@c docstring begin (c-doc-string "ramap.c" "array-fill!")
+@c docstring md5 "dd87dd766aa737b361441395ecbd6c69"
+@deffn primitive array-fill! ra fill
 Stores @var{fill} in every element of @var{array}.  The value returned
 is unspecified.
 @end deffn
 
-@deffn primitive array-equal? array0 array1 @dots{}
+@c docstring begin (c-doc-string "ramap.c" "array-equal?")
+@c docstring md5 "d64086021f3d75c41f34bb8f76c76f40"
+@deffn primitive array-equal? ra0 ra1
 Returns @code{#t} iff all arguments are arrays with the same shape, the
 same type, and have corresponding elements which are either
 @code{equal?}  or @code{array-equal?}.  This function differs from
@@ -2068,7 +2161,9 @@ same type, and have corresponding elements which are either
 @var{array-equal?} but not @var{equal?} to a vector or uniform vector.
 @end deffn
 
-@deffn primitive array-contents array
+@c docstring begin (c-doc-string "unif.c" "array-contents")
+@c docstring md5 "a4bacdebe2242fbd93c93db598c60dbe"
+@deffn primitive array-contents ra [strict]
 @deffnx primitive array-contents array strict
 If @var{array} may be @dfn{unrolled} into a one dimensional shared array
 without changing their order (last subscript changing fastest), then
@@ -2085,7 +2180,10 @@ memory.
 @node Array Mapping
 @subsection Array Mapping
 
-@deffn primitive array-map! array0 proc array1 @dots{}
+@c docstring begin (c-doc-string "ramap.c" "array-map!")
+@c docstring md5 "faa97c2e17651ead613160720249fbdf"
+@deffn primitive array-map! ra0 proc . lra
+@deffnx primitive array-map-in-order! ra0 proc . lra
 @var{array1}, @dots{} must have the same number of dimensions as
 @var{array0} and have a range for each index which includes the range
 for the corresponding index in @var{array0}.  @var{proc} is applied to
@@ -2094,17 +2192,16 @@ as the corresponding element in @var{array0}.  The value returned is
 unspecified.  The order of application is unspecified.
 @end deffn
 
-@deffn primitive serial-array-map! array0 proc array1 @dots{}
-Same as @var{array-map!}, but guaranteed to apply @var{proc} in
-row-major order.
-@end deffn
-
-@deffn primitive array-for-each proc array0 @dots{}
+@c docstring begin (c-doc-string "ramap.c" "array-for-each")
+@c docstring md5 "72be972b3f18aa272fe6633d72ffced7"
+@deffn primitive array-for-each proc ra0 . lra
 @var{proc} is applied to each tuple of elements of @var{array0} @dots{}
 in row-major order.  The value returned is unspecified.
 @end deffn
 
-@deffn primitive array-index-map! array proc
+@c docstring begin (c-doc-string "ramap.c" "array-index-map!")
+@c docstring md5 "9633e61c5b183e30102a3ed8fe523588"
+@deffn primitive array-index-map! ra proc
 applies @var{proc} to the indices of each element of @var{array} in
 turn, storing the result in the corresponding element.  The value
 returned and the order of application are unspecified.
@@ -2181,12 +2278,13 @@ except that a single character from the above table is put between
 @code{#} and @code{(}.  For example, a uniform vector of signed
 long integers is displayed in the form @code{'#e(3 5 9)}.
 
-@deffn primitive array? obj [prototype]
-Returns @code{#t} if the @var{obj} is an array of type corresponding to
-@var{prototype}, and @code{#f} if not.
+@c docstring begin (c-doc-string "unif.c" "array?")
+@c docstring md5 "d222507378723f16fee9ef538bcdf41e"
+@deffn primitive array? v [prot]
+Returns @code{#t} if the @var{obj} is an array, and @code{#f} if not.
 
-If @var{prototype} is omitted, @code{#t} will be returned if @var{obj}
-is an array of any type.
+The @var{prototype} argument is used with uniform arrays and is described
+elsewhere.
 @end deffn
 
 @deffn procedure make-uniform-array prototype bound1 bound2 @dots{}
@@ -2195,13 +2293,17 @@ Creates and returns a uniform array of type corresponding to
 and fills it with @var{prototype}.
 @end deffn
 
-@deffn primitive array-prototype array
+@c docstring begin (c-doc-string "unif.c" "array-prototype")
+@c docstring md5 "28e904ac048755689a5362d51f9320a1"
+@deffn primitive array-prototype ra
 Returns an object that would produce an array of the same type as
 @var{array}, if used as the @var{prototype} for
 @code{make-uniform-array}.
 @end deffn
 
-@deffn primitive list->uniform-array rank prot lst
+@c docstring begin (c-doc-string "unif.c" "list->uniform-array")
+@c docstring md5 "4bcbb04a4c3f9e163ac8a0f5728211be"
+@deffn primitive list->uniform-array ndim prot lst
 @deffnx procedure list->uniform-vector prot lst
 Returns a uniform array of the type indicated by prototype @var{prot}
 with elements the same as those of @var{lst}.  Elements must be of the
@@ -2213,11 +2315,15 @@ Stores @var{fill} in every element of @var{uve}.  The value returned is
 unspecified.
 @end deffn
 
-@deffn primitive uniform-vector-length uve
+@c docstring begin (c-doc-string "unif.c" "uniform-vector-length")
+@c docstring md5 "4ffaf3c32742e8d0b022870193f456ab"
+@deffn primitive uniform-vector-length v
 Returns the number of elements in @var{uve}.
 @end deffn
 
-@deffn primitive dimensions->uniform-array dims prototype [fill]
+@c docstring begin (c-doc-string "unif.c" "dimensions->uniform-array")
+@c docstring md5 "a722928e35fa1c7c17dc61826cd57aea"
+@deffn primitive dimensions->uniform-array dims prot [fill]
 @deffnx primitive make-uniform-vector length prototype [fill]
 Creates and returns a uniform array or vector of type corresponding to
 @var{prototype} with dimensions @var{dims} or length @var{length}.  If
@@ -2227,7 +2333,9 @@ Creates and returns a uniform array or vector of type corresponding to
 
 @c Another compiled-closure. -twp
 
-@deffn primitive uniform-array-read! ura [port-or-fdes] [start] [end]
+@c docstring begin (c-doc-string "unif.c" "uniform-array-read!")
+@c docstring md5 "1a1d6c2a8c40494ca2549a9b1599eac0"
+@deffn primitive uniform-array-read! ra [port_or_fd [start [end]]]
 @deffnx primitive uniform-vector-read! uve [port-or-fdes] [start] [end]
 Attempts to read all elements of @var{ura}, in lexicographic order, as
 binary objects from @var{port-or-fdes}.
@@ -2245,7 +2353,9 @@ leaving the remainder of the vector unchanged.
 returned by @code{(current-input-port)}.
 @end deffn
 
-@deffn primitive uniform-array-write ura [port-or-fdes] [start] [end]
+@c docstring begin (c-doc-string "unif.c" "uniform-array-write")
+@c docstring md5 "ef18434cfde294dd87570889a0d78b3c"
+@deffn primitive uniform-array-write v [port_or_fd [start [end]]]
 @deffnx primitive uniform-vector-write uve [port-or-fdes] [start] [end]
 Writes all elements of @var{ura} as binary objects to
 @var{port-or-fdes}.
@@ -2279,21 +2389,29 @@ They are displayed as a sequence of @code{0}s and
 #*101
 @end example
 
-@deffn primitive bit-count bool bv
-Returns the number occurrences of @var{bool} in @var{bv}.
+@c docstring begin (c-doc-string "unif.c" "bit-count")
+@c docstring md5 "e6cef746c6e6e7441626829c22c9f202"
+@deffn primitive bit-count b bitvector
+Returns the number of occurrences of the boolean B in BITVECTOR.
 @end deffn
 
-@deffn primitive bit-position bool bv k
+@c docstring begin (c-doc-string "unif.c" "bit-position")
+@c docstring md5 "6b6f07226ca76c04fb5a18a06d48d87a"
+@deffn primitive bit-position item v k
 Returns the minimum index of an occurrence of @var{bool} in @var{bv}
 which is at least @var{k}.  If no @var{bool} occurs within the specified
 range @code{#f} is returned.
 @end deffn
 
-@deffn primitive bit-invert! bv
+@c docstring begin (c-doc-string "unif.c" "bit-invert!")
+@c docstring md5 "f016fcaf48ed8ff7ca3374058c468c29"
+@deffn primitive bit-invert! v
 Modifies @var{bv} by replacing each element with its negation.
 @end deffn
 
-@deffn primitive bit-set*! bv uve bool
+@c docstring begin (c-doc-string "unif.c" "bit-set*!")
+@c docstring md5 "b3bd23c681fd0f2f29cbd3d1d7280371"
+@deffn primitive bit-set*! v kv obj
 If uve is a bit-vector @var{bv} and uve must be of the same length.  If
 @var{bool} is @code{#t}, uve is OR'ed into @var{bv}; If @var{bool} is @code{#f}, the
 inversion of uve is AND'ed into @var{bv}.
@@ -2305,7 +2423,9 @@ corresponding to the indexes in uve are set to @var{bool}.
 The return value is unspecified.
 @end deffn
 
-@deffn primitive bit-count* bv uve bool
+@c docstring begin (c-doc-string "unif.c" "bit-count*")
+@c docstring md5 "dcbb47c0a47faa3bc2430c2b39cfe7c5"
+@deffn primitive bit-count* v kv obj
 Returns
 @example
 (bit-count (bit-set*! (if bool bv (bit-invert! bv)) uve #t) #t).
@@ -3065,6 +3185,58 @@ table into an a-list of key-value pairs.
 @end deffn
 
 
+@node Vectors
+@section Vectors
+
+@c docstring begin (c-doc-string "vectors.c" "make-vector")
+@c docstring md5 "bdaed77c90dab802b4105d5a57c07e6a"
+@deffn primitive make-vector k [fill]
+Returns a newly allocated vector of @var{k} elements.  If a second
+argument is given, then each element is initialized to @var{fill}.
+Otherwise the initial contents of each element is unspecified. (r5rs)
+@end deffn
+
+@c docstring begin (c-doc-string "vectors.c" "vector")
+@c docstring md5 "6edbfae8a98921cc35dfe51dbc3e37de"
+@deffn primitive vector . l
+@deffnx primitive list->vector l
+Returns a newly allocated vector whose elements contain the given
+arguments.  Analogous to @samp{list}. (r5rs)
+
+@format
+@t{(vector 'a 'b 'c)                      ==>  #(a b c) }
+@end format
+@end deffn
+
+@c docstring begin (c-doc-string "vectors.c" "vector->list")
+@c docstring md5 "d19c868ee96ca6ddd3d992bce83dd8bc"
+@deffn primitive vector->list v
+@samp{Vector->list} returns a newly allocated list of the objects contained
+in the elements of @var{vector}.  (r5rs)
+
+@format
+@t{(vector->list '#(dah dah didah))
+=>  (dah dah didah)
+list->vector '(dididit dah))
+=>  #(dididit dah)
+}
+@end format
+@end deffn
+
+@c docstring begin (c-doc-string "vectors.c" "vector-fill!")
+@c docstring md5 "5d965812b248ee00159eb643307dc91f"
+@deffn primitive vector-fill! v fill_x
+Stores @var{fill} in every element of @var{vector}.
+The value returned by @samp{vector-fill!} is unspecified. (r5rs)
+@end deffn
+
+@c docstring begin (c-doc-string "vectors.c" "vector?")
+@c docstring md5 "8f385d275eb2ebe494e2ef8d1b640c8e"
+@deffn primitive vector? obj
+Returns @t{#t} if @var{obj} is a vector, otherwise returns @t{#f}. (r5rs)
+@end deffn
+
+
 @page
 @node Booleans
 @chapter Booleans
@@ -3139,6 +3311,67 @@ eventually, and it will be helpful to know how they work.
 @node String Fun
 @section String Fun
 
+@c docstring begin (c-doc-string "strings.c" "string")
+@c docstring md5 "2f53a5b80913d6ffd1c96939701be94a"
+@deffn primitive string . chrs
+@deffnx primitive list->string chrs
+Returns a newly allocated string composed of the arguments, CHRS.
+@end deffn
+
+@c docstring begin (c-doc-string "strings.c" "make-string")
+@c docstring md5 "364c35c806265d290ea8eb804728b076"
+@deffn primitive make-string k [chr]
+Returns a newly allocated string of
+length K.  If CHR is given, then all elements of the string
+are initialized to CHR, otherwise the contents of the
+STRING are unspecified.
+
+@end deffn
+
+@c docstring begin (c-doc-string "strings.c" "string-append")
+@c docstring md5 "747f06b456ca6ecdc45264b4b143e193"
+@deffn primitive string-append . args
+Returns a newly allocated string whose characters form the
+concatenation of the given strings, ARGS.
+@end deffn
+
+@c docstring begin (c-doc-string "strings.c" "string-length")
+@c docstring md5 "cfc80bf95ce7bbf06727abc3c88cbfe2"
+@deffn primitive string-length string
+Returns the number of characters in STRING
+@end deffn
+
+@c docstring begin (c-doc-string "strings.c" "string-ref")
+@c docstring md5 "fade777137561f7d4716d2c227be1baf"
+@deffn primitive string-ref str k
+Returns character K of STR using zero-origin indexing.
+K must be a valid index of STR.
+@end deffn
+
+@c docstring begin (c-doc-string "strings.c" "string-set!")
+@c docstring md5 "c6fe14c142bf763b97313158539fe5ad"
+@deffn primitive string-set! str k chr
+Stores CHR in element K of STRING and returns an unspecified value.
+K must be a valid index of STR.
+@end deffn
+
+@c docstring begin (c-doc-string "strings.c" "string?")
+@c docstring md5 "b60e94a49a045e6e0378dd634f4bb808"
+@deffn primitive string? obj
+Returns #t iff OBJ is a string, else returns #f.
+@end deffn
+
+@c docstring begin (c-doc-string "strings.c" "substring")
+@c docstring md5 "8f5239fb94a7d6cb396b11b6ddf16d95"
+@deffn primitive substring str start [end]
+Returns a newly allocated string formed from the characters
+of STR beginning with index START (inclusive) and ending with
+index END (exclusive).
+STR must be a string, START and END must be exact integers satisfying:
+
+0 <= START <= END <= (string-length STR).
+@end deffn
+
 @c docstring begin (c-doc-string "strop.c" "string-index")
 @c docstring md5 "4a4e4236fabe6f52d9941996dd21ff7d"
 @deffn primitive string-index str chr [frm [to]]
@@ -3188,8 +3421,10 @@ the entire string.
 @end deffn
 
 @c docstring begin (c-doc-string "strop.c" "substring-move!")
-@c docstring md5 "baaef71083170324992830663771f8c2"
+@c docstring md5 "f80c0be2b33dccd55252a5182c383845"
 @deffn primitive substring-move! str1 start1 end1 str2 start2
+@deffnx primitive substring-move-left! str1 start1 end1 str2 start2
+@deffnx primitive substring-move-right! str1 start1 end1 str2 start2
 Copy the substring of @var{str1} bounded by @var{start1} and @var{end1}
 into @var{str2} beginning at position @var{end2}.
 @code{substring-move-right!} begins copying from the rightmost character
@@ -3323,6 +3558,12 @@ y
 @end example
 @end deffn
 
+@c docstring begin (c-doc-string "strop.c" "string-upcase")
+@c docstring md5 "a2500d5c32e6017b7fae41f12e26e6a5"
+@deffn primitive string-upcase str
+Upcase every character in @code{str}.
+@end deffn
+
 @c ARGFIXME v/str
 @c docstring begin (c-doc-string "strop.c" "string-downcase!")
 @c docstring md5 "0f71eab3778d9e253efc882ccb264d07"
@@ -3342,6 +3583,135 @@ y
 @result{} "arrdefg"
 @end example
 @end deffn
+
+@c docstring begin (c-doc-string "strop.c" "string-downcase")
+@c docstring md5 "28e159fc6d050890ca949b324a1b139d"
+@deffn primitive string-downcase str
+Downcase every character in @code{str}.
+@end deffn
+
+@c docstring begin (c-doc-string "strop.c" "string-capitalize!")
+@c docstring md5 "aa6b9e5705ef27c2b10d46beadc0cc57"
+@deffn primitive string-capitalize! str
+Destructively capitalize every character in @code{str}.
+@end deffn
+
+@c docstring begin (c-doc-string "strop.c" "string-capitalize")
+@c docstring md5 "cb858edc2b5c4d5556eaa471a6e5e8fb"
+@deffn primitive string-capitalize str
+Capitalize every character in @code{str}.
+@end deffn
+
+@c docstring begin (c-doc-string "strorder.c" "string-ci<=?")
+@c docstring md5 "c83812f7247d7726394fbef12308ea0d"
+@deffn primitive string-ci<=? s1 s2
+Case insensitive lexicographic ordering predicate; 
+returns @t{#t} if @var{s1} is lexicographically less than
+or equal to @var{s2} regardless of case.  (r5rs)
+@end deffn
+
+@c docstring begin (c-doc-string "strorder.c" "string-ci<?")
+@c docstring md5 "2f86df51b869ab0cf7c0c34278bc498f"
+@deffn primitive string-ci<? s1 s2
+Case insensitive lexicographic ordering predicate; 
+returns @t{#t} if @var{s1} is lexicographically less than
+@var{s2} regardless of case.  (r5rs)
+@end deffn
+
+@c docstring begin (c-doc-string "strorder.c" "string-ci=?")
+@c docstring md5 "05d37e36168ea70cf2010bd006ae73e0"
+@deffn primitive string-ci=? s1 s2
+Case-insensitive string equality predicate; returns @t{#t} if
+the two strings are the same length and their component characters
+match (ignoring case) at each position; otherwise returns @t{#f}. (r5rs)
+@end deffn
+
+@c docstring begin (c-doc-string "strorder.c" "string-ci>=?")
+@c docstring md5 "9836fce71d8674cabb71e503bf8fa7cc"
+@deffn primitive string-ci>=? s1 s2
+Case insensitive lexicographic ordering predicate; 
+returns @t{#t} if @var{s1} is lexicographically greater than
+or equal to @var{s2} regardless of case.  (r5rs)
+@end deffn
+
+@c docstring begin (c-doc-string "strorder.c" "string-ci>?")
+@c docstring md5 "3ab2a7e37e6bf69bd42142541606b751"
+@deffn primitive string-ci>? s1 s2
+Case insensitive lexicographic ordering predicate; 
+returns @t{#t} if @var{s1} is lexicographically greater than
+@var{s2} regardless of case.  (r5rs)
+@end deffn
+
+@c docstring begin (c-doc-string "strorder.c" "string<=?")
+@c docstring md5 "0a36616dc0f9de15c1c4f18aba18e7f9"
+@deffn primitive string<=? s1 s2
+Lexicographic ordering predicate; returns @t{#t} if @var{s1}
+is lexicographically less than or equal to @var{s2}.  (r5rs)
+@end deffn
+
+@c docstring begin (c-doc-string "strorder.c" "string<?")
+@c docstring md5 "6a65f2fca17d4426cdbe739ad231b11b"
+@deffn primitive string<? s1 s2
+Lexicographic ordering predicate; returns @t{#t} if @var{s1}
+is lexicographically less than @var{s2}.  (r5rs)
+@end deffn
+
+@c docstring begin (c-doc-string "strorder.c" "string=?")
+@c docstring md5 "debdbce480bf37ec8df40e20c41d2196"
+@deffn primitive string=? s1 s2
+Lexicographic equality predicate; 
+Returns @t{#t} if the two strings are the same length and contain the same
+characters in the same positions, otherwise returns @t{#f}. (r5rs)
+
+@samp{String-ci=?} treats
+upper and lower case letters as though they were the same character, but
+@samp{string=?} treats upper and lower case as distinct characters.
+@end deffn
+
+@c docstring begin (c-doc-string "strorder.c" "string>=?")
+@c docstring md5 "08c53e5d367ff40e808e925df18eaf33"
+@deffn primitive string>=? s1 s2
+Lexicographic ordering predicate; returns @t{#t} if @var{s1}
+is lexicographically greater than or equal to @var{s2}.  (r5rs)
+@end deffn
+
+@c docstring begin (c-doc-string "strorder.c" "string>?")
+@c docstring md5 "feacc1341057fdbd2e77bade8aa05928"
+@deffn primitive string>? s1 s2
+Lexicographic ordering predicate; returns @t{#t} if @var{s1}
+is lexicographically greater than @var{s2}.  (r5rs)
+@end deffn
+
+@c docstring begin (c-doc-string "strop.c" "string->list")
+@c docstring md5 "4c24bb2b3800c4703c7a00d006cf03b8"
+@deffn primitive string->list str
+@samp{String->list} returns a newly allocated list of the
+characters that make up the given string.  @samp{List->string}
+returns a newly allocated string formed from the characters in the list
+@var{list}, which must be a list of characters. @samp{String->list}
+and @samp{list->string} are
+inverses so far as @samp{equal?} is concerned.  (r5rs)
+@end deffn
+
+@c docstring begin (c-doc-string "strop.c" "string-ci->symbol")
+@c docstring md5 "708b35f77793b85a7de4ced1db0b3da8"
+@deffn primitive string-ci->symbol str
+Return the symbol whose name is @var{str}, downcased in necessary(???).
+@end deffn
+
+@c docstring begin (c-doc-string "strop.c" "string-copy")
+@c docstring md5 "31f46473b889c18adf9876f7effef9c0"
+@deffn primitive string-copy str
+Returns a newly allocated copy of the given @var{string}. (r5rs)
+@end deffn
+
+@c docstring begin (c-doc-string "strop.c" "string-fill!")
+@c docstring md5 "37da4038f6337a92dc72c755b0a9deaf"
+@deffn primitive string-fill! str chr
+Stores @var{char} in every element of the given @var{string} and returns an
+unspecified value.  (r5rs)
+@end deffn
+
 
 @node Shared Substrings
 @section Shared Substrings
@@ -3721,6 +4091,96 @@ Return the lowercase character version of @var{chr}.
 @c docstring begin (c-doc-string "hooks.c" "hook->list")
 @c docstring md5 "82b38218f950fcaeb2a2d6980c09da36"
 @deffn primitive hook->list hook
+
+@end deffn
+
+
+@page
+@node Procedures
+@chapter Procedures
+
+@c docstring begin (c-doc-string "procprop.c" "procedure-properties")
+@c docstring md5 "019f325969f292274ab9ec9143a091bb"
+@deffn primitive procedure-properties proc
+Return @var{obj}'s property list.
+@end deffn
+
+@c docstring begin (c-doc-string "procprop.c" "procedure-property")
+@c docstring md5 "0e5f2a4f9971d500b107a90311842ebc"
+@deffn primitive procedure-property p k
+Return the property of @var{obj} with name @var{key}.
+@end deffn
+
+@c docstring begin (c-doc-string "procprop.c" "set-procedure-properties!")
+@c docstring md5 "e5208ff597af390eff37ebe8eb96a7a3"
+@deffn primitive set-procedure-properties! proc new_val
+Set @var{obj}'s property list to @var{alist}.
+@end deffn
+
+@c docstring begin (c-doc-string "procprop.c" "set-procedure-property!")
+@c docstring md5 "70e031772c1078ea8dbb21cddb30afb4"
+@deffn primitive set-procedure-property! p k v
+In @var{obj}'s property list, set the property named @var{key} to
+@var{value}.
+@end deffn
+
+@c docstring begin (c-doc-string "procs.c" "closure?")
+@c docstring md5 "662358b00013ac9c369c0fcfebf9db31"
+@deffn primitive closure? obj
+
+@end deffn
+
+@c docstring begin (c-doc-string "procs.c" "make-procedure-with-setter")
+@c docstring md5 "4d17f47850df45bd0b72f6b59634d8e2"
+@deffn primitive make-procedure-with-setter procedure setter
+
+@end deffn
+
+@c docstring begin (c-doc-string "procs.c" "procedure")
+@c docstring md5 "19d19de092f7748a13e2c32b8e7609c6"
+@deffn primitive procedure proc
+
+@end deffn
+
+@c docstring begin (c-doc-string "procs.c" "procedure-with-setter?")
+@c docstring md5 "ae193cffd4b795883a0c67147b2e5a8b"
+@deffn primitive procedure-with-setter? obj
+
+@end deffn
+
+@c docstring begin (c-doc-string "procs.c" "procedure?")
+@c docstring md5 "7455fc2160c5f4a91f1320e4e493bbfa"
+@deffn primitive procedure? obj
+
+@end deffn
+
+@c docstring begin (c-doc-string "procs.c" "thunk?")
+@c docstring md5 "1eb9a507198e7b4f01fae9f61ccbcdd5"
+@deffn primitive thunk? obj
+
+@end deffn
+
+@c docstring begin (c-doc-string "srcprop.c" "set-source-properties!")
+@c docstring md5 "7e1cd44e2527d5d4064ca871d3c26a7a"
+@deffn primitive set-source-properties! obj plist
+
+@end deffn
+
+@c docstring begin (c-doc-string "srcprop.c" "set-source-property!")
+@c docstring md5 "1bea0557ab6a38583ac23876116d446e"
+@deffn primitive set-source-property! obj key datum
+
+@end deffn
+
+@c docstring begin (c-doc-string "srcprop.c" "source-properties")
+@c docstring md5 "d7b76c5abe087afa422ec486ef106499"
+@deffn primitive source-properties obj
+
+@end deffn
+
+@c docstring begin (c-doc-string "srcprop.c" "source-property")
+@c docstring md5 "493e9daf2ef5bc47151f2b661d9ac03e"
+@deffn primitive source-property obj key
 
 @end deffn
 
@@ -4283,39 +4743,6 @@ position.
 The return value is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "ports.c" "port-mode")
-@c docstring md5 "cbcb46422ab6eb230fd54bb014026d79"
-@deffn primitive port-mode port
-Returns the port modes associated with the open port @var{port}.  These
-will not necessarily be identical to the modes used when the port was
-opened, since modes such as "append" which are used only during
-port creation are not retained.
-@end deffn
-
-@c docstring begin (c-doc-string "ports.c" "close-all-ports-except")
-@c docstring md5 "cc236f9737a0e718d33eb00106cd33f9"
-@deffn primitive close-all-ports-except . ports
-Close all open file ports used by the interpreter
-except for those supplied as arguments.  This procedure
-is intended to be used before an exec call to close file descriptors
-which are not needed in the new process.
-@end deffn
-
-@c docstring begin (c-doc-string "fports.c" "setvbuf")
-@c docstring md5 "5395a53e279959cd6b364a3411887c0b"
-@deffn primitive setvbuf port mode [size]
-Set the buffering mode for @var{port}.  @var{mode} can be:
-@table @code
-@item _IONBF
-non-buffered
-@item _IOLBF
-line buffered
-@item _IOFBF
-block buffered, using a newly allocated buffer of @var{size} bytes.
-If @var{size} is omitted, a default size will be used.
-@end table
-@end deffn
-
 @c ARGFIXME port/input-port
 @c docstring begin (c-doc-string "ports.c" "port-column")
 @c docstring md5 "59f674b1d850a3d0ff4e98d1b251f2dc"
@@ -4338,19 +4765,6 @@ what non-programmers will find most natural.)
 @deffnx primitive set-port-line! port line
 Set the current column or line number of @var{port}, using the
 current input port if none is specified.
-@end deffn
-
-@c docstring begin (c-doc-string "ports.c" "port-revealed")
-@c docstring md5 "1b7c38c06c8f072cdafa2710b72f7f3b"
-@deffn primitive port-revealed port
-Returns the revealed count for @var{port}.
-@end deffn
-
-@c docstring begin (c-doc-string "ports.c" "set-port-revealed!")
-@c docstring md5 "84596c3911799dc63419755ab4a79901"
-@deffn primitive set-port-revealed! port rcount
-Sets the revealed count for a port to a given value.
-The return value is unspecified.
 @end deffn
 
 @node Extended I/O
@@ -4970,6 +5384,228 @@ Return the complex number Z1 * e^(i * Z2).
 @c docstring md5 "042c6574b95f672ed52e38d2056bb586"
 @deffn primitive inexact->exact z
 Returns an exact number that is numerically closest to Z.
+@end deffn
+
+
+@page
+@node Random
+@chapter Random
+
+@c docstring begin (c-doc-string "random.c" "copy-random-state")
+@c docstring md5 "e23691e0e6e86de67ddfefc2892aea64"
+@deffn primitive copy-random-state [state]
+Return a copy of the random state STATE.
+@end deffn
+
+@c docstring begin (c-doc-string "random.c" "random")
+@c docstring md5 "15d9f6070300a56218e126c08cd0fb3d"
+@deffn primitive random n [state]
+Return a number in [0,N).
+
+Accepts a positive integer or real n and returns a 
+number of the same type between zero (inclusive) and 
+N (exclusive). The values returned have a uniform 
+distribution.
+
+The optional argument STATE must be of the type produced by
+`seed->random-state'. It defaults to the value of the variable
+*random-state*. This object is used to maintain the state of
+the pseudo-random-number generator and is altered as a side
+effect of the random operation.
+
+@end deffn
+
+@c docstring begin (c-doc-string "random.c" "random:exp")
+@c docstring md5 "bda26ab094f9464f5e7513a074110abe"
+@deffn primitive random:exp [state]
+Returns an inexact real in an exponential distribution with mean 1.
+For an exponential distribution with mean u use (* u (random:exp)).
+
+@end deffn
+
+@c docstring begin (c-doc-string "random.c" "random:hollow-sphere!")
+@c docstring md5 "86f26a095a5084456ca82eca43d90f92"
+@deffn primitive random:hollow-sphere! v [state]
+Fills vect with inexact real random numbers
+the sum of whose squares is equal to 1.0.
+Thinking of vect as coordinates in space of 
+dimension n = (vector-length vect), the coordinates
+are uniformly distributed over the surface of the 
+unit n-shere.
+
+@end deffn
+
+@c docstring begin (c-doc-string "random.c" "random:normal")
+@c docstring md5 "e3d18c468cf0837a95aa4d761b06618b"
+@deffn primitive random:normal [state]
+Returns an inexact real in a normal distribution.
+The distribution used has mean 0 and standard deviation 1.
+For a normal distribution with mean m and standard deviation
+d use @code{(+ m (* d (random:normal)))}.
+
+@end deffn
+
+@c docstring begin (c-doc-string "random.c" "random:normal-vector!")
+@c docstring md5 "ca01a0a2b982be4cf91f5c01f34ebad1"
+@deffn primitive random:normal-vector! v [state]
+Fills vect with inexact real random numbers that are
+independent and standard normally distributed
+(i.e., with mean 0 and variance 1).
+
+@end deffn
+
+@c docstring begin (c-doc-string "random.c" "random:solid-sphere!")
+@c docstring md5 "f3f50c667eb05b6a52d4e238c84791f2"
+@deffn primitive random:solid-sphere! v [state]
+Fills vect with inexact real random numbers
+the sum of whose squares is less than 1.0.
+Thinking of vect as coordinates in space of 
+dimension n = (vector-length vect), the coordinates 
+are uniformly distributed within the unit n-shere.
+The sum of the squares of the numbers is returned.
+
+@end deffn
+
+@c docstring begin (c-doc-string "random.c" "random:uniform")
+@c docstring md5 "4203472358525e34c8f9d9b6fc4ab2d3"
+@deffn primitive random:uniform [state]
+Returns a uniformly distributed inexact real random number in [0,1).
+@end deffn
+
+@c docstring begin (c-doc-string "random.c" "seed->random-state")
+@c docstring md5 "08325e35121b07828813b940966aa50d"
+@deffn primitive seed->random-state seed
+Return a new random state using SEED.
+@end deffn
+
+
+@page
+@node Sorting
+@chapter Sorting
+
+@c docstring begin (c-doc-string "sort.c" "merge!")
+@c docstring md5 "367b4ffd6b90c60f7948e548b40cb2e6"
+@deffn primitive merge! alist blist less
+
+@end deffn
+
+@c docstring begin (c-doc-string "sort.c" "merge")
+@c docstring md5 "869d5db39656392d54e584778a838841"
+@deffn primitive merge alist blist less
+
+@end deffn
+
+@c docstring begin (c-doc-string "sort.c" "restricted-vector-sort!")
+@c docstring md5 "fdfb2d1b508df2407df5aa06fb6b2e11"
+@deffn primitive restricted-vector-sort! vec less startpos endpos
+
+@end deffn
+
+@c docstring begin (c-doc-string "sort.c" "sort!")
+@c docstring md5 "e3072b7809b03a14569c03a9b4037211"
+@deffn primitive sort! items less
+
+@end deffn
+
+@c docstring begin (c-doc-string "sort.c" "sort")
+@c docstring md5 "9564c57edb55b1c7f5df1193dd2815a9"
+@deffn primitive sort items less
+
+@end deffn
+
+@c docstring begin (c-doc-string "sort.c" "sort-list!")
+@c docstring md5 "8e0bde719221599da474718c1c19cbec"
+@deffn primitive sort-list! items less
+
+@end deffn
+
+@c docstring begin (c-doc-string "sort.c" "sort-list")
+@c docstring md5 "aaa69aa76b735dae7480c7009b258524"
+@deffn primitive sort-list items less
+
+@end deffn
+
+@c docstring begin (c-doc-string "sort.c" "sorted?")
+@c docstring md5 "2780363e0672d97c235caae689c5f15a"
+@deffn primitive sorted? items less
+
+@end deffn
+
+@c docstring begin (c-doc-string "sort.c" "stable-sort!")
+@c docstring md5 "d0d1a2e69eb7b0c9363e66c805b39222"
+@deffn primitive stable-sort! items less
+
+@end deffn
+
+@c docstring begin (c-doc-string "sort.c" "stable-sort")
+@c docstring md5 "a10b23541391f5530554f6e876ae3908"
+@deffn primitive stable-sort items less
+
+@end deffn
+
+
+@page
+@node Reading and Writing
+@chapter Reading and Writing
+
+@c docstring begin (c-doc-string "print.c" "get-print-state")
+@c docstring md5 "b5b525fc82e120ec1ff39dcbbf98f5f2"
+@deffn primitive get-print-state port
+
+@end deffn
+
+@c docstring begin (c-doc-string "print.c" "newline")
+@c docstring md5 "d9351ef8f5403ffc8fba539fde744af6"
+@deffn primitive newline [port]
+Send a newline to PORT.
+@end deffn
+
+@c docstring begin (c-doc-string "print.c" "port-with-print-state")
+@c docstring md5 "4db8bca5cc04e8bba7efc513f9ad9574"
+@deffn primitive port-with-print-state port pstate
+
+@end deffn
+
+@c docstring begin (c-doc-string "print.c" "print-options-interface")
+@c docstring md5 "f674aa5a515cc67a715de7b69d997bf1"
+@deffn primitive print-options-interface [setting]
+
+@end deffn
+
+@c docstring begin (c-doc-string "print.c" "simple-format")
+@c docstring md5 "09a7aab6f9ebdc145c2db0111ea19dd5"
+@deffn primitive simple-format destination message . args
+Write MESSAGE to DESTINATION, defaulting to `current-output-port'.
+MESSAGE can contain ~A (was %s) and ~S (was %S) escapes.  When printed,
+the escapes are replaced with corresponding members of ARGS:
+~A formats using `display' and ~S formats using `write'.
+If DESTINATION is #t, then use the `current-output-port',
+if DESTINATION is #f, then return a string containing the formatted text.
+Does not add a trailing newline.
+@end deffn
+
+@c docstring begin (c-doc-string "print.c" "write-char")
+@c docstring md5 "b8769ac8c925ec06222f903385ba1cc6"
+@deffn primitive write-char chr [port]
+Send character CHR to PORT.
+@end deffn
+
+@c docstring begin (c-doc-string "read.c" "read")
+@c docstring md5 "946c5cca51d7fff7a135cfd2a59946b2"
+@deffn primitive read [port]
+
+@end deffn
+
+@c docstring begin (c-doc-string "read.c" "read-hash-extend")
+@c docstring md5 "d0608894cab62e617219a26d9342ff16"
+@deffn primitive read-hash-extend chr proc
+
+@end deffn
+
+@c docstring begin (c-doc-string "read.c" "read-options-interface")
+@c docstring md5 "1451ab22009c0806d033e31a567ff56a"
+@deffn primitive read-options-interface [setting]
+
 @end deffn
 
 
@@ -6345,6 +6981,18 @@ in undefined behaviour. Once a mutex has been unlocked, one thread
 blocked on @var{mutex} is awakened and grabs the mutex lock. 
 @end deffn
 
+@c begin (c-doc-string "threads.c" "make-condition-variable")
+@deffn primitive make-condition-variable
+@end deffn
+
+@c begin (c-doc-string "threads.c" "wait-condition-variable")
+@deffn primitive wait-condition-variable cond-var mutex
+@end deffn
+
+@c begin (c-doc-string "threads.c" "signal-condition-variable")
+@deffn primitive signal-condition-variable cond-var
+@end deffn
+
 
 @node Higher level thread procedures
 @subsection Higher level thread procedures
@@ -6483,6 +7131,13 @@ expressions you would use a weak-value table.
 To implement a mapping from source code expressions to the procedures
 they constitute a doubly-weak table has to be used.
 
+@menu
+* Weak key hashes::
+* Weak vectors::
+@end menu
+
+
+@node Weak key hashes
 @section Weak key hashes
 
 @c ARGFIXME k/size
@@ -6509,6 +7164,32 @@ that a doubly weak hash table is neither a weak key nor a weak value
 hash table.
 @end deffn
 
+@c docstring begin (c-doc-string "weaks.c" "make-weak-value-hash-table")
+@c docstring md5 "fb4d4c2e073dbc796c91301c7354626a"
+@deffn primitive make-weak-value-hash-table k
+
+@end deffn
+
+@c docstring begin (c-doc-string "weaks.c" "weak-value-hash-table?")
+@c docstring md5 "153f4d8d1c920b5b96bbe785f26948c4"
+@deffn primitive weak-value-hash-table? x
+
+@end deffn
+
+@c docstring begin (c-doc-string "weaks.c" "make-doubly-weak-hash-table")
+@c docstring md5 "dfeed8361b0ead623e683a0c23a10d74"
+@deffn primitive make-doubly-weak-hash-table k
+
+@end deffn
+
+@c docstring begin (c-doc-string "weaks.c" "doubly-weak-hash-table?")
+@c docstring md5 "c9e3cadd3bb01eeab465925fbaebef76"
+@deffn primitive doubly-weak-hash-table? x
+
+@end deffn
+
+
+@node Weak vectors
 @section Weak vectors
 
 Weak vectors are mainly useful in Guile's implementation of weak hash
@@ -6636,6 +7317,261 @@ and Implementation, June 1993.
 @c docstring begin (c-doc-string "lang.c" "null")
 @c docstring md5 "97ab2113d5ac36592a3bce4cbe29bec5"
 @deffn primitive null x
+
+@end deffn
+
+
+@page
+@node Symbols and Variables
+@chapter Symbols and Variables
+
+@c docstring begin (c-doc-string "symbols.c" "builtin-bindings")
+@c docstring md5 "8a1709992ef99271fdbc658707bfaf2c"
+@deffn primitive builtin-bindings
+Create and return a copy of the global symbol table, removing all
+unbound symbols.
+@end deffn
+
+@c docstring begin (c-doc-string "symbols.c" "builtin-weak-bindings")
+@c docstring md5 "51fe6c6e787815da2e77d1a43cd97739"
+@deffn primitive builtin-weak-bindings
+
+@end deffn
+
+@c docstring begin (c-doc-string "symbols.c" "gensym")
+@c docstring md5 "d1d5a91644bfdb7f7d8bd7425d5665c1"
+@deffn primitive gensym [name [obarray]]
+Create a new, unique symbol in @var{obarray}, using the global symbol
+table by default.  If @var{name} is specified, it should be used as a
+prefix for the new symbol's name.  The default prefix is @code{%%gensym}.
+@end deffn
+
+@c docstring begin (c-doc-string "symbols.c" "intern-symbol")
+@c docstring md5 "2af3c5220d73c461a595912190fb6f59"
+@deffn primitive intern-symbol o s
+Add a new symbol to @var{obarray} with name @var{string}, bound to an
+unspecified initial value.  The symbol table is not modified if a symbol
+with this name is already present.
+@end deffn
+
+@c docstring begin (c-doc-string "symbols.c" "string->obarray-symbol")
+@c docstring md5 "7685fc7e47376eac94e06b59b25ec224"
+@deffn primitive string->obarray-symbol o s [softp]
+Intern a new symbol in @var{obarray}, a symbol table, with name
+@var{string}.
+
+If @var{obarray} is @code{#f}, use the default system symbol table.  If
+@var{obarray} is @code{#t}, the symbol should not be interned in any
+symbol table; merely return the pair (@var{symbol}
+. @var{#<undefined>}).
+
+The @var{soft?} argument determines whether new symbol table entries
+should be created when the specified symbol is not already present in
+@var{obarray}.  If @var{soft?} is specified and is a true value, then
+new entries should not be added for symbols not already present in the
+table; instead, simply return @code{#f}.
+@end deffn
+
+@c docstring begin (c-doc-string "symbols.c" "string->symbol")
+@c docstring md5 "9fd8dc0f103e845668d09ee2394a8ca6"
+@deffn primitive string->symbol s
+Returns the symbol whose name is @var{string}.  This procedure can
+create symbols with names containing special characters or letters in
+the non-standard case, but it is usually a bad idea to create such
+symbols because in some implementations of Scheme they cannot be read as
+themselves.  See @samp{symbol->string}.
+
+The following examples assume that the implementation's standard case is
+lower case:
+
+@format
+@t{(eq? 'mISSISSIppi 'mississippi)  
+          ==>  #t
+(string->symbol "mISSISSIppi")  
+          ==>
+  @r{}the symbol with name "mISSISSIppi"
+(eq? 'bitBlt (string->symbol "bitBlt"))     
+          ==>  #f
+(eq? 'JollyWog
+     (string->symbol
+       (symbol->string 'JollyWog)))  
+          ==>  #t
+(string=? "K. Harper, M.D."
+          (symbol->string
+            (string->symbol "K. Harper, M.D.")))  
+          ==>  #t
+}
+@end format
+@end deffn
+
+@c docstring begin (c-doc-string "symbols.c" "symbol->string")
+@c docstring md5 "b5364a720bb6d4de773b650b448ae726"
+@deffn primitive symbol->string s
+Returns the name of @var{symbol} as a string.  If the symbol was part of
+an object returned as the value of a literal expression (section
+@pxref{Literal expressions,,,r4rs, The Revised^4 Report on Scheme}) or
+by a call to the @samp{read} procedure, and its name contains alphabetic
+characters, then the string returned will contain characters in the
+implementation's preferred standard case---some implementations will
+prefer upper case, others lower case.  If the symbol was returned by
+@samp{string->symbol}, the case of characters in the string returned
+will be the same as the case in the string that was passed to
+@samp{string->symbol}.  It is an error to apply mutation procedures like
+@code{string-set!} to strings returned by this procedure. (r5rs)
+
+The following examples assume that the implementation's standard case is
+lower case:
+
+@format
+@t{(symbol->string 'flying-fish)     
+                                ==>  "flying-fish"
+(symbol->string 'Martin)               ==>  "martin"
+(symbol->string
+   (string->symbol "Malvina"))     
+                           ==>  "Malvina"
+}
+@end format
+@end deffn
+
+@c docstring begin (c-doc-string "symbols.c" "symbol-binding")
+@c docstring md5 "1bac963d15a7fb2bab4fb8d0b8923536"
+@deffn primitive symbol-binding o s
+Look up in @var{obarray} the symbol whose name is @var{string}, and
+return the value to which it is bound.  If @var{obarray} is @code{#f},
+use the global symbol table.  If @var{string} is not interned in
+@var{obarray}, an error is signalled.
+@end deffn
+
+@c docstring begin (c-doc-string "symbols.c" "symbol-bound?")
+@c docstring md5 "7364a8dacf72876082091edad5dd76a1"
+@deffn primitive symbol-bound? o s
+Return @var{#t} if @var{obarray} contains a symbol with name
+@var{string} bound to a defined value.  This differs from
+@var{symbol-bound?} in that the mere mention of a symbol usually causes
+it to be interned; @code{symbol-bound?} determines whether a symbol has
+been given any meaningful value.
+@end deffn
+
+@c docstring begin (c-doc-string "symbols.c" "symbol-fref")
+@c docstring md5 "6866703f22f515dc3dc9b68164c50025"
+@deffn primitive symbol-fref s
+Return the contents of @var{symbol}'s @dfn{function slot}.
+@end deffn
+
+@c docstring begin (c-doc-string "symbols.c" "symbol-fset!")
+@c docstring md5 "ea7fcb8a8a474030e181351bdfec85f4"
+@deffn primitive symbol-fset! s val
+Change the binding of @var{symbol}'s function slot.
+@end deffn
+
+@c docstring begin (c-doc-string "symbols.c" "symbol-hash")
+@c docstring md5 "1e7a307da0194d2035391c43d37adf0f"
+@deffn primitive symbol-hash s
+Return the hash value derived from @var{symbol}'s name, i.e. the integer
+index into @var{symbol}'s obarray at which it is stored.
+@end deffn
+
+@c docstring begin (c-doc-string "symbols.c" "symbol-interned?")
+@c docstring md5 "8601bd4112b45c15fd955f7b6c6b9f99"
+@deffn primitive symbol-interned? o s
+Return @var{#t} if @var{obarray} contains a symbol with name
+@var{string}, and @var{#f} otherwise.
+@end deffn
+
+@c docstring begin (c-doc-string "symbols.c" "symbol-pref")
+@c docstring md5 "35c4765d77ebf0c79e79ade2abc2d4ca"
+@deffn primitive symbol-pref s
+Return the @dfn{property list} currently associated with @var{symbol}.
+@end deffn
+
+@c docstring begin (c-doc-string "symbols.c" "symbol-pset!")
+@c docstring md5 "b5f811343fdeb1fa528fa900ab6b716c"
+@deffn primitive symbol-pset! s val
+Change the binding of @var{symbol}'s property slot.
+@end deffn
+
+@c docstring begin (c-doc-string "symbols.c" "symbol-set!")
+@c docstring md5 "117772fbfd3456db3f4118289d9e6f98"
+@deffn primitive symbol-set! o s v
+Find the symbol in @var{obarray} whose name is @var{string}, and rebind
+it to @var{value}.  An error is signalled if @var{string} is not present
+in @var{obarray}.
+@end deffn
+
+@c docstring begin (c-doc-string "symbols.c" "symbol?")
+@c docstring md5 "e6f53c2f2edad0570619f0a4ea2d1236"
+@deffn primitive symbol? obj
+Returns @t{#t} if @var{obj} is a symbol, otherwise returns @t{#f}. (r5rs)
+@end deffn
+
+@c docstring begin (c-doc-string "symbols.c" "unintern-symbol")
+@c docstring md5 "b516213c408f616f54dd52c2247e5c60"
+@deffn primitive unintern-symbol o s
+Remove the symbol with name @var{string} from @var{obarray}.  This
+function returns @code{#t} if the symbol was present and @code{#f}
+otherwise.
+@end deffn
+
+@c docstring begin (c-doc-string "variable.c" "builtin-variable")
+@c docstring md5 "ea24649749c765749dccd892972a5781"
+@deffn primitive builtin-variable name
+Return the built-in variable with the name NAME.
+NAME must be a symbol (not a string).
+Then use `variable-ref' to access its value.
+
+@end deffn
+
+@c docstring begin (c-doc-string "variable.c" "make-undefined-variable")
+@c docstring md5 "27a8052787d72807b1b39347cf71a239"
+@deffn primitive make-undefined-variable [name_hint]
+Return a variable object initialized to an undefined value.
+If given, uses NAME-HINT as its internal (debugging)
+name, otherwise just treat it as an anonymous variable.
+Remember, of course, that multiple bindings to the same
+variable may exist, so NAME-HINT is just that---a hint.
+
+@end deffn
+
+@c docstring begin (c-doc-string "variable.c" "make-variable")
+@c docstring md5 "9f1f7b3b5a075161eebf33e09d94dd12"
+@deffn primitive make-variable init [name_hint]
+Return a variable object initialized to value INIT.
+If given, uses NAME-HINT as its internal (debugging)
+name, otherwise just treat it as an anonymous variable.
+Remember, of course, that multiple bindings to the same
+variable may exist, so NAME-HINT is just that---a hint.
+
+@end deffn
+
+@c docstring begin (c-doc-string "variable.c" "variable-bound?")
+@c docstring md5 "f5c74c992d0727e5d98a062d9bb4dd7b"
+@deffn primitive variable-bound? var
+Return #t iff VAR is bound to a value.
+Throws an error if VAR is not a variable object.
+
+@end deffn
+
+@c docstring begin (c-doc-string "variable.c" "variable-ref")
+@c docstring md5 "4a70f1da7eb469b203b9363a43018fcf"
+@deffn primitive variable-ref var
+Dereference VAR and return its value.
+VAR must be a variable object;  see `make-variable' and
+`make-undefined-variable'
+@end deffn
+
+@c docstring begin (c-doc-string "variable.c" "variable-set!")
+@c docstring md5 "79f0ba026d4a35f37436f36eef4d4740"
+@deffn primitive variable-set! var val
+Set the value of the variable VAR to VAL.
+VAR must be a variable object, VAL can be any value.
+Returns an unspecified value.
+
+@end deffn
+
+@c docstring begin (c-doc-string "variable.c" "variable?")
+@c docstring md5 "249146390f269e1afb3c1e8ba287e567"
+@deffn primitive variable? obj
+Return #t iff OBJ is a variable object, else return #f
 
 @end deffn
 
@@ -6836,6 +7772,108 @@ of that type currently allocated.
 @c docstring md5 "ccdd28b85ff0d1149b83159202141add"
 @deffn primitive debug-object? obj
 
+@end deffn
+
+@c docstring begin (c-doc-string "stacks.c" "frame-arguments")
+@c docstring md5 "0e1d1da9800a7868d9b28ae648cbebb5"
+@deffn primitive frame-arguments frame
+
+@end deffn
+
+@c docstring begin (c-doc-string "stacks.c" "frame-evaluating-args?")
+@c docstring md5 "69d29e30a00b7c245b71516d2995cf9a"
+@deffn primitive frame-evaluating-args? frame
+
+@end deffn
+
+@c docstring begin (c-doc-string "stacks.c" "frame-next")
+@c docstring md5 "59fd4185c95528ad5ed90b8ed4315db8"
+@deffn primitive frame-next frame
+
+@end deffn
+
+@c docstring begin (c-doc-string "stacks.c" "frame-number")
+@c docstring md5 "ca429cb78a9f0072ad415ce868b1ed8b"
+@deffn primitive frame-number frame
+
+@end deffn
+
+@c docstring begin (c-doc-string "stacks.c" "frame-overflow?")
+@c docstring md5 "ee371fbee773071df8d29d39875f3ec4"
+@deffn primitive frame-overflow? frame
+
+@end deffn
+
+@c docstring begin (c-doc-string "stacks.c" "frame-previous")
+@c docstring md5 "972cd2b0de5777ac57272c07ea0efdbd"
+@deffn primitive frame-previous frame
+
+@end deffn
+
+@c docstring begin (c-doc-string "stacks.c" "frame-procedure")
+@c docstring md5 "0807ecc9cfde3d8612c683004ef7f2e9"
+@deffn primitive frame-procedure frame
+
+@end deffn
+
+@c docstring begin (c-doc-string "stacks.c" "frame-procedure?")
+@c docstring md5 "4357341a9f96ec4ebdcfc946681b08bf"
+@deffn primitive frame-procedure? frame
+
+@end deffn
+
+@c docstring begin (c-doc-string "stacks.c" "frame-real?")
+@c docstring md5 "6ef354bf37e30d927c438c0480cb7f31"
+@deffn primitive frame-real? frame
+
+@end deffn
+
+@c docstring begin (c-doc-string "stacks.c" "frame-source")
+@c docstring md5 "32e6ea70754da59bc5cbbae9bde0bfc3"
+@deffn primitive frame-source frame
+
+@end deffn
+
+@c docstring begin (c-doc-string "stacks.c" "frame?")
+@c docstring md5 "cf1b25c7d8f9b35150468335da74e091"
+@deffn primitive frame? obj
+
+@end deffn
+
+@c docstring begin (c-doc-string "stacks.c" "last-stack-frame")
+@c docstring md5 "4fe4dc74ec1cbcce557b9dab5f3d2ca9"
+@deffn primitive last-stack-frame obj
+
+@end deffn
+
+@c docstring begin (c-doc-string "stacks.c" "make-stack")
+@c docstring md5 "2bde281c4317494b0f3705af336d51b5"
+@deffn primitive make-stack obj . args
+
+@end deffn
+
+@c docstring begin (c-doc-string "stacks.c" "stack-id")
+@c docstring md5 "ca763708b2d35b13cff3421efe361e81"
+@deffn primitive stack-id stack
+Return the identifier given to @var{stack} by @code{start-stack}.
+@end deffn
+
+@c docstring begin (c-doc-string "stacks.c" "stack-length")
+@c docstring md5 "977273effa5d1a070514097dcf179162"
+@deffn primitive stack-length stack
+
+@end deffn
+
+@c docstring begin (c-doc-string "stacks.c" "stack-ref")
+@c docstring md5 "aa2413be65039197778736baf3b20358"
+@deffn primitive stack-ref stack i
+
+@end deffn
+
+@c docstring begin (c-doc-string "stacks.c" "stack?")
+@c docstring md5 "e2ef84c92c9766418532de42c7d89ca1"
+@deffn primitive stack? obj
+Return @code{#t} if @var{obj} is a calling stack.
 @end deffn
 
 

@@ -1,3 +1,39 @@
+2000-09-22  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* scheme.texi: Lots more docstring comments added, and docs
+	synchronized with libguile source.
+	(interaction-environment, make-struct, make-vtable-vtable): Newer,
+	better doc taken from source file.
+	(cons-source): New docstring written.
+	(Vectors): New section added.
+	(Random, Symbols and Variables): New chapters.
+	
+	* posix.texi: Lots more docstring comments added.
+	(pipe, tzset) Newer, better documentation taken from source file.
+	
+	* deprecated.texi: New file, for documenting features that are
+	deprecated and so planned to disappear.
+
+	* guile.texi (Procedures, Reading and Writing, Random, Sorting,
+	Symbols and Variables, Deprecated): New chapters in the Scheme
+	part of the reference manual, to hold docstrings that don't
+	currently fit anywhere else.
+
+2000-08-28  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* posix.texi (Pipes): open-pipe and close-pipe are procedures (in
+	ice-9/popen.scm), not primitives.
+
+	* scheme.texi (Generic Port Operations): Remove doc for
+	port-revealed and set-port-revealed!, since these are covered in
+	posix.texi.
+
+	* posix.texi: Inserted docstring synchronization comments and
+	synchronized docstrings for all primitives defined in posix.c,
+	simpos.c, scmsigs.c, stime.c.
+	(Ports and File Descriptors) Similarly synchronized port-revealed
+	and set-port-revealed!.
+	
 2000-08-25  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* scheme.texi: Lots more docstrings added.
