@@ -1,6 +1,6 @@
 ;;; installed-scm-file
 
-;;;; 	Copyright (C) 1998 Free Software Foundation, Inc.
+;;;; 	Copyright (C) 1998, 1999 Free Software Foundation, Inc.
 ;;;; 
 ;;;; This program is free software; you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License as published by
@@ -79,18 +79,25 @@
 ;;;
 ;;; describe for GOOPS instances
 ;;;
+(define (safe-class-name class)
+  (if (slot-bound? class 'name)
+      (class-name class)
+      class))
+
 (define-method describe ((x <object>))
-  (format #t "~S is an instance of class ~A~%" x (class-name (class-of x)))
+  (format #t "~S is an instance of class ~A~%"
+	  x (safe-class-name (class-of x)))
 
   ;; print all the instance slots
   (format #t "Slots are: ~%")
   (for-each (lambda (slot)
 	      (let ((name (slot-definition-name slot)))
-		(format #t "     ~S = ~A~%" name
-					    (if (slot-bound? x name) 
-						(format #f "~S" (slot-ref x name))
-						"#<unbound>"))))
-       (class-slots (class-of x)))
+		(format #t "     ~S = ~A~%"
+			name
+			(if (slot-bound? x name) 
+			    (format #f "~S" (slot-ref x name))
+			    "#<unbound>"))))
+	    (class-slots (class-of x)))
   *unspecified*)
 
 ;;;
@@ -98,11 +105,11 @@
 ;;;
 (define-method describe ((x <class>))
   (format #t "~S is a class. It's an instance of ~A~%" 
-	  (class-name x) (class-name (class-of x)))
+	  (safe-class-name x) (safe-class-name (class-of x)))
   
   ;; Super classes 
   (format #t "Superclasses are:~%")
-  (for-each (lambda (class) (format #t "    ~A~%" (class-name class)))
+  (for-each (lambda (class) (format #t "    ~A~%" (safe-class-name class)))
        (class-direct-supers x))
 
   ;; Direct slots
@@ -123,12 +130,12 @@
 	(begin
 	  (format #t "Directs subclasses are:~%") 
 	  (for-each (lambda (s) 
-		      (format #t "    ~A~%" (class-name s)))
+		      (format #t "    ~A~%" (safe-class-name s)))
 		    classes))))
 
   ;; CPL
   (format #t "Class Precedence List is:~%")
-  (for-each (lambda (s) (format #t "    ~A~%" (class-name s))) 
+  (for-each (lambda (s) (format #t "    ~A~%" (safe-class-name s))) 
 	    (class-precedence-list x))
 
   ;; Direct Methods
@@ -154,7 +161,7 @@
 	(methods (generic-function-methods x)))
     ;; Title
     (format #t "~S is a generic function. It's an instance of ~A.~%" 
-	    name (class-name (class-of x)))
+	    name (safe-class-name (class-of x)))
     ;; Methods
     (if (null? methods)
 	(format #t "(No method defined for ~S)~%" name)
@@ -169,12 +176,14 @@
   (letrec ((print-args (lambda (args)
 			 ;; take care of dotted arg lists
 			 (cond ((null? args) (newline))
-			       ((pair? args) (display #\space)
-					     (display (class-name (car args)))
-					     (print-args (cdr args)))
-			       (else	     (display #\space)
-					     (display (class-name args))
-					     (newline))))))
+			       ((pair? args)
+				(display #\space)
+				(display (safe-class-name (car args)))
+				(print-args (cdr args)))
+			       (else
+				(display #\space)
+				(display (safe-class-name args))
+				(newline))))))
 
     ;; Title
     (format #t "    Method ~A~%" x)
