@@ -13,7 +13,7 @@
   - fix bugs
 
 
-- Guile 1.6
+- Guile 1.6 (branched: only modify items according to ../build/release.txt)
   - document libtool conventions [rlb]
   + write workbook/build/maintainer-dirs.text [ttn]
   + write guile-core/am/maintainer-dirs [ttn]

@@ -1,3 +1,4 @@
+-*-text-*-
 In contrast to most of its sibling directories, this directory is
 concerned with the enumeration and ownership of tasks, and the
 conventional way of doing and communicating these things.
@@ -25,6 +26,10 @@ The TODO File
 	w/ any particular version.  Items should be initially added to
 	this group, and then later moved up under a version upon either
 	ownership or sponsorship.
+
+        NOTE: Do not add or remove items from a release specific
+        section without authorization if that release has been
+        branched in CVS -- see ../build/release.txt for details.
 
 	Maintainers (w/ write privs) indicate ownership by `[USERNAME]'.
 	Use `[ACTUAL-OWNER:MAINTAINER]' to indicate sponsorship, where
