@@ -1,6 +1,6 @@
 ;;; www/cgi.scm --- Common Gateway Interface support for WWW scripts
 
-;; 	Copyright (C) 1997,2001,2002 Free Software Foundation, Inc.
+;; 	Copyright (C) 1997,2001,2002, 2003 Free Software Foundation, Inc.
 ;;
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -124,7 +124,7 @@
 ;;     path associated with the cookie.
 ;; (cgi:cookies NAME)
 ;;     Fetch the first cookie value associated with NAME.
-;; (cgi:make-cookie NAME VALUE #&key path domain expires secure)
+;; (cgi:make-cookie NAME VALUE #:key path domain expires secure)
 ;;     Create a cookie suitable for inclusion into an HTTP response
 ;;     header. Recognize optional parameters path, doman, expires,
 ;;     (which should be strings) and secure (which is boolean).
@@ -173,16 +173,16 @@
     (and cookie-values (car cookie-values))))
 
 (define-public cgi:make-cookie
-  (lambda* (name value #&key path domain expires secure)
+  (lambda* (name value #:key path domain expires secure)
            (format #f "Set-Cookie: ~A=~A~A~A~A~A"
                    name value
-                   (if (bound? path)
+                   (if path
                        (format #f "; path=~A" path) "")
-                   (if (bound? domain)
+                   (if domain
                        (format #f "; domain=~A" domain) "")
-                   (if (bound? expires)
+                   (if expires
                        (format #f "; expires=~A" expires) "")
-                   (if (and (bound? secure) secure)
+                   (if secure
                        "; secure" ""))))
 
 
