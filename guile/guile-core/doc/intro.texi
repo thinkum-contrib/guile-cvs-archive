@@ -736,7 +736,7 @@ write a Scheme file with this contents
 (dynamic-call "init_bessel" (dynamic-link "libguile-bessel"))
 @end smallexample
 
-The file should of course be saved in the right place for autolading,
+The file should of course be saved in the right place for autoloading,
 for example as @file{/usr/local/share/guile/math/bessel.scm}.
 
 @page
