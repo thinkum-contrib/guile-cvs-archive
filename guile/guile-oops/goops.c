@@ -132,9 +132,8 @@ static SCM scm_class_operator_class, scm_class_operator_with_setter_class;
 static SCM scm_class_entity_class;
 static SCM scm_class_number, scm_class_list;
 static SCM scm_class_keyword;
-#ifdef USE_TK
-static SCM Widget;
-#endif
+static SCM scm_class_port, scm_class_input_output_port;
+static SCM scm_class_input_port, scm_class_output_port;
 SCM scm_class_foreign_class, scm_class_foreign_object;
 SCM scm_class_foreign_slot;
 SCM scm_class_self, scm_class_protected;
@@ -2058,10 +2057,16 @@ make_standard_classes (void)
 	       scm_class_procedure_class, scm_class_top,   SCM_EOL);
   make_stdcls (&scm_class_procedure_with_setter, "<procedure-with-setter>",
 	       scm_class_procedure_class, scm_class_procedure, SCM_EOL);
-#ifdef USE_TK
-  make_stdcls(&Widget, "<widget>",
-	      scm_class_procedure_class, scm_class_procedure, SCM_EOL);
-#endif
+  make_stdcls (&scm_class_port,		   "<port>",
+	       scm_class_class, scm_class_top,		   SCM_EOL);
+  make_stdcls (&scm_class_input_port,	   "<input-port>",
+	       scm_class_class, scm_class_port,		   SCM_EOL);
+  make_stdcls (&scm_class_output_port,	   "<output-port>",
+	       scm_class_class, scm_class_port,		   SCM_EOL);
+  make_stdcls (&scm_class_input_output_port, "<input-output-port>",
+	       scm_class_class,
+	       SCM_LIST2 (scm_class_input_port, scm_class_output_port),
+	       SCM_EOL);
 }
 
 /**********************************************************************
@@ -2070,15 +2075,14 @@ make_standard_classes (void)
  *
  **********************************************************************/
 
-
 static SCM
-make_extended_class (char *type_name)
+make_class_from_template (char *template, char *type_name, SCM supers)
 {
   SCM class, name;
   if (type_name)
     {
-      char buffer[200];
-      sprintf (buffer, "<%s>", type_name);
+      char buffer[100];
+      sprintf (buffer, template, type_name);
       name = Intern (buffer);
     }
   else
@@ -2086,7 +2090,7 @@ make_extended_class (char *type_name)
 
   class = scm_permanent_object (scm_basic_make_class (scm_class_class,
 						      name,
-						      SCM_LIST1(scm_class_top),
+						      supers,
 						      SCM_EOL));
 
   /* Only define name if doesn't already exist. */
@@ -2096,6 +2100,14 @@ make_extended_class (char *type_name)
 				SCM_EOL)))
     DEFVAR (name, class);
   return class;
+}
+
+static SCM
+make_extended_class (char *type_name)
+{
+  return make_class_from_template ("<%s>",
+				   type_name,
+				   SCM_LIST1 (scm_class_top));
 }
 
 static void
@@ -2114,6 +2126,40 @@ make_smob_classes (void)
   for (i = 0; i < scm_numsmob; ++i)
     if (!scm_smob_class[i])
       scm_smob_class[i] = scm_make_extended_class (SCM_SMOBNAME (i));
+}
+
+static void
+local_make_port_classes (int ptobnum, char *type_name)
+{
+  SCM class = make_class_from_template ("<%s-port>",
+					type_name,
+					SCM_LIST1 (scm_class_port));
+  scm_port_class[SCM_IN_PCLASS_INDEX + ptobnum]
+    = make_class_from_template ("<%s-input-port>",
+				type_name,
+				SCM_LIST2 (class, scm_class_input_port));
+  scm_port_class[SCM_OUT_PCLASS_INDEX + ptobnum]
+    = make_class_from_template ("<%s-output-port>",
+				type_name,
+				SCM_LIST2 (class, scm_class_output_port));
+  scm_port_class[SCM_INOUT_PCLASS_INDEX + ptobnum]
+    = make_class_from_template ("<%s-input-output-port>",
+				type_name,
+				SCM_LIST2 (class,
+					   scm_class_input_output_port));
+}
+
+static void
+make_port_classes (void)
+{
+  int i;
+
+  scm_port_class = (SCM *) malloc (3 * 256 * sizeof (SCM));
+  for (i = 0; i < 3 * 256; ++i)
+    scm_port_class[i] = 0;
+
+  for (i = 0; i < scm_numptob; ++i)
+    local_make_port_classes (i, SCM_PTOBNAME (i));
 }
 
 static SCM
@@ -2361,11 +2407,13 @@ scm_init_goops (void)
 					   scm_tc7_lsubr_2,
 					   apply_generic_3));
   scm_make_extended_class = make_extended_class;
+  scm_make_port_classes = local_make_port_classes;
   scm_change_object_class = change_object_class;
 
   create_basic_classes ();
   make_standard_classes ();
   make_smob_classes ();
+  make_port_classes ();
   make_struct_classes ();
 
   scm_select_module (old_module);
