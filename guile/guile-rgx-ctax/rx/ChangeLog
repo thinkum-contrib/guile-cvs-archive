@@ -1,3 +1,8 @@
+Mon Oct 14 04:47:32 1996  Gary Houston  <ghouston@actrix.gen.nz>
+
+	* Makefile.in (depends): add -I.. to gcc flags.  Make the addition
+	of dependencies to Makefile.in automatic.  Update the dependencies.
+
 Mon Oct 14 06:08:18 1996  Mikael Djurfeldt  <mdj@woody.nada.kth.se>
 
 	* rgx.c (scm_regex_error): Renamed lgh_error --> scm_error.
