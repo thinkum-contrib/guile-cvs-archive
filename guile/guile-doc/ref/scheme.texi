@@ -298,7 +298,7 @@ be called any number of times.
 
 @example
 (define x 'normal-binding)
-=> x
+@result{} x
 
 (define a-cont  (call-with-current-continuation 
 		  (lambda (escape)
@@ -322,22 +322,22 @@ be called any number of times.
 ;; Prints: 
 special-binding
 ;; Evaluates to:
-=> a-cont
+@result{} a-cont
 
 x
-=> normal-binding
+@result{} normal-binding
 
 (a-cont #f)
 ;; Prints:
 special-binding
 ;; Evaluates to:
-=> a-cont  ;; the value of the (define a-cont...)
+@result{} a-cont  ;; the value of the (define a-cont...)
 
 x
-=> normal-binding
+@result{} normal-binding
 
 a-cont
-=> special-binding
+@result{} special-binding
 @end example
 
 @end defun
@@ -695,15 +695,15 @@ of the type this vtable will describe.
                       'foo))
 
 (struct? x)
-=> #t
+@result{} #t
 (struct-vtable? x)
-=> #t
+@result{} #t
 (eq? x (struct-vtable x))
-=> #t
+@result{} #t
 (struct-ref x struct-vtable-offset)
-=> foo
+@result{} foo
 (struct-ref x 0)
-=> pruosrpw
+@result{} pruosrpw
 
 
 (define y
@@ -713,29 +713,29 @@ of the type this vtable will describe.
                'bar))
 
 (struct? y)
-=> #t
+@result{} #t
 (struct-vtable? y)
-=> #t
+@result{} #t
 (eq? x y)
-=> ()
+@result{} ()
 (eq? x (struct-vtable y))
-=> #t
+@result{} #t
 (struct-ref y 0)
-=> pwpwpw
+@result{} pwpwpw
 (struct-ref y struct-vtable-offset)
-=> bar
+@result{} bar
 
 
 (define z (make-struct y 0 'a 'b 'c))
 
 (struct? z)
-=> #t
+@result{} #t
 (struct-vtable? z)
-=> ()
+@result{} ()
 (eq? y (struct-vtable z))
-=> #t
+@result{} #t
 (map (lambda (n) (struct-ref z n)) '(0 1 2))
-=> (a b c)
+@result{} (a b c)
 @end example
 
 @end defun
@@ -1337,10 +1337,10 @@ string primitives like @code{string-length}, @code{string-ref},
 of @var{bar} and indices of @var{foo} automatically.
 
 @example
-(string-length? bar) => 5	; bar only extends from indices 4 to 9
-(string-ref bar 3)  => #\c	; same as (string-ref foo 7)
+(string-length? bar) @result{} 5	; bar only extends from indices 4 to 9
+(string-ref bar 3)  @result{} #\c	; same as (string-ref foo 7)
 (make-shared-substring bar 2)
-  => "ick"			; can even make a shared substring!
+  @result{} "ick"			; can even make a shared substring!
 @end example
 
 Because creating a shared substring does not require allocating new
@@ -1351,7 +1351,7 @@ substrings.
 
 @example
 (string-set! foo 7 #\r)
-bar => "quirk"
+bar @result{} "quirk"
 @end example
 
 Shared substrings are also treated as read-only strings by Guile.  This
@@ -1378,11 +1378,11 @@ This illustrates the difference between @code{string?} and
 @code{read-only-string?}:
 
 @example
-(string? "a string") => #t
-(string? 'a-symbol") => #f
+(string? "a string") @result{} #t
+(string? 'a-symbol") @result{} #f
 
-(read-only-string? "a string") => #t
-(read-only-string? 'a-symbol") => #t
+(read-only-string? "a string") @result{} #t
+(read-only-string? 'a-symbol") @result{} #t
 @end example
 @end defun
 
@@ -1400,32 +1400,45 @@ accept a symbol as well.
 Another of example of a read-only string is a "shared substring".
 Shared substrings are defined in the next chapter.
 
-
 @page
-@node Object Properties
-@chapter Object Properties
+@node Property Lists
+@chapter Property Lists
 
-[FIXME: this is pasted in from Tom Lord's original guile.texi and should
-be reviewed]
+Every object in the system can have a @dfn{property list} that may
+be used for information about that object.  For example, a
+function may have a property list that includes information about
+the source file in which it is defined.
 
-The system maintains an assoc list of properties associated with every
-object in the system.   A property list is protected by the object it is
-for;  if that object is garbage collected, then the property list may
-be as well.
+Property lists are implemented as assq lists (@pxref{Association Lists}).
+
+Currently, property lists are implemented differently for procedures and
+closures than for other kinds of objects.  Therefore, when manipulating
+a property list associated with a procedure object, use the
+@code{procedure} functions; otherwise, use the @code{object} functions.
 
 @defun object-properties obj
-@defunx set-object-properties obj alist
-Return (perhaps setting) the properties of @var{obj}.
+@defunx procedure-properties obj
+Return @var{obj}'s property list.
+@end defun
+
+@defun set-object-properties! obj alist
+@defunx set-procedure-properties! obj alist
+Set @var{obj}'s property list to @var{alist}.
 @end defun
 
 @defun object-property obj key
-@defunx set-object-property! obj key val
-Return (perhaps setting) a specific property of @var{obj}.
+@defunx procedure-property obj key
+Return the property of @var{obj} with name @var{key}.
+@end defun
+
+@defun set-object-property! obj key value
+@defunx set-procedure-property! obj key value
+In @var{obj}'s property list, set the property named @var{key} to
+@var{value}.
 @end defun
 
 [Interface bug:  there should be a second level of interface in which
 the user provides a "property table" that is possibly private.]
-
 
 @page
 @node Association Lists and Hash Tables
@@ -3669,7 +3682,7 @@ Converts a string containing an Internet host address in the traditional
 dotted decimal notation into an integer.
 
 @smalllisp
-(inet-aton "127.0.0.1") ==> 2130706433
+(inet-aton "127.0.0.1") @result{} 2130706433
 
 @end smalllisp
 @end deffn
@@ -3679,7 +3692,7 @@ Converts an integer Internet host address into a string with the
 traditional dotted decimal representation.
 
 @smalllisp
-(inet-ntoa 2130706433) ==> "127.0.0.1"
+(inet-ntoa 2130706433) @result{} "127.0.0.1"
 @end smalllisp
 @end deffn
 
@@ -3687,7 +3700,7 @@ traditional dotted decimal representation.
 Returns the network number part of the given integer Internet address.
 
 @smalllisp
-(inet-netof 2130706433) ==> 127
+(inet-netof 2130706433) @result{} 127
 @end smalllisp
 @end deffn
 
@@ -3696,7 +3709,7 @@ Returns the local-address-with-network part of the given Internet
 address.
 
 @smalllisp
-(inet-lnaof 2130706433) ==> 1
+(inet-lnaof 2130706433) @result{} 1
 @end smalllisp
 @end deffn
 
@@ -3705,7 +3718,7 @@ Makes an Internet host address by combining the network number @var{net}
 with the local-address-within-network number @var{lna}.
 
 @smalllisp
-(inet-makeaddr 127 1) ==> 2130706433
+(inet-makeaddr 127 1) @result{} 2130706433
 @end smalllisp
 @end deffn
 

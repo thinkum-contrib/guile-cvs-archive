@@ -126,7 +126,7 @@ Part I: Guile Scheme
 * Arrays::
 * Binary Numeric Operations::
 * Shared and Read-Only Strings::
-* Object Properties::
+* Property Lists::
 * Association Lists and Hash Tables::
 * Input/Output Ports::
 * Garbage Collection::
