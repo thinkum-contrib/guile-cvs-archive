@@ -253,7 +253,7 @@ Part IV: Guile API Reference
 * Objects::                     Low level object orientation support.
 * Modules::                     Designing reusable code libraries.
 * Scheduling::                  Threads, mutexes, asyncs and dynamic roots.
-* Options and Config::          Runtime options and configuration.
+* Options and Config::          Configuration, features and runtime options.
 * Translation::                 Support for translating other languages.
 * Debugging::                   Internal debugging interface.
 * Deprecated::                  Features that are planned to disappear.
