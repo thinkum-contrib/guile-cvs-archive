@@ -19,7 +19,7 @@
 ;;;; 
 
 
-(define-module (goops compat))
+(define-module (oop compat))
 
 (export
  symbol-bound? global-environment when unless map* for-each*)
