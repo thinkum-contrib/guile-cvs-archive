@@ -971,6 +971,8 @@ get_slot_value (SCM class, SCM obj, SCM slot_name)
 	      register SCM code, next, env;
 
 	      code = SCM_CAR (l);
+	      if (!SCM_CLOSUREP (code))
+		return SCM_SUBRF (code) (obj);
 	      env  = SCM_EXTEND_ENV (SCM_CAR (SCM_CODE (code)),
 				     SCM_LIST1 (obj),
 				     SCM_ENV (code));
@@ -1022,16 +1024,29 @@ set_slot_value (SCM class, SCM obj, SCM slot_name, SCM value)
 	      register SCM code, env;
 
 	      code = SCM_CADR (l);
-	      env  = SCM_EXTEND_ENV (SCM_CAR (SCM_CODE (code)),
-				     SCM_LIST2 (obj, value),
-				     SCM_ENV (code));
-	      /* Evaluate the closure body */
-	      code = SCM_CDR (SCM_CODE (code));
-	      while (SCM_NNULLP (code))
+	      if (!SCM_CLOSUREP (code))
+		SCM_SUBRF (code) (obj, value);
+	      else
 		{
-		  if (SCM_NIMP (SCM_CAR (code)))
-		    SCM_XEVAL (SCM_CAR (code), env);
-		  code = SCM_CDR (code);
+		  env  = SCM_EXTEND_ENV (SCM_CAR (SCM_CODE (code)),
+					 SCM_LIST2 (obj, value),
+					 SCM_ENV (code));
+		  /* Evaluate the closure body */
+		  code = SCM_CDR (SCM_CODE (code));
+		  while (SCM_NNULLP (code))
+		    {
+		      if (SCM_IMP (SCM_CAR (code)))
+			{
+			  if (SCM_ISYMP (SCM_CAR (code)))
+			    {
+			      code = scm_m_expand_body (code, env);
+			      continue;
+			    }
+			}
+		      else
+			SCM_XEVAL (SCM_CAR (code), env);
+		      code = SCM_CDR (code);
+		    }
 		}
 	    }
 	  return SCM_UNSPECIFIED;
@@ -2347,7 +2362,6 @@ scm_add_slot (SCM class, char *slot_name, SCM slot_class,
     SCM get = scm_make_subr_opt ("goops:get", scm_tc7_subr_1, getter, 0);
     SCM set = scm_make_subr_opt ("goops:set", scm_tc7_subr_2,
 				 setter ? setter : default_setter, 0);
-    /*fixme* allow subr getter/setters */
     SCM getm = scm_closure (SCM_LIST2 (SCM_LIST1 (sym_o),
 				       SCM_LIST2 (get, sym_o)),
 			    SCM_EOL);
