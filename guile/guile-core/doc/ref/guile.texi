@@ -283,6 +283,8 @@ Indices
 
 @end menu
 
+@contents
+
 @include preface.texi
 
 @iftex
@@ -385,7 +387,5 @@ available through both Scheme and C interfaces.
 
 @include indices.texi
 @include scheme-indices.texi
-
-@contents
 
 @bye
