@@ -2,7 +2,7 @@
 
 #ifndef GOOPSH
 #define GOOPSH
-/*	Copyright (C) 1998, 1999 Free Software Foundation, Inc.
+/*	Copyright (C) 1998, 1999, 2000 Free Software Foundation, Inc.
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -168,6 +168,17 @@ typedef struct scm_method_t {
 #define scm_si_code_table	 3  /* offset of code. slot in a <method> */
 
 /* C interface */
+extern SCM scm_class_top, scm_class_object, scm_class_class;
+extern SCM scm_class_entity, scm_class_entity_with_setter;
+extern SCM scm_class_generic, scm_class_generic_with_setter, scm_class_method;
+extern SCM scm_class_simple_method, scm_class_accessor;
+extern SCM scm_class_procedure_class;
+extern SCM scm_class_operator_class, scm_class_operator_with_setter_class;
+extern SCM scm_class_entity_class;
+extern SCM scm_class_number, scm_class_list;
+extern SCM scm_class_keyword;
+extern SCM scm_class_port, scm_class_input_output_port;
+extern SCM scm_class_input_port, scm_class_output_port;
 extern SCM scm_class_foreign_class, scm_class_foreign_object;
 extern SCM scm_class_foreign_slot;
 extern SCM scm_class_self, scm_class_protected;

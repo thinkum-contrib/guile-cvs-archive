@@ -1,4 +1,4 @@
-/*	Copyright (C) 1998, 1999 Free Software Foundation, Inc.
+/*	Copyright (C) 1998, 1999, 2000 Free Software Foundation, Inc.
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -134,17 +134,17 @@ static SCM scm_goops_the_unbound_value;
 static SCM scm_goops_lookup_closure;
 
 /* Some classes are defined in libguile/objects.c. */
-static SCM scm_class_top, scm_class_object, scm_class_class;
-static SCM scm_class_entity, scm_class_entity_with_setter;
-static SCM scm_class_generic, scm_class_generic_with_setter, scm_class_method;
-static SCM scm_class_simple_method, scm_class_accessor;
-static SCM scm_class_procedure_class;
-static SCM scm_class_operator_class, scm_class_operator_with_setter_class;
-static SCM scm_class_entity_class;
-static SCM scm_class_number, scm_class_list;
-static SCM scm_class_keyword;
-static SCM scm_class_port, scm_class_input_output_port;
-static SCM scm_class_input_port, scm_class_output_port;
+SCM scm_class_top, scm_class_object, scm_class_class;
+SCM scm_class_entity, scm_class_entity_with_setter;
+SCM scm_class_generic, scm_class_generic_with_setter, scm_class_method;
+SCM scm_class_simple_method, scm_class_accessor;
+SCM scm_class_procedure_class;
+SCM scm_class_operator_class, scm_class_operator_with_setter_class;
+SCM scm_class_entity_class;
+SCM scm_class_number, scm_class_list;
+SCM scm_class_keyword;
+SCM scm_class_port, scm_class_input_output_port;
+SCM scm_class_input_port, scm_class_output_port;
 SCM scm_class_foreign_class, scm_class_foreign_object;
 SCM scm_class_foreign_slot;
 SCM scm_class_self, scm_class_protected;
