@@ -51,7 +51,7 @@ extern void scm_store_word (const scm_bits_t word, SCM dstate);
 extern void scm_store_object (SCM obj, SCM dstate);
 
 extern void scm_restore_string (const char **pp, scm_sizet *sizep, SCM dstate);
-extern void scm_restore_bytes (const void **pp, scm_sizet size, SCM dstate);
+extern void scm_restore_bytes (const void **pp, scm_sizet *sizep, SCM dstate);
 extern void scm_restore_word (scm_bits_t *wordp, SCM dstate);
 extern void scm_restore_object (SCM *objp, SCM dstate);
 
