@@ -1,3 +1,13 @@
+2001-02-15  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* data-rep.texi: Preserve, in comments beginning `@c essay',
+	material from the standalone version of this essay which is very
+	soon to be retired from its current location at
+	guile-core/doc/data-rep.texi.
+
+	* data-rep.texi: Incorporate recent changes to smob example
+	documentation from the standalone version of this essay.
+
 2001-02-02  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* scheme-reading.texi (Further Reading): Add reference to online
