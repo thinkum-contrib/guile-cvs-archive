@@ -217,7 +217,7 @@ scm_call_with_new_thread (SCM argl)
   {
     register SCM args = argl;
     SCM thunk, handler;
-    if (!SCM_CONSP (args))
+    if (!scm_is_pair (args))
       SCM_WRONG_NUM_ARGS ();
     thunk = SCM_CAR (args);
     SCM_ASSERT (scm_is_true (scm_thunk_p (thunk)),
@@ -225,14 +225,14 @@ scm_call_with_new_thread (SCM argl)
 		SCM_ARG1,
 		s_call_with_new_thread);
     args = SCM_CDR (args);
-    if (!SCM_CONSP (args))
+    if (!scm_is_pair (args))
       SCM_WRONG_NUM_ARGS ();
     handler = SCM_CAR (args);
     SCM_ASSERT (scm_is_true (scm_procedure_p (handler)),
 		handler,
 		SCM_ARG2,
 		s_call_with_new_thread);
-    if (!SCM_NULLP (SCM_CDR (args)))
+    if (!scm_is_null (SCM_CDR (args)))
       SCM_WRONG_NUM_ARGS ();
   }
 
@@ -498,7 +498,7 @@ scm_timed_wait_condition_variable (SCM c, SCM m, SCM t)
 
   if (!SCM_UNBNDP (t))
     {
-      if (SCM_CONSP (t))
+      if (scm_is_pair (t))
 	{
 	  SCM_VALIDATE_UINT_COPY (3, SCM_CAR(t), waittime.tv_sec);
 	  SCM_VALIDATE_UINT_COPY (3, SCM_CDR(t), waittime.tv_nsec);
