@@ -26,6 +26,11 @@
   - Finish and test GMP support for bignums.  If it works out, add it.
   - consider (and likely use) pkg-config for guile.
   - add support for srfi-30 (multi-line-comments) - follow std *carefully*.
+  - Implement scm replacements for all of GH
+  - Allow the deprecation mechanism to be controlled via a preprocessor
+    macro analogous to _GNU_SOURCE. [talk to mvo about this]
+  - Properly integrate system asyncs and signals with threads. [mvo]
+  - Make (ice-9 format) thread safe.  Others modules as well.
 
 - Eventually
 
@@ -33,8 +38,6 @@
     - How do we handle guile's existing support? srfi module overrides?
     - Should guile's support eventually be a separate module?
   - Look at new srfis (and add).
-  - Allow the deprecation mechanism to be controlled via a preprocessor
-    macro analogous to _GNU_SOURCE. [talk to mvo about this]
   + also show bidi set-difference counts in api-diff [ttn]
   - write goops test cases in C
   - scan ideas web page and link to implementations
