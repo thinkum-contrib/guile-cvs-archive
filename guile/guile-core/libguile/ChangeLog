@@ -1,3 +1,12 @@
+2000-06-08  Dirk Herrmann  <D.Herrmann@tu-bs.de>
+
+	* coop.c (scm_I_am_dead):  Made static and renamed to I_am_dead.
+
+	* coop.h (scm_internal_select, scm_I_am_dead), iselect.h
+	(scm_I_am_dead, scm_init_iselect):  Removed references.
+
+	* threads.c (mutex_free):  Added comment.
+
 2000-06-07  Dirk Herrmann  <D.Herrmann@tu-bs.de>
 
 	* feature.c (scm_init_feature):  Let the threads subsystem take

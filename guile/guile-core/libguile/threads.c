@@ -506,6 +506,9 @@ SCM_DEFINE(scm_mutex_unlock, "mutex-unlock", 1, 0, 0,
 static scm_sizet
 mutex_free (SCM mutex)
 {
+  /* Dirk:FIXME:: What happens to the threads that are blocked because of this
+   * mutex?  They will never wake up again.  */
+
   return (* scm_thread.mutex_free) (SCM_MUTEX_DATA (mutex));  
 }
 

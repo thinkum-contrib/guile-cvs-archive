@@ -94,18 +94,6 @@ Here starts the content of iselect.h:
 
 #endif /* no FD_SET */
 
-extern int scm_internal_select (int fds,
-				SELECT_TYPE *rfds,
-				SELECT_TYPE *wfds,
-				SELECT_TYPE *efds,
-				struct timeval *timeout);
-
-#ifdef GUILE_ISELECT
-
-extern int scm_I_am_dead;
-
-#endif /* GUILE_ISELECT */
-
 
 /*****************************************************************************
 Here ends the content of iselect.h:

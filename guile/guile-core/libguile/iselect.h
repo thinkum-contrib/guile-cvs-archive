@@ -90,14 +90,6 @@ extern int scm_internal_select (int fds,
 				SELECT_TYPE *efds,
 				struct timeval *timeout);
 
-#ifdef GUILE_ISELECT
-
-extern int scm_I_am_dead;
-
-extern void scm_init_iselect (void);
-
-#endif /* GUILE_ISELECT */
-
 #endif
 
 /*

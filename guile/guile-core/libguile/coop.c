@@ -192,6 +192,8 @@ static void coop_only (void *pu, void *pt, qt_userf_t *f);
 static void *coop_aborthelp (qt_t *sp, void *old, void *null);
 static void *coop_yieldhelp (qt_t *sp, void *old, void *blockq);
 
+static int I_am_dead;
+
 
 /* called on process termination.  */
 #ifdef HAVE_ATEXIT
@@ -699,11 +701,11 @@ coop_abort ()
     }
 
 #ifdef GUILE_ISELECT
-  scm_I_am_dead = 1;
+  I_am_dead = 1;
   do {
     newthread = coop_wait_for_runnable_thread();
   } while (newthread == coop_global_curr);
-  scm_I_am_dead = 0;
+  I_am_dead = 0;
 #else
   newthread = coop_next_runnable_thread();
 #endif
@@ -860,8 +862,6 @@ typedef unsigned long *ulongptr;
 
 static char bc[256]; /* Bit counting array.  bc[x] is the number of
 			bits in x. */
-
-int scm_I_am_dead;
 
 /* This flag indicates that several threads are waiting on the same
    file descriptor.  When this is the case, the common fd sets are
@@ -1197,7 +1197,7 @@ find_thread (int n, struct timeval *now, int sleepingp)
        error to all of them.  */
     {
       error_revive_threads ();
-      if (!scm_I_am_dead)
+      if (!I_am_dead)
 	return coop_global_curr;
     }
   else if (n == 0)

@@ -1,3 +1,8 @@
+2000-06-08  Dirk Herrmann  <D.Herrmann@tu-bs.de>
+
+	* tests/threads.test:  Restructured, added some tests, always
+	check if threads are provided at all.
+
 2000-06-06  Dirk Herrmann  <D.Herrmann@tu-bs.de>
 
 	* lib.scm (pass-if, expect-fail):  Generalized to allow a sequence

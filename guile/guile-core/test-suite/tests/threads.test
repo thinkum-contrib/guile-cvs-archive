@@ -48,18 +48,29 @@
 ;;;
 
 
-(define (pass-if-documented identifier)
-  (with-test-prefix "documented?"
-    (pass-if identifier
-      (let ((documented #f))
-	(with-output-to-string
-	  (lambda ()
-	    (set! documented (documentation identifier))))
-	documented))))
+(define (check-feature feature)
+  (if (not (provided? feature))
+      (throw 'unsupported)))
 
 
-(define (true)
+(define (documented? identifier)
+  (let ((documented #f))
+    (with-output-to-string
+      (lambda ()
+	(set! documented (documentation identifier))))
+    documented))
+
+
+(define (default-error-handler)
   #t)
+
+
+(defmacro repeat (count body . rest)
+  `(let ((c ,count))
+     (do ((i 0 (+ i 1)))
+	 ((= i ,count))
+       ,body
+       ,@rest)))
 
 
 ;;;
@@ -68,100 +79,110 @@
 
 (with-test-prefix "threads"
 
-  ;; Is documentation available?
+  (with-test-prefix "call-with-new-thread"
 
-  (pass-if-documented "call-with-new-thread")
+    (pass-if "documented?"
+      (check-feature 'threads)
+      (documented? "call-with-new-thread"))
 
-  (pass-if-documented "thread?")
-
-  (pass-if-documented "thread-exit")
-
-  (pass-if-documented "thread-cancel")
-
-  (pass-if-documented "thread-join")
-
-  (pass-if-documented "thread-yield")
-
-  ;; Functionality
-
-  (with-test-prefix "core functionality"
-
-    (pass-if "assignment"
-      (let* ((flag #f))
-	(call-with-new-thread
-	 (lambda () 
-	   (set! flag #t))
-	 true)
-	flag))
-
-    (pass-if "assignment after exit"
-      (let* ((flag #f))
-	(call-with-new-thread
-	 (lambda () 
-	   (thread-exit 0) 
-	   (set! flag #t))
-	 true)
-	(not flag)))
-
-    (pass-if "join yield assignment"
+    (pass-if "thread runs and exits"
+      (check-feature 'threads)
       (let* ((flag #f)
-	     (thread
-	      (call-with-new-thread
-	       (lambda () 
-		 (thread-yield) 
-		 (thread-yield) 
-		 (thread-yield) 
-		 (set! flag #t))
-	       true)))
+	     (function (lambda () (set! flag #t)))
+	     (thread (call-with-new-thread function default-error-handler)))
 	(thread-join thread)
 	flag))
 
-    (pass-if "cancel yield assignment"
-      (let* ((flag #f)
-	     (thread
-	      (call-with-new-thread
-	       (lambda () 
-		 (thread-yield) 
-		 (thread-yield) 
-		 (thread-yield) 
-		 (set! flag #t))
-	       true)))
-	(thread-cancel thread)
-	(not flag)))
+    ;; Check for threads spawning other threads
 
-    (pass-if "assignment after yield"
-      (let* ((flag #f))
-	(call-with-new-thread 
-	 (lambda () 
-	   (thread-yield) 
-	   (thread-yield) 
-	   (set! flag #t)) 
-	 true)
-	(not flag)))
+    ;; Check for correct application of the error handler
 
-    (pass-if "assignment after mutual yield"
-      (let* ((flag #f))
-	(call-with-new-thread
-	 (lambda ()
-	   (thread-yield)
-	   (set! flag #t)) true)
-	(thread-yield)
-	(thread-yield)
-	(thread-yield)
-	flag))
+    ;; Check for correct handling of parameter errors
+    ;; 1) wrong type instead of thread function
+    ;; 2) wrong thread function arity
+    ;; 3) wrong type instead of handler function
+    ;; 4) wrong handler function arity
 
-)
+    )
 
-  (with-test-prefix "thread? obj"
+  (with-test-prefix "thread?"
 
-    (pass-if "obj = <new thread>"
-      (let ((t (call-with-new-thread true true)))
+    (pass-if "documented?"
+      (check-feature 'threads)
+      (documented? "thread?"))
+
+    (pass-if "new thread"
+      (check-feature 'threads)
+      (let* ((function (lambda () #t))
+	     (t (call-with-new-thread function default-error-handler)))
 	(thread? t)))
 
-    (pass-if "obj = <inum>"
-      (not (thread? 0)))
+    (pass-if "non-thread"
+      (check-feature 'threads)
+      (not (thread? 0))))
 
-))
+  (with-test-prefix "thread-exit"
+
+    (pass-if "documented?"
+      (check-feature 'threads)
+      (documented? "thread-exit"))
+
+    (pass-if "thread exits appropriately"
+      (check-feature 'threads)
+      (let* ((flag #f)
+	     (function (lambda () (thread-exit 0) (set! flag #t)))
+	     (thread (call-with-new-thread function default-error-handler)))
+	(thread-join thread)
+	(not flag)))
+
+    ;; Check for parameter errors
+
+    )
+
+  (with-test-prefix "thread-cancel"
+
+    (pass-if "documented?"
+      (check-feature 'threads)
+      (documented? "thread-cancel"))
+
+    (pass-if "thread exits appropriately"
+      (check-feature 'threads)
+      (throw 'untested)))
+
+  (with-test-prefix "thread-join"
+
+    (pass-if "documented?"
+      (check-feature 'threads)
+      (documented? "thread-join")))
+
+  (with-test-prefix "thread-yield"
+
+    (pass-if "documented?"
+      (check-feature 'coop-threads)
+      (documented? "thread-yield"))
+
+    (pass-if "assignment after yield"
+      (check-feature 'coop-threads)
+      (let* ((flag #f)
+	     (function (lambda () (repeat 2 (thread-yield)) (set! flag #t)))
+	     (thread (call-with-new-thread function default-error-handler)))
+	(not flag)))
+
+    (pass-if "join assignment after yield"
+      (check-feature 'coop-threads)
+      (let* ((flag #f)
+	     (function (lambda () (repeat 3 (thread-yield)) (set! flag #t)))
+	     (thread (call-with-new-thread function default-error-handler)))
+	(thread-join thread)
+	flag))
+
+    (pass-if "assignment after mutual yield"
+      (check-feature 'coop-threads)
+      (let* ((flag #f)
+	     (function (lambda () (repeat 2 (thread-yield)) (set! flag #t)))
+	     (thread (call-with-new-thread function default-error-handler)))
+	(repeat 4 (thread-yield))
+	flag))))
 
 
 ;;;
@@ -170,74 +191,99 @@
 
 (with-test-prefix "mutecis"
 
-  ;; Is documentation available?
+  (with-test-prefix "make-mutex"
 
-  (pass-if-documented "make-mutex")
+    (pass-if "documented?"
+      (check-feature 'threads)
+      (documented? "make-mutex")))
 
-  (pass-if-documented "mutex?")
+  (with-test-prefix "mutex?"
 
-  (pass-if-documented "mutex-lock")
+    (pass-if "documented?"
+      (check-feature 'threads)
+      (documented? "mutex?"))
 
-  (pass-if-documented "mutex-trylock")
-
-  (pass-if-documented "mutex-unlock")
-
-  ;; Functionality
-
-  (with-test-prefix "mutex? obj"
-
-    (pass-if "obj = <new mutex>"
+    (pass-if "new mutex"
+      (check-feature 'threads)
       (let ((m (make-mutex)))
 	(mutex? m)))
 
-    (pass-if "obj = <locked mutex>"
+    (pass-if "locked mutex"
+      (check-feature 'threads)
       (let ((m (make-mutex)))
 	(mutex-lock m)
 	(mutex? m)))
 
-    (pass-if "obj = <trylocked mutex>"
+    (pass-if "trylocked mutex"
+      (check-feature 'threads)
       (let ((m (make-mutex)))
 	(mutex-trylock m)
 	(mutex? m)))
 
-    (pass-if "obj = <unlocked mutex>"
+    (pass-if "unlocked mutex"
+      (check-feature 'threads)
       (let ((m (make-mutex)))
 	(mutex-lock m)
 	(mutex-unlock m)
 	(mutex? m)))
 
-    (pass-if "obj = <untrylocked mutex>"
+    (pass-if "untrylocked mutex"
+      (check-feature 'threads)
       (let ((m (make-mutex)))
 	(mutex-trylock m)
 	(mutex-unlock m)
 	(mutex? m)))
 
-    (pass-if "obj = <inum>"
+    (pass-if "inum"
+      (check-feature 'threads)
       (not (mutex? 0))))
+
+  (with-test-prefix "mutex-lock"
+
+    (pass-if "documented?"
+      (check-feature 'threads)
+      (documented? "mutex-lock")))
 
   (with-test-prefix "mutex-trylock"
 
-    (pass-if "obj = <new mutex>"
+    (pass-if "documented?"
+      (check-feature 'threads)
+      (documented? "mutex-trylock")))
+
+  (with-test-prefix "mutex-unlock"
+
+    (pass-if "documented?"
+      (check-feature 'threads)
+      (documented? "mutex-unlock")))
+
+  (with-test-prefix "mutex-trylock"
+
+    (pass-if "new mutex"
+      (check-feature 'threads)
       (let ((m (make-mutex)))
 	(mutex-trylock m)))
 
-    (pass-if "obj = <locked mutex>"
+    (pass-if "locked mutex"
+      (check-feature 'threads)
       (let ((m (make-mutex)))
 	(mutex-lock m)
 	(not (mutex-trylock m))))
 
-    (pass-if "obj = <trylocked mutex>"
+    (pass-if "trylocked mutex"
+      (check-feature 'threads)
       (let ((m (make-mutex)))
 	(mutex-trylock m)
 	(not (mutex-trylock m))))
 
-    (pass-if "obj = <unlocked mutex>"
+    (pass-if "unlocked mutex"
+      (check-feature 'threads)
       (let ((m (make-mutex)))
 	(mutex-lock m)
 	(mutex-unlock m)
 	(mutex-trylock m)))
 
-    (pass-if "obj = <untrylocked mutex>"
+    (pass-if "untrylocked mutex"
+      (check-feature 'threads)
       (let ((m (make-mutex)))
 	(mutex-trylock m)
 	(mutex-unlock m)
