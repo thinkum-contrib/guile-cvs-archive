@@ -91,6 +91,7 @@ extern "C" {
 #include "libguile/load.h"
 #include "libguile/macros.h"
 #include "libguile/mallocs.h"
+#include "libguile/mb.h"
 #include "libguile/modules.h"
 #include "libguile/net_db.h"
 #include "libguile/numbers.h"
