@@ -1,0 +1,40 @@
+dnl Process this file with autoconf to produce configure.
+AC_INIT(gtkthreads.c)
+. $srcdir/GTKTHREADS-VERSION
+AM_INIT_AUTOMAKE($PACKAGE, $VERSION, no-define)
+AM_MAINTAINER_MODE
+
+#--------------------------------------------------------------------
+#
+# User options
+#
+#--------------------------------------------------------------------
+
+
+#--------------------------------------------------------------------
+
+AC_PROG_CC
+AC_PROG_CPP
+AM_PROG_LIBTOOL
+
+## If we're using GCC, ask for aggressive warnings.
+case "$GCC" in
+  yes)
+    ## We had -Wstrict-prototypes in here for a bit, but Guile does too
+    ## much stuff with generic function pointers for that to really be
+    ## less than exasperating.
+    CFLAGS="$CFLAGS -Wall -Wpointer-arith -Wmissing-prototypes" ;;
+esac
+
+CFLAGS="`gtk-config --cflags` $CFLAGS"
+
+### Add the Guile libraries to the link command.
+LIBS="$LIBS `guile-config link` `gtk-config --libs gthread`"
+
+AC_OUTPUT(Makefile)
+
+dnl Local Variables:
+dnl comment-start: "dnl "
+dnl comment-end: ""
+dnl comment-start-skip: "\\bdnl\\b\\s *"
+dnl End:

@@ -1,0 +1,17 @@
+2000-03-29  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
+
+	* configure.in, Makefile.am: handle GTKTHREADS-VERSION.
+
+	* GTKTHREADS-VERSION: New file.
+
+	* threads.scm: New file.
+
+	* gthread-guile.c (g_mutex_new_guile_impl): Removed second arg to
+	scm_mutex_init.  Layout.
+
+	* Makefile.am: Renamed the library to libguilegtkthreads.
+
+	* gtkthreads.c: Added #include <libguile/dynl.h>, #include
+	"gtkthreads.h".
+	(scm_init_gtk_guilegtkthreads_module): Renamed from
+	scm_init_gtk_gtkthreads_module.
