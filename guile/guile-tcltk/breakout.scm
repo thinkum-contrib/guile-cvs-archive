@@ -1,6 +1,6 @@
 ;;; installed-scm-file
 
-;;;; 	Copyright (C) 1998 Free Software Foundation, Inc.
+;;;; 	Copyright (C) 1998, 2002 Free Software Foundation, Inc.
 ;;;; 
 ;;;; This program is free software; you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License as published by
@@ -197,7 +197,7 @@
 ;; Make the window and playing area
 ;;
 (define play-geom (string-append (number->string play-w)
-				 'x
+				 "x"
 				 (number->string play-h)))
 (define (setup-geom)
   (wm 'minsize '.game play-w play-h)
@@ -362,7 +362,6 @@
 	    (else  "`P' to play;  `Q' to quit"))))
 
 
-(define mu (make-mutex))
 (define cv (make-condition-variable))
 
 (define-public (play-game)
@@ -373,14 +372,16 @@
 	(setup-bindings)))
   (new-game)
   (set! game-quit #f)
-  (let game-loop ()
-    (report-game-state)
-    (wait-condition-variable cv mu)
-    (if (not game-quit)
-	(begin
-	  (set! game-playing #t)
-	  (loop)
-	  (game-loop))))
+  (let ((mu (make-mutex)))
+    (lock-mutex mu)
+    (let game-loop ()
+      (report-game-state)
+      (wait-condition-variable cv mu)
+      (if (not game-quit)
+	  (begin
+	    (set! game-playing #t)
+	    (loop)
+	    (game-loop)))))
   (destroy '.game))
 
 

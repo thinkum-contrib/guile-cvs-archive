@@ -2,18 +2,18 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-lib_LTLIBRARIES = libgtcltk.la libguiledlopenhelper.la
+lib_LTLIBRARIES = libguile-tcltk-gtcltk.la libguiledlopenhelper.la
 bin_PROGRAMS = guile-tcltk
 
-libgtcltk_la_SOURCES = guile-tcl.c guile-tk.c \
+libguile_tcltk_gtcltk_la_SOURCES = guile-tcl.c guile-tk.c \
 		       guile-tcl.h guile-tk.h gtcltk-module.c
-EXTRA_libgtcltk_la_SOURCES = tclInt.h tclUnixPort.h tclUnixNotfy.c
+EXTRA_libguile_tcltk_gtcltk_la_SOURCES = tclInt.h tclUnixPort.h tclUnixNotfy.c
 BUILT_SOURCES = guile-tcl.x guile-tk.x
-libgtcltk_la_DEPENDENCIES = @LIBLOBJS@
-libgtcltk_la_LIBADD = @LIBLOBJS@
-libgtcltk_la_LDFLAGS = -version-info 1:0 -export-dynamic
+libguile_tcltk_gtcltk_la_DEPENDENCIES = @LIBLOBJS@
+libguile_tcltk_gtcltk_la_LIBADD = @LIBLOBJS@
+libguile_tcltk_gtcltk_la_LDFLAGS = -version-info 1:0 -export-dynamic
 
-guile_tcltk_LDADD = libgtcltk.la $(GUILE_LIBS)
+guile_tcltk_LDADD = libguile-tcltk-gtcltk.la $(GUILE_LIBS)
 
 libguiledlopenhelper_la_SOURCES = guiledlopenhelper.c
 libguiledlopenhelper_la_LDFLAGS = -version-info 0:0:0 -export-dynamic
@@ -39,7 +39,7 @@ SUFFIXES = .x
 ## We assume the user has already installed Guile.
 SNARF=guile-snarf
 .c.x:
-	$(SNARF) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $(X_CFLAGS) $< > $@
+	$(SNARF) $(DEFS) -I. $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $(X_CFLAGS) $< > $@
 
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $(X_CFLAGS)
 

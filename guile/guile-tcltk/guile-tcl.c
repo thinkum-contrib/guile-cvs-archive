@@ -1,4 +1,4 @@
-/*	Copyright (C) 1998, 2000 Free Software Foundation, Inc.
+/*	Copyright (C) 1998, 2000, 2001, 2002 Free Software Foundation, Inc.
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,19 +44,20 @@
 #include <malloc.h>
 #include <tcl.h>
 #include <libguile.h>
+#include "compat.h"
 
 #include "guile-tcl.h"
 
 
 
 #ifdef USE_THREADS
-scm_mutex_t scm_tcl_mutex;
-scm_cond_t scm_tcl_condvar;
+scm_t_mutex scm_tcl_mutex;
+scm_t_cond scm_tcl_condvar;
 int scm_tcl_handle_event_p;
 #endif
 
-static scm_sizet free_interp (SCM obj);
-static scm_sizet
+static size_t free_interp (SCM obj);
+static size_t
 free_interp (obj)
      SCM obj;
 {
@@ -124,7 +125,7 @@ scm_tcl_global_eval (tobj, script)
   SCM_ASSERT (SCM_NIMP (script) && SCM_ROSTRINGP (script), script, SCM_ARG2,
 	      s_tcl_global_eval);
   
-  SCM_COERCE_SUBSTR (script);
+  SCM_STRING_COERCE_0TERMINATION_X (script);
 
 #ifdef USE_THREADS
   scm_mutex_lock (&scm_tcl_mutex);
@@ -259,7 +260,7 @@ invoke_tcl_command (data, interp, argc, argv)
     {
       SCM name;
       name = scm_number_to_string (result, SCM_MAKINUM (10));
-      Tcl_SetResult (interp, SCM_CHARS (SCM_CDR (name)), TCL_VOLATILE);
+      Tcl_SetResult (interp, SCM_STRING_CHARS (SCM_CDR (name)), TCL_VOLATILE);
       return TCL_OK;
     }
   else if (SCM_NIMP (result)
@@ -311,7 +312,7 @@ scm_tcl_create_command (tobj, name, proc)
   SCM_ASSERT (scm_procedure_p (proc) == SCM_BOOL_T, proc, SCM_ARG3, 
 	      s_tcl_create_command);
   SCM_PROPS (tobj) = scm_acons (proc, tobj, SCM_PROPS (tobj));
-  SCM_COERCE_SUBSTR (name);
+  SCM_STRING_COERCE_0TERMINATION_X (name);
 #ifdef USE_THREADS
   scm_mutex_lock (&scm_tcl_mutex);
 #endif
@@ -339,7 +340,7 @@ scm_tcl_delete_command (tobj, name)
 	      s_tcl_delete_command);
   SCM_ASSERT (SCM_NIMP (name) && SCM_ROSTRINGP(name), name, SCM_ARG2,
 	      s_tcl_delete_command);
-  SCM_COERCE_SUBSTR (name);
+  SCM_STRING_COERCE_0TERMINATION_X (name);
 #ifdef USE_THREADS
   scm_mutex_lock (&scm_tcl_mutex);
 #endif
@@ -369,7 +370,7 @@ scm_tcl_get_int (tobj, name)
 	  && SCM_ROSTRINGP (name),
 	  name, SCM_ARG2, s_tcl_get_int);
 
-  SCM_COERCE_SUBSTR (name);
+  SCM_STRING_COERCE_0TERMINATION_X (name);
 
 #ifdef USE_THREADS
   scm_mutex_lock (&scm_tcl_mutex);
@@ -399,7 +400,7 @@ scm_tcl_get_double (tobj, name)
   SCM_ASSERT (SCM_NIMP (name)
 	  && SCM_STRINGP (name),
 	  name, SCM_ARG2, s_tcl_get_double);
-  SCM_COERCE_SUBSTR (name);
+  SCM_STRING_COERCE_0TERMINATION_X (name);
 #ifdef USE_THREADS
   scm_mutex_lock (&scm_tcl_mutex);
 #endif
@@ -411,7 +412,7 @@ scm_tcl_get_double (tobj, name)
   scm_mutex_unlock (&scm_tcl_mutex);
 #endif
   SCM_ASSERT (stat == TCL_OK, name, SCM_TERP (tobj)->result, s_tcl_get_double);
-  return scm_makdbl (c_answer, 0.0);
+  return scm_make_real (c_answer);
 }
 
 
@@ -429,7 +430,7 @@ scm_tcl_get_boolean (tobj, name)
   SCM_ASSERT (SCM_NIMP (name)
 	  && SCM_ROSTRINGP (name),
 	  name, SCM_ARG2, s_tcl_get_boolean);
-  SCM_COERCE_SUBSTR (name);
+  SCM_STRING_COERCE_0TERMINATION_X (name);
 #ifdef USE_THREADS
   scm_mutex_lock (&scm_tcl_mutex);
 #endif
@@ -523,9 +524,8 @@ scm_tcl_merge (tobj, args)
 			  s_tcl_merge);
 	    }
 	  if (SCM_SUBSTRP (SCM_CAR (args)))
-	    SCM_SETCAR (args, scm_makfromstr (SCM_ROCHARS (SCM_CAR (args)),
-					     SCM_ROLENGTH (SCM_CAR (args)),
-					     0));
+	    SCM_SETCAR (args, scm_mem2string (SCM_ROCHARS (SCM_CAR (args)),
+					      SCM_ROLENGTH (SCM_CAR (args))));
 	  argv[i] = SCM_ROCHARS (SCM_CAR (args));
 	  args = SCM_CDR (args);
 	}
@@ -597,13 +597,13 @@ scm_tcl_trace_var2 (tobj, name, index, flags, thunk)
   SCM_ASSERT (SCM_NIMP (name)
 	  && SCM_ROSTRINGP (name),
 	  name, SCM_ARG2, s_tcl_trace_var2);
-  SCM_COERCE_SUBSTR (name);
+  SCM_STRING_COERCE_0TERMINATION_X (name);
   SCM_ASSERT ((SCM_BOOL_F == index)
 	  || (SCM_NIMP (index)
 	      && SCM_ROSTRINGP (index)),
 	  index, SCM_ARG3, s_tcl_trace_var2);
   if (SCM_NIMP (index))
-    SCM_COERCE_SUBSTR (index);
+    SCM_STRING_COERCE_0TERMINATION_X (index);
   SCM_ASSERT (SCM_INUMP (flags), flags, SCM_ARG4, s_tcl_trace_var2);
   SCM_ASSERT (scm_procedure_p (thunk), thunk, SCM_ARG5, s_tcl_trace_var2);
   SCM_PROPS (tobj) = scm_acons (thunk, SCM_EOL, SCM_PROPS (tobj));
@@ -645,13 +645,13 @@ scm_tcl_untrace_var2 (tobj, name, index, flags, thunk)
 	      s_tcl_untrace_var2);
   SCM_ASSERT ((SCM_NIMP (name) && SCM_ROSTRINGP (name)),
 	  name, SCM_ARG2, s_tcl_untrace_var2);
-  SCM_COERCE_SUBSTR (name);
+  SCM_STRING_COERCE_0TERMINATION_X (name);
   SCM_ASSERT ((SCM_BOOL_F == index)
 	  || (SCM_NIMP (index)
 	      && SCM_ROSTRINGP (index)),
 	  index, SCM_ARG3, s_tcl_untrace_var2);
   if (SCM_NIMP (index))
-    SCM_COERCE_SUBSTR (index);
+    SCM_STRING_COERCE_0TERMINATION_X (index);
   SCM_ASSERT (SCM_INUMP (flags), flags, SCM_ARG4, s_tcl_untrace_var2);
   SCM_ASSERT (scm_procedure_p (thunk), thunk, SCM_ARG5, s_tcl_untrace_var2);
 
@@ -706,16 +706,16 @@ scm_tcl_set_var2 (tobj, name, index, value, flags)
 	      s_tcl_set_var2);
   SCM_ASSERT ((SCM_NIMP (name) && SCM_ROSTRINGP (name)),
 	  name, SCM_ARG2, s_tcl_set_var2);
-  SCM_COERCE_SUBSTR (name);
+  SCM_STRING_COERCE_0TERMINATION_X (name);
   SCM_ASSERT ((SCM_BOOL_F == index)
 	  || (SCM_NIMP (index)
 	      && SCM_ROSTRINGP (index)),
 	  index, SCM_ARG3, s_tcl_set_var2);
   if (SCM_NIMP (index))
-    SCM_COERCE_SUBSTR (index);
+    SCM_STRING_COERCE_0TERMINATION_X (index);
   SCM_ASSERT (SCM_NIMP (value) && SCM_ROSTRINGP (value),
 	  value, SCM_ARG4, s_tcl_set_var2);
-  SCM_COERCE_SUBSTR (value);
+  SCM_STRING_COERCE_0TERMINATION_X (value);
   SCM_ASSERT (SCM_INUMP (flags), flags, SCM_ARG5, s_tcl_set_var2);
 
   SCM_DEFER_INTS;
@@ -743,13 +743,13 @@ scm_tcl_get_var2 (tobj, name, index, flags)
 	      s_tcl_get_var2);
   SCM_ASSERT ((SCM_NIMP (name) && SCM_ROSTRINGP (name)),
 	  name, SCM_ARG2, s_tcl_set_var2);
-  SCM_COERCE_SUBSTR (name);
+  SCM_STRING_COERCE_0TERMINATION_X (name);
   SCM_ASSERT ((SCM_BOOL_F == index)
 	  || (SCM_NIMP (index)
 	      && SCM_ROSTRINGP (index)),
 	  index, SCM_ARG3, s_tcl_set_var2);
   if (SCM_NIMP (index))
-    SCM_COERCE_SUBSTR (index);
+    SCM_STRING_COERCE_0TERMINATION_X (index);
   SCM_ASSERT (SCM_INUMP (flags), flags, SCM_ARG4, s_tcl_get_var2);
 
   SCM_DEFER_INTS;

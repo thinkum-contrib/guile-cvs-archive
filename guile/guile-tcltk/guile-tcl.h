@@ -2,7 +2,7 @@
 
 #ifndef GUILE_TCLH
 #define GUILE_TCLH
-/*	Copyright (C) 1998 Free Software Foundation, Inc.
+/*	Copyright (C) 1998, 2001 Free Software Foundation, Inc.
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,8 +69,8 @@ struct gtcltk_interp {
 extern int scm_tc16_tcl_interp;
 
 #ifdef USE_THREADS
-extern scm_mutex_t scm_tcl_mutex;
-extern scm_cond_t scm_tcl_condvar;
+extern scm_t_mutex scm_tcl_mutex;
+extern scm_t_cond scm_tcl_condvar;
 extern int scm_tcl_handle_event_p;
 #endif
 

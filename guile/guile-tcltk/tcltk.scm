@@ -1,4 +1,4 @@
-;;;; 	Copyright (C) 1996, 1997, 1998 Free Software Foundation, Inc.
+;;;; 	Copyright (C) 1996, 1997, 1998, 2001 Free Software Foundation, Inc.
 ;;;; 
 ;;;; This program is free software; you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 (define-module (tcltk tcltk)
   :use-module (ice-9 debug)
   :use-module (ice-9 threads)
-  :use-module (tcltk gtcltk))
+  :use-module (tcltk dynlink))
 
 ;; Re-export bindings from the gtcltk module
 (export
@@ -37,9 +37,14 @@
   tcl-set-var2 tcl-get-var2 tcl-defined? tcl-do-one-event
   tk-init-main-window tk-loop? tk-main-loop tk-num-main-windows)
 
-(define widgets '(button checkbutton radiobutton menubutton menu canvas
-			 label entry message listbox text scrollbar
-			 scale frame toplevel))
+(if (defined? 'load-extension)
+    (load-extension "libguile-tcltk-gtcltk" "scm_init_tcltk_gtcltk")
+    (merge-compiled-code "scm_init_gtcltk" "libguile-tcltk-gtcltk"))
+
+(define widgets
+  '(button checkbutton radiobutton menubutton menu canvas
+	   label entry message listbox text scrollbar
+	   scale frame toplevel))
 
 (read-set! keywords 'prefix)
 
@@ -336,18 +341,23 @@
 ;;
 (define-public (make-tcl-binder interp)
   (let* ((root-module the-scm-module)
-	 (root-binder (module-binder root-module)))
+	 (root-binder
+	  (or (module-binder root-module)
+	      ;; new module system
+	      (let ((ec (standard-interface-eval-closure root-module)))
+		(lambda (m s d?)
+		  (ec s d?))))))
     (lambda (m s define?)
       (cond ((and (not (hashq-ref override-scheme-table s))
 		  (root-binder root-module s #f)))
 	    ((module-obarray-ref (module-obarray m) s))
 	    ((tcl-defined? interp s)
-	     (let ((b (make-undefined-variable s)))
+	     (let ((b (make-undefined-variable)))
 	       (module-obarray-set! (module-obarray m) s b)
 	       (variable-set! b (tcl-command interp s))
 	       b))
 	    (else (and define?
-		       (let ((b (make-undefined-variable s)))
+		       (let ((b (make-undefined-variable)))
 			 (module-obarray-set! (module-obarray m) s b)
 			 b)))))))
 
@@ -455,17 +465,11 @@
 (define-public (tcl-get-number name)
   (string->number (get-var name)))
 
-;;; To support stack handling:
-
-(define v (builtin-variable 'tk-stack-mark))
-
-(variable-set! v ->tcl-string)
-
 ;;; {Widgets}
 ;;;
 (define (make-widget! name)
   (let ((w (tk-widget name))
-	(b (make-undefined-variable name)))
+	(b (make-undefined-variable)))
     (module-obarray-set! (module-obarray tcltk-interface) name b)
     (variable-set! b w)))
 

@@ -1,4 +1,4 @@
-/*	Copyright (C) 1998 Free Software Foundation, Inc.
+/*	Copyright (C) 1998, 2001 Free Software Foundation, Inc.
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,15 +43,28 @@
 #include "libguile.h"
 
 void
+scm_init_tcltk_gtcltk (void *dummy)
+{
+  scm_init_gtcl ();
+  scm_init_gtk ();
+}
+
+void
 scm_init_gtcltk ()
 {
-    scm_init_gtcl ();
-    scm_init_gtk ();
+  scm_init_tcltk_gtcltk (0);
 }
 
 void
 scm_init_tcltk_gtcltk_module ()
 {
-    scm_register_module_xxx ("tcltk %static-initfuncs% scm_init_gtcltk",
-			     scm_init_gtcltk);
+#ifdef HAVE_SCM_C_REGISTER_EXTENSION
+  scm_c_register_extension ("libguile-tcltk-gtcltk",
+			    "scm_init_tcltk_gtcltk",
+			    scm_init_tcltk_gtcltk,
+			    0);
+#else
+  scm_register_module_xxx ("tcltk %static-initfuncs% scm_init_gtcltk",
+			   scm_init_gtcltk);
+#endif
 }

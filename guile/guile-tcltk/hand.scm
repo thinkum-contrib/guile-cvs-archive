@@ -30,7 +30,6 @@
 	(usleep 10000)
 	(hand-loop))))
 
-(define mu (make-mutex))
 (define cv (make-condition-variable))
 
 (define-public (hand)
@@ -38,11 +37,13 @@
   (begin-thread
    (catch #t
 	  (lambda ()
-	    (let loop ()
-	      (set! moving? #t)
-	      (hand-loop)
-	      (wait-condition-variable cv mu)
-	      (loop)))
+	    (let ((mu (make-mutex)))
+	      (lock-mutex mu)
+	      (let loop ()
+		(set! moving? #t)
+		(hand-loop)
+		(wait-condition-variable cv mu)
+		(loop))))
 	  (lambda args #f))))
 
 (define-public (start)

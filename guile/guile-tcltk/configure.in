@@ -142,8 +142,11 @@ AC_TRY_COMPILE([#include "tcl.h"],[Tcl_File x;],,[
   exit 2
 ])
 
+GUILE_FLAGS
+GUILE_COMPAT
+
 ### Add the Guile libraries to the link command.
-GUILE_LIBS="`$GUILE_CONFIG link`"
+GUILE_LIBS="$GUILE_LDFLAGS"
 AC_SUBST(GUILE_LIBS)
 
 case "$GUILE_LIBS" in

@@ -1,4 +1,4 @@
-/*	Copyright (C) 1998 Free Software Foundation, Inc.
+/*	Copyright (C) 1998, 2001, 2002 Free Software Foundation, Inc.
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,6 +42,7 @@
 
 #include <stdio.h>
 #include <libguile.h>
+#include "compat.h"
 #include <tk.h>
 #include "guile-tcl.h"
 
@@ -105,6 +106,7 @@ main_loop (SCM loop_invocation)
 {
   int events;
   in_tk_loop_p = 1;
+  scm_mutex_lock (&scm_tcl_mutex);
   while (Tk_GetNumMainWindows () > 0)
     {
       if (!scm_tcl_handle_event_p)
@@ -184,13 +186,13 @@ scm_tk_main_loop ()
     scm_misc_error (s_tk_main_loop, "Loop already active", SCM_EOL);
   if (Tk_GetNumMainWindows () == 0)
     scm_misc_error (s_tk_main_loop, "No main window active", SCM_EOL);
-  scm_spawn_thread ((scm_catch_body_t) io_loop, (void*) loop_invocation,
-		    (scm_catch_handler_t) io_loop_handler, NULL);
+  scm_spawn_thread ((scm_t_catch_body) io_loop, (void*) loop_invocation,
+		    (scm_t_catch_handler) io_loop_handler, NULL);
   scm_tcl_handle_event_p = 1; /* Request an initial call to Tcl_DoOneEvent */
   scm_internal_catch (SCM_BOOL_T,
-		      (scm_catch_body_t) main_loop,
+		      (scm_t_catch_body) main_loop,
 		      (void*) loop_invocation,
-		      (scm_catch_handler_t) main_loop_handler,
+		      (scm_t_catch_handler) main_loop_handler,
 		      (void*) loop_invocation);
 #else
   SCM_DEFER_INTS;

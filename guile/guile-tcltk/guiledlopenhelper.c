@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1997, 1998 Marius Vollmer
+ * Copyright (C) 1997, 1998, 2001 Marius Vollmer
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
  */
 
 #include <libguile.h>
+#include "compat.h"
 
 /* XXX - the HAVE_DLOPEN leaks from libguile/scmconfig.h. */
 
@@ -31,11 +32,11 @@ sgtk_dlopen (SCM name, SCM fullname)
 
   SCM_ASSERT (SCM_NIMP(name) && SCM_STRINGP(name), name,
 	      SCM_ARG1, "%sgtk-dlopen");
-  SCM_COERCE_SUBSTR (name);
+  SCM_STRING_COERCE_0TERMINATION_X (name);
 
   SCM_ASSERT (SCM_NIMP(fullname) && SCM_STRINGP(fullname), fullname,
 	      SCM_ARG2, "%sgtk-dlopen");
-  SCM_COERCE_SUBSTR (fullname);
+  SCM_STRING_COERCE_0TERMINATION_X (fullname);
 
   SCM_DEFER_INTS;
 #ifdef HAVE_DLOPEN
@@ -51,9 +52,9 @@ sgtk_dlopen (SCM name, SCM fullname)
    * Oct 24 1998, Martin.
    */
 #ifdef RTLD_GLOBAL
-  handle = dlopen (SCM_CHARS (name), RTLD_LAZY|RTLD_GLOBAL);
+  handle = dlopen (SCM_STRING_CHARS (name), RTLD_LAZY|RTLD_GLOBAL);
 #else
-  handle = dlopen (SCM_CHARS (fullname), RTLD_LAZY);
+  handle = dlopen (SCM_STRING_CHARS (fullname), RTLD_LAZY);
 #endif
   if (handle == NULL)
     fprintf (stderr, "dlopen: %s\n", dlerror ());
@@ -73,11 +74,11 @@ sgtk_dlinit (SCM sym, SCM lib)
   SCM_ASSERT (SCM_NIMP(sym) && SCM_STRINGP(sym), sym,
 	      SCM_ARG1, "%sgtk-dlinit");
   handle = (void *)scm_num2ulong (lib, (char *)SCM_ARG2, "%sgtk-dlinit");
-  SCM_COERCE_SUBSTR (sym);
+  SCM_STRING_COERCE_0TERMINATION_X (sym);
   
   SCM_DEFER_INTS;
 #ifdef HAVE_DLOPEN
-  func = (void (*)())dlsym (handle, SCM_CHARS (sym));
+  func = (void (*)())dlsym (handle, SCM_STRING_CHARS (sym));
   if (func)
     func ();
   else
