@@ -1,0 +1,4 @@
+When changing libguile API, remember to re-run scan-api and save
+the result in doc/guile-api.alist, and commit the change.
+
+(You can use ../scripts/update-guile-api.alist for this.)

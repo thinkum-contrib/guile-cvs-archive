@@ -1,0 +1,27 @@
+#!/bin/sh
+# Usage: update-guile-api.alist
+# You need to be in top-level guile-core.
+# You need to build guile first!
+#
+# TODO: Handle srcdir!=builddir situation.
+
+if [ ! -f ./pre-inst-guile ] ; then
+    echo $0: ERROR: need to run this from top-level guile-core
+    exit 1
+fi
+
+scan=../scripts/scan-api
+
+if [ ! -x $scan ] ; then
+    echo $0: ERROR: could not find $scan
+    exit 1
+fi
+
+alist=doc/ref/guile-api.alist
+
+set -ex
+cvs edit $alist
+$scan pre-inst-guile libguile/.libs/libguile.so.[0-9]*.* > $alist
+cvs checkin -m 'Update.' $alist
+
+# update-guile-api.alist ends here
