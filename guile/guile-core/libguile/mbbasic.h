@@ -1,1 +1,1 @@
-extern void scm_init_mbbasic ();
+extern void scm_init_mbbasic (void);
