@@ -1,5 +1,10 @@
 1999-03-18  Mikael Djurfeldt  <mdj@barbara.nada.kth.se>
 
+	* goops.scm, Makefile.am, goops.c, goops.h, guile-oops.c: Renamed
+	module (oop goopscore) --> (oop goops goopscore).
+	describe.scm:
+	Renamed module (oop describe) --> (oop goops describe).
+
 	* goops.c (create_basic_classes): Renamed from
 	create_Top_Object_class.
 	(scm_basic_make_class, create_basic_classes): Use maplist.
