@@ -42,6 +42,8 @@
 #include <stdio.h>
 #include <tcl.h>
 #include "_scm.h"
+#include "alist.h"
+#include "eval.h"
 #include "smob.h"
 
 #include "guile-tcl.h"
@@ -697,6 +699,41 @@ scm_tcl_get_var2 (tobj, name, index, flags)
   SCM_ALLOW_INTS;
   return scm_makfrom0str_opt (c_answer);
 }
+
+
+SCM_PROC (s_tcl_defined_p, "tcl-defined?", 2, 0, 0, scm_tcl_defined_p);
+SCM scm_tcl_defined_p SCM_P ((SCM tobj, SCM name));
+SCM
+scm_tcl_defined_p (tobj, name)
+     SCM tobj;
+     SCM name;
+{
+  Tcl_CmdInfo info;
+  int status;
+
+  SCM_ASSERT (SCM_NIMP (tobj) && SCM_TERPP (tobj), tobj, SCM_ARG1, s_tcl_defined_p);
+  SCM_DEFER_INTS;
+  status = Tcl_GetCommandInfo (SCM_TERP (tobj), SCM_ROCHARS (name), &info);
+  SCM_ALLOW_INTS;
+
+  return status ? SCM_BOOL_T : SCM_BOOL_F;
+}
+
+
+SCM_PROC(s_tcl_do_one_event, "tcl-do-one-event", 1, 0, 0, scm_tcl_do_one_event);
+SCM scm_tcl_do_one_event SCM_P ((SCM flags));
+SCM
+scm_tcl_do_one_event (flags)
+     SCM flags;
+{
+  int answer;
+  SCM_ASSERT (SCM_INUMP (flags), flags, SCM_ARG1, s_tcl_do_one_event);
+  SCM_DEFER_INTS;
+  answer = (Tcl_DoOneEvent (SCM_INUM (flags)));
+  SCM_ALLOW_INTS;
+  return SCM_MAKINUM (answer);
+}
+
 
 
 

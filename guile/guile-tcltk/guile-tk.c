@@ -89,20 +89,6 @@ scm_init_main_window (tobj, display, name, class)
 }
 
 
-SCM_PROC(s_do_one_event, "tk-do-one-event", 1, 0, 0, scm_do_one_event);
-SCM scm_do_one_event SCM_P ((SCM flags));
-SCM
-scm_do_one_event (flags)
-     SCM flags;
-{
-  int answer;
-  SCM_ASSERT (SCM_INUMP (flags), flags, SCM_ARG1, s_do_one_event);
-  SCM_DEFER_INTS;
-  answer = (Tk_DoOneEvent (SCM_INUM (flags)));
-  SCM_ALLOW_INTS;
-  return SCM_MAKINUM (answer);
-}
-
 SCM_PROC(s_main_loop, "tk-main-loop", 0, 0, 0, scm_main_loop);
 SCM scm_main_loop SCM_P ((void));
 SCM
