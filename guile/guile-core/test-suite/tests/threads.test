@@ -58,6 +58,112 @@
 	documented))))
 
 
+(define (true)
+  #t)
+
+
+;;;
+;;; threads
+;;;
+
+(with-test-prefix "threads"
+
+  ;; Is documentation available?
+
+  (pass-if-documented "call-with-new-thread")
+
+  (pass-if-documented "thread?")
+
+  (pass-if-documented "thread-exit")
+
+  (pass-if-documented "thread-cancel")
+
+  (pass-if-documented "thread-join")
+
+  (pass-if-documented "thread-yield")
+
+  ;; Functionality
+
+  (with-test-prefix "core functionality"
+
+    (pass-if "assignment"
+      (let* ((flag #f))
+	(call-with-new-thread
+	 (lambda () 
+	   (set! flag #t))
+	 true)
+	flag))
+
+    (pass-if "assignment after exit"
+      (let* ((flag #f))
+	(call-with-new-thread
+	 (lambda () 
+	   (thread-exit 0) 
+	   (set! flag #t))
+	 true)
+	(not flag)))
+
+    (pass-if "join yield assignment"
+      (let* ((flag #f)
+	     (thread
+	      (call-with-new-thread
+	       (lambda () 
+		 (thread-yield) 
+		 (thread-yield) 
+		 (thread-yield) 
+		 (set! flag #t))
+	       true)))
+	(thread-join thread)
+	flag))
+
+    (pass-if "cancel yield assignment"
+      (let* ((flag #f)
+	     (thread
+	      (call-with-new-thread
+	       (lambda () 
+		 (thread-yield) 
+		 (thread-yield) 
+		 (thread-yield) 
+		 (set! flag #t))
+	       true)))
+	(thread-cancel thread)
+	(not flag)))
+
+    (pass-if "assignment after yield"
+      (let* ((flag #f))
+	(call-with-new-thread 
+	 (lambda () 
+	   (thread-yield) 
+	   (thread-yield) 
+	   (set! flag #t)) 
+	 true)
+	(not flag)))
+
+    (pass-if "assignment after mutual yield"
+      (let* ((flag #f))
+	(call-with-new-thread
+	 (lambda ()
+	   (thread-yield)
+	   (set! flag #t)) true)
+	(thread-yield)
+	(thread-yield)
+	(thread-yield)
+	flag))
+
+)
+
+  (with-test-prefix "thread? obj"
+
+    (pass-if "obj = <new thread>"
+      (let ((t (call-with-new-thread true true)))
+	(thread? t)))
+
+    (pass-if "obj = <inum>"
+      (not (thread? 0)))
+
+))
+
+
 ;;;
 ;;; mutecis
 ;;;

@@ -53,6 +53,9 @@
 #include "libguile/validate.h"
 #include "libguile/threads.h"
 
+extern SCM scm_apply (SCM, SCM, SCM);
+extern void scm_threads_init (SCM_STACKITEM *);
+
 
 
 struct scm_threads scm_thread;
@@ -65,9 +68,6 @@ size_t scm_switch_counter = SCM_THREAD_SWITCH_COUNT;
 long scm_tc16_thread;
 long scm_tc16_mutex;
 long scm_tc16_cond;
-
-extern SCM scm_apply (SCM, SCM, SCM);
-extern void scm_threads_init (SCM_STACKITEM *);
 
 
 
@@ -320,6 +320,7 @@ SCM_DEFINE(scm_thread_exit, "thread-exit", 1, 0, 0,
 #define FUNC_NAME s_scm_thread_exit
 {
   /* Dirk:FIXME:: Guile hangs when doing thread-exit in the repl. */
+  /* Dirk:FIXME:: Guile hangs when doing thread-exit without params. */
 
   (* scm_thread.thread_exit) ((void *) SCM_UNPACK (result));
   return SCM_BOOL_T; /* not reached */
