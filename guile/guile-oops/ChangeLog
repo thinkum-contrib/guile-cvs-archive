@@ -1,3 +1,13 @@
+1999-12-18  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* Makefile.am (.c.x): Remove .x-file on failure.
+	(DISTCLEANFILES): Added *.x.  (Thanks to Anders Holst.)
+
+	* goops.c (scm_assert_bound): New function.
+
+	* goops.scm (compute-get-n-set): Use `assert-bound' in the class
+	allocation getters.
+
 1999-12-15  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* goops.c (scm_compute_applicable_methods): Bugfix: An accessor is
