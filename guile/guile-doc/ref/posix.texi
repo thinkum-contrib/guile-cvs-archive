@@ -109,16 +109,16 @@ one, so that dropping references to one of these ports will not result
 in its garbage collection: it could be retrieved with fdopen or
 fdes->ports.
 
-@deffn procedure port-revealed port
+@deffn primitive port-revealed port
 Returns the revealed count for @var{port}.
 @end deffn
 
-@deffn procedure set-port-revealed! port count
+@deffn primitive set-port-revealed! port count
 Sets the revealed count for a port to a given value.  The return value
 is unspecified.
 @end deffn
 
-@deffn procedure fileno port
+@deffn primitive fileno port
 Returns the integer file descriptor underlying @var{port} without
 changing its revealed count.
 @end deffn
@@ -128,14 +128,14 @@ Returns the integer file descriptor underlying @var{port}.  As a
 side effect the revealed count of @var{port} is incremented.
 @end deffn
 
-@deffn procedure fdopen fdes modes
+@deffn primitive fdopen fdes modes
 Returns a new port based on the file descriptor @var{fdes} with
 modes given by the string @var{modes}.  The revealed count of the port
 is initialized to zero.  The modes string is the same as that accepted
 by @ref{File Ports, open-file}.
 @end deffn
 
-@deffn procedure fdes->ports fdes
+@deffn primitive fdes->ports fdes
 Returns a list of existing ports which have @var{fdes} as an
 underlying file descriptor, without changing their revealed counts.
 @end deffn
@@ -152,7 +152,7 @@ descriptor, if one exists, and increments its revealed count.
 Otherwise, returns a new output port with a revealed count of 1.
 @end deffn
 
-@deffn procedure primitive-move->fdes port fdes
+@deffn primitive primitive-move->fdes port fdes
 Moves the underlying file descriptor for @var{port} to the integer
 value @var{fdes} without changing the revealed count of @var{port}.
 Any other ports
@@ -175,23 +175,23 @@ Decrements the revealed count for a port.
 @end deffn
 
 @findex fflush
-@deffn procedure force-output [port]
+@deffn primitive force-output [port]
 Flush the specified output port, or the current output port if @var{port}
 is omitted.  The return value is unspecified.
 @end deffn
 
-@deffn procedure flush-all-ports
+@deffn primitive flush-all-ports
 Flush all open output ports.  The return value is unspecified.
 @end deffn
 
-@deffn procedure fsync port/fd
+@deffn primitive fsync port/fd
 Copies any unwritten data for the specified output file descriptor to disk.
 If @var{port/fd} is a port, its buffer is flushed before the underlying
 file descriptor is fsync'd.
 The return value is unspecified.
 @end deffn
 
-@defun open path flags [mode]
+@deffn primitive open path flags [mode]
 Open the file named by @var{path} for reading and/or writing.
 @var{flags} is an integer specifying how the file should be opened.
 @var{mode} is an integer specifying the permission bits of the file, if
@@ -219,14 +219,14 @@ Create the file if it does not already exist.
 
 See the Unix documentation of the @code{open} system call
 for additional flags.
-@end defun
+@end deffn
 
-@deffn procedure open-fdes path flags [modes]
+@deffn primitive open-fdes path flags [modes]
 Similar to @code{open} but returns a file descriptor instead of a
 port.
 @end deffn
 
-@deffn procedure close port/fd
+@deffn primitive close port/fd
 Similar to close-port (@pxref{Closing Ports, close-port}),
 but also works on file descriptors.  A side
 effect of closing a file descriptor is that any ports using that file
@@ -234,7 +234,7 @@ descriptor are moved to a different file descriptor and have
 their revealed counts set to zero.
 @end deffn
 
-@deffn procedure pipe
+@deffn primitive pipe
 Creates a pipe which can be used for communication.  The return value
 is a pair in which the CAR contains an input port and the CDR an
 output port.  Data written to the output port can be read from the
@@ -254,7 +254,7 @@ All procedures also have the side effect when performing @code{dup2} that any
 ports using @var{newfd} are moved to a different file descriptor and have
 their revealed counts set to zero.
 
-@deffn procedure dup->fdes port/fd [newfd]
+@deffn primitive dup->fdes port/fd [newfd]
 Returns an integer file descriptor.
 @end deffn
 
@@ -290,7 +290,7 @@ port.
 This procedure is equivalent to @code{(dup->port @var{port} @var{modes})}.
 @end deffn
 
-@deffn procedure redirect-port old-port new-port
+@deffn primitive redirect-port old-port new-port
 This procedure takes two ports and duplicates the underlying file
 descriptor from @var{old-port} into @var{new-port}.  The
 current file descriptor in @var{new-port} will be closed.
@@ -306,21 +306,21 @@ This procedure does not have any side effects on other ports or
 revealed counts.
 @end deffn
 
-@deffn procedure port-mode port
+@deffn primitive port-mode port
 Returns the port modes associated with the open port @var{port}.  These
 will not necessarily be identical to the modes used when the port was
 opened, since modes such as "append" which are used only during
 port creation are not retained.
 @end deffn
 
-@deffn procedure close-all-ports-except port @dots{}
+@deffn primitive close-all-ports-except port @dots{}
 Close all open file ports used by the interpreter
 except for those supplied as arguments.  This procedure
 is intended to be used before an exec call to close file descriptors
 which are not needed in the new process.
 @end deffn
 
-@deffn procedure setvbuf port mode [size]
+@deffn primitive setvbuf port mode [size]
 Set the buffering mode for @var{port}.  @var{mode} can be:
 @table @code
 @item _IONBF
@@ -341,12 +341,12 @@ Procedures e.g., @ref{File Ports, open-file}, which accept a
 mode string allow @code{0} to be added to request an unbuffered port.
 @end deffn
 
-@deffn procedure freopen filename modes port
+@deffn primitive freopen filename modes port
 Reopen @var{port} on the specified @var{filename}
 with mode string @var{modes} as for @ref{File Ports, open-file}.
 @end deffn
 
-@deffn procedure fcntl fd/port command [value]
+@deffn primitive fcntl fd/port command [value]
 Apply @var{command} to the specified file descriptor or the underlying
 file descriptor of the specified port.  @var{value} is an optional
 integer argument.
@@ -374,7 +374,7 @@ The value used to indicate the "close on exec" flag with @code{F_GETFL} or
 @end table
 @end deffn
 
-@deffn procedure select reads writes excepts [secs] [usecs]
+@deffn primitive select reads writes excepts [secs] [usecs]
 @var{reads}, @var{writes} and @var{excepts} can be lists or vectors: it
 doesn't matter which, but the corresponding object returned will be
 of the same type.
@@ -408,7 +408,7 @@ permissions, sizes and types of files); deleting, copying, renaming and
 linking files; creating and removing directories and querying their
 contents; syncing the file system and creating special files.
 
-@deffn procedure access? path how
+@deffn primitive access? path how
 Returns @code{#t} if @var{path} corresponds to an existing
 file and the current process
 has the type of access specified by @var{how}, otherwise 
@@ -437,7 +437,7 @@ test for existence of the file.
 @end deffn
 
 @findex fstat
-@deffn procedure stat obj
+@deffn primitive stat obj
 Returns an object containing various information
 about the file determined by @var{obj}.
 @var{obj} can be a string containing a file name or a port or integer file
@@ -494,13 +494,13 @@ An integer representing the access permission bits.
 @end table
 @end deffn
 
-@deffn procedure lstat path
+@deffn primitive lstat path
 Similar to @code{stat}, but does not follow symbolic links, i.e.,
 it will return information about a symbolic link itself, not the 
 file it points to.  @var{path} must be a string.
 @end deffn
 
-@deffn procedure readlink path
+@deffn primitive readlink path
 Returns the value of the symbolic link named by
 @var{path} (a string), i.e., the
 file that the link points to.
@@ -508,7 +508,7 @@ file that the link points to.
 
 @findex fchown
 @findex lchown
-@deffn procedure chown obj owner group
+@deffn primitive chown obj owner group
 Change the ownership and group of the file referred to by @var{obj} to
 the integer userid values @var{owner} and @var{group}.  @var{obj} can be
 a string containing a file name or a port or integer file descriptor
@@ -524,7 +524,7 @@ as @code{-1}, then that ID is not changed.
 @end deffn
 
 @findex fchmod
-@deffn procedure chmod obj mode
+@deffn primitive chmod obj mode
 Changes the permissions of the file referred to by @var{obj}.
 @var{obj} can be a string containing a file name or a port or integer file
 descriptor which is open on a file (in which case @code{fchmod} is used
@@ -534,7 +534,7 @@ the new permissions as a decimal number, e.g., @code{(chmod "foo" #o755)}.
 The return value is unspecified.
 @end deffn
 
-@deffn procedure utime path [actime] [modtime]
+@deffn primitive utime path [actime] [modtime]
 @code{utime} sets the access and modification times for
 the file named by @var{path}.  If @var{actime} or @var{modtime}
 is not supplied, then the current time is used.
@@ -553,24 +553,24 @@ time to the current time.
 @end deffn
 
 @findex unlink
-@deffn procedure delete-file path
+@deffn primitive delete-file path
 Deletes (or "unlinks") the file specified by @var{path}.
 @end deffn
 
-@deffn procedure copy-file path-from path-to
+@deffn primitive copy-file path-from path-to
 Copy the file specified by @var{path-from} to @var{path-to}.
 The return value is unspecified.
 @end deffn
 
 @findex rename
-@deffn procedure rename-file path-from path-to
+@deffn primitive rename-file path-from path-to
 Renames the file specified by @var{path-from} to @var{path-to}.
 The return value is unspecified.
 @end deffn
 
 @findex truncate
 @findex ftruncate
-@deffn procedure truncate-file obj size
+@deffn primitive truncate-file obj size
 Truncates the file referred to by @var{obj} to at most @var{size} bytes.
 @var{obj} can be a string containing a file name or an integer file
 descriptor or port open for output on the file.  The underlying system
@@ -579,56 +579,56 @@ calls are @code{truncate} and @code{ftruncate}.
 The return value is unspecified.
 @end deffn
 
-@deffn procedure link path-from path-to
+@deffn primitive link path-from path-to
 Creates a new name @var{path-to} in the file system for the file
 named by @var{path-from}.  If @var{path-from} is a symbolic link, the
 link may or may not be followed depending on the system.
 @end deffn
 
-@deffn procedure symlink path-from path-to
+@deffn primitive symlink path-from path-to
 Create a symbolic link named @var{path-to} with the value (i.e., pointing to)
 @var{path-from}.  The return value is unspecified.
 @end deffn
 
-@deffn procedure mkdir path [mode]
+@deffn primitive mkdir path [mode]
 Create a new directory named by @var{path}.  If @var{mode} is omitted
 then the permissions of the directory file are set using the current
 umask.  Otherwise they are set to the decimal value specified with
 @var{mode}.  The return value is unspecified.
 @end deffn
 
-@deffn procedure rmdir path
+@deffn primitive rmdir path
 Remove the existing directory named by @var{path}.  The directory must
 be empty for this to succeed.  The return value is unspecified.
 @end deffn
 
-@deffn procedure opendir path
+@deffn primitive opendir path
 Open the directory specified by @var{path} and return a directory
 port.
 @end deffn
 
-@deffn procedure readdir port
+@deffn primitive readdir port
 Return (as a string) the next directory entry from the directory port
 @var{port}.  If there is no remaining entry to be read then the
 end of file object is returned.
 @end deffn
 
-@deffn procedure rewinddir port
+@deffn primitive rewinddir port
 Reset the directory port @var{port} so that the next call to
 @code{readdir} will return the first directory entry.
 @end deffn
 
-@deffn procedure closedir port
+@deffn primitive closedir port
 Close the directory port @var{port}.
 The return value is unspecified.
 @end deffn
 
-@deffn procedure sync
+@deffn primitive sync
 Flush the operating system disk buffers.
 The return value is unspecified.
 @end deffn
 
-@deffn procedure mknod path type perms dev
+@deffn primitive mknod path type perms dev
 Creates a new special file, such as a file corresponding to a device.
 @var{path} specifies the name of the file.  @var{type} should
 be one of the following symbols:
@@ -696,7 +696,7 @@ Return the next entry in the user database, using the stream set by
 Closes the stream used by @code{getpwent}.  The return value is unspecified.
 @end deffn
 
-@deffn procedure getpw [obj]
+@deffn primitive getpw [obj]
 Look up an entry in the user database.  @var{obj} can be an integer,
 a string, or omitted, giving the behaviour of getpwuid, getpwnam
 or getpwent respectively.
@@ -740,7 +740,7 @@ Closes the stream used by @code{getgrent}.
 The return value is unspecified.
 @end deffn
 
-@deffn procedure getgr [obj]
+@deffn primitive getgr [obj]
 Look up an entry in the group database.  @var{obj} can be an integer,
 a string, or omitted, giving the behaviour of getgrgid, getgrnam
 or getgrent respectively.
@@ -749,12 +749,12 @@ or getgrent respectively.
 @node Time
 @chapter Time
 
-@deffn procedure current-time
+@deffn primitive current-time
 Returns the number of seconds since 1970-01-01 00:00:00 UTC, excluding
 leap seconds.
 @end deffn
 
-@deffn procedure gettimeofday
+@deffn primitive gettimeofday
 Returns a pair containing the number of seconds and microseconds since
 1970-01-01 00:00:00 UTC, excluding leap seconds.  Note: whether true
 microsecond resolution is available depends on the operating system.
@@ -791,7 +791,7 @@ Time zone offset in seconds west of UTC (-46800 to 43200).
 Time zone label (a string), not necessarily unique.
 @end table
 
-@deffn procedure localtime time [zone]
+@deffn primitive localtime time [zone]
 Returns an object representing the broken down components of @var{time},
 an integer like the one returned by @code{current-time}.  The time zone
 for the calculation is optionally specified by @var{zone} (a string),
@@ -799,13 +799,13 @@ otherwise the @code{TZ} environment variable or the system default is
 used.
 @end deffn
 
-@deffn procedure gmtime time
+@deffn primitive gmtime time
 Returns an object representing the broken down components of @var{time},
 an integer like the one returned by @code{current-time}.  The values
 are calculated for UTC.
 @end deffn
 
-@deffn procedure mktime bd-time [zone]
+@deffn primitive mktime bd-time [zone]
 @var{bd-time} is an object representing broken down time and @code{zone}
 is an optional time zone specifier (otherwise the TZ environment variable
 or the system default is used).
@@ -816,14 +816,14 @@ by @code{current-time}; the CDR is a broken down time object, similar to
 as @var{bd-time} but with normalized values.
 @end deffn
 
-@deffn procedure tzset
+@deffn primitive tzset
 Initialize the timezone from the TZ environment variable or the system
 default.  Usually this is done automatically by other procedures which
 use the time zone, but this procedure may need to be used if TZ
 is changed.
 @end deffn
 
-@deffn procedure strftime template time
+@deffn primitive strftime template time
 Formats a time specification @var{time} using @var{template}.  @var{time}
 is an object with time components in the form returned by @code{localtime}
 or @code{gmtime}.  @var{template} is a string which can include formatting
@@ -833,7 +833,7 @@ is the formatted string.
 @xref{Formatting Date and Time, , , libc, The GNU C Library Reference Manual}.)
 @end deffn
 
-@deffn procedure strptime template string
+@deffn primitive strptime template string
 Performs the reverse action to @code{strftime}, parsing @var{string}
 according to the specification supplied in @var{template}.  The
 interpretation of month and day names is dependent on the current
@@ -851,7 +851,7 @@ The value of this variable is the number of time units per second
 reported by the following procedures.
 @end defvar
 
-@deffn procedure times
+@deffn primitive times
 Returns an object with information about real and processor time.
 The following procedures accept such an object as an argument and
 return a selected component:
@@ -873,11 +873,11 @@ terminated child processes.
 @end table
 @end deffn
 
-@deffn procedure get-internal-real-time
+@deffn primitive get-internal-real-time
 Returns the number of time units since the interpreter was started.
 @end deffn
 
-@deffn procedure get-internal-run-time
+@deffn primitive get-internal-run-time
 Returns the number of time units of processor time used by the interpreter.
 Both "system" and "user" time
 are included but subprocesses are not.
@@ -887,17 +887,17 @@ are included but subprocesses are not.
 @chapter Processes
 
 @findex cd
-@deffn procedure chdir path
+@deffn primitive chdir path
 Change the current working directory to @var{path}.
 The return value is unspecified.
 @end deffn
 
 @findex pwd
-@deffn procedure getcwd
+@deffn primitive getcwd
 Returns the name of the current working directory.
 @end deffn
 
-@deffn procedure umask [mode]
+@deffn primitive umask [mode]
 If @var{mode} is omitted, retuns a decimal number representing the current
 file creation mask.  Otherwise the file creation mask is set to
 @var{mode} and the previous value is returned.
@@ -905,53 +905,53 @@ file creation mask.  Otherwise the file creation mask is set to
 E.g., @code{(umask #o022)} sets the mask to octal 22, decimal 18.
 @end deffn
 
-@deffn procedure getpid
+@deffn primitive getpid
 Returns an integer representing the current process ID.
 @end deffn
 
-@deffn procedure getgroups
+@deffn primitive getgroups
 Returns a vector of integers representing the current supplimentary group IDs.
 @end deffn
 
-@deffn procedure getppid
+@deffn primitive getppid
 Returns an integer representing the process ID of the parent process.
 @end deffn
 
-@deffn procedure getuid
+@deffn primitive getuid
 Returns an integer representing the current real user ID.
 @end deffn
 
-@deffn procedure getgid
+@deffn primitive getgid
 Returns an integer representing the current real group ID.
 @end deffn
 
-@deffn procedure geteuid
+@deffn primitive geteuid
 Returns an integer representing the current effective user ID.
 If the system does not support effective IDs, then the real ID
 is returned.  @code{(feature? 'EIDs)} reports whether the system
 supports effective IDs.
 @end deffn
 
-@deffn procedure getegid
+@deffn primitive getegid
 Returns an integer representing the current effective group ID.
 If the system does not support effective IDs, then the real ID
 is returned.  @code{(feature? 'EIDs)} reports whether the system
 supports effective IDs.
 @end deffn
 
-@deffn procedure setuid id
+@deffn primitive setuid id
 Sets both the real and effective user IDs to the integer @var{id}, provided
 the process has appropriate privileges.
 The return value is unspecified.
 @end deffn
 
-@deffn procedure setgid id
+@deffn primitive setgid id
 Sets both the real and effective group IDs to the integer @var{id}, provided
 the process has appropriate privileges.
 The return value is unspecified.
 @end deffn
 
-@deffn procedure seteuid id
+@deffn primitive seteuid id
 Sets the effective user ID to the integer @var{id}, provided the process
 has appropriate privileges.  If effective IDs are not supported, the
 real ID is set instead -- @code{(feature? 'EIDs)} reports whether the
@@ -959,7 +959,7 @@ system supports effective IDs.
 The return value is unspecified.
 @end deffn
 
-@deffn procedure setegid id
+@deffn primitive setegid id
 Sets the effective group ID to the integer @var{id}, provided the process
 has appropriate privileges.  If effective IDs are not supported, the
 real ID is set instead -- @code{(feature? 'EIDs)} reports whether the
@@ -967,12 +967,12 @@ system supports effective IDs.
 The return value is unspecified.
 @end deffn
 
-@deffn procedure getpgrp
+@deffn primitive getpgrp
 Returns an integer representing the current process group ID.
 This is the POSIX definition, not BSD.
 @end deffn
 
-@deffn procedure setpgid pid pgid
+@deffn primitive setpgid pid pgid
 Move the process @var{pid} into the process group @var{pgid}.  @var{pid} or
 @var{pgid} must be integers: they can be zero to indicate the ID of the
 current process.
@@ -980,14 +980,14 @@ Fails on systems that do not support job control.
 The return value is unspecified.
 @end deffn
 
-@deffn procedure setsid
+@deffn primitive setsid
 Creates a new session.  The current process becomes the session leader
 and is put in a new process group.  The process will be detached
 from its controlling terminal if it has one.
 The return value is an integer representing the new process group ID.
 @end deffn
 
-@deffn procedure waitpid pid [options]
+@deffn primitive waitpid pid [options]
 This procedure collects status information from a child process which
 has terminated or (optionally) stopped.  Normally it will
 suspend the calling process until this can be done.  If more than one
@@ -1035,23 +1035,23 @@ The following three
 functions can be used to decode the process status code returned
 by @code{waitpid}.
 
-@deffn procedure status:exit-val status
+@deffn primitive status:exit-val status
 Returns the exit status value, as would be
 set if a process ended normally through a
 call to @code{exit} or @code{_exit}, if any, otherwise @code{#f}.
 @end deffn
 
-@deffn procedure status:term-sig status
+@deffn primitive status:term-sig status
 Returns the signal number which terminated the
 process, if any, otherwise @code{#f}.
 @end deffn
 
-@deffn procedure status:stop-sig status
+@deffn primitive status:stop-sig status
 Returns the signal number which stopped the
 process, if any, otherwise @code{#f}.
 @end deffn
 
-@deffn procedure system [cmd]
+@deffn primitive system [cmd]
 Executes @var{cmd} using the operating system's "command processor".
 Under Unix this is usually the default shell @code{sh}.  The value
 returned is @var{cmd}'s exit status as returned by @code{waitpid}, which
@@ -1061,13 +1061,13 @@ If @code{system} is called without arguments, it returns a boolean
 indicating whether the command processor is available.
 @end deffn
 
-@deffn procedure primitive-exit [status]
+@deffn primitive primitive-exit [status]
 Terminate the current process without unwinding the Scheme stack.
 This is would typically be useful after a fork.  The exit status
 is @var{status} if supplied, otherwise zero.
 @end deffn
 
-@deffn procedure execl path [arg] ...
+@deffn primitive execl path [arg] ...
 Executes the file named by @var{path} as a new process image.
 The remaining arguments are supplied to the process; from a C program
 they are accessable as the @code{argv} argument to @code{main}.
@@ -1081,7 +1081,7 @@ This procedure is currently implemented using the @code{execv} system
 call, but we call it @code{execl} because of its Scheme calling interface.
 @end deffn
 
-@deffn procedure execlp path [arg] ...
+@deffn primitive execlp path [arg] ...
 Similar to @code{execl}, however if
 @var{filename} does not contain a slash
 then the file to execute will be located by searching the
@@ -1091,7 +1091,7 @@ This procedure is currently implemented using the @code{execlv} system
 call, but we call it @code{execlp} because of its Scheme calling interface.
 @end deffn
 
-@deffn procedure execle path env [arg] ...
+@deffn primitive execle path env [arg] ...
 Similar to @code{execl}, but the environment of the new process is
 specified by @var{env}, which must be a list of strings as returned by the
 @code{environ} procedure.
@@ -1100,7 +1100,7 @@ This procedure is currently implemented using the @code{execve} system
 call, but we call it @code{execle} because of its Scheme calling interface.
 @end deffn
 
-@deffn procedure primitive-fork
+@deffn primitive primitive-fork
 Creates a new "child" process by duplicating the current "parent" process.
 In the child the return value is 0.  In the parent the return value is
 the integer process ID of the child.
@@ -1109,14 +1109,14 @@ This procedure has been renamed from @code{fork} to avoid a naming conflict
 with the scsh fork.
 @end deffn
 
-@deffn procedure getenv name
+@deffn primitive getenv name
 Looks up the string @var{name} in the current environment.  The return
 value is @code{#f} unless a string of the form @code{NAME=VALUE} is
 found, in which case the string @code{VALUE} is
 returned.
 @end deffn
 
-@deffn procedure putenv string
+@deffn primitive putenv string
 Modifies the environment of the current process, which is
 also the default environment inherited by child processes.
 
@@ -1142,7 +1142,7 @@ to the environment, replacing any existing string with name matching
 The return value is unspecified.
 @end deffn
 
-@deffn procedure environ [env]
+@deffn primitive environ [env]
 If @var{env} is omitted, returns the current environment as a list of strings.
 Otherwise it sets the current environment, which is also the
 default environment for child processes, to the supplied list of strings.
@@ -1151,7 +1151,7 @@ Each member of @var{env} should be of the form
 If @var{env} is supplied then the return value is unspecified.
 @end deffn
 
-@deffn procedure nice incr
+@deffn primitive nice incr
 Increment the priority of the current process by @var{incr}.  A higher
 priority value means that the process runs less often.
 The return value is unspecified.
@@ -1162,7 +1162,7 @@ The return value is unspecified.
 
 Procedures to raise, handle and wait for signals.
 
-@deffn procedure kill pid sig
+@deffn primitive kill pid sig
 
 Sends a signal to the specified process or group of processes.
 
@@ -1193,13 +1193,13 @@ Interrupt signal.
 @end defvar
 @end deffn
 
-@deffn procedure raise sig
+@deffn primitive raise sig
 
 Sends a specified signal @var{sig} to the current process, where
 @var{sig} is as described for the kill procedure.
 @end deffn
 
-@deffn procedure sigaction signum [action] [flags]
+@deffn primitive sigaction signum [action] [flags]
 
 Install or report the signal hander for a specified signal.
 
@@ -1230,12 +1230,12 @@ provide solutions to the problem of consistent access to data
 structures.
 @end deffn
 
-@deffn procedure restore-signals
+@deffn primitive restore-signals
 Return all signal handlers to the values they had before any call to
 @code{sigaction} was made.  The return value is unspecified.
 @end deffn
 
-@deffn procedure alarm secs
+@deffn primitive alarm secs
 Set a timer to raise a @code{SIGALRM} signal after the specified
 number of seconds (an integer).  It's advisable to install a signal
 handler for
@@ -1247,13 +1247,13 @@ if any.  The new value replaces the previous alarm.  If there was
 no previous alarm, the return value is zero.
 @end deffn
 
-@deffn procedure pause
+@deffn primitive pause
 Pause the current process (thread?) until a signal arrives whose
 action is to either terminate the current process or invoke a
 handler procedure.  The return value is unspecified.
 @end deffn
 
-@deffn procedure sleep secs
+@deffn primitive sleep secs
 Wait for the given number of seconds (an integer) or until a signal
 arrives.  The return value is zero if the time elapses or the number
 of seconds remaining otherwise.
@@ -1262,22 +1262,22 @@ of seconds remaining otherwise.
 @node Terminals and Ptys
 @chapter Terminals and Ptys
 
-@deffn procedure isatty? port
+@deffn primitive isatty? port
 Returns @code{#t} if @var{port} is using a serial
 non-file device, otherwise @code{#f}.
 @end deffn
 
-@deffn procedure ttyname port
+@deffn primitive ttyname port
 Returns a string with the name of the serial terminal device underlying
 @var{port}.
 @end deffn
 
-@deffn procedure ctermid
+@deffn primitive ctermid
 Returns a string containing the file name of the controlling terminal
 for the current process.
 @end deffn
 
-@deffn procedure tcgetpgrp port
+@deffn primitive tcgetpgrp port
 Returns the process group ID of the foreground
 process group associated with the terminal open on the file descriptor
 underlying @var{port}.
@@ -1290,7 +1290,7 @@ terminated, and no other job has yet been moved into the
 foreground.
 @end deffn
 
-@deffn procedure tcsetpgrp port pgid
+@deffn primitive tcsetpgrp port pgid
 Set the foreground process group ID for the terminal used by the file
 descriptor underlying @var{port} to the integer @var{pgid}.
 The calling process
@@ -1305,7 +1305,7 @@ These procedures provide an interface to the @code{popen} and
 @code{pclose} system routines.
 
 @findex popen
-@deffn procedure open-pipe command modes
+@deffn primitive open-pipe command modes
 Executes the shell command @var{command} (a string) in a subprocess.
 A pipe to the process is created and returned.  @var{modes} specifies
 whether an input or output pipe to the process is created: it should 
@@ -1321,7 +1321,7 @@ Equivalent to @code{(open-pipe command OPEN_WRITE)}.
 @end deffn
 
 @findex pclose
-@deffn procedure close-pipe port
+@deffn primitive close-pipe port
 Closes the pipe created by @code{open-pipe}, then waits for the process
 to terminate and returns its status value, @xref{Processes, waitpid}, for
 information on how to interpret this value.
@@ -1345,7 +1345,7 @@ This section describes procedures which convert internet addresses
 and query various network databases.  Care should be taken when using
 the database routines since they are not reentrant.
 
-@deffn procedure inet-aton address
+@deffn primitive inet-aton address
 Converts a string containing an Internet host address in the traditional
 dotted decimal notation into an integer.
 
@@ -1355,7 +1355,7 @@ dotted decimal notation into an integer.
 @end smalllisp
 @end deffn
 
-@deffn procedure inet-ntoa number
+@deffn primitive inet-ntoa number
 Converts an integer Internet host address into a string with the
 traditional dotted decimal representation.
 
@@ -1364,7 +1364,7 @@ traditional dotted decimal representation.
 @end smalllisp
 @end deffn
 
-@deffn procedure inet-netof address
+@deffn primitive inet-netof address
 Returns the network number part of the given integer Internet address.
 
 @smalllisp
@@ -1372,7 +1372,7 @@ Returns the network number part of the given integer Internet address.
 @end smalllisp
 @end deffn
 
-@deffn procedure inet-lnaof address
+@deffn primitive inet-lnaof address
 Returns the local-address-with-network part of the given Internet
 address.
 
@@ -1381,7 +1381,7 @@ address.
 @end smalllisp
 @end deffn
 
-@deffn procedure inet-makeaddr net lna
+@deffn primitive inet-makeaddr net lna
 Makes an Internet host address by combining the network number @var{net}
 with the local-address-within-network number @var{lna}.
 
@@ -1416,7 +1416,7 @@ The list of network addresses associated with @var{host}.
 The @code{gethost} functions are used to find a particular host's entry
 in the host database.
 
-@deffn procedure gethost [host]
+@deffn primitive gethost [host]
 @deffnx procedure gethostbyname hostname
 @deffnx procedure gethostbyaddr address
 Look up a host by name or address, and return a host object.  The
@@ -1466,7 +1466,7 @@ The @code{getnet} procedures look up a particular network in the network
 database.  Each returns a @dfn{network object} that describes the
 network's technical nature.
 
-@deffn procedure getnet [net]
+@deffn primitive getnet [net]
 @deffnx procedure getnetbyname net-name
 @deffnx procedure getnetbyaddr net-number
 Look up a network by name or net number in the network database.  The
@@ -1509,7 +1509,7 @@ The protocol number.
 The @code{getproto} procedures look up a particular network protocol and
 return a @dfn{protocol object}.
 
-@deffn procedure getproto [protocol]
+@deffn primitive getproto [protocol]
 @deffnx procedure getprotobyname name
 @deffnx procedure getprotobynumber number
 Look up a network protocol by name or by number.  @code{getprotobyname}
@@ -1556,7 +1556,7 @@ The @code{getserv} procedures look up a network service and return a
 @dfn{service object} which describes the names and network ports
 conventionally assigned to the service.
 
-@deffn procedure getserv [name protocol]
+@deffn primitive getserv [name protocol]
 @deffnx procedure getservbyname name protocol
 @deffnx procedure getservbyport port protocol
 Look up a network service by name or by service number, and return a
@@ -1599,7 +1599,7 @@ These procedures convert Internet addresses
 and port values between "host" order and "network" order as required.  The
 arguments and return values should be in "host" order.
 
-@deffn procedure socket family style protocol
+@deffn primitive socket family style protocol
 Returns a new socket port of the type specified by @var{family}, @var{style}
 and @var{protocol}.  All three parameters are integers.  Typical values
 for @var{family} are the values of @code{AF_UNIX}
@@ -1614,7 +1614,7 @@ A single socket port cannot by used for communication until
 it has been connected to another socket.
 @end deffn
 
-@deffn procedure socketpair family style protocol
+@deffn primitive socketpair family style protocol
 Returns a pair of connected (but unnamed) socket ports of the type specified
 by @var{family}, @var{style} and @var{protocol}.
 Many systems support only
@@ -1622,7 +1622,7 @@ socket pairs of the @code{AF_UNIX} family.  Zero is likely to be
 the only meaningful value for @var{protocol}.
 @end deffn
 
-@deffn procedure getsockopt socket level optname
+@deffn primitive getsockopt socket level optname
 Returns the value of a particular socket option for the socket
 port @var{socket}.  @var{level} is an integer code for type of option
 being requested, e.g., @code{SOL_SOCKET} for socket-level options.
@@ -1634,7 +1634,7 @@ The returned value is typically an integer but @code{SO_LINGER} returns a
 pair of integers.
 @end deffn
 
-@deffn procedure setsockopt socket level optname value
+@deffn primitive setsockopt socket level optname value
 Sets the value of a particular socket option for the socket
 port @var{socket}.  @var{level} is an integer code for type of option
 being set, e.g., @code{SOL_SOCKET} for socket-level options.
@@ -1648,7 +1648,7 @@ be a pair.
 The return value is unspecified.
 @end deffn
 
-@deffn procedure shutdown socket how
+@deffn primitive shutdown socket how
 Sockets can be closed simply by using @code{close-port}. The
 @code{shutdown} procedure allows reception or tranmission on a
 connection to be shut down individually, according to the parameter
@@ -1668,7 +1668,7 @@ Stop both reception and transmission.
 The return value is unspecified.
 @end deffn
 
-@deffn procedure connect socket family address [arg ...]
+@deffn primitive connect socket family address [arg ...]
 Initiates a connection from @var{socket} to the address
 specified by @var{address} and possibly @var{arg @dots{}}.  The format
 required for @var{address}
@@ -1685,7 +1685,7 @@ must be a single integer port number.
 The return value is unspecified.
 @end deffn
 
-@deffn procedure bind socket family address arg ...
+@deffn primitive bind socket family address arg ...
 Assigns an address to the socket port @var{socket}.
 Generally this only needs to be done for server sockets,
 so they know where to look for incoming connections.  A socket
@@ -1724,7 +1724,7 @@ No address.
 The return value is unspecified.
 @end deffn
 
-@deffn procedure listen socket backlog
+@deffn primitive listen socket backlog
 This procedure enables @var{socket} to accept connection
 requests.  @var{backlog} is an integer specifying
 the maximum length of the queue for pending connections.
@@ -1734,7 +1734,7 @@ server calls @code{accept} to accept a connection from the queue.
 The return value is unspecified.
 @end deffn
 
-@deffn procedure accept socket
+@deffn primitive accept socket
 Accepts a connection on a bound, listening socket @var{socket}.  If there
 are no pending connections in the queue, it waits until
 one is available unless the non-blocking option has been set on the
@@ -1769,20 +1769,20 @@ If the socket family is @code{AF_INET}, returns the Internet port
 number.
 @end table
 
-@deffn procedure getsockname socket
+@deffn primitive getsockname socket
 Returns the address of @var{socket}, in the same form as the object
 returned by @code{accept}.  On many systems the address of a socket
 in the @code{AF_FILE} namespace cannot be read.
 @end deffn
 
-@deffn procedure getpeername socket
+@deffn primitive getpeername socket
 Returns the address of the socket that the socket @var{socket} is connected to,
 in the same form as the object
 returned by @code{accept}.  On many systems the address of a socket
 in the @code{AF_FILE} namespace cannot be read.
 @end deffn
 
-@deffn procedure recv! socket buf [flags]
+@deffn primitive recv! socket buf [flags]
 Receives data from the socket port @var{socket}.  @var{socket} must already
 be bound to the address from which data is to be received.
 @var{buf} is a string into which
@@ -1800,7 +1800,7 @@ Note that the data is read directly from the socket file descriptor:
 any unread buffered port data is ignored.
 @end deffn
 
-@deffn procedure send socket message [flags]
+@deffn primitive send socket message [flags]
 Transmits the string @var{message} on the socket port @var{socket}. 
 @var{socket} must already be bound to a destination address.  The
 value returned is the number of bytes transmitted -- it's possible for
@@ -1812,7 +1812,7 @@ Note that the data is written directly to the socket file descriptor:
 any unflushed buffered port data is ignored.
 @end deffn
 
-@deffn procedure recvfrom! socket buf [flags] [start] [end]
+@deffn primitive recvfrom! socket buf [flags] [start] [end]
 Returns data from the socket port @var{socket} and also information about
 where the data was received from.  @var{socket} must already
 be bound to the address from which data is to be received.
@@ -1836,7 +1836,7 @@ Note that the data is read directly from the socket file descriptor:
 any unread buffered port data is ignored.
 @end deffn
 
-@deffn procedure sendto socket message family address arg ... [flags]
+@deffn primitive sendto socket message family address arg ... [flags]
 Transmits the string @var{message} on the socket port @var{socket}.  The
 destination address is specified using the @var{family}, @var{address} and
 @var{arg} arguments, in a similar way to the @code{connect}
@@ -1853,7 +1853,7 @@ any unflushed buffered port data is ignored.
 @node System Identification
 @chapter System Identification
 
-@deffn procedure uname
+@deffn primitive uname
 Returns an object with some information about the computer system the
 program is running on.
 @end deffn
@@ -1877,7 +1877,7 @@ A description of the hardware.
 @node Locales
 @chapter Locales
 
-@deffn procedure setlocale category [locale]
+@deffn primitive setlocale category [locale]
 If @var{locale} is omitted, returns the current value of the specified
 locale category 
 as a system-dependent string.

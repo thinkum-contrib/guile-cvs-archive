@@ -17,7 +17,10 @@
 
 @c Tim's notes:
 
-@c The following Guile procedures are not documented.  We have a lot
+@c When adding a new function to the Guile manual, please document
+@c it with @deffn as one of `primitive', `procedure', or `syntax'.
+@c
+@c The following Guile primitives are not documented.  We have a lot
 @c of work to do.
 @c
 @c   arbiters.c: make-arbiter, try-arbiter, release-arbiter

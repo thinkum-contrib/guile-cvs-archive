@@ -1,3 +1,11 @@
+1997-12-13  Tim Pierce  <twp@skepsis.com>
+
+	* scheme.texi, posix.texi: Documented each procedure as `procedure',
+	`primitive' or `syntax' as appropriate.
+	(Records): Change record-type-field-names to record-type-fields.
+	(Low level thread primitives): Change with-new-thread to
+	call-with-new-thread. 
+
 Sun Dec  7 22:47:22 1997  Gary Houston  <ghouston@actrix.gen.nz>
 
 	* posix.texi (Processes): add "system" procedure.
