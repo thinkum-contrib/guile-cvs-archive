@@ -1,0 +1,42 @@
+Guile used to be able to automatically find and link a shared
+library to satisfy requests for a module.  For example, the module
+`(foo bar)' could be implemented by placing a shared library named
+"foo/libbar.so" (or with a different extension) in a directory on the
+load path of Guile.
+
+This has been found to be too tricky, and is no longer supported.  The
+shared libraries are now called "extensions".  You should now write a
+small Scheme file that calls `load-extension' to load the shared
+library and initialize it explicitely.
+
+
+Here is more about why "this has been found to be to tricky".  It is
+about the way it was done, not about why it can't possible at all.
+
+While this support was still present, modules could be either
+implemented by Scheme source files, or by shared libraries compiled
+from C.  These two forms are two very different things: one is
+platform independent and installed somewhere in 'prefix', the other is
+platform dependent and is installed in 'exec-prefix'.  However, Guile
+had no platform dependent locations in its default search path.
+
+Moreover, the search algorithm required shared libraries that were to
+be autoloaded as modules to reside not in the usual library
+directories (like /usr/local/lib), but in Guile search path as
+.../foo/libbar.so for example for module (foo bar).  This will not
+really work for shared libraries that are also to be used from C code.
+Guile usually provides a C API for its features that are written in C.
+This should be encouraged for extensions as well.  However, the Unix
+shared library does not deal well with shared libraries that don't
+come from standard locations or are referenced by multiple names
+(symlinks).
+
+Additionally, module boundaries are not necessarily language
+boundaries.  That is, a module can be a mix of Scheme and C (and one
+file might want to provide more than one module).  Therefore, we need
+a good way to load shared libraries independently from modules anyway.
+
+Restricting module system operations and autoloading to Scheme code
+only provided an immediate and significant simplification, without
+much hassle to the user.  The simplified setup should also be easier
+to understand.
