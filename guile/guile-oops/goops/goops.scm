@@ -79,12 +79,6 @@
 (define (global-environment)
   (list *top-level-lookup-closure*))
 
-(define *unbound* (lambda () #f))
-
-(define (make-unbound) *unbound*)
-
-(define (unbound? x) (eq? x *unbound*))
-
 (define-macro (when test . body)
   `(if ,test ,@(if (= (length body) 1) body `((begin ,@body)))))
 
@@ -762,17 +756,13 @@
     ((#:class)  ;; Class slot
              ;; Class-slots accessors are implemented as 2 closures around 
      	     ;; a Scheme variable. As instance slots, class slots must be
-	     ;; unbound at init time. Since assignement to an unbound variable 
-  	     ;; is not possible with our set! (in this case set! thinks that
-	     ;; the variable has not been defined), our variable is in fact 
-	     ;; a vector of length 1. This permits to circumvent this problem, 
-             ;; without introducing a "set-environment" primitive.
+	     ;; unbound at init time.
              (let ((name (slot-definition-name s)))
 	       (if (memq name (map slot-definition-name (class-direct-slots class)))
-		   ;; This slot is direct; create a new shared cell
-		   (let ((shared-cell (make-vector 1)))
-		     (list (lambda (o)   (vector-ref shared-cell 0))
-			   (lambda (o v) (vector-set! shared-cell 0 v))))
+		   ;; This slot is direct; create a new shared variable
+		   (let ((shared-variable (make-unbound)))
+		     (list (lambda (o)   shared-variable)
+			   (lambda (o v) (set! shared-variable v))))
 		   ;; Slot is inherited. Find its definition in superclass
 		   (let Loop ((l (cdr (class-precedence-list class))))
 		     (let ((r (assoc name (slot-ref (car l) 'getters-n-setters))))
@@ -782,9 +772,9 @@
 
     ((#:each-subclass) ;; slot shared by instances of direct subclass.
 		    ;; (Thomas Buerger, April 1998)
-     		    (let ((shared-cell (make-vector 1)))
-		      (list (lambda (o)   (vector-ref  shared-cell 0))
-			    (lambda (o v) (vector-set! shared-cell 0 v)))))
+	     (let ((shared-variable (make-unbound)))
+	       (list (lambda (o)   shared-variable)
+		     (lambda (o v) (set! shared-variable v)))))
 
     ((#:virtual);; No allocation
      	     ;; slot-ref and slot-set! function must be given by the user
