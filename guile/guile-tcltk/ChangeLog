@@ -1,3 +1,8 @@
+1998-11-24  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* Makefile.am (install-exec-hook): Do test -r instead of test -e
+	in order to be backward compatible.
+
 1998-11-24  Mikael Djurfeldt  <mdj@barbara.nada.kth.se>
 
 	* configure.in: Check if we have guile-config or build-guile.

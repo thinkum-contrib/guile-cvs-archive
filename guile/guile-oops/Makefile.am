@@ -19,7 +19,7 @@ goopsdir = $(subpkgdatadir)/goops
 
 install-exec-hook:
 	$(mkinstalldirs) $(goopsdir)
-	(test ! -e $(libdir)/libgoops.so.0 \
+	(test ! -r $(libdir)/libgoops.so.0 \
 	 || (cd $(goopsdir) \
 	     && rm -f libgoops.la libgoops.so.0 \
 	     && $(LN_S) $(libdir)/libgoops.la \

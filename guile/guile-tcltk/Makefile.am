@@ -23,7 +23,7 @@ subpkgdata_DATA = tcltk.scm hand.scm graph.scm breakout.scm
 
 install-exec-hook:
 	$(mkinstalldirs) $(subpkgdatadir)
-	(test ! -e $(libdir)/libgtcltk.so.1 \
+	(test ! -r $(libdir)/libgtcltk.so.1 \
 	 || (cd $(subpkgdatadir) \
 	     && rm -f libgtcltk.la libgtcltk.so.1 \
 	     && $(LN_S) $(libdir)/libgtcltk.la \
