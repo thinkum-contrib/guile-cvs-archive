@@ -20,15 +20,17 @@
 ;;;; In other words, Scheme definitions of elisp primitives.  This
 ;;;; should include everything that Emacs defines in C.
 
-(use-modules (lang elisp fset)
-	     (lang elisp signal)
-	     (lang elisp lists)
-	     (lang elisp load)
+(use-modules (lang elisp buffers)
 	     (lang elisp features)
 	     (lang elisp format)
-	     (lang elisp buffers)
-	     (lang elisp symprop)
-	     (lang elisp keymaps))
+	     (lang elisp fset)
+	     (lang elisp keymaps)
+	     (lang elisp lists)
+	     (lang elisp load)
+	     (lang elisp match)
+	     (lang elisp signal)
+	     (lang elisp strings)
+	     (lang elisp symprop))
 
 (define-macro (fset-procs-with-same-name . syms)
   `(begin ,@(map (lambda (sym)
@@ -108,31 +110,11 @@
 	    (<=       . ,<=)
 	    (>=       . ,>=)))
 
-(for-each (lambda (sym+proc)
-	    (fset (car sym+proc)
-		  (lambda (x y) (nil-ify ((cdr sym+proc) x y)))))
-
-	  `((memq     . ,memq)
-	    (member   . ,member)
-	    (assq     . ,assq)
-	    (assoc    . ,assoc)))
-
 ;;; More elisp primitives
-
-(fset 'concat
-      (lambda args
-	(apply string-append
-	       (map (lambda (arg)
-		      (cond
-		       ((string? arg) arg)
-		       ((list? arg) (list->string arg))
-		       ((vector? arg) (list->string (vector->list arg)))
-		       (else (error "Wrong type argument for concat"))))
-		    args))))
 
 (fset 'number-to-string number->string)
 
-;;; {Functions}
+;;; {Importing Scheme procedures into Elisp}
 
 (if #f
     (let ((accessible-procedures

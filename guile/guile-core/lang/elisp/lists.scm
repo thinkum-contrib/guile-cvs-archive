@@ -39,4 +39,16 @@
 			'()
 			newcdr))))
 
+  (for-each (lambda (sym proc)
+	      (fset sym
+		    (lambda (elt list)
+		      (if (null list)
+			  #f
+			  (if (null elt)
+			      (or (proc #f list)
+				  (proc '() list))
+			      (proc elt list))))))
+	    '( memq  member  assq  assoc)
+	    `(,memq ,member ,assq ,assoc))
+
 )

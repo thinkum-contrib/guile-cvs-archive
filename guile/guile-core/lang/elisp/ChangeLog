@@ -1,4 +1,12 @@
+2001-10-20  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* Makefile.am (elisp_sources): Added match.scm and strings.scm.
+
+	* match.scm, strings.scm: New files.
+
 2001-10-19  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* transform.scm: Replace uses of `nil' by `#f' or `'()'.
 
 	* Makefile.am (elisp_sources): Added lists.scm.
 

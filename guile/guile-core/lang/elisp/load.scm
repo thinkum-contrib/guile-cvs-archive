@@ -31,7 +31,7 @@
 			(loop (read)))))))
 	    (or nomessage
 		(message "Loading %s...done" pathname))
-	    t)
+	    #t)
 	  #f)))
   (or (and (not nosuffix)
 	   (load1 (string-append file ".el")))

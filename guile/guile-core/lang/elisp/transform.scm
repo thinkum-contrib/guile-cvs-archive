@@ -27,7 +27,7 @@
 ;; Should be made mutating instead of constructing
 ;;
 (define (transformer x)
-  (cond ((null? x) nil)
+  (cond ((null? x) '())
 	((not (pair? x)) x)
 	((symbol? (car x))
 	 (case (car x)
@@ -160,7 +160,7 @@
 					     (list (list-ref optional i)
 						   `(if (> num-args ,i+nr)
 							(list-ref args ,i+nr)
-							nil))))
+							#f))))
 					 (iota num-optional))
 				    (if rest
 					(list (list rest
@@ -170,7 +170,7 @@
 							 (nil-ify (list-tail args
 									     ,(+ num-required
 										 num-optional)))
-							 nil)))
+							 #f)))
 					'()))
 			   ,@(transform-list (cddr exp)))))))
 	))))
@@ -212,7 +212,7 @@
 							   (list (list-ref optional i)
 								 `(if (> num-args ,i+nr)
 								      (list-ref args ,i+nr)
-								      nil))))
+								      #f))))
 						       (iota num-optional))
 						  (if rest
 						      (list (list rest
@@ -222,7 +222,7 @@
 								       (nil-ify (list-tail args
 											   ,(+ num-required
 											       num-optional)))
-								       nil)))
+								       #f)))
 						      '()))
 					 ,@(transform-list (cdddr exp)))))))))))))))
 
@@ -262,7 +262,7 @@
 		  (newline)
 		  (if (pair? binding)
 		      `(,(car binding) ,(transformer (cadr binding)))
-		      `(,binding nil)))
+		      `(,binding #f)))
 		(cadr exp))
 	  ,@(transform-list (cddr exp))))
 
@@ -275,7 +275,7 @@
 		 `((@bind (,(let ((binding (car bindings)))
 			      (if (pair? binding)
 				  `(,(car binding) ,(transformer (cadr binding)))
-				  `(,binding nil))))
+				  `(,binding #f))))
 			  ,@(loop (cdr bindings)))))))))
 
 (define (m-prog1 exp env)
@@ -294,7 +294,7 @@
 (define (m-if exp env)
   (let ((else-case (cdddr exp)))
     (cond ((null? else-case)
-	   `(nil-cond ,(transformer (cadr exp)) ,(transformer (caddr exp)) nil))
+	   `(nil-cond ,(transformer (cadr exp)) ,(transformer (caddr exp)) #f))
 	  ((null? (cdr else-case))
 	   `(nil-cond ,(transformer (cadr exp))
 		      ,(transformer (caddr exp))
@@ -336,7 +336,7 @@
 	 'nil-cond
 	 (let loop ((clauses (cdr exp)))
 	   (if (null? clauses)
-	       '(nil)
+	       '(#f)
 	       (let ((clause (car clauses)))
 		 (if (eq? (car clause) #t)
 		     (cond ((null? (cdr clause)) '(t))
@@ -355,7 +355,7 @@
   `(,let %while ()
 	 (nil-cond ,(transformer (cadr exp))
 		   (begin ,@(transform-list (cddr exp)) (%while))
-		   nil)))
+		   #f)))
 
 (define (m-defvar exp env)
   (display (list 'defvar (cadr exp)))
