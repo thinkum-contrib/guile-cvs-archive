@@ -166,6 +166,102 @@ scm_goops_version ()
   return scm_makfrom0str (GOOPS_VERSION);
 }
 
+SCM_PROC (s_oldfmt, "oldfmt", 1, 0, 0, scm_oldfmt);
+
+char *
+scm_c_oldfmt (char *from, int n)
+{
+#ifdef HAVE_SCM_SIMPLE_FORMAT
+  return from;
+#else
+  static struct { int n; char *from; char *to; } *strings;
+  static int size = 0;
+  static int n_strings = 0;
+  char *to;
+  int i;
+  
+  for (i = 0; i < n_strings; ++i)
+    if (n == strings[i].n && strncmp (from, strings[i].from, n) == 0)
+      return strings[i].to;
+  
+  if (n_strings == size)
+    {
+      if (size == 0)
+	{
+	  size = 10;
+	  strings = scm_must_malloc (size * sizeof (*strings), s_oldfmt);
+	}
+      else
+	{
+	  int oldsize = size;
+	  size = 3 * oldsize / 2;
+	  strings = scm_must_realloc (strings,
+				      oldsize * sizeof (*strings),
+				      size * sizeof (*strings),
+				      s_oldfmt);
+	}
+    }
+
+  strings[n_strings].n = n;
+  strings[n_strings].from = strncpy (scm_must_malloc (n, s_oldfmt), from, n);
+  to = strings[n_strings].to = scm_must_malloc (n + 1, s_oldfmt);
+  n_strings++;
+
+  for (i = 0; i < n; ++i)
+    {
+      if (from[i] == '~' && ++i < n)
+	{
+	  if (from[i] == 'A')
+	    {
+	      to[i - 1] = '%';
+	      to[i] = 's';
+	    }
+	  else if (from[i] == 'S')
+	    {
+	      to[i - 1] = '%';
+	      to[i] = 'S';
+	    }
+	  else
+	    {
+	      to[i - 1] = '~';
+	      to[i] = from[i];
+	    }
+	  continue;
+	}
+      to[i] = from[i];
+    }
+  to[i] = '\0';
+  
+  return to;
+#endif
+}
+
+char *
+scm_c_oldfmt0 (char *s)
+{
+#ifdef HAVE_SCM_SIMPLE_FORMAT
+  return s;
+#else
+  return scm_c_oldfmt (s, strlen (s));
+#endif
+}
+
+SCM
+scm_oldfmt (SCM s)
+{
+#ifdef HAVE_SCM_SIMPLE_FORMAT
+  return s;
+#else
+  int n;
+  SCM_ASSERT (SCM_NIMP (s) && SCM_STRINGP (s), s, 1, s_oldfmt);
+  n = SCM_LENGTH (s);
+  return scm_return_first (scm_makfromstr (scm_c_oldfmt (SCM_ROCHARS (s), n),
+					   n,
+					   0),
+			   s);
+#endif
+}
+
 /******************************************************************************
  *
  * Compute-cpl
@@ -249,7 +345,9 @@ remove_duplicate_slots (SCM l, SCM res, SCM slots_already_seen)
 
   tmp = SCM_CAAR (l);
   if (!(SCM_NIMP (tmp) && SCM_SYMBOLP (tmp)))
-    scm_misc_error ("%compute-slots", "bad slot name %S", SCM_LIST1 (tmp));
+    scm_misc_error ("%compute-slots",
+		    scm_c_oldfmt0 ("bad slot name ~S"),
+		    SCM_LIST1 (tmp));
   
   if (SCM_NULLP (scm_sloppy_memq (tmp, slots_already_seen))) {
     res 	       = scm_cons (SCM_CAR (l), res);
@@ -350,7 +448,9 @@ scm_i_get_keyword (SCM key, SCM l, int len, SCM default_value, const char *subr)
   for (i = 0; i < len; i += 2)
     {
       if (!(SCM_NIMP (SCM_CAR (l)) && SCM_KEYWORDP (SCM_CAR (l))))
-	scm_misc_error (subr, "bad keyword: %S", SCM_LIST1 (SCM_CAR (l)));
+	scm_misc_error (subr,
+			scm_c_oldfmt0 ("bad keyword: ~S"),
+			SCM_LIST1 (SCM_CAR (l)));
       if (SCM_CAR (l) == key)
 	return SCM_CADR (l);
       l = SCM_CDDR (l);
@@ -365,10 +465,13 @@ scm_get_keyword (SCM key, SCM l, SCM default_value)
 {
   int len;
   SCM_ASSERT (SCM_NIMP (key) && SCM_KEYWORDP (key),
-	      key, "Bad keyword: %S", s_get_keyword);
+	      key,
+	      scm_c_oldfmt0 ("Bad keyword: ~S"),
+	      s_get_keyword);
   len = scm_ilength (l);
   SCM_ASSERT (len >= 0 && (len & 1) == 0, l,
-	      "Bad keyword-value list: %S", s_get_keyword);
+	      scm_c_oldfmt0 ("Bad keyword-value list: ~S"),
+	      s_get_keyword);
   return scm_i_get_keyword (key, l, len, default_value, s_get_keyword);
 }
 
@@ -409,7 +512,7 @@ scm_sys_initialize_object (SCM obj, SCM initargs)
 	  int n = scm_ilength (SCM_CDR (slot_name));
 	  if (n & 1) /* odd or -1 */
 	    scm_misc_error (s_sys_initialize_object,
-			    "class contains bogus slot definition: %S",
+			    scm_c_oldfmt0 ("class contains bogus slot definition: ~S"),
 			    SCM_LIST1 (slot_name));
 	  tmp 	= scm_i_get_keyword (k_init_keyword,
 				     SCM_CDR (slot_name),
@@ -422,7 +525,7 @@ scm_sys_initialize_object (SCM obj, SCM initargs)
 	      /* an initarg was provided for this slot */
 	      if (!(SCM_NIMP (tmp) && SCM_KEYWORDP (tmp)))
 		scm_misc_error (s_sys_initialize_object,
-				"initarg must be a keyword. It was %S",
+				scm_c_oldfmt0 ("initarg must be a keyword. It was ~S"),
 				SCM_LIST1 (tmp));
 	      slot_value = scm_i_get_keyword (tmp,
 					      initargs,
@@ -478,13 +581,13 @@ scm_sys_prep_layout_x (SCM class)
   nfields = SCM_SLOT (class, scm_si_nfields);
   if (!SCM_INUMP (nfields) || SCM_INUM (nfields) < 0)
     scm_misc_error (s_sys_prep_layout_x,
-		    "bad value in nfields slot: %S",
+		    scm_c_oldfmt0 ("bad value in nfields slot: ~S"),
 		    SCM_LIST1 (nfields));
   n = 2 * SCM_INUM (nfields);
   if (n < sizeof (SCM_CLASS_CLASS_LAYOUT) - 1
       && SCM_SUBCLASSP (class, scm_class_class))
     scm_misc_error (s_sys_prep_layout_x,
-		    "class object doesn't have enough fields: %S",
+		    scm_c_oldfmt0 ("class object doesn't have enough fields: ~S"),
 		    SCM_LIST1 (nfields));
   
   s  = n > 0 ? scm_must_malloc (n, s_sys_prep_layout_x) : 0;
@@ -1651,7 +1754,7 @@ applicablep (SCM actual, SCM formal)
     }
     else 
       scm_misc_error (0,
-		      "Internal error in applicable: bad list %S",
+		      scm_c_oldfmt0 ("Internal error in applicable: bad list ~S"),
 		      SCM_LIST1 (actual));
   }
   return 0;
@@ -2064,7 +2167,7 @@ scm_find_method (SCM l)
   SCM_ASSERT (SCM_NIMP (gf) && GENERICP (gf), gf, SCM_ARG1, s_find_method);
   if (SCM_NULLP (SCM_SLOT (gf, scm_si_methods)))
     scm_misc_error (s_find_method,
-		    "no methods for generic %S",
+		    scm_c_oldfmt0 ("no methods for generic ~S"),
 		    SCM_LIST1 (gf));
 
   return scm_compute_applicable_methods (gf, l, len - 1, 1);
