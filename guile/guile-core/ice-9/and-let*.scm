@@ -18,7 +18,10 @@
 ;;;; the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
 ;;;; Boston, MA 02111-1307 USA
 
-(define-module (ice-9 and-let*))
+(module (ice-9 and-let*)
+	(open (ice-9 defmacro)
+	      (ice-9 guile)
+	      (ice-9 config)))
 
 (defmacro and-let* (vars . body)
 

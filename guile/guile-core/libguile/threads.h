@@ -65,7 +65,7 @@ extern long scm_tc16_condvar;
 /* Initialize implementation specific details of the threads support */
 void scm_threads_init SCM_P ((SCM_STACKITEM *));
 void scm_threads_mark_stacks SCM_P ((void));
-void scm_init_threads SCM_P ((SCM_STACKITEM *));
+SCM scm_init_threads SCM_P ((SCM_STACKITEM *));
 
 /* */
 SCM scm_threads_make_mutex SCM_P ((void));

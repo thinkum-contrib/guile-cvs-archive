@@ -48,13 +48,13 @@
 
 extern SCM scm_internal_parse_path SCM_P ((char *path, SCM tail));
 extern SCM scm_parse_path SCM_P ((SCM path, SCM tail));
-extern void scm_init_load_path SCM_P ((void));
-extern SCM scm_primitive_load SCM_P ((SCM filename));
+extern SCM scm_init_load_path SCM_P ((SCM env));
+extern SCM scm_primitive_load SCM_P ((SCM filename, SCM env));
 extern SCM scm_sys_package_data_dir SCM_P ((void));
 extern SCM scm_search_path SCM_P ((SCM path, SCM filename, SCM exts));
 extern SCM scm_sys_search_load_path SCM_P ((SCM filename));
-extern SCM scm_primitive_load_path SCM_P ((SCM filename));
-extern SCM scm_read_and_eval_x SCM_P ((SCM port));
-extern void scm_init_load SCM_P ((void));
+extern SCM scm_primitive_load_path SCM_P ((SCM filename, SCM env));
+extern SCM scm_read_and_eval_x SCM_P ((SCM port, SCM env));
+extern SCM scm_init_load SCM_P ((SCM env));
 
 #endif  /* LOADH */

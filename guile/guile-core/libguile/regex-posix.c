@@ -247,23 +247,26 @@ scm_regexp_exec (SCM rx, SCM str, SCM start, SCM flags)
   return mvec;
 }
 
-void
-scm_init_regex_posix ()
+SCM
+scm_init_regex_posix (env)
+     SCM env;
 {
   scm_tc16_regex = scm_make_smob_type_mfpe ("regexp", sizeof (regex_t),
                                             NULL, free_regex, NULL, NULL);
 
   /* Compilation flags.  */
-  scm_sysintern ("regexp/basic", scm_long2num (REG_BASIC));
-  scm_sysintern ("regexp/extended", scm_long2num (REG_EXTENDED));
-  scm_sysintern ("regexp/icase", scm_long2num (REG_ICASE));
-  scm_sysintern ("regexp/newline", scm_long2num (REG_NEWLINE));
+  scm_environment_intern (env, "regexp/basic", scm_long2num (REG_BASIC));
+  scm_environment_intern (env, "regexp/extended", scm_long2num (REG_EXTENDED));
+  scm_environment_intern (env, "regexp/icase", scm_long2num (REG_ICASE));
+  scm_environment_intern (env, "regexp/newline", scm_long2num (REG_NEWLINE));
 
   /* Execution flags.  */
-  scm_sysintern ("regexp/notbol", scm_long2num (REG_NOTBOL));
-  scm_sysintern ("regexp/noteol", scm_long2num (REG_NOTEOL));
+  scm_environment_intern (env, "regexp/notbol", scm_long2num (REG_NOTBOL));
+  scm_environment_intern (env, "regexp/noteol", scm_long2num (REG_NOTEOL));
 
 #include "regex-posix.x"
 
   scm_add_feature ("regex");
+
+  return SCM_UNSPECIFIED;
 }

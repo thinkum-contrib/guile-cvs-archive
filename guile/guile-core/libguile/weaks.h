@@ -67,6 +67,6 @@ extern SCM scm_make_doubly_weak_hash_table SCM_P ((SCM k));
 extern SCM scm_weak_key_hash_table_p SCM_P ((SCM x));
 extern SCM scm_weak_value_hash_table_p SCM_P ((SCM x));
 extern SCM scm_doubly_weak_hash_table_p SCM_P ((SCM x));
-extern void scm_init_weaks SCM_P ((void));
+extern SCM scm_init_weaks SCM_P ((SCM env));
 
 #endif  /* WEAKSH */

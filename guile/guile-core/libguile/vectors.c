@@ -251,9 +251,12 @@ scm_vector_move_right_x (vec1, start1, end1, vec2, start2)
 
 
 
-void
-scm_init_vectors ()
+SCM
+scm_init_vectors (env)
+     SCM env;
 {
 #include "vectors.x"
+
+  return SCM_UNSPECIFIED;
 }
 

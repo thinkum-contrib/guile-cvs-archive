@@ -2142,19 +2142,21 @@ init_raprocs (subra)
      ra_iproc *subra;
 {
   for (; subra->name; subra++)
-    subra->sproc = SCM_CDR (scm_intern (subra->name, strlen (subra->name)));
+    subra->sproc = scm_permanent_object (SCM_CDR (scm_intern (subra->name))); /* FIXME: what does this do? */
 }
 
 
-void
-scm_init_ramap ()
+SCM
+scm_init_ramap (env)
+     SCM env;
 {
   init_raprocs (ra_rpsubrs);
   init_raprocs (ra_asubrs);
-  scm_make_subr (s_array_equal_p, scm_tc7_rpsubr, scm_array_equal_p);
+  scm_make_subr (s_array_equal_p, scm_tc7_rpsubr, scm_array_equal_p, env);
   scm_smobs[0x0ff & (scm_tc16_array >> 8)].equalp = scm_raequal;
 #include "ramap.x"
   scm_add_feature (s_array_for_each);
+  return SCM_UNSPECIFIED;
 }
 
 #endif /* ARRAYS */

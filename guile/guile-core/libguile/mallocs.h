@@ -55,6 +55,6 @@ extern int scm_tc16_malloc;
 
 
 extern SCM scm_malloc_obj SCM_P ((scm_sizet n));
-extern void scm_init_mallocs SCM_P ((void));
+extern SCM scm_init_mallocs SCM_P ((SCM env));
 
 #endif  /* MALLOCSH */

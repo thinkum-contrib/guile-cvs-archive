@@ -372,9 +372,12 @@ scm_assoc_remove_x (alist, key)
 
 
 
-void
-scm_init_alist ()
+SCM
+scm_init_alist (env)
+     SCM env;
 {
 #include "alist.x"
+
+  return SCM_UNSPECIFIED;
 }
 

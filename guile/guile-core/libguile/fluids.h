@@ -101,6 +101,6 @@ void scm_copy_fluids SCM_P ((scm_root_state *));
 void scm_swap_fluids SCM_P ((SCM fluids, SCM vals));
 void scm_swap_fluids_reverse SCM_P ((SCM fluids, SCM vals));
 
-void scm_init_fluids SCM_P ((void));
+SCM scm_init_fluids SCM_P ((SCM env));
 
 #endif /* !FLUIDSH */

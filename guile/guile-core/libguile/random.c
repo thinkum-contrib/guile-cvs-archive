@@ -542,8 +542,9 @@ scm_random_exp (SCM state)
   return scm_makdbl (scm_c_exp1 (SCM_RSTATE (state)), 0.0);
 }
 
-void
-scm_init_random ()
+SCM
+scm_init_random (env)
+     SCM env;
 {
   int i, m;
   /* plug in default RNG */
@@ -578,4 +579,6 @@ scm_init_random ()
     }
   
   scm_add_feature ("random");
+
+  return SCM_UNSPECIFIED;
 }

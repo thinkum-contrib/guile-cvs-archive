@@ -18,7 +18,10 @@
 ;;;; Boston, MA 02111-1307 USA
 ;;;; 
 
-(define-module (ice-9 common-list))
+(module (ice-9 common-list)
+	(open (ice-9 guile)
+	      ((ice-9 error) error)
+	      ((ice-9 config) define-public)))
 
 ;;"comlist.scm" Implementation of COMMON LISP list functions for Scheme
 ; Copyright (C) 1991, 1993, 1995 Aubrey Jaffer.
@@ -148,14 +151,15 @@
 	((member (car lst) (cdr lst)) #t)
 	(else (has-duplicates? (cdr lst)))))
 
-(define-public (list* x . y)	
-  (define (list*1 x)
-    (if (null? (cdr x))
-	(car x)
-	(cons (car x) (list*1 (cdr x)))))
-  (if (null? y)
-      x
-      (cons x (list*1 y))))
+;; exported from list.c
+; (define-public (list* x . y)	
+;   (define (list*1 x)
+;     (if (null? (cdr x))
+; 	(car x)
+; 	(cons (car x) (list*1 (cdr x)))))
+;   (if (null? y)
+;       x
+;       (cons x (list*1 y))))
 
 ;; pick p l
 ;; Apply P to each element of L, returning a list of elts

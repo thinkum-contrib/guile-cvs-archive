@@ -92,8 +92,7 @@ mark_root (root)
   scm_gc_mark (s->def_errp);
   /* No need to gc mark def_loadp */
   scm_gc_mark (s->fluids);
-  scm_gc_mark (s->top_level_lookup_closure_var);
-  scm_gc_mark (s->system_transformer);
+
   return SCM_ROOT_STATE (root) -> parent;
 }
 
@@ -390,11 +389,21 @@ scm_call_catching_errors (thunk, err_filter, closure)
   return answer;
 }
 
-void
-scm_init_root ()
+SCM
+scm_init_root (env)
+     SCM env;
 {
   scm_tc16_root = scm_make_smob_type_mfpe ("root", sizeof (struct scm_root_state),
                                           mark_root, NULL, print_root, NULL);
                                           
+				/* from init_storage() */
+  scm_environment_intern (env, "most-positive-fixnum", (SCM) SCM_MAKINUM (SCM_MOST_POSITIVE_FIXNUM));
+  scm_environment_intern (env, "most-negative-fixnum", (SCM) SCM_MAKINUM (SCM_MOST_NEGATIVE_FIXNUM));
+#ifdef SCM_BIGDIG
+  scm_environment_intern (env, "bignum-radix", SCM_MAKINUM (SCM_BIGRAD));
+#endif
+ 
 #include "root.x"
+
+  return SCM_UNSPECIFIED;
 }

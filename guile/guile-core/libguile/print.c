@@ -1040,8 +1040,8 @@ scm_get_print_state (SCM port)
 
 
 
-void
-scm_init_print ()
+SCM
+scm_init_print (SCM env)
 {
   SCM vtable, layout, type;
   
@@ -1051,7 +1051,7 @@ scm_init_print ()
 				   SCM_EOL);
   layout = scm_make_struct_layout (scm_makfrom0str (SCM_PRINT_STATE_LAYOUT));
   type = scm_make_struct (vtable, SCM_INUM0, SCM_LIST1 (layout));
-  scm_set_struct_vtable_name_x (type, SCM_CAR (scm_intern0 ("print-state")));
+  scm_set_struct_vtable_name_x (type, SCM_CAR (scm_intern ("print-state")));
   print_state_pool = scm_permanent_object (scm_cons (type, SCM_EOL));
 
   scm_print_state_vtable = type;
@@ -1062,4 +1062,6 @@ scm_init_print ()
   scm_set_smob_print (scm_tc16_port_with_ps, print_port_with_ps);
   
 #include "print.x"
+
+  return SCM_UNSPECIFIED;
 }

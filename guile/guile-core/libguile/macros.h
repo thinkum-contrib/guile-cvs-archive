@@ -61,7 +61,7 @@ extern SCM scm_macro_name SCM_P ((SCM m));
 extern SCM scm_macro_transformer SCM_P ((SCM m));
 extern SCM scm_make_synt SCM_P ((const char *name,
 				 SCM (*macroizer) (SCM),
-				 SCM (*fcn) ()));
-extern void scm_init_macros SCM_P ((void));
+				 SCM (*fcn) (), SCM env));
+extern SCM scm_init_macros SCM_P ((SCM env));
 
 #endif /* MACROSH */

@@ -114,6 +114,6 @@ extern SCM scm_struct_create_handle SCM_P ((SCM obj));
 extern SCM scm_struct_vtable_name SCM_P ((SCM vtable));
 extern SCM scm_set_struct_vtable_name_x SCM_P ((SCM vtable, SCM name));
 extern void scm_print_struct SCM_P ((SCM exp, SCM port, scm_print_state *));
-extern void scm_init_struct SCM_P ((void));
+extern SCM scm_init_struct SCM_P ((SCM env));
 
 #endif  /* STRUCTH */

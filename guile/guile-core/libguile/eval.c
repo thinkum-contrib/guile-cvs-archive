@@ -90,7 +90,6 @@ char *alloca ();
 #include "stackchk.h"
 #include "objects.h"
 #include "feature.h"
-#include "modules.h"
 
 #include "eval.h"
 
@@ -138,7 +137,7 @@ SCM (*scm_memoize_method) (SCM, SCM);
 #define SIDEVAL(x, env) if (SCM_NIMP(x)) SCM_CEVAL((x), (env))
 
 #define EVALCELLCAR(x, env) (SCM_SYMBOLP (SCM_CAR(x)) \
-			     ? *scm_lookupcar(x, env, 1) \
+			     ? *scm_lookupcar(x, env, 0) \
 			     : SCM_CEVAL(SCM_CAR(x), env))
 
 #define EVALCAR(x, env) (SCM_NCELLP(SCM_CAR(x))\
@@ -253,24 +252,31 @@ static scm_cell undef_cell = { SCM_UNDEFINED, SCM_UNDEFINED };
 
 #ifdef USE_THREADS
 static SCM *
-scm_lookupcar1 (SCM vloc, SCM genv, int check)
+scm_lookupcar1 (vloc, genv, modify)
 #else
 SCM *
-scm_lookupcar (SCM vloc, SCM genv, int check)
+scm_lookupcar (vloc, genv, modify)
 #endif
+     SCM vloc;
+     SCM genv;
+     int modify; /* -1: lookup a macro symbol (FIXME, what does that
+		    mean?), 1: mutable, 0: immutable */
 {
+  SCM next_frame;
+  SCM vcell;
   SCM env = genv;
   register SCM *al, fl, var = SCM_CAR (vloc);
+  SCM sym = var;
 #ifdef USE_THREADS
   register SCM var2 = var;
 #endif
 #ifdef MEMOIZE_LOCALS
   register SCM iloc = SCM_ILOC00;
 #endif
-  for (; SCM_NIMP (env); env = SCM_CDR (env))
+
+  next_frame = SCM_CDR(env);
+  while (SCM_NIMP(next_frame))
     {
-      if (SCM_BOOL_T == scm_procedure_p (SCM_CAR (env)))
-	break;
       al = SCM_CARLOC (env);
       for (fl = SCM_CAR (*al); SCM_NIMP (fl); fl = SCM_CDR (fl))
 	{
@@ -316,38 +322,26 @@ scm_lookupcar (SCM vloc, SCM genv, int check)
 #ifdef MEMOIZE_LOCALS
       iloc = (~SCM_IDSTMSK) & (iloc + SCM_IFRINC);
 #endif
+      
+      env = next_frame;
+      next_frame = SCM_CDR (next_frame);
     }
-  {
-    SCM top_thunk, vcell;
-    if (SCM_NIMP(env))
-      {
-	top_thunk = SCM_CAR(env);	/* env now refers to a top level env thunk */
-	env = SCM_CDR (env);
-      }
-    else
-      top_thunk = SCM_BOOL_F;
-    vcell = scm_sym2vcell (var, top_thunk, SCM_BOOL_F);
-    if (vcell == SCM_BOOL_F)
-      goto errout;
-    else
-      var = vcell;
-  }
-#ifndef SCM_RECKLESS
-  if (SCM_NNULLP (env) || SCM_UNBNDP (SCM_CDR (var)))
+				/* look in the eval environment) */
+  env = SCM_CAR(env);
+  vcell = SCM_ENVIRONMENT_CELL (env, var, modify == 1);
+  if (vcell == SCM_BOOL_F)
     {
-      var = SCM_CAR (var);
     errout:
       /* scm_everr (vloc, genv,...) */
-      if (check)
+      if (modify != -1)
 	scm_misc_error (NULL,
-			SCM_NULLP (env)
-			? "Unbound variable: %S"
-			: "Damaged environment: %S",
+			"Unbound variable: %S",
 			scm_listify (var, SCM_UNDEFINED));
       else
 	return SCM_CDRLOC (&undef_cell);
     }
-#endif
+  var = SCM_CAAR(vcell);
+
 #ifdef USE_THREADS
   if (SCM_CAR (vloc) != var2)
     {
@@ -371,22 +365,19 @@ scm_lookupcar (SCM vloc, SCM genv, int check)
     }
 #endif /* USE_THREADS */
 
-  SCM_SETCAR (vloc, var + 1);
-  /* Except wait...what if the var is not a vcell,
-   * but syntax or something....  */
+  scm_eval_environment_memoize_cell_internal(env, vloc, var, sym);
+
   return SCM_CDRLOC (var);
 }
 
 #ifdef USE_THREADS
 SCM *
-scm_lookupcar (vloc, genv, check)
+scm_lookupcar (vloc, genv, modify)
      SCM vloc;
      SCM genv;
-     int check;
+     int modify;
 {
-  SCM *loc = scm_lookupcar1 (vloc, genv, check);
-  if (loc == NULL)
-    abort ();
+  SCM *loc = scm_lookupcar1 (vloc, genv, modify);
   return loc;
 }
 #endif
@@ -405,9 +396,22 @@ scm_unmemocar (form, env)
 
   if (SCM_IMP (form))
     return form;
+
   c = SCM_CAR (form);
   if (1 == (c & 7))
-    SCM_SETCAR (form, SCM_CAR (c - 1));
+    {				/* remove gloc */
+      extern void eval_environment_update_memoized ();
+      SCM next_frame = SCM_CDR(env);
+
+				/* find top-level environment */
+      while (SCM_NIMP (next_frame))
+	{
+	  env = next_frame;
+	  next_frame = SCM_CDR(next_frame);
+	}
+      env = SCM_CAR(env);
+      eval_environment_update_memoized (env, c - 1, SCM_BOOL_F); 
+    }
 #ifdef MEMOIZE_LOCALS
 #ifdef DEBUG_EXTENSIONS
   else if (SCM_ILOCP (c))
@@ -449,7 +453,6 @@ const char scm_s_formals[] = "bad formals";
 
 SCM scm_sym_dot, scm_sym_arrow, scm_sym_else;
 SCM scm_sym_unquote, scm_sym_uq_splicing, scm_sym_apply;
-
 SCM scm_f_apply;
 
 #ifdef DEBUG_EXTENSIONS
@@ -906,8 +909,7 @@ scm_m_delay (xorig, env)
   SCM_ASSYNT (scm_ilength (xorig) == 2, xorig, scm_s_expression, s_delay);
   xorig = SCM_CDR (xorig);
   return scm_makprom (scm_closure (scm_cons2 (SCM_EOL, SCM_CAR (xorig),
-					      SCM_CDR (xorig)),
-				   env));
+					      SCM_CDR (xorig)), env));
 }
 
 
@@ -933,7 +935,7 @@ scm_m_define (x, env)
   SCM_ASSYNT (SCM_NIMP (proc) && SCM_SYMBOLP (proc),
 	      arg1, scm_s_variable, s_define);
   SCM_ASSYNT (1 == scm_ilength (x), arg1, scm_s_expression, s_define);
-  if (SCM_TOP_LEVEL (env))
+  if (SCM_TOP_LEVEL_ENVP (env))
     {
       x = evalcar (x, env);
 #ifdef DEBUG_EXTENSIONS
@@ -953,7 +955,7 @@ scm_m_define (x, env)
 	    }
 	}
 #endif
-      arg1 = scm_sym2vcell (proc, scm_env_top_level (env), SCM_BOOL_T);
+
 #if 0
 #ifndef SCM_RECKLESS
       if (SCM_NIMP (SCM_CDR (arg1)) && ((SCM) SCM_SNAME (SCM_CDR (arg1)) == proc)
@@ -964,7 +966,9 @@ scm_m_define (x, env)
       if (5 <= scm_verbose && SCM_UNDEFINED != SCM_CDR (arg1))
 	scm_warn ("redefining ", SCM_CHARS (proc));
 #endif
-      SCM_SETCDR (arg1, x);
+
+      SCM_ENVIRONMENT_DEFINE (SCM_CAR(env), proc, x);
+
 #ifdef SICP
       return scm_cons2 (scm_sym_quote, SCM_CAR (arg1), SCM_EOL);
 #else
@@ -1187,6 +1191,8 @@ scm_m_1_ify (SCM xorig, SCM env)
   return scm_cons (SCM_IM_1_IFY, SCM_CDR (xorig));
 }
 
+#if 0 /* FIXME: try to emulate symbol properties by using location tags */
+
 SCM_SYNTAX (s_atfop, "@fop", scm_makmmacro, scm_m_atfop);
 
 SCM
@@ -1201,6 +1207,10 @@ scm_m_atfop (SCM xorig, SCM env)
   return x;
 }
 
+#endif
+
+#if 0 /* FIXME: What does this code do?  Why is it necessary to
+	 explicitly memoize a list of expressions? */
 SCM_SYNTAX (s_atbind, "@bind", scm_makmmacro, scm_m_atbind);
 
 SCM
@@ -1228,6 +1238,8 @@ scm_m_atbind (SCM xorig, SCM env)
     }
   return scm_cons (SCM_IM_BIND, SCM_CDR (xorig));
 }
+
+#endif
 
 SCM
 scm_m_expand_body (SCM xorig, SCM env)
@@ -1302,7 +1314,7 @@ scm_macroexp (SCM x, SCM env)
 
 #ifdef USE_THREADS
   {
-    SCM *proc_ptr = scm_lookupcar1 (x, env, 0);
+    SCM *proc_ptr = scm_lookupcar1 (x, env, -1); /* do not check */
     if (proc_ptr == NULL)
       {
 	/* We have lost the race. */
@@ -1311,7 +1323,7 @@ scm_macroexp (SCM x, SCM env)
     proc = *proc_ptr;
   }
 #else
-  proc = *scm_lookupcar (x, env, 0);
+  proc = *scm_lookupcar (x, env, -1); /* do not check */
 #endif
   
   /* Only handle memoizing macros.  `Acros' and `macros' are really
@@ -2031,7 +2043,7 @@ dispatch:
       if (SCM_SYMBOLP (SCM_CAR (x)))
 	{
 	retval:
-	  RETURN (*scm_lookupcar (x, env, 1))
+	  RETURN (*scm_lookupcar (x, env, 0))
 	}
 
       x = SCM_CAR (x);
@@ -2212,7 +2224,7 @@ dispatch:
       switch (7 & (int) proc)
 	{
 	case 0:
-	  t.lloc = scm_lookupcar (x, env, 1);
+	  t.lloc = scm_lookupcar (x, env, 1); 
 	  break;
 	case 1:
 	  t.lloc = SCM_GLOC_VAL_LOC (proc);
@@ -2578,7 +2590,7 @@ dispatch:
       if (SCM_SYMBOLP (SCM_CAR (x)))
 	{
 #ifdef USE_THREADS
-	  t.lloc = scm_lookupcar1 (x, env, 1);
+	  t.lloc = scm_lookupcar1 (x, env, 0);  
 	  if (t.lloc == NULL)
 	    {
 	      /* we have lost the race, start again. */
@@ -2586,7 +2598,7 @@ dispatch:
 	    }
 	  proc = *t.lloc;
 #else
-	  proc = *scm_lookupcar (x, env, 1);
+	  proc = *scm_lookupcar (x, env, 0);
 #endif
 
 	  if (SCM_IMP (proc))
@@ -2620,7 +2632,7 @@ dispatch:
 		    {
 
 #if 0 /* Top-level defines doesn't very often occur in backtraces */
-		      if (scm_m_define == SCM_SUBRF (SCM_CDR (proc)) && SCM_TOP_LEVEL (env))
+		      if (scm_m_define == SCM_SUBRF (SCM_CDR (proc)) && SCM_TOP_LEVEL_ENVP (env))
 			/* Prevent memoizing result of define macro */
 			{
 			  debug.info->e.exp = scm_cons (SCM_CAR (x), SCM_CDR (x));
@@ -3880,45 +3892,33 @@ scm_eval_3 (obj, copyp, env)
      int copyp;
      SCM env;
 {
-  if (SCM_NIMP (SCM_CDR (scm_system_transformer)))
-    obj = scm_apply (SCM_CDR (scm_system_transformer), obj, scm_listofnull);
-  else if (copyp)
+  if (copyp)
     obj = scm_copy_tree (obj);
+
   return SCM_XEVAL (obj, env);
 }
 
-SCM_PROC(s_eval2, "eval2", 2, 0, 0, scm_eval2);
+SCM_PROC(s_eval, "eval", 2, 0, 0, scm_eval);
 
 SCM
-scm_eval2 (obj, env_thunk)
+scm_eval (obj, env)
      SCM obj;
-     SCM env_thunk;
+     SCM env;
 {
-  return scm_eval_3 (obj, 1, scm_top_level_env (env_thunk));
-}
+  SCM_ASSERT (SCM_NIMP (env) && SCM_ENVIRONMENTP(env) && SCM_EVAL_ENVIRONMENTP(env),
+		  env, SCM_ARG2, s_eval);
 
-SCM_PROC(s_eval, "eval", 1, 0, 0, scm_eval);
-
-SCM
-scm_eval (obj)
-     SCM obj;
-{
-  return scm_eval_3 (obj,
-		     1,
-		     scm_top_level_env
-		     (SCM_CDR (scm_top_level_lookup_closure_var)));
+  return scm_eval_3 (obj, 1, scm_cons(env, SCM_EOL));
 }
 
 /* SCM_PROC(s_eval_x, "eval!", 1, 0, 0, scm_eval_x); */
 
 SCM
-scm_eval_x (obj)
+scm_eval_x (obj, env)
      SCM obj;
+     SCM env;
 {
-  return scm_eval_3 (obj,
-		     0,
-		     scm_top_level_env
-		     (SCM_CDR (scm_top_level_lookup_closure_var)));
+  return scm_eval_3 (obj, 0, scm_cons(env, SCM_EOL));
 }
 
 
@@ -3932,8 +3932,9 @@ scm_eval_x (obj)
 
 
 
-void 
-scm_init_eval ()
+SCM
+scm_init_eval (env)
+     SCM env;
 {
   scm_init_opts (scm_evaluator_traps,
 		 scm_evaluator_trap_table,
@@ -3946,38 +3947,35 @@ scm_init_eval ()
   scm_set_smob_mark (scm_tc16_promise, scm_markcdr);
   scm_set_smob_print (scm_tc16_promise, prinprom);
 
-  scm_f_apply = scm_make_subr ("apply", scm_tc7_lsubr_2, scm_apply);
-  scm_system_transformer = scm_sysintern ("scm:eval-transformer", SCM_UNDEFINED);
-  scm_sym_dot = SCM_CAR (scm_sysintern (".", SCM_UNDEFINED));
-  scm_sym_arrow = SCM_CAR (scm_sysintern ("=>", SCM_UNDEFINED));
-  scm_sym_else = SCM_CAR (scm_sysintern ("else", SCM_UNDEFINED));
-  scm_sym_unquote = SCM_CAR (scm_sysintern ("unquote", SCM_UNDEFINED));
-  scm_sym_uq_splicing = SCM_CAR (scm_sysintern ("unquote-splicing", SCM_UNDEFINED));
+  scm_f_apply = scm_make_subr ("apply", scm_tc7_lsubr_2, scm_apply, env);
+  scm_sym_dot = scm_permanent_object (SCM_CAR (scm_intern (".")));
+  scm_sym_arrow = scm_permanent_object (SCM_CAR (scm_intern ("=>")));
+  scm_sym_else = scm_permanent_object (SCM_CAR (scm_intern ("else")));
+  scm_sym_unquote = scm_permanent_object (SCM_CAR (scm_intern ("unquote")));
+  scm_sym_uq_splicing = scm_permanent_object (SCM_CAR (scm_intern ("unquote-splicing")));
 
-  scm_nil = scm_sysintern ("nil", SCM_UNDEFINED);
+  scm_nil = scm_environment_intern (env, "nil", SCM_BOOL_F);
   SCM_SETCDR (scm_nil, SCM_CAR (scm_nil));
   scm_nil = SCM_CAR (scm_nil);
-  scm_t = scm_sysintern ("t", SCM_UNDEFINED);
+
+  scm_t = scm_environment_intern (env, "t", SCM_BOOL_F);
   SCM_SETCDR (scm_t, SCM_CAR (scm_t));
   scm_t = SCM_CAR (scm_t);
   
   /* acros */
   /* end of acros */
 
-  scm_top_level_lookup_closure_var =
-    scm_sysintern("*top-level-lookup-closure*", SCM_BOOL_F);
-  scm_can_use_top_level_lookup_closure_var = 1;
-
 #ifdef DEBUG_EXTENSIONS
-  scm_sym_enter_frame = SCM_CAR (scm_sysintern ("enter-frame", SCM_UNDEFINED));
-  scm_sym_apply_frame = SCM_CAR (scm_sysintern ("apply-frame", SCM_UNDEFINED));
-  scm_sym_exit_frame = SCM_CAR (scm_sysintern ("exit-frame", SCM_UNDEFINED));
-  scm_sym_trace = SCM_CAR (scm_sysintern ("trace", SCM_UNDEFINED));
+  scm_sym_enter_frame = scm_permanent_object (SCM_CAR (scm_intern ("enter-frame")));
+  scm_sym_apply_frame = scm_permanent_object (SCM_CAR (scm_intern ("apply-frame")));
+  scm_sym_exit_frame = scm_permanent_object (SCM_CAR (scm_intern ("exit-frame")));
+  scm_sym_trace = scm_permanent_object (SCM_CAR (scm_intern ("trace")));
 #endif
 
 #include "eval.x"
 
   scm_add_feature ("delay");
-}
 
+  return SCM_UNSPECIFIED;
+}
 #endif /* !DEVAL */

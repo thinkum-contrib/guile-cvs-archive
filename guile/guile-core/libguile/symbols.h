@@ -51,29 +51,20 @@ extern int scm_symhash_dim;
 
 /* SCM_LENGTH(SYM) is the length of SYM's name in characters, and
    SCM_CHARS(SYM) is the address of the first character of SYM's name.
+   Every symbol occupies a position in scm_weak_symhash and possibly
+   in one of guile's environments.
+   The macros SCM_SYMBOL_HASH and SCM_HASHCODE both return the symbol's
+   position in the obarray.
 
-   Beyond that, there are two kinds of symbols: ssymbols and msymbols,
-   distinguished by the 'S' bit in the type.
+   Symbols aren't very useful without environments.  You can create a
+   symbol with scm_intern() but you can't bind values to it until
+   you create an environment in which you can bind a symbol to a location
+   and store a value in it.
 
-   Ssymbols are just uniquified strings.  They have a length, chars,
-   and that's it.  They use the scm_tc7_ssymbol tag (S bit clear).
-
-   Msymbols are symbols with extra slots.  These slots hold a property
-   list and a function value (for Emacs Lisp compatibility), and a hash
-   code.  They use the scm_tc7_msymbol tag.
-
-   We'd like SCM_CHARS to work on msymbols just as it does on
-   ssymbols, so we'll have it point to the symbol's name as usual, and
-   store a pointer to the slots just before the name in memory.  Thus,
-   you have to do some casting and pointer arithmetic to find the
-   slots; see the SCM_SLOTS macro.
-
-   In practice, the slots always live just before the pointer to them.
-   So why not ditch the pointer, and use negative indices to refer to
-   the slots?  That's a good question; ask the author.  I think it was
-   the cognac.  */
-
-#define SCM_SYMBOLP(x) (SCM_TYP7S(x)==scm_tc7_ssymbol)
+   For historical reasons all symbols are called `msymbols'.  But note
+   that in guile msymbols do not carry any values.
+*/
+#define SCM_SYMBOLP(x) (SCM_TYP7(x)==scm_tc7_msymbol)
 #define SCM_LENGTH(x) (((unsigned long)SCM_CAR(x))>>8)
 #define SCM_LENGTH_MAX (0xffffffL)
 #define SCM_SETLENGTH(x, v, t) SCM_SETCAR((x), ((v)<<8)+(t))
@@ -81,13 +72,13 @@ extern int scm_symhash_dim;
 #define SCM_CHARS(x) ((char *)(SCM_CDR(x)))
 #define SCM_UCHARS(x) ((unsigned char *)(SCM_CDR(x)))
 #define SCM_SLOTS(x) ((SCM *) (* ((SCM *)SCM_CHARS(x) - 1)))
-#define SCM_SYMBOL_SLOTS 4
-#define SCM_SYMBOL_FUNC(X) (SCM_SLOTS(X)[0])
-#define SCM_SYMBOL_PROPS(X) (SCM_SLOTS(X)[1])
-#define SCM_SYMBOL_HASH(X) (*(unsigned long*)(&SCM_SLOTS(X)[2]))
+
+#define SCM_SYMBOL_SLOTS 2
+#define SCM_SYMBOL_HASH(X) (*(unsigned long*)(&SCM_SLOTS(X)[0]))
+#define SCM_HASHCODE SCM_SYMBOL_HASH
 
 #define SCM_ROSTRINGP(x) ((SCM_TYP7S(x)==scm_tc7_string) \
-			  || (SCM_TYP7S(x) == scm_tc7_ssymbol))
+			  || (SCM_TYP7(x) == scm_tc7_msymbol))
 #define SCM_ROCHARS(x) ((SCM_TYP7(x) == scm_tc7_substring) \
 			? SCM_INUM (SCM_CADR (x)) + SCM_CHARS (SCM_CDDR (x))  \
 			: SCM_CHARS (x))
@@ -106,37 +97,13 @@ extern int scm_symhash_dim;
 
 
 extern unsigned long scm_strhash SCM_P ((unsigned char *str, scm_sizet len, unsigned long n));
-extern SCM scm_sym2vcell SCM_P ((SCM sym, SCM thunk, SCM definep));
-extern SCM scm_sym2ovcell_soft SCM_P ((SCM sym, SCM obarray));
-extern SCM scm_sym2ovcell SCM_P ((SCM sym, SCM obarray));
-extern SCM scm_intern_obarray_soft SCM_P ((const char *name, scm_sizet len, SCM obarray, int softness));
-extern SCM scm_intern_obarray SCM_P ((const char *name, scm_sizet len, SCM obarray));
-extern SCM scm_intern SCM_P ((const char *name, scm_sizet len));
-extern SCM scm_intern0 SCM_P ((const char * name));
-extern SCM scm_sysintern SCM_P ((const char *name, SCM val));
-extern SCM scm_sysintern0 SCM_P ((const char *name));
-extern SCM scm_sysintern0_no_module_lookup SCM_P ((const char *name));
-extern SCM scm_symbol_value0 SCM_P ((const char *name));
-extern SCM scm_symbol_p SCM_P ((SCM x));
-extern SCM scm_symbol_to_string SCM_P ((SCM s));
-extern SCM scm_string_to_symbol SCM_P ((SCM s));
-extern SCM scm_string_to_obarray_symbol SCM_P ((SCM o, SCM s, SCM softp));
-extern SCM scm_intern_symbol SCM_P ((SCM o, SCM s));
-extern SCM scm_unintern_symbol SCM_P ((SCM o, SCM s));
-extern SCM scm_symbol_binding SCM_P ((SCM o, SCM s));
-extern SCM scm_symbol_interned_p SCM_P ((SCM o, SCM s));
-extern SCM scm_symbol_bound_p SCM_P ((SCM o, SCM s));
-extern SCM scm_symbol_set_x SCM_P ((SCM o, SCM s, SCM v));
-extern SCM scm_symbol_fref SCM_P ((SCM s));
-extern SCM scm_symbol_pref SCM_P ((SCM s));
-extern SCM scm_symbol_fset_x SCM_P ((SCM s, SCM val));
-extern SCM scm_symbol_pset_x SCM_P ((SCM s, SCM val));
-extern SCM scm_symbol_hash SCM_P ((SCM s));
-extern SCM scm_builtin_bindings SCM_P ((void));
-extern SCM scm_builtin_weak_bindings SCM_P ((void));
-extern SCM scm_gensym SCM_P ((SCM name, SCM obarray));
-extern void scm_init_symbols SCM_P ((void));
+extern SCM scm_intern SCM_P ((char *name));
 
-extern int scm_can_use_top_level_lookup_closure_var;
+extern SCM scm_symbol_p(SCM x);
+extern SCM scm_string_to_symbol(SCM s);
+extern SCM scm_symbol_to_string(SCM s);
+SCM scm_gensym (SCM name);
+
+extern SCM scm_init_symbols SCM_P ((SCM env));
 
 #endif  /* SYMBOLSH */

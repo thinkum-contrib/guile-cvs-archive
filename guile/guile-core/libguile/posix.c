@@ -1096,53 +1096,56 @@ scm_sync()
   return SCM_UNSPECIFIED;
 }
 
-void 
-scm_init_posix ()
+SCM
+scm_init_posix (env)
+     SCM env;
 {
   scm_add_feature ("posix");
 #ifdef HAVE_GETEUID
   scm_add_feature ("EIDs");
 #endif
 #ifdef WAIT_ANY
-  scm_sysintern ("WAIT_ANY", SCM_MAKINUM (WAIT_ANY));
+  scm_environment_intern (env, "WAIT_ANY", SCM_MAKINUM (WAIT_ANY));
 #endif
 #ifdef WAIT_MYPGRP
-  scm_sysintern ("WAIT_MYPGRP", SCM_MAKINUM (WAIT_MYPGRP));
+  scm_environment_intern (env, "WAIT_MYPGRP", SCM_MAKINUM (WAIT_MYPGRP));
 #endif
 #ifdef WNOHANG
-  scm_sysintern ("WNOHANG", SCM_MAKINUM (WNOHANG));
+  scm_environment_intern (env, "WNOHANG", SCM_MAKINUM (WNOHANG));
 #endif
 #ifdef WUNTRACED
-  scm_sysintern ("WUNTRACED", SCM_MAKINUM (WUNTRACED));
+  scm_environment_intern (env, "WUNTRACED", SCM_MAKINUM (WUNTRACED));
 #endif
 
   /* access() symbols.  */
-  scm_sysintern ("R_OK", SCM_MAKINUM (R_OK));
-  scm_sysintern ("W_OK", SCM_MAKINUM (W_OK));
-  scm_sysintern ("X_OK", SCM_MAKINUM (X_OK));
-  scm_sysintern ("F_OK", SCM_MAKINUM (F_OK));
+  scm_environment_intern (env, "R_OK", SCM_MAKINUM (R_OK));
+  scm_environment_intern (env, "W_OK", SCM_MAKINUM (W_OK));
+  scm_environment_intern (env, "X_OK", SCM_MAKINUM (X_OK));
+  scm_environment_intern (env, "F_OK", SCM_MAKINUM (F_OK));
 
 #ifdef LC_COLLATE
-  scm_sysintern ("LC_COLLATE", SCM_MAKINUM (LC_COLLATE));
+  scm_environment_intern (env, "LC_COLLATE", SCM_MAKINUM (LC_COLLATE));
 #endif
 #ifdef LC_CTYPE
-  scm_sysintern ("LC_CTYPE", SCM_MAKINUM (LC_CTYPE));
+  scm_environment_intern (env, "LC_CTYPE", SCM_MAKINUM (LC_CTYPE));
 #endif
 #ifdef LC_MONETARY
-  scm_sysintern ("LC_MONETARY", SCM_MAKINUM (LC_MONETARY));
+  scm_environment_intern (env, "LC_MONETARY", SCM_MAKINUM (LC_MONETARY));
 #endif
 #ifdef LC_NUMERIC
-  scm_sysintern ("LC_NUMERIC", SCM_MAKINUM (LC_NUMERIC));
+  scm_environment_intern (env, "LC_NUMERIC", SCM_MAKINUM (LC_NUMERIC));
 #endif
 #ifdef LC_TIME
-  scm_sysintern ("LC_TIME", SCM_MAKINUM (LC_TIME));
+  scm_environment_intern (env, "LC_TIME", SCM_MAKINUM (LC_TIME));
 #endif
 #ifdef LC_MESSAGES
-  scm_sysintern ("LC_MESSAGES", SCM_MAKINUM (LC_MESSAGES));
+  scm_environment_intern (env, "LC_MESSAGES", SCM_MAKINUM (LC_MESSAGES));
 #endif
 #ifdef LC_ALL
-  scm_sysintern ("LC_ALL", SCM_MAKINUM (LC_ALL));
+  scm_environment_intern (env, "LC_ALL", SCM_MAKINUM (LC_ALL));
 #endif
 #include "cpp_sig_symbols.c"
 #include "posix.x"
+
+  return SCM_UNSPECIFIED;
 }

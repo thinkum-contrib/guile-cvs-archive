@@ -1226,14 +1226,17 @@ scm_sys_make_void_port (SCM mode)
 
 /* Initialization.  */
 
-void
-scm_init_ports ()
+SCM
+scm_init_ports (env)
+     SCM env;
 {
   /* lseek() symbols.  */
-  scm_sysintern ("SEEK_SET", SCM_MAKINUM (SEEK_SET));
-  scm_sysintern ("SEEK_CUR", SCM_MAKINUM (SEEK_CUR));
-  scm_sysintern ("SEEK_END", SCM_MAKINUM (SEEK_END));
+  scm_environment_intern (env, "SEEK_SET", SCM_MAKINUM (SEEK_SET));
+  scm_environment_intern (env, "SEEK_CUR", SCM_MAKINUM (SEEK_CUR));
+  scm_environment_intern (env, "SEEK_END", SCM_MAKINUM (SEEK_END));
 
   scm_tc16_void_port = scm_make_port_type ("void", 0, write_void_port);
 #include "ports.x"
+
+  return SCM_UNSPECIFIED;
 }

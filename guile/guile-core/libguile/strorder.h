@@ -63,6 +63,6 @@ extern SCM scm_string_ci_less_p SCM_P ((SCM s1, SCM s2));
 extern SCM scm_string_ci_leq_p SCM_P ((SCM s1, SCM s2));
 extern SCM scm_string_ci_gr_p SCM_P ((SCM s1, SCM s2));
 extern SCM scm_string_ci_geq_p SCM_P ((SCM s1, SCM s2));
-extern void scm_init_strorder SCM_P ((void));
+extern SCM scm_init_strorder SCM_P ((SCM env));
 
 #endif  /* STRORDERH */

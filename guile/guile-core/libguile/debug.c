@@ -59,7 +59,6 @@
 #include "read.h"
 #include "feature.h"
 #include "dynwind.h"
-#include "modules.h"
 
 #include "debug.h"
 
@@ -190,7 +189,7 @@ scm_make_memoized (exp, env)
 /*
  * Some primitives for construction of memoized code
  *
- * - procedure: memcons CAR CDR [ENV]
+ * - procedure: memcons CAR CDR ENV
  *
  *     Construct a pair, encapsulated in a memoized object.
  *
@@ -202,12 +201,9 @@ scm_make_memoized (exp, env)
  *
  *     Return a gloc, encapsulated in a memoized object.
  *
- *     (Glocs can't exist in normal list structures, since they will
- *     be mistaken for structs.)
- *
- * - procedure: gloc? OBJECT
- *
- *     Return #t if OBJECT is a memoized gloc.
+ * - procedure: make-gloc VARIABLE [ENV]  (removed)
+ *   
+ * - procedure: gloc? OBJECT              (removed)
  *
  * - procedure: make-iloc FRAME BINDING CDRP
  *
@@ -251,47 +247,7 @@ scm_make_memoized (exp, env)
  * - constant: SCM_IM_DISPATCH
  */
 
-#include "variable.h"
 #include "procs.h"
-
-SCM_PROC (s_make_gloc, "make-gloc", 1, 1, 0, scm_make_gloc);
-
-SCM
-scm_make_gloc (var, env)
-     SCM var;
-     SCM env;
-{
-#if 1 /* Unsafe */
-  if (SCM_NIMP (var) && SCM_CONSP (var))
-    var = scm_cons (SCM_BOOL_F, var);
-  else
-#endif
-  SCM_ASSERT (SCM_NIMP (var) && SCM_VARIABLEP (var),
-	      var,
-	      SCM_ARG1,
-	      s_make_gloc);
-  if (SCM_UNBNDP (env))
-    env = scm_top_level_env (SCM_CDR (scm_top_level_lookup_closure_var));
-  else
-    SCM_ASSERT (SCM_NULLP (env) || (SCM_NIMP (env) && SCM_CONSP (env)),
-		env,
-		SCM_ARG2,
-		s_make_gloc);
-  return scm_make_memoized (SCM_VARVCELL (var) + 1, env);
-}
-
-SCM_PROC (s_gloc_p, "gloc?", 1, 0, 0, scm_gloc_p);
-
-SCM
-scm_gloc_p (obj)
-     SCM obj;
-{
-  return ((SCM_NIMP (obj)
-	   && SCM_MEMOIZEDP (obj)
-	   && (SCM_MEMOIZED_EXP (obj) & 7) == 1)
-	  ? SCM_BOOL_T
-	  : SCM_BOOL_F);
-}
 
 SCM_PROC (s_make_iloc, "make-iloc", 3, 0, 0, scm_make_iloc);
 
@@ -318,7 +274,7 @@ scm_iloc_p (obj)
   return SCM_ILOCP (obj) ? SCM_BOOL_T : SCM_BOOL_F;
 }
 
-SCM_PROC (s_memcons, "memcons", 2, 1, 0, scm_memcons);
+SCM_PROC (s_memcons, "memcons", 3, 0, 0, scm_memcons);
 
 SCM
 scm_memcons (car, cdr, env)
@@ -326,34 +282,29 @@ scm_memcons (car, cdr, env)
      SCM cdr;
      SCM env;
 {
+  SCM_ASSERT (SCM_NIMP (env) && SCM_ENVP (env), env, SCM_ARG3, s_memcons);
+
   if (SCM_NIMP (car) && SCM_MEMOIZEDP (car))
     {
-      /*fixme* environments may be two different but equal top-level envs */
-      if (!SCM_UNBNDP (env) && SCM_MEMOIZED_ENV (car) != env)
-	scm_misc_error (s_memcons,
-			"environment mismatch arg1 <-> arg3",
-			scm_cons2 (car, env, SCM_EOL));
-      else
-	env = SCM_MEMOIZED_ENV (car);
+      if (SCM_MEMOIZED_ENV (car) != env)
+	{
+	  scm_misc_error (s_memcons,
+			  "environment mismatch arg1 <-> arg3",
+			  scm_cons2 (car, env, SCM_EOL));
+	}
       car = SCM_MEMOIZED_EXP (car);
     }
   if (SCM_NIMP (cdr) && SCM_MEMOIZEDP (cdr))
     {
-      if (!SCM_UNBNDP (env) && SCM_MEMOIZED_ENV (cdr) != env)
-	scm_misc_error (s_memcons,
-			"environment mismatch arg2 <-> arg3",
-			scm_cons2 (cdr, env, SCM_EOL));
-      else
-	env = SCM_MEMOIZED_ENV (cdr);
+      if (SCM_MEMOIZED_ENV (cdr) != env)
+	{
+	  scm_misc_error (s_memcons,
+			  "environment mismatch arg2 <-> arg3",
+			  scm_cons2 (cdr, env, SCM_EOL));
+	}
       cdr = SCM_MEMOIZED_EXP (cdr);
     }
-  if (SCM_UNBNDP (env))
-    env = scm_top_level_env (SCM_CDR (scm_top_level_lookup_closure_var));
-  else
-    SCM_ASSERT (SCM_NULLP (env) || (SCM_NIMP (env) && SCM_CONSP (env)),
-		env,
-		SCM_ARG3,
-		s_make_iloc);
+
   return scm_make_memoized (scm_cons (car, cdr), env);
 }
 
@@ -368,6 +319,7 @@ scm_mem_to_proc (obj)
 	      obj,
 	      SCM_ARG1,
 	      s_mem_to_proc);
+
   env = SCM_MEMOIZED_ENV (obj);
   obj = SCM_MEMOIZED_EXP (obj);
   if (!(SCM_NIMP (obj) && SCM_CAR (obj) == SCM_IM_LAMBDA))
@@ -387,6 +339,7 @@ scm_proc_to_mem (obj)
 	      obj,
 	      SCM_ARG1,
 	      s_proc_to_mem);
+
   return scm_make_memoized (scm_cons (SCM_IM_LAMBDA, SCM_CODE (obj)),
 			    SCM_ENV (obj));
 }
@@ -449,6 +402,7 @@ scm_procedure_source (proc)
      SCM proc;
 {
   SCM_ASSERT(SCM_NIMP (proc), proc, SCM_ARG1, s_procedure_source);
+
   switch (SCM_TYP7 (proc)) {
   case scm_tcs_closures:
     {
@@ -492,7 +446,8 @@ scm_procedure_environment (proc)
 #ifdef CCLO
   case scm_tc7_cclo:
 #endif
-    return SCM_EOL;
+    scm_wta(proc, "Procedure has no environment", s_procedure_environment);
+    return 0;
   default:
     scm_wta (proc, (char *) SCM_ARG1, s_procedure_environment);
     return 0;
@@ -648,8 +603,9 @@ scm_debug_hang (obj)
 
 
 
-void
-scm_init_debug ()
+SCM
+scm_init_debug (env)
+     SCM env;
 {
   scm_init_opts (scm_debug_options, scm_debug_opts, SCM_N_DEBUG_OPTIONS);
 
@@ -659,30 +615,32 @@ scm_init_debug ()
   scm_tc16_debugobj = scm_make_smob_type_mfpe ("debug-object", 0,
                                               NULL, NULL, prindebugobj, NULL);
 
-  scm_sym_procname = SCM_CAR (scm_sysintern ("procname", SCM_UNDEFINED));
-  scm_sym_dots = SCM_CAR (scm_sysintern ("...", SCM_UNDEFINED));
-  scm_sym_source = SCM_CAR (scm_sysintern ("source", SCM_UNDEFINED));
+  scm_sym_procname = scm_permanent_object (SCM_CAR (scm_intern ("procname")));
+  scm_sym_dots = scm_permanent_object (SCM_CAR (scm_intern ("...")));
+  scm_sym_source = scm_permanent_object (SCM_CAR (scm_intern ("source")));
 
 #ifdef GUILE_DEBUG
-  scm_sysintern ("SCM_IM_AND", SCM_IM_AND);
-  scm_sysintern ("SCM_IM_BEGIN", SCM_IM_BEGIN);
-  scm_sysintern ("SCM_IM_CASE", SCM_IM_CASE);
-  scm_sysintern ("SCM_IM_COND", SCM_IM_COND);
-  scm_sysintern ("SCM_IM_DO", SCM_IM_DO);
-  scm_sysintern ("SCM_IM_IF", SCM_IM_IF);
-  scm_sysintern ("SCM_IM_LAMBDA", SCM_IM_LAMBDA);
-  scm_sysintern ("SCM_IM_LET", SCM_IM_LET);
-  scm_sysintern ("SCM_IM_LETSTAR", SCM_IM_LETSTAR);
-  scm_sysintern ("SCM_IM_LETREC", SCM_IM_LETREC);
-  scm_sysintern ("SCM_IM_OR", SCM_IM_OR);
-  scm_sysintern ("SCM_IM_QUOTE", SCM_IM_QUOTE);
-  scm_sysintern ("SCM_IM_SET_X", SCM_IM_SET_X);
-  scm_sysintern ("SCM_IM_DEFINE", SCM_IM_DEFINE);
-  scm_sysintern ("SCM_IM_APPLY", SCM_IM_APPLY);
-  scm_sysintern ("SCM_IM_CONT", SCM_IM_CONT);
-  scm_sysintern ("SCM_IM_DISPATCH", SCM_IM_DISPATCH);
+  scm_environment_intern (env, "SCM_IM_AND", SCM_IM_AND);
+  scm_environment_intern (env, "SCM_IM_BEGIN", SCM_IM_BEGIN);
+  scm_environment_intern (env, "SCM_IM_CASE", SCM_IM_CASE);
+  scm_environment_intern (env, "SCM_IM_COND", SCM_IM_COND);
+  scm_environment_intern (env, "SCM_IM_DO", SCM_IM_DO);
+  scm_environment_intern (env, "SCM_IM_IF", SCM_IM_IF);
+  scm_environment_intern (env, "SCM_IM_LAMBDA", SCM_IM_LAMBDA);
+  scm_environment_intern (env, "SCM_IM_LET", SCM_IM_LET);
+  scm_environment_intern (env, "SCM_IM_LETSTAR", SCM_IM_LETSTAR);
+  scm_environment_intern (env, "SCM_IM_LETREC", SCM_IM_LETREC);
+  scm_environment_intern (env, "SCM_IM_OR", SCM_IM_OR);
+  scm_environment_intern (env, "SCM_IM_QUOTE", SCM_IM_QUOTE);
+  scm_environment_intern (env, "SCM_IM_SET_X", SCM_IM_SET_X);
+  scm_environment_intern (env, "SCM_IM_DEFINE", SCM_IM_DEFINE);
+  scm_environment_intern (env, "SCM_IM_APPLY", SCM_IM_APPLY);
+  scm_environment_intern (env, "SCM_IM_CONT", SCM_IM_CONT);
+  scm_environment_intern (env, "SCM_IM_DISPATCH", SCM_IM_DISPATCH);
 #endif
   scm_add_feature ("debug-extensions");
 
 #include "debug.x"
+
+  return SCM_UNSPECIFIED;
 }

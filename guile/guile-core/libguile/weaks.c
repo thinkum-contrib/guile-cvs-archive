@@ -196,9 +196,12 @@ scm_doubly_weak_hash_table_p (x)
 
 
 
-void
-scm_init_weaks ()
+SCM
+scm_init_weaks (env)
+     SCM env;
 {
 #include "weaks.x"
+
+  return SCM_UNSPECIFIED;
 }
 

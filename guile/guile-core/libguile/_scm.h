@@ -59,6 +59,7 @@
 #include "procs.h"		/* Same.  */
 #include "numbers.h"		/* Everyone deals with fixnums.  */
 #include "symbols.h"		/* For length, chars, values, miscellany.  */
+#include "environments.h"       /* scm_environment_intern() */
 #include "boolean.h"		/* Everyone wonders about the truth.  */
 #include "strings.h"		/* Everyone loves string.  */
 #include "vectors.h"		/* Vectors are used for structures a lot.  */

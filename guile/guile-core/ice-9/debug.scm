@@ -20,7 +20,7 @@
 ;;;;
 
 
-(define-module (ice-9 debug))
+(define-module (ice-9 debug) :use-module (ice-9 repl) :use-module (ice-9 options))
 
 
 ;;; {Misc}
@@ -101,11 +101,6 @@
 	  (cond ((> n 0) (display "|  " cep) (indent (- n 1)))))
 	(write retval cep)
 	(newline cep))))
-
-
-;;; A fix to get the error handling working together with the module system.
-;;;
-(variable-set! (builtin-variable 'debug-options) debug-options)
 
 
 

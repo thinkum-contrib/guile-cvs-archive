@@ -2530,10 +2530,10 @@ loop:
     case scm_tc7_ivect:
       return SCM_MAKINUM (-1L);
     case scm_tc7_svect:
-      return SCM_CDR (scm_intern ("s", 1));
+      return SCM_CDR (scm_intern ("s"));
 #ifdef LONGLONGS
     case scm_tc7_llvect:
-      return SCM_CDR (scm_intern ("l", 1));
+      return SCM_CDR (scm_intern ("l"));
 #endif
 #ifdef SCM_FLOATS
 #ifdef SCM_SINGLES
@@ -2571,8 +2571,9 @@ freera (ptr)
 
 /* This must be done after scm_init_scl() */
 
-void
-scm_init_unif ()
+SCM
+scm_init_unif (env)
+     SCM env;
 {
   scm_tc16_array = scm_make_smob_type_mfpe ("array", 0,
 					    markra,
@@ -2581,6 +2582,8 @@ scm_init_unif ()
 					    scm_array_equal_p);
   scm_add_feature ("array");
 #include "unif.x"
+
+  return SCM_UNSPECIFIED;
 }
 
 #else /* ARRAYS */
@@ -2604,11 +2607,12 @@ scm_istr2bve (str, len)
   return SCM_BOOL_F;
 }
 
-void 
+SCM
 scm_init_unif ()
 {
 #include "unif.x"
   scm_make_subr (s_resizuve, scm_tc7_subr_2, scm_vector_set_length_x);
+  return SCM_UNSPECIFIED;
 }
 
 #endif /* ARRAYS */

@@ -434,18 +434,16 @@ scm_handle_by_proc_catching_all (handler_data, tag, throw_args)
 			     scm_handle_by_message_noexit, NULL);
 }
 
-/* Derive the an exit status from the arguments to (quit ...).  */
+/* Derive the an exit status from the argument to (quit ...).  */
 int
-scm_exit_status (args)
-  SCM args;
+scm_exit_status (arg)
+  SCM arg;
 {
-  if (SCM_NNULLP (args))
+  if (SCM_IMP(arg))
     {
-      SCM cqa = SCM_CAR (args);
-      
-      if (SCM_INUMP (cqa))
-	return (SCM_INUM (cqa));
-      else if (SCM_FALSEP (cqa))
+      if (SCM_INUMP (arg))
+	return (SCM_INUM (arg));
+      else if (SCM_FALSEP (arg))
 	return 1;
     }
   return 0;
@@ -508,9 +506,10 @@ scm_handle_by_message (handler_data, tag, args)
      SCM tag;
      SCM args;
 {
-  if (SCM_NFALSEP (scm_eq_p (tag, SCM_CAR (scm_intern0 ("quit")))))
+
+  if (SCM_NFALSEP (scm_eq_p (tag, SCM_CAR (scm_intern ("quit")))))
     {
-      exit (scm_exit_status (args));
+      exit (scm_exit_status (SCM_CAR(args)));
     }
 
   handler_message (handler_data, tag, args);
@@ -626,7 +625,7 @@ SCM
 scm_ithrow (key, args, noreturn)
      SCM key;
      SCM args;
-     int noreturn;
+    int noreturn;
 {
   SCM jmpbuf = SCM_UNDEFINED;
   SCM wind_goal;
@@ -728,8 +727,9 @@ scm_ithrow (key, args, noreturn)
 }
 
 
-void
-scm_init_throw ()
+SCM
+scm_init_throw (env)
+     SCM env;
 {
 #ifdef DEBUG_EXTENSIONS
   scm_tc16_jmpbuffer = scm_make_smob_type_mfpe ("jmpbuffer",
@@ -753,4 +753,6 @@ scm_init_throw ()
 					     print_lazy_catch,
 					     NULL);
 #include "throw.x"
+
+  return SCM_UNSPECIFIED;
 }

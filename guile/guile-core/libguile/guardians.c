@@ -252,12 +252,15 @@ scm_get_one_zombie (SCM guardian)
   return res;
 }
 
-void
-scm_init_guardian()
+SCM
+scm_init_guardian(env)
+     SCM env;
 {
   scm_tc16_guardian = scm_make_smob_type_mfpe ("guardian", sizeof (guardian_t),
                                               g_mark, NULL, g_print, NULL);
-  guard1 = scm_make_subr_opt ("guardian", scm_tc7_subr_2o, guard, 0);
+  guard1 = scm_make_subr_opt ("guardian", scm_tc7_subr_2o, guard, 0, env);
 
 #include "guardians.x"
+
+  return SCM_UNSPECIFIED;
 }

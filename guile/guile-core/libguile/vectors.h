@@ -68,6 +68,6 @@ extern SCM scm_vector_move_left_x SCM_P ((SCM vec1, SCM start1, SCM end1, SCM
 				   vec2, SCM start2));
 extern SCM scm_vector_move_right_x SCM_P ((SCM vec1, SCM start1, SCM end1, SCM
 				   vec2, SCM start2));
-extern void scm_init_vectors SCM_P ((void));
+extern SCM scm_init_vectors SCM_P ((SCM env));
 
 #endif  /* VECTORSH */

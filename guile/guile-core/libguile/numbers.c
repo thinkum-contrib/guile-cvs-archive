@@ -4838,8 +4838,9 @@ add1 (f, fsum)
 
 
 
-void
-scm_init_numbers ()
+SCM
+scm_init_numbers (env)
+     SCM env;
 {
   scm_add_feature("complex");
 #ifdef SCM_FLOATS
@@ -4868,4 +4869,6 @@ scm_init_numbers ()
 #endif /* DBL_DIG */
 #endif
 #include "numbers.x"
+
+  return SCM_UNSPECIFIED;
 }

@@ -201,9 +201,11 @@ scm_tag (x)
 
 
 
-void
-scm_init_tag ()
+SCM
+scm_init_tag (env)
+     SCM env;
 {
 #include "tag.x"
+  return SCM_UNSPECIFIED;
 }
 

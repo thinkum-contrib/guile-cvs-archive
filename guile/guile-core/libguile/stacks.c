@@ -52,7 +52,6 @@
 #include "struct.h"
 #include "macros.h"
 #include "procprop.h"
-#include "modules.h"
 
 #include "stacks.h"
 
@@ -229,7 +228,9 @@ read_frame (dframe, offset, iframe)
 static SCM
 get_applybody ()
 {
-  SCM proc = SCM_CDR (scm_sym2vcell (scm_sym_apply, SCM_BOOL_F, SCM_BOOL_F));
+  /*  SCM proc = SCM_CDR (SCM_ENVIRONMENT_REF (scm_scheme_guile_environment, scm_sym_apply)); */
+  SCM proc = SCM_CDR (scm_sym_apply);
+
   if (SCM_NIMP (proc) && SCM_CLOSUREP (proc))
     return SCM_CADR (SCM_CODE (proc));
   else
@@ -382,8 +383,7 @@ narrow_stack (stack, inner, inner_key, outer, outer_key)
 	  SCM m = s->frames[i].source;
 	  if (SCM_NIMP (m)
 	      && SCM_MEMOIZEDP (m)
-	      && SCM_NIMP (SCM_MEMOIZED_ENV (m))
-	      && SCM_FALSEP (scm_system_module_env_p (SCM_MEMOIZED_ENV (m))))
+	      && SCM_NIMP (SCM_MEMOIZED_ENV (m)))
 	    {
 	      /* Back up in order to include any non-source frames */
 	      while (i > 0
@@ -781,8 +781,9 @@ scm_frame_overflow_p (frame)
 
 
 
-void
-scm_init_stacks ()
+SCM
+scm_init_stacks (env)
+     SCM env;
 {
   SCM vtable;
   SCM vtable_layout = scm_make_struct_layout (scm_nullstr);
@@ -794,6 +795,8 @@ scm_init_stacks ()
 					     scm_cons (stack_layout,
 						       SCM_EOL)));
   scm_set_struct_vtable_name_x (scm_stack_type,
-				SCM_CAR (scm_intern0 ("stack")));
+				SCM_CAR (scm_intern ("stack")));
 #include "stacks.x"
+
+  return SCM_UNSPECIFIED;
 }

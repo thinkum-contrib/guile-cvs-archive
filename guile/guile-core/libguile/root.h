@@ -58,22 +58,28 @@
 #define scm_undefineds scm_sys_protects[2]
 #define scm_nullvect scm_sys_protects[3]
 #define scm_nullstr scm_sys_protects[4]
-#define scm_symhash scm_sys_protects[5]
-#define scm_weak_symhash scm_sys_protects[6]
-#define scm_symhash_vars scm_sys_protects[7]
-#define scm_keyword_obarray scm_sys_protects[8]
-#define scm_type_obj_list scm_sys_protects[9]
-#define scm_first_type scm_sys_protects[10]
-#define scm_stand_in_procs scm_sys_protects[11]
-#define scm_object_whash scm_sys_protects[12]
-#define scm_permobjs scm_sys_protects[13]
-#define scm_asyncs scm_sys_protects[14]
-#define scm_protects scm_sys_protects[15]
+#define scm_weak_symhash scm_sys_protects[5]
+#define scm_symhash_vars scm_sys_protects[6]
+#define scm_keyword_environment scm_sys_protects[7]
+#define scm_type_obj_list scm_sys_protects[8]
+#define scm_first_type scm_sys_protects[9]
+#define scm_stand_in_procs scm_sys_protects[10]
+#define scm_object_whash scm_sys_protects[11]
+#define scm_permobjs scm_sys_protects[12]
+#define scm_asyncs scm_sys_protects[13]
+#define scm_protects scm_sys_protects[14]
+#define scm_scheme_guile_environment scm_sys_protects[15]
+#define scm_c_module_registry scm_sys_protects[16]
+#define scm_interaction_environment scm_sys_protects[17]
+#define scm_module_registry scm_sys_protects[18]
+#define scm_environment_module_hash scm_sys_protects[19]
+#define scm_guile_user_environment scm_sys_protects[20]
+
 #ifdef DEBUG_EXTENSIONS
-#define scm_source_whash scm_sys_protects[16]
-#define SCM_NUM_PROTECTS 17
+#define scm_source_whash scm_sys_protects[21]
+#define SCM_NUM_PROTECTS 22
 #else
-#define SCM_NUM_PROTECTS 16
+#define SCM_NUM_PROTECTS 21
 #endif
 
 extern SCM scm_sys_protects[];
@@ -113,9 +119,6 @@ typedef struct scm_root_state
 
   SCM fluids;
 
-  SCM system_transformer;
-  SCM top_level_lookup_closure_var;
-
   SCM handle;			/* The root object for this root state */
   SCM parent;			/* The parent root object */
 } scm_root_state;
@@ -140,9 +143,6 @@ typedef struct scm_root_state
 #define scm_def_outp			(scm_root->def_outp)
 #define scm_def_errp			(scm_root->def_errp)
 #define scm_cur_loadp			(scm_root->cur_loadp)
-#define scm_top_level_lookup_closure_var \
-                                       (scm_root->top_level_lookup_closure_var)
-#define scm_system_transformer		(scm_root->system_transformer)
      
 #ifdef USE_THREADS
 #define scm_root ((scm_root_state *) SCM_THREAD_LOCAL_DATA)
@@ -164,6 +164,6 @@ extern SCM scm_call_with_dynamic_root SCM_P ((SCM thunk, SCM handler));
 extern SCM scm_dynamic_root SCM_P ((void));
 extern SCM scm_apply_with_dynamic_root SCM_P ((SCM proc, SCM a1, SCM args, SCM handler));
 extern SCM scm_call_catching_errors SCM_P ((SCM (*thunk)(), SCM (*err_filter)(), void * closure));
-extern void scm_init_root SCM_P ((void));
+extern SCM scm_init_root SCM_P ((SCM env));
 
 #endif  /* ROOTH */

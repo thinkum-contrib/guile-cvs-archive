@@ -127,7 +127,7 @@ scm_make_struct_layout (fields)
 	  }
 #endif
       }
-    new_sym = SCM_CAR (scm_intern_obarray (field_desc, len, SCM_BOOL_F));
+    new_sym = scm_permanent_object (SCM_CAR (scm_intern (field_desc)));
   }
   return scm_return_first (new_sym, fields);
 }
@@ -714,16 +714,19 @@ scm_print_struct (exp, port, pstate)
     }
 }
 
-void
-scm_init_struct ()
+SCM
+scm_init_struct (env)
+     SCM env;
 {
   scm_struct_table
     = scm_permanent_object (scm_make_weak_key_hash_table (SCM_MAKINUM (31)));
-  required_vtable_fields = SCM_CAR (scm_intern_obarray ("pruosrpw", sizeof ("pruosrpw") - 1, SCM_BOOL_F));
+  required_vtable_fields = scm_makfrom0str ("pruosrpw");
   scm_permanent_object (required_vtable_fields);
-  scm_sysintern ("vtable-index-layout", SCM_MAKINUM (scm_vtable_index_layout));
-  scm_sysintern ("vtable-index-vtable", SCM_MAKINUM (scm_vtable_index_vtable));
-  scm_sysintern ("vtable-index-printer", SCM_MAKINUM (scm_vtable_index_printer));
-  scm_sysintern ("vtable-offset-user", SCM_MAKINUM (scm_vtable_offset_user));
+  scm_environment_intern (env, "vtable-index-layout", SCM_MAKINUM (scm_vtable_index_layout));
+  scm_environment_intern (env, "vtable-index-vtable", SCM_MAKINUM (scm_vtable_index_vtable));
+  scm_environment_intern (env, "vtable-index-printer", SCM_MAKINUM (scm_vtable_index_printer));
+  scm_environment_intern (env, "vtable-offset-user", SCM_MAKINUM (scm_vtable_offset_user));
 #include "struct.x"
+
+  return SCM_UNSPECIFIED;
 }

@@ -105,10 +105,11 @@ SCM_PROC(s_signal_condition_variable, "signal-condition-variable", 1, 0, 0, scm_
 
 #ifdef __STDC__
 void
-scm_init_threads (SCM_STACKITEM *i)
+scm_init_threads (SCM env, SCM_STACKITEM *i)
 #else
 void
-scm_init_threads (i)
+scm_init_threads (env, i)
+     SCM env;
      SCM_STACKITEM *i;
 #endif
 {

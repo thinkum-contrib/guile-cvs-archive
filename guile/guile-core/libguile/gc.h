@@ -106,5 +106,5 @@ extern SCM scm_permanent_object (SCM obj);
 extern SCM scm_protect_object (SCM obj);
 extern SCM scm_unprotect_object (SCM obj);
 extern int scm_init_storage (scm_sizet init_heap_size);
-extern void scm_init_gc (void);
+extern SCM scm_init_gc (SCM env);
 #endif  /* GCH */

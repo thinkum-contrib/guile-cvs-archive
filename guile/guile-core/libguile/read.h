@@ -87,6 +87,6 @@ extern scm_sizet scm_read_token SCM_P ((int ic, SCM * tok_buf, SCM port, int wei
 extern SCM scm_lreadparen SCM_P ((SCM * tok_buf, SCM port, char *name, SCM *copy));
 extern SCM scm_lreadrecparen SCM_P ((SCM * tok_buf, SCM port, char *name, SCM *copy));
 extern SCM scm_read_hash_extend SCM_P ((SCM chr, SCM proc));
-extern void scm_init_read SCM_P ((void));
+extern SCM scm_init_read SCM_P ((SCM env));
 
 #endif  /* READH */

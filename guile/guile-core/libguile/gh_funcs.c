@@ -46,6 +46,7 @@
 #include <stdio.h>
 
 #include <gh.h>
+#include <environments.h>
 
 /* allows you to define new scheme primitives written in C */
 SCM
@@ -53,7 +54,7 @@ gh_new_procedure (char *proc_name, SCM (*fn) (),
 		  int n_required_args, int n_optional_args, int varp)
 {
   return scm_make_gsubr (proc_name, n_required_args, n_optional_args,
-			 varp, fn);
+			 varp, fn, scm_interaction_environment);
 }
 
 SCM
@@ -132,7 +133,7 @@ gh_new_procedure5_0 (char *proc_name, SCM (*fn) ())
 SCM
 gh_define (char *name, SCM val)
 {
-  return scm_sysintern (name, val);
+  return scm_environment_intern (scm_interaction_environment, name, val);
 }
 
 

@@ -89,8 +89,10 @@ scm_libguile_config_stamp ()
 
 
 
-void
-scm_init_version ()
+SCM
+scm_init_version (env)
+     SCM env;
 {
 #include "version.x"
+  return SCM_UNSPECIFIED;
 }

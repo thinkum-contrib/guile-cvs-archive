@@ -64,6 +64,6 @@ extern SCM scm_assoc_set_x SCM_P ((SCM alist, SCM key, SCM val));
 extern SCM scm_assq_remove_x SCM_P ((SCM alist, SCM key));
 extern SCM scm_assv_remove_x SCM_P ((SCM alist, SCM key));
 extern SCM scm_assoc_remove_x SCM_P ((SCM alist, SCM key));
-extern void scm_init_alist SCM_P ((void));
+extern SCM scm_init_alist SCM_P ((SCM env));
 
 #endif  /* ALISTH */

@@ -43,8 +43,6 @@
 #include "_scm.h"
 #include "eval.h"
 #include "macros.h"
-#include "modules.h"
-
 #include "evalext.h"
 
 SCM_SYMBOL (scm_sym_setter, "setter");
@@ -62,52 +60,41 @@ scm_m_generalized_set_x (SCM xorig, SCM env)
   return scm_wta (xorig, scm_s_variable, scm_s_set_x);
 }
 
-SCM_PROC (s_definedp, "defined?", 1, 1, 0, scm_definedp);
 
+SCM_SYNTAX (s_defined_p, "defined?", scm_makacro, scm_defined_p);
 SCM 
-scm_definedp (SCM sym, SCM env)
+scm_defined_p (SCM sym, SCM env)
 {
-  SCM vcell;
+  register SCM b;
+  SCM next_frame;
+  sym = SCM_CADR (sym);
 
-  SCM_ASSERT (SCM_NIMP (sym) && SCM_SYMBOLP (sym), sym, SCM_ARG1, s_definedp);
+  SCM_ASSERT(SCM_NIMP(sym) && SCM_SYMBOLP(sym), sym, SCM_ARG1, s_defined_p);  
 
-  if (SCM_UNBNDP (env))
-    vcell = scm_sym2vcell(sym,
-			  SCM_CDR (scm_top_level_lookup_closure_var),
-			  SCM_BOOL_F);
-  else
+  next_frame = SCM_CDR(env);
+  while (SCM_NIMP(next_frame))
     {
-      SCM frames = env;
-      register SCM b;
-      for (; SCM_NIMP (frames); frames = SCM_CDR (frames))
+      SCM_ASSERT (SCM_CONSP (env), env, SCM_ARG2, s_defined_p);
+      b = SCM_CAR (env);
+      SCM_ASSERT (SCM_NIMP (b) && SCM_CONSP (b),
+		  env, SCM_ARG2, s_defined_p);
+      for (b = SCM_CAR (b); SCM_NIMP (b); b = SCM_CDR (b))
 	{
-	  SCM_ASSERT (SCM_CONSP (frames), env, SCM_ARG2, s_definedp);
-	  b = SCM_CAR (frames);
-	  if (SCM_NFALSEP (scm_procedure_p (b)))
-	    break;
-	  SCM_ASSERT (SCM_NIMP (b) && SCM_CONSP (b),
-		      env, SCM_ARG2, s_definedp);
-	  for (b = SCM_CAR (b); SCM_NIMP (b); b = SCM_CDR (b))
+	  if (SCM_NCONSP (b))
 	    {
-	      if (SCM_NCONSP (b))
-		{
-		  if (b == sym)
-		    return SCM_BOOL_T;
-		  else
-		    break;
-		}
-	      if (SCM_CAR (b) == sym)
+	      if (b == sym)
 		return SCM_BOOL_T;
+	      else
+		break;
 	    }
+	  if (SCM_CAR (b) == sym)
+	    return SCM_BOOL_T;
 	}
-    vcell = scm_sym2vcell (sym,
-			   SCM_NIMP (frames) ? SCM_CAR (frames) : SCM_BOOL_F,
-			   SCM_BOOL_F);
+      env = next_frame;
+      next_frame = SCM_CDR (next_frame);
     }
-	      
-  return (vcell == SCM_BOOL_F || SCM_UNBNDP (SCM_CDR (vcell))
-	  ? SCM_BOOL_F
-	  : SCM_BOOL_T);
+  env = SCM_CAR(env);
+  return SCM_ENVIRONMENT_BOUND (env, sym); 
 }
 
 
@@ -119,29 +106,16 @@ scm_m_undefine (x, env)
 {
   SCM arg1 = x;
   x = SCM_CDR (x);
-  SCM_ASSYNT (SCM_TOP_LEVEL (env), arg1, "bad placement ", s_undefine);
+  SCM_ASSYNT (SCM_TOP_LEVEL_ENVP (env), arg1, "bad placement ", s_undefine);
   SCM_ASSYNT (SCM_NIMP (x) && SCM_CONSP (x) && SCM_CDR (x) == SCM_EOL,
 	      arg1, scm_s_expression, s_undefine);
   x = SCM_CAR (x);
   SCM_ASSYNT (SCM_NIMP (x) && SCM_SYMBOLP (x), arg1, scm_s_variable, s_undefine);
-  arg1 = scm_sym2vcell (x, scm_env_top_level (env), SCM_BOOL_F);
-  SCM_ASSYNT (SCM_NFALSEP (arg1) && !SCM_UNBNDP (SCM_CDR (arg1)),
-	      x, "variable already unbound ", s_undefine);
-#if 0
-#ifndef SCM_RECKLESS
-  if (SCM_NIMP (SCM_CDR (arg1)) && ((SCM) SCM_SNAME (SCM_CDR (arg1)) == x))
-    scm_warn ("undefining built-in ", SCM_CHARS (x));
-  else
-#endif
-    if (5 <= scm_verbose && SCM_UNDEFINED != SCM_CDR (arg1))
-      scm_warn ("redefining ", SCM_CHARS (x));
-#endif
-  SCM_SETCDR (arg1, SCM_UNDEFINED);
-#ifdef SICP
-  return SCM_CAR (arg1);
-#else
+
+  SCM_ENVIRONMENT_UNDEFINE(SCM_CAR(env), x);
+
   return SCM_UNSPECIFIED;
-#endif
+
 }
 
 /* This name is obsolete.  Will be removed in 1.5.  */
@@ -149,9 +123,12 @@ SCM_PROC (s_serial_map, "serial-map", 2, 0, 1, scm_map);
 
 SCM_PROC (s_map_in_order, "map-in-order", 2, 0, 1, scm_map);
 
-void 
-scm_init_evalext ()
+SCM
+scm_init_evalext (env)
+     SCM env;
 {
-  scm_make_synt (scm_s_set_x, scm_makmmacro, scm_m_generalized_set_x);
+  scm_make_synt (scm_s_set_x, scm_makmmacro, scm_m_generalized_set_x, env);
 #include "evalext.x"
+
+  return SCM_UNSPECIFIED;
 }

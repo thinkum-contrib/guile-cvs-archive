@@ -78,6 +78,6 @@ extern void scm_memory_error SCM_P ((const char *subr)) SCM_NORETURN;
 extern void scm_misc_error SCM_P ((const char *subr, const char *message,
 				   SCM args)) SCM_NORETURN;
 extern SCM scm_wta SCM_P ((SCM arg, const char *pos, const char *s_subr));
-extern void scm_init_error SCM_P ((void));
+extern SCM scm_init_error SCM_P ((SCM env));
 
 #endif  /* ERRORH */

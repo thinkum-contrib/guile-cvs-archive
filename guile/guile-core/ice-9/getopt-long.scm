@@ -143,8 +143,14 @@
 ;;; 	(verbose . #t))
 
 
-(define-module (ice-9 getopt-long)
-  :use-module (ice-9 common-list))
+(module (ice-9 getopt-long)
+	(open (ice-9 guile)
+	      (ice-9 config)
+	      (ice-9 common-list)
+	      (ice-9 error)
+	      ((ice-9 procs) procedure?)
+	      ((ice-9 regex-posix) make-regexp)))
+
 ;;; end-header
 
 

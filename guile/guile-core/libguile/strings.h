@@ -79,6 +79,6 @@ extern SCM scm_string_set_x SCM_P ((SCM str, SCM k, SCM chr));
 extern SCM scm_substring SCM_P ((SCM str, SCM start, SCM end));
 extern SCM scm_string_append SCM_P ((SCM args));
 extern SCM scm_make_shared_substring SCM_P ((SCM str, SCM frm, SCM to));
-extern void scm_init_strings SCM_P ((void));
+extern SCM scm_init_strings SCM_P ((SCM env));
 
 #endif  /* STRINGSH */

@@ -237,9 +237,12 @@ scm_set_procedure_property_x (p, k, v)
 
 
 
-void
-scm_init_procprop ()
+SCM
+scm_init_procprop (env)
+     SCM env;
 {
 #include "procprop.x"
+
+  return SCM_UNSPECIFIED;
 }
 

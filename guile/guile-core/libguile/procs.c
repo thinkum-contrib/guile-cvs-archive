@@ -60,11 +60,12 @@ int scm_subr_table_size = 0;
 int scm_subr_table_room = 750;
 
 SCM 
-scm_make_subr_opt (name, type, fcn, set)
+scm_make_subr_opt (name, type, fcn, set, env)
      const char *name;
      int type;
      SCM (*fcn) ();
      int set;
+     SCM env;
 {
   SCM symcell;
   register SCM z;
@@ -83,7 +84,7 @@ scm_make_subr_opt (name, type, fcn, set)
     }
 
   SCM_NEWCELL (z);
-  symcell = set ? scm_sysintern0 (name) : scm_intern0 (name);
+  symcell = set ? scm_environment_intern (env, name, SCM_BOOL_F) : scm_intern (name);
   
   entry = scm_subr_table_size;
   scm_subr_table[entry].handle = z;
@@ -98,7 +99,7 @@ scm_make_subr_opt (name, type, fcn, set)
   
   if (set)
     SCM_SETCDR (symcell, z);
-  
+
   return z;
 }
 
@@ -115,18 +116,19 @@ scm_free_subr_entry (SCM subr)
 }
 
 SCM 
-scm_make_subr (name, type, fcn)
+scm_make_subr (name, type, fcn, env)
      const char *name;
      int type;
      SCM (*fcn) ();
+     SCM env;
 {
-  return scm_make_subr_opt (name, type, fcn, 1);
+  return scm_make_subr_opt (name, type, fcn, 1, env);
 }
 
 SCM
-scm_make_subr_with_generic (const char *name, int type, SCM (*fcn) (), SCM *gf)
+scm_make_subr_with_generic (const char *name, int type, SCM (*fcn) (), SCM *gf, SCM env)
 {
-  SCM subr = scm_make_subr_opt (name, type, fcn, 1);
+  SCM subr = scm_make_subr_opt (name, type, fcn, 1, env);
   scm_subr_table[scm_subr_table_size - 1].generic = gf;
   return subr;
 }
@@ -372,14 +374,15 @@ scm_setter (SCM proc)
 
 
 void
-scm_init_iprocs(subra, type)
+scm_init_iprocs(subra, type, env)
      const scm_iproc *subra;
      int type;
+     SCM env;
 {
   for(;subra->scm_string; subra++)
     scm_make_subr(subra->scm_string,
 		  type,
-		  subra->cproc);
+		  subra->cproc, env);
 }
 
 
@@ -392,8 +395,11 @@ scm_init_subr_table ()
 			"scm_subr_table"));
 }
 
-void
-scm_init_procs ()
+SCM
+scm_init_procs (env)
+     SCM env;
 {
 #include "procs.x"
+
+  return SCM_UNSPECIFIED;
 }

@@ -321,9 +321,7 @@ typedef long SCM;
 
 
 
-/* couple */
-#define scm_tc7_ssymbol		5
-#define scm_tc7_msymbol		7
+/* 5 and 7 are free */
 
 /* couple */
 #define scm_tc7_vector		13
@@ -333,12 +331,12 @@ typedef long SCM;
 #define scm_tc7_string		21
 #define scm_tc7_substring	23
 
-/* 29 is free! */
 
 /* Many of the following should be turned
  * into structs or smobs.  We need back some
  * of these 7 bit tags!
  */
+#define scm_tc7_msymbol         29
 #define scm_tc7_pws		31
 #define scm_tc7_uvect		37
 #define scm_tc7_lvector		39
@@ -535,7 +533,7 @@ extern char *scm_isymnames[];   /* defined in print.c */
  case scm_tc7_subr_3:case scm_tc7_subr_2:case scm_tc7_rpsubr:case scm_tc7_subr_1o:\
  case scm_tc7_subr_2o:case scm_tc7_lsubr_2:case scm_tc7_lsubr
 
-#define scm_tcs_symbols scm_tc7_ssymbol:case scm_tc7_msymbol
+#define scm_tcs_symbols scm_tc7_msymbol
 
 #define scm_tcs_bignums scm_tc16_bigpos:case scm_tc16_bigneg
 

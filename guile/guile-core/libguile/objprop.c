@@ -111,10 +111,13 @@ scm_set_object_property_x (obj, key, val)
 }
 
 
-void
-scm_init_objprop ()
+SCM
+scm_init_objprop (env)
+     SCM env;
 {
   scm_object_whash = scm_make_weak_key_hash_table (SCM_MAKINUM (511));
 #include "objprop.x"
+
+  return SCM_UNSPECIFIED;
 }
 

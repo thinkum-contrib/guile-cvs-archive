@@ -485,7 +485,7 @@ match_paren(int x, int k)
 
 
 void
-scm_init_readline ()
+scm_init_readline (SCM env)
 {
 #include "readline.x"
   scm_readline_completion_function_var

@@ -54,6 +54,6 @@ extern SCM scm_pause SCM_P ((void));
 extern SCM scm_sleep SCM_P ((SCM i));
 extern SCM scm_usleep SCM_P ((SCM i));
 extern SCM scm_raise SCM_P ((SCM sig));
-extern void scm_init_scmsigs SCM_P ((void));
+extern SCM scm_init_scmsigs SCM_P ((SCM env));
 
 #endif  /* SCMSIGSH */

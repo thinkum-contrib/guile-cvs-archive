@@ -398,14 +398,14 @@ scm_shell_usage (int fatal, char *message)
 
 
 /* Some symbols used by the command-line compiler.  */
-SCM_SYMBOL (sym_load, "load");
 SCM_SYMBOL (sym_eval_string, "eval-string");
 SCM_SYMBOL (sym_command_line, "command-line");
 SCM_SYMBOL (sym_begin, "begin");
-SCM_SYMBOL (sym_load_user_init, "load-user-init");
-SCM_SYMBOL (sym_top_repl, "top-repl");
+SCM_SYMBOL (sym_primitive_load_path, "primitive-load-path");
+SCM_SYMBOL (sym_quote, "quote");
+SCM_SYMBOL (sym_start, "start");
+SCM_SYMBOL (sym_eval, "eval");
 SCM_SYMBOL (sym_quit, "quit");
-
 
 /* Given an array of command-line switches, return a Scheme expression
    to carry out the actions specified by the switches.
@@ -426,7 +426,6 @@ SCM_SYMBOL (sym_quit, "quit");
    thing. */
 
 static char guile[] = "guile";
-
 SCM
 scm_compile_shell_switches (int argc, char **argv)
 {
@@ -471,11 +470,13 @@ scm_compile_shell_switches (int argc, char **argv)
 	      do_script = SCM_EOL;
 	    }
 	  else
+	    {
 	    /* Construct an application of LOAD to the script name.  */
-	    tail = scm_cons (scm_cons2 (sym_load,
-					scm_makfrom0str (argv[i]),
-					SCM_EOL),
-			       tail);
+	      scm_set_interaction_environment_x (scm_guile_user_environment);
+	      tail = scm_cons (SCM_LIST3 (sym_primitive_load_path,
+					  scm_makfrom0str (argv[i]),
+					  scm_guile_user_environment), tail);
+	    }
 	  argv0 = argv[i];
 	  i++;
 	  interactive = 0;
@@ -486,10 +487,9 @@ scm_compile_shell_switches (int argc, char **argv)
 	{
 	  if (++i >= argc)
 	    scm_shell_usage (1, "missing argument to `-c' switch");
-	  tail = scm_cons (scm_cons2 (sym_eval_string,
-				      scm_makfrom0str (argv[i]),
-				      SCM_EOL),
-			   tail);
+	  tail = scm_cons (scm_listify (sym_eval_string,
+					scm_makfrom0str (argv[i]),
+					scm_guile_user_environment, SCM_UNDEFINED), tail);
 	  i++;
 	  interactive = 0;
 	  break;
@@ -504,12 +504,16 @@ scm_compile_shell_switches (int argc, char **argv)
       else if (! strcmp (argv[i], "-l")) /* load a file */
 	{
 	  if (++i < argc)
-	    tail = scm_cons (scm_cons2 (sym_load,
-					scm_makfrom0str (argv[i]),
-					SCM_EOL),
-			     tail);
+	    {
+	      scm_set_interaction_environment_x (scm_guile_user_environment);
+	      tail = scm_cons (SCM_LIST3 (sym_primitive_load_path,
+					  scm_makfrom0str (argv[i]),
+					  scm_guile_user_environment), tail);
+	    }
 	  else
-	    scm_shell_usage (1, "missing argument to `-l' switch");
+	    {
+	      scm_shell_usage (1, "missing argument to `-l' switch");
+	    }
 	}	  
 
       else if (! strcmp (argv[i], "-e")) /* entry point */
@@ -526,9 +530,10 @@ scm_compile_shell_switches (int argc, char **argv)
              filename in.  */
 	  if (do_script != SCM_EOL)
 	    scm_shell_usage (1, "the -ds switch may only be specified once");
-	  do_script = scm_cons (SCM_BOOL_F, SCM_EOL);
-	  tail = scm_cons (scm_cons (sym_load, do_script),
-			   tail);
+	  do_script = SCM_LIST2 (SCM_BOOL_F, scm_guile_user_environment);
+
+	  scm_set_interaction_environment_x (scm_guile_user_environment);
+	  tail = scm_cons (scm_cons (sym_primitive_load_path, do_script), tail);
 	}
 
       else if (! strcmp (argv[i], "--emacs")) /* use emacs protocol */ 
@@ -576,8 +581,10 @@ scm_compile_shell_switches (int argc, char **argv)
   
   /* If the --emacs switch was set, now is when we process it.  */
   {
-    SCM vcell = scm_sysintern0_no_module_lookup ("use-emacs-interface");
-    SCM_SETCDR (vcell, use_emacs_interface ? SCM_BOOL_T : SCM_BOOL_F);
+    scm_environment_intern (scm_scheme_guile_environment, "use-emacs-interface",
+					   use_emacs_interface ? 
+					   SCM_BOOL_T : 
+					   SCM_BOOL_F);
   }
 
   /* Handle the `-e' switch, if it was specified.  */
@@ -590,14 +597,25 @@ scm_compile_shell_switches (int argc, char **argv)
   /* If we didn't end with a -c or a -s, start the repl.  */
   if (interactive)
     {
-      tail = scm_cons (scm_cons (sym_top_repl, SCM_EOL), tail);
+      SCM symlist;
+      SCM repl_eval_env;
+      SCM repl_import_env;
+				/* create environment for repl */
+            
+      repl_import_env = scm_make_interface_environment(SCM_LIST1(scm_cons(scm_scheme_guile_environment, SCM_BOOL_T)));
+      repl_eval_env = scm_make_eval_environment(scm_make_leaf_environment(), repl_import_env);
+
+				/* (primitive-load-path "ice-9/repl.scm" repl-env) */
+      scm_set_interaction_environment_x(repl_eval_env);
+      symlist = SCM_LIST3 (sym_primitive_load_path, scm_makfrom0str("ice-9/repl.scm"), repl_eval_env);
+      tail = scm_cons(symlist, tail);
+
+				/* (eval '(start) repl-env) */
+      symlist = SCM_LIST3 (sym_eval, SCM_LIST2 (sym_quote, SCM_LIST1 (sym_start)), repl_eval_env); 
+      tail = scm_cons(symlist, tail);
     }
   else
     {
-      /* After doing all the other actions prescribed by the command line,
-	 quit.  */
-      tail = scm_cons (scm_cons (sym_quit, SCM_EOL),
-		       tail);
       /* Allow asyncs (signal handlers etc.) to be run.  */
       scm_mask_ints = 0;
     }
@@ -609,7 +627,7 @@ scm_compile_shell_switches (int argc, char **argv)
      the user's customization file.  */
   if (interactive && !inhibit_user_init)
     {
-      tail = scm_cons (scm_cons (sym_load_user_init, SCM_EOL), tail);
+      /*      tail = scm_cons (scm_cons (sym_load_user_init, SCM_EOL), tail); FIXME */
     }
 
   {
@@ -643,12 +661,15 @@ scm_shell (argc, argv)
       }
   }
 
-  exit (scm_exit_status (scm_eval_x (scm_compile_shell_switches (argc,argv))));
+  exit (scm_exit_status (scm_eval_x (scm_compile_shell_switches (argc,argv), scm_guile_user_environment)));
 }
 
 
-void
-scm_init_script ()
+SCM
+scm_init_script (env)
+     SCM env;
 {
 #include "script.x"
+
+  return SCM_UNSPECIFIED;
 }

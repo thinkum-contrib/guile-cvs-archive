@@ -204,9 +204,12 @@ scm_call_continuation (cont, val)
 
 
 
-void
-scm_init_continuations ()
+SCM
+scm_init_continuations (env)
+     SCM env;
 {
 #include "continuations.x"
+
+  return SCM_UNSPECIFIED;
 }
 

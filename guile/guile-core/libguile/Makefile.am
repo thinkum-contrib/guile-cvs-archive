@@ -40,13 +40,13 @@ libguile_la_SOURCES = \
     evalext.c feature.c filesys.c fluids.c fports.c gc.c gdbint.c	\
     gh_data.c gh_eval.c gh_funcs.c gh_init.c gh_io.c gh_list.c		\
     gh_predicates.c gsubr.c guardians.c hash.c hashtab.c init.c		\
-    ioext.c keywords.c lang.c list.c load.c macros.c mallocs.c		\
-    modules.c net_db.c numbers.c objects.c objprop.c options.c pairs.c	\
+    ioext.c keywords.c lang.c list.c load.c macros.c mallocs.c			\
+    net_db.c numbers.c objects.c objprop.c options.c pairs.c	\
     ports.c posix.c print.c procprop.c procs.c ramap.c random.c read.c	\
     root.c scmsigs.c script.c simpos.c smob.c socket.c sort.c		\
     srcprop.c stackchk.c stacks.c stime.c strings.c strop.c strorder.c	\
-    strports.c struct.c symbols.c tag.c throw.c unif.c variable.c	\
-    vectors.c version.c vports.c weaks.c
+    strports.c struct.c symbols.c tag.c throw.c unif.c	\
+    vectors.c version.c vports.c weaks.c environments.c
 
 BUILT_SOURCES = \
     cpp_err_symbols.c cpp_sig_symbols.c libpath.h alist.x arbiters.x	\
@@ -54,13 +54,13 @@ BUILT_SOURCES = \
     dynl.x dynwind.x eq.x error.x eval.x evalext.x feature.x filesys.x	\
     fluids.x fports.x gc.x gsubr.x					\
     guardians.x hash.x hashtab.x init.x ioext.x iselect.x keywords.x	\
-    lang.x list.x load.x macros.x mallocs.x modules.x net_db.x		\
+    lang.x list.x load.x macros.x mallocs.x net_db.x			\
     numbers.x objects.x objprop.x options.x pairs.x ports.x posix.x	\
     print.x procprop.x procs.x random.x ramap.x read.x regex-posix.x	\
     root.x scmsigs.x script.x simpos.x smob.x socket.x sort.x		\
     srcprop.x stackchk.x stacks.x stime.x strings.x strop.x strorder.x	\
     strports.x struct.x symbols.x tag.x threads.x throw.x unif.x	\
-    variable.x vectors.x version.x vports.x weaks.x
+    vectors.x version.x vports.x weaks.x environments.x
 
 EXTRA_libguile_la_SOURCES = _scm.h \
     strerror.c inet_aton.c putenv.c \
@@ -89,14 +89,14 @@ modinclude_HEADERS = \
     continuations.h debug.h dynl.h dynwind.h eq.h error.h eval.h	\
     evalext.h feature.h filesys.h fports.h gc.h gdb_interface.h		\
     gdbint.h genio.h gsubr.h guardians.h hash.h hashtab.h init.h	\
-    ioext.h keywords.h kw.h lang.h list.h load.h macros.h mallocs.h 	\
-    modules.h net_db.h numbers.h objects.h objprop.h options.h pairs.h	\
+    ioext.h keywords.h lang.h list.h load.h macros.h mallocs.h 		\
+    net_db.h numbers.h objects.h objprop.h options.h pairs.h	\
     ports.h posix.h regex-posix.h print.h procprop.h procs.h random.h	\
     ramap.h read.h root.h scmsigs.h script.h simpos.h smob.h socket.h	\
     sort.h srcprop.h stackchk.h stacks.h stime.h strings.h strop.h	\
     strorder.h strports.h struct.h symbols.h tag.h tags.h throw.h	\
-    unif.h variable.h vectors.h version.h vports.h weaks.h snarf.h	\
-    threads.h coop-defs.h fluids.h iselect.h
+    unif.h vectors.h version.h vports.h weaks.h snarf.h	\
+    threads.h coop-defs.h fluids.h iselect.h environments.h
 
 ## This file is generated at configure time.  That is why it is DATA
 ## and not a header -- headers are included in the distribution.

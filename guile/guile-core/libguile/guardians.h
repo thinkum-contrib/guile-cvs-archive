@@ -56,6 +56,6 @@ void scm_guardian_zombify(void);
 void scm_guard (SCM guardian, SCM obj);
 SCM scm_get_one_zombie (SCM guardian);
 
-void scm_init_guardian (void);
+SCM scm_init_guardian (SCM env);
 
 #endif /* !SCM_GUARDIANH */

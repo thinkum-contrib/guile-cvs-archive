@@ -70,9 +70,12 @@ scm_boolean_p(obj)
 
 
 
-void
-scm_init_boolean ()
+SCM
+scm_init_boolean (env)
+     SCM env;
 {
 #include "boolean.x"
+
+  return SCM_UNSPECIFIED;
 }
 

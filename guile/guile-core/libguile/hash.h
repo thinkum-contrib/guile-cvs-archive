@@ -55,6 +55,6 @@ extern unsigned int scm_ihashv SCM_P ((SCM obj, unsigned int n));
 extern SCM scm_hashv SCM_P ((SCM obj, SCM n));
 extern unsigned int scm_ihash SCM_P ((SCM obj, unsigned int n));
 extern SCM scm_hash SCM_P ((SCM obj, SCM n));
-extern void scm_init_hash SCM_P ((void));
+extern SCM scm_init_hash SCM_P ((SCM env));
 
 #endif  /* HASHH */

@@ -62,22 +62,22 @@
 #else
 #if defined(__cplusplus) || defined(GUILE_CPLUSPLUS_SNARF)
 #define SCM_PROC(RANAME, STR, REQ, OPT, VAR, CFN)  \
-%%%	scm_make_gsubr (RANAME, REQ, OPT, VAR, (SCM (*)(...))CFN)
+%%%	scm_make_gsubr (RANAME, REQ, OPT, VAR, (SCM (*)(...))CFN, env)
 #define SCM_GPROC(RANAME, STR, REQ, OPT, VAR, CFN, GF)  \
-%%%	scm_make_gsubr_with_generic (RANAME, REQ, OPT, VAR, (SCM (*)(...))CFN, &GF)
+%%%	scm_make_gsubr_with_generic (RANAME, REQ, OPT, VAR, (SCM (*)(...))CFN, &GF, env)
 #define SCM_PROC1(RANAME, STR, TYPE, CFN)  \
-%%%	scm_make_subr(RANAME, TYPE, (SCM (*)(...))CFN)
+%%%	scm_make_subr(RANAME, TYPE, (SCM (*)(...))CFN, env)
 #define SCM_GPROC1(RANAME, STR, TYPE, CFN, GF)  \
-%%%	scm_make_subr_with_generic(RANAME, TYPE, (SCM (*)(...))CFN, &GF)
+%%%	scm_make_subr_with_generic(RANAME, TYPE, (SCM (*)(...))CFN, &GF, env)
 #else
 #define SCM_PROC(RANAME, STR, REQ, OPT, VAR, CFN)  \
-%%%	scm_make_gsubr (RANAME, REQ, OPT, VAR, (SCM (*)()) CFN)
+%%%	scm_make_gsubr (RANAME, REQ, OPT, VAR, (SCM (*)()) CFN, env)
 #define SCM_GPROC(RANAME, STR, REQ, OPT, VAR, CFN, GF)  \
-%%%	scm_make_gsubr_with_generic (RANAME, REQ, OPT, VAR, (SCM (*)()) CFN, &GF)
+%%%	scm_make_gsubr_with_generic (RANAME, REQ, OPT, VAR, (SCM (*)()) CFN, &GF, env)
 #define SCM_PROC1(RANAME, STR, TYPE, CFN)  \
-%%%	scm_make_subr(RANAME, TYPE, CFN)
+%%%	scm_make_subr(RANAME, TYPE, CFN, env)
 #define SCM_GPROC1(RANAME, STR, TYPE, CFN, GF)  \
-%%%	scm_make_subr_with_generic(RANAME, TYPE, CFN, &GF)
+%%%	scm_make_subr_with_generic(RANAME, TYPE, CFN, &GF, env)
 #endif
 #endif
 
@@ -86,7 +86,7 @@
 	static const char RANAME[]=STR
 #else
 #define SCM_SYNTAX(RANAME, STR, TYPE, CFN)  \
-%%%	scm_make_synt (RANAME, TYPE, CFN)
+%%%	scm_make_synt (RANAME, TYPE, CFN, env)
 #endif
 
 #ifndef SCM_MAGIC_SNARFER
@@ -94,7 +94,7 @@
 	static SCM c_name = SCM_BOOL_F
 #else
 #define SCM_SYMBOL(C_NAME, SCHEME_NAME) \
-%%%	C_NAME = scm_permanent_object (SCM_CAR (scm_intern0 (SCHEME_NAME)))
+%%%	C_NAME = scm_permanent_object (SCM_CAR (scm_intern (SCHEME_NAME)))
 #endif
 
 #ifndef SCM_MAGIC_SNARFER
@@ -102,7 +102,7 @@
 	SCM c_name = SCM_BOOL_F
 #else
 #define SCM_GLOBAL_SYMBOL(C_NAME, SCHEME_NAME) \
-%%%	C_NAME = scm_permanent_object (SCM_CAR (scm_intern0 (SCHEME_NAME)))
+%%%	C_NAME = scm_permanent_object (SCM_CAR (scm_intern (SCHEME_NAME)))
 #endif
 
 #ifndef SCM_MAGIC_SNARFER
@@ -126,7 +126,7 @@
 	static SCM c_name = SCM_BOOL_F
 #else
 #define SCM_VCELL(C_NAME, SCHEME_NAME) \
-%%%	C_NAME = scm_permanent_object (scm_intern0 (SCHEME_NAME)); SCM_SETCDR (C_NAME, SCM_BOOL_F)
+%%%	C_NAME = scm_environment_intern (env, SCHEME_NAME, SCM_BOOL_F)
 #endif
 
 #ifndef SCM_MAGIC_SNARFER
@@ -134,7 +134,7 @@
 	SCM c_name = SCM_BOOL_F
 #else
 #define SCM_GLOBAL_VCELL(C_NAME, SCHEME_NAME) \
-%%%	C_NAME = scm_permanent_object (scm_intern0 (SCHEME_NAME)); SCM_SETCDR (C_NAME, SCM_BOOL_F)
+%%%	C_NAME = scm_environment_intern (scm_scheme_guile_environment, SCHEME_NAME, SCM_BOOL_F)
 #endif
 
 #ifndef SCM_MAGIC_SNARFER
@@ -142,7 +142,7 @@
 	static SCM c_name = SCM_BOOL_F
 #else
 #define SCM_VCELL_INIT(C_NAME, SCHEME_NAME, init_val) \
-%%%	C_NAME = scm_permanent_object (scm_intern0 (SCHEME_NAME)); SCM_SETCDR (C_NAME, init_val)
+%%%	C_NAME = scm_environment_intern (env, SCHEME_NAME, init_val)
 #endif
 
 #ifndef SCM_MAGIC_SNARFER
@@ -150,7 +150,7 @@
 	SCM c_name = SCM_BOOL_F
 #else
 #define SCM_GLOBAL_VCELL_INIT(C_NAME, SCHEME_NAME, init_val) \
-%%%	C_NAME = scm_permanent_object (scm_intern0 (SCHEME_NAME)); SCM_SETCDR (C_NAME, init_val)
+%%%	C_NAME = scm_environment_intern (scm_scheme_guile_environment, SCHEME_NAME, init_val)
 #endif
 
 #define SCM_CONST_LONG(C_NAME, SCHEME_NAME,VALUE) SCM_VCELL_INIT(C_NAME, SCHEME_NAME, scm_long2num(VALUE))

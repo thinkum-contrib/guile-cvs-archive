@@ -52,14 +52,14 @@ typedef SCM (*gh_eval_t) (void *data, SCM jmpbuf);
 SCM
 gh_eval_str (char *scheme_code)
 {
-  return scm_eval_0str (scheme_code);
+  return scm_eval_0str (scheme_code, scm_interaction_environment);
 }
 
 /* evaluate the file by passing it to the lower level scm_primitive_load() */
 SCM
 gh_eval_file (char *fname)
 {
-  return scm_primitive_load (gh_str02scm (fname));
+  return scm_primitive_load (gh_str02scm (fname), scm_interaction_environment);
 }
 
 static SCM

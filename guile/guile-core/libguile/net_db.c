@@ -457,22 +457,25 @@ scm_setserv (arg)
 #endif
 
 
-void 
-scm_init_net_db ()
+SCM
+scm_init_net_db (env)
+     SCM env;
 {
 #ifdef INADDR_ANY
-  scm_sysintern ("INADDR_ANY", scm_ulong2num (INADDR_ANY));
+  scm_environment_intern (env, "INADDR_ANY", scm_ulong2num (INADDR_ANY));
 #endif
 #ifdef INADDR_BROADCAST
-  scm_sysintern ("INADDR_BROADCAST", scm_ulong2num (INADDR_BROADCAST));
+  scm_environment_intern (env, "INADDR_BROADCAST", scm_ulong2num (INADDR_BROADCAST));
 #endif
 #ifdef INADDR_NONE
-  scm_sysintern ("INADDR_NONE", scm_ulong2num (INADDR_NONE));
+  scm_environment_intern (env, "INADDR_NONE", scm_ulong2num (INADDR_NONE));
 #endif
 #ifdef INADDR_LOOPBACK
-  scm_sysintern ("INADDR_LOOPBACK", scm_ulong2num (INADDR_LOOPBACK));
+  scm_environment_intern (env, "INADDR_LOOPBACK", scm_ulong2num (INADDR_LOOPBACK));
 #endif
 
   scm_add_feature ("net-db");
 #include "net_db.x"
+
+  return SCM_UNSPECIFIED;
 }

@@ -116,7 +116,7 @@ extern SCM scm_printer_apply SCM_P ((SCM proc, SCM exp, SCM port,
 extern SCM scm_port_with_print_state (SCM port, SCM pstate);
 extern SCM scm_get_print_state (SCM port);
 extern int scm_valid_oport_value_p SCM_P ((SCM val));
-extern void scm_init_print SCM_P ((void));
+extern SCM scm_init_print SCM_P ((SCM env));
 
 #ifdef GUILE_DEBUG
 extern SCM scm_current_pstate SCM_P ((void));

@@ -167,6 +167,6 @@ extern SCM scm_cons2 SCM_P ((SCM w, SCM x, SCM y));
 extern SCM scm_pair_p SCM_P ((SCM x));
 extern SCM scm_set_car_x SCM_P ((SCM pair, SCM value));
 extern SCM scm_set_cdr_x SCM_P ((SCM pair, SCM value));
-extern void scm_init_pairs SCM_P ((void));
+extern SCM scm_init_pairs SCM_P ((SCM env));
 
 #endif  /* PAIRSH */

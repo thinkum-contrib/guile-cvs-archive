@@ -210,6 +210,7 @@ scm_makfromstr (src, len, slots)
 {
   SCM s;
   register char *dst;
+
   s = scm_makstr ((long) len, slots);
   dst = SCM_CHARS (s);
   while (len--)
@@ -220,7 +221,7 @@ scm_makfromstr (src, len, slots)
 
 
 SCM 
-scm_makfrom0str (src)
+scm_makfrom0str (src)  
      const char *src;
 {
   if (!src) return SCM_BOOL_F;
@@ -419,9 +420,12 @@ scm_make_shared_substring (str, frm, to)
 }
 
 
-void
-scm_init_strings ()
+SCM
+scm_init_strings (env)
+     SCM env;
 {
 #include "strings.x"
+
+  return SCM_UNSPECIFIED;
 }
 

@@ -132,6 +132,6 @@ SCM scm_frame_evaluating_args_p SCM_P ((SCM frame));
 SCM scm_frame_overflow_p SCM_P ((SCM frame));
 
 
-void scm_init_stacks SCM_P ((void));
+SCM scm_init_stacks SCM_P ((SCM env));
 
 #endif /* STACKSH */

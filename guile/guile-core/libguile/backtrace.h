@@ -57,6 +57,6 @@ SCM scm_display_application SCM_P ((SCM frame, SCM port));
 SCM scm_display_backtrace SCM_P ((SCM stack, SCM port, SCM first, SCM depth));
 SCM scm_backtrace SCM_P ((void));
 
-void scm_init_backtrace SCM_P ((void));
+SCM scm_init_backtrace SCM_P ((SCM env));
 
 #endif /* BACKTRACEH */

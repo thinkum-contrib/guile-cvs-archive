@@ -59,8 +59,7 @@ void
 scm_add_feature (str)
      const char* str;
 {
-  *scm_loc_features = scm_cons (SCM_CAR (scm_intern (str, strlen (str))),
-				*scm_loc_features);
+  *scm_loc_features = scm_cons (SCM_CAR (scm_intern (str)), *scm_loc_features);
 }
 
 
@@ -109,10 +108,10 @@ scm_make_hook (SCM n_args)
 }
 
 SCM
-scm_make_named_hook (char* name, int n_args)
+scm_make_named_hook (char* name, int n_args, SCM env)
 {
   SCM hook = scm_make_hook (SCM_MAKINUM (n_args));
-  scm_permanent_object (scm_sysintern (name, hook));
+  scm_environment_intern (env, name, hook);
   return hook;
 }
 
@@ -208,10 +207,11 @@ scm_c_run_hook (SCM hook, SCM args)
 
 
 
-void
-scm_init_feature()
+SCM
+scm_init_feature(env)
+     SCM env;
 {
-  scm_loc_features = SCM_CDRLOC (scm_sysintern ("*features*", SCM_EOL));
+  scm_loc_features = SCM_CDRLOC (scm_environment_intern (env, "*features*", SCM_EOL));
 #ifdef SCM_RECKLESS
   scm_add_feature("reckless");
 #endif
@@ -234,6 +234,8 @@ scm_init_feature()
   scm_add_feature ("threads");
 #endif
   
-  scm_sysintern ("char-code-limit", SCM_MAKINUM (SCM_CHAR_CODE_LIMIT));
+  scm_environment_intern (env, "char-code-limit", SCM_MAKINUM (SCM_CHAR_CODE_LIMIT));
 #include "feature.x"
+
+  return SCM_UNSPECIFIED;
 }

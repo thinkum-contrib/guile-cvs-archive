@@ -55,7 +55,6 @@
 #include "read.h"
 #include "eval.h"
 #include "chars.h"
-#include "modules.h"
 
 #include "gdbint.h"
 
@@ -241,8 +240,9 @@ exit:
 
 
 int
-gdb_eval (exp)
+gdb_eval (exp, env)
      SCM exp;
+     SCM env;
 {
   RESET_STRING;
   if (SCM_IMP (exp))
@@ -257,7 +257,6 @@ gdb_eval (exp)
     }
   SCM_BEGIN_FOREIGN_BLOCK;
   {
-    SCM env = scm_top_level_env (SCM_CDR (scm_top_level_lookup_closure_var));
     gdb_result = scm_permanent_object (scm_ceval (exp, env));
   }
   SCM_END_FOREIGN_BLOCK;
@@ -294,17 +293,16 @@ gdb_binding (name, value)
     }
   SCM_BEGIN_FOREIGN_BLOCK;
   {
-    SCM vcell = scm_sym2vcell (name,
-			       SCM_CDR (scm_top_level_lookup_closure_var),
-			       SCM_BOOL_T);
-    SCM_SETCDR (vcell, value);
+    SCM vcell = SCM_ENVIRONMENT_CELL (scm_scheme_guile_environment, name, 1);
+    SCM_SETCDR (SCM_CAR(vcell), value);
   }
   SCM_END_FOREIGN_BLOCK;
   return 0;
 }
 
-void
-scm_init_gdbint ()
+SCM
+scm_init_gdbint (env)
+     SCM env;
 {
   static char *s = "scm_init_gdb_interface";
   SCM port;
@@ -324,4 +322,6 @@ scm_init_gdbint ()
   gdb_input_port = scm_permanent_object (port);
 
   tok_buf = scm_permanent_object (scm_makstr (30L, 0));
+
+  return SCM_UNSPECIFIED;
 }

@@ -463,15 +463,17 @@ scm_mask_signals ()
 
 
 
-void
-scm_init_async ()
+SCM
+scm_init_async (env)
+     SCM env;
 {
   SCM a_thunk;
   scm_tc16_async = scm_make_smob_type_mfpe ("async", sizeof (struct scm_async),
                                            mark_async, NULL, NULL, NULL);
-  scm_gc_vcell = scm_sysintern ("gc-thunk", SCM_BOOL_F);
-  a_thunk = scm_make_gsubr ("%gc-thunk", 0, 0, 0, scm_sys_gc_async_thunk);
+  scm_gc_vcell = scm_environment_intern (env, "gc-thunk", SCM_BOOL_F);
+  a_thunk = scm_make_gsubr ("%gc-thunk", 0, 0, 0, scm_sys_gc_async_thunk, env);
   scm_gc_async = scm_system_async (a_thunk);
 
 #include "async.x"
+  return SCM_UNSPECIFIED;
 }

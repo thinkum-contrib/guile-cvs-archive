@@ -121,6 +121,6 @@ extern SCM scm_random_hollow_sphere_x (SCM v, SCM state);
 extern SCM scm_random_normal (SCM state);
 extern SCM scm_random_normal_vector_x (SCM v, SCM state);
 extern SCM scm_random_exp (SCM state);
-extern void scm_init_random (void);
+extern SCM scm_init_random (SCM env);
 
 #endif  /* RANDOMH */

@@ -81,6 +81,6 @@ extern SCM scm_hashx_ref SCM_P ((SCM hash, SCM assoc, SCM table, SCM obj, SCM df
 extern SCM scm_hashx_set_x SCM_P ((SCM hash, SCM assoc, SCM table, SCM obj, SCM val));
 extern SCM scm_hashx_remove_x SCM_P ((SCM hash, SCM assoc, SCM del, SCM table, SCM obj));
 extern SCM scm_hash_fold SCM_P ((SCM proc, SCM init, SCM hash));
-extern void scm_init_hashtab SCM_P ((void));
+extern SCM scm_init_hashtab SCM_P ((SCM env));
 
 #endif  /* HASHTABH */

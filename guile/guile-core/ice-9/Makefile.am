@@ -22,13 +22,20 @@
 AUTOMAKE_OPTIONS = foreign
 
 # These should be installed and distributed.
-ice9_sources = \
-	and-let*.scm boot-9.scm calling.scm common-list.scm debug.scm	\
-	emacs.scm expect.scm format.scm getopt-gnu-style.scm		\
-	getopt-long.scm hcons.scm lineio.scm ls.scm mapping.scm		\
-	optargs.scm poe.scm popen.scm psyntax.pp psyntax.ss q.scm	\
-	r4rs.scm readline.scm regex.scm runq.scm session.scm slib.scm	\
-	streams.scm string-fun.scm syncase.scm tags.scm threads.scm
+ice9_sources =										\
+	boot-9.scm modules.scm and-let*.scm repl.scm calling.scm			\
+	common-list.scm debug.scm							\
+	emacs.scm expect.scm format.scm getopt-gnu-style.scm				\
+	getopt-long.scm hcons.scm lineio.scm ls.scm mapping.scm				\
+	optargs.scm poe.scm popen.scm psyntax.pp psyntax.ss q.scm			\
+	r4rs.scm readline.scm regex.scm runq.scm session.scm slib.scm			\
+	streams.scm string-fun.scm syncase.scm tags.scm threads.scm			\
+											\
+	arrays.scm check-version.scm defmacro.scm error.scm files.scm config.scm	\
+	hooks.scm keywords.scm lists.scm macros.scm math.scm misc.scm			\
+	oldprint.scm options.scm poe.scm posix.scm provide.scm run-test.scm		\
+	structs.scm symbols.scm
+
 
 # These should be installed, but not distributed.
 ice9_generated = version.scm

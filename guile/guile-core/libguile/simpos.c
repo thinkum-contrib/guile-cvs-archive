@@ -120,9 +120,12 @@ scm_primitive_exit (SCM status)
 }
 
 
-void
-scm_init_simpos ()
+SCM
+scm_init_simpos (env)
+     SCM env;
 {
 #include "simpos.x"
+
+  return SCM_UNSPECIFIED;
 }
 

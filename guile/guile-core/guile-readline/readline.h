@@ -36,7 +36,7 @@ extern SCM scm_add_history (SCM txt);
 extern SCM scm_read_history (SCM file);
 extern SCM scm_write_history (SCM file);
 extern SCM scm_filename_completion_function (SCM text, SCM continuep);
-extern void scm_init_readline (void);
+extern void scm_init_readline (SCM env);
 
 #ifndef HAVE_RL_CLEANUP_AFTER_SIGNAL
 void rl_cleanup_after_signal ();

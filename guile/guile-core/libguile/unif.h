@@ -107,6 +107,6 @@ extern SCM scm_array_to_list SCM_P ((SCM v));
 extern SCM scm_list_to_uniform_array SCM_P ((SCM ndim, SCM prot, SCM lst));
 extern int scm_raprin1 SCM_P ((SCM exp, SCM port, scm_print_state *pstate));
 extern SCM scm_array_prototype SCM_P ((SCM ra));
-extern void scm_init_unif SCM_P ((void));
+extern SCM scm_init_unif SCM_P ((SCM env));
 
 #endif  /* UNIFH */

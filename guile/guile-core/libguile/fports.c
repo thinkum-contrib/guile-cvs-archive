@@ -629,11 +629,14 @@ scm_make_fptob ()
   scm_set_port_input_waiting   (tc, fport_input_waiting);
 }
 
-void
-scm_init_fports ()
+SCM
+scm_init_fports (env)
+     SCM env;
 {
 #include "fports.x"
-  scm_sysintern ("_IOFBF", SCM_MAKINUM (_IOFBF));
-  scm_sysintern ("_IOLBF", SCM_MAKINUM (_IOLBF));
-  scm_sysintern ("_IONBF", SCM_MAKINUM (_IONBF));
+  scm_environment_intern (env, "_IOFBF", SCM_MAKINUM (_IOFBF));
+  scm_environment_intern (env, "_IOLBF", SCM_MAKINUM (_IOLBF));
+  scm_environment_intern (env, "_IONBF", SCM_MAKINUM (_IONBF));
+
+  return SCM_UNSPECIFIED;
 }

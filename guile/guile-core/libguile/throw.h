@@ -99,5 +99,5 @@ extern SCM scm_lazy_catch SCM_P ((SCM tag, SCM thunk, SCM handler));
 extern SCM scm_ithrow SCM_P ((SCM key, SCM args, int noreturn));
 
 extern SCM scm_throw SCM_P ((SCM key, SCM args));
-extern void scm_init_throw SCM_P ((void));
+extern SCM scm_init_throw SCM_P ((SCM env));
 #endif  /* THROWH */

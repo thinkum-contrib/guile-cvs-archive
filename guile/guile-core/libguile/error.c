@@ -294,10 +294,13 @@ scm_wta (arg, pos, s_subr)
 /*  obsolete interface: scm_everr (exp, env, arg, pos, s_subr)
     was equivalent to scm_wta (arg, pos, s_subr)  */
 
-void
-scm_init_error ()
+SCM
+scm_init_error (env)
+     SCM env;
 {
 #include "cpp_err_symbols.c"
 #include "error.x"
+
+  return SCM_UNSPECIFIED;
 }
 

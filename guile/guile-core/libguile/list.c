@@ -724,8 +724,11 @@ scm_delete1_x (item, lst)
 
 
 
-void
-scm_init_list ()
+SCM
+scm_init_list (env)
+     SCM env;
 {
 #include "list.x"
+
+  return SCM_UNSPECIFIED;
 }

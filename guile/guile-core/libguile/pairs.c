@@ -101,7 +101,7 @@ scm_set_car_x (pair, value)
   SCM_ASSERT (SCM_NIMP (pair) && SCM_CONSP (pair),
 	      pair, SCM_ARG1, s_set_car_x);
   SCM_SETCAR (pair, value);
-  return SCM_UNSPECIFIED;
+  return value;
 }
 
 SCM_PROC (s_set_cdr_x, "set-cdr!", 2, 0, 0, scm_set_cdr_x);
@@ -113,7 +113,7 @@ scm_set_cdr_x (pair, value)
 {
   SCM_ASSERT (SCM_NIMP(pair) && SCM_CONSP (pair), pair, SCM_ARG1, s_set_cdr_x);
   SCM_SETCDR (pair, value);
-  return SCM_UNSPECIFIED;
+  return value;
 }
 
 
@@ -156,10 +156,13 @@ static const scm_iproc cxrs[] =
 
 
 
-void
-scm_init_pairs ()
+SCM
+scm_init_pairs (env)
+     SCM env;
 {
-  scm_init_iprocs (cxrs, scm_tc7_cxr);
+  scm_init_iprocs (cxrs, scm_tc7_cxr, env);
 #include "pairs.x"
+
+  return SCM_UNSPECIFIED;
 }
 

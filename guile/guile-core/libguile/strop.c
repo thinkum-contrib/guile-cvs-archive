@@ -343,9 +343,11 @@ scm_string_ci_to_symbol(SCM str)
 			       : str);
 }
 
-void
-scm_init_strop ()
+SCM
+scm_init_strop (env)
+     SCM env;
 {
 #include "strop.x"
+  return SCM_UNSPECIFIED;
 }
 

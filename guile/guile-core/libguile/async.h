@@ -76,6 +76,6 @@ extern SCM scm_set_tick_rate SCM_P ((SCM n));
 extern SCM scm_set_switch_rate SCM_P ((SCM n));
 extern SCM scm_unmask_signals SCM_P ((void));
 extern SCM scm_mask_signals SCM_P ((void));
-extern void scm_init_async SCM_P ((void));
+extern SCM scm_init_async SCM_P ((SCM env));
 
 #endif  /* ASYNCH */

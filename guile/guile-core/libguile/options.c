@@ -222,7 +222,7 @@ scm_init_opts (func, options, n)
 
   for (i = 0; i < n; ++i)
     {
-      options[i].name =	(char *) SCM_CAR (scm_sysintern0 (options[i].name));
+      options[i].name =	(char *) scm_permanent_object (SCM_CAR (scm_intern (options[i].name)));
       options[i].doc = (char *) scm_permanent_object (scm_take0str
 						      (options[i].doc));
       if (options[i].type == SCM_OPTION_SCM)
@@ -233,9 +233,12 @@ scm_init_opts (func, options, n)
 }
 
 
-void
-scm_init_options ()
+SCM
+scm_init_options (env)
+     SCM env;
 {
   protected_objects = scm_permanent_object (scm_cons (SCM_UNDEFINED, SCM_EOL));
 #include "options.x"
+
+  return SCM_UNSPECIFIED;
 }

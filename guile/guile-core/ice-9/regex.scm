@@ -18,7 +18,11 @@
 
 ;;;; POSIX regex support functions.
 
-(define-module (ice-9 regex))
+(module (ice-9 regex)
+ (open (ice-9 config) (ice-9 guile) 
+       ((ice-9 regex-posix) regexp-exec make-regexp)
+       ((ice-9 procs) procedure?)
+       ))
 
 ;;; FIXME:
 ;;;   It is not clear what should happen if a `match' function

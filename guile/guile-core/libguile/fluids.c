@@ -250,10 +250,13 @@ scm_with_fluids (fluids, vals, thunk)
   return scm_internal_with_fluids (fluids, vals, apply_thunk, (void *)thunk);
 }
 
-void
-scm_init_fluids ()
+SCM
+scm_init_fluids (env)
+     SCM env;
 {
   scm_tc16_fluid = scm_make_smob_type_mfpe ("fluid", 0,
                                            NULL, NULL, print_fluid, NULL);
 #include "fluids.x"
+
+  return SCM_UNSPECIFIED;
 }

@@ -566,10 +566,11 @@ scm_strptime (format, string)
 #endif
 }
 
-void
-scm_init_stime()
+SCM
+scm_init_stime(env)
+     SCM env;
 {
-  scm_sysintern("internal-time-units-per-second",
+  scm_environment_intern (env, "internal-time-units-per-second",
 		scm_long2num((long)CLKTCK));
 
 #ifdef HAVE_FTIME
@@ -582,5 +583,7 @@ scm_init_stime()
 
   scm_add_feature ("current-time");
 #include "stime.x"
+
+  return SCM_UNSPECIFIED;
 }
 

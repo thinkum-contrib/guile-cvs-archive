@@ -66,6 +66,6 @@ typedef struct scm_option
 
 extern SCM scm_options SCM_P ((SCM new_mode, scm_option options[], int n, const char *s));
 extern void scm_init_opts SCM_P ((SCM (*func) (SCM), scm_option options[], int n));
-extern void scm_init_options SCM_P ((void));
+extern SCM scm_init_options SCM_P ((SCM env));
 
 #endif /* OPTIONSH */

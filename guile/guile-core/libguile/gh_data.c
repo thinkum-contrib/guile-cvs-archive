@@ -45,6 +45,7 @@
 #include <stdio.h>
 
 #include <gh.h>
+#include <environments.h>
 
 /* data conversion C->scheme */
 SCM 
@@ -123,7 +124,7 @@ gh_set_substr (char *src, SCM dst, int start, int len)
 SCM 
 gh_symbol2scm (char *symbol_str)
 {
-  return SCM_CAR (scm_intern (symbol_str, strlen (symbol_str)));
+  return SCM_CAR (scm_intern (symbol_str));
 }
 
 static SCM
@@ -662,23 +663,18 @@ gh_uniform_vector_ref (SCM v, SCM ilist)
    `vec' argument.
 
    The return value is the Scheme object to which SNAME is bound, or
-   SCM_UNDEFINED if SNAME is not bound in the given context. [FIXME:
-   should this be SCM_UNSPECIFIED?  Can a symbol ever legitimately be
-   bound to SCM_UNDEFINED or SCM_UNSPECIFIED?  What is the difference?
-   -twp] */
+   SCM_UNDEFINED if SNAME is not bound in the given context.  */
 
 SCM
 gh_lookup (char *sname)
 {
-  return gh_module_lookup (SCM_BOOL_F, sname);
+  SCM sym = gh_symbol2scm (sname);
+  return scm_c_environment_ref(scm_interaction_environment, sym);
 }
 
 SCM
 gh_module_lookup (SCM vec, char *sname)
 {
   SCM sym = gh_symbol2scm (sname);
-  if ((scm_symbol_bound_p (vec, sym)) == SCM_BOOL_T)
-    return scm_symbol_binding (vec, sym);
-  else
-    return SCM_UNDEFINED;
+  return scm_c_environment_ref(vec, sym);
 }

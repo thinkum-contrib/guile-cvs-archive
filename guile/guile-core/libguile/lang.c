@@ -132,9 +132,11 @@ scm_nil_eq (SCM x, SCM y)
 
 
 
-void
-scm_init_lang ()
+SCM
+scm_init_lang (SCM env)
 {
 #include "lang.x"
-  scm_make_synt ("nil-while", scm_makacro, scm_m_while);
+  scm_make_synt ("nil-while", scm_makacro, scm_m_while, env);
+
+  return SCM_UNSPECIFIED;
 }

@@ -89,9 +89,11 @@ scm_malloc_obj (n)
 
 
 
-void 
-scm_init_mallocs ()
+SCM
+scm_init_mallocs (env)
+     SCM env;
 {
   scm_tc16_malloc = scm_make_smob_type_mfpe ("malloc", 0,
                                             NULL, fmalloc, prinmalloc, NULL);
+  return SCM_UNSPECIFIED;
 }

@@ -1,4 +1,4 @@
-/*	Copyright (C) 1995,1996,1998 Free Software Foundation, Inc.
+#/*	Copyright (C) 1995,1996,1998 Free Software Foundation, Inc.
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -78,26 +78,34 @@ swap_port (void *data)
   *save_port = tmp;
 }
 
+struct load_data{ SCM port; SCM env; };
 static SCM
 load (void *data)
 {
-  SCM port = (SCM) data, form;
+  struct load_data *load_data = (struct load_data*) data;
+  SCM form;
+
   while (1)
     {
-      form = scm_read (port);
+      form = scm_read (load_data->port);
       if (SCM_EOF_OBJECT_P (form))
 	break;
-      scm_eval_x (form);
+      scm_eval_x (form, load_data->env);
     }
   return SCM_UNSPECIFIED;
 }
 
-SCM_PROC(s_primitive_load, "primitive-load", 1, 0, 0, scm_primitive_load);
+SCM_PROC(s_primitive_load, "primitive-load", 2, 0, 0, scm_primitive_load);
 SCM 
-scm_primitive_load (filename)
+scm_primitive_load (filename, env)
      SCM filename;
+     SCM env;
 {
   SCM hook = *scm_loc_load_hook;
+  SCM_ASSERT (SCM_NIMP (env) && SCM_ENVIRONMENTP(env), 
+		  env, SCM_ARG2, s_primitive_load);
+  
+
   SCM_ASSERT (SCM_NIMP (filename) && SCM_ROSTRINGP (filename), filename,
 	      SCM_ARG1, s_primitive_load);
   SCM_ASSERT (hook == SCM_BOOL_F
@@ -105,18 +113,23 @@ scm_primitive_load (filename)
 	      hook, "value of %load-hook is neither a procedure nor #f",
 	      s_primitive_load);
 
+
   if (hook != SCM_BOOL_F)
-    scm_apply (hook, scm_listify (filename, SCM_UNDEFINED), SCM_EOL);
+    scm_apply (hook, scm_listify (filename, env, SCM_UNDEFINED), SCM_EOL);
 
   {
+    struct load_data load_data;
     SCM port, save_port;
     port = scm_open_file (filename,
 			  scm_makfromstr ("r", (scm_sizet) sizeof (char), 0));
     save_port = port;
+    load_data.port = port;
+    load_data.env = env;
+
     scm_internal_dynamic_wind (swap_port,
 			       load,
 			       swap_port,
-			       (void *) port,
+			       (void *) &load_data,
 			       &save_port);
     scm_close_port (port);
   }
@@ -191,8 +204,9 @@ scm_parse_path (SCM path, SCM tail)
 /* Initialize the global variable %load-path, given the value of the
    SCM_SITE_DIR and SCM_LIBRARY_DIR preprocessor symbols and the
    GUILE_LOAD_PATH environment variable.  */
-void
-scm_init_load_path ()
+SCM
+scm_init_load_path (env)
+     SCM env;
 {
   SCM path = SCM_EOL;
 
@@ -206,6 +220,7 @@ scm_init_load_path ()
   path = scm_internal_parse_path (getenv ("GUILE_LOAD_PATH"), path);
 
   *scm_loc_load_path = path;
+  return SCM_UNSPECIFIED;
 }
 
 SCM scm_listofnullstr;
@@ -382,15 +397,19 @@ scm_sys_search_load_path (filename)
 }
 
 
-SCM_PROC(s_primitive_load_path, "primitive-load-path", 1, 0, 0, scm_primitive_load_path);
+SCM_PROC(s_primitive_load_path, "primitive-load-path", 2, 0, 0, scm_primitive_load_path);
 SCM 
-scm_primitive_load_path (filename)
+scm_primitive_load_path (filename, env)
      SCM filename;
+     SCM env;
 {
   SCM full_filename;
 
   SCM_ASSERT (SCM_NIMP (filename) && SCM_ROSTRINGP (filename), filename,
 	      SCM_ARG1, s_primitive_load_path);
+
+  SCM_ASSERT (SCM_NIMP (env) && SCM_ENVIRONMENTP(env), 
+	      env, SCM_ARG2, s_primitive_load_path);
 
   full_filename = scm_sys_search_load_path (filename);
 
@@ -405,7 +424,7 @@ scm_primitive_load_path (filename)
 		      scm_listify (filename, SCM_UNDEFINED));
     }
 
-  return scm_primitive_load (full_filename);
+  return scm_primitive_load (full_filename, env);
 }
 
 /* The following function seems trivial - and indeed it is.  Its
@@ -415,16 +434,38 @@ scm_primitive_load_path (filename)
 
 SCM_SYMBOL (scm_end_of_file_key, "end-of-file");
 
-SCM_PROC (s_read_and_eval_x, "read-and-eval!", 0, 1, 0, scm_read_and_eval_x);
+SCM_PROC (s_read_and_eval_x, "read-and-eval!", 0, 2, 0, scm_read_and_eval_x);
 
 SCM
-scm_read_and_eval_x (port)
+scm_read_and_eval_x (port, env)
      SCM port;
+     SCM env;
 {
-  SCM form = scm_read (port);
+  SCM form;
+
+  if (SCM_UNBNDP (port))
+    port = scm_cur_inp;
+  else
+    SCM_ASSERT (SCM_NIMP (port) && SCM_OPINPORTP (port),
+		port,
+		SCM_ARG1,
+		s_read_and_eval_x);
+
+
+  if (SCM_UNBNDP (env)) 
+    {
+      env = scm_interaction_environment;
+    }
+  else
+    {
+      SCM_ASSERT (SCM_NIMP (env) && SCM_ENVIRONMENTP(env), 
+		  env, SCM_ARG2, s_read_and_eval_x);
+    }
+
+  form = scm_read (port);
   if (SCM_EOF_OBJECT_P (form))
     scm_ithrow (scm_end_of_file_key, SCM_EOL, 1);
-  return scm_eval_x (form);
+  return scm_eval_x (form, env);
 }
 
 
@@ -433,33 +474,37 @@ scm_read_and_eval_x (port)
 /* Initialize the scheme variable %guile-build-info, based on data
    provided by the Makefile, via libpath.h.  */
 static void
-init_build_info ()
+init_build_info (env)
+     SCM env;
 {
   static struct { char *name; char *value; } info[] = SCM_BUILD_INFO;
-  SCM *loc = SCM_CDRLOC (scm_sysintern ("%guile-build-info", SCM_EOL));
+  SCM *loc = SCM_CDRLOC (scm_environment_intern (env, "%guile-build-info", SCM_EOL));
   unsigned int i;
 
   for (i = 0; i < (sizeof (info) / sizeof (info[0])); i++)
-    *loc = scm_acons (SCM_CAR (scm_intern0 (info[i].name)),
+    *loc = scm_acons (SCM_CAR (scm_intern (info[i].name)),
 		      scm_makfrom0str (info[i].value),
 		      *loc);
 }
 
 
 
-void
-scm_init_load ()
+SCM
+scm_init_load (env)
+     SCM env;
 {
   scm_listofnullstr = scm_permanent_object (SCM_LIST1 (scm_nullstr));
-  scm_loc_load_path = SCM_CDRLOC (scm_sysintern ("%load-path", SCM_EOL));
+  scm_loc_load_path = SCM_CDRLOC (scm_environment_intern (env, "%load-path", SCM_EOL));
   scm_loc_load_extensions
-    = SCM_CDRLOC (scm_sysintern ("%load-extensions",
+    = SCM_CDRLOC (scm_environment_intern (env, "%load-extensions",
 				 scm_listify (scm_makfrom0str (".scm"),
 					      scm_makfrom0str (""),
 					      SCM_UNDEFINED)));
-  scm_loc_load_hook = SCM_CDRLOC (scm_sysintern ("%load-hook", SCM_BOOL_F));
+  scm_loc_load_hook = SCM_CDRLOC (scm_environment_intern (env, "%load-hook", SCM_BOOL_F));
 
-  init_build_info ();
+  init_build_info (env);
 
 #include "load.x"
+
+  return SCM_UNSPECIFIED;
 }

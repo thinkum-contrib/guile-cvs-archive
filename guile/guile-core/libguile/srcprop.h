@@ -129,6 +129,6 @@ extern SCM scm_set_source_property_x SCM_P ((SCM obj, SCM key, SCM datum));
 extern SCM scm_source_properties SCM_P ((SCM obj));
 extern SCM scm_set_source_properties_x SCM_P ((SCM obj, SCM props));
 extern void scm_finish_srcprop SCM_P ((void));
-extern void scm_init_srcprop SCM_P ((void));
+extern SCM scm_init_srcprop SCM_P ((SCM env));
 
 #endif /* SRCPROPH */

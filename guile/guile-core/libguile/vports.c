@@ -171,8 +171,11 @@ scm_make_sfptob ()
   scm_set_port_close (tc, sf_close);
 }
 
-void
-scm_init_vports ()
+SCM
+scm_init_vports (env)
+     SCM env;
 {
 #include "vports.x"
+
+  return SCM_UNSPECIFIED;
 }

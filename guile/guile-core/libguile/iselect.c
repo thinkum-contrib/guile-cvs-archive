@@ -697,8 +697,9 @@ static void init_bc (int bit, int i, int n)
     }
 }
 
-void
-scm_init_iselect ()
+SCM
+scm_init_iselect (env)
+     SCM env;
 {
 #if 0 /* This is just symbolic */
   collisionp = 0;
@@ -711,4 +712,6 @@ scm_init_iselect ()
 #endif
   init_bc (0x80, 0, 0);
 #include "iselect.x"
+
+  return SCM_UNSPECIFIED;
 }

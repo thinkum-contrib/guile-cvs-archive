@@ -145,12 +145,13 @@ scm_macro_transformer (m)
 }
 
 SCM
-scm_make_synt (name, macroizer, fcn)
+scm_make_synt (name, macroizer, fcn, env)
      const char *name;
      SCM (*macroizer) ();
      SCM (*fcn) ();
+     SCM env;
 {
-  SCM symcell = scm_sysintern (name, SCM_UNDEFINED);
+  SCM symcell = scm_environment_intern (env, name, SCM_UNDEFINED);
   long tmp = ((((SCM_CELLPTR) (SCM_CAR (symcell))) - scm_heap_org) << 8);
   register SCM z;
   if ((tmp >> 8) != ((SCM_CELLPTR) (SCM_CAR (symcell)) - scm_heap_org))
@@ -162,10 +163,13 @@ scm_make_synt (name, macroizer, fcn)
   return SCM_CAR (symcell);
 }
 
-void
-scm_init_macros ()
+SCM
+scm_init_macros (env)
+     SCM env;
 {
   scm_tc16_macro = scm_make_smob_type_mfpe ("macro", 0,
                                            scm_markcdr, NULL, NULL, NULL);
 #include "macros.x"
+
+  return SCM_UNSPECIFIED;
 }

@@ -377,7 +377,8 @@ tryagain_no_flush_ws:
 
 	case '{':
 	  j = scm_read_token (c, tok_buf, port, 1);
-	  p = scm_intern (SCM_CHARS (*tok_buf), j);
+	  p = scm_intern (SCM_CHARS(*tok_buf));
+
 	  return SCM_CAR (p);
 
 	case '\\':
@@ -400,7 +401,8 @@ tryagain_no_flush_ws:
 	  /* #:SYMBOL is a syntax for keywords supported in all contexts.  */
 	case ':':
 	  j = scm_read_token ('-', tok_buf, port, 0);
-	  p = scm_intern (SCM_CHARS (*tok_buf), j);
+	  p = scm_intern (SCM_CHARS(*tok_buf));
+
 	  return scm_make_keyword_from_dash_symbol (SCM_CAR (p));
 
 	default:
@@ -505,7 +507,8 @@ tryagain_no_flush_ws:
       if (SCM_KEYWORD_STYLE == scm_keyword_prefix)
 	{
 	  j = scm_read_token ('-', tok_buf, port, 0);
-	  p = scm_intern (SCM_CHARS (*tok_buf), j);
+	  p = scm_intern (SCM_CHARS (*tok_buf));
+
 	  return scm_make_keyword_from_dash_symbol (SCM_CAR (p));
 	}
       /* fallthrough */
@@ -514,7 +517,8 @@ tryagain_no_flush_ws:
       /* fallthrough */
 
     tok:
-      p = scm_intern (SCM_CHARS (*tok_buf), j);
+      p = scm_intern (SCM_CHARS (*tok_buf));
+
       return SCM_CAR (p);
     }
 }
@@ -801,12 +805,15 @@ scm_get_hash_procedure (c)
     }
 }
 
-void
-scm_init_read ()
+SCM
+scm_init_read (env)
+     SCM env;
 {
   scm_read_hash_procedures =
-    SCM_CDRLOC (scm_sysintern ("read-hash-procedures", SCM_EOL));
+    SCM_CDRLOC (scm_environment_intern (env, "read-hash-procedures", SCM_EOL));
 
   scm_init_opts (scm_read_options, scm_read_opts, SCM_N_READ_OPTIONS);
 #include "read.x"
+
+  return SCM_UNSPECIFIED;
 }

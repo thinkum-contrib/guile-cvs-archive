@@ -594,11 +594,14 @@ scm_backtrace ()
 
 
 
-void
-scm_init_backtrace ()
+SCM
+scm_init_backtrace (env)
+     SCM env;
 {
   SCM f = scm_make_fluid ();
-  scm_the_last_stack_fluid = scm_sysintern ("the-last-stack", f);
+  scm_the_last_stack_fluid = scm_environment_intern (env, "the-last-stack", f);
 
 #include "backtrace.x"
+
+  return SCM_UNSPECIFIED;
 }

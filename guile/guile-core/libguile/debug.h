@@ -180,7 +180,6 @@ extern long scm_tc16_memoized;
 extern SCM * scm_lookup_cstr SCM_P ((char *str, int len, SCM env));
 extern SCM * scm_lookup_soft SCM_P ((SCM var, SCM genv));
 extern SCM scm_evstr SCM_P ((char *str));
-extern SCM scm_eval_string SCM_P ((SCM str));
 extern int scm_ready_p SCM_P ((void));
 extern void debug_print SCM_P ((SCM obj));
 extern SCM scm_debug_object_p SCM_P ((SCM obj));
@@ -198,7 +197,7 @@ extern SCM scm_evaluator_traps SCM_P ((SCM setting));
 extern SCM scm_debug_options SCM_P ((SCM setting));
 extern SCM scm_unmemoize SCM_P ((SCM memoized));
 extern SCM scm_make_debugobj SCM_P ((scm_debug_frame* debug));
-extern void scm_init_debug SCM_P ((void));
+extern SCM scm_init_debug SCM_P ((SCM env));
 
 #ifdef GUILE_DEBUG
 extern SCM scm_make_gloc SCM_P ((SCM var, SCM env));

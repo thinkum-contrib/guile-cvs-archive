@@ -417,18 +417,19 @@ scm_raise(sig)
 
 
 
-void
-scm_init_scmsigs ()
+SCM
+scm_init_scmsigs (env)
+     SCM env;
 {
   SCM thunk;
   int i;
 
   signal_handlers =
-    SCM_CDRLOC (scm_sysintern ("signal-handlers",
+    SCM_CDRLOC (scm_environment_intern (env, "signal-handlers",
 			       scm_make_vector (SCM_MAKINUM (NSIG),
 						SCM_BOOL_F)));
   thunk = scm_make_gsubr ("%deliver-signals", 0, 0, 0,
-			  sys_deliver_signals);
+			  sys_deliver_signals, env);
   signal_async = scm_system_async (thunk);
 
   for (i = 0; i < NSIG; i++)
@@ -458,16 +459,18 @@ scm_init_scmsigs ()
 #endif
     }
 
-  scm_sysintern ("NSIG", scm_long2num (NSIG));
-  scm_sysintern ("SIG_IGN", scm_long2num ((long) SIG_IGN));
-  scm_sysintern ("SIG_DFL", scm_long2num ((long) SIG_DFL));
+  scm_environment_intern (env, "NSIG", scm_long2num (NSIG));
+  scm_environment_intern (env, "SIG_IGN", scm_long2num ((long) SIG_IGN));
+  scm_environment_intern (env, "SIG_DFL", scm_long2num ((long) SIG_DFL));
 #ifdef SA_NOCLDSTOP
-  scm_sysintern ("SA_NOCLDSTOP", scm_long2num (SA_NOCLDSTOP));
+  scm_environment_intern (env, "SA_NOCLDSTOP", scm_long2num (SA_NOCLDSTOP));
 #endif
 #ifdef SA_RESTART
-  scm_sysintern ("SA_RESTART", scm_long2num (SA_RESTART));
+  scm_environment_intern (env, "SA_RESTART", scm_long2num (SA_RESTART));
 #endif
 
 #include "scmsigs.x"
+
+  return SCM_UNSPECIFIED;
 }
 

@@ -59,6 +59,6 @@ extern SCM scm_make_keyword_from_dash_symbol (SCM symbol);
 extern SCM scm_c_make_keyword (char *s);
 extern SCM scm_keyword_p (SCM obj);
 extern SCM scm_keyword_dash_symbol (SCM keyword);
-extern void scm_init_keywords (void);
+extern SCM scm_init_keywords (SCM env);
 
 #endif  /* KEYWORDSH */

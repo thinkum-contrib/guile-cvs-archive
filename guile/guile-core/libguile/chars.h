@@ -85,6 +85,6 @@ extern SCM scm_char_downcase SCM_P ((SCM chr));
 extern void scm_tables_prehistory SCM_P ((void));
 extern int scm_upcase SCM_P ((unsigned int c));
 extern int scm_downcase SCM_P ((unsigned int c));
-extern void scm_init_chars SCM_P ((void));
+extern SCM scm_init_chars SCM_P ((SCM env));
 
 #endif  /* SCM_CHARSH */

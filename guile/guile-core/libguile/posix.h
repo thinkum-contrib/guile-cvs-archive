@@ -95,6 +95,6 @@ extern SCM scm_setlocale SCM_P ((SCM category, SCM locale));
 extern SCM scm_mknod SCM_P ((SCM path, SCM type, SCM perms, SCM dev));
 extern SCM scm_nice SCM_P ((SCM incr));
 extern SCM scm_sync SCM_P ((void));
-extern void scm_init_posix SCM_P ((void));
+extern SCM scm_init_posix SCM_P ((SCM env));
 
 #endif  /* POSIXH */

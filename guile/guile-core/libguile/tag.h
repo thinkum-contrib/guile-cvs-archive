@@ -53,6 +53,6 @@
 
 
 extern SCM scm_tag SCM_P ((SCM x));
-extern void scm_init_tag SCM_P ((void));
+extern SCM scm_init_tag SCM_P ((SCM env));
 
 #endif  /* TAGH */

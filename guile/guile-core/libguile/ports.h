@@ -289,7 +289,7 @@ extern void scm_print_port_mode (SCM exp, SCM port);
 extern void scm_ports_prehistory SCM_P ((void));
 extern SCM scm_void_port SCM_P ((char * mode_str));
 extern SCM scm_sys_make_void_port SCM_P ((SCM mode));
-extern void scm_init_ports SCM_P ((void));
+extern SCM scm_init_ports SCM_P ((SCM env));
 
 #ifdef GUILE_DEBUG
 extern SCM scm_pt_size SCM_P ((void));

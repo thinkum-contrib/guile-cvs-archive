@@ -101,7 +101,7 @@ extern int gdb_read SCM_P ((char *str));
    if no output is passed.  Please note that the resulting lisp object
    should be protected against garbage collection. */
 
-extern int gdb_eval SCM_P ((GDB_TYPE exp));
+extern int gdb_eval SCM_P ((GDB_TYPE exp, GDB_TYPE env));
 
 /* Print VALUE.  Store output in GDB_OUTPUT and GDB_OUTPUT_LENGTH.
    Return 0 to indicate success.  On error, return -1 to indicate

@@ -578,6 +578,11 @@ scm_igc (what)
 
   scm_gc_sweep ();
 
+  /* 
+   * finalize method for weak environment observers */
+  scm_observer_finalize_weaks();
+  
+
   --scm_gc_heap_lock;
   scm_gc_end ();
 
@@ -823,14 +828,7 @@ gc_mark_nimp:
       if (SCM_GC8MARKP(ptr))
 	break;
       SCM_SETGC8MARK (ptr);
-      scm_gc_mark (SCM_SYMBOL_FUNC (ptr));
-      ptr = SCM_SYMBOL_PROPS (ptr);
       goto gc_mark_loop;
-    case scm_tc7_ssymbol:
-      if (SCM_GC8MARKP(ptr))
-	break;
-      SCM_SETGC8MARK (ptr);
-      break;
     case scm_tcs_subrs:
       break;
     case scm_tc7_port:
@@ -1220,10 +1218,6 @@ scm_gc_sweep ()
 	      m += SCM_LENGTH (scmptr) * sizeof (SCM_STACKITEM) + sizeof (scm_contregs);
 	      if (SCM_VELTS (scmptr))
 		goto freechars;
-	    case scm_tc7_ssymbol:
-	      if SCM_GC8MARKP(scmptr)
-		goto c8mrkcontinue;
-	      break;
 	    case scm_tcs_subrs:
 	      continue;
 	    case scm_tc7_port:
@@ -1929,24 +1923,24 @@ scm_init_storage (scm_sizet init_heap_size)
   scm_listofnull = scm_cons (SCM_EOL, SCM_EOL);
   scm_nullstr = scm_makstr (0L, 0);
   scm_nullvect = scm_make_vector (SCM_INUM0, SCM_UNDEFINED);
-  scm_symhash = scm_make_vector ((SCM) SCM_MAKINUM (scm_symhash_dim), SCM_EOL);
   scm_weak_symhash = scm_make_weak_key_hash_table ((SCM) SCM_MAKINUM (scm_symhash_dim));
+
+  
   scm_symhash_vars = scm_make_vector ((SCM) SCM_MAKINUM (scm_symhash_dim), SCM_EOL);
   scm_stand_in_procs = SCM_EOL;
   scm_permobjs = SCM_EOL;
   scm_protects = SCM_EOL;
   scm_asyncs = SCM_EOL;
-  scm_sysintern ("most-positive-fixnum", (SCM) SCM_MAKINUM (SCM_MOST_POSITIVE_FIXNUM));
-  scm_sysintern ("most-negative-fixnum", (SCM) SCM_MAKINUM (SCM_MOST_NEGATIVE_FIXNUM));
-#ifdef SCM_BIGDIG
-  scm_sysintern ("bignum-radix", SCM_MAKINUM (SCM_BIGRAD));
-#endif
+
   return 0;
 }
 
 
-void
-scm_init_gc ()
+SCM
+scm_init_gc (env)
+     SCM env;
 {
 #include "gc.x"
+
+  return SCM_UNSPECIFIED;
 }

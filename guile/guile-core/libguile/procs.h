@@ -105,7 +105,6 @@ typedef struct
 #define SCM_SETCODE(x, e) (SCM_SETCAR (x, scm_cons ((e), SCM_EOL) + scm_tc3_closure))
 #define SCM_ENV(x) SCM_CDR(x)
 #define SCM_SETENV(x, e) SCM_SETCDR (x, e)
-#define SCM_TOP_LEVEL(SCM_ENV)  (SCM_NULLP(SCM_ENV) || (SCM_BOOL_T == scm_procedure_p (SCM_CAR (SCM_ENV))))
 
 /* Procedure-with-setter
 
@@ -166,15 +165,16 @@ extern int scm_subr_table_room;
 
 extern void scm_mark_subr_table (void);
 extern void scm_free_subr_entry (SCM subr);
-extern SCM scm_make_subr SCM_P ((const char *name, int type, SCM (*fcn) ()));
+extern SCM scm_make_subr SCM_P ((const char *name, int type, SCM (*fcn) (), SCM env));
 extern SCM scm_make_subr_with_generic (const char *name,
 				       int type,
 				       SCM (*fcn) (),
-				       SCM *gf);
+				       SCM *gf,
+				       SCM env);
 extern SCM scm_make_subr_opt SCM_P ((const char *name, 
 				     int type, 
 				     SCM (*fcn) (),
-				     int set));
+				     int set, SCM env));
 extern SCM scm_makcclo SCM_P ((SCM proc, long len));
 extern SCM scm_procedure_p SCM_P ((SCM obj));
 extern SCM scm_closure_p SCM_P ((SCM obj));
@@ -185,9 +185,9 @@ extern SCM scm_procedure_with_setter_p SCM_P ((SCM obj));
 extern SCM scm_make_procedure_with_setter SCM_P ((SCM procedure, SCM setter));
 extern SCM scm_procedure SCM_P ((SCM proc));
 extern SCM scm_setter SCM_P ((SCM proc));
-extern void scm_init_iprocs SCM_P ((const scm_iproc *subra, int type));
+extern void scm_init_iprocs SCM_P ((const scm_iproc *subra, int type, SCM env));
+extern SCM scm_init_procs SCM_P ((SCM env));
 extern void scm_init_subr_table (void);
-extern void scm_init_procs SCM_P ((void));
 
 #ifdef GUILE_DEBUG
 extern SCM scm_make_cclo SCM_P ((SCM proc, SCM len));

@@ -572,8 +572,10 @@ scm_internal_hash_fold (SCM (*fn) (), void *closure, SCM init, SCM table)
 
 
 
-void
-scm_init_hashtab ()
+SCM
+scm_init_hashtab (SCM env)
 {
 #include "hashtab.x"
+
+  return SCM_UNSPECIFIED;
 }

@@ -377,6 +377,8 @@ scm_operator_p (SCM obj)
 
 SCM_PROC (s_set_object_procedure_x, "set-object-procedure!", 2, 0, 0, scm_set_object_procedure_x);
 
+SCM_SYMBOL (scm_sym_atdispatch, "@dispatch");
+
 SCM
 scm_set_object_procedure_x (SCM obj, SCM proc)
 {
@@ -469,8 +471,9 @@ scm_make_subclass_object (SCM class, SCM layout)
 				  SCM_CLASS_FLAGS (class));
 }
 
-void
-scm_init_objects ()
+SCM
+scm_init_objects (env)
+     SCM env;
 {
   SCM ms = scm_makfrom0str (SCM_METACLASS_STANDARD_LAYOUT);
   SCM ml = scm_make_struct_layout (ms);
@@ -487,13 +490,15 @@ scm_init_objects ()
   SCM et = scm_make_struct (mt, SCM_INUM0,
 			    SCM_LIST4 (el, SCM_BOOL_F, SCM_EOL, SCM_EOL));
 
-  scm_sysintern ("<class>", mt);
+  scm_environment_intern (env, "<class>", mt);
   scm_metaclass_standard = mt;
-  scm_sysintern ("<operator-class>", ot);
+  scm_environment_intern (env, "<operator-class>", ot);
   scm_metaclass_operator = ot;
   SCM_SET_CLASS_FLAGS (et, SCM_CLASSF_OPERATOR | SCM_CLASSF_ENTITY);
   SCM_SET_CLASS_DESTRUCTOR (et, scm_struct_free_entity);
-  scm_sysintern ("<entity>", et);
+  scm_environment_intern (env, "<entity>", et);
 
 #include "objects.x"
+
+  return SCM_UNSPECIFIED;
 }

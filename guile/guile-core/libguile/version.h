@@ -52,6 +52,6 @@ extern SCM scm_major_version SCM_P ((void));
 extern SCM scm_minor_version SCM_P ((void));
 extern SCM scm_version SCM_P ((void));
 extern SCM scm_libguile_config_stamp SCM_P ((void));
-extern void scm_init_version SCM_P ((void));
+extern SCM scm_init_version SCM_P ((SCM env));
 
 #endif  /* VERSIONH */

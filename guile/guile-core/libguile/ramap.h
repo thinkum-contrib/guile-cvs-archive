@@ -69,6 +69,6 @@ extern SCM scm_array_for_each SCM_P ((SCM proc, SCM ra0, SCM lra));
 extern SCM scm_array_index_map_x SCM_P ((SCM ra, SCM proc));
 extern SCM scm_raequal SCM_P ((SCM ra0, SCM ra1));
 extern SCM scm_array_equal_p SCM_P ((SCM ra0, SCM ra1));
-extern void scm_init_ramap SCM_P ((void));
+extern SCM scm_init_ramap SCM_P ((SCM env));
 
 #endif  /* RAMAPH */

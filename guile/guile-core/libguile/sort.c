@@ -375,6 +375,8 @@ closureless (SCM code, const void *a, const void *b)
   return SCM_NFALSEP (scm_eval_body (SCM_CDR (SCM_CODE (code)), env));
 }				/* closureless */
 
+
+
 static int 
 applyless (SCM less, const void *a, const void *b)
 {
@@ -923,10 +925,12 @@ scm_sort_list (SCM items, SCM less)
   return scm_merge_list_step (&items, scm_cmp_function (less), less, len);
 }				/* scm_sort_list_x */
 
-void
-scm_init_sort ()
+SCM
+scm_init_sort (env)
+     SCM env;
 {
 #include "sort.x"
 
   scm_add_feature ("sort");
+  return SCM_UNSPECIFIED;
 }

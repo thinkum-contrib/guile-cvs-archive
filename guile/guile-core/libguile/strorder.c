@@ -216,9 +216,11 @@ scm_string_ci_geq_p (s1, s2)
 
 
 
-void
-scm_init_strorder ()
+SCM
+scm_init_strorder (env)
+     SCM env;
 {
 #include "strorder.x"
+  return SCM_UNSPECIFIED;
 }
 

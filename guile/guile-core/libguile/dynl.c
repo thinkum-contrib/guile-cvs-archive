@@ -139,86 +139,6 @@ scm_coerce_rostring (rostr, subr, argn)
     return rostr;
 }
 
-/* Module registry
- */
-
-/* We can't use SCM objects here. One should be able to call
-   SCM_REGISTER_MODULE from a C++ constructor for a static
-   object. This happens before main and thus before libguile is
-   initialized. */
-
-struct moddata {
-    struct moddata *link;
-    char *module_name;
-    void *init_func;
-};
-
-static struct moddata *registered_mods = NULL;
-
-void
-scm_register_module_xxx (module_name, init_func)
-     char *module_name;
-     void *init_func;
-{
-    struct moddata *md;
-
-    /* XXX - should we (and can we) DEFER_INTS here? */
-
-    for (md = registered_mods; md; md = md->link)
-	if (!strcmp (md->module_name, module_name)) {
-	    md->init_func = init_func;
-	    return;
-	}
-
-    md = (struct moddata *)malloc (sizeof (struct moddata));
-    if (md == NULL) {
-	fprintf (stderr,
-		 "guile: can't register module (%s): not enough memory",
-		 module_name);
-	return;
-    }
-
-    md->module_name = module_name;
-    md->init_func = init_func;
-    md->link = registered_mods;
-    registered_mods = md;
-}
-
-SCM_PROC (s_registered_modules, "c-registered-modules", 0, 0, 0, scm_registered_modules);
-
-SCM
-scm_registered_modules ()
-{
-    SCM res;
-    struct moddata *md;
-
-    res = SCM_EOL;
-    for (md = registered_mods; md; md = md->link)
-	res = scm_cons (scm_cons (scm_makfrom0str (md->module_name),
-				  scm_ulong2num ((unsigned long) md->init_func)),
-			res);
-    return res;
-}
-
-SCM_PROC (s_clear_registered_modules, "c-clear-registered-modules", 0, 0, 0, scm_clear_registered_modules);
-
-SCM
-scm_clear_registered_modules ()
-{
-    struct moddata *md1, *md2;
-
-    SCM_DEFER_INTS;
-
-    for (md1 = registered_mods; md1; md1 = md2) {
-	md2 = md1->link;
-	free (md1);
-    }
-    registered_mods = NULL;
-
-    SCM_ALLOW_INTS;
-    return SCM_UNSPECIFIED;
-}
-
 /* Dispatch to the system dependent files
  *
  * They define some static functions.  These functions are called with
@@ -446,20 +366,21 @@ scm_dynamic_func (SCM symb, SCM dobj)
     return scm_ulong2num ((unsigned long)func);
 }
 
-SCM_PROC (s_dynamic_call, "dynamic-call", 2, 0, 0, scm_dynamic_call);
+SCM_PROC (s_dynamic_call, "dynamic-call", 3, 0, 0, scm_dynamic_call);
 
 SCM
-scm_dynamic_call (SCM func, SCM dobj)
+scm_dynamic_call (SCM func, SCM dobj, SCM env)
 {
-    void (*fptr)();
+    SCM (*fptr)();
+    SCM retcode;
 
     if (SCM_NIMP (func) && SCM_ROSTRINGP (func))
 	func = scm_dynamic_func (func, dobj);
-    fptr = (void (*)()) scm_num2ulong (func, (char *)SCM_ARG1, s_dynamic_call);
+    fptr = (SCM (*)(SCM)) scm_num2ulong (func, (char *)SCM_ARG1, s_dynamic_call);
     SCM_DEFER_INTS;
-    fptr ();
+    retcode = fptr (env);
     SCM_ALLOW_INTS;
-    return SCM_UNSPECIFIED;
+    return retcode;
 }
 
 SCM_PROC (s_dynamic_args_call, "dynamic-args-call", 3, 0, 0, scm_dynamic_args_call);
@@ -487,13 +408,18 @@ scm_dynamic_args_call (func, dobj, args)
     return SCM_MAKINUM(0L+result);
 }
 
-void
-scm_init_dynamic_linking ()
+SCM
+scm_init_dynamic_linking (env)
+     SCM env;
 {
     scm_tc16_dynamic_obj = scm_make_smob_type_mfpe ("dynamic-object", sizeof (struct dynl_obj),
                                                    mark_dynl_obj, free_dynl_obj, 
                                                    print_dynl_obj, NULL);
     sysdep_dynl_init ();
+
 #include "dynl.x"
+
     kw_global = scm_make_keyword_from_dash_symbol (sym_global);
+
+    return SCM_UNSPECIFIED;
 }

@@ -67,6 +67,6 @@ extern SCM scm_recv SCM_P ((SCM sockfd, SCM buff_or_size, SCM flags));
 extern SCM scm_send SCM_P ((SCM sockfd, SCM message, SCM flags));
 extern SCM scm_recvfrom SCM_P ((SCM sockfd, SCM buff_or_size, SCM flags, SCM offset, SCM length));
 extern SCM scm_sendto SCM_P ((SCM sockfd, SCM message, SCM fam, SCM address, SCM args_and_flags));
-extern void scm_init_socket SCM_P ((void));
+extern SCM scm_init_socket SCM_P ((SCM env));
 
 #endif  /* SOCKETH */

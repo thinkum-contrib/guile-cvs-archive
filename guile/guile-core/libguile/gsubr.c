@@ -59,25 +59,26 @@ SCM scm_sym_name;
 SCM scm_f_gsubr_apply;
 
 SCM
-scm_make_gsubr(name, req, opt, rst, fcn)
+scm_make_gsubr(name, req, opt, rst, fcn, env)
      const char *name;
      int req;
      int opt;
      int rst;
      SCM (*fcn)();
+     SCM env;
 {
   switch SCM_GSUBR_MAKTYPE(req, opt, rst) {
-  case SCM_GSUBR_MAKTYPE(0, 0, 0): return scm_make_subr(name, scm_tc7_subr_0, fcn);
-  case SCM_GSUBR_MAKTYPE(1, 0, 0): return scm_make_subr(name, scm_tc7_subr_1, fcn);
-  case SCM_GSUBR_MAKTYPE(0, 1, 0): return scm_make_subr(name, scm_tc7_subr_1o, fcn);
-  case SCM_GSUBR_MAKTYPE(1, 1, 0): return scm_make_subr(name, scm_tc7_subr_2o, fcn);
-  case SCM_GSUBR_MAKTYPE(2, 0, 0): return scm_make_subr(name, scm_tc7_subr_2, fcn);
-  case SCM_GSUBR_MAKTYPE(3, 0, 0): return scm_make_subr(name, scm_tc7_subr_3, fcn);
-  case SCM_GSUBR_MAKTYPE(0, 0, 1): return scm_make_subr(name, scm_tc7_lsubr, fcn);
-  case SCM_GSUBR_MAKTYPE(2, 0, 1): return scm_make_subr(name, scm_tc7_lsubr_2, fcn);
+  case SCM_GSUBR_MAKTYPE(0, 0, 0): return scm_make_subr(name, scm_tc7_subr_0, fcn, env);
+  case SCM_GSUBR_MAKTYPE(1, 0, 0): return scm_make_subr(name, scm_tc7_subr_1, fcn, env);
+  case SCM_GSUBR_MAKTYPE(0, 1, 0): return scm_make_subr(name, scm_tc7_subr_1o, fcn, env);
+  case SCM_GSUBR_MAKTYPE(1, 1, 0): return scm_make_subr(name, scm_tc7_subr_2o, fcn, env);
+  case SCM_GSUBR_MAKTYPE(2, 0, 0): return scm_make_subr(name, scm_tc7_subr_2, fcn, env);
+  case SCM_GSUBR_MAKTYPE(3, 0, 0): return scm_make_subr(name, scm_tc7_subr_3, fcn, env);
+  case SCM_GSUBR_MAKTYPE(0, 0, 1): return scm_make_subr(name, scm_tc7_lsubr, fcn, env);
+  case SCM_GSUBR_MAKTYPE(2, 0, 1): return scm_make_subr(name, scm_tc7_lsubr_2, fcn, env);
   default:
     {
-      SCM symcell = scm_sysintern(name, SCM_UNDEFINED);
+      SCM symcell = scm_environment_intern (env, name, SCM_UNDEFINED);
       SCM z, cclo = scm_makcclo(scm_f_gsubr_apply, 3L);
       long tmp = ((((SCM_CELLPTR)(SCM_CAR(symcell)))-scm_heap_org)<<8);
       if (SCM_GSUBR_MAX < req + opt + rst) {
@@ -107,25 +108,26 @@ scm_make_gsubr_with_generic (const char *name,
 			     int opt,
 			     int rst,
 			     SCM (*fcn)(),
-			     SCM *gf)
+			     SCM *gf,
+			     SCM env)
 {
   switch SCM_GSUBR_MAKTYPE(req, opt, rst) {
   case SCM_GSUBR_MAKTYPE(0, 0, 0):
-    return scm_make_subr_with_generic(name, scm_tc7_subr_0, fcn, gf);
+    return scm_make_subr_with_generic(name, scm_tc7_subr_0, fcn, gf, env);
   case SCM_GSUBR_MAKTYPE(1, 0, 0):
-    return scm_make_subr_with_generic(name, scm_tc7_subr_1, fcn, gf);
+    return scm_make_subr_with_generic(name, scm_tc7_subr_1, fcn, gf, env);
   case SCM_GSUBR_MAKTYPE(0, 1, 0):
-    return scm_make_subr_with_generic(name, scm_tc7_subr_1o, fcn, gf);
+    return scm_make_subr_with_generic(name, scm_tc7_subr_1o, fcn, gf, env);
   case SCM_GSUBR_MAKTYPE(1, 1, 0):
-    return scm_make_subr_with_generic(name, scm_tc7_subr_2o, fcn, gf);
+    return scm_make_subr_with_generic(name, scm_tc7_subr_2o, fcn, gf, env);
   case SCM_GSUBR_MAKTYPE(2, 0, 0):
-    return scm_make_subr_with_generic(name, scm_tc7_subr_2, fcn, gf);
+    return scm_make_subr_with_generic(name, scm_tc7_subr_2, fcn, gf, env);
   case SCM_GSUBR_MAKTYPE(3, 0, 0):
-    return scm_make_subr_with_generic(name, scm_tc7_subr_3, fcn, gf);
+    return scm_make_subr_with_generic(name, scm_tc7_subr_3, fcn, gf, env);
   case SCM_GSUBR_MAKTYPE(0, 0, 1):
-    return scm_make_subr_with_generic(name, scm_tc7_lsubr, fcn, gf);
+    return scm_make_subr_with_generic(name, scm_tc7_lsubr, fcn, gf, env);
   case SCM_GSUBR_MAKTYPE(2, 0, 1):
-    return scm_make_subr_with_generic(name, scm_tc7_lsubr_2, fcn, gf);
+    return scm_make_subr_with_generic(name, scm_tc7_lsubr_2, fcn, gf, env);
   default:
     ;
   }
@@ -210,13 +212,16 @@ gsubr_21l(req1, req2, opt, rst)
 
 
 
-void
-scm_init_gsubr()
+SCM
+scm_init_gsubr(env)
+     SCM env;
 {
-  scm_f_gsubr_apply = scm_make_subr(s_gsubr_apply, scm_tc7_lsubr, scm_gsubr_apply);
-  scm_sym_name = SCM_CAR (scm_sysintern ("name", SCM_UNDEFINED));
-  scm_permanent_object (scm_sym_name);
+  scm_f_gsubr_apply = scm_make_subr(s_gsubr_apply, scm_tc7_lsubr, scm_gsubr_apply, env);
+  scm_sym_name =  scm_permanent_object (SCM_CAR (scm_intern ("name")));
+
 #ifdef GSUBR_TEST
   scm_make_gsubr("gsubr-2-1-l", 2, 1, 1, gsubr_21l); /* example */
 #endif
+
+  return SCM_UNSPECIFIED;
 }

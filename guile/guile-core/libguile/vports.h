@@ -49,6 +49,6 @@
 
 
 extern SCM scm_make_soft_port SCM_P ((SCM pv, SCM modes));
-extern void scm_init_vports SCM_P ((void));
+extern SCM scm_init_vports SCM_P ((SCM env));
 
 #endif  /* VPORTSH */

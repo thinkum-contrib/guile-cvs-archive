@@ -338,21 +338,23 @@ scm_set_source_property_x (obj, key, datum)
 }
 
 
-void
-scm_init_srcprop ()
+SCM
+scm_init_srcprop (env)
+     SCM env;
 {
   scm_tc16_srcprops = scm_make_smob_type_mfpe ("srcprops", 0,
                                          marksrcprops, freesrcprops, prinsrcprops, NULL);
   scm_source_whash = scm_make_weak_key_hash_table (SCM_MAKINUM (2047));
 
-  scm_sym_filename = SCM_CAR (scm_sysintern ("filename", SCM_UNDEFINED));
-  scm_sym_copy = SCM_CAR (scm_sysintern ("copy", SCM_UNDEFINED));
-  scm_sym_line = SCM_CAR (scm_sysintern ("line", SCM_UNDEFINED));
-  scm_sym_column = SCM_CAR (scm_sysintern ("column", SCM_UNDEFINED));
-  scm_sym_breakpoint = SCM_CAR (scm_sysintern ("breakpoint", SCM_UNDEFINED));
+  scm_sym_filename = scm_permanent_object (SCM_CAR (scm_intern ("filename")));
+  scm_sym_copy = scm_permanent_object (SCM_CAR (scm_intern ("copy")));
+  scm_sym_line = scm_permanent_object (SCM_CAR (scm_intern ("line")));
+  scm_sym_column = scm_permanent_object (SCM_CAR (scm_intern ("column")));
+  scm_sym_breakpoint = scm_permanent_object (SCM_CAR (scm_intern ("breakpoint")));
 
-  scm_sysintern ("source-whash", scm_source_whash);
+  scm_environment_intern (env, "source-whash", scm_source_whash);
 #include "srcprop.x"
+  return SCM_UNSPECIFIED;
 }
 
 void

@@ -337,6 +337,6 @@ extern long_long scm_num2long_long SCM_P ((SCM num, char *pos,
 					   const char *s_caller));
 extern unsigned long scm_num2ulong SCM_P ((SCM num, char *pos,
 					   const char *s_caller));
-extern void scm_init_numbers SCM_P ((void));
+extern SCM scm_init_numbers SCM_P ((SCM env));
 
 #endif  /* NUMBERSH */

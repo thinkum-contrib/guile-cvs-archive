@@ -97,8 +97,11 @@ scm_stack_report ()
 
 
 
-void
-scm_init_stackchk ()
+SCM
+scm_init_stackchk (env)
+     SCM env;
 {
 #include "stackchk.x"
+
+  return SCM_UNSPECIFIED;
 }

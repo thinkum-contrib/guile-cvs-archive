@@ -212,9 +212,12 @@ scm_hash(obj, n)
 
 
 
-void
-scm_init_hash ()
+SCM
+scm_init_hash (env)
+     SCM env;
 {
 #include "hash.x"
+
+  return SCM_UNSPECIFIED;
 }
 

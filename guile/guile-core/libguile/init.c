@@ -81,7 +81,6 @@
 #include "load.h"
 #include "macros.h"
 #include "mallocs.h"
-#include "modules.h"
 #include "net_db.h"
 #include "numbers.h"
 #include "objects.h"
@@ -118,7 +117,6 @@
 #include "tag.h"
 #include "throw.h"
 #include "unif.h"
-#include "variable.h"
 #include "vectors.h"
 #include "version.h"
 #include "vports.h"
@@ -150,9 +148,6 @@ start_stack (base)
   scm_stack_base = base;
 
   scm_exitval = SCM_BOOL_F;	/* vestigial */
-
-  scm_top_level_lookup_closure_var = SCM_BOOL_F;
-  scm_system_transformer = SCM_BOOL_F;
 
   scm_root->fluids = scm_make_initial_fluids ();
 
@@ -312,22 +307,16 @@ int scm_ice_9_already_loaded = 0;
 void
 scm_load_startup_files ()
 {
-  /* We want a path only containing directories from GUILE_LOAD_PATH,
-     SCM_SITE_DIR and SCM_LIBRARY_DIR when searching for the site init
-     file, so we do this before loading Ice-9.  */
-  SCM init_path = scm_sys_search_load_path (scm_makfrom0str ("init.scm"));
-
+  
   /* Load Ice-9.  */
   if (!scm_ice_9_already_loaded)
-    {
-      scm_primitive_load_path (scm_makfrom0str ("ice-9/boot-9.scm"));
+    scm_primitive_load_path (scm_makfrom0str ("ice-9/boot-9.scm"), scm_scheme_guile_environment);
 
-      /* Load the init.scm file.  */
-      if (SCM_NFALSEP (init_path))
-	scm_primitive_load (init_path);
-  
-      scm_post_boot_init_modules ();
-    }
+#if 0
+  /* Load the init.scm file.  */
+  if (SCM_NFALSEP (init_path))
+    scm_primitive_load (init_path);
+#endif
 }
 
 
@@ -440,94 +429,109 @@ scm_boot_guile_1 (base, closure)
       scm_ports_prehistory ();
       scm_smob_prehistory ();
       scm_tables_prehistory ();
+
       scm_init_storage (0);
+
       scm_init_subr_table ();
-      scm_init_root ();
+
+      scm_environments_prehistory (); /* create the root environment */
+
+      scm_init_root (scm_scheme_guile_environment);
 #ifdef USE_THREADS
-      scm_init_threads (base);
+      scm_init_threads (scm_scheme_guile_environment, base);
 #endif
       start_stack (base);
-      scm_init_gsubr ();
-      scm_init_feature ();
-      scm_init_alist ();
-      scm_init_arbiters ();
-      scm_init_async ();
-      scm_init_boolean ();
-      scm_init_chars ();
-      scm_init_continuations ();
-      scm_init_dynwind ();
-      scm_init_eq ();
-      scm_init_error ();
-      scm_init_fluids ();
-      scm_init_backtrace ();	/* Requires fluids */
-      scm_init_fports ();
-      scm_init_filesys ();
-      scm_init_gc ();
-      scm_init_gdbint ();
-      scm_init_hash ();
-      scm_init_hashtab ();
+
+      scm_init_gsubr (scm_scheme_guile_environment); /* from now on we can use
+						the make_gsubr() calls
+						created by the snarfer */
+
+      scm_init_environments (scm_scheme_guile_environment);
+      scm_init_feature (scm_scheme_guile_environment);
+      scm_make_subr("ice-9/alist", scm_tc7_subr_1, scm_init_alist, scm_c_module_registry);
+      scm_init_arbiters (scm_scheme_guile_environment);
+      scm_init_async (scm_scheme_guile_environment);
+      scm_init_boolean (scm_scheme_guile_environment);
+      scm_make_subr("ice-9/chars", scm_tc7_subr_1, scm_init_chars, scm_c_module_registry);
+      scm_make_subr("ice-9/continuations", scm_tc7_subr_1, scm_init_continuations, scm_c_module_registry);
+      scm_init_dynwind (scm_scheme_guile_environment);
+      scm_init_eq (scm_scheme_guile_environment);
+      scm_make_subr("ice-9/error", scm_tc7_subr_1, scm_init_error, scm_c_module_registry);
+      scm_init_fluids (scm_scheme_guile_environment);
+      scm_init_backtrace (scm_scheme_guile_environment);	/* Requires fluids */
+      scm_make_subr("ice-9/fports", scm_tc7_subr_1, scm_init_fports, scm_c_module_registry);
+      scm_init_filesys (scm_scheme_guile_environment);
+      scm_make_subr("ice-9/gc", scm_tc7_subr_1, scm_init_gc, scm_c_module_registry);
+      scm_init_gdbint (scm_scheme_guile_environment);
+      scm_make_subr("ice-9/hash", scm_tc7_subr_1, scm_init_hash, scm_c_module_registry);
+      scm_make_subr("ice-9/hashtab", scm_tc7_subr_1, scm_init_hashtab, scm_c_module_registry);
 #ifdef GUILE_ISELECT
-      scm_init_iselect ();
+      scm_init_iselect (scm_scheme_guile_environment);
 #endif
-      scm_init_ioext ();
-      scm_init_keywords ();
-      scm_init_list ();
-      scm_init_macros ();
-      scm_init_mallocs ();
-      scm_init_modules ();
-      scm_init_net_db ();
-      scm_init_numbers ();
-      scm_init_objprop ();
-      scm_init_options ();
-      scm_init_pairs ();
-      scm_init_ports ();
-      scm_init_posix ();
-#ifdef HAVE_REGCOMP
-      scm_init_regex_posix ();
-#endif
-      scm_init_procs ();
-      scm_init_procprop ();
-      scm_init_scmsigs ();
-      scm_init_socket ();
-      scm_init_sort ();
+      scm_make_subr("ice-9/ioext", scm_tc7_subr_1, scm_init_ioext, scm_c_module_registry);
+      scm_init_keywords(scm_scheme_guile_environment);
+      scm_init_list (scm_scheme_guile_environment);
+      scm_init_macros (scm_scheme_guile_environment);
+
+      scm_init_numbers (scm_scheme_guile_environment);
+      scm_init_options (scm_scheme_guile_environment);
+      scm_init_pairs (scm_scheme_guile_environment);
+      scm_init_ports (scm_scheme_guile_environment);
+      scm_make_subr("ice-9/procs", scm_tc7_subr_1, scm_init_procs, scm_c_module_registry);
+      scm_make_subr("ice-9/procprop", scm_tc7_subr_1, scm_init_procprop, scm_c_module_registry);
+      scm_init_scmsigs (scm_scheme_guile_environment);
 #ifdef DEBUG_EXTENSIONS
-      scm_init_srcprop ();
+      scm_init_srcprop (scm_scheme_guile_environment);
 #endif
-      scm_init_stackchk ();
-      scm_init_struct ();	/* Requires struct */
-      scm_init_stacks ();
-      scm_init_strports ();
-      scm_init_symbols ();
-      scm_init_tag ();
-      scm_init_load ();
-      scm_init_objects ();	/* Requires struct */
-      scm_init_print ();	/* Requires struct */
-      scm_init_read ();
-      scm_init_stime ();
-      scm_init_strings ();
-      scm_init_strorder ();
-      scm_init_strop ();
-      scm_init_throw ();
-      scm_init_variable ();
-      scm_init_vectors ();
-      scm_init_version ();
-      scm_init_weaks ();
-      scm_init_guardian ();
-      scm_init_vports ();
-      scm_init_eval ();
-      scm_init_evalext ();
+      scm_make_subr("ice-9/stackchk", scm_tc7_subr_1, scm_init_stackchk, scm_c_module_registry);
+      scm_init_struct (scm_scheme_guile_environment);	/* Requires struct */
+      scm_init_stacks (scm_scheme_guile_environment);
+      scm_init_strports (scm_scheme_guile_environment);
+      scm_make_subr("ice-9/symbols", scm_tc7_subr_1, scm_init_symbols, scm_c_module_registry);
+      scm_init_load (scm_scheme_guile_environment);
+      scm_make_subr("ice-9/objects", scm_tc7_subr_1, scm_init_objects, scm_c_module_registry);	/* Requires struct */
+      scm_init_print (scm_scheme_guile_environment);	/* Requires struct */
+      scm_init_read (scm_scheme_guile_environment);
+      scm_make_subr("ice-9/stime", scm_tc7_subr_1, scm_init_stime, scm_c_module_registry);
+      scm_make_subr("ice-9/strings", scm_tc7_subr_1, scm_init_strings, scm_c_module_registry);
+      scm_make_subr("ice-9/strorder", scm_tc7_subr_1, scm_init_strorder, scm_c_module_registry);
+      scm_make_subr("ice-9/strop", scm_tc7_subr_1, scm_init_strop, scm_c_module_registry);
+      scm_init_throw (scm_scheme_guile_environment);
+      scm_make_subr("ice-9/vectors", scm_tc7_subr_1, scm_init_vectors, scm_c_module_registry);
+      scm_make_subr("ice-9/guile-version", scm_tc7_subr_1, scm_init_version, scm_c_module_registry); /* != file: ice-9/version */
+      scm_make_subr("ice-9/weaks", scm_tc7_subr_1, scm_init_weaks, scm_c_module_registry);
+      scm_init_guardian (scm_scheme_guile_environment);
+      scm_make_subr("ice-9/vports", scm_tc7_subr_1, scm_init_vports, scm_c_module_registry);
+
+      scm_init_eval (scm_scheme_guile_environment);
+      scm_make_subr("ice-9/evalext", scm_tc7_subr_1, scm_init_evalext, scm_c_module_registry);
+
 #ifdef DEBUG_EXTENSIONS
-      scm_init_debug ();	/* Requires macro smobs */
+      scm_init_debug (scm_scheme_guile_environment);
 #endif
-      scm_init_ramap ();
-      scm_init_random ();
-      scm_init_unif ();
-      scm_init_simpos ();
-      scm_init_load_path ();
+      scm_init_ramap (scm_scheme_guile_environment);
+      scm_init_unif (scm_scheme_guile_environment);
+      scm_make_subr("ice-9/simpos", scm_tc7_subr_1, scm_init_simpos, scm_c_module_registry);
+      scm_init_load_path (scm_scheme_guile_environment);
+
       scm_init_standard_ports ();
-      scm_init_dynamic_linking ();
-      scm_init_lang ();
-      scm_init_script ();
+
+#ifdef HAVE_REGCOMP
+      scm_make_subr("ice-9/regex-posix", scm_tc7_subr_1, scm_init_regex_posix, scm_c_module_registry);
+#endif
+      scm_make_subr("ice-9/posix", scm_tc7_subr_1, scm_init_posix, scm_c_module_registry);
+      scm_make_subr("ice-9/objprop", scm_tc7_subr_1, scm_init_objprop, scm_c_module_registry);
+      scm_make_subr("ice-9/mallocs", scm_tc7_subr_1, scm_init_mallocs, scm_c_module_registry);
+      scm_make_subr("ice-9/net-db", scm_tc7_subr_1, scm_init_net_db, scm_c_module_registry);
+      scm_make_subr("ice-9/tag", scm_tc7_subr_1, scm_init_tag, scm_c_module_registry);
+      scm_make_subr("ice-9/socket", scm_tc7_subr_1, scm_init_socket, scm_c_module_registry);
+      scm_make_subr("ice-9/sort", scm_tc7_subr_1, scm_init_sort, scm_c_module_registry);
+      scm_make_subr("ice-9/random", scm_tc7_subr_1, scm_init_random, scm_c_module_registry);
+
+      scm_make_subr("ice-9/lang", scm_tc7_subr_1, scm_init_lang, scm_c_module_registry);
+      scm_init_dynamic_linking (scm_scheme_guile_environment);
+      scm_init_script (scm_scheme_guile_environment);
+
       initialized = 1;
     }
 

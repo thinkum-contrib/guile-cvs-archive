@@ -346,18 +346,20 @@ scm_read_0str (expr)
 /* Given a null-terminated string EXPR containing Scheme program text,
    evaluate it, and return the result of the last expression evaluated.  */
 SCM
-scm_eval_0str (expr)
+scm_eval_0str (expr, env)
      char *expr;
+     SCM env;
 {
-  return scm_eval_string (scm_makfrom0str (expr));
+  return scm_eval_string (scm_makfrom0str (expr), env);
 }
 
 
-SCM_PROC (s_eval_string, "eval-string", 1, 0, 0, scm_eval_string);
+SCM_PROC (s_eval_string, "eval-string", 2, 0, 0, scm_eval_string);
 
 SCM
-scm_eval_string (string)
+scm_eval_string (string, env)
      SCM string;
+     SCM env;
 {
   SCM port = scm_mkstrport (SCM_INUM0, string, SCM_OPN | SCM_RDNG,
 			    "scm_eval_0str");
@@ -366,7 +368,7 @@ scm_eval_string (string)
 
   /* Read expressions from that port; ignore the values.  */
   while (!SCM_EOF_OBJECT_P (form = scm_read (port)))
-    ans = scm_eval_x (form);
+    ans = scm_eval_x (form, env);
 
   /* Don't close the port here; if we re-enter this function via a
      continuation, then the next time we enter it, we'll get an error.
@@ -389,9 +391,12 @@ scm_make_stptob ()
   scm_set_port_truncate    (tc, st_truncate);
 }
 
-void
-scm_init_strports ()
+SCM
+scm_init_strports (env)
+     SCM env;
 {
 #include "strports.x"
+
+  return SCM_UNSPECIFIED;
 }
 

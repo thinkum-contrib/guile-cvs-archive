@@ -18,6 +18,11 @@
 ;;;; the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
 ;;;; Boston, MA 02111-1307 USA
 
+(module (ice-9 r4rs)
+	(open (ice-9 guile)
+	      (ice-9 config)))
+
+
 
 ;;;; apply and call-with-current-continuation
 
@@ -26,7 +31,7 @@
 ;;; macros @apply and @call-with-current-continuation.
 (set! apply (lambda (fun . args) (@apply fun (apply:nconc2last args))))
 (set-procedure-property! apply 'name 'apply)
-(define (call-with-current-continuation proc)
+(define-public (call-with-current-continuation proc)
   (@call-with-current-continuation proc))
 
 
@@ -46,89 +51,89 @@
 ;;; If we want to support systems that do CRLF->LF translation, like
 ;;; Windows, then we should have a symbol in scmconfig.h made visible
 ;;; to the Scheme level that we can test here, and autoconf magic to
-;;; #define it when appropriate.  Windows will probably just have a
+;;; #define-public it when appropriate.  Windows will probably just have a
 ;;; hand-generated scmconfig.h file.
-(define OPEN_READ "r")
-(define OPEN_WRITE "w")
-(define OPEN_BOTH "r+")
+(define-public OPEN_READ "r")
+(define-public OPEN_WRITE "w")
+(define-public OPEN_BOTH "r+")
 
-(define *null-device* "/dev/null")
+(define-public *null-device* "/dev/null")
 
-(define (open-input-file str)
+(define-public (open-input-file str)
   (open-file str OPEN_READ))
 
-(define (open-output-file str)
+(define-public (open-output-file str)
   (open-file str OPEN_WRITE))
 
-(define (open-io-file str) (open-file str OPEN_BOTH))
-(define close-input-port close-port)
-(define close-output-port close-port)
-(define close-io-port close-port)
+(define-public (open-io-file str) (open-file str OPEN_BOTH))
+(define-public close-input-port close-port)
+(define-public close-output-port close-port)
+(define-public close-io-port close-port)
 
-(define (call-with-input-file str proc)
+(define-public (call-with-input-file str proc)
   (let* ((file (open-input-file str))
 	 (ans (proc file)))
     (close-input-port file)
     ans))
 
-(define (call-with-output-file str proc)
+(define-public (call-with-output-file str proc)
   (let* ((file (open-output-file str))
 	 (ans (proc file)))
     (close-output-port file)
     ans))
 
-(define (with-input-from-port port thunk)
+(define-public (with-input-from-port port thunk)
   (let* ((swaports (lambda () (set! port (set-current-input-port port)))))
     (dynamic-wind swaports thunk swaports)))
 
-(define (with-output-to-port port thunk)
+(define-public (with-output-to-port port thunk)
   (let* ((swaports (lambda () (set! port (set-current-output-port port)))))
     (dynamic-wind swaports thunk swaports)))
 
-(define (with-error-to-port port thunk)
+(define-public (with-error-to-port port thunk)
   (let* ((swaports (lambda () (set! port (set-current-error-port port)))))
     (dynamic-wind swaports thunk swaports)))
 
-(define (with-input-from-file file thunk)
+(define-public (with-input-from-file file thunk)
   (let* ((nport (open-input-file file))
 	 (ans (with-input-from-port nport thunk)))
     (close-port nport)
     ans))
 
-(define (with-output-to-file file thunk)
+(define-public (with-output-to-file file thunk)
   (let* ((nport (open-output-file file))
 	 (ans (with-output-to-port nport thunk)))
     (close-port nport)
     ans))
 
-(define (with-error-to-file file thunk)
+(define-public (with-error-to-file file thunk)
   (let* ((nport (open-output-file file))
 	 (ans (with-error-to-port nport thunk)))
     (close-port nport)
     ans))
 
-(define (with-input-from-string string thunk)
+(define-public (with-input-from-string string thunk)
   (call-with-input-string string
    (lambda (p) (with-input-from-port p thunk))))
 
-(define (with-output-to-string thunk)
+(define-public (with-output-to-string thunk)
   (call-with-output-string
    (lambda (p) (with-output-to-port p thunk))))
 
-(define (with-error-to-string thunk)
+(define-public (with-error-to-string thunk)
   (call-with-output-string
    (lambda (p) (with-error-to-port p thunk))))
 
-(define the-eof-object (call-with-input-string "" (lambda (p) (read-char p))))
+(define-public the-eof-object (call-with-input-string "" (lambda (p) (read-char p))))
 
 
 ;;;; Loading
 
-(if (not (defined? '%load-verbosely))
+(if (not (defined? %load-verbosely))
     (define %load-verbosely #f))
-(define (assert-load-verbosity v) (set! %load-verbosely v))
+(define-public (assert-load-verbosity v) (set! %load-verbosely v))
 
-(define (%load-announce file)
+(define (%load-announce file environment)
   (if %load-verbosely
       (with-output-to-port (current-error-port)
 	(lambda ()
@@ -140,6 +145,8 @@
 
 (set! %load-hook %load-announce)
 
-(define (load name)
-  (start-stack 'load-stack
-	       (primitive-load name)))
+; from boot-9
+; (define-public (load name)
+;   (start-stack 'load-stack
+; 	       (primitive-load name (interaction-environment))))
+

@@ -57,7 +57,6 @@ extern SCM scm_string_null_p (SCM str);
 extern SCM scm_string_to_list (SCM str);
 extern SCM scm_string_copy (SCM str);
 extern SCM scm_string_fill_x (SCM str, SCM chr);
-extern void scm_init_strop (void);
 extern SCM scm_string_upcase_x (SCM v);
 extern SCM scm_string_upcase (SCM v);
 extern SCM scm_string_downcase_x (SCM v);
@@ -65,6 +64,7 @@ extern SCM scm_string_downcase (SCM v);
 extern SCM scm_string_capitalize_x (SCM v);
 extern SCM scm_string_capitalize (SCM v);
 extern SCM scm_string_ci_to_symbol (SCM v);
+extern SCM scm_init_strop (SCM env);
 
 #define scm_substring_move_left_x scm_substring_move_x
 #define scm_substring_move_right_x scm_substring_move_x

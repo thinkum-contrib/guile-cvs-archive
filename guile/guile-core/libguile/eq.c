@@ -143,9 +143,12 @@ scm_equal_p (x, y)
 
 
 
-void
-scm_init_eq ()
+SCM
+scm_init_eq (env)
+     SCM env;
 {
 #include "eq.x"
+
+  return SCM_UNSPECIFIED;
 }
 

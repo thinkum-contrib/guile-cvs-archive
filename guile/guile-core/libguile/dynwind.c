@@ -242,10 +242,13 @@ scm_dowinds (to, delta)
 
 
 
-void
-scm_init_dynwind ()
+SCM
+scm_init_dynwind (env)
+     SCM env;
 {
   tc16_guards = scm_make_smob_type_mfpe ("guards", sizeof (struct guardsmem),
                                         NULL, freeguards, printguards, NULL);
 #include "dynwind.x"
+
+  return SCM_UNSPECIFIED;
 }

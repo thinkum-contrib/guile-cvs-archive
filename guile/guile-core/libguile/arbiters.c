@@ -116,10 +116,13 @@ scm_release_arbiter (arb)
 
 
 
-void
-scm_init_arbiters ()
+SCM
+scm_init_arbiters (env)
+     SCM env;
 {
   scm_tc16_arbiter = scm_make_smob_type_mfpe ("arbiter", 0,
                                               scm_markcdr, NULL, prinarb, NULL);
 #include "arbiters.x"
+
+  return SCM_UNSPECIFIED;
 }

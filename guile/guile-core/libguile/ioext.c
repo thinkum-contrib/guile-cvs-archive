@@ -505,9 +505,13 @@ scm_fdes_to_ports (fd)
 }    
 
 
-void 
-scm_init_ioext ()
+SCM
+scm_init_ioext (env)
+     SCM env;
 {
+
 #include "ioext.x"
+
+  return SCM_UNSPECIFIED;
 }
 

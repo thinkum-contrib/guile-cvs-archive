@@ -106,7 +106,7 @@ extern SCM scm_eval_options_interface SCM_P ((SCM setting));
 			     ? SCM_EVALIM(SCM_CAR(x), env) \
 			     : SCM_GLOC_VAL(SCM_CAR(x))) \
 			  : (SCM_SYMBOLP(SCM_CAR(x)) \
-			     ? *scm_lookupcar(x, env, 1) \
+			     ? *scm_lookupcar(x, env, 0) \
 			     : (*scm_ceval_ptr) (SCM_CAR(x), env)))
 #else
 #define SCM_XEVAL(x, env) (SCM_IMP(x)?(x):scm_ceval((x), (env)))
@@ -168,7 +168,7 @@ extern long scm_tc16_macro;
 
 
 extern SCM * scm_ilookup SCM_P ((SCM iloc, SCM env));
-extern SCM * scm_lookupcar SCM_P ((SCM vloc, SCM genv, int check));
+extern SCM * scm_lookupcar SCM_P ((SCM vloc, SCM genv, int modify));
 extern SCM scm_unmemocar SCM_P ((SCM form, SCM env));
 extern SCM scm_unmemocopy SCM_P ((SCM form, SCM env));
 extern SCM scm_eval_car SCM_P ((SCM pair, SCM env));
@@ -219,10 +219,9 @@ extern SCM scm_force SCM_P ((SCM x));
 extern SCM scm_promise_p SCM_P ((SCM x));
 extern SCM scm_cons_source (SCM xorig, SCM x, SCM y);
 extern SCM scm_copy_tree SCM_P ((SCM obj));
+extern SCM scm_eval SCM_P ((SCM obj, SCM env));
+extern SCM scm_eval_x SCM_P ((SCM obj, SCM env));
 extern SCM scm_eval_3 SCM_P ((SCM obj, int copyp, SCM env));
-extern SCM scm_eval2 SCM_P ((SCM obj, SCM env_thunk));
-extern SCM scm_eval SCM_P ((SCM obj));
-extern SCM scm_eval_x SCM_P ((SCM obj));
-extern void scm_init_eval SCM_P ((void));
+extern SCM scm_init_eval SCM_P ((SCM env));
 
 #endif  /* EVALH */

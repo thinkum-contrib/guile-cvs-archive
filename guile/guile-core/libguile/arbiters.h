@@ -51,6 +51,6 @@
 extern SCM scm_make_arbiter SCM_P ((SCM name));
 extern SCM scm_try_arbiter SCM_P ((SCM arb));
 extern SCM scm_release_arbiter SCM_P ((SCM arb));
-extern void scm_init_arbiters SCM_P ((void));
+extern SCM scm_init_arbiters SCM_P ((SCM env));
 
 #endif  /* ARBITERSH */

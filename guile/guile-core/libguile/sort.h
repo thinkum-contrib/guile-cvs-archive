@@ -61,7 +61,7 @@ extern SCM scm_stable_sort (SCM ls, SCM less);
 extern SCM scm_stable_sort_x (SCM ls, SCM less);
 extern SCM scm_sort_list (SCM ls, SCM less);
 extern SCM scm_sort_list_x (SCM ls, SCM less);
-extern void scm_init_sort (void);
+extern SCM scm_init_sort (SCM env);
 
 #endif  /* SORTH */
 

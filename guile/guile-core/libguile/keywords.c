@@ -44,6 +44,7 @@
 #include "_scm.h"
 #include "genio.h"
 #include "smob.h"
+#include "symbols.h"
 
 #include "keywords.h"
 
@@ -82,15 +83,20 @@ scm_make_keyword_from_dash_symbol (symbol)
 	      symbol, SCM_ARG1, s_make_keyword_from_dash_symbol);
 
   SCM_DEFER_INTS;
-  vcell = scm_sym2ovcell_soft (symbol, scm_keyword_obarray);
+  
+  vcell = SCM_ENVIRONMENT_CELL(scm_keyword_environment, symbol, 1);
   if (vcell == SCM_BOOL_F)
     {
       SCM keyword;
+
       SCM_NEWSMOB (keyword, scm_tc16_keyword, symbol);
-      scm_intern_symbol (scm_keyword_obarray, symbol);
-      vcell = scm_sym2ovcell_soft (symbol, scm_keyword_obarray);
-      SCM_SETCDR (vcell, keyword);
+      vcell = SCM_ENVIRONMENT_DEFINE (scm_keyword_environment, symbol, keyword);
     }
+  else
+    {
+      vcell = SCM_CAAR (vcell);
+    }
+
   SCM_ALLOW_INTS;
   return SCM_CDR (vcell);
 }
@@ -102,7 +108,7 @@ scm_c_make_keyword (char *s)
   char *buf = scm_must_malloc (strlen (s) + 2, "keyword");
   buf[0] = '-';
   strcpy (buf + 1, s);
-  vcell = scm_sysintern0 (buf);
+  vcell = scm_permanent_object (SCM_CAR (scm_intern (buf)));
   scm_must_free (buf);
   return scm_make_keyword_from_dash_symbol (SCM_CAR (vcell));
 }
@@ -132,16 +138,18 @@ scm_keyword_dash_symbol (keyword)
 }
 
 
-
-
-
-void
-scm_init_keywords ()
+SCM
+scm_init_keywords (env)
+     SCM env;
 {
   scm_tc16_keyword = scm_make_smob_type_mfpe ("keyword", 0,
                                              scm_markcdr, NULL, prin_keyword, NULL);
   scm_tc16_kw = scm_tc16_keyword;
-  scm_keyword_obarray = scm_make_vector (SCM_MAKINUM (256), SCM_EOL);
+
+  scm_keyword_environment = scm_make_leaf_environment();
+
 #include "keywords.x"
+
+  return SCM_UNSPECIFIED;
 }
 

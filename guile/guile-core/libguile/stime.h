@@ -58,6 +58,6 @@ extern SCM scm_tzset (void);
 extern SCM scm_times (void);
 extern SCM scm_strftime SCM_P ((SCM format, SCM stime));
 extern SCM scm_strptime SCM_P ((SCM format, SCM string));
-extern void scm_init_stime SCM_P ((void));
+extern SCM scm_init_stime SCM_P ((SCM env));
 
 #endif  /* STIMEH */

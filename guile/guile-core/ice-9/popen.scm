@@ -1,9 +1,13 @@
 ;; popen emulation, for non-stdio based ports.
 
-(define-module (ice-9 popen))
-
-;;    (define-module (guile popen)
-;;      :use-module (guile posix))
+(module (ice-9 popen)
+	(open 
+	 (ice-9 config)
+	 (ice-9 guile)
+	 ((ice-9 strorder) string=?)
+	 (ice-9 r4rs)
+	 ))
+	 
 
 ;; a guardian to ensure the cleanup is done correctly when
 ;; an open pipe is gc'd or a close-port is used.

@@ -400,9 +400,12 @@ int scm_n_charnames = sizeof (scm_charnames) / sizeof (char *);
 
 
 
-void
-scm_init_chars ()
+SCM
+scm_init_chars (env)
+     SCM env;
 {
 #include "chars.x"
+
+  return SCM_UNSPECIFIED;
 }
 
