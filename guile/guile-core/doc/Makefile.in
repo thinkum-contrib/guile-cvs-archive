@@ -1,4 +1,4 @@
-# Makefile.in generated automatically by automake 1.4a from Makefile.am
+# Makefile.in generated automatically by automake 1.4 from Makefile.am
 
 # Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
 # This Makefile.in is free software; the Free Software Foundation
@@ -46,10 +46,9 @@ AUTOMAKE = @AUTOMAKE@
 AUTOHEADER = @AUTOHEADER@
 
 INSTALL = @INSTALL@
-INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@ $(AM_INSTALL_PROGRAM_FLAGS)
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
-INSTALL_STRIP_FLAG =
 transform = @program_transform_name@
 
 NORMAL_INSTALL = :
@@ -76,7 +75,6 @@ LN_S = @LN_S@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 NM = @NM@
-OBJDUMP = @OBJDUMP@
 PACKAGE = @PACKAGE@
 QTHREAD_LTLIBS = @QTHREAD_LTLIBS@
 RANLIB = @RANLIB@
@@ -84,6 +82,7 @@ THREAD_CPPFLAGS = @THREAD_CPPFLAGS@
 THREAD_LIBS_INSTALLED = @THREAD_LIBS_INSTALLED@
 THREAD_LIBS_LOCAL = @THREAD_LIBS_LOCAL@
 THREAD_PACKAGE = @THREAD_PACKAGE@
+USE_SYMBOL_UNDERSCORE = @USE_SYMBOL_UNDERSCORE@
 VERSION = @VERSION@
 qtdmdb_s = @qtdmdb_s@
 qthread_asflags = @qthread_asflags@
@@ -94,7 +93,8 @@ qtmds_s = @qtmds_s@
 info_TEXINFOS = data-rep.texi
 data_rep_TEXINFOS = data-rep.texi version.texi
 
-EXAMPLE_SMOB_FILES =      ChangeLog Makefile README COPYING image-type.c image-type.h myguile.c
+EXAMPLE_SMOB_FILES = \
+    ChangeLog Makefile README COPYING image-type.c image-type.h myguile.c
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../libguile/scmconfig.h
@@ -109,7 +109,7 @@ Makefile.in mdate-sh stamp-vti texinfo.tex version.texi
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
-TAR = gtar
+TAR = tar
 GZIP_ENV = --best
 all: all-redirect
 .SUFFIXES:
@@ -279,7 +279,7 @@ distdir: $(DISTFILES)
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
-	    cp -pr $$d/$$file $(distdir)/$$file; \
+	    cp -pr $$/$$file $(distdir)/$$file; \
 	  else \
 	    test -f $(distdir)/$$file \
 	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
@@ -310,7 +310,7 @@ uninstall: uninstall-am
 all-am: Makefile $(INFO_DEPS)
 all-redirect: all-am
 install-strip:
-	$(MAKE) $(AM_MAKEFLAGS) INSTALL_STRIP_FLAG=-s install
+	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
 installdirs:
 	$(mkinstalldirs)  $(DESTDIR)$(infodir)
 
