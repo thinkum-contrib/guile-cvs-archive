@@ -21,12 +21,12 @@
   +R merge HEAD and branch_release-1-6 TODO files into this one [ttn]
   + write dist-hook to include TODO snapshot [ttn]
   + delete HEAD and branch_release-1-6 TODO files [ttn]
-  - convert bug tracking/summarization process
+  + convert bug tracking/summarization process
     +R define bugs db format (see bugs/README) [mvo]
     + import current BUGS [mvo]
     + write stub for render-bugs [ttn]
-    - write autogen.sh frag to call render-bugs to create BUGS [ttn]
-    - delete HEAD and branch_release-1-6 BUGS files [ttn]
+    + write autogen.sh frag to call render-bugs to create BUGS [ttn]
+    + delete HEAD and branch_release-1-6 BUGS files [ttn]
   +R factor guile-core/ administration files [ttn]
   +R factor RELEASE (prefer 1-6) into build/release.text [ttn]
   + show news on guile webpage [ttn]
