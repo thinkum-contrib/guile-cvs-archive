@@ -42,10 +42,10 @@ Wed Nov  6 16:40:11 1996  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 Sat Nov  2 19:47:22 1996  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
-*	* guile-tk.c (scm_tk_do_one_event): Renamed and moved to
+	* guile-tk.c (scm_tk_do_one_event): Renamed and moved to
 	guile-tcl.c.
 
-*	* guile-tcl.c (scm_tcl_defined_p): New function: Check if an
+	* guile-tcl.c (scm_tcl_defined_p): New function: Check if an
 	identifier exists in the namespace of an interpreter.
 	(scm_tcl_do_one_event): Renamed and moved from guile-tk.c.
 
@@ -182,10 +182,7 @@ Thu Feb 29 18:35:48 1996  Tom Lord  <lord@beehive>
 	(scm_tcl_apply_command): handle ints/memory less spastically
 	(trace_variable): mask ints during trace
 
-
-***	(scm_tcl_untrace_var2): This looks bogus.
-
-
+	* guile-tcl.c (scm_tcl_untrace_var2): This looks bogus.
 
 Tue Jan 30 15:12:31 1996  Tom Lord  <lord@beehive>
 
