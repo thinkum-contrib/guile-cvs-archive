@@ -176,11 +176,15 @@ SCM scm_i_create_thread (scm_t_catch_body body, void *body_data,
 SCM_API SCM scm_call_with_new_thread (SCM thunk, SCM handler);
 SCM_API SCM scm_yield (void);
 SCM_API SCM scm_join_thread (SCM t);
+
 SCM_API SCM scm_make_mutex (void);
 SCM_API SCM scm_make_recursive_mutex (void);
 SCM_API SCM scm_lock_mutex (SCM m);
 SCM_API SCM scm_try_mutex (SCM m);
 SCM_API SCM scm_unlock_mutex (SCM m);
+SCM_API SCM scm_mutex_owner (SCM mx);
+SCM_API SCM scm_mutex_level (SCM mx);
+
 SCM_API SCM scm_make_condition_variable (void);
 SCM_API SCM scm_wait_condition_variable (SCM cond, SCM mutex);
 SCM_API SCM scm_timed_wait_condition_variable (SCM cond, SCM mutex,

@@ -45,12 +45,17 @@
 
 /*** Queues */
 
+/* Make an empty queue data structure.
+ */
 static SCM
 make_queue ()
 {
   return scm_cons (SCM_EOL, SCM_EOL);
 }
 
+/* Put T at the back of Q and return a handle that can be used with
+   remqueue to remove T from Q again.
+ */
 static SCM
 enqueue (SCM q, SCM t)
 {
@@ -63,6 +68,11 @@ enqueue (SCM q, SCM t)
   return c;
 }
 
+/* Remove the element that the handle C refers to from the queue Q.  C
+   must have been returned from a call to enqueue.  The return value
+   is zero when the element referred to by C has already been removed.
+   Otherwise, 1 is returned.
+*/
 static int
 remqueue (SCM q, SCM c)
 {
@@ -81,6 +91,9 @@ remqueue (SCM q, SCM c)
   return 0;
 }
 
+/* Remove the front-most element from the queue Q and return it.
+   Return SCM_BOOL_F when Q is empty.
+*/
 static SCM
 dequeue (SCM q)
 {
@@ -96,7 +109,7 @@ dequeue (SCM q)
     }
 }
 
-/*** Threads */
+/*** Thread smob routines */
 
 static SCM
 thread_mark (SCM obj)
@@ -132,9 +145,87 @@ thread_free (SCM obj)
   return 0;
 }
 
-/*** Scheduling */
+/*** Blocking on queues. */
 
-#define cur_thread (SCM_CURRENT_THREAD->handle)
+/* See also scm_i_queue_async_cell for how such a block is
+   interrputed.
+*/
+
+/* Put the current thread on QUEUE and go to sleep, waiting for it to
+   be woken up by a call to 'unblock_from_queue', or to be
+   interrupted.
+
+   The QUEUE data structure is assumed to be protected by MUTEX and
+   the caller of block_self must hold MUTEX.  It will be atomically
+   unlocked while sleeping, just as with pthread_cond_wait.
+
+   SLEEP_OBJECT is a arbitrary SCM value that is kept alive as long as
+   MUTEX is needed.
+
+   When WAITTIME is not NULL, the sleep will be aborted at that time.
+
+   The return value of block_self is an errno value.  It will be zero
+   when the sleep has been successfully completed by a call to
+   unblock_from_queue, EINTR when it has been interrupted by the
+   delivery of a system async, and ETIMEDOUT when the timeout has
+   expired.
+
+   The systems asyncs themselves are not executed by block_self.
+*/
+static int
+block_self (SCM queue, SCM sleep_object, pthread_mutex_t *mutex,
+	    const scm_t_timespec *waittime)
+{
+  scm_thread *t = SCM_CURRENT_THREAD;
+  SCM q_handle;
+  int err;
+
+  if (scm_i_setup_sleep (t, sleep_object, mutex, -1))
+    {
+      fprintf (stderr, "should not sleep\n");
+      err = EINTR;
+    }
+  else
+    {
+      t->block_asyncs++;
+      q_handle = enqueue (queue, t->handle);
+      if (waittime == NULL)
+	err = scm_pthread_cond_wait (&t->sleep_cond, mutex);
+      else
+	err = scm_pthread_cond_timedwait (&t->sleep_cond, mutex, waittime);
+
+      fprintf (stderr, "unblocked %d\n", err);
+
+      /* When we are still on QUEUE, we have been interrupted.  We
+	 report this only when no other error (such as a timeout) has
+	 happened above.
+      */
+      if(remqueue (queue, q_handle) && err == 0)
+	{
+	  fprintf (stderr, "still on queue\n");
+	  err = EINTR;
+	}
+      t->block_asyncs--;
+      scm_i_reset_sleep (t);
+    }
+  return err;
+}
+
+/* Wake up the first thread on QUEUE, if any.  The caller must hold
+   the mutex that protects QUEUE.
+ */
+static SCM
+unblock_from_queue (SCM queue)
+{
+  SCM thread = dequeue (queue);
+  if (scm_is_true (thread))
+    pthread_cond_signal (&SCM_THREAD_DATA(thread)->sleep_cond);
+  return thread;
+}
+
+/* Getting into and out of guile mode.
+ */
+
 pthread_key_t scm_i_thread_key;
 
 static void
@@ -181,84 +272,14 @@ scm_leave_guile ()
   return (scm_t_guile_ticket) t;
 }
 
-#if 0
-/* Put the current thread to sleep until it is explicitely unblocked.
- */
-static int
-block ()
-{
-  int err;
-  scm_thread *t = SCM_CURRENT_THREAD;
-  suspend (t);
-  err = pthread_cond_wait (&t->sleep_cond, &t->heap_mutex);
-  resume (t);
-  return err;
-}
-
-/* Put the current thread to sleep until it is explicitely unblocked
-   or until a signal arrives or until time AT (absolute time) is
-   reached.  Return 0 when it has been unblocked; errno otherwise.
- */
-static int
-timed_block (const scm_t_timespec *at)
-{
-  int err;
-  scm_thread *t = SCM_CURRENT_THREAD;
-  suspend (t);
-  err = pthread_cond_timedwait (&t->sleep_cond, &t->heap_mutex, at);
-  resume (t);
-  return err;
-}
-
-/* Unblock a sleeping thread.
- */
-static void
-unblock (scm_thread *t)
-{
-  pthread_cond_signal (&t->sleep_cond);
-}
-#endif
-
-static int
-block_self (SCM queue, SCM sleep_object, pthread_mutex_t *mutex,
-	    const scm_t_timespec *waittime)
-{
-  scm_thread *t = SCM_CURRENT_THREAD;
-  SCM q_handle;
-  int err;
-
-  if (scm_i_setup_sleep (t, sleep_object, mutex, -1))
-    err = EINTR;
-  else
-    {
-      t->block_asyncs++;
-      q_handle = enqueue (queue, t->handle);
-      if (waittime == NULL)
-	err = scm_pthread_cond_wait (&t->sleep_cond, mutex);
-      else
-	err = scm_pthread_cond_timedwait (&t->sleep_cond, mutex, waittime);
-
-      /* When we are still on QUEUE, we have been interrupted.  We
-	 report this only when no other error (such as a timeout) has
-	 happened above.
-      */
-      if(!remqueue (queue, q_handle) && err == 0)
-	err = EINTR;
-      t->block_asyncs--;
-      scm_i_reset_sleep (t);
-    }
-  return err;
-}
-
-/* Getting into and out of guile mode.
- */
-
 static pthread_mutex_t thread_admin_mutex = PTHREAD_MUTEX_INITIALIZER;
 static scm_thread *all_threads = NULL;
 static int thread_count;
 
 static SCM scm_i_default_dynamic_state;
 
+/* Perform first stage of thread initialisation, in non-guile mode.
+ */
 static void
 guilify_self_1 (SCM_STACKITEM *base)
 {
@@ -302,6 +323,8 @@ guilify_self_1 (SCM_STACKITEM *base)
   pthread_mutex_unlock (&thread_admin_mutex);
 }
 
+/* Perform second stage of thread initialisation, in guile mode.
+ */
 static void
 guilify_self_2 (SCM parent)
 {
@@ -321,20 +344,18 @@ guilify_self_2 (SCM parent)
   t->block_asyncs = 0;
 }
 
+/* Perform thread tear-down, in guile mode.
+ */
 static void *
 do_thread_exit (void *v)
 {
   scm_thread *t = (scm_thread *)v, **tp;
-  SCM joiner;
 
   scm_pthread_mutex_lock (&thread_admin_mutex);
 
   t->exited = 1;
-  while (scm_is_true (joiner = dequeue (t->join_queue)))
-    {
-      scm_thread *j = SCM_THREAD_DATA (joiner);
-      pthread_cond_signal (&j->sleep_cond);
-    }
+  while (scm_is_true (unblock_from_queue (t->join_queue)))
+    ;
       
   for (tp = &all_threads; *tp; tp = &(*tp)->next_thread)
     if (*tp == t)
@@ -363,6 +384,18 @@ init_thread_key (void)
 {
   pthread_key_create (&scm_i_thread_key, on_thread_exit);
 }
+
+/* Perform any initializations necessary to bring the current thread
+   into guile mode, initializing Guile itself, if necessary.
+
+   BASE is the stack base to use with GC.
+
+   PARENT is the dynamic state to use as the parent, ot SCM_BOOL_F in
+   which case the default dynamic state is used.
+
+   Return zero when the thread was in guile mode already; otherwise
+   return 1.
+*/
 
 static int
 scm_i_init_thread_for_guile (SCM_STACKITEM *base, SCM parent)
@@ -400,14 +433,16 @@ scm_i_init_thread_for_guile (SCM_STACKITEM *base, SCM parent)
     {
       /* This thread is already guilified but not in guile mode, just
 	 resume it.
+	 
+	 XXX - base might be lower than when this thread was first
+	 guilified.
        */
       scm_enter_guile ((scm_t_guile_ticket) t);
       return 1;
     }
   else
     {
-      /* Thread is already in guile mode.  Do nothing but tell the
-	 caller that he should not leave guile mode. 
+      /* Thread is already in guile mode.  Nothing to do.
       */
       return 0;
     }
@@ -519,8 +554,8 @@ static void *
 launch_thread (void *d)
 {
   launch_data *data = (launch_data *)d;
-  scm_i_with_guile_and_parent (really_launch, d, data->parent);
   pthread_detach (pthread_self ());
+  scm_i_with_guile_and_parent (really_launch, d, data->parent);
   return NULL;
 }
 
@@ -654,7 +689,7 @@ SCM_DEFINE (scm_join_thread, "join-thread", 1, 0, 0,
   SCM res;
 
   SCM_VALIDATE_THREAD (1, thread);
-  if (scm_is_eq (cur_thread, thread))
+  if (scm_is_eq (scm_current_thread (), thread))
     SCM_MISC_ERROR ("can not join the current thread", SCM_EOL);
 
   scm_pthread_mutex_lock (&thread_admin_mutex);
@@ -683,8 +718,8 @@ SCM_DEFINE (scm_join_thread, "join-thread", 1, 0, 0,
 
 /* We implement our own mutex type since we want them to be 'fair', we
    want to do fancy things while waiting for them (like running
-   asyncs) and we want to support waiting on many things at once.
-   Also, we might add things that are nice for debugging.
+   asyncs) and we might want to add things that are nice for
+   debugging.
 */
 
 typedef struct {
@@ -757,19 +792,21 @@ SCM_DEFINE (scm_make_recursive_mutex, "make-recursive-mutex", 0, 0, 0,
 #undef FUNC_NAME
 
 static char *
-fat_mutex_do_lock (SCM mutex)
+fat_mutex_lock (SCM mutex)
 {
   fat_mutex *m = SCM_MUTEX_DATA (mutex);
-  SCM thread = cur_thread;
+  SCM thread = scm_current_thread ();
+  char *msg = NULL;
 
+  scm_pthread_mutex_lock (&m->lock);
   if (scm_is_false (m->owner))
-    m->owner = cur_thread;
+    m->owner = thread;
   else if (scm_is_eq (m->owner, thread))
     {
       if (m->level >= 0)
 	m->level++;
       else
-	return "mutex already locked by current thread";
+	msg = "mutex already locked by current thread";
     }
   else
     {
@@ -783,20 +820,8 @@ fat_mutex_do_lock (SCM mutex)
 	  scm_pthread_mutex_lock (&m->lock);
 	}
     }
-  return NULL;
-}
-
-static void
-fat_mutex_lock (SCM mutex)
-{
-  char *msg;
-  fat_mutex *m = SCM_MUTEX_DATA (mutex);
-
-  scm_pthread_mutex_lock (&m->lock);
-  msg = fat_mutex_do_lock (mutex);
   pthread_mutex_unlock (&m->lock);
-  if (msg)
-    scm_misc_error (NULL, msg, SCM_EOL);
+  return msg;
 }
 
 SCM_DEFINE (scm_lock_mutex, "lock-mutex", 1, 0, 0,
@@ -809,36 +834,36 @@ SCM_DEFINE (scm_lock_mutex, "lock-mutex", 1, 0, 0,
 #define FUNC_NAME s_scm_lock_mutex
 {
   SCM_VALIDATE_MUTEX (1, mx);
-  
-  fat_mutex_lock (mx);
+  char *msg;
+
+  msg = fat_mutex_lock (mx);
+  if (msg)
+    scm_misc_error (NULL, msg, SCM_EOL);
   return SCM_BOOL_T;
 }
 #undef FUNC_NAME
 
-static int
-fat_mutex_trylock (fat_mutex *m)
+static char *
+fat_mutex_trylock (fat_mutex *m, int *resp)
 {
+  char *msg = NULL;
+  SCM thread = scm_current_thread ();
+
+  *resp = 1;
   pthread_mutex_lock (&m->lock);
   if (scm_is_false (m->owner))
-    m->owner = cur_thread;
-  else if (scm_is_eq (m->owner, cur_thread))
+    m->owner = thread;
+  else if (scm_is_eq (m->owner, thread))
     {
       if (m->level >= 0)
 	m->level++;
       else
-	{
-	  pthread_mutex_unlock (&m->lock);
-	  scm_misc_error (NULL, "mutex already locked by current thread",
-			  SCM_EOL);
-	}
+	msg = "mutex already locked by current thread";
     }
   else
-    {
-      pthread_mutex_unlock (&m->lock);
-      return 0;
-    }
+    *resp = 0;
   pthread_mutex_unlock (&m->lock);
-  return 1;
+  return msg;
 }
 
 SCM_DEFINE (scm_try_mutex, "try-mutex", 1, 0, 0,
@@ -847,43 +872,38 @@ SCM_DEFINE (scm_try_mutex, "try-mutex", 1, 0, 0,
 "else, return @code{#f}.  Else lock the mutex and return @code{#t}. ")
 #define FUNC_NAME s_scm_try_mutex
 {
+  char *msg;
+  int res;
+
   SCM_VALIDATE_MUTEX (1, mx);
   
-  return scm_from_bool (fat_mutex_trylock (SCM_MUTEX_DATA (mx)));
+  msg = fat_mutex_trylock (SCM_MUTEX_DATA (mx), &res);
+  if (msg)
+    scm_misc_error (NULL, msg, SCM_EOL);
+  return scm_from_bool (res);
 }
 #undef FUNC_NAME
 
 static char *
-fat_mutex_do_unlock (fat_mutex *m)
+fat_mutex_unlock (fat_mutex *m)
 {
-  if (!scm_is_eq (m->owner, cur_thread))
+  char *msg = NULL;
+
+  scm_pthread_mutex_lock (&m->lock);
+  if (!scm_is_eq (m->owner, scm_current_thread ()))
     {
       if (scm_is_false (m->owner))
-	return "mutex not locked";
+	msg = "mutex not locked";
       else
-	return "mutex not locked by current thread";
+	msg = "mutex not locked by current thread";
     }
   else if (m->level > 0)
     m->level--;
   else
-    {
-      SCM next = dequeue (m->waiting);
-      m->owner = next;
-      if (scm_is_true (next))
-	pthread_cond_signal (&SCM_THREAD_DATA (next)->sleep_cond);
-    }
-  return NULL;
-}
-
-static void
-fat_mutex_unlock (fat_mutex *m)
-{
-  char *msg;
-  pthread_mutex_lock (&m->lock);
-  msg = fat_mutex_do_unlock (m);
+    m->owner = unblock_from_queue (m->waiting);
   pthread_mutex_unlock (&m->lock);
-  if (msg)
-    scm_misc_error (NULL, msg, SCM_EOL);
+
+  return msg;
 }
 
 SCM_DEFINE (scm_unlock_mutex, "unlock-mutex", 1, 0, 0,
@@ -897,15 +917,15 @@ SCM_DEFINE (scm_unlock_mutex, "unlock-mutex", 1, 0, 0,
 "@code{unlock-mutex} will actually unlock the mutex. ")
 #define FUNC_NAME s_scm_unlock_mutex
 {
+  char *msg;
   SCM_VALIDATE_MUTEX (1, mx);
   
-  fat_mutex_unlock (SCM_MUTEX_DATA (mx));
+  msg = fat_mutex_unlock (SCM_MUTEX_DATA (mx));
+  if (msg)
+    scm_misc_error (NULL, msg, SCM_EOL);
   return SCM_BOOL_T;
 }
 #undef FUNC_NAME
-
-SCM scm_mutex_owner (SCM mx);
-SCM scm_mutex_level (SCM mx);
 
 SCM_DEFINE (scm_mutex_owner, "mutex-owner", 1, 0, 0,
 	    (SCM mx),
@@ -978,10 +998,11 @@ SCM_DEFINE (scm_make_condition_variable, "make-condition-variable", 0, 0, 0,
 }
 #undef FUNC_NAME
 
-static void
+static int
 fat_cond_timedwait (SCM cond, SCM mutex,
 		    const scm_t_timespec *waittime)
 {
+  scm_thread *t = SCM_CURRENT_THREAD;
   fat_cond *c = SCM_CONDVAR_DATA (cond);
   fat_mutex *m = SCM_MUTEX_DATA (mutex);
   const char *msg;
@@ -989,24 +1010,35 @@ fat_cond_timedwait (SCM cond, SCM mutex,
 
   while (1)
     {
-      SCM_TICK;
+      fprintf (stderr, "cond wait on %p\n", &c->lock);
 
       scm_pthread_mutex_lock (&c->lock);
-      scm_pthread_mutex_lock (&m->lock);
-      msg = fat_mutex_do_unlock (m);
-      pthread_mutex_unlock (&m->lock);
+      msg = fat_mutex_unlock (m);
+      t->block_asyncs++;
       if (msg == NULL)
 	{
 	  err = block_self (c->waiting, cond, &c->lock, waittime);
-	  scm_pthread_mutex_lock (&m->lock);
-	  fat_mutex_do_lock (mutex);
-	  pthread_mutex_unlock (&m->lock);
+	  pthread_mutex_unlock (&c->lock);
+	  fprintf (stderr, "locking mutex\n");
+	  fat_mutex_lock (mutex);
 	}
-      pthread_mutex_unlock (&c->lock);
+      else
+	pthread_mutex_unlock (&c->lock);
+      t->block_asyncs--;
+      scm_async_click ();
+
+      fprintf (stderr, "back: %s, %d\n", msg, err);
 
       if (msg)
 	scm_misc_error (NULL, msg, SCM_EOL);
-      if (err && err != EINTR)
+
+      scm_remember_upto_here_2 (cond, mutex);
+
+      if (err == 0)
+	return 1;
+      if (err == ETIMEDOUT)
+	return 0;
+      if (err != EINTR)
 	{
 	  errno = err;
 	  scm_syserror (NULL);
@@ -1027,7 +1059,7 @@ SCM_DEFINE (scm_timed_wait_condition_variable, "wait-condition-variable", 2, 1, 
 "is returned. ")
 #define FUNC_NAME s_scm_timed_wait_condition_variable
 {
-  scm_t_timespec waittime;
+  scm_t_timespec waittime, *waitptr = NULL;
 
   SCM_VALIDATE_CONDVAR (1, cv);
   SCM_VALIDATE_MUTEX (2, mx);
@@ -1044,24 +1076,20 @@ SCM_DEFINE (scm_timed_wait_condition_variable, "wait-condition-variable", 2, 1, 
 	  waittime.tv_sec = scm_to_ulong (t);
 	  waittime.tv_nsec = 0;
 	}
+      waitptr = &waittime;
     }
 
-  fat_cond_timedwait (cv, mx, SCM_UNBNDP (t) ? NULL : &waittime);
-  return SCM_BOOL_T;
+  return scm_from_bool (fat_cond_timedwait (cv, mx, waitptr));
 }
 #undef FUNC_NAME
 
 static void
 fat_cond_signal (fat_cond *c)
 {
-  SCM th;
+  fprintf (stderr, "cond signal on %p\n", &c->lock);
 
   scm_pthread_mutex_lock (&c->lock);
-  if (scm_is_true (th = dequeue (c->waiting)))
-    {
-      scm_thread *t = SCM_THREAD_DATA (th);
-      pthread_cond_signal (&t->sleep_cond);
-    }
+  unblock_from_queue (c->waiting);
   pthread_mutex_unlock (&c->lock);
 }
 
@@ -1079,14 +1107,9 @@ SCM_DEFINE (scm_signal_condition_variable, "signal-condition-variable", 1, 0, 0,
 static void
 fat_cond_broadcast (fat_cond *c)
 {
-  SCM th;
-
   scm_pthread_mutex_lock (&c->lock);
-  while (scm_is_true (th = dequeue (c->waiting)))
-    {
-      scm_thread *t = SCM_THREAD_DATA (th);
-      pthread_cond_signal (&t->sleep_cond);
-    }
+  while (scm_is_true (unblock_from_queue (c->waiting)))
+    ;
   pthread_mutex_unlock (&c->lock);
 }
 
@@ -1197,7 +1220,7 @@ scm_internal_select (int nfds,
   return res;
 }
 
-/* Convenience API */
+/* Convenience API for blocking while in guile mode. */
 
 int
 scm_pthread_mutex_lock (pthread_mutex_t *mutex)
@@ -1268,7 +1291,7 @@ SCM_DEFINE (scm_current_thread, "current-thread", 0, 0, 0,
 	    "Return the thread that called this function.")
 #define FUNC_NAME s_scm_current_thread
 {
-  return cur_thread;
+  return SCM_CURRENT_THREAD->handle;
 }
 #undef FUNC_NAME
 
@@ -1353,7 +1376,8 @@ scm_i_thread_put_to_sleep ()
 	}
       else
 	{
-	  /* We are already single threaded.
+	  /* We are already single threaded.  Suspend again to update
+	     the recorded stack information.
 	   */
 	  fprintf (stderr, "recursive sleep\n");
 	  suspend ();

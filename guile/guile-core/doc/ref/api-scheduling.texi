@@ -644,7 +644,9 @@ before @code{wait-condition-variable} returns.
 When a system async is activated for a thread that is blocked in a
 call to @code{wait-condition-variable}, the waiting is interrupted,
 the mutex is locked, and the async is executed.  When the async
-returns, the mutex is unlocked again and the waiting is resumed.
+returns, the mutex is unlocked again and the waiting is resumed.  When
+the thread block while re-acquiring the mutex, execution of asyncs is
+blocked.
 @end deffn
 
 @c begin (texi-doc-string "guile" "signal-condition-variable")
