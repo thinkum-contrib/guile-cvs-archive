@@ -97,7 +97,17 @@ char *scm_isymnames[] =
   "()",
   "#<unspecified>",
   "#@dispatch",
-  "#@hash-dispatch"
+  "#@hash-dispatch",
+
+  /* Multi-language support */
+  
+  "#@nil-cond",
+  "#@nil-ify",
+  "#@t-ify",
+  "#@0-cond",
+  "#@0-ify",
+  "#@1-ify",
+  "#@bind"
 };
 
 scm_option scm_print_opts[] = {
