@@ -110,7 +110,7 @@
     cvar = SCM_TRUE_P (flag) ? 1 : 0; \
   } while (0)
 
-#define SCM_VALIDATE_CHAR(pos, scm) SCM_MAKE_VALIDATE (pos, scm, ICHRP)
+#define SCM_VALIDATE_CHAR(pos, scm) SCM_MAKE_VALIDATE (pos, scm, CHARP)
 
 #define SCM_VALIDATE_CHAR_COPY(pos, scm, cvar) \
   do { \
