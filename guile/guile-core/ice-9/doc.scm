@@ -35,7 +35,7 @@
     (if (string? (car zz)) (display (car zz) port) (write (car zz) port))))
 
 (define-public doc-files
-  (list (string-append (library-dir) "/guile-procedures.txt")
+  (list (string-append (%library-dir) "/guile-procedures.txt")
 	"./guile-procedures.txt"))
 
 (define-public (hook-documentation hook)
