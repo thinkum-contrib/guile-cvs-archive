@@ -1146,6 +1146,142 @@ Returns
 @node Binary Numeric Operations
 @chapter Binary Numeric Operations
 
+@defun logand n1 n2
+Returns the integer which is the bit-wise AND of the two integer
+arguments.
+
+Example:
+@lisp
+(number->string (logand #b1100 #b1010) 2)
+   @result{} "1000"
+@end lisp
+@end defun
+
+@defun logior n1 n2
+Returns the integer which is the bit-wise OR of the two integer
+arguments.
+
+Example:
+@lisp
+(number->string (logior #b1100 #b1010) 2)
+   @result{} "1110"
+@end lisp
+@end defun
+
+@defun logxor n1 n2
+Returns the integer which is the bit-wise XOR of the two integer
+arguments.
+
+Example:
+@lisp
+(number->string (logxor #b1100 #b1010) 2)
+   @result{} "110"
+@end lisp
+@end defun
+
+@defun lognot n
+Returns the integer which is the 2s-complement of the integer argument.
+
+Example:
+@lisp
+(number->string (lognot #b10000000) 2)
+   @result{} "-10000001"
+(number->string (lognot #b0) 2)
+   @result{} "-1"
+@end lisp
+@end defun
+
+@defun logtest j k
+@example
+(logtest j k) @equiv{} (not (zero? (logand j k)))
+
+(logtest #b0100 #b1011) @result{} #f
+(logtest #b0100 #b0111) @result{} #t
+@end example
+@end defun
+
+@defun logbit? index j
+@example
+(logbit? index j) @equiv{} (logtest (integer-expt 2 index) j)
+
+(logbit? 0 #b1101) @result{} #t
+(logbit? 1 #b1101) @result{} #f
+(logbit? 2 #b1101) @result{} #t
+(logbit? 3 #b1101) @result{} #t
+(logbit? 4 #b1101) @result{} #f
+@end example
+@end defun
+
+@defun ash int count
+Returns an integer equivalent to
+@code{(inexact->exact (floor (* @var{int} (expt 2 @var{count}))))}.@refill
+
+Example:
+@lisp
+(number->string (ash #b1 3) 2)
+   @result{} "1000"
+(number->string (ash #b1010 -1) 2)
+   @result{} "101"
+@end lisp
+@end defun
+
+@defun logcount n
+Returns the number of bits in integer @var{n}.  If integer is positive,
+the 1-bits in its binary representation are counted.  If negative, the
+0-bits in its two's-complement binary representation are counted.  If 0,
+0 is returned.
+
+Example:
+@lisp
+(logcount #b10101010)
+   @result{} 4
+(logcount 0)
+   @result{} 0
+(logcount -2)
+   @result{} 1
+@end lisp
+@end defun
+
+@defun integer-length n
+Returns the number of bits neccessary to represent @var{n}.
+
+Example:
+@lisp
+(integer-length #b10101010)
+   @result{} 8
+(integer-length 0)
+   @result{} 0
+(integer-length #b1111)
+   @result{} 4
+@end lisp
+@end defun
+
+@defun integer-expt n k
+Returns @var{n} raised to the non-negative integer exponent @var{k}.
+
+Example:
+@lisp
+(integer-expt 2 5)
+   @result{} 32
+(integer-expt -3 3)
+   @result{} -27
+@end lisp
+@end defun
+
+@defun bit-extract n start end
+Returns the integer composed of the @var{start} (inclusive) through
+@var{end} (exclusive) bits of @var{n}.  The @var{start}th bit becomes
+the 0-th bit in the result.@refill
+
+Example:
+@lisp
+(number->string (bit-extract #b1101101010 0 4) 2)
+   @result{} "1010"
+(number->string (bit-extract #b1101101010 4 9) 2)
+   @result{} "10110"
+@end lisp
+@end defun
+
 @page
 @node Shared and Read-Only Strings
 @chapter Shared and Read-Only Strings
@@ -1295,24 +1431,53 @@ the user provides a "property table" that is possibly private.]
 @node Association Lists and Hash Tables
 @chapter Association Lists and Hash Tables
 
-[FIXME: this is pasted in from Tom Lord's original guile.texi and should
-be reviewed]
+This chapter discusses dictionary objects: data structures that are
+useful for organizing and indexing large bodies of information.
 
 @menu
-* Dictionaries in general::     
+* Dictionary Types::  About dictionary types; what they're good for.
 * Association Lists::           
-* Hash Tables (Hash Values)::   
+* Hash Tables::   
 @end menu
 
-@node Dictionaries in general
-@section Dictionaries in general
+@node Dictionary Types
+@section Dictionary Types
+
+A @dfn{dictionary} object is a data structure used to index
+information in a user-defined way.  In standard Scheme, the main
+aggregate data types are lists and vectors.  Lists are not really
+indexed at all, and vectors are indexed only by number
+(e.g. @code{(vector-ref foo 5)}).  Often you will find it useful
+to index your data on some other type; for example, in a library
+catalog you might want to look up a book by the name of its
+author.  Dictionaries are used to help you organize information in
+such a way.
+
+An @dfn{association list} (or @dfn{alist} for short) is a list of
+key-value pairs.  Each pair represents a single quantity or
+object; the @code{car} of the pair is a key which is used to
+identify the object, and the @code{cdr} is the object's value.
+
+A @dfn{hash table} also permits you to index objects with
+arbitrary keys, but in a way that makes looking up any one object
+extremely fast.  A well-designed hash system makes hash table
+lookups almost as fast as conventional array or vector references.
+
+Alists are popular among Lisp programmers because they use only
+the language's primitive operations (lists, @dfn{car}, @dfn{cdr}
+and the equality primitives).  No changes to the language core are
+necessary.  Therefore, with Scheme's built-in list manipulation
+facilities, it is very convenient to handle data stored in an
+association list.  Also, alists are highly portable and can be
+easily implemented on even the most minimal Lisp systems.
+
+However, alists are inefficient, especially for storing large
+quantities of data.  Because we want Guile to be useful for large
+software systems as well as small ones, Guile provides a rich set
+of tools for using either association lists or hash tables.
 
 @node Association Lists
 @section Association Lists
-
-[FIXME: while assq, assv and assoc are implemented as per R4RS, all of
-the other alist functions have their argument orders in reverse.  This
-should surely be changed? -twp]
 
 @defun assq key alist
 @defunx assv key alist
@@ -1341,9 +1506,9 @@ functions are equivalent to
 where @var{associator} is one of @code{assq}, @code{assv} or @code{assoc}.
 @end defun
 
-@defun assq-set! alist key value
-@defunx assv-set! alist key value
-@defunx assoc-set! alist key value
+@deffn Procedure assq-set! alist key value
+@deffnx Procedure assv-set! alist key value
+@deffnx Procedure assoc-set! alist key value
 Reassociate @var{key} in @var{alist} with @var{value}: find any existing
 @var{alist} entry for @var{key} and associate it with the new
 @var{value}.  If @var{alist} does not contain an entry for @var{key},
@@ -1352,23 +1517,38 @@ add a new one.  Return the (possibly new) alist.
 These functions do not attempt to verify the structure of @var{alist},
 and so may cause unusual results if passed an object that is not an
 association list.
-@end defun
+@end deffn
 
-@defun assq-remove! alist key
-@defunx assv-remove! alist key
-@defunx assoc-remove! alist key
+@deffn Procedure assq-remove! alist key
+@deffnx Procedure assv-remove! alist key
+@deffnx Procedure assoc-remove! alist key
 Delete any entry in @var{alist} associated with @var{key}, and return
 the resulting alist.
-@end defun
+@end deffn
 
-When using the @var{set!} and @var{remove!} functions, it is often wise
-to set the value of the affected alist explicitly to the value returned
-by these functions.  Although @code{assq-set!} and family are mutators,
-adding or removing an element at the beginning of a list can only be
-done by modifying the list's environment frame, which cannot be done by
-an ordinary function.
+@strong{Caution:} it is important to remember that the @var{set!} and
+@var{remove!} functions do not always operate as intended.  In some
+circumstances, the functions will try to modify the first element in the
+list; for example, when adding a new entry to an alist,
+@code{assoc-set!} conses the new key-value pair on to the beginning of
+the alist.  However, when this happens, the symbol to which the alist is
+bound has not been modified---it still points to the old ``beginning''
+of the list, which still does not contain the new entry.  In order to be
+sure that these functions always succeed, even when modifying the
+beginning of the alist, you will have to rebind the alist symbol
+explicitly to point to the value returned by @code{assoc-set!}, like so:
 
-Example:
+@lisp
+(set! my-alist
+      (assq-set! my-alist 'sun4 "sparc-sun-solaris"))
+@end lisp
+
+Because of this restriction, you may find it more convenient to use hash
+tables to store dictionary data.  If your application will not be
+modifying the contents of an alist very often, this may not make much
+difference to you.
+
+Here is a longer example of how alists may be used in practice.
 
 @lisp
 (define capitals '(("New York" . "Albany")
@@ -1376,14 +1556,14 @@ Example:
                    ("Florida"  . "Miami")))
 
 ;; What's the capital of Oregon?
-(assoc "Oregon" capitals)       => ("Oregon" . "Salem")
-(assoc-ref capitals "Oregon")   => "Salem"
+(assoc "Oregon" capitals)       @result{} ("Oregon" . "Salem")
+(assoc-ref capitals "Oregon")   @result{} "Salem"
 
 ;; We left out South Dakota.
 (set! capitals
       (assoc-set! capitals "South Dakota" "Bismarck"))
 capitals
-=> (("South Dakota" . "Bismarck")
+@result{} (("South Dakota" . "Bismarck")
     ("New York" . "Albany")
     ("Oregon" . "Salem")
     ("Florida" . "Miami"))
@@ -1392,7 +1572,7 @@ capitals
 (set! capitals
       (assoc-set! capitals "Florida" "Tallahassee"))
 capitals
-=> (("South Dakota" . "Bismarck")
+@result{} (("South Dakota" . "Bismarck")
     ("New York" . "Albany")
     ("Oregon" . "Salem")
     ("Florida" . "Tallahassee"))
@@ -1401,28 +1581,105 @@ capitals
 (set! capitals
       (assoc-remove! capitals "Oregon"))
 capitals
-=> (("South Dakota" . "Bismarck")
+@result{} (("South Dakota" . "Bismarck")
     ("New York" . "Albany")
     ("Florida" . "Tallahassee"))
 @end lisp
 
-Note that the explicit @code{set!} to @var{capitals} turned out to be
-unnecessary in two of three instances: the change would have remained in
-effect even if @code{capitals} had not explicitly been rebound.
-However, it is not practical in general to predict when an explicit
-@code{set!} is necessary, so it is often prudent to risk a little
-redundancy.
+@node Hash Tables
+@section Hash Tables
 
-@node Hash Tables (Hash Values)
-@section Hash Tables (Hash Values)
+Like the association list functions, the hash table functions come
+in several varieties: @code{hashq}, @code{hashv}, and @code{hash}.
+The @code{hashq} functions use @code{eq?} to determine whether two
+keys match.  The @code{hashv} functions use @code{eqv?}, and the
+@code{hash} functions use @code{equal?}.
 
+In each of the functions that follow, the @var{table} argument
+must be a vector.  The @var{key} and @var{value} arguments may be
+any Scheme object.
+
+@defun hashq-ref table key [default]
+@defunx hashv-ref table key [default]
+@defunx hash-ref table key [default]
+Look up @var{key} in the hash table @var{table}, and return the
+value (if any) associated with it.  If @var{key} is not found,
+return @var{default} (or @code{#f} if no @var{default} argument is
+supplied).
+@end defun
+
+@deffn Procedure hashq-set! table key value
+@deffnx Procedure hashv-set! table key value
+@deffnx Procedure hash-set! table key value
+Find the entry in @var{table} associated with @var{key}, and store
+@var{value} there.
+@end deffn
+
+@deffn Procedure hashq-remove! table key
+@deffnx Procedure hashv-remove! table key
+@deffnx Procedure hash-remove! table key
+Remove @var{key} (and any value associated with it) from @var{table}.
+@end deffn
+
+The standard hash table functions may be too limited for some
+applications.  For example, you may want a hash table to store
+strings in a case-insensitive manner, so that references to keys
+named ``foobar'', ``FOOBAR'' and ``FooBaR'' will all yield the
+same item.  Guile provides you with @dfn{extended} hash tables
+that permit you to specify a hash function and associator function
+of your choosing.
+
+If you are unfamiliar with the inner workings of hash tables, then
+this facility will probably be a little too abstract for you to
+use comfortably.  If you are interested in learning more, see an
+introductory textbook on data structures or algorithms for an
+explanation of how hash tables are implemented.
+
+@defun hashq key size
+@defunx hashv key size
+@defunx hash key size
+Default hash functions for Guile hash tables.  @var{key} is the
+object to be hashed, and @var{size} is the size of the target hash
+table.  Each function returns an integer in the range 0 to
+@var{size}-1.
+@end defun
+
+@deffn Function hashx-ref hasher assoc table key [default]
+@deffnx Procedure hashx-set! hasher assoc table key value
+@deffnx Procedure hashx-remove! hasher assoc table key
+These behave the same way as the corresponding @code{ref} and
+@code{set!} functions described above, but use @var{hasher} as a
+hash function and @var{assoc} to compare keys.  @code{hasher} must
+be a function that takes two arguments, a key to be hashed and a
+table size.  @code{assoc} must be an associator function, like
+@code{assoc}, @code{assq} or @code{assv}.
+
+By way of illustration, @code{hashq-ref table key} is equivalent
+to @code{hashx-ref hashq assq table key}.
+@end deffn
+
+[FIXME: I have not included the `-get-handle' and
+`-create-handle!' functions here, since the typical guile user
+will probably only need to use the ref and set! functions, and
+extra documentation they don't need to know may only be
+confusing. -twp]
 
 @page
 @node Input/Output Ports
 @chapter Input/Output Ports
 
-[FIXME: this is pasted in from Tom Lord's original guile.texi and should
-be reviewed]
+Input and output devices in Scheme are represented by @dfn{ports}.
+All input and output in Scheme programs is accomplished by
+operating on a port: characters are read from an input port and
+written to an output port.  This chapter explains the operations
+that Guile provides for working with ports.
+
+The formal definition of a port is very generic: an input port is
+simply ``an object which can deliver characters on command,'' and
+an output port is ``an object which can accept characters.''
+Because this definition is so loose, it is easy to write functions
+that simulate ports in software.  @dfn{Soft ports} and @dfn{string
+ports} are two interesting and powerful examples of this technique.
 
 @menu
 * File Ports::                  
@@ -1434,11 +1691,97 @@ be reviewed]
 @node File Ports
 @section File Ports
 
+@defun open-file string modes
+Open the file whose name is @var{string}, and return a port
+representing that file.  Whether an input or output port is
+allocated is determined by the @var{modes} string.  This is
+interpreted in the traditional Unix manner: use @samp{r} for
+reading, @samp{w} for writing, and @samp{a} for appending.  See
+the @code{stdio} documentation for your system for more details on
+how to specify I/O modes.
+
+If a file cannot be opened, @code{open-file} returns @code{#f}.
+@end defun
+
+@defun port-mode port
+Return the mode flags from the open @var{port}.
+@end defun
+
 @node Soft Ports
 @section Soft Ports
 
+A @dfn{soft-port} is a port based on a vector of procedures capable of
+accepting or delivering characters.  It allows emulation of I/O ports.
+
+@defun make-soft-port vector modes
+Returns a port capable of receiving or delivering characters as
+specified by the @var{modes} string (@pxref{File Ports,
+open-file}).  @var{vector} must be a vector of length 6.  Its components
+are as follows:
+
+@enumerate 0
+@item
+procedure accepting one character for output
+@item
+procedure accepting a string for output
+@item
+thunk for flushing output
+@item
+thunk for getting one character
+@item
+thunk for closing port (not by garbage collection)
+@end enumerate
+
+For an output-only port only elements 0, 1, 2, and 4 need be
+procedures.  For an input-only port only elements 3 and 4 need be
+procedures.  Thunks 2 and 4 can instead be @code{#f} if there is no useful
+operation for them to perform.
+
+If thunk 3 returns @code{#f} or an @code{eof-object} (@pxref{Input,
+eof-object?, ,r4rs, Revised(4) Scheme}) it indicates that the port has
+reached end-of-file.  For example:
+
+@example
+(define stdout (current-output-port))
+(define p (make-soft-port
+           (vector
+            (lambda (c) (write c stdout))
+            (lambda (s) (display s stdout))
+            (lambda () (display "." stdout))
+            (lambda () (char-upcase (read-char)))
+            (lambda () (display "@@" stdout)))
+           "rw"))
+
+(write p p) @result{} #<input-output-soft#\space45d10#\>
+@end example
+@end defun
+
 @node String Ports
 @section String Ports
+
+@deffn Procedure call-with-output-string proc
+@var{proc} must be a procedure of one argument.  This procedure calls
+@var{proc} with one argument: a (newly created) output port.  When the
+function returns, the string composed of the characters written into the
+port is returned.
+@end deffn
+
+@deffn Procedure call-with-input-string string proc
+@var{proc} must be a procedure of one argument.  This procedure calls
+@var{proc} with one argument: an (newly created) input port from which
+@var{string}'s contents may be read.  When @var{proc} returns, the port
+is closed and the value yielded by the procedure @var{proc} is
+returned.
+@end deffn
+
+@defun eval-string string
+Evaluate @var{string} as the text representation of a Scheme form
+or forms, and return whatever value they produce.
+[FIXME: figure out where this should go... eval-string is not
+really closely related to other string port functions.  It just
+happens to appear in strports.c because it uses a string port to
+read from the string. -twp]
+@end defun
 
 @node Extended I/O (fseek and line read/write)
 @section Extended I/O (fseek and line read/write)
@@ -1804,11 +2147,288 @@ be reviewed]
 @node Regular Expressions
 @chapter Regular Expressions
 
+@cindex regular expressions
+@cindex regex
+@cindex emacs regexp
+
+A @dfn{regular expression} (or @dfn{regexp}) is a pattern that
+describes a whole class of strings.  A full description of regular
+expressions and their syntax is beyond the scope of this manual;
+an introduction can be found in the Emacs manual (@pxref{Regexps,
+, Syntax of Regular Expressions, emacs, The GNU Emacs Manual}, or
+in many general Unix reference books.
+
+If your system does not include a POSIX regular expression library, and
+you have not linked Guile with a third-party regexp library such as Rx,
+these functions will not be available.  You can tell whether your Guile
+installation includes regular expression support by checking whether the
+@code{*features*} list includes the @code{regex} symbol.
+
+@menu
+* Regexp Functions::    Functions that create and match regexps.
+* Match Structures::    Finding what was matched by a regexp.
+* Backslash Escapes::   Removing the special meaning of regexp metacharacters.
+* Rx Interface::	Tom Lord's Rx library does things differently.
+@end menu
+
+[FIXME: it may be useful to include an Examples section.  Parts of this
+interface are bewildering on first glance.]
+
+@node Regexp Functions
+@section Regexp Functions
+
+By default, Guile supports POSIX extended regular expressions.
+That means that the characters @samp{(}, @samp{)}, @samp{+} and
+@samp{?} are special, and must be escaped if you wish to match the
+literal characters.
+
+This regular expression interface was modeled after that
+implemented by SCSH, the Scheme Shell.  It is intended to be
+upwardly compatible with SCSH regular expressions.
+
+@defun string-match pattern str [start]
+Compile the string @var{pattern} into a regular expression and compare
+it with @var{str}.  The optional numeric argument @var{start} specifies
+the position of @var{str} at which to begin matching.
+
+@code{string-match} returns a @dfn{match structure} which
+describes what, if anything, was matched by the regular
+expression.  @xref{Match Structures}.  If @var{str} does not match
+@var{pattern} at all, @code{string-match} returns @code{#f}.
+@end defun
+
+Each time @code{string-match} is called, it must compile its
+@var{pattern} argument into a regular expression structure.  This
+operation is expensive, which makes @code{string-match} inefficient if
+the same regular expression is used several times (for example, in a
+loop).  For better performance, you can compile a regular expression in
+advance and then match strings against the compiled regexp.
+
+@defun make-regexp str
+Compile the regular expression described by @var{str}, and return the
+compiled regexp structure.  If @var{str} does not describe a legal
+regular expression, @code{make-regexp} throws a
+@code{regular-expression-syntax} error.
+
+Guile does not yet support the POSIX compilation flags for regular
+expressions, i.e. @code{REG_ICASE} or @code{REG_NEWLINE}.  (The
+@code{REG_EXTENDED} flag is on by default, and there is not
+presently any way to turn it off.)  We plan to include support for these
+flags in the near future.
+@end defun
+
+@defun regexp-exec regexp str [start]
+Match the compiled regular expression @var{regexp} against @code{str}.
+If the optional integer @var{start} argument is provided, begin matching
+>From that position in the string.  Return a match structure describing
+the results of the match, or @code{#f} if no match could be found.
+@end defun
+
+@defun regexp? obj
+Return @code{#t} if @var{obj} is a compiled regular expression, or
+@code{#f} otherwise.
+@end defun
+
+Regular expressions are commonly used to find patterns in one string and
+replace them with the contents of another string.
+
+@defun regexp-substitute port match [item@dots{}]
+Write to the output port @var{port} selected contents of the match
+structure @var{match}.  Each @var{item} specifies what should be
+written, and may be one of the following arguments:
+
+@itemize @bullet
+@item
+A string.  String arguments are written out verbatim.
+
+@item
+An integer.  The submatch with that number is written.
+
+@item
+The symbol @samp{pre}.  The portion of the matched string preceding
+the regexp match is written.
+
+@item
+The symbol @samp{post}.  The portion of the matched string following
+the regexp match is written.
+@end itemize
+
+@var{port} may be @code{#f}, in which case nothing is written; instead,
+@code{regexp-substitute} constructs a string from the specified
+@var{item}s and returns that.
+@end defun
+
+@defun regexp-substitute/global port regexp target [item@dots{}]
+Similar to @code{regexp-substitute}, but can be used to perform global
+substitutions on @var{str}.  Instead of taking a match structure as an
+argument, @code{regexp-substitute/global} takes two string arguments: a
+@var{regexp} string describing a regular expression, and a @var{target}
+string which should be matched against this regular expression.
+
+Each @var{item} behaves as in @var{regexp-substitute}, with the
+following exceptions:
+
+@itemize @bullet
+@item
+A function may be supplied.  When this function is called, it will be
+passed one argument: a match structure for a given regular expression
+match.  It should return a string to be written out to @var{port}.
+
+@item
+The @samp{post} symbol causes @code{regexp-substitute/global} to recurse
+on the unmatched portion of @var{str}.  This @emph{must} be supplied in
+order to perform global search-and-replace on @var{str}; if it is not
+present among the @var{item}s, then @code{regexp-substitute/global} will
+return after processing a single match.
+@end itemize
+@end defun
+
+@node Match Structures
+@section Match Structures
+
+@cindex match structures
+
+A @dfn{match structure} is the object returned by @code{string-match} and
+@code{regexp-exec}.  It describes which portion of a string, if any,
+matched the given regular expression.  Match structures include: a
+reference to the string that was checked for matches; the starting and
+ending positions of the regexp match; and, if the regexp included any
+parenthesized subexpressions, the starting and ending positions of each
+submatch.
+
+In each of the regexp match functions described below, the @code{match}
+argument must be a match structure returned by a previous call to
+@code{string-match} or @code{regexp-exec}.  Most of these functions
+return some information about the original target string that was
+matched against a regular expression; we will call that string
+@var{target} for easy reference.
+
+@defun regexp-match? obj
+Return @code{#t} if @var{obj} is a match structure returned by a
+previous call to @code{regexp-exec}, or @code{#f} otherwise.
+@end defun
+
+@defun match:substring match [n]
+Return the portion of @var{target} matched by subexpression number
+@var{n}.  Submatch 0 (the default) represents the entire regexp match.
+If the regular expression as a whole matched, but the subexpression
+number @var{n} did not match, return @code{#f}.
+@end defun
+
+@defun match:start match [n]
+Return the starting position of submatch number @var{n}.
+@end defun
+
+@defun match:end match [n]
+Return the ending position of submatch number @var{n}.
+@end defun
+
+@defun match:prefix match
+Return the unmatched portion of @var{target} preceding the regexp match.
+@end defun
+
+@defun match:suffix match
+Return the unmatched portion of @var{target} following the regexp match.
+@end defun
+
+@defun match:count match
+Return the number of parenthesized subexpressions from @var{match}.
+Note that the entire regular expression match itself counts as a
+subexpression, and failed submatches are included in the count.
+@end defun
+
+@defun match:string match
+Return the original @var{target} string.
+@end defun
+
+@node Backslash Escapes
+@section Backslash Escapes
+
+Sometimes you will want a regexp to match characters like @samp{*} or
+@samp{$} exactly.  For example, to check whether a particular string
+represents a menu entry from an Info node, it would be useful to match
+it against a regexp like @samp{^* [^:]*::}.  However, this won't work;
+because the asterisk is a metacharacter, it won't match the @samp{*} at
+the beginning of the string.  In this case, we want to make the first
+asterisk un-magic.
+
+You can do this by preceding the metacharacter with a backslash
+character @samp{\}.  (This is also called @dfn{quoting} the
+metacharacter, and is known as a @dfn{backslash escape}.)  When Guile
+sees a backslash in a regular expression, it considers the following
+glyph to be an ordinary character, no matter what special meaning it
+would ordinarily have.  Therefore, we can make the above example work by
+changing the regexp to @samp{^\* [^:]*::}.  The @samp{\*} sequence tells
+the regular expression engine to match only a single asterisk in the
+target string.
+
+Since the backslash is itself a metacharacter, you may force a regexp to
+match a backslash in the target string by preceding the backslash with
+itself.  For example, to find variable references in a @TeX{} program,
+you might want to find occurrences of the string @samp{\let\} followed
+by any number of alphabetic characters.  The regular expression
+@samp{\\let\\[A-Za-z]*} would do this: the double backslashes in the
+regexp each match a single backslash in the target string.
+
+@defun regexp-quote str
+Quote each special character found in @var{str} with a backslash, and
+return the resulting string.
+@end defun
+
+@strong{Very important:} Using backslash escapes in Guile source code
+(as in Emacs Lisp or C) can be tricky, because the backslash character
+has special meaning for the Guile reader.  For example, if Guile
+encounters the character sequence @samp{\n} in the middle of a string
+while processing Scheme code, it replaces those characters with a
+newline character.  Similarly, the character sequence @samp{\t} is
+replaced by a horizontal tab.  Several of these @dfn{escape sequences}
+are processed by the Guile reader before your code is executed.
+Unrecognized escape sequences are ignored: if the characters @samp{\*}
+appear in a string, they will be translated to the single character
+@samp{*}.
+
+This translation is obviously undesirable for regular expressions, since
+we want to be able to include backslashes in a string in order to
+escape regexp metacharacters.  Therefore, to make sure that a backslash
+is preserved in a string in your Guile program, you must use @emph{two}
+consecutive backslashes:
+
+@lisp
+(define Info-menu-entry-pattern (make-regexp "^\\* [^:]*"))
+@end lisp
+
+The string in this example is preprocessed by the Guile reader before
+any code is executed.  The resulting argument to @code{make-regexp} is
+the string @samp{^\* [^:]*}, which is what we really want.
+
+This also means that in order to write a regular expression that matches
+a single backslash character, the regular expression string in the
+source code must include @emph{four} backslashes.  Each consecutive pair
+of backslashes gets translated by the Guile reader to a single
+backslash, and the resulting double-backslash is interpreted by the
+regexp engine as matching a single backslash character.  Hence:
+
+@lisp
+(define tex-variable-pattern (make-regexp "\\\\let\\\\=[A-Za-z]*"))
+@end lisp
+
+The reason for the unwieldiness of this syntax is historical.  Both
+regular expression pattern matchers and Unix string processing systems
+have traditionally used backslashes with the special meanings
+described above.  The POSIX regular expression specification and ANSI C
+standard both require these semantics.  Attempting to abandon either
+convention would cause other kinds of compatibility problems, possibly
+more severe ones.  Therefore, without extending the Scheme reader to
+support strings with different quoting conventions (an ungainly and
+confusing extension when implemented in other languages), we must adhere
+to this cumbersome escape syntax.
+
+@node Rx Interface
+@section Rx Interface
+
 [FIXME: this is taken from Gary and Mark's quick summaries and should be
 reviewed and expanded.  Rx is pretty stable, so could already be done!]
 
-@cindex regular expressions
-@cindex regex
 @cindex rx
 @cindex finite automaton
 
@@ -1935,13 +2555,6 @@ Test whether obj is a compiled regular expression.
 
 @deffn procedure advance-dfa! dfa string
 @end deffn
-
-
-@cindex emacs regexp
-An introduction to the sytax of regular expressions can be
-found in the Emacs manual (@pxref{Regexps, ,Syntax of Regular Expressions,
-emacs, The Emacs Editor}).
-
 
 @page
 @node SLIB
