@@ -1577,8 +1577,6 @@ SCM_PROC (s_sys_modify_instance, "%modify-instance", 2, 0, 0, scm_sys_modify_ins
 SCM
 scm_sys_modify_instance (SCM old, SCM new)
 {
-  SCM tmp;
-
   SCM_ASSERT (SCM_NIMP (old) && SCM_INSTANCEP (old),
 	      old, SCM_ARG1, s_sys_modify_instance);
   SCM_ASSERT (SCM_NIMP (new) && SCM_INSTANCEP (new),
@@ -1589,12 +1587,14 @@ scm_sys_modify_instance (SCM old, SCM new)
    * See "Class redefinition protocol above".
    */
   SCM_REDEFER_INTS;
-  tmp = SCM_CAR (old);
-  SCM_SETCAR (old, SCM_CAR (new));
-  SCM_SETCAR (new, tmp);
-  tmp = SCM_CDR (old);
-  SCM_SETCDR (old, SCM_CDR (new));
-  SCM_SETCDR (new, tmp);
+  {
+    SCM car = SCM_CAR (old);
+    SCM cdr = SCM_CDR (old);
+    SCM_SETCAR (old, SCM_CAR (new));
+    SCM_SETCDR (old, SCM_CDR (new));
+    SCM_SETCAR (new, car);
+    SCM_SETCDR (new, cdr);
+  }
   SCM_REALLOW_INTS;
   return SCM_UNSPECIFIED;
 }
@@ -1610,9 +1610,16 @@ scm_sys_modify_class (SCM old, SCM new)
 	      new, SCM_ARG2, s_sys_modify_class);
 
   SCM_REDEFER_INTS;
-  scm_sys_modify_instance (old, new);
-  SCM_STRUCT_DATA (old)[scm_vtable_index_vtable] = old;
-  SCM_STRUCT_DATA (new)[scm_vtable_index_vtable] = new;
+  {
+    SCM car = SCM_CAR (old);
+    SCM cdr = SCM_CDR (old);
+    SCM_SETCAR (old, SCM_CAR (new));
+    SCM_SETCDR (old, SCM_CDR (new));
+    SCM_STRUCT_DATA (old)[scm_vtable_index_vtable] = old;
+    SCM_SETCAR (new, car);
+    SCM_SETCDR (new, cdr);
+    SCM_STRUCT_DATA (new)[scm_vtable_index_vtable] = new;
+  }
   SCM_REALLOW_INTS;
   return SCM_UNSPECIFIED;
 }
