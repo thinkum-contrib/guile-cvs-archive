@@ -26,7 +26,8 @@
 
 (define-module (tcltk tcltk)
   :use-module (ice-9 debug)
-  :use-module (ice-9 threads))
+  :use-module (ice-9 threads)
+  :use-module (tcltk gtcltk))
 
 (define widgets '(button checkbutton radiobutton menubutton menu canvas
 			 label entry message listbox text scrollbar
