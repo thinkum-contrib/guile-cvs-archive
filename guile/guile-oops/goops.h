@@ -243,6 +243,7 @@ SCM scm_sys_modify_class (SCM old, SCM new);
 SCM scm_sys_invalidate_class (SCM class);
 SCM scm_make_method_cache (SCM gf);
 SCM scm_sys_invalidate_method_cache_x (SCM gf);
+SCM scm_generic_capability_p (SCM proc);
 SCM scm_enable_primitive_generic_x (SCM subrs);
 SCM scm_primitive_generic_generic (SCM subr);
 SCM stklos_version (void); 

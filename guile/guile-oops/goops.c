@@ -1435,6 +1435,18 @@ scm_sys_invalidate_method_cache_x (SCM gf)
   return SCM_UNSPECIFIED;
 }
 
+SCM_PROC (s_generic_capability_p, "generic-capability?", 1, 0, 0, scm_generic_capability_p);
+
+SCM
+scm_generic_capability_p (SCM proc)
+{
+  SCM_ASSERT (SCM_NFALSEP (scm_procedure_p (proc)),
+	      proc, SCM_ARG1, s_generic_capability_p);
+  return (scm_subr_p (proc) && SCM_SUBR_GENERIC (proc)
+	  ? SCM_BOOL_T
+	  : SCM_BOOL_F);
+}
+
 SCM_PROC (s_enable_primitive_generic_x, "enable-primitive-generic!", 0, 0, 1, scm_enable_primitive_generic_x);
 
 SCM
