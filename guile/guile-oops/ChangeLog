@@ -1,3 +1,7 @@
+1999-09-07  Mikael Djurfeldt  <mdj@mdj-pc.nada.kth.se>
+
+	* goops.scm (primitive-generic-generic): Exported.
+
 1999-09-02  Mikael Djurfeldt  <mdj@mdj-pc.nada.kth.se>
 
 	* Makefile.am (install-exec-hook): Use `dlname' in libgoopscore.la
