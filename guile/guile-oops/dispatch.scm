@@ -1,3 +1,29 @@
+;;;; 	Copyright (C) 1999 Free Software Foundation, Inc.
+;;;; 
+;;;; This program is free software; you can redistribute it and/or modify
+;;;; it under the terms of the GNU General Public License as published by
+;;;; the Free Software Foundation; either version 2, or (at your option)
+;;;; any later version.
+;;;; 
+;;;; This program is distributed in the hope that it will be useful,
+;;;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;;;; GNU General Public License for more details.
+;;;; 
+;;;; You should have received a copy of the GNU General Public License
+;;;; along with this software; see the file COPYING.  If not, write to
+;;;; the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
+;;;; Boston, MA 02111-1307 USA
+;;;; 
+
+
+(define-module (oop goops dispatch)
+  :use-module (oop goops)
+;  :no-backtrace
+  )
+
+(export memoize-method! make-apply-generic)
+
 (define hashsets 8)
 (define hashset-index 10)
 
@@ -75,13 +101,18 @@
 	  ((= hashset hashsets))
 	;;(write-line (list "*** hashset " hashset))
 	(let* ((test-cache (make-vector size '(#f)))
-	       (misses (cache-try-hash! hashset test-cache entries)))
-	  (if (< misses min-misses)
-	      (begin
-		(set! min-misses misses)
-		(set! best hashset)
-		(set! cache test-cache)))))
-      ;;(write-line (list "=== hashset " best " was selected"))
+	       (misses (cache-try-hash! min-misses hashset test-cache entries)))
+	  (cond ((zero? misses)
+		 (set! min-misses 0)
+		 (set! best hashset)
+		 (set! cache test-cache)
+		 (set! hashset (- hashsets 1)))
+		((< misses min-misses)
+		 ;;(write-line "*")
+		 (set! min-misses misses)
+		 (set! best hashset)
+		 (set! cache test-cache)))))
+      ;;(write-line (list "=== hashset" best "was selected with" min-misses "misses"))
       (set-hashed-method-cache-hashset! exp best)
       (set-hashed-method-cache-entries! exp cache))))
 
@@ -96,18 +127,25 @@
 	((environment? (car classes)) sum)
       (set! sum (+ sum (struct-ref (car classes) hashset-index))))))
 
-(define (cache-try-hash! hashset cache entries)
+(define (cache-try-hash! min-misses hashset cache entries)
   (let ((misses 0)
 	(mask (- (vector-length cache) 1)))
-    (do ((ls entries (cdr ls)))
-	((null? ls) misses)
-      (do ((i (logand mask (cache-hashval hashset (car ls)))
-	      (logand mask (+ i 1))))
-	  ((not (car (vector-ref cache i)))
-	   ;;(write-line (list (car ls) 'at i))
-	   (vector-set! cache i (car ls)))
-	;;(write-line (list i 'occupied))
-	(set! misses (+ 1 misses))))))
+    (catch 'misses
+	   (lambda ()
+	     (do ((ls entries (cdr ls)))
+		 ((null? ls) misses)
+	       (do ((i (logand mask (cache-hashval hashset (car ls)))
+		       (logand mask (+ i 1))))
+		   ((not (car (vector-ref cache i)))
+		    ;;(write-line (list (car ls) 'at i))
+		    (vector-set! cache i (car ls)))
+		 ;;(write-line (list i 'occupied))
+		 ;;(display "-")
+		 (set! misses (+ 1 misses))
+		 (if (>= misses min-misses)
+		     (throw 'misses misses)))))
+	   (lambda (key misses)
+	     misses))))
 
 (define e (list (list <generic> <number> '(()))
 		(list <number> <real> <pair> '(()))
@@ -137,7 +175,7 @@
 
 (define (memoize-method! gf args exp)
   ;;*fixme* Want to use generic cam.  How to avoid looping?
-  (let ((applicable (%compute-applicable-methods gf args)))
+  (let ((applicable (apply find-method gf args)))
     (cond ((not applicable)
 	   (no-applicable-method gf args))
 	  ((method-cache-hashed? exp)
@@ -217,14 +255,6 @@
       '()
       (cons (car ls) (first-n (cdr ls) (- n 1)))))
 
-(define-generic foo)
-
-(set-object-procedure! foo
-		       (lambda (g) args)
-		       (lambda (g a1) (@dispatch 0 #((#f) (#f) (#f) (#f))))
-		       (lambda (g a1 a2) (@dispatch 0 #((#f) (#f) (#f) (#f))))
-		       (lambda (g a1 a2 a3 . rest) (@dispatch 0 #((#f) (#f) (#f) (#f)))))
-
 (define (apply-0-arity-method gf)
   ;;*fixme* Want to use generic cam.  How to avoid looping?
   (let ((applicable (%compute-applicable-methods gf '())))
@@ -235,8 +265,12 @@
 						(code-environment code)))
 	  (gf)))))
 
+(define goops-env
+  (list (module-eval-closure (nested-ref the-root-module
+					 '(app modules oop goops)))))
+
 (define (make-apply-generic)
-  (let ((e (the-environment)))
+  (let ((e goops-env))
     (list apply-0-arity-method
 	  (local-eval `(lambda (gf a1) ,(make-method-cache)) e)
 	  (local-eval `(lambda (gf a1 a2) ,(make-method-cache)) e)

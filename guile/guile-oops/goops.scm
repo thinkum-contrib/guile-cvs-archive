@@ -1,6 +1,6 @@
 ;;; installed-scm-file
 
-;;;; 	Copyright (C) 1998 Free Software Foundation, Inc.
+;;;; 	Copyright (C) 1998, 1999 Free Software Foundation, Inc.
 ;;;; 
 ;;;; This program is free software; you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@
 
 (define-module (oop goops)
   :use-module (oop goops goopscore)
+  :use-module (oop goops dispatch)
 ;  :no-backtrace
   )
 
@@ -73,13 +74,13 @@
     method-procedure slot-exists? make find-method get-keyword)
 
 ;; We don't want the following procedure to turn up in backtraces:
-(for-each (lambda (proc)
-	    (set-procedure-property! proc 'system-procedure #t))
-	  (list apply-next-method
-		apply-generic-0
-		apply-generic-1
-		apply-generic-2
-		apply-generic-3))
+;;(for-each (lambda (proc)
+;;	    (set-procedure-property! proc 'system-procedure #t))
+;;	  (list apply-next-method
+;;		apply-generic-0
+;;		apply-generic-1
+;;		apply-generic-2
+;;		apply-generic-3))
 
 ;;;
 ;;; {Utilities}
@@ -556,8 +557,6 @@
 
 ;;; Redefined as a generic below
 (define compute-applicable-methods %compute-applicable-methods)
-
-(load "goops/dispatch.scm")
 
 ;;;
 ;;; {Access to meta objects}
@@ -1325,7 +1324,7 @@
 (define-generic compute-applicable-methods)
 
 (define-method compute-applicable-methods ((gf <generic>) args)
-  (%compute-applicable-methods fd args))
+  (%compute-applicable-methods gf args))
 
 (define-method sort-applicable-methods ((gf <generic>) methods args)
   (let ((targs (map class-of args)))
