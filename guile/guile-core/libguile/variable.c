@@ -49,6 +49,7 @@
 #include "libguile/ports.h"
 #include "libguile/root.h"
 #include "libguile/smob.h"
+#include "libguile/deprecation.h"
 
 #include "libguile/validate.h"
 #include "libguile/variable.h"
@@ -73,10 +74,18 @@ variable_equalp (SCM var1, SCM var2)
 }
 
 
+#if SCM_ENABLE_VCELLS
+SCM_SYMBOL (sym_huh, "???");
+#endif
+
 static SCM
 make_variable (SCM init)
 {
+#if !SCM_ENABLE_VCELLS
   SCM_RETURN_NEWSMOB (scm_tc16_variable, SCM_UNPACK (init));
+#else
+  SCM_RETURN_NEWSMOB (scm_tc16_variable, scm_cons (sym_huh, init));
+#endif
 }
 
 SCM_DEFINE (scm_make_variable, "make-variable", 1, 0, 0, 
@@ -149,6 +158,38 @@ SCM_DEFINE (scm_variable_bound_p, "variable-bound?", 1, 0, 0,
   return SCM_BOOL (SCM_VARIABLE_REF (var) != SCM_UNDEFINED);
 }
 #undef FUNC_NAME
+
+SCM_DEFINE (scm_variable_set_name_hint, "variable-set-name-hint!", 2, 0, 0,
+	    (SCM var, SCM hint),
+	    "Do not use this function.")
+#define FUNC_NAME s_scm_variable_set_name_hint
+{
+  SCM_VALIDATE_VARIABLE (1, var);
+  SCM_VALIDATE_SYMBOL (2, hint);
+#if SCM_ENABLE_VCELLS
+  SCM_SETCAR (SCM_SMOB_DATA (var), hint);
+#endif
+  return SCM_UNSPECIFIED;
+}
+#undef FUNC_NAME
+
+#if SCM_ENABLE_VCELLS
+
+SCM_DEFINE (scm_builtin_variable, "builtin-variable", 1, 0, 0, 
+            (SCM name),
+            "Return the built-in variable with the name @var{name}.\n"
+            "@var{name} must be a symbol (not a string).\n"
+            "Then use @code{variable-ref} to access its value.\n")
+#define FUNC_NAME s_scm_builtin_variable
+{
+  SCM_VALIDATE_SYMBOL (1,name);
+  scm_c_issue_deprecation_warning ("`builtin-variable' is deprecated. "
+				   "Use module system operations instead.");
+  return scm_sym2var (name, SCM_BOOL_F, SCM_BOOL_T);
+}
+#undef FUNC_NAME
+
+#endif /* SCM_ENABLE_VCELLS */
 
 void
 scm_init_variable ()

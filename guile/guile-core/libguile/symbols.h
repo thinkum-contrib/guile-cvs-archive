@@ -124,6 +124,34 @@ extern void scm_init_symbols (void);
 
 #endif  /* SCM_DEBUG_DEPRECATED == 0 */
 
+#if SCM_ENABLE_VCELLS
+
+extern SCM scm_sym2vcell (SCM sym, SCM thunk, SCM definep);
+extern SCM scm_sym2ovcell_soft (SCM sym, SCM obarray);
+extern SCM scm_sym2ovcell (SCM sym, SCM obarray);
+extern SCM scm_intern_obarray_soft (const char *name, scm_sizet len, SCM obarray, unsigned int softness);
+extern SCM scm_intern_obarray (const char *name, scm_sizet len, SCM obarray);
+extern SCM scm_intern (const char *name, scm_sizet len);
+extern SCM scm_intern0 (const char *name);
+extern SCM scm_sysintern (const char *name, SCM val);
+extern SCM scm_sysintern0 (const char *name);
+extern SCM scm_sysintern0_no_module_lookup (const char *name);
+extern SCM scm_symbol_value0 (const char *name);
+
+extern SCM scm_string_to_obarray_symbol (SCM o, SCM s, SCM softp);
+extern SCM scm_intern_symbol (SCM o, SCM s);
+extern SCM scm_unintern_symbol (SCM o, SCM s);
+extern SCM scm_symbol_binding (SCM o, SCM s);
+extern SCM scm_symbol_interned_p (SCM o, SCM s);
+extern SCM scm_symbol_bound_p (SCM o, SCM s);
+extern SCM scm_symbol_set_x (SCM o, SCM s, SCM v);
+
+extern SCM scm_gentemp (SCM prefix, SCM obarray);
+
+extern void scm_init_symbols_deprecated (void);
+
+#endif /* SCM_ENABLE_VCELLS */
+
 #endif  /* SYMBOLSH */
 
 /*
