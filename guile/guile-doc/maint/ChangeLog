@@ -1,0 +1,6 @@
+2000-08-11  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* docstring.el: New file - Emacs Lisp code for synchronizing
+	docstrings between the libguile C source and the reference manual.
+	
+
