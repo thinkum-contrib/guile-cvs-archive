@@ -1,5 +1,8 @@
 1999-12-15  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
+	* goops.scm (make-accessor): Make it possible to create accessors
+	without names.  (Thanks to Eric Moore.)
+
 	* goops.c (change_class): Renamed from change_object_class.
 	Change-class protocol now fixed: Keep objects in hell before they
 	receive their new bodies.

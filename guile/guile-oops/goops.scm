@@ -378,7 +378,8 @@
   (let ((name (and (pair? name) (car name))))
     (make <generic-with-setter>
 	  #:name name
-	  #:setter (make <generic> #:name (make-setter-name name)))))
+	  #:setter (make <generic>
+		         #:name (and name (make-setter-name name))))))
 
 (define (ensure-accessor proc . name)
   (let ((name (and (pair? name) (car name))))
