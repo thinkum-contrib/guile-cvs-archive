@@ -1,4 +1,4 @@
-/* Copyright (C) 1995,1996,1997,1998,1999,2000,2001, 2002, 2003, 2004 Free Software Foundation, Inc.
+/* Copyright (C) 1995,1996,1997,1998,1999,2000,2001, 2002, 2003, 2004, 2005 Free Software Foundation, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -40,6 +40,7 @@
 #include "libguile/validate.h"
 #include "libguile/posix.h"
 #include "libguile/i18n.h"
+#include "libguile/threads.h"
 
 
 #ifdef HAVE_STRING_H
@@ -820,11 +821,11 @@ SCM_DEFINE (scm_ttyname, "ttyname", 1, 0, 0,
     return SCM_BOOL_F;
   fd = SCM_FPORT_FDES (port);
 
-  scm_mutex_lock (&scm_i_misc_mutex);
+  scm_pthread_mutex_lock (&scm_i_misc_mutex);
   SCM_SYSCALL (result = ttyname (fd));
   err = errno;
   ret = scm_from_locale_string (result);
-  scm_mutex_unlock (&scm_i_misc_mutex);
+  pthread_mutex_unlock (&scm_i_misc_mutex);
 
   if (!result)
     {
@@ -1374,7 +1375,13 @@ SCM_DEFINE (scm_setlocale, "setlocale", 1, 1, 0,
 
   rv = setlocale (scm_i_to_lc_category (category, 1), clocale);
   if (rv == NULL)
-    SCM_SYSERROR;
+    {
+      /* POSIX and C99 don't say anything about setlocale setting errno, so
+         force a sensible value here.  glibc leaves ENOENT, which would be
+         fine, but it's not a documented feature.  */
+      errno = EINVAL;
+      SCM_SYSERROR;
+    }
 
   scm_frame_end ();
   return scm_from_locale_string (rv);
@@ -1499,15 +1506,12 @@ SCM_DEFINE (scm_crypt, "crypt", 2, 0, 0,
   char *c_key, *c_salt;
 
   scm_frame_begin (0);
-  scm_frame_unwind_handler ((void(*)(void*)) scm_mutex_unlock,
-                            &scm_i_misc_mutex,
-                            SCM_F_WIND_EXPLICITLY);
-  scm_mutex_lock (&scm_i_misc_mutex);
+  scm_frame_pthread_mutex_lock (&scm_i_misc_mutex);
 
   c_key = scm_to_locale_string (key);
   scm_frame_free (c_key);
   c_salt = scm_to_locale_string (salt);
-  scm_frame_free (c_key);
+  scm_frame_free (c_salt);
 
   ret = scm_from_locale_string (crypt (c_key, c_salt));
 
@@ -1752,21 +1756,28 @@ SCM_DEFINE (scm_flock, "flock", 2, 0, 0,
             (SCM file, SCM operation),
 	    "Apply or remove an advisory lock on an open file.\n"
 	    "@var{operation} specifies the action to be done:\n"
-	    "@table @code\n"
-	    "@item LOCK_SH\n"
+	    "\n"
+	    "@defvar LOCK_SH\n"
 	    "Shared lock.  More than one process may hold a shared lock\n"
 	    "for a given file at a given time.\n"
-	    "@item LOCK_EX\n"
+	    "@end defvar\n"
+	    "@defvar LOCK_EX\n"
 	    "Exclusive lock.  Only one process may hold an exclusive lock\n"
 	    "for a given file at a given time.\n"
-	    "@item LOCK_UN\n"
+	    "@end defvar\n"
+	    "@defvar LOCK_UN\n"
 	    "Unlock the file.\n"
-	    "@item LOCK_NB\n"
-	    "Don't block when locking.  May be specified by bitwise OR'ing\n"
-	    "it to one of the other operations.\n"
-	    "@end table\n"
+	    "@end defvar\n"
+	    "@defvar LOCK_NB\n"
+	    "Don't block when locking.  This is combined with one of the\n"
+	    "other operations using @code{logior}.  If @code{flock} would\n"
+	    "block an @code{EWOULDBLOCK} error is thrown.\n"
+	    "@end defvar\n"
+	    "\n"
 	    "The return value is not specified. @var{file} may be an open\n"
-	    "file descriptor or an open file descriptor port.")
+	    "file descriptor or an open file descriptor port.\n"
+	    "\n"
+	    "Note that @code{flock} does not lock files across NFS.")
 #define FUNC_NAME s_scm_flock
 {
   int fdes;
