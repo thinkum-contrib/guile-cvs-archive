@@ -139,6 +139,9 @@ typedef struct scm_method_t {
 				&& SCM_INSTANCEP (x) \
 				&& SCM_SUBCLASSP (SCM_CLASS_OF (x), c))
 
+#define SCM_MCACHE_N_SPECIALIZED(C) SCM_CADDR (C)
+#define SCM_SET_MCACHE_N_SPECIALIZED(C, X) SCM_SETCAR (SCM_CDDR (C), X)
+
 #define SCM_INITIAL_MCACHE_SIZE	  1
 /* SCM_CMETHOD_CODE and SCM_CMETHOD_ENV are defined in libguile/objects.h
  * starting with Guile 1.3.4.
