@@ -1,3 +1,12 @@
+1999-08-05  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
+
+	* goops.c: Removed old apply generic protocol.
+
+	* goops.h (scm_si_code_table): New method slot.
+
+	* goops.c: Updated Copyright notice.
+	(scm_make): Initialize code table slot for methods.
+
 1999-08-04  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
 	* dispatch.scm, Makefile.am: Added dispatch.scm.
