@@ -10,9 +10,14 @@ To run these benchmarks, you will need a version of Guile more recent
 than 5 May 1999 or so --- the tests use the (ice-9 format) module,
 which was added to Guile around then.
 
+[cmm] To run the `gc-stress' benchmark, you will need a version of
+Guile more recent than 16 Aug 2000 --- this benchmark uses some GC
+stats not provided by earlier versions.
+
 Before you can run these benchmarks, you'll need to do two steps by hand:
 - In the `run-ports' script, change the #! line at the top to point to the
   Guile executable you want to benchmark.
+- Do the same as above with the `gc-stress' script.
 - In `paths.scm', change the value of benchmark-data-dir to the name
   of the directory containing the files `ports-data-1' and
   `ports-data-2' (this directory).
