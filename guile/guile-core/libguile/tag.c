@@ -51,7 +51,7 @@
 
 
 #define CONST_INUM(c_name, scheme_name, value) \
-SCM_VCELL_INIT(c_name, scheme_name, SCM_MAKINUM (value))
+SCM_VARIABLE_INIT(c_name, scheme_name, SCM_MAKINUM (value))
 
 CONST_INUM (scm_utag_immediate_integer, "utag_immediate_integer", 0);
 CONST_INUM (scm_utag_immediate_char, "utag_immediate_char", 1);
