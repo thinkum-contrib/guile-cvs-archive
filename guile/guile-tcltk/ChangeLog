@@ -1,3 +1,12 @@
+Sat Jan 11 14:42:14 1997  Marius Vollmer  <mvo@zagadka.ping.de>
+
+	* configure.in: Replaced AC_PROG_RANLIB with AM_PROG_LIBTOOL.
+	* Makefile.am: Made libgtcltk into a libtool library.
+	* PLUGIN/Makefile.am (guile.config): Removed "-L ../gtcltk-lib"
+ 	from xtra_cflags. Set libtool_libs to indicate that gtcltk is a
+ 	libtool library.  See guile/ChangeLog for details.
+	* .cvsignore: ignore "*.lo", the libtool library objects.
+
 Wed Jan  8 08:31:40 1997  Gary Houston  <ghouston@actrix.gen.nz>
 
 	* configure.in: when checking for /usr/local/inclue use $GCC, not $gcc.
