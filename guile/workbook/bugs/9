@@ -1,5 +1,9 @@
 summary: sibling threads not infinite looping
 reported: giraud@tif.inria.fr, 2001-09-24
+see-also-dir: 9.stuff
+test-case: bug.sh
+fixed: mdj, 2001-10-06, guile-core, branch_release-1-6
+fixed: mdj, 2001-10-06, guile-core, HEAD
 
 Manuel Giraud sez:
 > I've configure guile-1.5.4 '--with-threads' and '--with-modules' on a
@@ -34,3 +38,6 @@ mdj sez:
 ttn sez:
 crash still occurs w/ "guile -s bug.scm" (cvs checkout on 2001/11/06).
 however, "guile -l bug.scm" works as expected.
+
+[ttn 2002/03/27 19:31:35] sez:
+test-case now finishes successfully (branch_release-1-6 checkout 2002-03-25).
