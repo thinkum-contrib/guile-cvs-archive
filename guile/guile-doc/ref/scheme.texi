@@ -1716,6 +1716,72 @@ Shared substrings, discussed in the previous chapter, also happen to be
 read-only strings.
 
 @page
+@node Characters
+@chapter Characters
+
+Most of the characters in the ASCII character set may be referred to by
+name: for example, @code{#\tab}, @code{#\esc}, @code{#\stx}, and so on.
+The following table describes the ASCII names for each character.
+
+@multitable @columnfractions .25 .25 .25 .25
+@item 0 = @code{#\nul}
+ @tab 1 = @code{#\soh}
+ @tab 2 = @code{#\stx}
+ @tab 3 = @code{#\etx}
+@item 4 = @code{#\eot}
+ @tab 5 = @code{#\enq}
+ @tab 6 = @code{#\ack}
+ @tab 7 = @code{#\bel}
+@item 8 = @code{#\bs}
+ @tab 9 = @code{#\ht}
+ @tab 10 = @code{#\nl}
+ @tab 11 = @code{#\vt}
+@item 12 = @code{#\np}
+ @tab 13 = @code{#\cr}
+ @tab 14 = @code{#\so}
+ @tab 15 = @code{#\si}
+@item 16 = @code{#\dle}
+ @tab 17 = @code{#\dc1}
+ @tab 18 = @code{#\dc2}
+ @tab 19 = @code{#\dc3}
+@item 20 = @code{#\dc4}
+ @tab 21 = @code{#\nak}
+ @tab 22 = @code{#\syn}
+ @tab 23 = @code{#\etb}
+@item 24 = @code{#\can}
+ @tab 25 = @code{#\em}
+ @tab 26 = @code{#\sub}
+ @tab 27 = @code{#\esc}
+@item 28 = @code{#\fs}
+ @tab 29 = @code{#\gs}
+ @tab 30 = @code{#\rs}
+ @tab 31 = @code{#\us}
+@item 32 = @code{#\sp}
+@end multitable
+
+The @code{delete} character (octal 177) may be referred to with the name
+@code{#\del}.
+
+Several characters have more than one name:
+
+@itemize @bullet
+@item
+#\space, #\sp
+@item
+#\newline, #\nl
+@item
+#\tab, #\ht
+@item
+#\backspace, #\bs
+@item
+#\return, #\cr
+@item
+#\page, #\np
+@item
+#\null, #\nul
+@end itemize
+
+@page
 @node Property Lists
 @chapter Property Lists
 
@@ -1991,9 +2057,9 @@ char-set, not a string.
 @end deffn
 
 @deffn primitive write-line obj [port]
-Display @var{obj} and a new-line character to @var{port} if specified,
-otherwise to the
-value returned by @code{(current-output-port)}; equivalent to:
+Display @var{obj} and a newline character to @var{port}.  If @var{port}
+is not specified, @code{(current-output-port)} is used.  This function
+is equivalent to:
 
 @smalllisp
 (display obj [port])

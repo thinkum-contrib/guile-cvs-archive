@@ -217,6 +217,7 @@ compatibility with many of these systems.
 * Lists::                       Special list functions supported by Guile.
 * Data Structures::		Records, hash tables, etc.
 * Strings::                     Special things about strings.
+* Characters::			New character names.
 * Property Lists::              Managing metainformation about Scheme objects.
 * Ports::                       I/O in Scheme.
 * Bitwise Operations::          [Previously "Binary Numeric Operations" -twp]
