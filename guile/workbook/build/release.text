@@ -193,6 +193,10 @@ Releasing Guile
             - Make sure AUTHORS and THANKS are up-to-date (see also TODO).
             - Remove finished items from TODO (those marked w/ "+").
 
+        - Make sure to edit NEWS so that you indicate the "breakpoint"
+          for the new release -- i.e. add a "Changes since" line with
+          content relevant to the version about to be released.
+
         - Make sure the downloading addresses and filenames in README
           are current.  (But don't bump the version number yet.  We do
           that below.)
@@ -370,6 +374,9 @@ Releasing Guile
         - commit changes from ../
 
     - Change the topic on irc.freenode.net #guile.
+        /msg chanserv op #guile
+        /topic FOO
+        /deop NICK
 
 * Volunteer Testers
 
