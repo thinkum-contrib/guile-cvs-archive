@@ -219,23 +219,15 @@ Part I: An Introductory Tour
 
 Part II: Guile Scheme
 
-* Guile and R5RS Scheme::       Guile as an extended implementation of Scheme.
-* Scheme Ideas::                Introduction to basic Scheme ideas.
-* Generic Data Types::          Data types for generic use.
-* Procedures::                  Procedure types and properties.
-* Optional Arguments::          Handling keyword, optional and rest arguments.
-* Equality::                    When are two values `the same'?
-* Property Lists::              Managing metainformation about Scheme objects.
-* Primitive Properties::        A modern low-level interface to object properties.
-* Sorting::                     Sort utility procedures.
-* Binding Constructs::
-* Control Mechanisms::
-* Read Syntax Extensions::      Block comments, interpreter triggers, etc.
-* Ports::                       I/O in Scheme.
-* Reading and Writing::         Reading and writing.
-* Evaluation::                  Running and evaluating code on the fly.
-* Exceptions::                  Signalling and handling fatal errors.
-* Dynamic Wind::
+* Scheme Intro::                Introduction to Guile Scheme.
+* Basic Ideas::                 Basic ideas in Scheme.
+* Data Types::                  Data types for generic use.
+* Procedures and Macros::       Procedures and macros.
+* Utility Functions::           General utility functions.
+* Binding Constructs::          Definitions and variable bindings.
+* Control Mechanisms::          Controlling the flow of program execution.
+* Input and Output::            Ports, reading and writing.
+* Read/Load/Eval::              Reading and evaluating Scheme code.
 * Garbage Collection::
 * Weak References::
 * Objects::                     Low level object orientation support.
@@ -329,7 +321,6 @@ Indices
 @include scheme-control.texi
 @include scheme-io.texi
 @include scheme-evaluation.texi
-@include scheme-exceptions.texi
 @include scheme-memory.texi
 @include scheme-modules.texi
 @include scheme-scheduling.texi

@@ -1,6 +1,18 @@
 @page
+@node Utility Functions
+@chapter General Utility Functions
+
+@menu
+* Equality::                    When are two values `the same'?
+* Property Lists::              Managing metainformation about Scheme objects.
+* Primitive Properties::        A modern low-level interface to object properties.
+* Sorting::                     Sort utility procedures.
+* Copying::                     Copying deep structures.
+@end menu
+
+
 @node Equality
-@chapter Equality
+@section Equality
 
 @c docstring begin (texi-doc-string "guile" "eq?")
 @deffn primitive eq? x y
@@ -30,9 +42,8 @@ terminate if its arguments are circular data structures.
 @end deffn
 
 
-@page
 @node Property Lists
-@chapter Property Lists
+@section Property Lists
 
 Every object in the system can have a @dfn{property list} that may
 be used for information about that object.  For example, a
@@ -77,9 +88,8 @@ In @var{obj}'s property list, set the property named @var{key} to
 the user provides a "property table" that is possibly private.]
 
 
-@page
 @node Primitive Properties
-@chapter Primitive Properties
+@section Primitive Properties
 
 @c docstring begin (texi-doc-string "guile" "primitive-make-property")
 @deffn primitive primitive-make-property not_found_proc
@@ -111,9 +121,8 @@ Remove any value associated with @var{prop} and @var{obj}.
 @end deffn
 
 
-@page
 @node Sorting
-@chapter Sorting
+@section Sorting
 
 @c docstring begin (texi-doc-string "guile" "merge!")
 @deffn primitive merge! alist blist less
@@ -153,6 +162,19 @@ Remove any value associated with @var{prop} and @var{obj}.
 
 @c docstring begin (texi-doc-string "guile" "stable-sort")
 @deffn primitive stable-sort items less
+@end deffn
+
+
+@node Copying
+@section Copying Deep Structures
+
+@c docstring begin (texi-doc-string "guile" "copy-tree")
+@deffn primitive copy-tree obj
+Recursively copy the data tree that is bound to @var{obj}, and return a
+pointer to the new data structure.  @code{copy-tree} recurses down the
+contents of both pairs and vectors (since both cons cells and vector
+cells may point to arbitrary objects), and stops recursing when it hits
+any other object.
 @end deffn
 
 

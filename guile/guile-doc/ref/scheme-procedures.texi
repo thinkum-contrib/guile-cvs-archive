@@ -1,6 +1,26 @@
 @page
-@node Procedures
-@chapter Procedures
+@node Procedures and Macros
+@chapter Procedures and Macros
+
+@menu
+* Lambda::                      Basic procedure creation using lambda.
+* Optional Arguments::          Handling keyword, optional and rest arguments.
+* Procedure Properties::        Procedure properties and metainformation.
+* Procedures with Setters::     Procedures with setters.
+* Macros::                      Macros.
+@end menu
+
+
+@node Lambda
+@section Lambda: Basic Procedure Creation
+
+
+@node Optional Arguments
+@section Optional Arguments
+
+
+@node Procedure Properties
+@section Procedure Properties and Metainformation
 
 @c docstring begin (texi-doc-string "guile" "procedure-properties")
 @deffn primitive procedure-properties proc
@@ -23,20 +43,16 @@ In @var{obj}'s property list, set the property named @var{key} to
 @var{value}.
 @end deffn
 
+@c docstring begin (texi-doc-string "guile" "procedure-documentation")
+@deffn primitive procedure-documentation proc
+Return the documentation string associated with @code{proc}.  By
+convention, if a procedure contains more than one expression and the
+first expression is a string constant, that string is assumed to contain
+documentation for that procedure.
+@end deffn
+
 @c docstring begin (texi-doc-string "guile" "closure?")
 @deffn primitive closure? obj
-@end deffn
-
-@c docstring begin (texi-doc-string "guile" "make-procedure-with-setter")
-@deffn primitive make-procedure-with-setter procedure setter
-@end deffn
-
-@c docstring begin (texi-doc-string "guile" "procedure")
-@deffn primitive procedure proc
-@end deffn
-
-@c docstring begin (texi-doc-string "guile" "procedure-with-setter?")
-@deffn primitive procedure-with-setter? obj
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "procedure?")
@@ -63,18 +79,34 @@ In @var{obj}'s property list, set the property named @var{key} to
 @deffn primitive source-property obj key
 @end deffn
 
+
+@node Procedures with Setters
+@section Procedures with Setters
+
+@c docstring begin (texi-doc-string "guile" "make-procedure-with-setter")
+@deffn primitive make-procedure-with-setter procedure setter
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "procedure-with-setter?")
+@deffn primitive procedure-with-setter? obj
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "procedure")
+@deffn primitive procedure proc
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "setter")
+@deffn primitive setter proc
+@end deffn
+
+
+@node Macros
+@section Macros
+
 [FIXME: This needs some more text on the difference between procedures,
 macros and memoizing macros.  Also, any definitions listed here should
 be double-checked by someone who knows what's going on.  Ask Mikael, Jim
 or Aubrey for help. -twp]
-
-@c docstring begin (texi-doc-string "guile" "procedure-documentation")
-@deffn primitive procedure-documentation proc
-Return the documentation string associated with @code{proc}.  By
-convention, if a procedure contains more than one expression and the
-first expression is a string constant, that string is assumed to contain
-documentation for that procedure.
-@end deffn
 
 @c docstring begin (texi-doc-string "guile" "procedure->syntax")
 @deffn primitive procedure->syntax code
@@ -148,11 +180,6 @@ Create and return a new pair whose car and cdr are @var{x} and @var{y}.
 Any source properties associated with @var{xorig} are also associated
 with the new pair.
 @end deffn
-
-
-@page
-@node Optional Arguments
-@chapter Optional Arguments
 
 
 @c Local Variables:

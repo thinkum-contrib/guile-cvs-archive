@@ -267,11 +267,10 @@ port.
 
 @c docstring begin (texi-doc-string "guile" "close")
 @deffn primitive close fd_or_port
-Similar to close-port (@pxref{Generic Port Operations, close-port}),
-but also works on file descriptors.  A side
-effect of closing a file descriptor is that any ports using that file
-descriptor are moved to a different file descriptor and have
-their revealed counts set to zero.
+Similar to close-port (@pxref{Closing, close-port}), but also works on
+file descriptors.  A side effect of closing a file descriptor is that
+any ports using that file descriptor are moved to a different file
+descriptor and have their revealed counts set to zero.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "close-fdes")
@@ -1539,8 +1538,7 @@ Closes the pipe created by @code{open-pipe}, then waits for the process
 to terminate and returns its status value, @xref{Processes, waitpid}, for
 information on how to interpret this value.
 
-@code{close-port} (@pxref{Generic Port Operations, close-port})
-can also be used to
+@code{close-port} (@pxref{Closing, close-port}) can also be used to
 close a pipe, but doesn't return the status.
 @end deffn
 

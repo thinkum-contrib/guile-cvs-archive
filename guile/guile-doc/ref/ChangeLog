@@ -1,5 +1,28 @@
 2001-01-05  Neil Jerram  <neil@ossau.uklinux.net>
 
+	* scheme-exceptions.texi: Removed.
+	
+	* Makefile.am (dist_texis): Removed scheme-exceptions.texi.
+
+	* guile.texi (Top): Renamed/redescribed some top level nodes.  No
+	longer include scheme-exceptions.texi.
+
+	* scheme-control.texi: Merge material that was previously in
+	scheme-exceptions.texi.
+	
+	* posix.texi: Updated close-port reference.
+
+	* scheme-binding.texi, scheme-control.texi,
+	scheme-evaluation.texi, scheme-intro.texi, scheme-io.texi,
+	scheme-procedures.texi, scheme-utility.texi: Massaged into desired
+	structure.
+
+	* scheme-data.texi (Generic Data Types): Changed to "Data Types".
+	(Numbers) Introduction streamlined.
+	(Complex Numbers) New material.
+	
+2001-01-05  Neil Jerram  <neil@ossau.uklinux.net>
+
 	* scheme-data.texi, scheme-io.texi, scheme-memory.texi,
 	scheme-options.texi: Where a single docstring documents more than
 	one primitive, add a docstring comment for each additionally

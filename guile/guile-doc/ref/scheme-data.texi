@@ -1,5 +1,5 @@
 @page
-@node Generic Data Types
+@node Data Types
 @chapter Data Types for Generic Use
 
 This chapter describes all the data types that Guile provides for
@@ -137,37 +137,17 @@ Return @code{#t} iff @var{obj} is either @code{#t} or @code{#f}.
 @node Numbers
 @section Numerical data types
 
-The Scheme standard supports a rich ``tower'' of numerical types ---
-integer, rational, real, complex and number --- and also the orthogonal
-concept of exactness.  For a full and well explained presentation of
-these, see @xref{Numbers,,,r5rs}.
+Guile supports a rich ``tower'' of numerical types --- integer,
+rational, real and complex --- and provides an extensive set of
+mathematical and scientific functions for operating on numerical
+data.  This section of the manual documents those types and functions.
 
-Guile supports a subset of the full Scheme numerical tower, and in such
-a way that all instances of a given type of number are all either exact
-or inexact.  The supported number types are:
-
-@itemize @bullet
-@item
-arbitrary size integers, which are always exact
-
-@item
-limited precision real numbers, always inexact
-
-@item
-complex numbers with limited precision real and imaginary parts, always
-inexact.
-@end itemize
-
-R5RS requires that a calculation involving inexact numbers always
-produces an inexact result.  To meet this requirement, Guile
-distinguishes between an exact integer value such as @code{5} and the
-corresponding inexact real value which, to the limited precision
-available, has no fractional part, and is printed as @code{5.0}.  Guile
-will only convert the latter value to the former when forced to do so by
-an invocation of the @code{inexact->exact} procedure.
+You may also find it illuminating to read R5RS's presentation of numbers
+in Scheme, which is particularly clear and accessible: see
+@xref{Numbers,,,r5rs}.
 
 @menu
-* Numerical Tower::             Scheme's numerical ``tower''.
+* Numerical Tower::             Scheme's numerical "tower".
 * Integers::                    Whole numbers.
 * Reals and Rationals::         Real and rational numbers.
 * Complex Numbers::             Complex numbers.
@@ -368,9 +348,48 @@ is an integer number.
 @node Complex Numbers
 @subsection Complex Numbers
 
+Complex numbers are the set of numbers that describe all possible points
+in a two-dimensional space.  The two coordinates of a particular point
+in this space are known as the @dfn{real} and @dfn{imaginary} parts of
+the complex number that describes that point.
+
+In Guile, complex numbers are written in rectangular form as the sum of
+their real and imaginary parts, using the symbol @code{i} to indicate
+the imaginary part.
+
+@lisp
+3+4i
+@result{}
+3.0+4.0i
+
+(* 3-8i 2.3+0.3i)
+@result{}
+9.3-17.5i
+@end lisp
+
+Guile represents a complex number as a pair of numbers both of which are
+real, so the real and imaginary parts of a complex number have the same
+properties of inexactness and limited precision as single real numbers.
+
+@c docstring begin (texi-doc-string "guile" "complex?")
+@deffn primitive complex? obj
+Return @code{#t} if @var{obj} is a complex number, @code{#f} else.
+Note that the sets of real, rational and integer values form subsets of
+the set of complex numbers, so the predicate will also be fulfilled if
+@var{obj} is a real, rational or integer number.
+@end deffn
+
 
 @node Exactness
 @subsection Exact and Inexact Numbers
+
+R5RS requires that a calculation involving inexact numbers always
+produces an inexact result.  To meet this requirement, Guile
+distinguishes between an exact integer value such as @code{5} and the
+corresponding inexact real value which, to the limited precision
+available, has no fractional part, and is printed as @code{5.0}.  Guile
+will only convert the latter value to the former when forced to do so by
+an invocation of the @code{inexact->exact} procedure.
 
 @c docstring begin (texi-doc-string "guile" "exact?")
 @deffn primitive exact? x
@@ -457,14 +476,6 @@ Real numbers have limited precision similar to the precision of the
 all real numbers in Guile are also rational, since any number R with a
 limited number of decimal places, say N, can be made into an integer by
 multiplying by 10^N.
-
-@c docstring begin (texi-doc-string "guile" "complex?")
-@deffn primitive complex? x
-Return #t if X is a complex number, #f else.  Note that the
-sets of real, rational and integer values form subsets of the
-set of complex numbers, i. e. the predicate will also be
-fulfilled if X is a real, rational or integer number.
-@end deffn
 
 
 @node Integer Operations

@@ -23,7 +23,7 @@ info_TEXINFOS = guile.texi r4rs.texi r5rs.texi goops.texi
 dist_texis = guile.texi goops.texi intro.texi scheme-intro.texi \
 	scheme-ideas.texi scheme-data.texi scheme-procedures.texi \
 	scheme-utility.texi scheme-binding.texi scheme-control.texi \
-	scheme-io.texi scheme-evaluation.texi scheme-exceptions.texi \
+	scheme-io.texi scheme-evaluation.texi \
 	scheme-memory.texi scheme-modules.texi scheme-scheduling.texi \
 	scheme-options.texi scheme-translation.texi scheme-debug.texi \
 	slib.texi posix.texi deprecated.texi expect.texi scsh.texi tcltk.texi \

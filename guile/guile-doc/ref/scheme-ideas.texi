@@ -1,5 +1,5 @@
 @page
-@node Scheme Ideas
+@node Basic Ideas
 @chapter Basic Ideas in Scheme
 
 In this chapter, we introduce the basic concepts that underpin the
@@ -452,7 +452,7 @@ The corresponding forms of the alternative @code{define} syntax are:
 (define (@var{name} . @var{args}) @var{expression} @dots{})
 @end lisp
 
-For details on how these forms work, see @xref{Procedures}.
+For details on how these forms work, see @xref{Lambda}.
 
 (It could be argued that the alternative @code{define} forms are rather
 confusing, especially for newcomers to the Scheme language, as they hide

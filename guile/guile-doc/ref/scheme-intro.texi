@@ -1,6 +1,6 @@
 @page
-@node Guile and R5RS Scheme
-@chapter Guile and R5RS Scheme
+@node Scheme Intro
+@chapter Introduction to Guile Scheme
 
 Guile's core language is Scheme, which is specified and described in the
 series of reports known as @dfn{RnRS}.  @dfn{RnRS} is shorthand for the
@@ -23,6 +23,17 @@ Guile's support for POSIX-compliant network programming
 @item
 GOOPS -- Guile's framework for object oriented programming.
 @end itemize
+
+This part of the reference manual documents all of the Scheme-level
+language and features that Guile provides.
+
+@menu
+* Scheme Layout::               The layout of this part of the manual.
+@end menu
+
+
+@node Scheme Layout
+@section Layout
 
 This reference manual documents all of Guile's Scheme-level language and
 features in functionally-related groups.  Where a particular section of

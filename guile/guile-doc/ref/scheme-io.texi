@@ -1,26 +1,24 @@
 @page
-@node Read Syntax Extensions
-@chapter Read Syntax Extensions
+@node Input and Output
+@chapter Input and Output
 
 @menu
-* Block Comments::
-* Interpreter Triggers::
-* Case Sensitivity::
+* Ports::                       The idea of the port abstraction.
+* Reading::                     Procedures for reading from a port.
+* Writing::                     Procedures for writing to a port.
+* Closing::                     Procedures to close a port.
+* Random Access::               Moving around a random access port.
+* Line/Delimited::              Read and write lines or delimited text.
+* Port Environment::            Default ports for input and output.
+* Port Types::                  Types of port and how to make them.
+* Port Internals::              Using and extending ports in C.
 @end menu
 
-@node Block Comments
-@section Block Comments
 
-@node Interpreter Triggers
-@section Interpreter Triggers
-
-@node Case Sensitivity
-@section Case Sensitivity
-
-
-@page
 @node Ports
-@chapter Ports
+@section Ports
+
+[Concept of the port abstraction.]
 
 Sequential input/output in Scheme is represented by operations on a
 @dfn{port}.  Characters can be read from an input port and
@@ -34,225 +32,31 @@ Because this definition is so loose, it is easy to write functions
 that simulate ports in software.  @dfn{Soft ports} and @dfn{string
 ports} are two interesting and powerful examples of this technique.
 
-@menu
-* File Ports:: Ports on an operating system file.
-* String Ports:: Ports on a Scheme string.
-* Soft Ports:: Ports on arbitrary Scheme procedures.
-* Void Ports:: Ports on nothing at all.
-* Generic Port Operations:: procedures for any type of port: close, flush etc.
-* Extended I/O:: read and write lines or delimited text.
-* C Port Interface:: Using ports from C.
-* Port Implementation:: How to implement a new port type in C.
-@end menu
-
-@node File Ports
-@section File Ports
-
-The following procedures are used to open file ports.
-See also @ref{Ports and File Descriptors, open}, for an interface
-to the Unix @code{open} system call.
-
-@c ARGFIXME string/filename mode/modes
-@c docstring begin (texi-doc-string "guile" "open-file")
-@deffn primitive open-file filename modes
-Open the file whose name is @var{string}, and return a port
-representing that file.  The attributes of the port are
-determined by the @var{mode} string.  The way in
-which this is interpreted is similar to C stdio:
-
-The first character must be one of the following:
-
-@table @samp
-@item r
-Open an existing file for input.
-@item w
-Open a file for output, creating it if it doesn't already exist
-or removing its contents if it does.
-@item a
-Open a file for output, creating it if it doesn't already exist.
-All writes to the port will go to the end of the file.
-The "append mode" can be turned off while the port is in use
-@pxref{Ports and File Descriptors, fcntl}
-@end table
-
-The following additional characters can be appended:
-
-@table @samp
-@item +
-Open the port for both input and output.  E.g., @code{r+}: open
-an existing file for both input and output.
-@item 0
-Create an "unbuffered" port.  In this case input and output operations
-are passed directly to the underlying port implementation without
-additional buffering.  This is likely to slow down I/O operations.
-The buffering mode can be changed while a port is in use
-@pxref{Ports and File Descriptors, setvbuf}
-@item l
-Add line-buffering to the port.  The port output buffer will be
-automatically flushed whenever a newline character is written.
-@end table
-
-In theory we could create read/write ports which were buffered in one
-direction only.  However this isn't included in the current interfaces.
-
-If a file cannot be opened with the access requested,
-@code{open-file} throws an exception.
+@c docstring begin (texi-doc-string "guile" "input-port?")
+@deffn primitive input-port? x
+Returns @code{#t} if @var{x} is an input port, otherwise returns
+@code{#f}.  Any object satisfying this predicate also satisfies
+@code{port?}.
 @end deffn
 
-@c begin (scm-doc-string "r4rs.scm" "open-input-file")
-@deffn procedure open-input-file filename
-Open @var{filename} for input.  Equivalent to
-@smalllisp
-(open-file @var{filename} "r")
-@end smalllisp
+@c docstring begin (texi-doc-string "guile" "output-port?")
+@deffn primitive output-port? x
+Returns @code{#t} if @var{x} is an output port, otherwise returns
+@code{#f}.  Any object satisfying this predicate also satisfies
+@code{port?}.
 @end deffn
 
-@c begin (scm-doc-string "r4rs.scm" "open-output-file")
-@deffn procedure open-output-file filename
-Open @var{filename} for output.  Equivalent to
-@smalllisp
-(open-file @var{filename} "w")
-@end smalllisp
+@c docstring begin (texi-doc-string "guile" "port?")
+@deffn primitive port? x
+Returns a boolean indicating whether @var{x} is a port.
+Equivalent to @code{(or (input-port? X) (output-port? X))}.
 @end deffn
 
-@c docstring begin (texi-doc-string "guile" "port-mode")
-@deffn primitive port-mode port
-Returns the port modes associated with the open port @var{port}.  These
-will not necessarily be identical to the modes used when the port was
-opened, since modes such as "append" which are used only during
-port creation are not retained.
-@end deffn
 
-@c docstring begin (texi-doc-string "guile" "port-filename")
-@deffn primitive port-filename port
-Return the filename associated with @var{port}.  This function returns
-the strings "standard input", "standard output" and "standard error"
-when called on the current input, output and error ports respectively.
-@end deffn
+@node Reading
+@section Reading
 
-@c docstring begin (texi-doc-string "guile" "set-port-filename!")
-@deffn primitive set-port-filename! port filename
-Change the filename associated with @var{port}, using the current input
-port if none is specified.  Note that this does not change the port's
-source of data, but only the value that is returned by
-@code{port-filename} and reported in diagnostic output.
-@end deffn
-
-@node String Ports
-@section String Ports
-
-The following allow string ports to be opened by analogy to R4R*
-file port facilities:
-
-@c docstring begin (texi-doc-string "guile" "call-with-output-string")
-@deffn primitive call-with-output-string proc
-Calls the one-argument procedure @var{proc} with a newly created output
-port.  When the function returns, the string composed of the characters
-written into the port is returned.
-@end deffn
-
-@c ARGFIXME str/string
-@c docstring begin (texi-doc-string "guile" "call-with-input-string")
-@deffn primitive call-with-input-string str proc
-Calls the one-argument procedure @var{proc} with a newly created input
-port from which @var{string}'s contents may be read.  The value yielded
-by the @var{proc} is returned.
-@end deffn
-
-@c begin (scm-doc-string "r4rs.scm" "with-output-to-string")
-@deffn procedure with-output-to-string thunk
-Calls the zero-argument procedure @var{thunk} with the current output
-port set temporarily to a new string port.  It returns a string
-composed of the characters written to the current output.
-@end deffn
-
-@c begin (scm-doc-string "r4rs.scm" "with-input-from-string")
-@deffn procedure with-input-from-string string thunk
-Calls the zero-argument procedure @var{thunk} with the current input
-port set temporarily to a string port opened on the specified
-@var{string}.  The value yielded by @var{thunk} is returned.
-@end deffn
-
-A string port can be used in many procedures which accept a port
-but which are not dependent on implementation details of fports.
-E.g., seeking and truncating will work on a string port,
-but trying to extract the file descriptor number will fail.
-
-At present there isn't a procedure that simply returns a new string
-port.  There's also no way of opening read/write string ports from
-Scheme even though it's possible from C.  SRFI 6 could be implemented
-without much difficulty.
-
-@node Soft Ports
-@section Soft Ports
-
-A @dfn{soft-port} is a port based on a vector of procedures capable of
-accepting or delivering characters.  It allows emulation of I/O ports.
-
-@c ARGFIXME pv/vector
-@c docstring begin (texi-doc-string "guile" "make-soft-port")
-@deffn primitive make-soft-port pv modes
-Returns a port capable of receiving or delivering characters as
-specified by the @var{modes} string (@pxref{File Ports,
-open-file}).  @var{vector} must be a vector of length 6.  Its components
-are as follows:
-
-@enumerate 0
-@item
-procedure accepting one character for output
-@item
-procedure accepting a string for output
-@item
-thunk for flushing output
-@item
-thunk for getting one character
-@item
-thunk for closing port (not by garbage collection)
-@end enumerate
-
-For an output-only port only elements 0, 1, 2, and 4 need be
-procedures.  For an input-only port only elements 3 and 4 need be
-procedures.  Thunks 2 and 4 can instead be @code{#f} if there is no useful
-operation for them to perform.
-
-If thunk 3 returns @code{#f} or an @code{eof-object} (@pxref{Input,
-eof-object?, ,r4rs, The Revised^4 Report on Scheme}) it indicates that
-the port has reached end-of-file.  For example:
-
-@example
-(define stdout (current-output-port))
-(define p (make-soft-port
-           (vector
-            (lambda (c) (write c stdout))
-            (lambda (s) (display s stdout))
-            (lambda () (display "." stdout))
-            (lambda () (char-upcase (read-char)))
-            (lambda () (display "@@" stdout)))
-           "rw"))
-
-(write p p) @result{} #<input-output: soft 8081e20>
-@end example
-@end deffn
-
-@node Void Ports
-@section Void Ports
-
-This kind of port just causes errors if you try to use it in
-a normal way.
-
-@c docstring begin (texi-doc-string "guile" "%make-void-port")
-@deffn primitive %make-void-port mode
-Create and return a new void port.  A void port acts like
-/dev/null.  The @var{mode} argument
-specifies the input/output modes for this port: see the
-documentation for @code{open-file} in @ref{File Ports}.
-@end deffn
-
-@node Generic Port Operations
-@section Generic Port Operations
-
-This section describes port maintainence procedures
-which are not specific to a single port type.
+[Generic procedures for reading from ports.]
 
 @c docstring begin (texi-doc-string "guile" "eof-object?")
 @deffn primitive eof-object? x
@@ -315,6 +119,97 @@ unread characters will be read again in last-in first-out order.  If
 @var{port} is not supplied, the current-input-port is used.
 @end deffn
 
+@c docstring begin (texi-doc-string "guile" "drain-input")
+@deffn primitive drain-input port
+Drains @var{PORT}'s read buffers (including any pushed-back characters)
+and returns the contents as a single string.
+@end deffn
+
+@c ARGFIXME port/input-port
+@c docstring begin (texi-doc-string "guile" "port-column")
+@c docstring begin (texi-doc-string "guile" "port-line")
+@deffn primitive port-column port
+@deffnx primitive port-line [input-port]
+Return the current column number or line number of @var{input-port},
+using the current input port if none is specified.  If the number is
+unknown, the result is #f.  Otherwise, the result is a 0-origin integer
+- i.e. the first character of the first line is line 0, column 0.
+(However, when you display a file position, for example in an error
+message, we recommand you add 1 to get 1-origin integers.  This is
+because lines and column numbers traditionally start with 1, and that is
+what non-programmers will find most natural.)
+@end deffn
+
+@c ARGFIXME port/input-port
+@c docstring begin (texi-doc-string "guile" "set-port-column!")
+@c docstring begin (texi-doc-string "guile" "set-port-line!")
+@deffn primitive set-port-column! port column
+@deffnx primitive set-port-line! port line
+Set the current column or line number of @var{port}, using the
+current input port if none is specified.
+@end deffn
+
+
+@node Writing
+@section Writing
+
+[Generic procedures for writing to ports.]
+
+@c docstring begin (texi-doc-string "guile" "get-print-state")
+@deffn primitive get-print-state port
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "newline")
+@deffn primitive newline [port]
+Send a newline to PORT.
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "port-with-print-state")
+@deffn primitive port-with-print-state port pstate
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "print-options-interface")
+@deffn primitive print-options-interface [setting]
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "simple-format")
+@deffn primitive simple-format destination message . args
+Write MESSAGE to DESTINATION, defaulting to `current-output-port'.
+MESSAGE can contain ~A (was %s) and ~S (was %S) escapes.  When printed,
+the escapes are replaced with corresponding members of ARGS:
+~A formats using `display' and ~S formats using `write'.
+If DESTINATION is #t, then use the `current-output-port',
+if DESTINATION is #f, then return a string containing the formatted text.
+Does not add a trailing newline.
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "write-char")
+@deffn primitive write-char chr [port]
+Send character CHR to PORT.
+@end deffn
+
+@findex fflush
+@c docstring begin (texi-doc-string "guile" "force-output")
+@deffn primitive force-output [port]
+Flush the specified output port, or the current output port if @var{port}
+is omitted.  The current output buffer contents are passed to the
+underlying port implementation (e.g., in the case of fports, the
+data will be written to the file and the output buffer will be cleared.)
+It has no effect on an unbuffered port.
+
+The return value is unspecified.
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "flush-all-ports")
+@deffn primitive flush-all-ports
+Equivalent to calling @code{force-output} on
+all open output ports.  The return value is unspecified.
+@end deffn
+
+
+@node Closing
+@section Closing
+
 @c docstring begin (texi-doc-string "guile" "close-port")
 @deffn primitive close-port port
 Close the specified port object.  Returns @code{#t} if it successfully
@@ -345,99 +240,14 @@ See also @ref{Ports and File Descriptors, close}, for a procedure
 which can close file descriptors.
 @end deffn
 
-@c docstring begin (texi-doc-string "guile" "input-port?")
-@deffn primitive input-port? x
-Returns @code{#t} if @var{x} is an input port, otherwise returns
-@code{#f}.  Any object satisfying this predicate also satisfies
-@code{port?}.
-@end deffn
-
-@c docstring begin (texi-doc-string "guile" "output-port?")
-@deffn primitive output-port? x
-Returns @code{#t} if @var{x} is an output port, otherwise returns
-@code{#f}.  Any object satisfying this predicate also satisfies
-@code{port?}.
-@end deffn
-
-@c docstring begin (texi-doc-string "guile" "port?")
-@deffn primitive port? x
-Returns a boolean indicating whether @var{x} is a port.
-Equivalent to @code{(or (input-port? X) (output-port? X))}.
-@end deffn
-
 @c docstring begin (texi-doc-string "guile" "port-closed?")
 @deffn primitive port-closed? port
 Returns @code{#t} if @var{port} is closed or @code{#f} if it is open.
 @end deffn
 
-@c docstring begin (texi-doc-string "guile" "current-input-port")
-@deffn primitive current-input-port
-Returns the current input port.  This is the default port used by many
-input procedures.  Initially, @code{current-input-port} returns the
-value of @code{???}.
-@end deffn
 
-@c docstring begin (texi-doc-string "guile" "current-load-port")
-@deffn primitive current-load-port
-Return the current-load-port.
-The load port is used internally by `primitive-load'.
-@end deffn
-
-@c docstring begin (texi-doc-string "guile" "current-output-port")
-@deffn primitive current-output-port
-Returns the current output port.  This is the default port used by many
-output procedures.  Initially, @code{current-output-port} returns the
-value of @code{???}.
-@end deffn
-
-@c docstring begin (texi-doc-string "guile" "current-error-port")
-@deffn primitive current-error-port
-Return the port to which errors and warnings should be sent (the
-@dfn{standard error} in Unix and C terminology).
-@end deffn
-
-@c docstring begin (texi-doc-string "guile" "set-current-input-port")
-@deffn primitive set-current-input-port port
-@deffnx primitive set-current-output-port port
-@deffnx primitive set-current-error-port port
-Change the ports returned by @code{current-input-port},
-@code{current-output-port} and @code{current-error-port}, respectively,
-so that they use the supplied @var{port} for input or output.
-@end deffn
-
-@c docstring begin (texi-doc-string "guile" "set-current-output-port")
-@deffn primitive set-current-output-port port
-Set the current default output port to PORT.
-@end deffn
-
-@c docstring begin (texi-doc-string "guile" "set-current-error-port")
-@deffn primitive set-current-error-port port
-Set the current default error port to PORT.
-@end deffn
-
-@findex fflush
-@c docstring begin (texi-doc-string "guile" "force-output")
-@deffn primitive force-output [port]
-Flush the specified output port, or the current output port if @var{port}
-is omitted.  The current output buffer contents are passed to the
-underlying port implementation (e.g., in the case of fports, the
-data will be written to the file and the output buffer will be cleared.)
-It has no effect on an unbuffered port.
-
-The return value is unspecified.
-@end deffn
-
-@c docstring begin (texi-doc-string "guile" "flush-all-ports")
-@deffn primitive flush-all-ports
-Equivalent to calling @code{force-output} on
-all open output ports.  The return value is unspecified.
-@end deffn
-
-@c docstring begin (texi-doc-string "guile" "drain-input")
-@deffn primitive drain-input port
-Drains @var{PORT}'s read buffers (including any pushed-back characters)
-and returns the contents as a single string.
-@end deffn
+@node Random Access
+@section Random Access
 
 @c ARGFIXME object/fd/port
 @c docstring begin (texi-doc-string "guile" "seek")
@@ -498,32 +308,12 @@ position.
 The return value is unspecified.
 @end deffn
 
-@c ARGFIXME port/input-port
-@c docstring begin (texi-doc-string "guile" "port-column")
-@c docstring begin (texi-doc-string "guile" "port-line")
-@deffn primitive port-column port
-@deffnx primitive port-line [input-port]
-Return the current column number or line number of @var{input-port},
-using the current input port if none is specified.  If the number is
-unknown, the result is #f.  Otherwise, the result is a 0-origin integer
-- i.e. the first character of the first line is line 0, column 0.
-(However, when you display a file position, for example in an error
-message, we recommand you add 1 to get 1-origin integers.  This is
-because lines and column numbers traditionally start with 1, and that is
-what non-programmers will find most natural.)
-@end deffn
 
-@c ARGFIXME port/input-port
-@c docstring begin (texi-doc-string "guile" "set-port-column!")
-@c docstring begin (texi-doc-string "guile" "set-port-line!")
-@deffn primitive set-port-column! port column
-@deffnx primitive set-port-line! port line
-Set the current column or line number of @var{port}, using the
-current input port if none is specified.
-@end deffn
+@node Line/Delimited
+@section Handling Line Oriented and Delimited Text
 
-@node Extended I/O
-@section Extended I/O
+[Line-oriented and delimited IO.  Or should this be merged into the
+previous two sections?]
 
 Extended I/O procedures are available which read or write lines of text
 or read text delimited by a specified set of characters.
@@ -639,8 +429,278 @@ delimiter may be either a newline or the @var{eof-object}; if
 @code{(#<eof> . #<eof>)}.
 @end deffn
 
+
+@node Port Environment
+@section Port Environment
+
+@c docstring begin (texi-doc-string "guile" "current-input-port")
+@deffn primitive current-input-port
+Returns the current input port.  This is the default port used by many
+input procedures.  Initially, @code{current-input-port} returns the
+value of @code{???}.
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "current-output-port")
+@deffn primitive current-output-port
+Returns the current output port.  This is the default port used by many
+output procedures.  Initially, @code{current-output-port} returns the
+value of @code{???}.
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "current-error-port")
+@deffn primitive current-error-port
+Return the port to which errors and warnings should be sent (the
+@dfn{standard error} in Unix and C terminology).
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "set-current-input-port")
+@deffn primitive set-current-input-port port
+@deffnx primitive set-current-output-port port
+@deffnx primitive set-current-error-port port
+Change the ports returned by @code{current-input-port},
+@code{current-output-port} and @code{current-error-port}, respectively,
+so that they use the supplied @var{port} for input or output.
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "set-current-output-port")
+@deffn primitive set-current-output-port port
+Set the current default output port to PORT.
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "set-current-error-port")
+@deffn primitive set-current-error-port port
+Set the current default error port to PORT.
+@end deffn
+
+
+@node Port Types
+@section Types of Port
+
+[Types of port; how to make them.]
+
+@menu
+* File Ports:: Ports on an operating system file.
+* String Ports:: Ports on a Scheme string.
+* Soft Ports:: Ports on arbitrary Scheme procedures.
+* Void Ports:: Ports on nothing at all.
+@end menu
+
+@node File Ports
+@subsection File Ports
+
+The following procedures are used to open file ports.
+See also @ref{Ports and File Descriptors, open}, for an interface
+to the Unix @code{open} system call.
+
+@c ARGFIXME string/filename mode/modes
+@c docstring begin (texi-doc-string "guile" "open-file")
+@deffn primitive open-file filename modes
+Open the file whose name is @var{string}, and return a port
+representing that file.  The attributes of the port are
+determined by the @var{mode} string.  The way in
+which this is interpreted is similar to C stdio:
+
+The first character must be one of the following:
+
+@table @samp
+@item r
+Open an existing file for input.
+@item w
+Open a file for output, creating it if it doesn't already exist
+or removing its contents if it does.
+@item a
+Open a file for output, creating it if it doesn't already exist.
+All writes to the port will go to the end of the file.
+The "append mode" can be turned off while the port is in use
+@pxref{Ports and File Descriptors, fcntl}
+@end table
+
+The following additional characters can be appended:
+
+@table @samp
+@item +
+Open the port for both input and output.  E.g., @code{r+}: open
+an existing file for both input and output.
+@item 0
+Create an "unbuffered" port.  In this case input and output operations
+are passed directly to the underlying port implementation without
+additional buffering.  This is likely to slow down I/O operations.
+The buffering mode can be changed while a port is in use
+@pxref{Ports and File Descriptors, setvbuf}
+@item l
+Add line-buffering to the port.  The port output buffer will be
+automatically flushed whenever a newline character is written.
+@end table
+
+In theory we could create read/write ports which were buffered in one
+direction only.  However this isn't included in the current interfaces.
+
+If a file cannot be opened with the access requested,
+@code{open-file} throws an exception.
+@end deffn
+
+@c begin (scm-doc-string "r4rs.scm" "open-input-file")
+@deffn procedure open-input-file filename
+Open @var{filename} for input.  Equivalent to
+@smalllisp
+(open-file @var{filename} "r")
+@end smalllisp
+@end deffn
+
+@c begin (scm-doc-string "r4rs.scm" "open-output-file")
+@deffn procedure open-output-file filename
+Open @var{filename} for output.  Equivalent to
+@smalllisp
+(open-file @var{filename} "w")
+@end smalllisp
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "port-mode")
+@deffn primitive port-mode port
+Returns the port modes associated with the open port @var{port}.  These
+will not necessarily be identical to the modes used when the port was
+opened, since modes such as "append" which are used only during
+port creation are not retained.
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "port-filename")
+@deffn primitive port-filename port
+Return the filename associated with @var{port}.  This function returns
+the strings "standard input", "standard output" and "standard error"
+when called on the current input, output and error ports respectively.
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "set-port-filename!")
+@deffn primitive set-port-filename! port filename
+Change the filename associated with @var{port}, using the current input
+port if none is specified.  Note that this does not change the port's
+source of data, but only the value that is returned by
+@code{port-filename} and reported in diagnostic output.
+@end deffn
+
+@node String Ports
+@subsection String Ports
+
+The following allow string ports to be opened by analogy to R4R*
+file port facilities:
+
+@c docstring begin (texi-doc-string "guile" "call-with-output-string")
+@deffn primitive call-with-output-string proc
+Calls the one-argument procedure @var{proc} with a newly created output
+port.  When the function returns, the string composed of the characters
+written into the port is returned.
+@end deffn
+
+@c ARGFIXME str/string
+@c docstring begin (texi-doc-string "guile" "call-with-input-string")
+@deffn primitive call-with-input-string str proc
+Calls the one-argument procedure @var{proc} with a newly created input
+port from which @var{string}'s contents may be read.  The value yielded
+by the @var{proc} is returned.
+@end deffn
+
+@c begin (scm-doc-string "r4rs.scm" "with-output-to-string")
+@deffn procedure with-output-to-string thunk
+Calls the zero-argument procedure @var{thunk} with the current output
+port set temporarily to a new string port.  It returns a string
+composed of the characters written to the current output.
+@end deffn
+
+@c begin (scm-doc-string "r4rs.scm" "with-input-from-string")
+@deffn procedure with-input-from-string string thunk
+Calls the zero-argument procedure @var{thunk} with the current input
+port set temporarily to a string port opened on the specified
+@var{string}.  The value yielded by @var{thunk} is returned.
+@end deffn
+
+A string port can be used in many procedures which accept a port
+but which are not dependent on implementation details of fports.
+E.g., seeking and truncating will work on a string port,
+but trying to extract the file descriptor number will fail.
+
+At present there isn't a procedure that simply returns a new string
+port.  There's also no way of opening read/write string ports from
+Scheme even though it's possible from C.  SRFI 6 could be implemented
+without much difficulty.
+
+@node Soft Ports
+@subsection Soft Ports
+
+A @dfn{soft-port} is a port based on a vector of procedures capable of
+accepting or delivering characters.  It allows emulation of I/O ports.
+
+@c ARGFIXME pv/vector
+@c docstring begin (texi-doc-string "guile" "make-soft-port")
+@deffn primitive make-soft-port pv modes
+Returns a port capable of receiving or delivering characters as
+specified by the @var{modes} string (@pxref{File Ports,
+open-file}).  @var{vector} must be a vector of length 6.  Its components
+are as follows:
+
+@enumerate 0
+@item
+procedure accepting one character for output
+@item
+procedure accepting a string for output
+@item
+thunk for flushing output
+@item
+thunk for getting one character
+@item
+thunk for closing port (not by garbage collection)
+@end enumerate
+
+For an output-only port only elements 0, 1, 2, and 4 need be
+procedures.  For an input-only port only elements 3 and 4 need be
+procedures.  Thunks 2 and 4 can instead be @code{#f} if there is no useful
+operation for them to perform.
+
+If thunk 3 returns @code{#f} or an @code{eof-object} (@pxref{Input,
+eof-object?, ,r4rs, The Revised^4 Report on Scheme}) it indicates that
+the port has reached end-of-file.  For example:
+
+@example
+(define stdout (current-output-port))
+(define p (make-soft-port
+           (vector
+            (lambda (c) (write c stdout))
+            (lambda (s) (display s stdout))
+            (lambda () (display "." stdout))
+            (lambda () (char-upcase (read-char)))
+            (lambda () (display "@@" stdout)))
+           "rw"))
+
+(write p p) @result{} #<input-output: soft 8081e20>
+@end example
+@end deffn
+
+@node Void Ports
+@subsection Void Ports
+
+This kind of port just causes errors if you try to use it in
+a normal way.
+
+@c docstring begin (texi-doc-string "guile" "%make-void-port")
+@deffn primitive %make-void-port mode
+Create and return a new void port.  A void port acts like
+/dev/null.  The @var{mode} argument
+specifies the input/output modes for this port: see the
+documentation for @code{open-file} in @ref{File Ports}.
+@end deffn
+
+
+@node Port Internals
+@section Port Internals
+
+@menu
+* C Port Interface:: Using ports from C.
+* Port Implementation:: How to implement a new port type in C.
+@end menu
+
+
 @node C Port Interface
-@section C Port Interface
+@subsection C Port Interface
+
 This section describes how to use Scheme ports from C.
 
 @subsection Port basics
@@ -740,8 +800,10 @@ Set @code{rw_active} to @code{SCM_PORT_WRITE} if @code{rw_random}
 is set.
 @end enumerate
 
+
 @node Port Implementation
-@section Port Implementation
+@subsection Port Implementation
+
 This section describes how to implement a new port type in C.
 
 As described in the previous section, a port type object (ptob) is
@@ -840,56 +902,6 @@ current state of @code{rw_active} is @code{SCM_PORT_NEITHER}.
 Set using @code{scm_set_port_truncate}.
 
 @end table
-
-
-@page
-@node Reading and Writing
-@chapter Reading and Writing
-
-@c docstring begin (texi-doc-string "guile" "get-print-state")
-@deffn primitive get-print-state port
-@end deffn
-
-@c docstring begin (texi-doc-string "guile" "newline")
-@deffn primitive newline [port]
-Send a newline to PORT.
-@end deffn
-
-@c docstring begin (texi-doc-string "guile" "port-with-print-state")
-@deffn primitive port-with-print-state port pstate
-@end deffn
-
-@c docstring begin (texi-doc-string "guile" "print-options-interface")
-@deffn primitive print-options-interface [setting]
-@end deffn
-
-@c docstring begin (texi-doc-string "guile" "simple-format")
-@deffn primitive simple-format destination message . args
-Write MESSAGE to DESTINATION, defaulting to `current-output-port'.
-MESSAGE can contain ~A (was %s) and ~S (was %S) escapes.  When printed,
-the escapes are replaced with corresponding members of ARGS:
-~A formats using `display' and ~S formats using `write'.
-If DESTINATION is #t, then use the `current-output-port',
-if DESTINATION is #f, then return a string containing the formatted text.
-Does not add a trailing newline.
-@end deffn
-
-@c docstring begin (texi-doc-string "guile" "write-char")
-@deffn primitive write-char chr [port]
-Send character CHR to PORT.
-@end deffn
-
-@c docstring begin (texi-doc-string "guile" "read")
-@deffn primitive read [port]
-@end deffn
-
-@c docstring begin (texi-doc-string "guile" "read-hash-extend")
-@deffn primitive read-hash-extend chr proc
-@end deffn
-
-@c docstring begin (texi-doc-string "guile" "read-options-interface")
-@deffn primitive read-options-interface [setting]
-@end deffn
 
 
 @c Local Variables:
