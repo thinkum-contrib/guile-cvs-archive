@@ -9,13 +9,11 @@ THEORY
 GENERAL PRACTICE
 
 	To invoke the guile interpreter before installing it (and its
-	support files), call ${top_srcdir}/pre-inst-guile w/ first arg
-	${top_builddir}, where you would normally call guile.
+	support files), call ${top_builddir_absolute}/pre-inst-guile
+	where you would normally call guile.
 
 	Similarly, for scripts/* (normally found by guile-tools), set
-	env var GUILE to the above combination.
-
-	See commentary in ${top_srcdir}/pre-inst-guile for more info.
+	env var GUILE to the above path when invoking the script.
 
 
 SPECIFIC PRACTICE
@@ -23,7 +21,7 @@ SPECIFIC PRACTICE
 	Include the following line in any Makefile.am with rules that
 	need to call the pre-installed guile interpreter:
 
-	include $(top_srcdir)/pre-inst-guile.am
+	include $(top_srcdir)/am/pre-inst-guile
 
 	This causes Automake to include a makefile fragment that defines
 	two vars: `preinstguile' and `preinstguiletool'.  The following
