@@ -62,6 +62,9 @@ host_triplet = @host@
 AS = @AS@
 CC = @CC@
 DLLTOOL = @DLLTOOL@
+GOOPS_MAJOR_VERSION = @GOOPS_MAJOR_VERSION@
+GOOPS_MINOR_VERSION = @GOOPS_MINOR_VERSION@
+GOOPS_VERSION = @GOOPS_VERSION@
 GUILE_CFLAGS = @GUILE_CFLAGS@
 GUILE_LDFLAGS = @GUILE_LDFLAGS@
 LD = @LD@
@@ -85,13 +88,15 @@ guile_oops_SOURCES = guile-oops.c
 guile_oops_DEPENDENCIES = @LIBLOBJS@
 guile_oops_LDADD = @LIBLOBJS@ libgoopscore.la
 
-libgoopscore_la_SOURCES = goops.c goops.h goops-snarf.h
+libgoopscore_la_SOURCES = goops.c
 libgoopscore_la_LDFLAGS = -version-info 0:0 -export-dynamic
 BUILT_SOURCES = goops.x fdi.x
 
 EXTRA_guile_oops_SOURCES = fdi.c
 
 include_HEADERS = goops.h goops-snarf.h
+
+pkginclude_HEADERS = versiondat.h
 
 subpkgdatadir = $(datadir)/guile/oop
 subpkgdata_DATA = goops.scm
@@ -112,7 +117,7 @@ SNARF = guile-snarf
 MKDEP = gcc -M -MG $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
-CONFIG_CLEAN_FILES = 
+CONFIG_CLEAN_FILES =  versiondat.h
 LTLIBRARIES =  $(lib_LTLIBRARIES)
 
 
@@ -137,12 +142,12 @@ DVIS = goops.dvi
 TEXINFOS = goops.texi
 DATA =  $(goopsdata_DATA) $(subpkgdata_DATA)
 
-HEADERS =  $(include_HEADERS)
+HEADERS =  $(include_HEADERS) $(pkginclude_HEADERS)
 
 DIST_COMMON =  README $(goops_TEXINFOS) AUTHORS COPYING ChangeLog \
 INSTALL Makefile.am Makefile.in NEWS THANKS TODO aclocal.m4 \
 config.guess config.sub configure configure.in install-sh ltconfig \
-ltmain.sh mdate-sh missing mkinstalldirs texinfo.tex
+ltmain.sh mdate-sh missing mkinstalldirs texinfo.tex versiondat.h.in
 
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
@@ -170,6 +175,8 @@ config.status: $(srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	$(SHELL) ./config.status --recheck
 $(srcdir)/configure: @MAINTAINER_MODE_TRUE@$(srcdir)/configure.in $(ACLOCAL_M4) $(CONFIGURE_DEPENDENCIES)
 	cd $(srcdir) && $(AUTOCONF)
+versiondat.h: $(top_builddir)/config.status versiondat.h.in
+	cd $(top_builddir) && CONFIG_FILES=$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
 mostlyclean-libLTLIBRARIES:
 
@@ -430,6 +437,21 @@ uninstall-includeHEADERS:
 	  rm -f $(DESTDIR)$(includedir)/$$p; \
 	done
 
+install-pkgincludeHEADERS: $(pkginclude_HEADERS)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(pkgincludedir)
+	@list='$(pkginclude_HEADERS)'; for p in $$list; do \
+	  if test -f "$$p"; then d= ; else d="$(srcdir)/"; fi; \
+	  echo " $(INSTALL_DATA) $$d$$p $(DESTDIR)$(pkgincludedir)/$$p"; \
+	  $(INSTALL_DATA) $$d$$p $(DESTDIR)$(pkgincludedir)/$$p; \
+	done
+
+uninstall-pkgincludeHEADERS:
+	@$(NORMAL_UNINSTALL)
+	list='$(pkginclude_HEADERS)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(pkgincludedir)/$$p; \
+	done
+
 tags: TAGS
 
 ID: $(HEADERS) $(SOURCES) $(LISP)
@@ -559,7 +581,8 @@ install-exec-am: install-libLTLIBRARIES install-binPROGRAMS
 install-exec: install-exec-am
 
 install-data-am: install-info-am install-goopsdataDATA \
-		install-subpkgdataDATA install-includeHEADERS
+		install-subpkgdataDATA install-includeHEADERS \
+		install-pkgincludeHEADERS
 install-data: install-data-am
 
 install-am: all-am
@@ -567,7 +590,8 @@ install-am: all-am
 install: install-am
 uninstall-am: uninstall-libLTLIBRARIES uninstall-binPROGRAMS \
 		uninstall-info uninstall-goopsdataDATA \
-		uninstall-subpkgdataDATA uninstall-includeHEADERS
+		uninstall-subpkgdataDATA uninstall-includeHEADERS \
+		uninstall-pkgincludeHEADERS
 uninstall: uninstall-am
 all-am: Makefile $(INFO_DEPS) $(LTLIBRARIES) $(PROGRAMS) $(DATA) \
 		$(HEADERS)
@@ -577,7 +601,8 @@ install-strip:
 installdirs:
 	$(mkinstalldirs)  $(DESTDIR)$(libdir) $(DESTDIR)$(bindir) \
 		$(DESTDIR)$(infodir) $(DESTDIR)$(goopsdatadir) \
-		$(DESTDIR)$(subpkgdatadir) $(DESTDIR)$(includedir)
+		$(DESTDIR)$(subpkgdatadir) $(DESTDIR)$(includedir) \
+		$(DESTDIR)$(pkgincludedir)
 
 
 mostlyclean-generic:
@@ -634,7 +659,8 @@ install-binPROGRAMS install-info-am uninstall-info mostlyclean-aminfo \
 distclean-aminfo clean-aminfo maintainer-clean-aminfo \
 uninstall-goopsdataDATA install-goopsdataDATA uninstall-subpkgdataDATA \
 install-subpkgdataDATA uninstall-includeHEADERS install-includeHEADERS \
-tags mostlyclean-tags distclean-tags clean-tags maintainer-clean-tags \
+uninstall-pkgincludeHEADERS install-pkgincludeHEADERS tags \
+mostlyclean-tags distclean-tags clean-tags maintainer-clean-tags \
 distdir mostlyclean-depend distclean-depend clean-depend \
 maintainer-clean-depend info-am info dvi-am dvi check check-am \
 installcheck-am installcheck install-exec-am install-exec \
