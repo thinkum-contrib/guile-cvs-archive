@@ -119,7 +119,7 @@ character set and encoding together as an @dfn{encoding}.
 
 
 @node Promised Properties of the Guile Multibyte Encoding, Functions for Operating on Multibyte Text, Multibyte String Terminology, Working With Multibyte Strings in C
-@section Promised Properties of Guiles Multibyte Encoding
+@section Promised Properties of the Guile Multibyte Encoding
 
 Internally, Guile uses a single encoding for all text.  It is correct to
 write code which assumes that a string or symbol name uses this
@@ -464,7 +464,7 @@ Emacs, at least through version 20.4.  You probably should not use this
 encoding, as it is designed only for Emacs's internal use.  However, we
 provide it here because it's trivial to support, and some people
 probably do have @samp{emacs-mule}-format files lying around.
-@end itemize
+@end table
 
 Case is not significant in encoding names.
 
@@ -712,6 +712,7 @@ filled in when you call @code{scm_mb_register_encoding} to add your
 encoding to the list.
 
 @end table
+@end deftp
 
 Here is the enumerated type for the values an encoding's read function
 can return:
@@ -841,6 +842,6 @@ Finally, Guile's multibyte encoding is not so bad.  Unlike a two- or
 four-byte encoding, it is efficient in space for American and European
 users.  Furthermore, the properties described above mean that many
 functions can be coded just as they would for a single-byte encoding;
-see @ref{Promised Properties of Guiles Multibyte Encoding}.
+see @ref{Promised Properties of the Guile Multibyte Encoding}.
 
 @bye
