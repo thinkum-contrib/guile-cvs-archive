@@ -83,8 +83,8 @@ SCM dynl(SCM dir, SCM symbol, SCM fname)
   void (*fcn)();
   long retval;
   ASSERT(IMP(dir) || STRINGP(dir), dir, ARG1, s_dynl);
-  ASSERT(NIMP(fname) && STRINGP(fname), fname, ARG2, s_dynl);
-  ASSERT(NIMP(symbol) && STRINGP(symbol), symbol, ARG3, s_dynl);
+  ASSERT(STRINGP(fname), fname, ARG2, s_dynl);
+  ASSERT(STRINGP(symbol), symbol, ARG3, s_dynl);
   descriptorize(&fnamed, fname);
   descriptorize(&symbold, symbol);
   DEFER_INTS;
