@@ -1,3 +1,27 @@
+1999-08-04  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
+
+	* dispatch.scm, Makefile.am: Added dispatch.scm.
+
+	* goops.c, goops.h (scm_sys_invalidate_class): Added;
+	(default-slot-definition-class, keyword-access): New slots;
+	Rearranged slots.
+	(scm_m_atslot_ref, scm_m_atslot_set_x, scm_m_dispatch,
+	scm_m_hash_dispatch): New macros.
+	(memoize_method): Dispatcher for the generic function
+	`memoize-method!'.  Plugs into scm_memoize_method in eval.c.
+
+	* goops.scm (class-redefinition): Call %invalidate-class;
+	Use new method dipatch protocol.
+
+	* goops.c, goops.h: Renamed SCM_METACLASS_GOOPS_LAYOUT -->
+	SCM_CLASS_CLASS_LAYOUT; SCM_CLASSF_ACCESSOR -->
+	SCM_CLASSF_ACCESSOR_METHOD
+
+1999-08-03  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
+
+	* goops.c (create_standard_classes): New slot in <method>:
+	code-table.
+
 1999-07-27  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
 	* configure.in: Check that libguile is fresh enough.

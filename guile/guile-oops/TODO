@@ -104,3 +104,7 @@ optimized protocols expect to find them.
 ** Design a new MOP for generic method application
 
 ** Implement ditto and optimize!
+
+* MOP
+
+** Make no-applicable-method CLOS-like (args)
