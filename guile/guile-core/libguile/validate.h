@@ -100,6 +100,15 @@
 
 
 
+#define SCM_VALIDATE_REST_ARGUMENT(x) \
+  do { \
+    if (SCM_DEBUG_REST_ARGUMENT) { \
+      if (scm_ilength (x) < 0) { \
+        SCM_MISC_ERROR ("Rest arguments do not form a proper list.", SCM_EOL); \
+      } \
+    } \
+  } while (0)
+
 #define SCM_VALIDATE_NIM(pos, scm) SCM_MAKE_VALIDATE (pos, scm, NIMP)
 
 #define SCM_VALIDATE_BOOL(pos, flag) SCM_MAKE_VALIDATE(pos, flag, BOOLP)
