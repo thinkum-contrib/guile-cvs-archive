@@ -1129,7 +1129,7 @@
        (if (memq name (map slot-definition-name (class-direct-slots class)))
 	   ;; This slot is direct; create a new shared variable
 	   (let ((shared-variable (make-unbound)))
-	     (list (lambda (o)   shared-variable)
+	     (list (lambda (o)   (assert-bound shared-variable o))
 		   (lambda (o v) (set! shared-variable v))))
 	   ;; Slot is inherited. Find its definition in superclass
 	   (let loop ((l (cdr (class-precedence-list class))))
@@ -1141,7 +1141,7 @@
     ((#:each-subclass) ;; slot shared by instances of direct subclass.
      ;; (Thomas Buerger, April 1998)
      (let ((shared-variable (make-unbound)))
-       (list (lambda (o)   shared-variable)
+       (list (lambda (o)   (assert-bound shared-variable))
 	     (lambda (o v) (set! shared-variable v)))))
 
     ((#:virtual) ;; No allocation
