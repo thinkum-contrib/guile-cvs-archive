@@ -46,7 +46,7 @@ libguile_la_SOURCES = \
     procs.c ramap.c random.c read.c readline.c root.c scmsigs.c script.c \
     simpos.c smob.c socket.c sort.c srcprop.c stackchk.c stacks.c stime.c \
     strings.c strop.c strorder.c strports.c struct.c symbols.c tag.c \
-    throw.c unif.c variable.c vectors.c version.c vports.c weaks.c
+    throw.c unif.c variable.c vectors.c version.c vports.c weaks.c lang.c
 
 BUILT_SOURCES = \
     cpp_err_symbols.c cpp_sig_symbols.c libpath.h \
@@ -62,7 +62,7 @@ BUILT_SOURCES = \
     root.x scmsigs.x script.x simpos.x smob.x socket.x sort.x srcprop.x \
     stackchk.x stacks.x stime.x strings.x strop.x strorder.x strports.x \
     struct.x symbols.x tag.x threads.x throw.x unif.x variable.x vectors.x \
-    version.x vports.x weaks.x
+    version.x vports.x weaks.x lang.x
 
 EXTRA_libguile_la_SOURCES = _scm.h \
     strerror.c inet_aton.c putenv.c \
@@ -98,7 +98,7 @@ modinclude_HEADERS = \
     simpos.h smob.h socket.h sort.h srcprop.h stackchk.h stacks.h stime.h \
     strings.h strop.h strorder.h strports.h struct.h symbols.h tag.h \
     tags.h throw.h unif.h variable.h vectors.h version.h vports.h \
-    weaks.h snarf.h threads.h coop-defs.h fluids.h iselect.h
+    weaks.h snarf.h threads.h coop-defs.h fluids.h iselect.h lang.h
 
 ## This file is generated at configure time.  That is why it is DATA
 ## and not a header -- headers are included in the distribution.
