@@ -29,6 +29,9 @@ the things described below were done.  The goal is of course to have
 it take lots of shortcuts that are possible because of the defined
 semantics.
 
+This text addresses only a small part of the whole system.  It does
+not cover macro expansion in great detail, nor is it a module system
+proposal.
 
 1. The big picture
 ------------------
@@ -44,8 +47,8 @@ Loading a source file with 'primitive-load' consists of reading a
 form and evaluating it immediately; repeating this until the file
 ends.
 
-Compiling a source file consists of reading a form and compiling it
-without executing it.  The result of the compilation is saved in the
+Compiling a source file consists of reading its forms and compiling
+them without executing.  The result of the compilation is saved in the
 'object' file.  When the object file is loaded, the compiled forms are
 executed one after the other.
 
@@ -61,9 +64,10 @@ execution of a compiled form.  The rest follows from them.
 Compiling a form and executing the result can happen in two separate
 environments.  The former is called the compile-time environment, the
 latter is the run-time environment.  When compilation is followed
-immediately by execution, the two environments are identical but when
-a file is compiled and later loaded, the environment could have
-changed completely.
+immediately by execution, the two environments are identical (well
+almost, the compiliation can change the environment) but when a file
+is compiled and later loaded, the environment could have changed
+completely.
 
 It is therefore important to define what things the compiler is
 allowed to infer from the compilation environment and can expect to be
@@ -73,9 +77,19 @@ The compiler performs macro expansion before actually compiling a
 form.  All Scheme forms are actually macros that expand into a small
 number of fixed constructs that are handled by the compiler.  These
 'assembly level' constructs are not detailed here, but a few that are
-needed for this text are mentioned.  The generally look like
+needed for this text are mentioned.  They generally look like
 
   (:KEYWORD ARGS...)
+
+For example, the form
+
+  (if #t 1 2)
+
+would be expanded (via the normal macro mechanism) to
+
+  (:if #t 1 2)
+
+and the compiler would recognize the ":if" keyword.
 
 The compiler needs to look up the identifiers of the code that it
 compiles.  Non-toplevel identifiers are handled in the 'obvious'
@@ -127,9 +141,9 @@ When an identifier refers to a macro, that macro is expanded using the
 macro transformer, of course.  When an identifier refers to a variable
 and the variable has no declarations that allow the compiler to do
 otherwise, it emits code that looks up the variable in the specified
-module when executed.  (The module is either the 'current module' when
-the name is '#t' or the module that has the given name in the run-time
-environment.)
+module and then accesses that variable.  (The module is either the
+'current module' when the name is '#t' or the module that has the
+given name in the run-time environment.)
 
 The lookup of variables during compilation or execution does not need
 to follow changes to the naming of modules closely.
@@ -168,7 +182,7 @@ performed on every variable access, but it can be 'memoized' or
 performed ahead-of-time, of course.)
 
 The compiler is free to reuse top-level frames for several top-level
-frames, even when executing a form will change the name/module mapping
+forms, even when executing a form will change the name/module mapping
 used in the next.  You must explicitely tell the compiler that it must
 construct a new top-level frame.  You can do this with the
 
@@ -228,7 +242,7 @@ function, which might be able to 'mass define' from a table, maybe.
 The compiler can assume that either a variable binding with ID and
 DECLS now exists in the current module, or an error has been
 signalled.  (It might not assume that _no_ binding exists when it
-hasn't seen a :define, tho.)
+hasn't seen a :define-variable, tho.)
 
 Importing happens without explicit involvement of the compiler.
 Importing will affect the partially constructed module, and the
@@ -245,8 +259,7 @@ From the above description, it might not be clear how the usual module
 system operations like 'define-module', 'use-modules', etc actually
 work in this model.
 
-They use 'eval-case' to execute code that influences the
-compiler. more or less directly.
+They use 'eval-case' to execute code that influences the compiler.
 
 A normal definition like
 
@@ -292,9 +305,9 @@ would expand into
      (:module-barrier)))
 
 The function process-define-module-for-compiler would create a new
-module according to the parameters in 'define-module' statement and
-would make it current.  It would not register the new module, or use
-an existing module.  Just as module-define-macro, the function is
+module according to the parameters in the 'define-module' statement
+and would make it current.  It would not register the new module, or
+use an existing module.  Just as module-define-macro, the function is
 unknown to the compiler.  The compiler would just call it during
 compilation.
 
@@ -323,5 +336,8 @@ expands into
 
 The behavior of the module system is therefore quite decoupled from
 the compiler.  Only the :module-barriers must be placed correctly and
-the rule that no binding can be changed once it has been added.  (It
-is allowed to remove a whole module and rebuild it from scratch, tho.)
+the rule that no binding can be changed once it has been added must be
+followed.  (It is allowed to remove a whole module and rebuild it from
+scratch, tho.  Also, we might allow modules that can change theri set
+of bindings freely, but a user can not assume that the compiler will
+respect that.)
