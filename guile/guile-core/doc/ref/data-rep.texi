@@ -1410,8 +1410,8 @@ refers to.  The default smob mark function is to not mark any data.
 @xref{Garbage Collecting Smobs}, for more details.
 
 @item free
-Guile will apply this function to each instance of the new type it
-could not find any live pointers to.  The function should release all
+Guile will apply this function to each instance of the new type it could
+not find any live pointers to.  The function should release all
 resources held by the object and return the number of bytes released.
 This is analogous to the Java finalization method-- it is invoked at
 an unspecified time (when garbage collection occurs) after the object
