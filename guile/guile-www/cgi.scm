@@ -1,25 +1,57 @@
-;;;; cgi.scm: Common Gateway Interface support for WWW scripts.
-
-(define-module (www cgi)
-  :use-module (www url))
+;;;; www/cgi.scm: Common Gateway Interface support for WWW scripts.
 
 ;;;; 	Copyright (C) 1997 Free Software Foundation, Inc.
-;;;; 
+;;;;
 ;;;; This program is free software; you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License as published by
 ;;;; the Free Software Foundation; either version 2, or (at your option)
 ;;;; any later version.
-;;;; 
+;;;;
 ;;;; This program is distributed in the hope that it will be useful,
 ;;;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;;;; GNU General Public License for more details.
-;;;; 
+;;;;
 ;;;; You should have received a copy of the GNU General Public License
 ;;;; along with this software; see the file COPYING.  If not, write to
 ;;;; the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
 ;;;; Boston, MA 02111-1307 USA
-;;;; 
+;;;;
+
+;;; Commentary:
+
+;; This module exports the following variables and procedures:
+;;    cgi-server-software-type
+;;    cgi-server-software-version
+;;    cgi-server-hostname
+;;    cgi-gateway-interface
+;;    cgi-server-protocol-name
+;;    cgi-server-protocol-version
+;;    cgi-server-port
+;;    cgi-request-method
+;;    cgi-path-info
+;;    cgi-path-translated
+;;    cgi-script-name
+;;    cgi-query-string
+;;    cgi-remote-host
+;;    cgi-remote-addr
+;;    cgi-authentication-type
+;;    cgi-remote-user
+;;    cgi-remote-ident
+;;    cgi-content-type
+;;    cgi-content-length
+;;    cgi-http-accept-types
+;;    cgi-http-user-agent
+;;   (cgi:init)
+;;   (cgi:values name)
+;;   (cgi:value name)
+;;   (cgi:names)
+;;   (cgi:form-data?)
+
+;;; Code:
+
+(define-module (www cgi)
+  :use-module (www url))
 
 (define form-variables '())
 
@@ -172,7 +204,7 @@
 	((or (>= i num) (eof-object? ch)) s)
       (string-set! s i ch))))
 
-;; This is defined in #/ice-9/string-fun, but the interface is
+;; This is defined in (ice-9 string-fun), but the interface is
 ;; weird, the semantics perverse, and it doesn't work.  We use
 ;; a working copy here.
 (define (separate-fields-discarding-char ch str)
@@ -183,3 +215,5 @@
 	  (loop (cons (make-shared-substring str (+ 1 pos)) fields)
 		(make-shared-substring str 0 pos))
 	  (cons str fields)))))
+
+;;; www/cgi.scm ends here

@@ -1,27 +1,46 @@
-;;;; http.scm: HTTP client library for Guile.
+;;;; www/http.scm: HTTP client library for Guile.
+
+;;;; 	Copyright (C) 1997 Free Software Foundation, Inc.
 ;;;;
+;;;; This program is free software; you can redistribute it and/or modify
+;;;; it under the terms of the GNU General Public License as published by
+;;;; the Free Software Foundation; either version 2, or (at your option)
+;;;; any later version.
+;;;;
+;;;; This program is distributed in the hope that it will be useful,
+;;;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;;;; GNU General Public License for more details.
+;;;;
+;;;; You should have received a copy of the GNU General Public License
+;;;; along with this software; see the file COPYING.  If not, write to
+;;;; the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
+;;;; Boston, MA 02111-1307 USA
+;;;;
+
+;;; Commentary:
+
+;; This module exports the following variables and procedures:
+;;     http:version
+;;     http:user-agent
+;;    (http:message-version msg)
+;;    (http:message-status-code msg)
+;;    (http:message-status-text msg)
+;;    (http:message-status-ok? msg)
+;;    (http:status-ok? status)
+;;    (http:message-body msg)
+;;    (http:message-headers msg)
+;;    (http:message-header header msg)
+;;    (http:get url)
+;;    (http:open host . args)
+;;    (http:request method url . args)
+
+;;; Code:
 
 (define-module (www http)
   :use-module (www url)
   :use-module (ice-9 regex))
 
-;;;; 	Copyright (C) 1997 Free Software Foundation, Inc.
-;;;; 
-;;;; This program is free software; you can redistribute it and/or modify
-;;;; it under the terms of the GNU General Public License as published by
-;;;; the Free Software Foundation; either version 2, or (at your option)
-;;;; any later version.
-;;;; 
-;;;; This program is distributed in the hope that it will be useful,
-;;;; but WITHOUT ANY WARRANTY; without even the implied warranty of
-;;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-;;;; GNU General Public License for more details.
-;;;; 
-;;;; You should have received a copy of the GNU General Public License
-;;;; along with this software; see the file COPYING.  If not, write to
-;;;; the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
-;;;; Boston, MA 02111-1307 USA
-;;;; 
 
 ;;; Compatibility
 
@@ -246,7 +265,7 @@
 	  ;;        response-status-line))
 	  ;; Get message body: if Content-Length header was supplied, read
 	  ;; that many chars.  Otherwise, read until EOF
-	  
+
 	  (let ((content-length (http:fetch-header
 				 "content-length"
 				 response-headers)))
@@ -287,7 +306,7 @@
   (apply display "\r\n" p))
 
 ;;; (sans-trailing-whitespace STR)
-;;;	These are defined in module #/ice-9/string-fun, so this code
+;;;	These are defined in module (ice-9 string-fun), so this code
 ;;;	will prob.  be discarded when the module system and boot-9
 ;;;	settle down.
 
@@ -300,3 +319,5 @@
     (if (< end st)
 	""
 	(make-shared-substring s st end))))
+
+;;; www/http.scm ends here

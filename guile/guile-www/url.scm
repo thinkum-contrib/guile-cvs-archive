@@ -1,25 +1,44 @@
-;;;; url.scm: URL manipulation tools.
-
-(define-module (www url)
-  :use-module (ice-9 regex))
+;;;; www/url.scm: URL manipulation tools.
 
 ;;;; 	Copyright (C) 1997 Free Software Foundation, Inc.
-;;;; 
+;;;;
 ;;;; This program is free software; you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License as published by
 ;;;; the Free Software Foundation; either version 2, or (at your option)
 ;;;; any later version.
-;;;; 
+;;;;
 ;;;; This program is distributed in the hope that it will be useful,
 ;;;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;;;; GNU General Public License for more details.
-;;;; 
+;;;;
 ;;;; You should have received a copy of the GNU General Public License
 ;;;; along with this software; see the file COPYING.  If not, write to
 ;;;; the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
 ;;;; Boston, MA 02111-1307 USA
-;;;; 
+;;;;
+
+;;; Commentary:
+
+;; This module exports the following procedures:
+;;   (url:scheme url)
+;;   (url:address url)
+;;   (url:unknown url)
+;;   (url:user url)
+;;   (url:host url)
+;;   (url:port url)
+;;   (url:path url)
+;;   (url:make scheme . args)
+;;   (url:make-http host port path)
+;;   (url:make-ftp user host port path)
+;;   (url:make-mailto address)
+;;   (url:parse url)
+;;   (url:unparse url)
+;;   (url:decode str)
+;;   (url:encode str reserved-chars)
+
+;;; Code:
+
 
 ;;;; TODO:
 ;;;;   * support `user:password@' strings where appropriate in URLs.
@@ -27,6 +46,9 @@
 ;;;;	 URL schemes, but parsing is actually specific to each URL scheme.
 ;;;;   * fill out url:encode, include facilities for URL-scheme-specific
 ;;;;     encoding methods (e.g. a url-scheme-reserved-char-alist)
+
+(define-module (www url)
+  :use-module (ice-9 regex))
 
 ;; `url:scheme' is an unfortunate term, but it is the technical
 ;; name for that portion of the URL according to RFC 1738. Sigh.
@@ -150,3 +172,5 @@
   (or (char-alphabetic? ch)
       (char-numeric? ch)
       (memv ch safe-chars)))
+
+;;; www/url.scm ends here
