@@ -1,6 +1,9 @@
 2000-08-18  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* docstring.el (c-doc-string-data): Handle SCM_DEFINE1 forms.
+	(query-sync-next-doc-string): Need to specify buffer argument to
+	move-overlay.
+	(c-doc-string-data): Handle scm_tc7_asubr.
 
 2000-08-15  Neil Jerram  <neil@ossau.uklinux.net>
 

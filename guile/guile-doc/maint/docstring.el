@@ -128,7 +128,8 @@
 	      (overlay-put manual-overlay 'face 'highlight))
 	    (move-overlay manual-overlay
 			  (+ manual-beg manual-offset)
-			  manual-end)
+			  manual-end
+			  (current-buffer))
 	    (save-excursion (funcall doc-string-display-fn doc-string-data))
         
 	    ;; Calculate the MD5 digests of the current doc strings from
@@ -277,6 +278,8 @@
 							   (match-end 1))))
 			  (cond
 			   ((string-equal proc-type "scm_tc7_rpsubr")
+			    (setq req 2 opt 0 rst 0))
+			   ((string-equal proc-type "scm_tc7_asubr")
 			    (setq req 2 opt 0 rst 0))
 			   (t
 			    (error "Unhandled SCM_DEFINE1 procedure type: %s" proc-type)))))
