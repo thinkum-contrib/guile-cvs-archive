@@ -1,3 +1,8 @@
+2000-02-11  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* goops.c (scm_sloppy_num2ulong): Added.
+	(scm_sys_logand): Rewritten.
+
 2000-02-10  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* goops.c (scm_accessor_method_slot_definition): New selector.
