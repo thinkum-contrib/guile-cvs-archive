@@ -7,7 +7,7 @@
 
 @include version.texi
 
-@dircategory Scheme Programming
+@dircategory The Algorithmic Language Scheme
 @direntry
 * data-rep: (data-rep).  Data Representation in Guile --- how to use
                          Guile objects in your C code.
