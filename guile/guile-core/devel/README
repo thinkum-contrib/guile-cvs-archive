@@ -4,9 +4,11 @@ policy		Guile policy documents
 
 build		Build/installation process
 
+extension       Guile as an extension language library
+
 string		Strings and characters
 
-translation	Language traslation
+translation	Language translation
 
 vm		Virtual machines
 
