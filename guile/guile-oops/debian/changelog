@@ -1,6 +1,6 @@
 guile-oops (1.0.2-2) unstable; urgency=low
 
-  * Added a Build-Depends line in debian/control (closes #94432).
+  * Added a Build-Depends line in debian/control (closes: #94432).
 
  -- Mikael Djurfeldt <mdj@linnaeus.mit.edu>  Sat, 21 Apr 2001 12:49:08 -0400
 
