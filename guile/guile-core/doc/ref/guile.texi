@@ -255,7 +255,7 @@ Part V: Extending Applications Using Guile
 
 * Libguile Intro::              Using Guile as an extension language.
 * Data Representation::         Data representation in Guile.
-* Scheme Primitives::           Writing Scheme primitives in C.
+* Guile API::                   Overview of the Guile API.
 * GH::                          The deprecated GH interface.
 
 Indices
