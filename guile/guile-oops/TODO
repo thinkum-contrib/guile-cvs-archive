@@ -2,14 +2,10 @@
 
 * Remove assumption of single-symbol slot definitions from goops.c.
 
-* Add sort.c to libguile
-
 * Fix some *fixme*'s
 
 * Make sure that all of Guile's primitive types are represented in the
   class hierarchy
-
-* Convert the code for STk's extended types to support for smobs.
 
 * README-file with "How to get started"
 
@@ -29,9 +25,6 @@
 * Optimize
 
 ** Free-list of next-methods (c.f. print-states in print.c)
-
-** Move the guts of scm_make_struct into scm_sys_allocate_instance and
-   optimize!
 
 ** Faster slot access
 

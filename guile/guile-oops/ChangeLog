@@ -1,3 +1,126 @@
+1999-03-15  Mikael Djurfeldt  <mdj@barbara.nada.kth.se>
+
+	* oop: New directory.  Renamed from goops.
+
+	* Makefile.am: Renamed goops --> oop.
+
+	* oop/goops.scm (make-class): Now demands that slot definitions
+	always are lists.  (The `class' macro does the conversion so that
+	the user of those macros still can use simple symbols as slot
+	definitions.)
+
+	* oop/goops.scm (define-class, class): A major new thing is that
+	all slot options are evaluated, i.e. also #:getter, #:setter, and,
+	#:accessor options.  Because of this, the corresponding <generic>
+	and <generic-with-setter>s must exist before creating the class.
+	`define-class' does this automatically if they don't exist
+	beforehand.
+
+	* oop/goops.scm (slot-definition-init,
+	slot-definition-init-thunk): New selectors for the new slot
+	options #:init and #:init-thunk.
+	(compute-getters-n-setters): Handle new selectors.
+	(slot-definition-init-form): Removed.
+	(class-slot-definition): Use assq instead of assoc.
+	(slot-definition-init-form): Removed #:init-form alternative.
+	goops/goops.scm (initialize <operator-class>): Accept #:procedure
+	keyword.
+
+	* oop/goops.scm (method-source): Renamed from method-body;
+	Use map* instead of map.
+	(is-a?): Use memq instead of memv.
+	(map*, for-each*): Moved here from compat.scm.
+	
+	* oop/goops.scm, oop/describe.scm: Replaced use of when and unless
+	everywhere.
+
+	* oop/goops.scm (define-module): Added #:no-backtrace option;
+	Set the system-procedure property on apply-generic-<n> in order
+	that these should not turn up at the end of backtraces.
+	(goops-error): Call `save-stack'.
+	
+	* goops.c (make_extended_class): New function: Creates wrapper
+	classes for smob and struct types.
+	(make_smob_classes, make_struct_classes): Creates smob and struct
+	wrapper classes upon initialization of Goops.  (Wrapper classes
+	continue to be created when new smobs and structs are
+	loaded/accessed.)
+
+	* goops.c (scm_make): Set the name property of generics.
+	(make_stdcls): Allow for multiple inheritance by passing a list of
+	supers as fourth arg.  (Note that the cpl gets screwed up in this
+	case and has to be patched.)  This is currently used for
+	initialization of <generic-with-setter>.
+	(make_standard_classes): Removed `name' slot in <generic>.
+	(scm_generic_function_name): Use scm_procedure_name.
+
+	
+	New class redefinition protocol: In the old protocol new class
+	objects got a new heap header but instances retained their old
+	header.  The new protocol keeps the old header also for redefined
+	classes.
+
+	* goops.c (TEST_CHANGE_CLASS): Rewritten in order to comply with
+	the new class redefinition protocol.
+	(SCM_OBJ_CLASS_REDEF): New macro which accesses the `redefined'
+	slot via the instance.
+	(scm_sys_modify_class): New function.  Swaps headers between two
+	class objects.
+	
+	* oop/goops.scm: Corrected bugs in the class redefinition
+	protocol.
+
+
+	* goops.c: New setter slot in classes:
+	(scm_sys_prep_layout_x): Modified class layout.
+	(create_Top_Object_Class): setter slot name.
+
+	* goops.h (struct scm_metaclass_goops): New setter slot
+	(scm_si_methods): Shifted (to 0);
+	Shifted slot numbers.
+
+	* goops.c (scm_class_entity, scm_class_entity_with_setter,
+	scm_class_generic_with_setter,
+	scm_class_operator_with_setter_class): New basic classes.
+	An alternative to <operator-with-setter-class>es would be to turn
+	`setter' into a <generic> and create a higher-order method which
+	returns the apropriate setter method.  Although this might be neat
+	theoretically, I judged it to be too inefficient.  (It doesn't
+	seem like a good idea to create a closure for every `set!'
+	operation.);
+	(make_standard_classes): Initialize
+	scm_class_procedure_with_setter.
+	(scm_sys_set_object_setter_x): New procedure. Sets setter slot of
+	<entity-with-setter>'s or <operator-with-setter-class>es.
+
+
+	* goops.c (scm_sys_inherit_magic_x): Set struct flag
+	SCM_STRUCTF_LIGHT for classes which aren't meta or entity
+	classes.  This allows for a much more efficient allocation of
+	instances, both with regard to speed and memory.
+	(scm_sys_allocate_instance): Use scm_alloc_struct (or
+	scm_must_malloc directly for "light" objects) when allocating
+	instances.
+
+
+	* goops/oop (define-accessor): New macro.  Creates a
+	<generic-with-setter> with a <generic> as setter.
+	(make-accessor, ensure-accessor): New procedures.
+	
+1999-03-08  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* goops/goops.scm (class-redefinition): Export.
+	(define-generic): Use make-generic.
+	(make-generic): New procedure.
+	(make-generic-function, ensure-generic-function): Removed.
+	(define-generic): Rewritten.
+	(define-method): Rewritten.
+	(make-method): Now a procedure.
+	(ensure-method): Removed.
+	(method): Rewritten.
+	(add-method!): Renamed from add-method.
+	(transform-specializers): Replaces `specializers'.
+
 1999-03-06  Mikael Djurfeldt  <mdj@barbara.nada.kth.se>
 
 	* goops/goops.scm (initialize <class>): Convert all slot
