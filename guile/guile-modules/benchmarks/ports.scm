@@ -22,8 +22,8 @@
 ;;; BENCHMARKING IS WEIRD.
 ;;;
 ;;; You need to be very careful about benchmarking --- I've frequently
-;;; encountered odd effects that dwarf the impact of code changes I'm
-;;; evaluating.
+;;; encountered odd effects that dwarf the impact of the code changes I'm
+;;; trying to evaluate.
 ;;;
 ;;; Some known issues:
 ;;;
