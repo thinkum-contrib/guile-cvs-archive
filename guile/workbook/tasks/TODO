@@ -15,6 +15,7 @@
 
 - Guile 1.6.1 (branched: only modify items according to ../build/release.txt)
 
+  - Fix srfi-1:  provide a list-copy function that can copy improper lists.
 
 - Guile 1.8.0
 
