@@ -271,7 +271,7 @@ etc. that make up Guile's application programming interface (API),
 @include libguile-concepts.texi
 @include libguile-smobs.texi
 @include libguile-snarf.texi
-@include program.texi
+@include libguile-program.texi
 
 @node API Reference
 @chapter API Reference
