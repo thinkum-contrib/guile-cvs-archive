@@ -1,7 +1,12 @@
+2001-11-15  Thien-Thi Nguyen  <ttn@glug.org>
+
+	* contrib/ssl-support.diff: New file.
+	Thanks to Eric Hanchrow.
+
 2001-02-04  Marius Vollmer  <mvo@zagadka.ping.de>
 
-	* http.scm: Use (ice-9 rdelim) if `read-line' not defined.  Thanks
-	to Thien-Thi Nguyen.
+	* http.scm: Use (ice-9 rdelim) if `read-line' not defined.
+	Thanks to Thien-Thi Nguyen.
 
 2000-06-04  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
@@ -43,7 +48,7 @@ Mon Oct 20 18:06:10 1997  Jim Blandy  <jimb@totoro.red-bean.com>
 	do something graceful with unrecognized garbage.
 	(url:unparse): New function, for turning a parsed url into a
 	string.
-	
+
 	* http.scm (add-open-connection!, get-open-connection): Incomplete
  	code replaced with dummy definitions, so we can give it to Mikael
 	immediately.
@@ -103,4 +108,4 @@ Mon Jun  9 23:42:32 1997  Tim Pierce  <twp@twp.tezcat.com>
 	* main.scm: New file.
 	* url.scm: New file.
 	* wwwcat: New file.
-	
+
