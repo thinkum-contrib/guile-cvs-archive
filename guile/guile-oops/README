@@ -105,7 +105,7 @@ info (goops.info) and texinfo format.
 
 Some words of caution ================================================
 
-This is the first beta release of GOOPS.  While the basic
+This is the second beta release of GOOPS.  While the basic
 functionality won't change much in the future, the MOP, more advanced
 features, and the internal representation will continue to move.
 
@@ -148,9 +148,9 @@ ftp.gnu.org, as /pub/gnu/guile/guile-oops-0.1.4.tar.gz.
 Via the web, that's:  ftp://ftp.gnu.org/pub/gnu/guile/guile-oops-0.1.4.tar.gz
 For getit, that's:    ftp.gnu.org:/pub/gnu/guile/guile-oops-0.1.4.tar.gz
 
-If you don't already have Guile 1.3.2 installed on your system, you
+If you don't already have Guile 1.3.4 installed on your system, you
 also need to download and install
-ftp://ftp.gnu.org/pub/gnu/guile/guile-core-1.3.2.tar.gz
+ftp://ftp.gnu.org/pub/gnu/guile/guile-core-1.3.4.tar.gz
 
 The mailing list `guile@sourceware.cygnus.com' carries discussions,
 questions, and often answers, about Guile.  To subscribe, send mail to
