@@ -84,32 +84,37 @@ typedef struct scm_method_t {
 
 #define SCM_METHOD(obj) ((scm_method_t *) SCM_STRUCT_DATA (obj))
 
-#define SCM_OBJF_INSTANCE      (0x00 << 24)
-#define SCM_OBJF_PURE_GENERIC  (0x01 << 24)
-#define SCM_OBJF_SIMPLE_METHOD (0x02 << 24)
-#define SCM_OBJF_ACCESSOR      (0x04 << 24)
+#define SCM_CLASSF_PURE_GENERIC  (0x01 << 24)
+#define SCM_CLASSF_SIMPLE_METHOD (0x02 << 24)
+#define SCM_CLASSF_ACCESSOR      (0x04 << 24)
 
-#define SCM_CLASSF_METACLASS   (0x08 << 24)
+#define SCM_CLASSF_METACLASS     (0x08 << 24)
 
-#define SCM_OBJF_GOOPS         (0x10 << 24)
+/* Also defined in libguile/objects.c */
+#define SCM_CLASSF_GOOPS         (0x10 << 24)
 
-#define SCM_OBJ_FLAGS(x)       SCM_CLASS_FLAGS (x)
-#define SCM_SET_OBJ_FLAGS(x,f) SCM_SET_CLASS_FLAGS (x, f)
+#define SCM_CLASSF_INHERIT	 (~(SCM_CLASSF_PURE_GENERIC \
+				    | SCM_CLASSF_SIMPLE_METHOD \
+				    | SCM_CLASSF_ACCESSOR) \
+				  & SCM_CLASSF_MASK)
 
 #define SCM_INST(x)	       SCM_STRUCT_DATA (x)
-#define SCM_INST_TYPE(x)       SCM_OBJ_FLAGS (x)
+#define SCM_INST_TYPE(x)       SCM_OBJ_CLASS_FLAGS (x)
+/* Also defined in libguuile/objects.c */
 #define SCM_CLASS_OF(x)        SCM_STRUCT_VTABLE (x)
 #define SCM_ACCESSORS_OF(x)    (SCM_STRUCT_VTABLE_DATA (x)[scm_si_getters_n_setters])
 #define SCM_NUMBER_OF_SLOTS(x) (SCM_STRUCT_DATA (x)[scm_struct_i_n_words] \
 			       - scm_struct_n_extra_words) \
 
 #define SCM_INSTANCEP(x)       (SCM_STRUCTP (x) \
-			       && (SCM_INST_TYPE (x) & SCM_OBJF_GOOPS))
+			       && (SCM_INST_TYPE (x) & SCM_CLASSF_GOOPS))
 
-#define SCM_PUREGENERICP(x)    (SCM_INST_TYPE(x) & SCM_OBJF_PURE_GENERIC)
-#define SCM_SIMPLEMETHODP(x)   (SCM_INST_TYPE(x) & SCM_OBJF_SIMPLE_METHOD)
-#define SCM_ACCESSORP(x)       (SCM_INST_TYPE(x) & SCM_OBJF_ACCESSOR)
-#define SCM_FASTMETHODP(x)     (SCM_INST_TYPE(x) & (SCM_OBJF_ACCESSOR|SCM_OBJF_SIMPLE_METHOD))
+#define SCM_PUREGENERICP(x)    (SCM_INST_TYPE(x) & SCM_CLASSF_PURE_GENERIC)
+#define SCM_SIMPLEMETHODP(x)   (SCM_INST_TYPE(x) & SCM_CLASSF_SIMPLE_METHOD)
+#define SCM_ACCESSORP(x)       (SCM_INST_TYPE(x) & SCM_CLASSF_ACCESSOR)
+#define SCM_FASTMETHODP(x)     (SCM_INST_TYPE(x) \
+				& (SCM_CLASSF_ACCESSOR \
+				   | SCM_CLASSF_SIMPLE_METHOD))
 
 #define SCM_SLOT(x, i)         (SCM_INST(x)[i])
 #define SCM_SUBCLASSP(c1, c2)  SCM_NNULLP (scm_sloppy_memq (c2, SCM_SLOT (c1, scm_si_cpl)))
@@ -126,7 +131,8 @@ typedef struct scm_method_t {
 #define scm_si_slots		 14	/* ((name . options) ...) */
 #define scm_si_nfields		 15	/* an integer */
 #define scm_si_getters_n_setters 16	/* ((slot getter setter) ...) */
-#define scm_si_redefined	 17	/* the class to which class was redefined */
+/* Also defined in libguile/objects.c: */
+#define scm_si_redefined	 17	/* The class to which class was redefined. */
 #define scm_si_environment	 18	/* The environme in which class is built  */
 #define SCM_N_CLASS_SLOTS	 19
 
