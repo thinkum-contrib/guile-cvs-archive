@@ -73,7 +73,7 @@ concept, but the family of @code{let} expressions has a few properties
 which are well worth knowing.
 
 The first local binding construct is @code{let}.  The other constructs
-@code{let*} and @code{letrec} are specialized versions for usage wher
+@code{let*} and @code{letrec} are specialized versions for usage where
 using plain @code{let} is a bit inconvenient.
 
 @deffn syntax let bindings body
@@ -120,11 +120,11 @@ A @code{let*} expression can always be expressed with nested @code{let}
 expressions.
 
 @lisp
-(let* ((a 1) (b a)) 
+(let* ((a 1) (b a))
    b)
 @equiv{}
-(let ((a 1)) 
-  (let ((b a)) 
+(let ((a 1))
+  (let ((b a))
     b))
 @end lisp
 @end deffn
