@@ -1,5 +1,7 @@
 2001-10-19  Neil Jerram  <neil@ossau.uklinux.net>
 
+	* Makefile.am (SUBDIRS): Added lang.
+
 	* configure.in (AC_CONFIG_FILES): Added Makefiles in lang and
 	lang/elisp.
 
