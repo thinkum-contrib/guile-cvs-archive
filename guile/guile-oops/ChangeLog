@@ -1,3 +1,9 @@
+1999-08-29  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
+
+	* goops.c (create_standard_classes): scm_class_foreign_object made
+	a subclass to scm_class_object.
+	(get_slot_value, set_slot_value): Use scm_eval_body.
+
 1999-08-26  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
 	* configure.in: GOOPS is now dependent on Guile >= 1.3.3.
