@@ -90,6 +90,42 @@
 
 
 - Eventually
+  - Select pthreads compile with "gcc -pthread" when available, with
+    something like the block below in configure.in.
+
+    This is almost certainly the right way to get pthreads, but
+    consideration needs to be given to application compiles.  Will an
+    application need to compile and/or link with the same "gcc
+    -pthread"?  On systems like FreeBSD where -pthread changes the
+    libc used then very likely yes.  Emitting such an option from the
+    guile-config script would, however, make that script compiler
+    dependent, which would be undesirable.
+
+      # "gcc -pthread" is supposedly the way to get the right defines and
+      # libraries on pretty much all systems where it makes sense (though the
+      # gcc 3.3 manual only seems to describe it for a couple of targets).
+      #
+      # On FreeBSD, gcc -pthread is vital, there's no -lpthread on that system,
+      # instead -pthread option selects the special libc_r C library.
+      #
+      # Forcibly adding -pthread to user-selected CFLAGS is a bit rude, user
+      # stuff ought to be left alone.  But adding ensures we get what we need,
+      # and it's actually quite convenient if the user is just setting
+      # optimization options or whatever.
+      #
+      if test $GCC = yes; then
+        old_CFLAGS=$CFLAGS
+        CFLAGS="-pthread $CFLAGS"
+        AC_TRY_LINK([#include <pthread.h>], [pthread_yield();],
+          [SCM_I_GSC_USE_PTHREAD_THREADS=1
+           with_threads="pthreads"],
+          [CFLAGS=$old_CFLAGS])
+      fi
+
+      # If that didn't work then try just -lpthread.
+      #
+      if test "$SCM_I_GSC_USE_PTHREAD_THREADS" != 1; then
+        ...
 
   - pretty-print #:width can lower the allowed width, but cannot
     increase it, max-expr-width (50) appears to be a hard limit.
