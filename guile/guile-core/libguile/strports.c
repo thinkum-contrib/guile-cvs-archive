@@ -52,6 +52,14 @@
  */
 
 /* NOTES:
+
+   We break the rules set forth by strings.h about accessing the
+   internals of strings here.  We can do this since we can guarantee
+   that the string used as pt->stream is not in use by anyone else.
+   Thus, it's representation will not change asynchronously.
+
+   (Ports aren't thread-safe yet anyway...)
+
    write_buf/write_end point to the ends of the allocated string.
    read_buf/read_end in principle point to the part of the string which
    has been written to, but this is only updated after a flush.
@@ -81,7 +89,7 @@ st_resize_port (scm_t_port *pt, off_t new_size)
   SCM old_stream = SCM_PACK (pt->stream);
   const char *src = scm_i_string_chars (old_stream);
   char *dst;
-  SCM new_stream = scm_c_make_string (new_size, &dst);
+  SCM new_stream = scm_i_make_string (new_size, &dst);
   unsigned long int old_size = scm_i_string_length (old_stream);
   unsigned long int min_size = min (old_size, new_size);
   unsigned long int i;
@@ -257,18 +265,36 @@ scm_mkstrport (SCM pos, SCM str, long modes, const char *caller)
   size_t str_len, c_pos;
 
   SCM_ASSERT (scm_is_string (str), str, SCM_ARG1, caller);
+
   str_len = scm_i_string_length (str);
   c_pos = scm_to_unsigned_integer (pos, 0, str_len);
 
   if (!((modes & SCM_WRTNG) || (modes & SCM_RDNG)))
     scm_misc_error ("scm_mkstrport", "port must read or write", SCM_EOL);
 
+  /* XXX
+ 
+     Make a new string to isolate us from changes to the original.
+     This is done so that we can rely on scm_i_string_chars to stay in
+     place even across SCM_TICKs.
+
+     Additionally, when we are going to write to the string, we make a
+     copy so that we can write to it without having to use
+     scm_i_string_writable_chars.
+  */
+
+  if (modes & SCM_WRTNG)
+    str = scm_c_substring_copy (str, 0, str_len);
+  else
+    str = scm_c_substring (str, 0, str_len);
+
   scm_mutex_lock (&scm_i_port_table_mutex);
   z = scm_new_port_table_entry (scm_tc16_strport);
   pt = SCM_PTAB_ENTRY(z);
   SCM_SETSTREAM (z, SCM_UNPACK (str));
   SCM_SET_CELL_TYPE(z, scm_tc16_strport|modes);
-  pt->write_buf = pt->read_buf = scm_i_string_writable_chars (str);
+  /* see above why we can use scm_i_string_chars here. */
+  pt->write_buf = pt->read_buf = (char *)scm_i_string_chars (str);
   pt->read_pos = pt->write_pos = pt->read_buf + c_pos;
   pt->write_buf_size = pt->read_buf_size = str_len;
   pt->write_end = pt->read_end = pt->read_buf + pt->read_buf_size;
@@ -293,7 +319,7 @@ SCM scm_strport_to_string (SCM port)
   if (pt->rw_active == SCM_PORT_WRITE)
     st_flush (port);
 
-  str = scm_c_make_string (pt->read_buf_size, &dst);
+  str = scm_i_make_string (pt->read_buf_size, &dst);
   memcpy (dst, (char *) pt->read_buf, pt->read_buf_size);
   scm_remember_upto_here_1 (port);
   return str;

@@ -276,7 +276,9 @@ scm_gc_mark_dependencies (SCM p)
 #if SCM_SIZEOF_LONG_LONG != 0
     case scm_tc7_llvect:
 #endif
+      break;
 #endif
+
     case scm_tc7_string:
       ptr = scm_i_string_mark (ptr);
       goto gc_mark_loop;

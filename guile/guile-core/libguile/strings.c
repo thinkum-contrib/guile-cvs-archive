@@ -34,6 +34,21 @@
 /* {Strings}
  */
 
+static int debugme = 0;
+
+SCM scm_sys_debug_strings (void);
+SCM scm_sys_string_dump (SCM str);
+
+SCM_DEFINE (scm_sys_debug_strings, "%debug-strings", 0, 0, 0,
+	    (), "")
+#define FUNC_NAME s_scm_sys_debug_strings
+{
+  debugme = 1;
+  return SCM_UNSPECIFIED;
+}
+#undef FUNC_NAME
+
+
 /* Stringbufs 
  */
 
@@ -62,7 +77,6 @@ make_stringbuf (size_t len)
 SCM
 scm_i_stringbuf_mark (SCM buf)
 {
-  // fprintf (stderr, "%p: 0\n", buf);
   SET_STRINGBUF_REFCOUNT (buf, 0);
   return SCM_BOOL_F;
 }
@@ -70,7 +84,6 @@ scm_i_stringbuf_mark (SCM buf)
 void
 scm_i_stringbuf_free (SCM buf)
 {
-  //  fprintf (stderr, "freeing buf %p\n", buf);
   scm_gc_free (STRINGBUF_CHARS (buf), STRINGBUF_LENGTH (buf) + 1, "string");
 }
 
@@ -81,7 +94,6 @@ stringbuf_ref (SCM buf)
 {
   scm_mutex_lock (&stringbuf_refcount_mutex);
   SET_STRINGBUF_REFCOUNT (buf, STRINGBUF_REFCOUNT (buf) + 1);
-  // fprintf (stderr, "- %p: %d\n", buf, STRINGBUF_REFCOUNT (buf));
   scm_mutex_unlock (&stringbuf_refcount_mutex);
 }
 
@@ -100,27 +112,39 @@ stringbuf_ref (SCM buf)
 #define IS_STRING(str)        (SCM_NIMP(str) && SCM_TYP7(str) == STRING_TAG)
 
 SCM
-scm_c_make_string (size_t len, char **charsp)
+scm_i_make_string (size_t len, char **charsp)
 {
   SCM buf = make_stringbuf (len);
+  SCM res;
   if (charsp)
     *charsp = STRINGBUF_CHARS (buf);
-  return scm_double_cell (STRING_TAG, SCM_UNPACK(buf),
-			  (scm_t_bits)0, (scm_t_bits) len);
+  res = scm_double_cell (STRING_TAG, SCM_UNPACK(buf),
+			 (scm_t_bits)0, (scm_t_bits) len);
+  return res;
+}
+
+static void
+validate_substring_args (SCM str, size_t start, size_t end)
+{
+  if (!IS_STRING (str))
+    scm_wrong_type_arg_msg (NULL, 0, str, "string");
+  if (start > STRING_LENGTH (str))
+    scm_out_of_range (NULL, scm_from_size_t (start));
+  if (end > STRING_LENGTH (str) || end < start)
+    scm_out_of_range (NULL, scm_from_size_t (end));
 }
 
 SCM
-scm_c_substring (SCM str, size_t start, size_t end)
+scm_i_substring (SCM str, size_t start, size_t end)
 {
-  size_t len = end - start;
   SCM buf = STRING_STRINGBUF (str);
   stringbuf_ref (buf);
   return scm_double_cell (STRING_TAG, SCM_UNPACK(buf),
-			  (scm_t_bits)start, (scm_t_bits) len);
+			  (scm_t_bits)start, (scm_t_bits) end - start);
 }
 
 SCM
-scm_c_substring_copy (SCM str, size_t start, size_t end)
+scm_i_substring_copy (SCM str, size_t start, size_t end)
 {
   size_t len = end - start;
   SCM buf = STRING_STRINGBUF (str);
@@ -128,6 +152,20 @@ scm_c_substring_copy (SCM str, size_t start, size_t end)
   memcpy (STRINGBUF_CHARS (my_buf), STRINGBUF_CHARS (buf) + start, len);
   return scm_double_cell (STRING_TAG, SCM_UNPACK(my_buf),
 			  (scm_t_bits)0, (scm_t_bits) len);
+}
+
+SCM
+scm_c_substring (SCM str, size_t start, size_t end)
+{
+  validate_substring_args (str, start, end);
+  return scm_i_substring (str, start, end);
+}
+
+SCM
+scm_c_substring_copy (SCM str, size_t start, size_t end)
+{
+  validate_substring_args (str, start, end);
+  return scm_i_substring_copy (str, start, end);
 }
 
 /* Mutation-sharing substrings
@@ -141,11 +179,23 @@ scm_c_substring_copy (SCM str, size_t start, size_t end)
 #define IS_SH_STRING(str)   (SCM_CELL_TYPE(str)==SH_STRING_TAG)
 
 SCM
+scm_i_substring_shared (SCM str, size_t start, size_t end)
+{
+  if (start == 0 && end == STRING_LENGTH (str))
+    return str;
+  else
+    {
+      SCM res = scm_double_cell (SH_STRING_TAG, SCM_UNPACK(str),
+				 (scm_t_bits)start, (scm_t_bits) end - start);
+      return res;
+    }
+}
+
+SCM
 scm_c_substring_shared (SCM str, size_t start, size_t end)
 {
-  size_t len = end - start;
-  return scm_double_cell (SH_STRING_TAG, SCM_UNPACK(str),
-			  (scm_t_bits)start, (scm_t_bits) len);
+  validate_substring_args (str, start, end);
+  return scm_i_substring_shared (str, start, end);
 }
 
 SCM
@@ -158,7 +208,6 @@ scm_i_string_mark (SCM str)
       SCM buf = STRING_STRINGBUF (str);
       scm_gc_mark (buf);
       SET_STRINGBUF_REFCOUNT(buf, STRINGBUF_REFCOUNT(buf) + 1);
-      // fprintf (stderr, "%p: %d\n", buf, STRINGBUF_REFCOUNT(buf));
       return SCM_BOOL_F;
     }
 }
@@ -170,8 +219,6 @@ scm_i_string_free (SCM str)
 
 /* Debugging
  */
-
-SCM scm_sys_string_dump (SCM str);
 
 SCM_DEFINE (scm_sys_string_dump, "%string-dump", 1, 0, 0,
 	    (SCM str),
@@ -192,6 +239,7 @@ SCM_DEFINE (scm_sys_string_dump, "%string-dump", 1, 0, 0,
     {
       SCM buf = STRING_STRINGBUF (str);
       fprintf (stderr, " buf:   %p\n", buf);
+      fprintf (stderr, "  chars:  %p\n", STRINGBUF_CHARS (buf));
       fprintf (stderr, "  length: %u\n", STRINGBUF_LENGTH (buf));
       fprintf (stderr, "  refcnt: %u\n", STRINGBUF_REFCOUNT (buf));
     }
@@ -236,28 +284,35 @@ scm_i_string_writable_chars (SCM str)
     {
       /* Clone stringbuf.  For this, we put all threads to sleep.
        */
+
       size_t len = STRING_LENGTH (str);
       SCM new_buf;
 
-      SET_STRINGBUF_REFCOUNT (buf, STRINGBUF_REFCOUNT (buf) - 1);
       scm_mutex_unlock (&stringbuf_refcount_mutex);
+
       new_buf = make_stringbuf (len);
       memcpy (STRINGBUF_CHARS (new_buf),
 	      STRINGBUF_CHARS (buf) + STRING_START (str), len);
 
-      fprintf (stderr, "cloned %p to %p\n", buf, new_buf);
-      buf = new_buf;
-
       scm_i_thread_put_to_sleep ();
-      SET_STRING_STRINGBUF (str, buf);
+      SET_STRINGBUF_REFCOUNT (buf, STRINGBUF_REFCOUNT (buf) - 1);
+      SET_STRING_STRINGBUF (str, new_buf);
       start -= STRING_START (str);
       SET_STRING_START (str, 0);
       scm_i_thread_wake_up ();
+
+      buf = new_buf;
+
+      scm_mutex_lock (&stringbuf_refcount_mutex);
     }
-  else
-    scm_mutex_unlock (&stringbuf_refcount_mutex);
 
   return STRINGBUF_CHARS (buf) + start;
+}
+
+void
+scm_i_string_stop_writing (void)
+{
+  scm_mutex_unlock (&stringbuf_refcount_mutex);
 }
 
 
@@ -292,7 +347,7 @@ SCM_DEFINE (scm_string, "string", 0, 0, 1,
     len = i;
   }
 
-  result = scm_c_make_string (len, &data);
+  result = scm_i_make_string (len, &data);
   while (len > 0 && SCM_CONSP (chrs))
     {
       SCM elt = SCM_CAR (chrs);
@@ -387,7 +442,7 @@ SCM
 scm_allocate_string (size_t len)
 #define FUNC_NAME "scm_allocate_string"
 {
-  return scm_c_make_string (len, NULL);
+  return scm_i_make_string (len, NULL);
 }
 #undef FUNC_NAME
 
@@ -402,7 +457,7 @@ SCM_DEFINE (scm_make_string, "make-string", 1, 1, 0,
 {
   size_t i = scm_to_size_t (k);
   char *dst;
-  SCM res = scm_c_make_string (i, &dst);
+  SCM res = scm_i_make_string (i, &dst);
 
   if (!SCM_UNBNDP (chr))
     {
@@ -424,6 +479,14 @@ SCM_DEFINE (scm_string_length, "string-length", 1, 0, 0,
   return scm_from_size_t (STRING_LENGTH (string));
 }
 #undef FUNC_NAME
+
+size_t
+scm_c_string_length (SCM string)
+{
+  if (!IS_STRING (string))
+    scm_wrong_type_arg_msg (NULL, 0, string, "string");
+  return STRING_LENGTH (string);
+}
 
 SCM_DEFINE (scm_string_ref, "string-ref", 2, 0, 0,
             (SCM str, SCM k),
@@ -462,12 +525,13 @@ SCM_DEFINE (scm_string_set_x, "string-set!", 3, 0, 0,
   {
     char *dst = scm_i_string_writable_chars (str);
     dst[idx] = SCM_CHAR (chr);
+    scm_i_string_stop_writing ();
   }
   return SCM_UNSPECIFIED;
 }
 #undef FUNC_NAME
 
-SCM
+void
 scm_c_string_set_x (SCM str, size_t p, SCM chr)
 {
   if (p >= scm_i_string_length (str))
@@ -475,8 +539,8 @@ scm_c_string_set_x (SCM str, size_t p, SCM chr)
   {
     char *dst = scm_i_string_writable_chars (str);
     dst[p] = SCM_CHAR (chr);
+    scm_i_string_stop_writing ();
   }
-  return SCM_UNSPECIFIED;
 }
 
 SCM_DEFINE (scm_substring, "substring", 2, 1, 0,
@@ -498,7 +562,7 @@ SCM_DEFINE (scm_substring, "substring", 2, 1, 0,
     to = len;
   else
     to = scm_to_unsigned_integer (end, from, len);
-  return scm_c_substring (str, from, to);
+  return scm_i_substring (str, from, to);
 }
 #undef FUNC_NAME
 
@@ -521,7 +585,7 @@ SCM_DEFINE (scm_substring_copy, "substring/copy", 2, 1, 0,
     to = len;
   else
     to = scm_to_unsigned_integer (end, from, len);
-  return scm_c_substring_copy (str, from, to);
+  return scm_i_substring_copy (str, from, to);
 }
 #undef FUNC_NAME
 
@@ -544,7 +608,7 @@ SCM_DEFINE (scm_substring_shared, "substring/shared", 2, 1, 0,
     to = len;
   else
     to = scm_to_unsigned_integer (end, from, len);
-  return scm_c_substring_shared (str, from, to);
+  return scm_i_substring_shared (str, from, to);
 }
 #undef FUNC_NAME
 
@@ -566,7 +630,7 @@ SCM_DEFINE (scm_string_append, "string-append", 0, 0, 1,
       SCM_VALIDATE_STRING (SCM_ARGn, s);
       i += scm_i_string_length (s);
     }
-  res = scm_c_make_string (i, &data);
+  res = scm_i_make_string (i, &data);
   for (l = args; !SCM_NULLP (l); l = SCM_CDR (l)) 
     {
       s = SCM_CAR (l);
@@ -594,7 +658,7 @@ scm_from_locale_stringn (const char *str, size_t len)
 
   if (len == (size_t)-1)
     len = strlen (str);
-  res = scm_c_make_string (len, &dst);
+  res = scm_i_make_string (len, &dst);
   memcpy (dst, str, len);
   return res;
 }
@@ -633,7 +697,6 @@ scm_take_locale_string (char *str)
 			 SCM_UNPACK (buf),
 			 (scm_t_bits) 0, (scm_t_bits) len);
   scm_gc_register_collectable_memory (str, len+1, "string");
-
   return res;
 }
 
@@ -743,10 +806,50 @@ scm_i_get_substring_spec (size_t len,
     *cend = scm_to_unsigned_integer (end, *cstart, len);
 }
 		  
+#if SCM_ENABLE_DEPRECATED
+
+int
+SCM_STRINGP (SCM str)
+{
+  scm_c_issue_deprecation_warning
+    ("SCM_STRINGP is deprecated.  Use scm_is_string instead.");
+  
+  /* We don't accept shared substrings here since they are not
+     null-terminated.
+  */
+
+  return IS_STRING (str) && !IS_SH_STRING (str);
+}
+
+char *
+SCM_STRING_CHARS (SCM str)
+{
+  char *chars;
+
+  scm_c_issue_deprecation_warning
+    ("SCM_STRING_CHARS is deprecated.  See the manual for alternatives.");
+
+  /* The following is wrong, of course...
+   */
+  chars = scm_i_string_writable_chars (str);
+  scm_i_string_stop_writing ();
+  return chars;
+}
+
+size_t
+SCM_STRING_LENGTH (SCM str)
+{
+  scm_c_issue_deprecation_warning
+    ("SCM_STRING_LENGTH is deprecated.  Use scm_c_string_length instead.");
+  return scm_c_string_length (str);
+}
+
+#endif
+
 void
 scm_init_strings ()
 {
-  scm_nullstr = scm_c_make_string (0, NULL);
+  scm_nullstr = scm_i_make_string (0, NULL);
 
 #include "libguile/strings.x"
 }

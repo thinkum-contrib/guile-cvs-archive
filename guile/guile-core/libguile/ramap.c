@@ -472,6 +472,7 @@ scm_array_fill_int (SCM ra, SCM fill, SCM ignore SCM_UNUSED)
 	char *data = scm_i_string_writable_chars (ra);
 	for (i = base; n--; i += inc)
 	  data[i] = SCM_CHAR (fill);
+	scm_i_string_stop_writing ();
       }
       break;
     case scm_tc7_byvect:
@@ -638,6 +639,7 @@ racp (SCM src, SCM dst)
 	const char *src_data = scm_i_string_chars (src);
 	for (; n-- > 0; i_s += inc_s, i_d += inc_d)
 	  dst_data[i_d] = src_data[i_s];
+	scm_i_string_stop_writing ();
       }
       break;
     case scm_tc7_byvect:

@@ -56,7 +56,6 @@ SCM_DEFINE (scm_read_delimited_x, "%read-delimited!", 3, 3, 0,
 #define FUNC_NAME s_scm_read_delimited_x
 {
   size_t j;
-  char *buf;
   size_t cstart;
   size_t cend;
   int c;
@@ -68,7 +67,6 @@ SCM_DEFINE (scm_read_delimited_x, "%read-delimited!", 3, 3, 0,
   num_delims = scm_i_string_length (delims);
 
   SCM_VALIDATE_STRING (2, str);
-  buf = scm_i_string_writable_chars (str);
   scm_i_get_substring_spec (scm_i_string_length (str),
 			    start, &cstart, end, &cend);
 
@@ -97,7 +95,7 @@ SCM_DEFINE (scm_read_delimited_x, "%read-delimited!", 3, 3, 0,
 	return scm_cons (SCM_EOF_VAL, 
 			 scm_from_size_t (j - cstart));
 
-      buf[j] = c;
+      scm_c_string_set_x (str, j, SCM_MAKE_CHAR (c));
     }
   return scm_cons (SCM_BOOL_F, scm_from_size_t (j - cstart));
 }

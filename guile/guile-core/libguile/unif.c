@@ -880,7 +880,7 @@ SCM_DEFINE (scm_enclose_array, "enclose-array", 1, 0, 1,
 #define FUNC_NAME s_scm_enclose_array
 {
   SCM axv, res, ra_inr;
-  char *axv_dst;
+  const char *c_axv;
   scm_t_array_dim vdim, *s = &vdim;
   int ndim, j, k, ninr, noutr;
 
@@ -929,7 +929,6 @@ SCM_DEFINE (scm_enclose_array, "enclose-array", 1, 0, 1,
   if (noutr < 0)
     SCM_WRONG_NUM_ARGS ();
   axv = scm_make_string (scm_from_int (ndim), SCM_MAKE_CHAR (0));
-  axv_dst = scm_i_string_writable_chars (axv);
   res = scm_make_ra (noutr);
   SCM_ARRAY_BASE (res) = SCM_ARRAY_BASE (ra_inr);
   SCM_ARRAY_V (res) = ra_inr;
@@ -941,11 +940,12 @@ SCM_DEFINE (scm_enclose_array, "enclose-array", 1, 0, 1,
       SCM_ARRAY_DIMS (ra_inr)[k].lbnd = s[j].lbnd;
       SCM_ARRAY_DIMS (ra_inr)[k].ubnd = s[j].ubnd;
       SCM_ARRAY_DIMS (ra_inr)[k].inc = s[j].inc;
-      axv_dst[j] = 1;
+      scm_c_string_set_x (axv, j, SCM_MAKE_CHAR (1));
     }
+  c_axv = scm_i_string_chars (axv);
   for (j = 0, k = 0; k < noutr; k++, j++)
     {
-      while (axv_dst[j])
+      while (c_axv[j])
 	j++;
       SCM_ARRAY_DIMS (res)[k].lbnd = s[j].lbnd;
       SCM_ARRAY_DIMS (res)[k].ubnd = s[j].ubnd;
@@ -1481,7 +1481,7 @@ loop:
       v = SCM_ARRAY_V (cra);
       goto loop;
     case scm_tc7_string:
-      base = scm_i_string_writable_chars (v);
+      base = NULL;  /* writing to strings is special, see below. */
       sz = sizeof (char);
       break;
     case scm_tc7_bvect:
@@ -1547,7 +1547,7 @@ loop:
     {
       scm_t_port *pt = SCM_PTAB_ENTRY (port_or_fd);
       int remaining = (cend - offset) * sz;
-      char *dest = base + (cstart + offset) * sz;
+      size_t off = (cstart + offset) * sz;
 
       if (pt->rw_active == SCM_PORT_WRITE)
 	scm_flush (port_or_fd);
@@ -1560,10 +1560,18 @@ loop:
 	      int to_copy = min (pt->read_end - pt->read_pos,
 				 remaining);
 
-	      memcpy (dest, pt->read_pos, to_copy);
+	      if (base == NULL)
+		{
+		  /* strings */
+		  char *b = scm_i_string_writable_chars (v);
+		  memcpy (b + off, pt->read_pos, to_copy);
+		  scm_i_string_stop_writing ();
+		}
+	      else
+		memcpy (base + off, pt->read_pos, to_copy);
 	      pt->read_pos += to_copy;
 	      remaining -= to_copy;
-	      dest += to_copy;
+	      off += to_copy;
 	    }
 	  else
 	    {
@@ -1584,9 +1592,19 @@ loop:
     }
   else /* file descriptor.  */
     {
-      SCM_SYSCALL (ans = read (scm_to_int (port_or_fd),
-			       base + (cstart + offset) * sz,
-			       (sz * (cend - offset))));
+      if (base == NULL)
+	{
+	  /* strings */
+	  char *b = scm_i_string_writable_chars (v);
+	  SCM_SYSCALL (ans = read (scm_to_int (port_or_fd),
+				   b + (cstart + offset) * sz,
+				   (sz * (cend - offset))));
+	  scm_i_string_stop_writing ();
+	}
+      else
+	SCM_SYSCALL (ans = read (scm_to_int (port_or_fd),
+				 base + (cstart + offset) * sz,
+				 (sz * (cend - offset))));
       if (ans == -1)
 	SCM_SYSERROR;
     }
@@ -2017,13 +2035,16 @@ SCM_DEFINE (scm_bit_invert_x, "bit-invert!", 1, 0, 0,
 
 
 SCM 
-scm_istr2bve (char *str, long len)
+scm_istr2bve (SCM str)
 {
+  size_t len = scm_i_string_length (str);
   SCM v = scm_make_uve (len, SCM_BOOL_T);
   long *data = (long *) SCM_VELTS (v);
   register unsigned long mask;
   register long k;
   register long j;
+  const char *c_str = scm_i_string_chars (str);
+
   for (k = 0; k < (len + SCM_LONG_BIT - 1) / SCM_LONG_BIT; k++)
     {
       data[k] = 0L;
@@ -2031,7 +2052,7 @@ scm_istr2bve (char *str, long len)
       if (j > SCM_LONG_BIT)
 	j = SCM_LONG_BIT;
       for (mask = 1L; j--; mask <<= 1)
-	switch (*str++)
+	switch (*c_str++)
 	  {
 	  case '0':
 	    break;

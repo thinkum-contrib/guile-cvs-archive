@@ -75,7 +75,7 @@ gh_str02scm (const char *s)
    If START + LEN is off the end of DST, signal an out-of-range
    error.  */
 void 
-gh_set_substr (char *src, SCM dst, long start, size_t len)
+gh_set_substr (const char *src, SCM dst, long start, size_t len)
 {
   char *dst_ptr;
   size_t dst_len;
@@ -87,6 +87,7 @@ gh_set_substr (char *src, SCM dst, long start, size_t len)
 
   dst_ptr = scm_i_string_writable_chars (dst);
   memmove (dst_ptr + start, src, len);
+  scm_i_string_stop_writing ();
   scm_remember_upto_here_1 (dst);
 }
 

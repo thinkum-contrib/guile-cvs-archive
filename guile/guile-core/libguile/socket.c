@@ -1145,9 +1145,11 @@ SCM_DEFINE (scm_recv, "recv!", 2, 1, 0,
     flg = scm_to_int (flags);
   fd = SCM_FPORT_FDES (sock);
 
-  dest = scm_i_string_writable_chars (buf);
   len =  scm_i_string_length (buf);
+  dest = scm_i_string_writable_chars (buf);
   SCM_SYSCALL (rv = recv (fd, dest, len, flg));
+  scm_i_string_stop_writing ();
+
   if (rv == -1)
     SCM_SYSERROR;
 
@@ -1187,9 +1189,11 @@ SCM_DEFINE (scm_send, "send", 2, 1, 0,
     flg = scm_to_int (flags);
   fd = SCM_FPORT_FDES (sock);
 
-  src = scm_i_string_writable_chars (message);
   len = scm_i_string_length (message);
+  src = scm_i_string_writable_chars (message);
   SCM_SYSCALL (rv = send (fd, src, len, flg));
+  scm_i_string_stop_writing ();
+
   if (rv == -1)
     SCM_SYSERROR;
 
@@ -1236,7 +1240,6 @@ SCM_DEFINE (scm_recvfrom, "recvfrom!", 2, 3, 0,
   fd = SCM_FPORT_FDES (sock);
   
   SCM_VALIDATE_STRING (2, str);
-  buf = scm_i_string_writable_chars (str);
   scm_i_get_substring_spec (scm_i_string_length (str),
 			    start, &offset, end, &cend);
 
@@ -1247,10 +1250,13 @@ SCM_DEFINE (scm_recvfrom, "recvfrom!", 2, 3, 0,
 
   /* recvfrom will not necessarily return an address.  usually nothing
      is returned for stream sockets.  */
+  buf = scm_i_string_writable_chars (str);
   addr->sa_family = AF_UNSPEC;
   SCM_SYSCALL (rv = recvfrom (fd, buf + offset,
 			      cend - offset, flg,
 			      addr, &addr_size));
+  scm_i_string_stop_writing ();
+
   if (rv == -1)
     SCM_SYSERROR;
   if (addr->sa_family != AF_UNSPEC)

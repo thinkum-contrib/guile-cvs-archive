@@ -414,6 +414,8 @@ display_frame_expr (char *hdr, SCM exp, char *tlr, int indentation, SCM sport, S
 	n = SCM_BACKTRACE_WIDTH - indentation;
 	data[n-1] = '$';
       }
+
+    scm_i_string_stop_writing ();
   }
       
   scm_lfwrite (scm_i_string_chars (string), n, port);

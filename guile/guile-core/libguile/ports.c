@@ -330,7 +330,7 @@ SCM_DEFINE (scm_drain_input, "drain-input", 1, 0, 0,
   if (pt->read_buf == pt->putback_buf)
     count += pt->saved_read_end - pt->saved_read_pos;
 
-  result = scm_c_make_string (count, &data);
+  result = scm_i_make_string (count, &data);
   scm_take_from_input_buffers (port, data, count);
   return result;
 }

@@ -811,7 +811,7 @@ SCM_DEFINE (scm_char_set_to_string, "char-set->string", 1, 0, 0,
   for (k = 0; k < SCM_CHARSET_SIZE; k++)
     if (SCM_CHARSET_GET (cs, k))
       count++;
-  result = scm_c_make_string (count, &p);
+  result = scm_i_make_string (count, &p);
   for (k = 0; k < SCM_CHARSET_SIZE; k++)
     if (SCM_CHARSET_GET (cs, k))
       p[idx++] = k;

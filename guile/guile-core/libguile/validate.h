@@ -152,7 +152,10 @@
     cvar = SCM_CHAR (scm); \
   } while (0)
 
-#define SCM_VALIDATE_STRING(pos, str) SCM_MAKE_VALIDATE_MSG (pos, str, I_STRINGP, "string")
+#define SCM_VALIDATE_STRING(pos, str) \
+  do { \
+    SCM_ASSERT_TYPE (scm_is_string (str), str, pos, FUNC_NAME, "string"); \
+  } while (0)
 
 #define SCM_VALIDATE_REAL(pos, z) SCM_MAKE_VALIDATE_MSG (pos, z, REALP, "real")
 

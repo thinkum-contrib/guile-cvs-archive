@@ -154,7 +154,7 @@ scm_grow_tok_buf (SCM *tok_buf)
   size_t oldlen = scm_i_string_length (*tok_buf);
   const char *olddata = scm_i_string_chars (*tok_buf);
   char *newdata;
-  SCM newstr = scm_c_make_string (2 * oldlen, &newdata);
+  SCM newstr = scm_i_make_string (2 * oldlen, &newdata);
   size_t i;
 
   for (i = 0; i != oldlen; ++i)
@@ -220,6 +220,20 @@ scm_casei_streq (char *s1, char *s2)
   return !(*s1 || *s2);
 }
 
+static int
+scm_i_casei_streq (const char *s1, const char *s2, size_t len2)
+{
+  while (*s1 && len2 > 0)
+    if (scm_c_downcase((int)*s1) != scm_c_downcase((int)*s2))
+      return 0;
+    else
+      {
+	++s1;
+	++s2;
+	--len2;
+      }
+  return !(*s1 || len2 > 0);
+}
 
 /* recsexpr is used when recording expressions
  * constructed by read:sharp.
@@ -439,8 +453,7 @@ scm_lreadr (SCM *tok_buf, SCM port, SCM *copy)
 #if SCM_HAVE_ARRAYS
 	case '*':
 	  j = scm_read_token (c, tok_buf, port, 0);
-	  p = scm_istr2bve (scm_i_string_writable_chars (*tok_buf) + 1,
-			    (long) (j - 1));
+	  p = scm_istr2bve (scm_c_substring_shared (*tok_buf, 1, j-1));
 	  if (scm_is_true (p))
 	    return p;
 	  else
@@ -469,10 +482,11 @@ scm_lreadr (SCM *tok_buf, SCM port, SCM *copy)
 	    }
 	  for (c = 0; c < scm_n_charnames; c++)
 	    if (scm_charnames[c]
-		&& (scm_casei_streq (scm_charnames[c],
-				     scm_i_string_writable_chars (*tok_buf))))
+		&& (scm_i_casei_streq (scm_charnames[c],
+				       scm_i_string_chars (*tok_buf), j)))
 	      return SCM_MAKE_CHAR (scm_charnums[c]);
-	  scm_input_error (FUNC_NAME, port, "unknown # object", SCM_EOL);
+	  scm_input_error (FUNC_NAME, port, "unknown character name ~a",
+			   scm_list_1 (scm_c_substring (*tok_buf, 0, j)));
 
 	  /* #:SYMBOL is a syntax for keywords supported in all contexts.  */
 	case ':':
@@ -578,13 +592,12 @@ scm_lreadr (SCM *tok_buf, SCM port, SCM *copy)
 				"illegal character in escape sequence: ~S",
 				scm_list_1 (SCM_MAKE_CHAR (c)));
 	      }
-	  scm_i_string_writable_chars (*tok_buf)[j] = c;
+	  scm_c_string_set_x (*tok_buf, j, SCM_MAKE_CHAR (c));
 	  ++j;
 	}
       if (j == 0)
 	return scm_nullstr;
-      scm_i_string_writable_chars (*tok_buf)[j] = 0;
-      return scm_mem2string (scm_i_string_chars (*tok_buf), j);
+      return scm_c_substring_copy (*tok_buf, 0, j);
 
     case '0': case '1': case '2': case '3': case '4':
     case '5': case '6': case '7': case '8': case '9':
@@ -641,28 +654,26 @@ _Pragma ("noopt");		/* # pragma _CRI noopt */
 size_t 
 scm_read_token (int ic, SCM *tok_buf, SCM port, int weird)
 {
-  register size_t j;
-  register int c;
-  register char *p;
+  size_t j;
+  int c;
 
   c = (SCM_CASE_INSENSITIVE_P ? scm_c_downcase(ic) : ic);
-  p = scm_i_string_writable_chars (*tok_buf);
-
+					    
   if (weird)
     j = 0;
   else
     {
       j = 0;
       while (j + 2 >= scm_i_string_length (*tok_buf))
-	p = scm_grow_tok_buf (tok_buf);
-      p[j] = c;
+	scm_grow_tok_buf (tok_buf);
+      scm_c_string_set_x (*tok_buf, j, SCM_MAKE_CHAR (c));
       ++j;
     }
 
   while (1)
     {
       while (j + 2 >= scm_i_string_length (*tok_buf))
-	p = scm_grow_tok_buf (tok_buf);
+	scm_grow_tok_buf (tok_buf);
       c = scm_getc (port);
       switch (c)
 	{
@@ -686,7 +697,6 @@ scm_read_token (int ic, SCM *tok_buf, SCM port, int weird)
 	  scm_ungetc (c, port);
 	case EOF:
 	eof_case:
-	  p[j] = 0;
 	  return j;
 	case '\\':
 	  if (!weird)
@@ -706,7 +716,6 @@ scm_read_token (int ic, SCM *tok_buf, SCM port, int weird)
 	  c = scm_getc (port);
 	  if (c == '#')
 	    {
-	      p[j] = 0;
 	      return j;
 	    }
 	  else
@@ -720,7 +729,7 @@ scm_read_token (int ic, SCM *tok_buf, SCM port, int weird)
 	default_case:
 	  {
 	    c = (SCM_CASE_INSENSITIVE_P ? scm_c_downcase(c) : c);
-	    p[j] = c;
+            scm_c_string_set_x (*tok_buf, j, SCM_MAKE_CHAR (c));
 	    ++j;
 	  }
 

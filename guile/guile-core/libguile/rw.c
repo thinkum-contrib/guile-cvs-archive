@@ -111,7 +111,6 @@ SCM_DEFINE (scm_read_string_x_partial, "read-string!/partial", 1, 3, 0,
     size_t last;
 
     SCM_VALIDATE_STRING (1, str);
-    dest = scm_i_string_writable_chars (str);
     scm_i_get_substring_spec (scm_i_string_length (str),
 			      start, &offset, end, &last);
     dest += offset;
@@ -131,14 +130,18 @@ SCM_DEFINE (scm_read_string_x_partial, "read-string!/partial", 1, 3, 0,
 	 don't touch the file descriptor.  otherwise the
 	 "return immediately if something is available" rule may
 	 be violated.  */
+      dest = scm_i_string_writable_chars (str);
       chars_read = scm_take_from_input_buffers (port, dest, read_len);
+      scm_i_string_stop_writing ();
       fdes = SCM_FPORT_FDES (port);
     }
 
   if (chars_read == 0 && read_len > 0) /* don't confuse read_len == 0 with
 					  EOF.  */
     {
+      dest = scm_i_string_writable_chars (str);
       SCM_SYSCALL (chars_read = read (fdes, dest, read_len));
+      scm_i_string_stop_writing ();
       if (chars_read == -1)
 	{
 	  if (SCM_EBLOCK (errno))

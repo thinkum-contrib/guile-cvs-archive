@@ -177,6 +177,7 @@ SCM_DEFINE (scm_substring_move_x, "substring-move!", 5, 0, 0,
   src = scm_i_string_chars (str2);
   dst = scm_i_string_writable_chars (str1);
   SCM_SYSCALL (memmove (dst+s2, src+s1, len));
+  scm_i_string_stop_writing ();
 
   scm_remember_upto_here_2 (str1, str2);
   return SCM_UNSPECIFIED;
@@ -208,6 +209,7 @@ SCM_DEFINE (scm_substring_fill_x, "substring-fill!", 4, 0, 0,
   dst = scm_i_string_writable_chars (str);
   while (i<e)
     dst[i++] = c;
+  scm_i_string_stop_writing ();
   scm_remember_upto_here (str);
   return SCM_UNSPECIFIED;
 }
@@ -260,7 +262,7 @@ string_copy (SCM str)
   const char* chars = scm_i_string_chars (str);
   size_t length = scm_i_string_length (str);
   char *dst;
-  SCM new_string = scm_c_make_string (length, &dst);
+  SCM new_string = scm_i_make_string (length, &dst);
   memcpy (dst, chars, length);
   scm_remember_upto_here_1 (str);
   return new_string;
@@ -292,6 +294,7 @@ SCM_DEFINE (scm_string_fill_x, "string-fill!", 2, 0, 0,
   dst = scm_i_string_writable_chars (str);
   for (k = scm_i_string_length (str)-1;k >= 0;k--)
     dst[k] = c;
+  scm_i_string_stop_writing ();
   scm_remember_upto_here_1 (str);
   return SCM_UNSPECIFIED;
 }
@@ -306,10 +309,11 @@ string_upcase_x (SCM v)
   size_t k, len;
   char *dst;
 
-  dst = scm_i_string_writable_chars (v);
   len = scm_i_string_length (v);
+  dst = scm_i_string_writable_chars (v);
   for (k = 0; k < len; ++k)
     dst[k] = scm_c_upcase (dst[k]);
+  scm_i_string_stop_writing ();
   return v;
 }
 
@@ -353,10 +357,11 @@ string_downcase_x (SCM v)
   size_t k, len;
   char *dst;
 
-  dst = scm_i_string_writable_chars (v);
   len = scm_i_string_length (v);
+  dst = scm_i_string_writable_chars (v);
   for (k = 0; k < len; ++k)
     dst[k] = scm_c_downcase (dst[k]);
+  scm_i_string_stop_writing ();
 
   return v;
 }
@@ -402,7 +407,7 @@ string_capitalize_x (SCM str)
   size_t i, len;
   int in_word=0;
 
-  len = scm_i_string_length(str);
+  len = scm_i_string_length (str);
   sz = scm_i_string_writable_chars (str);
   for (i = 0; i < len; i++)
     {
@@ -421,6 +426,7 @@ string_capitalize_x (SCM str)
       else 
 	in_word = 0;
     }
+  scm_i_string_stop_writing ();
   return str;
 }
 
