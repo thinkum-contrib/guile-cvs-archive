@@ -4,3 +4,4 @@ config.status
 *.x
 .deps
 *.lo
+libtool
