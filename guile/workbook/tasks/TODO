@@ -29,7 +29,7 @@
   +R factor guile-core/ administration files [ttn]
   +R factor RELEASE (prefer 1-6) into build/release.text [ttn]
   + show news on guile webpage [ttn]
-  - write build/bugs-triage.text
+  - write build/bugs-triage.text [ttn]
   + complete build/stability.text [ttn]
   - make sure all bugs have required headers
   - fix bugs
@@ -69,6 +69,7 @@
     - Loading a SLIB module with require does not shadow primitives
     - SRFI-13 string-tokenize is wrong
     - unhandled keywords to goops "make" (etc) should signal errors
+  - write modules/arch-survey.text
   - use autoconf vars abs_top_* vars (but not w/ autoconf 2.53)
   - write render-bugs, add to mscripts or guile-tools
   - scan mailing list archives for bugs and add them
