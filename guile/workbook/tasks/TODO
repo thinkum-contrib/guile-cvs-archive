@@ -15,11 +15,11 @@
       + subject: avoid potential overflow in complex division [ttn]
       - by date
         - 2000-06 through 2001-06
-	- 2001-07 through 2001-09 [ttn]
-	- 2001-10 through 2001-12
-	- 2002-01
-	- 2002-02
-	- 2002-03
+        - 2001-07 through 2001-09 [ttn]
+        - 2001-10 through 2001-12
+        - 2002-01
+        - 2002-02
+        - 2002-03
     - write render-bugs, add to mscripts or guile-tools [evan:ttn]
     - write dist-hook to call render-bugs to create BUGS
     - delete HEAD and branch_release-1-6 BUGS files
@@ -31,7 +31,7 @@
 
 - Eventually
   - write TODO summarizer
-    - write (scripts read-outline) [ttn]
+    +R write (scripts read-text-outline) [ttn]
     - write summarizer
     - extend to handle guile-cvs mails
   - determine/document policy on how/why/when of removing things
@@ -112,10 +112,10 @@
 
 
 
-	Local Variables:
-	mode: outline
-	outline-regexp: "\\([ ][ ]\\)*[-+]"
-	End:
+        Local Variables:
+        mode: outline
+        outline-regexp: "\\([ ][ ]\\)*[-+]"
+        End:
 
 
 [TODO ends here]
