@@ -1,8 +1,17 @@
 This directory contains code for benchmarking Guile.  It's kind of
 rough, but I'm learning as I go along...
 
+At the moment, we only have some artificial benchmarks for I/O ports.
+If you are interested in contributing new benchmarks, that would be
+great.  Send them to guile@cygnus.com, or to me, Jim Blandy
+<jimb@red-bean.com>.
+
+To run these benchmarks, you will need a version of Guile more recent
+than 5 May 1999 or so --- the tests use the (ice-9 format) module,
+which was added to Guile around then.
+
 Before you can run these benchmarks, you'll need to do two steps by hand:
-- In the `ports' script, change the #! line at the top to point to the
+- In the `run-ports' script, change the #! line at the top to point to the
   Guile executable you want to benchmark.
 - In `paths.scm', change the value of benchmark-data-dir to the name
   of the directory containing the files `ports-data-1' and
