@@ -1,3 +1,10 @@
+2000-11-03  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* scheme.texi (About Expressions): New material about evaluation
+	and program execution.
+
+	* scheme.texi (About Procedures): Minor textual improvements.
+
 2000-10-29  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* scheme.texi (About Expressions, About Closure): Placeholder

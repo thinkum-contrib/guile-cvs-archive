@@ -711,7 +711,7 @@ names in the template are @var{italicized}.  Thus the header line
 
 
 @noindent
-@deffn {procedure} (vector-ref @var{vector} @var{k})
+@deffn {procedure} vector-ref @var{vector} @var{k}
 
 @end deffn
 
@@ -722,10 +722,10 @@ two arguments, a vector @var{vector} and an exact non-negative integer
 
 @noindent
 
-@deffn {procedure} (make-vector @var{k})
+@deffn {procedure} make-vector @var{k}
 
 
-@deffnx {procedure} (make-vector @var{k} @var{fill})
+@deffnx {procedure} make-vector @var{k} @var{fill}
 
 @end deffn
 
@@ -1611,7 +1611,7 @@ As noted in section @ref{Storage model}, it is an error to alter a constant
 
 
 
-@deffn {syntax} (@r{<operator>} @r{<operand1>} @dots{},)
+@deffn {syntax} @r{<operator>} @r{<operand1>} @dots{},
 
 
 A procedure call is written by simply enclosing in parentheses
@@ -2255,10 +2255,10 @@ output.
 
 @noindent
 
-@deffn {library syntax} (do ((@r{<variable1>} @r{<init1>} @r{<step1>})
-
-@t{ @dots{},) (@r{<test>} @r{<expression>} @dots{},) @r{<command>} @dots{},)}
-@cindex @w{do}
+@c@deffn {library syntax} do ((@r{<variable1>} @r{<init1>} @r{<step1>})
+@c
+@c@t{ @dots{},) (@r{<test>} @r{<expression>} @dots{},) @r{<command>} @dots{},}
+@c@cindex @w{do}
 
 @samp{Do} is an iteration construct.  It specifies a set of variables to
 be bound, how they are to be initialized at the start, and how they are
@@ -2313,7 +2313,7 @@ been written instead of @samp{(@r{<variable>} @r{<init>})}.
 
 
 
-@deffnx {library syntax} let  @r{<variable>} @r{<bindings>} @r{<body>}
+@deffn {library syntax} let  @r{<variable>} @r{<bindings>} @r{<body>}
 
 
 ``Named @samp{let}'' is a variant on the syntax of @code{let} which provides
@@ -7317,9 +7317,9 @@ language: @t{[ ] @{ @} |}
 <character> --> #\ <any character>
      | #\ <character name>
 <character name> --> space | newline
-@ignore todo
-Explain what happens in the ambiguous case.
-@end ignore
+@c @ignore todo
+@c Explain what happens in the ambiguous case.
+@c @end ignore
 
 <string> --> " <string element>* "
 <string element> --> <any character other than " or \>

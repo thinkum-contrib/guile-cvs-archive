@@ -252,8 +252,9 @@ In Scheme, on the other hand, all names belong to a single unified
 namespace, and the variables that these names identify can hold any kind
 of Scheme value, including procedure values.
 
-One consequence of this is that, if you don't happen to like the
-standard name for a Scheme procedure, you can change it.
+One consequence of the ``procedures as values'' idea is that, if you
+don't happen to like the standard name for a Scheme procedure, you can
+change it.
 
 For example, @code{call-with-current-continuation} is a very important
 standard Scheme procedure, but it also has a very long name!  So, many
@@ -354,13 +355,13 @@ Before very long, though, you will want to create new procedures that
 encapsulate aspects of your own applications' functionality.  To do
 this, you can use the famous @code{lambda} syntax.
 
-The value of the following Scheme expression ---
+For example, the value of the following Scheme expression
 
 @lisp
 (lambda (name address) @var{expression} @dots{})
 @end lisp
 
---- is a newly created procedure that takes two arguments:
+is a newly created procedure that takes two arguments:
 @code{name} and @code{address}.  The behaviour of the
 new procedure is determined by the sequence of @var{expression}s in the
 @dfn{body} of the procedure definition.  (Typically, these
@@ -481,16 +482,28 @@ subsequently read input.)
 @node About Expressions
 @chapter About Expressions
 
-We have already met some of the possible types of Scheme expression in
-the preceding chapters, and talked somewhat vaguely about the ``value''
-of an expression.  This chapter clarifies what we mean by an
-expression's value, by introducing the idea of @dfn{evaluation}, and
-discusses the side effects that evaluation can have.  It also lists all
-the valid Scheme expression types and, very briefly, summarizes all
-Scheme's standard syntactic expressions.
+So far, we have met expressions that @emph{do} things, such as the
+@code{define} expressions that create and initialize new variables, and
+we have also talked about expressions that have @emph{values}, for
+example the value of the procedure invocation expression:
+
+@lisp
+(string-append "/home" "/" "andrew")
+@end lisp
+
+But we haven't yet been precise about what causes an expression like
+this procedure invocation to be reduced to its ``value'', or how the
+processing of such expressions relates to the execution of a Scheme
+program as a whole.
+
+This chapter clarifies what we mean by an expression's value, by
+introducing the idea of @dfn{evaluation}, and discusses the side effects
+that evaluation can have.  It also lists all the valid Scheme expression
+types and, very briefly, summarizes all Scheme's standard syntactic
+expressions.
 
 @menu
-* Evaluating::                  Results and side effects of Scheme expressions.
+* Evaluating::                  How a Scheme program is executed.
 * The REPL::                    Interacting with the Guile interpreter.
 * Expression Types::            The different types of expressions.
 * Syntax Summary::              Standard syntactic expressions -- in brief.
@@ -498,7 +511,152 @@ Scheme's standard syntactic expressions.
 
 
 @node Evaluating
-@section Evaluating Expressions
+@section Evaluating Expressions and Executing Programs
+
+In Scheme, the process of executing an expression is known as
+@dfn{evaluation}.  Evaluation has two kinds of result:
+
+@itemize @bullet
+@item
+the @dfn{value} of the evaluated expression
+
+@item
+the @dfn{side effects} of the evaluation, which consist of any effects of
+evaluating the expression that are not represented by the value.
+@end itemize
+
+Of the expressions that we have met so far, @code{define} and
+@code{set!} expressions have side effects --- the creation or
+modification of a variable --- but no value; @code{lambda} expressions
+have values --- the newly constructed procedures --- but no side
+effects; and procedure invocation expressions, in general, have either
+values, or side effects, or both.
+
+It is tempting to try to define more fundamentally what we mean by
+``value'' and ``side effects'', and what the intuitive difference
+between them is.  In general, though, this is extremely difficult.  It
+is also unnecessary; instead, we can quite happily define the behaviour
+of a Scheme program by specifying how Scheme executes a program as a
+whole, and then by describing the value and side effects of evaluation
+for each type of expression individually.
+
+So, some @footnote{These definitions are approximate.  For the whole and
+detailed truth, see @xref{Formal syntax and semantics,Scheme
+syntax,,r5rs}.} definitions@dots{}
+
+@itemize @bullet
+
+@item
+A Scheme program consists of a sequence of expressions.
+
+@item
+A Scheme interpreter executes the program by evaluating these
+expressions in order, one by one.
+
+@item
+An expression can be
+
+@itemize @bullet
+@item
+a piece of literal data, such as a number @code{2.3} or a string
+@code{"Hello world!"}
+@item
+a variable name
+@item
+a procedure invocation expression
+@item
+one a Scheme's special syntactic expressions.
+@end itemize
+
+@end itemize
+
+The following subsections describe how each of these types of expression
+is evaluated.
+
+@menu
+* Eval Literal::                Evaluating literal data.
+* Eval Variable::               Evaluating variable references.
+* Eval Procedure::              Evaluating procedure invocation expressions.
+* Eval Special::                Evaluating special syntactic expressions.
+@end menu
+
+@node Eval Literal
+@subsection Evaluating Literal Data
+
+When a literal data expression is evaluated, the value of the expression
+is simply the value that the expression describes.  The evaluation of a
+literal data expression has no side effects.
+
+So, for example, 
+
+@itemize @bullet
+@item
+the value of the expression @code{"abc"} is the string value
+@code{"abc"}
+
+@item
+the value of the expression @code{3+4i} is the complex number 3 + 4i
+
+@item
+the value of the expression @code{#(1 2 3)} is a three-element vector
+containing the numeric values 1, 2 and 3.
+@end itemize
+
+For any data type which can be expressed literally like this, the syntax
+of the literal data expression for that data type --- in other words,
+what you need to write in your code to indicate a literal value of that
+type --- is known as the data type's @dfn{read syntax}.  This manual
+specifies the read syntax for each such data type in the section that
+describes that data type.
+
+Some data types do not have a read syntax.  Procedures, for example,
+cannot be expressed as literal data; they must be created using a
+@code{lambda} expression (@pxref{Creating a Procedure}) or implicitly
+using the shorthand form of @code{define} (@pxref{Lambda Alternatives}).
+
+
+@node Eval Variable
+@subsection Evaluating a Variable Reference
+
+When an expression that consists simply of a variable name is evaluated,
+the value of the expression is the value of the named variable.  The
+evaluation of a variable reference expression has no side effects.
+
+So, after
+
+@lisp
+(define key "Paul Evans")
+@end lisp
+
+the value of the expression @code{key} is the string value @code{"Paul
+Evans"}.  If @var{key} is then modified by
+
+@lisp
+(set! key 3.74)
+@end lisp
+
+the value of the expression @code{key} is the numeric value 3.74.
+
+If there is no variable with the specified name, evaluation of the
+variable reference expression signals an error.
+
+
+@node Eval Procedure
+@subsection Evaluating a Procedure Invocation Expression
+
+This is where evaluation starts getting interesting!  As already noted,
+a procedure invocation expression has the form
+
+@lisp
+(@var{procedure} [@var{arg1} [@var{arg2} @dots{}]])
+@end lisp
+
+where @var{procedure} must be an expression whose value, when evaluated,
+is a procedure.
+
+
+@node Eval Special
+@subsection Evaluating Special Syntactic Expressions
 
 
 @node The REPL
