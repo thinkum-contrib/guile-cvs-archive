@@ -10,7 +10,7 @@
 	the default default for bindings.
 	
 	* boot-9.scm (module-make-local-var!): Do not pass name hint to
-	make-undefined-variable.
+	make-undefined-variable, use `variable-set-name-hint!' instead.
 	(root-module-closure): Removed.
 	(make-root-module): Set the obarray of the module to the
 	`pre-modules-obarray'.  Do not use a lazy binder.
@@ -18,7 +18,8 @@
 	(make-root-module): Set the obarray of the module to the
 	`pre-modules-obarray'.  Do not use a lazy binder.  Set the
 	eval-closure to a `standard-interface-eval-closure'.
-	(module-define!): Do not pass name hint to make-variable.
+	(module-define!): Do not pass name hint to make-variable, use
+	`variable-set-name-hint!' instead.
 	(make-modules-in, beautify-user-module, resolve-module): Moved
 	towards the beginning of boot-9.scm, across the call to
 	set-current-module that boots the module system.  These
@@ -30,7 +31,6 @@
 	* debug.scm: Use `module-set!' instead of `variable-set!' to set
 	insert `debug-options' into the-root-module.
 	* format.scm: Likewise, for `format'.
-
 
 2001-05-06  Thien-Thi Nguyen  <ttn@revel.glug.org>
 
