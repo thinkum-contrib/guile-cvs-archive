@@ -1,5 +1,6 @@
 #! /bin/sh -x
 # Usage: checkout-hack
+#        checkout-hack -a       # "all" includes branches
 
 CVSROOT=${CVSROOT-':pserver:anoncvs@subversions.gnu.org:/cvsroot/guile'}
 export CVSROOT
@@ -7,9 +8,12 @@ export CVSROOT
 branches="1-4 1-6"
 
 cvs co hack
-cd hack
-for branch in $branches ; do
-    cvs co -d core-$branch -r branch_release-$branch core
-done
+
+if [ x"$1" = x-a ] ; then
+    cd hack
+    for branch in $branches ; do
+        cvs co -d core-$branch -r branch_release-$branch core
+    done
+fi
 
 # checkout-hack ends here
