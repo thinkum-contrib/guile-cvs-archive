@@ -1,3 +1,6 @@
+- guile-www 1.1.1
+  - integrate cgi enhancement patch from Aaron VanDevender [ttn]
+
 - Guile 1.4.1
   - back port ice-9/and-let*.scm naming fix [ttn]
   +R write TODO summarizer [ttn]
