@@ -9,7 +9,7 @@
 	time-thunk-once time-thunk-repeated
 	time-accumulate time-pass)
 
-(define version 3)
+(define version 4)
 
 
 ;;;; Primitive logging functions.
@@ -146,7 +146,7 @@
 	   (e (times:elapsed start end)))
       (log-text title)
       (log-text (format "~D passes  ~A" n (times:format e)))
-      (log-data (list title e)))))
+      (log-data (list title n e)))))
 
 ;;;; The following two functions, TIME-ACCUMULATE and TIME-PASS, help you
 ;;;; write a benchmark whose total time is the sum of times of several
