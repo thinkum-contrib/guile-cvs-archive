@@ -130,7 +130,7 @@ typedef struct scm_method_t {
 #define scm_si_environment	 18	/* The environme in which class is built  */
 #define SCM_N_CLASS_SLOTS	 19
 
-#define scm_si_methods		  5	/* offset of methods slot in a <generic> */
+#define scm_si_methods		  1	/* offset of methods slot in a <generic> */
 
 #define scm_si_generic_function	  0	/* offset of gf    slot in a <method> */
 #define scm_si_specializers	  1	/* offset of spec. slot in a <method> */
