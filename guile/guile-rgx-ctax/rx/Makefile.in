@@ -24,10 +24,10 @@ srcdir = @srcdir@
 VPATH = @srcdir@
 prefix = @prefix@
 exec_prefix = @exec_prefix@
-bindir = $(exec_prefix)/bin
-libdir = $(exec_prefix)/lib
-includedir = $(prefix)/include
-infodir = $(prefix)/info
+bindir = @bindir@
+libdir = @libdir@
+includedir = @includedir@
+infodir = @infodir@
 
 #### Start of system configuration section. ####
 
