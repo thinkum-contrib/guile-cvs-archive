@@ -54,8 +54,13 @@ extern scm_t_bits scm_tc16_hashtable;
 #define SCM_HASHTABLE_WEAK_P(x)	   SCM_HASHTABLE_FLAGS (x)
 #define SCM_HASHTABLE_N_ITEMS(x)   (SCM_HASHTABLE (x)->n_items)
 #define SCM_SET_HASHTABLE_N_ITEMS(x, n)   (SCM_HASHTABLE (x)->n_items = n)
+#if 1
 #define SCM_HASHTABLE_INCREMENT(x) (SCM_HASHTABLE_N_ITEMS(x)++)
-#if 0
+#else
+SCM_API void scm_i_hashtable_increment (SCM h);
+#define SCM_HASHTABLE_INCREMENT(x) scm_i_hashtable_increment(x)
+#endif
+#if 1
 #define SCM_HASHTABLE_DECREMENT(x) (SCM_HASHTABLE_N_ITEMS(x)--)
 #else
 SCM_API void scm_i_hashtable_decrement (SCM h);

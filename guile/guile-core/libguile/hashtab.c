@@ -33,26 +33,67 @@
 #include "libguile/hashtab.h"
 
 
+#if 0
+
+static volatile int loop_flag = 0;
+static int default_loop_flag = 1, foo = 0;
+
 static void
 loop (void)
 {
-  int loop = 1;
   printf ("looping %d\n", getpid ());
-  while (loop)
+  loop_flag = default_loop_flag;
+  while (loop_flag)
     ;
+}
+
+static int foo;
+
+static size_t
+count_items (SCM h)
+{
+  SCM v = SCM_HASHTABLE_VECTOR (h);
+  size_t i, n;
+  
+  for (i = 0, n = 0; i < SCM_SIMPLE_VECTOR_LENGTH (v); i++)
+    n += scm_ilength (SCM_SIMPLE_VECTOR_REF (v, i));
+  return n;
+}
+
+void check_item_count (SCM h, char *label);
+
+void
+check_item_count (SCM h, char *label)
+{
+  if (SCM_HASHTABLE_P (h))
+    {
+      size_t n = count_items (h);
+      if (SCM_HASHTABLE_N_ITEMS (h) != n)
+	{
+	  printf ("%s: hashtab size mismatch %lu != %zu, %d\n",
+		  label, SCM_HASHTABLE_N_ITEMS (h), n, foo);
+	  loop ();
+	}
+    }
+}
+
+void
+scm_i_hashtable_increment (SCM h)
+{
+  scm_t_hashtable *t = SCM_HASHTABLE (h);
+  t->n_items += 1;
+  check_item_count (h, "inc");
 }
 
 void
 scm_i_hashtable_decrement (SCM h)
 {
   scm_t_hashtable *t = SCM_HASHTABLE (h);
-  if (t->n_items == 0)
-    {
-      printf ("hashtab underflow\n");
-      loop ();
-    }
-  t->n_items--;
+  t->n_items -= 1;
+  check_item_count (h, "dec");
 }
+
+#endif
 
 /* NOTES
  *
@@ -186,25 +227,41 @@ scm_i_rehash (SCM table,
   else
     new_buckets = scm_c_make_vector (new_size, SCM_EOL);
 
+  /* When this is a weak hashtable, running the GC might change it.
+     We need to cope with this while rehashing its elements.  We do
+     this by first installing the new, empty bucket vector and turning
+     the old bucket vector into a regularily scanned weak vector.
+     Then we remove the elements from the old bucket vector and insert
+     them into the new one.
+  */
+
+  SCM_SET_HASHTABLE_VECTOR (table, new_buckets);
+  SCM_SET_HASHTABLE_N_ITEMS (table, 0);
+  if (SCM_HASHTABLE_WEAK_P (table))
+    SCM_I_SET_WVECT_TYPE (buckets, (SCM_HASHTABLE_FLAGS (table)));
+
   old_size = SCM_SIMPLE_VECTOR_LENGTH (buckets);
   for (i = 0; i < old_size; ++i)
     {
-      SCM ls = SCM_SIMPLE_VECTOR_REF (buckets, i), handle;
-      while (!scm_is_null (ls))
+      SCM ls, cell, handle;
+
+      ls = SCM_SIMPLE_VECTOR_REF (buckets, i);
+      SCM_SIMPLE_VECTOR_SET (buckets, i, SCM_EOL);
+
+      while (scm_is_pair (ls))
 	{
 	  unsigned long h;
-	  handle = SCM_CAR (ls);
+	  cell = ls;
+	  handle = SCM_CAR (cell);
+	  ls = SCM_CDR (ls);
 	  h = hash_fn (SCM_CAR (handle), new_size, closure);
 	  if (h >= new_size)
 	    scm_out_of_range (func_name, scm_from_ulong (h));
-	  SCM_SIMPLE_VECTOR_SET 
-	    (new_buckets, h,
-	     scm_cons (handle,
-		       SCM_SIMPLE_VECTOR_REF (new_buckets, h)));
-	  ls = SCM_CDR (ls);
+	  SCM_SETCDR (cell, SCM_SIMPLE_VECTOR_REF (new_buckets, h));
+	  SCM_SIMPLE_VECTOR_SET (new_buckets, h, cell);
+	  SCM_HASHTABLE_INCREMENT (table);
 	}
     }
-  SCM_SET_HASHTABLE_VECTOR (table, new_buckets);
 }
 
 
@@ -242,6 +299,7 @@ scan_weak_hashtables (void *dummy1 SCM_UNUSED,
 {
   SCM *next = &weak_hashtables;
   SCM h = *next;
+
   while (!scm_is_null (h))
     {
       if (!SCM_GC_MARK_P (h))
@@ -319,6 +377,7 @@ rehash_after_gc (void *dummy1 SCM_UNUSED,
       SCM_SET_HASHTABLE_NEXT (last, weak_hashtables);
       weak_hashtables = first;
     }
+
   return 0;
 }
 
@@ -487,6 +546,7 @@ scm_hash_fn_create_handle_x (SCM table, SCM obj, SCM init, unsigned long (*hash_
       SCM_ASSERT (scm_is_simple_vector (table),
 		  table, SCM_ARG1, "hash_fn_create_handle_x");
       buckets = table;
+      // check_item_count (table, "create");
     }
   if (SCM_SIMPLE_VECTOR_LENGTH (buckets) == 0)
     SCM_MISC_ERROR ("void hashtable", SCM_EOL);
@@ -499,10 +559,24 @@ scm_hash_fn_create_handle_x (SCM table, SCM obj, SCM init, unsigned long (*hash_
     return it;
   else
     {
-      SCM old_bucket = SCM_SIMPLE_VECTOR_REF (buckets, k);
-      SCM new_bucket = scm_acons (obj, init, old_bucket);
+      /* When this is a weak hashtable, running the GC can change it.
+	 Thus, we must allocate the new cells first and can only then
+	 access BUCKETS.  Also, we need to fetch the bucket vector
+	 again since the hashtable might have been rehashed.  This
+	 necessitates a new hash value as well.
+      */
+      SCM new_bucket = scm_acons (obj, init, SCM_EOL);
+      if (!scm_is_eq (table, buckets)
+	  && !scm_is_eq (SCM_HASHTABLE_VECTOR (table), buckets))
+	{
+	  buckets = SCM_HASHTABLE_VECTOR (table);
+	  k = hash_fn (obj, SCM_SIMPLE_VECTOR_LENGTH (buckets), closure);
+	  if (k >= SCM_SIMPLE_VECTOR_LENGTH (buckets))
+	    scm_out_of_range ("hash_fn_create_handle_x", scm_from_ulong (k));
+	}
+      SCM_SETCDR (new_bucket, SCM_SIMPLE_VECTOR_REF (buckets, k));
       SCM_SIMPLE_VECTOR_SET (buckets, k, new_bucket);
-      if (table != buckets)
+      if (!scm_is_eq (table, buckets))
 	{
 	  SCM_HASHTABLE_INCREMENT (table);
 	  if (SCM_HASHTABLE_N_ITEMS (table) > SCM_HASHTABLE_UPPER (table))
@@ -1101,6 +1175,8 @@ scm_hashtab_prehistory ()
 void
 scm_init_hashtab ()
 {
+  //scm_c_define_gsubr ("debug-loop", 0, 0, 0, (SCM (*)()) loop);
+
 #include "libguile/hashtab.x"
 }
 
