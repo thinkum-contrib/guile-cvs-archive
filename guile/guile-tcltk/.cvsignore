@@ -1,0 +1,12 @@
+.deps
+.libs
+Makefile
+config.cache
+config.log
+config.status
+guile-tcltk
+libtool
+*.x
+*.o
+*.lo
+*.la
