@@ -24,3 +24,37 @@ To fix this, we need to
 interface number (i.e. libguilereadline-15) and needs to be done
 before 1.6 is released.  2) is harder to do and should be deferred to
 1.8.
+
+With respect to (2) above,
+
+  A proposal:
+
+  (1) Write our own lt_dlopen(char *name, unsigned int interface)
+      which will DTRT, when called like this
+
+        scm_lt_dlopen("libfoo", 12)
+
+      How we can do this will depend in part on how libltdl works, but
+      if at all possible, we should probably try to use the same
+      algorithm to choose the appropriate shared lib from the
+      available X.Y.Z library versions that ldso does for normal
+      dynamically linked (not dlopend) libs.
+
+      One fairly simple possibility that *might* work, would be to
+      require that all guile shared libs install a versioned .la file,
+      perhaps by copying the build-time libfoo.la to libfoo.la.X.Y.Z
+      or similar.  Then our scm_lt_dlopen function would use the
+      interface number, and ltdl's * exact* algorithm to find a suitable
+      .la.* file and directly lt_dlopen that.
+
+  (2) Provide a scheme level interface that allows you to ask for a
+      particular interface, something like (some-link-func
+      "libguile-foo" 3) and uses scm_lt_dlopen to make sure you get
+      the right lib.
+
+  (3) Once we're finished with (1), see if the ltdl people are
+      interested.
+
+  (4) Whatever we do, we should still allow people to call lt_dlopen
+      directly if they want to -- we'd provide this as part of a
+      "lower-level" linker interface.
