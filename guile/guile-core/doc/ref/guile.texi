@@ -82,7 +82,7 @@ by the Free Software Foundation.
 @title Guile Reference Manual
 @subtitle $Id$
 @subtitle For use with Guile @value{VERSION}
-@include AUTHORS
+@include ../AUTHORS
 
 @c The following two commands start the copyright page.
 @page
