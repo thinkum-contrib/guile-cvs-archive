@@ -169,7 +169,7 @@ The second line of the script should contain only the characters
 operating system never reads this far, but Guile treats this as the end
 of the comment begun on the first line by the @samp{#!} characters.
 
-@Item
+@item
 The rest of the file should be a Scheme program.
 
 @end itemize
