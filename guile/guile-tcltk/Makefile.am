@@ -2,6 +2,8 @@
 
 AUTOMAKE_OPTIONS = foreign
 
+INCLUDES = $(GUILE_CFLAGS)
+
 lib_LTLIBRARIES = libguile-tcltk-gtcltk.la libguiledlopenhelper.la
 bin_PROGRAMS = guile-tcltk
 
@@ -39,7 +41,7 @@ SUFFIXES = .x
 ## We assume the user has already installed Guile.
 SNARF=guile-snarf
 .c.x:
-	$(SNARF) $(DEFS) -I. $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $(X_CFLAGS) $< > $@
+	$(SNARF) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $(X_CFLAGS) $< > $@
 
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $(X_CFLAGS)
 

@@ -1,3 +1,7 @@
+2002-11-17  Mikael Djurfeldt  <mdj@linnaeus>
+
+	* Makefile.am (INCLUDES): Define INCLUDES to GUILE_CFLAGS.
+
 2002-11-14  Mikael Djurfeldt  <mdj@linnaeus>
 
 	* hand.scm (hand): Lock mutex before waiting on the condition
