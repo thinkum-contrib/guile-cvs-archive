@@ -475,8 +475,8 @@ typedef union jit_code {
 #define jit_movr_l(d, rs)		jit_movr_i((d), (rs))
 
 /* Stack */
-#define jit_push_l(rs)			jit_push_i(rs)
-#define jit_pop_l(rs)			jit_pop_i(rs)		
+#define jit_pushr_l(rs)			jit_pushr_i(rs)
+#define jit_popr_l(rs)			jit_popr_i(rs)		
 #define jit_pusharg_l(rs)		jit_pusharg_i(rs)
 
 /* Memory */
