@@ -1,3 +1,9 @@
+2004-01-09  Kevin Ryde  <user42@zip.com.au>
+
+	* cgi.scm, http.scm: Use substring instead of make-shared-substring,
+	since the latter is gone from guile 1.8, and was only being used as an
+	optimization.
+
 2003-10-09  Kevin Ryde  <user42@zip.com.au>
 
 	* http.scm (http:message-status-ok?): Use http:message-status-code,
