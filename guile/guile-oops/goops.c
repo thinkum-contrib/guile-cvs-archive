@@ -96,7 +96,14 @@
 #define NXT_MTHD_METHODS(m)	(SCM_VELTS (m)[1])
 #define NXT_MTHD_ARGS(m)	(SCM_VELTS (m)[2])
 
+#define SCM_GOOPS_UNBOUND scm_goops_the_unbound_value
+#define SCM_GOOPS_UNBOUNDP(x) ((x) == scm_goops_the_unbound_value)
+
+static SCM scm_goops_the_unbound_value;
+
+#if 0 /* Used by extended classes */
 static char initialized	     = 0;
+#endif
 
 static SCM scm_goops_lookup_closure;
 static SCM Top, Object, Class, Generic, Method, Simple_method, Accessor, 
@@ -109,10 +116,9 @@ static SCM Widget;
 
 SCM_SYMBOL (scm_sym_define_public, "define-public");
 
-/*fixme* initialize Complex */
-
-static void set_slot_value_if_unbound(SCM classe, SCM obj, SCM slot_name, SCM form);
-
+static void set_slot_value_if_unbound (SCM classe, SCM obj, SCM slot_name, SCM form);
+static SCM scm_make_unbound (void);
+static SCM scm_unbound_p (SCM obj);
 
 /******************************************************************************
  *
@@ -767,6 +773,22 @@ scm_method_procedure (SCM obj)
  *
  ******************************************************************************/
 
+SCM_PROC (s_make_unbound, "make-unbound", 0, 0, 0, scm_make_unbound);
+
+static SCM
+scm_make_unbound ()
+{
+  return SCM_GOOPS_UNBOUND;
+}
+
+SCM_PROC (s_unbound_p, "unbound?", 1, 0, 0, scm_unbound_p);
+
+static SCM
+scm_unbound_p (SCM obj)
+{
+  return SCM_GOOPS_UNBOUNDP (obj) ? SCM_BOOL_T : SCM_BOOL_F;
+}
+
 SCM_PROC (s_sys_fast_slot_ref, "%fast-slot-ref", 2, 0, 0, scm_sys_fast_slot_ref);
 
 SCM
@@ -884,7 +906,7 @@ set_slot_value_if_unbound (SCM classe, SCM obj, SCM slot_name, SCM form)
 {
   SCM old_val = get_slot_value(classe, obj, slot_name);
   
-  if (SCM_UNBNDP (old_val))
+  if (SCM_GOOPS_UNBOUNDP (old_val))
     set_slot_value (classe, obj,
 		    slot_name,
 		    scm_apply (form, SCM_EOL, SCM_EOL));
@@ -920,7 +942,7 @@ scm_slot_ref_using_class (SCM classe, SCM obj, SCM slot_name)
 	      obj, SCM_ARG3, s_slot_ref_using_class);
 
   res = get_slot_value (classe, obj, slot_name);
-  if (SCM_UNBNDP (res))
+  if (SCM_GOOPS_UNBOUNDP (res))
     return CALL_GF3 ("slot-unbound", classe, obj, slot_name);
   return res;
 }
@@ -951,7 +973,7 @@ scm_slot_bound_using_class_p (SCM classe, SCM obj, SCM slot_name)
   SCM_ASSERT (SCM_NIMP (slot_name) && SCM_SYMBOLP (slot_name),
 	      obj, SCM_ARG3, s_slot_bound_using_class_p);
 
-  return (SCM_UNBNDP (get_slot_value (classe, obj, slot_name))
+  return (SCM_GOOPS_UNBOUNDP (get_slot_value (classe, obj, slot_name))
 	  ? SCM_BOOL_F
 	  : SCM_BOOL_T);
 }
@@ -985,7 +1007,7 @@ scm_slot_ref (SCM obj, SCM slot_name)
   TEST_CHANGE_CLASS (obj, classe);
 
   res = get_slot_value (classe, obj, slot_name);
-  if (SCM_UNBNDP (res))
+  if (SCM_GOOPS_UNBOUNDP (res))
     return CALL_GF3 ("slot-unbound", classe, obj, slot_name);
   return res;
 }
@@ -1015,7 +1037,7 @@ scm_slot_bound_p (SCM obj, SCM slot_name)
 	      obj, SCM_ARG1, s_slot_bound_p);
   TEST_CHANGE_CLASS(obj, classe);
 
-  return (SCM_UNBNDP (get_slot_value (classe, obj, slot_name))
+  return (SCM_GOOPS_UNBOUNDP (get_slot_value (classe, obj, slot_name))
 	  ? SCM_BOOL_F
 	  : SCM_BOOL_T);
 }
@@ -1075,7 +1097,7 @@ scm_sys_allocate_instance (SCM classe)
   else
     i = 0;
   for (; i < n; i++)
-    SCM_SLOT (z, i) = SCM_UNDEFINED;
+    SCM_SLOT (z, i) = SCM_GOOPS_UNBOUND;
   return z;
 }
 
@@ -1357,6 +1379,9 @@ scm_compute_applicable_methods (SCM gf, SCM args, int len, int scm_find_method)
   /* Build the list of arguments types */
   if (len >= BUFFSIZE) {
     tmp   = scm_make_vector (SCM_MAKINUM (len), SCM_UNDEFINED);
+    /* NOTE: Using pointers to malloced memory won't work if we
+       1. have preemtive threading, and,
+       2. have a GC which moves objects.  */
     types = p = SCM_VELTS(tmp);
   }
   else
@@ -1841,12 +1866,16 @@ static void add_primitive(char *name, int type, void *fct_ptr)
 void
 scm_init_goops (void)
 {
+  SCM the_unbound_value = SCM_CAR (scm_intern0 ("the-unbound-value"));
   SCM goops = SCM_CAR (scm_intern0 ("goops"));
   SCM goops_module = scm_selected_module ();
   scm_ensure_user_module (goops_module);
   scm_goops_lookup_closure = scm_module_lookup_closure (goops_module);
-  
+
 #include "goops.x"
+
+  scm_goops_the_unbound_value
+    = scm_permanent_object (scm_cons (the_unbound_value, SCM_EOL));
   
   scm_f_apply_next_method
     = scm_permanent_object (scm_make_subr (s_apply_next_method,
