@@ -27,7 +27,7 @@ of bytes, and each byte is interpreted as one character in the locale
 text encoding, which is assumed to be a a single-byte encoding.
 
 In the past, Guile also had mutation-sharing substrings.  These were
-strings that shared storage with other strings and mutating anyone
+strings that shared storage with other strings and mutating any one
 string would be reflected in all others.
 
 Right now, ordinary substrings are created by allocating new storage
@@ -50,6 +50,8 @@ We can try to avoid this situation by copying sort substrings when
 they are created and/or doing additional house keeping during GC.
 Users can also use string-copy
 
+(Mutation-sharing substrings can cause the same inefficienies, ...)
+
 Implementation:
 
 There will be stringbufs and strings.  stringbufs hold the storage and
@@ -59,14 +61,15 @@ encodings are used and all offsets into stringbufs are in characters.
 There is a global mutex that protects the fields of stringbufs and
 strings.  I don't think there is a way around this mutex.
 
-stringbuf: length in chars
-           pointer to chars
+stringbuf: pointer to chars
            refcount
 
 string: stringbuf
 	start
 	end
         shared
+
+;; Low-level
 
 (define (make-stringbuf length)
   (make <stringbuf> 
@@ -104,6 +107,17 @@ string: stringbuf
        (set! (string-end str) (- (string-end str) (string-start str)))
        (set! (string-start str) 0)))))
 
+;; GC
+
+(define (collect-stringbuf buf)
+  (free (stringbuf-chars buf)))
+
+(define (collect-string str)
+  ;; XXX (string-stringbuf str) might be invalid
+  (dec! (stringbuf-string str)))
+
+;; Exported
+
 (define (substring str start end)
   (make-substring str start end #f))
 
@@ -116,7 +130,7 @@ string: stringbuf
 (define (substring/shared str start end)
   (make-substring str start end #t))
 
-;; general access patterns
+;; General access patterns
 
 (define (read-string-chars str proc)
   (lock-string-mutex
