@@ -662,9 +662,17 @@ scm_sys_inherit_magic_x (SCM class, SCM dsupers)
   else
     {
       int n = SCM_INUM (SCM_SLOT (class, scm_si_nfields));
+#if 0
+      /*
+       * We could avoid calling scm_must_malloc in the allocation code
+       * (in which case the following two lines are needed).  Instead
+       * we make 0-slot instances non-light, so that the light case
+       * can be handled without special cases.
+       */
       if (n == 0)
 	SCM_SET_CLASS_DESTRUCTOR (class, scm_struct_free_0);
-      else if (!(flags & SCM_CLASSF_METACLASS))
+#endif
+      if (n > 0 && !(flags & SCM_CLASSF_METACLASS))
 	{
 	  /* NOTE: The following depends on scm_struct_i_size. */
 	  flags |= SCM_STRUCTF_LIGHT + n * sizeof (SCM); /* use light representation */
@@ -1496,21 +1504,18 @@ scm_sys_allocate_instance (SCM class, SCM initargs)
     {
       m = (SCM *) scm_alloc_struct (n,
 				    scm_struct_entity_n_extra_words,
-				    "instance");
+				    "entity");
+      m[scm_struct_i_setter] = SCM_BOOL_F;
+      m[scm_struct_i_procedure] = SCM_BOOL_F;
       /* Generic functions */
       if (SCM_CLASS_FLAGS (class) & SCM_CLASSF_PURE_GENERIC)
 	{
 	  SCM gf = wrap_init (class, m, n);
-	  m[scm_struct_i_setter] = SCM_BOOL_F;
 	  clear_method_cache (gf);
 	  return gf;
 	}
       else
-	{
-	  m[scm_struct_i_setter] = SCM_BOOL_F;
-	  m[scm_struct_i_procedure] = SCM_BOOL_F;
-	  return wrap_init (class, m, n);
-	}
+	return wrap_init (class, m, n);
     }
   
   /* Class objects */
@@ -1537,7 +1542,7 @@ scm_sys_allocate_instance (SCM class, SCM initargs)
   {
     m = (SCM *) scm_alloc_struct (n,
 				  scm_struct_n_extra_words,
-				  "instance");
+				  "heavy instance");
     return wrap_init (class, m, n);
   }
 }
