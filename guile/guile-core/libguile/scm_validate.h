@@ -264,6 +264,11 @@
 
 #define SCM_VALIDATE_VECTOR(pos,v) SCM_MAKE_VALIDATE(pos,v,VECTORP)
 
+#define SCM_VALIDATE_VECTOR_OR_DVECTOR(pos,v) \
+  do { SCM_ASSERT ((SCM_VECTORP (v) ||  \
+                    (SCM_NIMP (v) && SCM_TYP7 (v) == scm_tc7_dvect)), \
+                   v, pos, FUNC_NAME); } while (0) 
+
 #define SCM_VALIDATE_STRUCT(pos,v) SCM_MAKE_VALIDATE(pos,v,STRUCTP)
 
 #define SCM_VALIDATE_VTABLE(pos,v) \
