@@ -1,3 +1,12 @@
+1998-12-04  Christian Lynbech  <chl@tbit.dk>
+
+	* goops.h: Added missing prototypes for a nunch of functions.
+	Added #include <guile/gh.h>.
+
+	* goops.c (sort_applicable_methods): Initialize `vector' to the
+	empty list.
+	(scm_sys_prep_layout_x): Removed local variale `layout'.
+
 1998-12-01  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* goops.c (apply_generic_0, apply_generic_1, apply_generic_2,
