@@ -1,3 +1,9 @@
+1999-12-08  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* goops.scm (compute-slots): New generic function in the MOP.
+	(initialize): Use `compute-slots' when computing slots for a new
+	class.
+
 1999-12-04  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
 	* dispatch.scm (cache-try-hash!): Bugfix: Measure max number of
