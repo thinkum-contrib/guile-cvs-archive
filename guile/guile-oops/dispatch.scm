@@ -59,11 +59,6 @@
 
 ;; non-hashed form
 
-(define method-cache-n-specialized caddr)
-
-(define (set-method-cache-n-specialized! exp n)
-  (set-car! (cddr exp) n))
-
 (define method-cache-entries cadddr)
 
 (define (set-method-cache-entries! mcache entries)
@@ -253,10 +248,8 @@
 	     (n-specializers
 	      (if (list? specializers)
 		  (length specializers)
-		  (+ 1 (slot-ref (method-cache-generic-function exp)
-				 'n-specialized)))))
-	(if (> n-specializers (method-cache-n-specialized exp))
-	    (set-method-cache-n-specialized! exp n-specializers))
+		  (slot-ref (method-cache-generic-function exp)
+			    'n-specialized))))
 	(let* ((types (map class-of (first-n args n-specializers)))
 	       (entry+cmethod (compute-entry-with-cmethod applicable types)))
 	  (insert! exp (car entry+cmethod)) ; entry = types + cmethod
