@@ -25,9 +25,10 @@
 
 /* Size is checked in scm_init_threads_plugin.
    For reference, sizes encountered include,
-       powerpc-apple-darwin5.5 pthread_mutex_t    44 bytes
+       powerpc-apple-darwin5.5 pthread_mutex_t    44 bytes (11 longs)
+       hppa2.0n-hp-hpux11.00                      88 bytes (22 longs)
  */
-#define SCM_MUTEX_MAXSIZE (12 * sizeof (long))
+#define SCM_MUTEX_MAXSIZE (25 * sizeof (long))
 typedef struct { char _[SCM_MUTEX_MAXSIZE]; } scm_t_mutex;
 
 /*fixme* Should be defined similarly to scm_t_mutex. */
