@@ -151,4 +151,39 @@ SCM scm_compute_applicable_methods (SCM gf, SCM args, int len, int scm_find_meth
 SCM scm_apply_next_method(SCM args);
 extern void scm_init_goops_goopscore_module (void);
 
+SCM scm_sys_compute_slots(SCM classe); 
+SCM scm_i_get_keyword(SCM key, SCM l, int len, SCM default_value, char *subr); 
+SCM scm_get_keyword(SCM key, SCM l, SCM default_value); 
+SCM scm_sys_initialize_object(SCM obj, SCM initargs); 
+SCM scm_sys_prep_layout_x(SCM class); 
+SCM scm_sys_inherit_magic_x(SCM class, SCM dsupers); 
+SCM scm_instance_p(SCM obj); 
+SCM scm_class_name(SCM obj); 
+SCM scm_class_direct_supers(SCM obj); 
+SCM scm_class_direct_slots(SCM obj); 
+SCM scm_class_direct_subclasses(SCM obj); 
+SCM scm_class_direct_methods(SCM obj); 
+SCM scm_class_precedence_list(SCM obj); 
+SCM scm_class_slots(SCM obj); 
+SCM scm_class_environment(SCM obj); 
+SCM scm_generic_function_name(SCM obj); 
+SCM scm_generic_function_methods(SCM obj); 
+SCM scm_method_generic_function(SCM obj); 
+SCM scm_method_specializers(SCM obj); 
+SCM scm_method_procedure(SCM obj); 
+SCM scm_sys_fast_slot_ref(SCM obj, SCM index); 
+SCM scm_sys_fast_slot_set_x(SCM obj, SCM index, SCM value); 
+SCM scm_slot_ref_using_class(SCM classe, SCM obj, SCM slot_name); 
+SCM scm_slot_set_using_class_x(SCM classe, SCM obj, SCM slot_name, SCM value); 
+SCM scm_slot_bound_using_class_p(SCM classe, SCM obj, SCM slot_name); 
+SCM scm_slot_exists_using_class_p(SCM classe, SCM obj, SCM slot_name); 
+SCM scm_slot_bound_p(SCM obj, SCM slot_name); 
+SCM scm_slots_exists_p(SCM obj, SCM slot_name); 
+SCM scm_sys_modify_instance(SCM old, SCM new); 
+SCM stklos_version(void); 
+SCM scm_make(SCM args); 
+SCM scm_find_method(SCM l); 
+SCM scm_sys_method_more_specific_p(SCM m1, SCM m2, SCM targs); 
+void scm_init_goops (void); 
+
 #endif /* GOOPSH */
