@@ -356,6 +356,33 @@ scm_mb_iconv (struct scm_mb_iconv *context,
   return 0;
 }
 
+#if 0
+
+/* Input conversion ports.  */
+
+/* Given that PORT is an input port containing data in the encoding
+   named ENCODING, return a new input port carrying the same data as
+   PORT, converted into Guile's internal encoding.  The resulting input
+   port is not seekable.  */
+SCM_PROC (s_convert_input_port, "convert-input-port", 2, 0, 0, scm_convert_input_port);
+SCM
+scm_convert_input_port (SCM port, SCM encoding)
+{
+  
+}
+
+
+/* Output conversion ports.  */
+/* Return a new port which accepts data in Guile's internal encoding,
+   and sends it to PORT in ENCODING.  PORT must be an output port, and
+   ENCODING must be the name of an encoding.  */
+SCM
+scm_convert_output_port (SCM port, SCM encoding)
+{
+  
+}
+#endif
+
 
 /* Initialization.  */
 
