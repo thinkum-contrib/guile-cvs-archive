@@ -1174,7 +1174,7 @@
   (let ((shared-variable (make-unbound)))
     (list (if (or (unbound? (slot-definition-init-value s))
 		  (unbound? (slot-definition-init-form s))
-		  ;; #:init-form implies #:init-thunk
+		  (slot-definition-init-thunk s)
 		  )
 	      ;; safe not to check boundness
 	      (lambda (o) shared-variable)

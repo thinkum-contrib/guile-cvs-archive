@@ -3,7 +3,7 @@
 	* Version 0.1.6 released.  (Sigh...)
 
 	* goops.scm (make-closure-variable): Bugfix: Use
-	slot-definition-init-value and slot-definition-init-form to check
+	slot-definition-init-value and slot-definition-init-thunk to check
 	for init form.
 	(slot-definition-init-form): New procedure; exported.
 
