@@ -37,7 +37,7 @@
     define-class   class make-class
     define-generic make-generic ensure-generic
     define-accessor make-accessor ensure-accessor
-    define-method method add-method!
+    define-method make-method method add-method!
     object-eqv? object-equal?
     write-object display-object Tk-write-object
     slot-unbound slot-missing 
@@ -175,7 +175,7 @@
 ;;; {Classes}
 ;;;
 
-;;; (define-class NAME (SUPER ...) (SLOT-DEFINITION ...) OPTION ...)
+;;; (define-class NAME (SUPER ...) SLOT-DEFINITION ... OPTION ...)
 ;;;
 ;;;   SLOT-DEFINITION ::= SLOT-NAME | (SLOT-NAME OPTION ...)
 ;;;   OPTION ::= KEYWORD VALUE
@@ -222,17 +222,19 @@
 					(pair? (cdr options))))
 			      definitions))
 			 definitions)))
-		  ((not (pair? slots)) (reverse definitions)))))
+		  ((or (not (pair? slots))
+		       (not (keyword? (car slots))))
+		   (reverse definitions)))))
 	   
 	   ;; Syntax
 	   (name cadr)
-	   (slots cadddr))
+	   (slots cdddr))
     
     (procedure->macro
       (lambda (exp env)
 	(cond ((not (top-level-env? env))
 	       (goops-error "define-class: Only allowed at top level"))
-	      ((not (and (list? exp) (>= (length exp) 4)))
+	      ((not (and (list? exp) (>= (length exp) 3)))
 	       (goops-error "missing or extra expression"))
 	      (else
 	       (let ((name (name exp)))
@@ -254,7 +256,7 @@
 			 `(define ,name
 			    (class ,@(cddr exp) #:name ',name)))))))))))
 
-;;; (class (SUPER ...) (SLOT-DEFINITION ...) OPTION ...)
+;;; (class (SUPER ...) SLOT-DEFINITION ... OPTION ...)
 ;;;
 ;;;   SLOT-DEFINITION ::= SLOT-NAME | (SLOT-NAME OPTION ...)
 ;;;   OPTION ::= KEYWORD VALUE
@@ -262,31 +264,35 @@
 (define class
   (procedure->memoizing-macro
     (let ((supers cadr)
-	  (slots caddr)
+	  (slots cddr)
 	  (options cdddr))
       (lambda (exp env)
-	(cond ((not (and (list? exp) (>= (length exp) 3)))
+	(cond ((not (and (list? exp) (>= (length exp) 2)))
 	       (goops-error "missing or extra expression"))
 	      ((not (list? (supers exp)))
 	       (goops-error "malformed superclass list: %S" (supers exp)))
-	      ((not (list? (slots exp)))
-	       (goops-error "malformed slots list: %S" (slots exp)))
 	      (else
-	       `(make-class
-		 ;; evaluate super class variables
-		 (list ,@(supers exp))
-		 ;; evaluate slot definitions, except the slot name!
-		 (list ,@(map (lambda (slot)
-				(if (pair? slot)
-				    `(list ',(slot-definition-name slot)
-					   ,@(slot-definition-options slot))
-				    `(list ',slot)))
-			      (slots exp)))
-		 ;; evaluate class options
-		 ,@(options exp)
-		 ;; place option last in case someone wants to
-		 ;; pass a different value
-		 #:environment ',env)))))))
+	       (let ((slot-defs '(())))
+		 (do ((slots (slots exp) (cdr slots))
+		      (defs slot-defs (cdr defs)))
+		     ((or (null? slots)
+			  (keyword? (car slots)))
+		      `(make-class
+			;; evaluate super class variables
+			(list ,@(supers exp))
+			;; evaluate slot definitions, except the slot name!
+			(list ,@(cdr slot-defs))
+			;; evaluate class options
+			,@slots
+			;; place option last in case someone wants to
+			;; pass a different value
+			#:environment ',env))
+		   (set-cdr!
+		    defs
+		    (list (if (pair? (car slots))
+			      `(list ',(slot-definition-name (car slots))
+				     ,@(slot-definition-options (car slots)))
+			      `(list ',(car slots)))))))))))))
 
 (define (make-class supers slots . options)
   (let ((env (or (get-keyword #:environment options #f)
