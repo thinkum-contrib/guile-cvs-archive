@@ -40,4 +40,4 @@ esac
 dnl Checks for library functions.
 AC_SUBST(TCL_EXTRA_LIBS)
 
-AC_OUTPUT(Makefile libgtk/Makefile)
+AC_OUTPUT(Makefile libguiletk/Makefile)

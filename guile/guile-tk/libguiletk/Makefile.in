@@ -69,13 +69,13 @@ VERSION = @VERSION@
 
 AUTOMAKE_OPTIONS = foreign
 
-lib_LTLIBRARIES = libgtk.la
+lib_LTLIBRARIES = libguiletk.la
 bin_PROGRAMS = guile-tk
 
-libgtk_la_SOURCES = gtk-module.c foo.c foo.h
-libgtk_la_LDFLAGS = -version-info 0:0 -rpath $(libdir)
+libguiletk_la_SOURCES = gtk-module.c foo.c foo.h
+libguiletk_la_LDFLAGS = -version-info 0:0 -rpath $(libdir)
 
-guile_tk_LDADD = libgtk.la ../Tk/unix/libtk.a ../Tcl/libtcl.a
+guile_tk_LDADD = libguiletk.la ../Tk/unix/libtk.a ../Tcl/libtcl.a
 
 SUFFIXES = .x
 SNARF=guile-snarf
@@ -96,13 +96,14 @@ X_CFLAGS = @X_CFLAGS@
 X_LIBS = @X_LIBS@
 X_EXTRA_LIBS = @X_EXTRA_LIBS@
 X_PRE_LIBS = @X_PRE_LIBS@
-libgtk_la_LIBADD = 
-libgtk_la_OBJECTS =  gtk-module.lo foo.lo
+libguiletk_la_LIBADD = 
+libguiletk_la_OBJECTS =  gtk-module.lo foo.lo
 PROGRAMS =  $(bin_PROGRAMS)
 
 guile_tk_SOURCES = guile-tk.c
 guile_tk_OBJECTS =  guile-tk.o
-guile_tk_DEPENDENCIES =  libgtk.la ../Tk/unix/libtk.a ../Tcl/libtcl.a
+guile_tk_DEPENDENCIES =  libguiletk.la ../Tk/unix/libtk.a \
+../Tcl/libtcl.a
 guile_tk_LDFLAGS = 
 CFLAGS = @CFLAGS@
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
@@ -112,18 +113,18 @@ DIST_COMMON =  ChangeLog Makefile.am Makefile.in
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
-TAR = gtar
+TAR = tar
 GZIP = --best
 DEP_FILES =  .deps/foo.P .deps/gtk-module.P .deps/guile-tk.P
-SOURCES = $(libgtk_la_SOURCES) guile-tk.c
-OBJECTS = $(libgtk_la_OBJECTS) guile-tk.o
+SOURCES = $(libguiletk_la_SOURCES) guile-tk.c
+OBJECTS = $(libguiletk_la_OBJECTS) guile-tk.o
 
 default: all
 
 .SUFFIXES:
 .SUFFIXES: .c .lo .o .x
 $(srcdir)/Makefile.in: @MAINT@ Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
-	cd $(top_srcdir) && $(AUTOMAKE) --foreign libgtk/Makefile
+	cd $(top_srcdir) && $(AUTOMAKE) --foreign libguiletk/Makefile
 
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status $(BUILT_SOURCES)
 	cd $(top_builddir) \
@@ -181,8 +182,8 @@ distclean-libtool:
 
 maintainer-clean-libtool:
 
-libgtk.la: $(libgtk_la_OBJECTS) $(libgtk_la_DEPENDENCIES)
-	$(LINK) -rpath $(libdir) $(libgtk_la_LDFLAGS) $(libgtk_la_OBJECTS) $(libgtk_la_LIBADD) $(LIBS)
+libguiletk.la: $(libguiletk_la_OBJECTS) $(libguiletk_la_DEPENDENCIES)
+	$(LINK) -rpath $(libdir) $(libguiletk_la_LDFLAGS) $(libguiletk_la_OBJECTS) $(libguiletk_la_LIBADD) $(LIBS)
 
 mostlyclean-binPROGRAMS:
 
@@ -235,13 +236,13 @@ maintainer-clean-tags:
 
 distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
 
-subdir = libgtk
+subdir = libguiletk
 
 distdir: $(DISTFILES)
 	here=`cd $(top_builddir) && pwd`; \
 	top_distdir=`cd $(top_distdir) && pwd`; \
 	cd $(top_srcdir) \
-	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --foreign libgtk/Makefile
+	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --foreign libguiletk/Makefile
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  test -f $(distdir)/$$file \

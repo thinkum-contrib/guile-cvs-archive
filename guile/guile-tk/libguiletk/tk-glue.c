@@ -24,6 +24,11 @@
  *
  */
 
+#include "_scm.h"
+
+#include "ports.h"
+#include "throw.h"
+
 #ifdef USE_TK
 #include "gstk.h"
 #include "tk-glue.h"
@@ -41,12 +46,39 @@ SCM STk_last_Tk_result; /*fixme* Need to get this thread safe. */
 
 SCM_SYMBOL (scm_sym_dot, ".");
 
+struct sr_data {
+  SCM port;
+  int *errp;
+};
+
+static SCM
+sr_body (struct sr_data *data, SCM jmpbuf)
+{
+  SCM result = scm_read (data->port);
+  *data->errp = 0;
+  return result;
+}
+
+static SCM
+sr_handler (struct sr_data *data, SCM tag, SCM args)
+{
+  *data->errp = 1;
+  return SCM_BOOL_F;
+}
+
+static SCM
+scm_safe_read (SCM port, int *errp)
+{
+  struct sr_data data = { port, errp };
+  return scm_internal_catch (SCM_BOOL_T, sr_body, data, sr_handler, data);
+}
+
 static SCM TkResult2Scheme(Tcl_Interp *interp)
 {
   register char *s = interp->result;
   register SCM tmp1, tmp2, z, port;
   SCM result = NIL;
-  int eof;
+  int errp;
 
   if (*s) {
     port = scm_mkstrport (SCM_MAKINUM (0),
@@ -56,13 +88,13 @@ static SCM TkResult2Scheme(Tcl_Interp *interp)
     result = scm_read (port);
     if (result == scm_sym_dot) result = STk_root_window;
 
-    if (!eof) {
+    if (!SCM_EOF_OBJECT_P (result)) {
       /*  Result was a list of value, build a proper Scheme list */
-      tmp1 = result = LIST1(result);
+      tmp1 = result = LIST1 (result);
       for ( ; ; ) {
-	z = STk_internal_read_from_string(port, &eof, TRUE);
-	if (z == EVAL_ERROR || EOFP(z)) break;
-	if (z == Sym_dot) z = STk_root_window;
+	z = scm_safe_read (port, &errp);
+	if (errp || SCM_EOF_OBJECT_P (z)) break;
+	if (z == scm_sym_dot) z = STk_root_window;
 	NEWCELL(tmp2, tc_cons);
 	CAR(tmp2) = z; 
 	CDR(tmp1) = tmp2;
@@ -74,18 +106,38 @@ static SCM TkResult2Scheme(Tcl_Interp *interp)
   }
 
   Tcl_ResetResult(interp); 
-  return (result == EVAL_ERROR)? UNDEFINED: result;
+  return errp ? UNDEFINED : result;
 }
 
-char *STk_convert_for_Tk(SCM obj, SCM *res)
+char *
+STk_convert_for_Tk (SCM obj, SCM *res)
 {
-  switch (TYPE(obj)) {
-    case tc_symbol:    *res = obj; return PNAME(obj);
-    case tc_integer:
-    case tc_bignum:
-    case tc_flonum:    *res = STk_number2string(obj, UNBOUND); return CHARS(*res);
-    case tc_string:    *res = obj; return CHARS(obj);
-    case tc_tkcommand: return (obj->storage_as.tk.data)->Id;
+  if (IMP (obj))
+    {
+      if (SCM_INUMP (obj))
+	{
+	  *res = scm_number_to_string (obj, SCM_MAKINUM (10L));
+	  return SCM_CHARS (*res);
+	}
+      else if (obj == SCM_BOOL_T)
+	return "#t";
+      else if (obj == SCM_BOOL_F)
+	return "#f";
+    }
+  else
+    switch (SCM_TYP7 (obj))
+      {
+      case scm_tc7_symbol:
+      case scm_tc7_string:
+	*res = obj;
+	return SCM_ROCHARS (obj);
+      case scm_tc7_smob:
+	if (SCM_NUMP (obj))
+	  {
+	    *res = scm_number_to_string (obj, SCM_MAKINUM (10L));
+	    return SCM_ROCHARS (*res);
+	  }
+      case tc_tkcommand: return (obj->storage_as.tk.data)->Id;
     case tc_keyword:   *res = obj; return obj->storage_as.keyword.data;
     case tc_boolean:   return (obj == Truth)? "#t" : "#f";
     default:           /* Ok, take the big hammer (i.e. use a string port for 

@@ -67,7 +67,7 @@ RANLIB = @RANLIB@
 TCL_EXTRA_LIBS = @TCL_EXTRA_LIBS@
 VERSION = @VERSION@
 
-SUBDIRS = Tcl Tk libgtk
+SUBDIRS = Tcl Tk libguiletk
 
 EXTRA_DIST = ltconfig ltmain.sh
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -80,7 +80,7 @@ configure.in install-sh ltconfig ltmain.sh missing mkinstalldirs
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
-TAR = gtar
+TAR = tar
 GZIP = --best
 default: all
 
