@@ -1,3 +1,8 @@
+2001-10-19  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* configure.in (AC_CONFIG_FILES): Added Makefiles in lang and
+	lang/elisp.
+
 2001-10-14  Gary Houston  <ghouston@arglist.com>
 
 	* configure.in: include sys/types.h when testing uint32_t.

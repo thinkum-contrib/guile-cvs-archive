@@ -3,6 +3,8 @@
 	Initial implementation of an Emacs Lisp translator, based on
 	transformer code originally written by Mikael Djurfeldt.
 	
+	* Makefile.am: New.
+
 	* ChangeLog, README, buffers.scm, emacs.scm, features.scm,
 	format.scm, fset.scm, keymaps.scm, load.scm, signal.scm,
 	symprop.scm, transform.scm: New files.

@@ -625,6 +625,8 @@ AC_CONFIG_FILES([
   libguile/guile-snarf-docs-texi
   libguile/version.h
   ice-9/Makefile
+  lang/Makefile
+  lang/elisp/Makefile
   oop/Makefile
   oop/goops/Makefile
   scripts/Makefile
