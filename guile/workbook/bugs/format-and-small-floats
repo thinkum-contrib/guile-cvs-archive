@@ -1,5 +1,6 @@
 summary: ice-9 format fails for small floats and ~f or ~g
 reported: "Nelson H. F. Beebe" <beebe@math.utah.edu>, 2002-05-05
+fixed: Marius Vollmer <mvo@zagadka.de>, 2002-05-08, guile-core, HEAD
 
 (use-modules (ice-9 format))
 (format #t "~g~%" 1e-198)
@@ -12,3 +13,7 @@ reported: "Nelson H. F. Beebe" <beebe@math.utah.edu>, 2002-05-05
 -| ABORT: (out-of-range)
 
 A simple fix might be to increase format:fn-max.
+
+--
+
+Ok, format:fn-max is now 400.
