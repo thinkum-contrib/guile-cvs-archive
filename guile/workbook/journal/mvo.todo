@@ -1,7 +1,7 @@
 TODO list for Guile
 -------------------
 
-- Make signals work with pthreads.
+- Make coop and null threads return the right thing from join-thread.
 
 - Channel all thread sleeping thru one place (scm_internal_select).
 
