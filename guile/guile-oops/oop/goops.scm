@@ -28,22 +28,25 @@
 
 (define-module (oop goops)
   :use-module (oop goopscore)
-  :use-module (oop compat))
+  :no-backtrace
+  )
 
 (export			  ; Define the exported symbols of this file
     is-a?
     ensure-metaclass ensure-metaclass-with-supers
     define-class   class make-class
-    define-generic make-generic ensure-generic make-accessor ensure-accessor
+    define-generic make-generic ensure-generic
+    define-accessor make-accessor ensure-accessor
     define-method method add-method!
     object-eqv? object-equal?
     write-object display-object Tk-write-object
     slot-unbound slot-missing 
     slot-definition-name  slot-definition-options slot-definition-allocation
     slot-definition-getter slot-definition-setter slot-definition-accessor
-    slot-definition-init-form slot-definition-init-keyword 
+    slot-definition-init
+    slot-definition-init-thunk slot-definition-init-keyword 
     slot-init-function class-slot-definition
-    method-body
+    method-source
     compute-get-n-set
     allocate-instance initialize make-instance make
     no-next-method  no-applicable-method no-method
@@ -68,14 +71,22 @@
     class-slots class-environment generic-function-name
     generic-function-methods method-generic-function method-specializers
     method-procedure slot-exists? make find-method get-keyword)
- 
-;=============================================================================
-;
-;			      U t i l i t i e s
-;
-;=============================================================================
+
+;; We don't want the following procedure to turn up in backtraces:
+(for-each (lambda (proc)
+	    (set-procedure-property! proc 'system-procedure #t))
+	  (list apply-next-method
+		apply-generic-0
+		apply-generic-1
+		apply-generic-2
+		apply-generic-3))
+
+;;;
+;;; {Utilities}
+;;;
 
 (define (goops-error format-string . args)
+  (save-stack)
   (scm-error 'goops-error #f format-string args '()))
 
 (define (mapappend func . args)
@@ -90,7 +101,6 @@
     ((memv (car l) (cdr l))	(car l))
     (else 			(find-duplicate (cdr l)))))
 
-;--------------------------------------------------
 (define (top-level-env)
   (if *top-level-lookup-closure*
       (list *top-level-lookup-closure*)
@@ -100,20 +110,30 @@
   (or (null? env)
       (procedure? (car env))))
 
-;=============================================================================
+(define (map* fn . l) 		; A map which accepts dotted lists (arg lists  
+  (cond 			; must be "isomorph"
+   ((null? (car l)) '())
+   ((pair? (car l)) (cons (apply fn      (map car l))
+			  (apply map* fn (map cdr l))))
+   (else            (apply fn l))))
 
+(define (for-each* fn . l) 	; A for-each which accepts dotted lists (arg lists  
+  (cond 			; must be "isomorph"
+   ((null? (car l)) '())
+   ((pair? (car l)) (apply fn (map car l)) (apply for-each* fn (map cdr l)))
+   (else            (apply fn l))))
+
+
 ;;
 ;; is-a?
 ;;
 (define (is-a? obj class)
-  (and (memv class (class-precedence-list (class-of obj))) #t))
+  (and (memq class (class-precedence-list (class-of obj))) #t))
 
 
-;=============================================================================
-;
-; 			M e t a c l a s s e s   s t u f f
-;
-;=============================================================================
+;;;
+;;; {Meta classes}
+;;;
 
 (define ensure-metaclass-with-supers
   (let ((table-of-metas '()))
@@ -142,7 +162,7 @@
 	;; a subclass of these.
 	(for-each
 	 (lambda (meta)
-	   (when (and (not (member meta all-cpls))
+	   (if (and (not (member meta all-cpls))
 		      (not (member meta needed-metas)))
 	     (set! needed-metas (append needed-metas (list meta)))))
 	 all-metas)
@@ -151,93 +171,125 @@
 	    (car needed-metas)  ; If there's only one, just use it.
 	    (ensure-metaclass-with-supers needed-metas)))))
 
-;=============================================================================
-;
-; 			D e f i n e - c l a s s
-;
-;=============================================================================
+;;;
+;;; {Classes}
+;;;
 
-;==== Define-class
-(define accessor-options '(#:getter #:setter #:accessor))
+;;; (define-class NAME (SUPER ...) (SLOT-DEFINITION ...) OPTION ...)
+;;;
+;;;   SLOT-DEFINITION ::= SLOT-NAME | (SLOT-NAME OPTION ...)
+;;;   OPTION ::= KEYWORD VALUE
+;;;
+(define (define-class-pre-definition keyword exp env)
+  (case keyword
+    ((#:getter #:setter)
+     (if (defined? exp env)
+	 `(define ,exp (ensure-generic ,exp))
+	 `(define ,exp (make-generic))))
+    ((#:accessor)
+     (if (defined? exp env)
+	 `(define ,exp (ensure-accessor ,exp))
+	 `(define ,exp (make-accessor))))
+    (else #f)))
 
+;;; This code should be implemented in C.
+;;;
 (define define-class
-  (letrec ((accessor-definition
-	    (lambda (keyword name env)
-	      (case keyword
-		((#:getter #:setter)
-		 (if (defined? name env)
-		     `(define ,name (ensure-generic ,name))
-		     `(define ,name (make-generic))))
-		((#:accessor)
-		 (if (defined? name env)
-		     `(define ,name (ensure-accessor ,name))
-		     `(define ,name (make-accessor))))
-		(else #f))))
-	   
-	   (accessor-definitions
+  (letrec (;; Some slot options require extra definitions to be made.
+	   ;; In particular, we want to make sure that the generic
+	   ;; function objects which represent accessors exist
+	   ;; before `make-class' tries to add methods to them.
+	   ;;
+	   ;; Postpone error handling to class macro.
+	   ;;
+	   (pre-definitions
 	    (lambda (slots env)
 	      (do ((slots slots (cdr slots))
 		   (definitions '()
 		     (if (pair? (car slots))
 			 (do ((options (cdar slots) (cddr options))
 			      (definitions definitions
-				(cond ((accessor-definition (car options)
-							    (cadr options)
-							    env)
+				(cond ((define-class-pre-definition
+					 (car options)
+					 (cadr options)
+					 env)
 				       => (lambda (definition)
 					    (cons definition definitions)))
 				      (else definitions))))
-			     ((null? options) definitions))
+			     ((not (and (pair? options)
+					(pair? (cdr options))
+					(symbol? (cadr options))))
+			      definitions))
 			 definitions)))
-		  ((null? slots) (reverse definitions))))))
+		  ((not (pair? slots)) (reverse definitions)))))
+	   
+	   ;; Syntax
+	   (name cadr)
+	   (slots cadddr))
     
-    (procedure->memoizing-macro
+    (procedure->macro
       (lambda (exp env)
-	(if (not (top-level-env? env))
-	    (goops-error "define-class: Only allowed at top level")
-	    (let ((name (cadr exp)))
-	      `(begin
-		 ,@(accessor-definitions (cadddr exp) env)
-		 (define ,name
-		   (let ((old (and (defined? ',name) ,name))
-			 (new (class ,@(cddr exp) #:name ',name)))
-		     (if (is-a? old <class>)
-			 (class-redefinition old new)
-			 new))))))))))
+	(cond ((not (top-level-env? env))
+	       (goops-error "define-class: Only allowed at top level"))
+	      ((not (and (list? exp) (>= (length exp) 4)))
+	       (goops-error "missing or extra expression"))
+	      (else
+	       (let ((name (name exp)))
+		 `(begin
+		    ;; define accessors
+		    ,@(pre-definitions (slots exp) env)
+		 
+		    ,(if (defined? name env)
+		      
+			 ;; redefine an old class
+			 `(define ,name
+			    (let ((old ,name)
+				  (new (class ,@(cddr exp) #:name ',name)))
+			      (if (is-a? old <class>)
+				  (class-redefinition old new))))
+		      
+			 ;; define a new class
+			 `(define ,name
+			    (class ,@(cddr exp) #:name ',name)))))))))))
 
-;==== Class
-(define eval-options accessor-options)
-
+;;; (class (SUPER ...) (SLOT-DEFINITION ...) OPTION ...)
+;;;
+;;;   SLOT-DEFINITION ::= SLOT-NAME | (SLOT-NAME OPTION ...)
+;;;   OPTION ::= KEYWORD VALUE
+;;;
 (define class
-  (letrec ((transform-slots
-	    (lambda (slots)
-	      (map (lambda (slot)
-		     (if (pair? slot)
-			 `(list ',(car slot)
-				,@(let rec ((ls (cdr slot)))
-				    (cons (car ls)
-					  (cons (if (memq (car ls)
-							  eval-options)
-						    (cadr ls)
-						    (list 'quote (cadr ls)))
-						(cddr ls)))))
-			 (list 'quote slot)))
-		   slots))))
-    (procedure->memoizing-macro
+  (procedure->memoizing-macro
+    (let ((supers cadr)
+	  (slots caddr)
+	  (options cdddr))
       (lambda (exp env)
-	(let ((supers (cadr exp))
-	      (slots (caddr exp))
-	      (options (cdddr exp)))
-	  `(make-class (list ,@supers)
-		       (list ,@(transform-slots slots))
-		       #:environment ',env
-		       ,@options))))))
+	(cond ((not (and (list? exp) (>= (length exp) 3)))
+	       (goops-error "missing or extra expression"))
+	      ((not (list? (supers exp)))
+	       (goops-error "malformed superclass list: %S" (supers exp)))
+	      ((not (list? (slots exp)))
+	       (goops-error "malformed slots list: %S" (slots exp)))
+	      (else
+	       `(make-class
+		 ;; evaluate super class variables
+		 (list ,@(supers exp))
+		 ;; evaluate slot definitions, except the slot name!
+		 (list ,@(map (lambda (slot)
+				(if (pair? slot)
+				    `(list ',(slot-definition-name slot)
+					   ,@(slot-definition-options slot))
+				    `(list ',slot)))
+			      (slots exp)))
+		 ;; evaluate class options
+		 ,@(options exp)
+		 ;; place option last in case someone wants to
+		 ;; pass a different value
+		 #:environment ',env)))))))
 
-;==== Make-class
 (define (make-class supers slots . options)
   (let ((env (or (get-keyword #:environment options #f)
 		 (top-level-env))))
-    (let* ((name (get-keyword #:name options #f))
+    (let* ((name (get-keyword #:name options (make-unbound)))
 	   (supers (if (null? supers) 
 		       (list <object>)
 		       supers))
@@ -247,76 +299,103 @@
       ;; Verify that all direct slots are different and that we don't inherit
       ;; several time from the same class
       (let ((tmp1 (find-duplicate supers))
-	    (tmp2 (find-duplicate (map (lambda (s)
-					 (if (pair? s)
-					     (slot-definition-name s)
-					     s))
-				       slots))))
-	(when tmp1
-	      (goops-error "make-class: super class %S is duplicate in class %S"
-			   tmp1 name))
-	(when tmp2
-	      (goops-error "make-class: slot %S is duplicate in class %S"
-			   tmp2 name)))
+	    (tmp2 (find-duplicate (map slot-definition-name slots))))
+	(if tmp1
+	    (goops-error "make-class: super class %S is duplicate in class %S"
+			 tmp1 name))
+	(if tmp2
+	    (goops-error "make-class: slot %S is duplicate in class %S"
+			 tmp2 name)))
 
       ;; Everything seems correct, build the class
-      (apply make metaclass #:dsupers supers #:slots slots 
-	     #:name name #:environment env options))))
+      (apply make metaclass
+	     #:dsupers supers
+	     #:slots slots 
+	     #:name name
+	     #:environment env
+	     options))))
 
-;=============================================================================
-;
-; 			D e f i n e - g e n e r i c
-;
-;=============================================================================
+;;;
+;;; {Generic functions and accessors}
+;;;
 
-; ==== Define-generic
 (define define-generic
-  (procedure->memoizing-macro
+  (procedure->macro
     (lambda (exp env)
       (let ((name (cadr exp)))
-	(if (defined? name env)
-	    `(define ,name (make-generic ,name))
-	    `(define ,name (make-generic)))))))
+	(cond ((not (symbol? name))
+	       (goops-error "bad generic function name: %S" name))
+	      ((defined? name env)
+	       `(define ,name
+		  (if (is-a? ,name <generic>)
+		      (make <generic> #:name ',name)
+		      (ensure-generic ,name ',name))))
+	      (else
+	       `(define ,name (make <generic> #:name ',name))))))))
 
-;==== Make-generic
-(define (make-generic . old-definition)
-  (if (or (null? old-definition)
-	  (is-a? (car old-definition) <generic>))
-      (make <generic>)
-      (ensure-generic (car old-definition))))
+(define (make-generic . name)
+  (let ((name (and (pair? name) (car name))))
+    (make <generic>) #:name name))
 
-(define (ensure-generic old-definition)
-  (cond ((is-a? old-definition <generic>) old-definition)
-	((procedure-with-setter? old-definition)
-	 (make <generic-with-setter>
-	       #:default (procedure old-definition)
-	       #:setter (setter old-definition)))
-	((procedure? old-definition)
-	 (make <generic> #:default old-definition))
-	(else (make <generic>))))
+(define (ensure-generic old-definition . name)
+  (let ((name (and (pair? name) (car name))))
+    (cond ((is-a? old-definition <generic>) old-definition)
+	  ((procedure-with-setter? old-definition)
+	   (make <generic-with-setter>
+		 #:name name
+		 #:default (procedure old-definition)
+		 #:setter (setter old-definition)))
+	  ((procedure? old-definition)
+	   (make <generic> #:name name #:default old-definition))
+	  (else (make <generic> #:name name)))))
 
-(define (make-accessor)
-  (make <generic-with-setter> #:setter (make-generic)))
+(define define-accessor
+  (procedure->macro
+    (lambda (exp env)
+      (let ((name (cadr exp)))
+	(cond ((not (symbol? name))
+	       (goops-error "bad accessor name: %S" name))
+	      ((defined? name env)
+	       `(define ,name
+		  (if (and (is-a? ,name <generic-with-setter>)
+			   (is-a? (setter ,name) <generic>))
+		      (make-accessor ',name)
+		      (ensure-accessor ,name ',name))))
+	      (else
+	       `(define ,name (make-accessor ',name))))))))
 
-(define (ensure-accessor proc)
-  (cond ((is-a? proc <generic-with-setter>)
-	 (if (is-a? (setter proc) <generic>)
-	     proc
-	     (upgrade-generic-with-setter proc (setter proc))))
-	((is-a? proc <generic>)
-	 (upgrade-generic-with-setter proc (make-generic)))
-	((procedure-with-setter? proc)
-	 (make <generic-with-setter>
-	       #:default (procedure proc)
-	       #:setter (ensure-generic (setter proc))))
-	((procedure? proc)
-	 (ensure-accessor (ensure-generic proc)))
-	(else
-	 (make-accessor))))
+(define (make-setter-name name)
+  (string->symbol (string-append "setter:" (symbol->string name))))
+
+(define (make-accessor . name)
+  (let ((name (and (pair? name) (car name))))
+    (make <generic-with-setter>
+	  #:name name
+	  #:setter (make <generic> #:name (make-setter-name name)))))
+
+(define (ensure-accessor proc . name)
+  (let ((name (and (pair? name) (car name))))
+    (cond ((is-a? proc <generic-with-setter>)
+	   (if (is-a? (setter proc) <generic>)
+	       proc
+	       (upgrade-generic-with-setter proc (setter proc))))
+	  ((is-a? proc <generic>)
+	   (upgrade-generic-with-setter proc (make-generic name)))
+	  ((procedure-with-setter? proc)
+	   (make <generic-with-setter>
+		 #:name name
+		 #:default (procedure proc)
+		 #:setter (ensure-generic (setter proc) name)))
+	  ((procedure? proc)
+	   (ensure-accessor (ensure-generic proc name) name))
+	  (else
+	   (make-accessor name)))))
 
 (define (upgrade-generic-with-setter generic setter)
   (let ((methods (generic-function-methods generic))
-	(gws (make <generic-with-setter> #:setter setter)))
+	(gws (make <generic-with-setter>
+		   #:name (generic-function-name generic)
+		   #:setter setter)))
     ;; Steal old methods
     (for-each (lambda (method)
 		(slot-set! method 'generic-function gws))
@@ -324,33 +403,30 @@
     (slot-set! gws 'methods methods)
     gws))
 
-;=============================================================================
-;
-; 			D e f i n e - m e t h o d
-;
-;=============================================================================
+;;;
+;;; {Methods}
+;;;
 
 (define define-method
   (procedure->memoizing-macro
     (lambda (exp env)
       (let ((name (cadr exp)))
-	(if (defined? name env)
-	    `(begin
-	       (if (not (is-a? ,name <generic>))
-		   (define-generic ,name))
-	       (add-method! ,name (method ,@(cddr exp))))
-	`(begin
-	   (define-generic ,name)
-	   (add-method! ,name (method ,@(cddr exp)))))))))
-
-;==== Make-method
+	(cond ((not (symbol? name))
+	       (goops-error "bad method name: %S" name))
+	      ((defined? name env)
+	       `(begin
+		  (if (not (is-a? ,name <generic>))
+		      (define-generic ,name))
+		  (add-method! ,name (method ,@(cddr exp)))))
+	      (else
+	       `(begin
+		  (define-generic ,name)
+		  (add-method! ,name (method ,@(cddr exp))))))))))
 
 (define (make-method specializers procedure)
   (make <method>
 	#:specializers specializers
 	#:procedure procedure))
-
-;====  Method
 
 (define method
   (letrec ((specializers
@@ -376,14 +452,15 @@
 		 #:procedure (lambda ,(cons 'next-method (formals args))
 			       ,@body)))))))
 
-;==== Add-method!
+;;; {add-method!}
+;;;
 
 (define (add-method-in-classes! m)
   ;; Add method in all the classes which appears in its specializers list
   (for-each* (lambda (x)
 	       (let ((dm (class-direct-methods x)))
-		 (unless (memv m dm)
-		   (slot-set! x 'direct-methods (cons m dm)))))
+		 (if (not (memv m dm))
+		     (slot-set! x 'direct-methods (cons m dm)))))
 	     (method-specializers m)))
 
 (define (remove-method-in-classes! m)
@@ -408,32 +485,26 @@
 		methods)
 	      (loop (cdr l)))))))
 
-;;
-;; Add-method!
-;;
 (define (add-method! gf m)
   (slot-set! m  'generic-function gf)
   (slot-set! gf 'methods (compute-new-list-of-methods gf m))
   (add-method-in-classes! m)
   *unspecified*)
 
-;=============================================================================
-;
-; 			      Access to Meta objects
-;
-; A lot of them are in C
-;=============================================================================
+;;;
+;;; {Access to meta objects}
+;;;
 
 ;;;
 ;;; Methods
 ;;;
-(define-method method-body ((m <method>))
-  (let* ((spec (map class-name (slot-ref m 'specializers)))
-	 (proc (procedure-body (slot-ref m 'procedure)))
+(define-method method-source ((m <method>))
+  (let* ((spec (map* class-name (slot-ref m 'specializers)))
+	 (proc (procedure-source (slot-ref m 'procedure)))
 	 (args (cdadr proc))
 	 (body (cddr proc)))
     (cons 'method
-	  (cons (map list args spec)
+	  (cons (map* list args spec)
 		body))))
 
 ;;;
@@ -455,36 +526,35 @@
 (define (slot-definition-accessor s)
   (get-keyword #:accessor (cdr s) #f))
 
-(define (slot-definition-init-form s)
-  (let* ((none (list '**none**))
-	 (v    (get-keyword #:initform (cdr s) none)))
-    (if (eq? v none)
-	(make-unbound)
-	v)))
+(define (slot-definition-init s)
+  (get-keyword #:init (cdr s) (make-unbound)))
+
+(define (slot-definition-init-thunk s)
+  (get-keyword #:init-thunk (cdr s) #f))
 
 (define (slot-definition-init-keyword s)
   (get-keyword #:init-keyword (cdr s) #f))
 
-(define (slot-init-function class slot-name)
-  (cadr (assoc slot-name (slot-ref class 'getters-n-setters))))
-
 (define (class-slot-definition class slot-name)
-  (assoc slot-name (class-slots class)))
+  (assq slot-name (class-slots class)))
+
+(define (slot-init-function class slot-name)
+  (cadr (assq slot-name (slot-ref class 'getters-n-setters))))
 
 
-;=============================================================================
-;
-; 			    Standard methods   
-; 			used by the C runtime
-;
-;=============================================================================
+;;;
+;;; {Standard methods used by the C runtime}
+;;;
 
-;==== Methods to compare objects
+;;; Methods to compare objects
+;;;
 
 (define-method object-eqv? (x y)    #f)
 (define-method object-equal? (x y)  (eqv? x y))
 
-;==== Methods to display/write an object
+;;;
+;;; methods to display/write an object
+;;;
 
 ;     Code for writing objects must test that the slots they use are
 ;     bound. Otherwise a slot-unbound method will be called and will 
@@ -568,7 +638,9 @@
 (define-method Tk-write-object (o file)
   (write-object o file))
 
-;==== Slot access
+;;;
+;;; slot access
+;;;
 
 (define-method slot-unbound ((c <class>) (o <object>) s)
   (goops-error "Slot `%S' is unbound in object %S" s o))
@@ -580,23 +652,21 @@
 (define-method slot-missing ((c <class>) (o <object>) s value)
   (slot-missing c o s))
 
-; ==== Methods for the possible error we can encounter when calling a gf
+;;; Methods for the possible error we can encounter when calling a gf
 
 (define-method no-next-method ((gf <generic>) args)
   (goops-error "No next method when calling %S\nwith %S as argument" gf args))
 
 (define-method no-applicable-method ((gf <generic>) args)
   (goops-error "No applicable method for %S\nin call %S"
-	 gf (cons (generic-function-name gf) args)))
+	       gf (cons (generic-function-name gf) args)))
 
 (define-method no-method ((gf <generic>) args)
   (goops-error "No method defined for %S"  gf))
 
-;=============================================================================
-;
-;		    Cloning functions (from rdeline@CS.CMU.EDU)
-;
-;=============================================================================
+;;;
+;;; {Cloning functions (from rdeline@CS.CMU.EDU)}
+;;;
 
 (define-method shallow-clone ((self <object>))
   (let ((clone (%allocate-instance (class-of self)))
@@ -622,13 +692,12 @@
 	      slots)
     clone))
 
-;=============================================================================
-;
-; 		     	Class redefinition utilities
-;;
-;=============================================================================
+;;;
+;;; {Class redefinition utilities}
+;;;
 
-;==== Class-redefinition
+;;; (class-redefinition OLD NEW)
+;;;
 
 ;;; Has correct the following conditions:
 
@@ -687,7 +756,9 @@
 
   old)
 
-;==== Remove-class-accessors!
+;;;
+;;; remove-class-accessors!
+;;;
 
 (define-method remove-class-accessors! ((c <class>))
   (for-each (lambda (m)
@@ -695,18 +766,25 @@
 		  (remove-method-in-classes! m)))
 	    (class-direct-methods c)))
 
-;==== Update-direct-method!
+;;;
+;;; update-direct-method!
+;;;
 
 (define-method update-direct-method! ((m  <method>)
 				      (old <class>)
 				      (new <class>))
   (let loop ((l (method-specializers m)))
-    (when (pair? l)       	; Note: the <top> in dotted list is never used. 
-      (if (eqv? (car l) old)  ; So we can work if we had only proper lists.
-	(set-car! l new))
-      (loop (cdr l)))))
+    ;; Note: the <top> in dotted list is never used. 
+    ;; So we can work if we had only proper lists.
+    (if (pair? l)       	  
+	(begin
+	  (if (eqv? (car l) old)  
+	      (set-car! l new))
+	  (loop (cdr l))))))
 
-;==== Update-direct-subclass!
+;;;
+;;; update-direct-subclass!
+;;;
 
 (define-method update-direct-subclass! ((c <class>)
 					(old <class>)
@@ -718,13 +796,10 @@
 				  #:environment (slot-ref c 'environment)
 				  #:metaclass (class-of c))))
 
-;=============================================================================
-;
-; 			Utilities for INITIALIZE methods
-;
-;=============================================================================
-
 ;;;
+;;; {Utilities for INITIALIZE methods}
+;;;
+
 ;;; compute-slot-accessors
 ;;;
 (define (compute-slot-accessors class slots env)
@@ -760,25 +835,28 @@
 						 (slot-set! o name v))))))))
       slots))
 
-;;;
 ;;; compute-getters-n-setters
 ;;; 
 (define (compute-getters-n-setters class slots env)
 
   (define (compute-slot-init-function s)
-    (let ((init (slot-definition-init-form s)))
-      (and (not (unbound? init)) (local-eval `(lambda () ,init) env))))
+    (or (slot-definition-init-thunk s)
+	(let ((init (slot-definition-init s)))
+	  (and (not (unbound? init))
+	       (lambda () init)))))
 
   (define (verify-accessors slot l)
     (if (pair? l)
 	(let ((get (car l)) 
 	      (set (cadr l)))
-	  (unless (and (closure? get)
-		       (= (car (procedure-property get 'arity)) 1))
-	    (goops-error "Bad getter closure for slot `%S' in %S: %S" slot class get))
-	  (unless (and (closure? set)
-		       (= (car (procedure-property set 'arity)) 2))
-	    (goops-error "Bad setter closure for slot `%S' in %S: %S" slot class set)))))
+	  (if (not (and (closure? get)
+			(= (car (procedure-property get 'arity)) 1)))
+	      (goops-error "Bad getter closure for slot `%S' in %S: %S"
+			   slot class get))
+	  (if (not (and (closure? set)
+			(= (car (procedure-property set 'arity)) 2)))
+	    (goops-error "Bad setter closure for slot `%S' in %S: %S"
+			 slot class set)))))
 
   (map (lambda (s)
 	 (let* ((g-n-s (compute-get-n-set class s))
@@ -791,7 +869,6 @@
 		       g-n-s))))
        slots))
 
-;;;
 ;;; compute-cpl
 ;;;
 (define (compute-cpl class)
@@ -799,9 +876,9 @@
   (define (filter-cpl class)
     (let ((res  '()))
       (for-each (lambda (item)
-		  (unless (or (eq? item <object>) 
-			      (eq? item <top>) 
-			      (member item res))
+		  (if (not (or (eq? item <object>) 
+			       (eq? item <top>) 
+			       (member item res)))
 		   (set! res (cons item res))))
 	      class)
       res))
@@ -814,69 +891,65 @@
 		   (cons <object>
 			 (filter-cpl big-list))))))
 
-;;;
-;;; Compute-get-n-set
+;;; compute-get-n-set
 ;;;
 (define-method compute-get-n-set ((class <class>) s)
   (case (slot-definition-allocation s)
     ((#:instance) ;; Instance slot
-               ;; get-n-set is just its offset
-     	       (let ((already-allocated (slot-ref class 'nfields)))
-		 (slot-set! class 'nfields (+ already-allocated 1))
-		 already-allocated))
+     ;; get-n-set is just its offset
+     (let ((already-allocated (slot-ref class 'nfields)))
+       (slot-set! class 'nfields (+ already-allocated 1))
+       already-allocated))
 
     ((#:class)  ;; Class slot
-             ;; Class-slots accessors are implemented as 2 closures around 
-     	     ;; a Scheme variable. As instance slots, class slots must be
-	     ;; unbound at init time.
-             (let ((name (slot-definition-name s)))
-	       (if (memq name (map slot-definition-name (class-direct-slots class)))
-		   ;; This slot is direct; create a new shared variable
-		   (let ((shared-variable (make-unbound)))
-		     (list (lambda (o)   shared-variable)
-			   (lambda (o v) (set! shared-variable v))))
-		   ;; Slot is inherited. Find its definition in superclass
-		   (let Loop ((l (cdr (class-precedence-list class))))
-		     (let ((r (assoc name (slot-ref (car l) 'getters-n-setters))))
-		       (if r
-			   (cddr r)
-			   (Loop (cdr l))))))))
+     ;; Class-slots accessors are implemented as 2 closures around 
+     ;; a Scheme variable. As instance slots, class slots must be
+     ;; unbound at init time.
+     (let ((name (slot-definition-name s)))
+       (if (memq name (map slot-definition-name (class-direct-slots class)))
+	   ;; This slot is direct; create a new shared variable
+	   (let ((shared-variable (make-unbound)))
+	     (list (lambda (o)   shared-variable)
+		   (lambda (o v) (set! shared-variable v))))
+	   ;; Slot is inherited. Find its definition in superclass
+	   (let loop ((l (cdr (class-precedence-list class))))
+	     (let ((r (assoc name (slot-ref (car l) 'getters-n-setters))))
+	       (if r
+		   (cddr r)
+		   (loop (cdr l))))))))
 
     ((#:each-subclass) ;; slot shared by instances of direct subclass.
-		    ;; (Thomas Buerger, April 1998)
-	     (let ((shared-variable (make-unbound)))
-	       (list (lambda (o)   shared-variable)
-		     (lambda (o v) (set! shared-variable v)))))
+     ;; (Thomas Buerger, April 1998)
+     (let ((shared-variable (make-unbound)))
+       (list (lambda (o)   shared-variable)
+	     (lambda (o v) (set! shared-variable v)))))
 
-    ((#:virtual);; No allocation
-     	     ;; slot-ref and slot-set! function must be given by the user
-     	     (let ((get (get-keyword #:slot-ref  (slot-definition-options s) #f))
-		   (set (get-keyword #:slot-set! (slot-definition-options s) #f))
-		   (env (class-environment class)))
-	       (unless (and get set)
-		  (goops-error "You must supply a :slot-ref and a :slot-set! in %S" s)) ;error message originally used ~A
-	       (list (local-eval get env)
-		     (local-eval set env))))
+    ((#:virtual) ;; No allocation
+     ;; slot-ref and slot-set! function must be given by the user
+     (let ((get (get-keyword #:slot-ref  (slot-definition-options s) #f))
+	   (set (get-keyword #:slot-set! (slot-definition-options s) #f))
+	   (env (class-environment class)))
+       (if (not (and get set))
+	   (goops-error "You must supply a :slot-ref and a :slot-set! in %S"
+			s))
+       (list get set)))
     (else    (next-method))))
 
 (define-method compute-get-n-set ((o <object>) s)
   (goops-error "Allocation \"%S\" is unknown" (slot-definition-allocation s)))
 
-;=============================================================================
-;
-; 			    I n i t i a l i z e
-;
-;=============================================================================
+;;;
+;;; {Initialize}
+;;;
 
 (define-method initialize ((object <object>) initargs)
   (%initialize-object object initargs))
 
 (define-method initialize ((class <class>) initargs)
   (next-method)
-  (let ((dslots (map (lambda (s) (if (pair? s) s (list s)))
-		     (get-keyword #:slots initargs '())))
+  (let ((dslots (get-keyword #:slots initargs '()))
 	(supers (get-keyword #:dsupers	  initargs '()))
-	(env    (get-keyword #:environment initargs (global-environment))))
+	(env    (get-keyword #:environment initargs (top-level-env))))
 
     (slot-set! class 'name	  	(get-keyword #:name initargs '???))
     (slot-set! class 'direct-supers 	supers)
@@ -945,7 +1018,8 @@
   (%set-object-setter! ews (get-keyword #:setter initargs #f)))
 
 (define-method initialize ((generic <generic>) initargs)
-  (let ((previous-definition (get-keyword #:default initargs #f)))
+  (let ((previous-definition (get-keyword #:default initargs #f))
+	(name (get-keyword #:name initargs #f)))
     ;; Primitive apply-generic-<n> for direct instances of <generic>
     (next-method generic (append initargs
 				 (list #:procedure
@@ -960,7 +1034,10 @@
 						(lambda (nm . l)
 						  (apply previous-definition 
 							 l))))
-				    '()))))
+				    '()))
+    (if name
+	(set-procedure-property! generic 'name name))
+    ))
 
 (define-method initialize ((method <method>) initargs)
   (next-method)
@@ -968,11 +1045,9 @@
   (slot-set! method 'specializers (get-keyword #:specializers initargs '()))
   (slot-set! method 'procedure (get-keyword #:procedure initargs (lambda l '()))))
 
-;=============================================================================
-;
-; 			C h a n g e - c l a s s
-;
-;=============================================================================
+;;;
+;;; {Change-class}
+;;;
 
 (define (change-object-class old-instance old-class new-class)
   (let ((new-instance (allocate-instance new-class ())))
@@ -1007,13 +1082,11 @@
 (define-method change-class ((old-instance <object>) (new-class <class>))
   (change-object-class old-instance (class-of old-instance) new-class))
 
-;=============================================================================
-;
-; 				     M a k e 
-;
-;     A new definition which overwrite the previous one which was built-in
-;
-;=============================================================================
+;;;
+;;; {make}
+;;;
+;;; A new definition which overwrites the previous one which was built-in
+;;;
 
 (define-method allocate-instance ((class <class>) initargs)
   (%allocate-instance class))
@@ -1025,21 +1098,19 @@
 
 (define make make-instance)
 
-;=============================================================================
-;
-;				a p p l y - g e n e r i c
-;
-; Protocol for calling standard generic functions.
-; This protocol is  not used for real <generic> functions (in this case we use
-; a completely C hard-coded protocol). 
-; Apply-generic is used by STklos for calls to subclasses of <generic>.
-;
-; The code below is similar to the first MOP described in AMOP. In particular,
-; it doesn't used the currified approach to gf call. There are 2 reasons for 
-; that: 
-;   - the protocol below is exposed to mimic completely the one written in C
-;   - the currified protocol would be imho inefficient in C.
-;=============================================================================
+;;;
+;;; {apply-generic}
+;;;
+;;; Protocol for calling standard generic functions.  This protocol is
+;;; not used for real <generic> functions (in this case we use a
+;;; completely C hard-coded protocol).  Apply-generic is used by
+;;; goops for calls to subclasses of <generic> and <generic-with-setter>.
+;;; The code below is similar to the first MOP described in AMOP. In
+;;; particular, it doesn't used the currified approach to gf
+;;; call. There are 2 reasons for that:
+;;;   - the protocol below is exposed to mimic completely the one written in C
+;;;   - the currified protocol would be imho inefficient in C.
+;;;
 
 (define-method apply-generic ((gf <generic>) args)
   (if (null? (slot-ref gf 'methods))
@@ -1073,57 +1144,37 @@
 			   (apply-method gf procs next a)))))))
     (apply-method gf l next args)))
 
-;=============================================================================
-;
-;		     <Composite-metaclass> and <Active-metaclass>
-; 
-;=============================================================================
+;;;
+;;; {<composite-metaclass> and <active-metaclass>}
+;;;
 
 ;(autoload "active-slot"    <active-metaclass>)
 ;(autoload "composite-slot" <composite-metaclass>)
 ;(export <composite-metaclass> <active-metaclass>)
 
-;=============================================================================
-;
-; 				T o o l s
-;
-;=============================================================================
+;;;
+;;; {Tools}
+;;;
 
-(define (list2set l)			;; duplicate the standard list->set
-  (let Loop ((l l) (res '()))		;; function but using eq instead of eqv
-    (cond				;; which really sucks a lot, uselessly here
-     ((null? l) 	 res)
-     ((memq (car l) res) (Loop (cdr l) res))
-     (else		 (Loop (cdr l) (cons (car l) res))))))
-
+;; list2set
+;;
+;; duplicate the standard list->set function but using eq instead of
+;; eqv which really sucks a lot, uselessly here
+;;
+(define (list2set l)	       
+  (let loop ((l l)
+	     (res '()))
+    (cond		       
+     ((null? l) res)
+     ((memq (car l) res) (loop (cdr l) res))
+     (else (loop (cdr l) (cons (car l) res))))))
 
 (define (class-subclasses c)
   (letrec ((allsubs (lambda (c)
-		      (cons c (mapappend allsubs (class-direct-subclasses c))))))
+		      (cons c (mapappend allsubs
+					 (class-direct-subclasses c))))))
     (list2set (cdr (allsubs c)))))
 
 (define (class-methods c)
-  (list2set (mapappend class-direct-methods (cons c (class-subclasses c)))))
-
-;;
-;; Clos like SLOT-VALUE 
-;; Note: SLOT-VALUE is a gf whereas SLOT-REF and SLOT-SET! are functions.
-;;
-(define-method slot-value ((o <object>) s)
-  (slot-ref o s))
-
-;(define-method (setter slot-value) ((o <object>) s v)
-;  (slot-set! o s v))
-
-;=============================================================================
-;
-; 			     Backward compatibility
-;
-;=============================================================================
-(define class-cpl 		 class-precedence-list)		; Don' use these
-(define get-slot-allocation	 slot-definition-allocation)	; obolete defs
-(define slot-definition-initform slot-definition-init-form)	; anymore
-
-(export class-cpl get-slot-allocation slot-definition-initform)
-
-(provide "stklos")
+  (list2set (mapappend class-direct-methods
+		       (cons c (class-subclasses c)))))
