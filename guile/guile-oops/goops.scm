@@ -908,36 +908,63 @@
 ;;;
 (define (compute-slot-accessors class slots env)
   (for-each
-      (lambda (s)
+      (lambda (s g-n-s)
 	(let ((name            (slot-definition-name     s))
 	      (getter-function (slot-definition-getter   s))
 	      (setter-function (slot-definition-setter   s))
-	      (accessor        (slot-definition-accessor s)))
+	      (accessor        (slot-definition-accessor s))
+	      (g-n-s (cddr g-n-s)))
 	  (if getter-function
 	      (add-method! getter-function
 			   (make <accessor-method>
 				 #:specializers (list class)
-				 #:procedure (lambda (o) ;*fixme*
-					       (slot-ref o name)))))
+				 #:procedure (if (pair? g-n-s)
+						 (car g-n-s)
+						 (standard-get g-n-s)))))
 	  (if setter-function
 	      (add-method! setter-function
 			   (make <accessor-method>
 				 #:specializers (list class <top>)
-				 #:procedure (lambda (o v)
-					       (slot-set! o name v)))))
+				 #:procedure (if (pair? g-n-s)
+						 (cadr g-n-s)
+						 (standard-set g-n-s)))))
 	  (if accessor
 	      (begin
 		(add-method! accessor
 			     (make <accessor-method>
 				   #:specializers (list class)
-				   #:procedure (lambda (o)
-						 (slot-ref o name))))
+				   #:procedure (if (pair? g-n-s)
+						 (car g-n-s)
+						 (standard-get g-n-s))))
 		(add-method! (setter accessor)
 			     (make <accessor-method>
 				   #:specializers (list class <top>)
-				   #:procedure (lambda (o v)
-						 (slot-set! o name v))))))))
-      slots))
+				   #:procedure (if (pair? g-n-s)
+						 (car g-n-s)
+						 (standard-set g-n-s))))))))
+      slots (slot-ref class 'getters-n-setters)))
+
+(define n-standard-accessor-methods 10)
+
+(define standard-get-methods (make-vector n-standard-accessor-methods #f))
+(define standard-set-methods (make-vector n-standard-accessor-methods #f))
+
+(define (standard-accessor-method make methods)
+  (lambda (index)
+    (cond ((>= index n-standard-accessor-methods) (make index))
+	  ((vector-ref methods index))
+	  (else (let ((m (make index)))
+		  (vector-set! methods index m)
+		  m)))))
+
+(define (make-get index)
+  (eval `(lambda (o) (@slot-ref o ,index))))
+
+(define (make-set index)
+  (eval `(lambda (o v) (@slot-set! o ,index v))))
+
+(define standard-get (standard-accessor-method make-get standard-get-methods))
+(define standard-set (standard-accessor-method make-set standard-set-methods))
 
 ;;; compute-getters-n-setters
 ;;; 
