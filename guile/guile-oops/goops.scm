@@ -445,17 +445,33 @@
   (procedure->memoizing-macro
     (lambda (exp env)
       (let ((name (cadr exp)))
-	(cond ((not (symbol? name))
-	       (goops-error "bad method name: %S" name))
-	      ((defined? name env)
-	       `(begin
-		  (if (not (is-a? ,name <generic>))
-		      (define-generic ,name))
-		  (add-method! ,name (method ,@(cddr exp)))))
-	      (else
-	       `(begin
-		  (define-generic ,name)
-		  (add-method! ,name (method ,@(cddr exp))))))))))
+	(if (and (pair? name)
+		 (eq? (car name) 'setter)
+		 (pair? (cdr name))
+		 (null? (cddr name)))
+	    (let ((name (cadr name)))
+	      (cond ((not (symbol? name))
+		     (goops-error "bad method name: %S" name))
+		    ((defined? name env)
+		     `(begin
+			(if (not (is-a? ,name <generic-with-setter>))
+			    (define-accessor ,name))
+			(add-method! (setter ,name) (method ,@(cddr exp)))))
+		    (else
+		     `(begin
+			(define-accessor ,name)
+			(add-method! (setter ,name) (method ,@(cddr exp)))))))
+	    (cond ((not (symbol? name))
+		   (goops-error "bad method name: %S" name))
+		  ((defined? name env)
+		   `(begin
+		      (if (not (is-a? ,name <generic>))
+			  (define-generic ,name))
+		      (add-method! ,name (method ,@(cddr exp)))))
+		  (else
+		   `(begin
+		      (define-generic ,name)
+		      (add-method! ,name (method ,@(cddr exp)))))))))))
 
 (define (make-method specializers procedure)
   (make <method>
