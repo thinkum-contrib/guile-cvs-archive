@@ -198,9 +198,10 @@ get_arg (SCM arg_hash, SCM sym)
 
 SCM_SYMBOL (sym_scm, "scm");
 SCM_SYMBOL (sym_subr, "subr");
+SCM_SYMBOL (sym_label, "label");
 
 static unsigned long
-imm2int (SCM imm)
+imm2int (SCM imm, SCM label_hash)
 {
   if (scm_ilength (imm) == 2)
     {
@@ -216,6 +217,14 @@ imm2int (SCM imm)
 	  if (addr == NULL)
 	    scm_misc_error ("assemble", "undefined subr: ~A", SCM_LIST1 (imm));
 	  return (unsigned long)addr;
+	}
+      else if (SCM_CAR (imm) == sym_label && SCM_SYMBOLP (SCM_CADR (imm)))
+	{
+	  jit_insn *lab = get_label_def (label_hash, SCM_CADR (imm));
+	  if (lab == NULL)
+	    scm_misc_error ("assemble", "undefined label: ~A",
+			    SCM_LIST1 (imm));
+	  return (unsigned long)lab;
 	}
     }
   else if (SCM_NUMBERP (imm))
@@ -292,7 +301,7 @@ assemble1 (SCM insn, SCM label_hash, SCM arg_hash)
                                        "in ~A, not a symbol: ~A", \
                                        SCM_LIST2 (insn, s));
 
-#define AS_INT(x)     (imm2int ((x)))
+#define AS_INT(x)     (imm2int ((x), label_hash))
 #define AS_REG(x)     (sym2reg ((x)))
 #define IS_REG(x)     (SCM_SYMBOLP ((x)))
 
