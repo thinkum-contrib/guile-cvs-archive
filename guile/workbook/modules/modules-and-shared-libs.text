@@ -67,4 +67,6 @@ to understand.
       as a C++ object, and two-phase protocol for use: registration
       before libguile is initialized, and then run-time loading as
       described above.  Registry manipulation is supported.  None
-      of this is available w/ guile-1.6.x.]
+      of this is available w/ guile-1.6.x if configured w/ the
+      "--disable-deprecated" option.  None of this is available
+      in HEAD at this time (2002-05-21).]
