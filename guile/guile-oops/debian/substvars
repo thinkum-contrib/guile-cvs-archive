@@ -1,0 +1,1 @@
+shlibs:Depends=libc6 (>= 2.2.1-2), libguile9 (>= 1:1.4-9)
