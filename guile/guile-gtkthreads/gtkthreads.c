@@ -16,6 +16,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+/* Define the following option to include the primitive
+ * `gtkthreads-update' which makes the main loop wake up.
+ */
+
+/* #define GUILE_GTKTHREADS_UPDATE */
+
 #include <libguile.h>
 #include <glib.h>
 
@@ -35,9 +41,11 @@ extern int errno;
 #  endif /* !_IBMR2 */
 #endif /* !NO_FD_SET */
 
+#ifdef GUILE_GTKTHREADS_UPDATE
 static int poll_waiting = 0;
 static int wake_up_pipe[2] = { -1, -1 };
 static GPollFD wake_up_rec;
+#endif
 
 static gint 
 g_poll (GPollFD *fds,
@@ -70,14 +78,14 @@ g_poll (GPollFD *fds,
   tv.tv_sec = timeout / 1000;
   tv.tv_usec = (timeout % 1000) * 1000;
 
-#ifdef G_THREADS_ENABLED
+#ifdef GUILE_GTKTHREADS_UPDATE
   poll_waiting = TRUE;
 #endif
   
   ready = scm_internal_select (maxfd + 1, &rset, &wset, &xset,
 		               timeout == -1 ? NULL : &tv);
 
-#ifdef G_THREADS_ENABLED
+#ifdef GUILE_GTKTHREADS_UPDATE
   if (!poll_waiting)
     {
 #ifndef NATIVE_WIN32
@@ -107,11 +115,11 @@ g_poll (GPollFD *fds,
   return ready;
 }
 
+#ifdef GUILE_GTKTHREADS_UPDATE
 /* Wake the main loop up from a poll() */
 static void
 g_main_wakeup (void)
 {
-#ifdef G_THREADS_ENABLED
   if (poll_waiting)
     {
       poll_waiting = FALSE;
@@ -121,7 +129,6 @@ g_main_wakeup (void)
       ReleaseSemaphore (wake_up_semaphore, 1, NULL);
 #endif
     }
-#endif
 }
 
 SCM_PROC (s_gtkthreads_update, "gtkthreads-update", 0, 0, 0, scm_gtkthreads_update);
@@ -133,6 +140,8 @@ scm_gtkthreads_update ()
   return SCM_UNSPECIFIED;
 }
 
+#endif /* GUILE_GTKTHREADS_UPDATE */
+
 void
 scm_init_gtkthreads ()
 {
@@ -140,6 +149,7 @@ scm_init_gtkthreads ()
   SCM old_module = scm_select_module (threads_module);
   scm_init_gthread ();
   g_main_set_poll_func (g_poll);
+#ifdef GUILE_GTKTHREADS_UPDATE
   if (pipe (wake_up_pipe) < 0)
     g_error ("Cannot create pipe main loop wake-up: %s\n",
 	     g_strerror (errno));
@@ -147,6 +157,7 @@ scm_init_gtkthreads ()
   wake_up_rec.fd = wake_up_pipe[0];
   wake_up_rec.events = G_IO_IN;
   g_main_add_poll (&wake_up_rec, 0);
+#endif
 #include "gtkthreads.x"
   scm_select_module (old_module);
 }
