@@ -1,4 +1,4 @@
-;;;; 	Copyright (C) 1999 Free Software Foundation, Inc.
+;;;; 	Copyright (C) 1999, 2000 Free Software Foundation, Inc.
 ;;;; 
 ;;;; This program is free software; you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License as published by
@@ -251,8 +251,8 @@
 	     (n-specializers
 	      (if (list? specializers)
 		  (length specializers)
-		  (slot-ref (method-cache-generic-function exp)
-			    'n-specialized))))
+		  (abs (slot-ref (method-cache-generic-function exp)
+				 'n-specialized)))))
 	(let* ((types (map class-of (first-n args n-specializers)))
 	       (entry+cmethod (compute-entry-with-cmethod applicable types)))
 	  (insert! exp (car entry+cmethod)) ; entry = types + cmethod
