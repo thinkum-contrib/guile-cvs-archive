@@ -1,3 +1,11 @@
+1998-08-26  Mark Galassi  <rosalia@cygnus.com>
+
+	* gh.texi (Starting and controlling the interpreter): modified the
+	gh_enter() docs in response to some good comments from Dirk
+	Herrmann: now they address the issue of loading ice-9/boot-9.scm,
+	and include Dirk's hackaround for the problem until we fix it
+	properly.
+
 1998-04-29  Mark Galassi  <rosalia@cygnus.com>
 
 	* scheme.texi (Dynamic Linking from Marius): added Marius's new
