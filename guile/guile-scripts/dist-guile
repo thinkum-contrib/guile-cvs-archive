@@ -4,13 +4,13 @@
 # This must be run in a branched top-level guile-core dir (so
 # that CVS/Tag looks something like: branch_release-X-Y).
 #
-# Behavior:
+# Description:
 # - check all files under cwd are unmodified (sync'ed w/ cvs repo)
 # - sh -x autogen.sh
-# - cvs tag release_TAG         (where TAG is $1)
 # - create distdir ../dist.$branch
 # - in $distdir do configure, make, make check
 # - in $distdir do make distcheck
+# - cvs tag TAG         (where TAG is $1)
 #
 # TODO: Handle non-standard workbook location.
 #       Support skipping steps, for restarts.
@@ -29,6 +29,8 @@ if [ x"$tag" = x ] ; then
     exit 1
 fi
 
+trap "cd $startdir ; cvs tag -d TEMP-$tag" 0 1 2 15
+
 set_branch_and_derived_vars ()
 {
 if [ -f pre-inst-guile.in -a -d CVS -a -f CVS/Tag ] ; then
@@ -46,7 +48,7 @@ distdir="../dist.$branch"
 
 check_unmodified_tag_and_autogen ()
 {
-cvs tag -c $tag && sh -x autogen.sh
+cvs tag -c TEMP-$tag && sh -x autogen.sh
 }
 
 cd_distdir_configure_build_and_check ()
@@ -64,10 +66,17 @@ cd $distdir
 make distcheck
 }
 
+everything_works_so_tag_it_for_real ()
+{
+cd $startdir
+cvs tag $tag
+}
+
 # todo: support command-line options to skip any of these steps
 set_branch_and_derived_vars
 check_unmodified_tag_and_autogen
 cd_distdir_configure_build_and_check
 cd_distdir_and_make_distcheck
+everything_works_so_tag_it_for_real     # do last
 
 # dist-guile ends here
