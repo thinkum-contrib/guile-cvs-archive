@@ -75,7 +75,7 @@
 
 #define SCM_NUM2LONG_LONG(pos,arg) (scm_num2long_long(arg, (char *) pos, FUNC_NAME))
 
-#define SCM_OUT_OF_RANGE(pos,arg) do { scm_out_of_range(FUNC_NAME,arg); } while (0)
+#define SCM_OUT_OF_RANGE(pos,arg) do { scm_out_of_range_pos(FUNC_NAME,arg,scm_long2num(pos)); } while (0)
 
 #define SCM_ASSERT_RANGE(pos,arg,f) do { SCM_ASSERT(f,arg,SCM_OUTOFRANGE,FUNC_NAME); } while (0)
 
