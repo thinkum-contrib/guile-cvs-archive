@@ -1,4 +1,13 @@
-1999-12-19  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+1999-12-20  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* Version 0.1.6 released.  (Sigh...)
+
+	* goops.scm (make-closure-variable): Bugfix: Use
+	slot-definition-init-value and slot-definition-init-form to check
+	for init form.
+	(slot-definition-init-form): New procedure; exported.
+
+	* goops.scm (class-slot-ref): No need to check for unbound here.
 
 	* Version 0.1.4 released.
 
