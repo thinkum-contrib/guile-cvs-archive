@@ -48,6 +48,7 @@ initialize (generic) (M)
 
 change-class (G)
   change-object-class (P)
+    update-instance-for-different-class (G)
 
 make = make-instance (G)
   allocate-instance (G)

@@ -1,3 +1,12 @@
+1999-10-13  Christian Lynbech  <chl@tbit.dk>
+
+	* goops.scm (export): Added 'update-instance-for-different-class'.
+	(change-object-class): Added call to
+	'update-instance-for-different-class'.
+	(update-instance-for-different-class): New generic function.
+
+	* mop.text: Added 'update-instance-for-different-class'
+
 1999-10-08  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	Bugfix: Given method M1 with specializers S1, ..., Sk and M2 with

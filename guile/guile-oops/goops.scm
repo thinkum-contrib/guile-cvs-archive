@@ -52,7 +52,7 @@
     compute-cpl compute-std-cpl compute-get-n-set
     allocate-instance initialize make-instance make
     no-next-method  no-applicable-method no-method
-    change-class 
+    change-class update-instance-for-different-class
     shallow-clone deep-clone
     class-redefinition
     apply-generic apply-method apply-methods
@@ -1286,10 +1286,18 @@
 			       slot
 			       (apply init '()))))))
 	      (map slot-definition-name (class-slots new-class)))
-    ;; Exchange old an new instance in place to keep pointers valids
+    ;; Exchange old and new instance in place to keep pointers valids
     (%modify-instance old-instance new-instance)
+    ;; Allow class specific updates of instances (which now is swapped)
+    (update-instance-for-different-class new-instance old-instance)
     old-instance))
 
+
+(define-method update-instance-for-different-class ((old-instance <object>)
+						    (new-instance
+						     <object>))
+  ;;not really important what we do, we just need a default method
+  new-instance)
 
 ;; *fixme* Doesn't class-of cause an implicit call to change-object-class?
 (define-method change-class ((old-instance <object>) (new-class <class>))
