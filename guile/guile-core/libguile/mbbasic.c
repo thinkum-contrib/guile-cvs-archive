@@ -104,7 +104,7 @@ emacs_mule_write (void *cookie,
   
   while (in < in_end)
     {
-      const char *next = out + scm_mb_len_char (*in);
+      const char *next = out + scm_mb_char_len (*in);
       if (next > out_end)
 	{
 	  *inbuf = in;
@@ -112,10 +112,10 @@ emacs_mule_write (void *cookie,
 	  *outbuf = out;
 	  *outbytesleft = out_end - out;
 
-	  return scm_mb_write_more_room;
+	  return scm_mb_write_too_big;
 	}
 
-      out += scm_mb_put (*in, out);
+      out += scm_mb_put (*out, in);
       in++;
     }
 
@@ -194,7 +194,7 @@ iso8859_write (void *priv,
 	  *outbuf = out;
 	  *outbytesleft = out_end - out;
 
-	  return scm_mb_write_more_room;
+	  return scm_mb_write_too_big;
 	}
       
       c = *in++;
@@ -311,7 +311,7 @@ us_ascii_write (void *priv,
 	  *outbuf = out;
 	  *outbytesleft = out_end - out;
 
-	  return scm_mb_write_more_room;
+	  return scm_mb_write_too_big;
 	}
       
       c = *in++;

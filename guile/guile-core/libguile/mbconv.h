@@ -67,7 +67,7 @@ extern struct scm_mb_iconv *scm_mb_iconv_open (const char *tocode,
 
 /* Error return values for scm_mb_iconv.  */
 enum scm_mb_iconv_result {
-  scm_mb_iconv_more_room = -1,
+  scm_mb_iconv_too_big = -1,
   scm_mb_iconv_bad_encoding = -2,
   scm_mb_iconv_incomplete_encoding = -3
 };
@@ -111,7 +111,7 @@ enum scm_mb_write_result
   scm_mb_write_ok,
 
   /* Write needs more room.  */
-  scm_mb_write_more_room
+  scm_mb_write_too_big
 };
 
 

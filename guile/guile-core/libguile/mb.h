@@ -77,9 +77,9 @@ extern scm_char_t scm_mb_get_func (const unsigned char *p);
 
 /* Store the encoding of the Guile character C at P, and return the
    encoding's length in bytes.  */
-#define scm_mb_put(c, p) \
-  ((c) < 128 ? (*(p) = c, 1) : scm_mb_put_func ((c), (p)))
-extern int scm_mb_put_func (scm_char_t c, unsigned char *p);
+#define scm_mb_put(p, c) \
+  ((c) < 128 ? (*(p) = c, 1) : scm_mb_put_func ((p), (c)))
+extern int scm_mb_put_func (unsigned char *p, scm_char_t c);
 
 /* The length of the longest character encoding, in bytes.  */
 #define scm_mb_max_len (4)
@@ -94,8 +94,8 @@ extern int scm_mb_put_func (scm_char_t c, unsigned char *p);
 extern int scm_mb_len_func (unsigned char b);
 
 /* Given a Guile character, return the length of its encoding.  */
-#define scm_mb_len_char(c) (scm_mb_len_char_func(c))
-extern int scm_mb_len_char_func (scm_char_t c);
+#define scm_mb_char_len(c) (scm_mb_char_len_func(c))
+extern int scm_mb_char_len_func (scm_char_t c);
 
 
 

@@ -1,43 +1,47 @@
-/*	Copyright (C) 1999 Free Software Foundation, Inc.
- * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
- * any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this software; see the file COPYING.  If not, write to
- * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307 USA
- *
- * As a special exception, the Free Software Foundation gives permission
- * for additional uses of the text contained in its release of GUILE.
- *
- * The exception is that, if you link the GUILE library with other files
- * to produce an executable, this does not by itself cause the
- * resulting executable to be covered by the GNU General Public License.
- * Your use of that executable is in no way restricted on account of
- * linking the GUILE library code into it.
- *
- * This exception does not however invalidate any other reasons why
- * the executable file might be covered by the GNU General Public License.
- *
- * This exception applies only to the code released by the
- * Free Software Foundation under the name GUILE.  If you copy
- * code from other Free Software Foundation releases into a copy of
- * GUILE, as the General Public License permits, the exception does
- * not apply to the code that you add in this way.  To avoid misleading
- * anyone as to the status of such modified files, you must delete
- * this exception notice from them.
- *
- * If you write modifications of your own for GUILE, it is your choice
- * whether to permit this exception to apply to your modifications.
- * If you do not wish that, delete this exception notice.  */
+/* mb.c --- functions for dealing with multibyte text
+   Jim Blandy <jimb@red-bean.com> --- August 1999
+  
+ 	 Copyright (C) 1999 Free Software Foundation, Inc.
+   
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2, or (at your option)
+   any later version.
+   
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+   
+   You should have received a copy of the GNU General Public License
+   along with this software; see the file COPYING.  If not, write to
+   the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
+   Boston, MA 02111-1307 USA
+  
+   As a special exception, the Free Software Foundation gives permission
+   for additional uses of the text contained in its release of GUILE.
+  
+   The exception is that, if you link the GUILE library with other files
+   to produce an executable, this does not by itself cause the
+   resulting executable to be covered by the GNU General Public License.
+   Your use of that executable is in no way restricted on account of
+   linking the GUILE library code into it.
+  
+   This exception does not however invalidate any other reasons why
+   the executable file might be covered by the GNU General Public License.
+  
+   This exception applies only to the code released by the
+   Free Software Foundation under the name GUILE.  If you copy
+   code from other Free Software Foundation releases into a copy of
+   GUILE, as the General Public License permits, the exception does
+   not apply to the code that you add in this way.  To avoid misleading
+   anyone as to the status of such modified files, you must delete
+   this exception notice from them.
+  
+   If you write modifications of your own for GUILE, it is your choice
+   whether to permit this exception to apply to your modifications.
+   If you do not wish that, delete this exception notice.  */
+
 
 /* Headers.  */
 
@@ -105,7 +109,7 @@ scm_mb_get_func (const unsigned char *p)
 }
 
 int
-scm_mb_put_func (scm_char_t c, unsigned char *p)
+scm_mb_put_func (unsigned char *p, scm_char_t c)
 {
   if (c < 0)
     return 0;
@@ -167,7 +171,7 @@ scm_mb_len_func (unsigned char b)
 }
 
 int
-scm_mb_len_char_func (scm_char_t c)
+scm_mb_char_len_func (scm_char_t c)
 {
   return (IS_ASCII_CHAR (c) ? 1
 	  : c < FIRST_CHAR1O ? 0 : c <= LAST_CHAR1O ? 2
@@ -404,12 +408,12 @@ scm_mb_fixed_to_multibyte (const scm_char_t *fixed, int len, int *result_len)
      over the string like this than to possibly recopy it.  */
   buf_size = 0;
   for (i = 0; i < len; i++)
-    buf_size += scm_mb_len_char (fixed[i]);
+    buf_size += scm_mb_char_len (fixed[i]);
 
   buf = scm_must_malloc (buf_size + 1, "scm_mb_fixed_to_multibyte");
   p = buf;
   for (i = 0; i < len; i++)
-    p += scm_mb_put (fixed[i], p);
+    p += scm_mb_put (p, fixed[i]);
 
   /* Was the size we computed actually correct?  */
   if (p != buf + buf_size)

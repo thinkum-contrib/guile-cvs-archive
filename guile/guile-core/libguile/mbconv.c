@@ -271,7 +271,7 @@ scm_mb_iconv (struct scm_mb_iconv *context,
 	switch (errno)
 	  {
 	  case EILSEQ: return scm_mb_iconv_bad_encoding;
-	  case E2BIG:  return scm_mb_iconv_more_room;
+	  case E2BIG:  return scm_mb_iconv_too_big;
 	  case EINVAL: return scm_mb_iconv_incomplete_encoding;
 	  default:
 	    scm_syserror ("scm_mb_iconv");
@@ -303,7 +303,7 @@ scm_mb_iconv (struct scm_mb_iconv *context,
   while (*inbytesleft > 0 || ours->valid > 0)
     {
       if (! outbuf || *outbytesleft <= 0)
-	return scm_mb_iconv_more_room;
+	return scm_mb_iconv_too_big;
 
       /* Convert as many characters as possible from the input buffer
 	 into the intermediate scm_char_t buffer.  */
@@ -347,8 +347,8 @@ scm_mb_iconv (struct scm_mb_iconv *context,
 	  {
 	  case scm_mb_write_ok:
 	    break;
-	  case scm_mb_write_more_room:
-	    return scm_mb_iconv_more_room;
+	  case scm_mb_write_too_big:
+	    return scm_mb_iconv_too_big;
 	  default:
 	    abort ();
 	  }

@@ -112,8 +112,8 @@ test_one_char_encodings ()
       int i;
       int len;
 
-      /* scm_mb_len_char should return a sane value.  */
-      len = scm_mb_len_char (p->character);
+      /* scm_mb_char_len should return a sane value.  */
+      len = scm_mb_char_len (p->character);
       if (len <= 0 || len > scm_mb_max_len)
 	exit (1);
       if (len != p->encoding_length)
@@ -122,7 +122,7 @@ test_one_char_encodings ()
       /* scm_mb_put should return the same length, and write that many
          characters, but no more.  */
       memset (buffer, 1, sizeof (buffer));
-      if (scm_mb_put (p->character, buffer) != len)
+      if (scm_mb_put (buffer, p->character) != len)
 	exit (1);
       for (i = 0; i < len; i++)
 	if (buffer[i] == 1)
@@ -215,7 +215,7 @@ test_string_encodings ()
 	  {
 	    start[i] = t - buffer;
 	    p = &pairs[perm[i]];
-	    t += scm_mb_put (p->character, t);
+	    t += scm_mb_put (t, p->character);
 	    bytes += p->encoding_length;
 	  }
 	if (t != buffer + bytes)
@@ -473,7 +473,7 @@ one_conversion (const char *code1, const char *code2,
 			     &outptr, &outbytesleft);
       if (split < text2_len)
 	{
-	  if (result != scm_mb_iconv_more_room)
+	  if (result != scm_mb_iconv_too_big)
 	    exit (1);
 	}
       else
