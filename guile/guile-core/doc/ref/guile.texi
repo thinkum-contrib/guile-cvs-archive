@@ -73,6 +73,18 @@ section entitled "GNU Free Documentation License".
 @end macro
 
 
+@c  The following, @le{} and @ge{}, are standard tex directives, given
+@c  definitions for use in non-tex.
+@c
+@ifnottex
+@macro ge
+>=
+@end macro
+@macro le
+<=
+@end macro
+@end ifnottex
+
 @c  @cross{} is a \times symbol in tex, or an "x" in info.  In tex it works
 @c  inside or outside $ $.
 @tex
