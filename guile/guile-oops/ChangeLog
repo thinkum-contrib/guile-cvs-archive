@@ -1,5 +1,11 @@
 2001-03-05  Mikael Djurfeldt  <mdj@linnaeus.mit.edu>
 
+	* THANKS: Flushed.
+
+	* GOOPS-VERSION	(GOOPS_MINOR_VERSION): Bumed to 0.1.
+
+	* Version 1.0 released.
+
 	* Makefile.am (man_MANS): Install manpage.
 
 	* guile-oops.1: Manpage from Guile distribution.
