@@ -416,11 +416,20 @@ Given a null-terminated string @var{name}, return the symbol with that
 name.
 @end deftypefun
 
-@deftypefun SCM gh_doubles2scm (double *@var{dptr}, int @var{n})
+@deftypefun SCM gh_ints2scm (int *@var{dptr}, int @var{n})
+@deftypefunx SCM gh_doubles2scm (double *@var{dptr}, int @var{n})
+Make a scheme vector containing the @var{n} ints or doubles at memory
+location @var{dptr}.
+@end deftypefun
+
+@deftypefun SCM gh_chars2byvect (double *@var{dptr}, int @var{n})
+@deftypefunx SCM gh_shorts2svect (short *@var{dptr}, int @var{n})
+@deftypefunx SCM gh_longs2ivect (long *@var{dptr}, int @var{n})
+@deftypefunx SCM gh_ulongs2uvect (ulong *@var{dptr}, int @var{n})
+@deftypefunx SCM gh_floats2fvect (float *@var{dptr}, int @var{n})
 @deftypefunx SCM gh_doubles2dvect (double *@var{dptr}, int @var{n})
-Make a scheme vector containing the @var{n} doubles at memory location
-@var{dptr}.  @code{gh_doubles2dvect} returns a uniform double vector
-instead.
+Make a scheme uniform vector containing the @var{n} chars, shorts,
+longs, unsigned longs, floats or doubles at memory location @var{dptr}.
 @end deftypefun
 
 
@@ -471,11 +480,23 @@ This function uses malloc to obtain storage for the returned string; the
 caller is responsible for freeing it.
 @end deftypefun
 
-@deftypefun double *gh_scm2doubles (SCM @var{vector})
-Allocate a double array large enough to contain the numbers in
-@var{vector} and return it. @var{vector} can be an ordinary vector (with
-inexact or integer values), a weak vector, or a uniform double or float
-vector.
+@deftypefun char *gh_scm2chars (SCM @var{vector}, chars *@var{result})
+@deftypefunx short *gh_scm2shorts (SCM @var{vector}, short *@var{result})
+@deftypefunx long *gh_scm2longs (SCM @var{vector}, long *@var{result})
+@deftypefunx float *gh_scm2floats (SCM @var{vector}, float *@var{result})
+@deftypefunx double *gh_scm2doubles (SCM @var{vector}, double *@var{result})
+Copy the numbers in @var{vector} to the array pointed to by @var{result}
+and return it.  If @var{result} is NULL, allocate a double array large
+enough.
+
+@var{vector} can be an ordinary vector, a weak vector, or a signed or
+unsigned uniform vector of the same type as the result array.  For
+chars, @var{vector} can be a string or substring.  For floats and
+doubles, @var{vector} can contain a mix of inexact and integer values.
+
+If @var{vector} is of unsigned type and contains values too large to fit
+in the signed destination array, those values will be wrapped around,
+that is, data will be copied as if the destination array was unsigned.
 @end deftypefun
 
 

@@ -1,3 +1,8 @@
+1998-10-25  Mikael Djurfeldt  <mdj@barbara.nada.kth.se>
+
+	* gh.texi (C to Scheme, Scheme to C): Completed entries about
+	vector conversions.
+
 1998-08-26  Mark Galassi  <rosalia@cygnus.com>
 
 	* gh.texi (Starting and controlling the interpreter): modified the
