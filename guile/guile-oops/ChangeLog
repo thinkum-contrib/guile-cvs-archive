@@ -1,3 +1,16 @@
+2000-06-04  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
+
+	* goops.scm (internal-add-method!): Bugfix: n-specialized must be
+	larger than the longest specializer list if any specializer list
+	contains a rest argument.  Th fact that a method with rest
+	arguments has been added is now coded in the sign of
+	n-specialized.  (Thanks to Nicolas Neuss.)
+
+	* dispatch.scm (method-cache-install!): Use the magnitude of
+	the n-specialized slot.
+
+	* goops.c (go_to_hell): Cast object to SCM.
+
 2000-04-19  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
 	* goops.c (scm_sys_allocate_instance): Bugfix: Initialize setter
