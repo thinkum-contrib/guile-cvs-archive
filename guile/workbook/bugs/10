@@ -1,5 +1,6 @@
 summary: embedded libltdl masks system version unconditionally
 reported: grib@linuxdevel.com, 2001-11-04
+fixed: rlb, 2001-11-19
 
 Bill Gribble sez:
 > The guideline for when to use the convenience version of libltdl is
@@ -39,3 +40,11 @@ Lynn Winebarger <owinebar@free-expression.org> sez:
 > whether "library" refers to a library of scheme code, a compiled
 > library, or both [ which may vary from context to context in the
 > docs, I'm just pointing out it should be made clear ].
+
+2001-11-19  Rob Browning  <rlb@defaultvalue.org>
+
+	* configure.in: switch to AC_LIBLTDL_INSTALLABLE so we'll use the
+	system libltdl when it's available.  Aside from the normal reasons
+	to prefer installed shared libs, this means other apps that link
+	with libguile and also use libltdl will be more likely to work
+	right.
