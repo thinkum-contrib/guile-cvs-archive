@@ -1,3 +1,7 @@
+Fri Dec  6 22:27:32 1996  Tom Tromey  <tromey@cygnus.com>
+
+	* configure.in: Use $DL_LIBS, not -ldl, in tcl7.5 check.
+
 Fri Dec  6 20:41:05 1996  Mark Galassi  <rosalia@nis.lanl.gov>
 
 	* configure.in: added -ldl in the tcl7.5 check, although you would
