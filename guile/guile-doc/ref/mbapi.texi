@@ -24,29 +24,32 @@ Instead, Guile uses a very large character set, and encodes each
 character as a sequence of one or more bytes.  We call this
 variable-width encoding a @dfn{multibyte} encoding.  Guile uses it
 internally for all strings, symbol names, error messages, etc., and
-converts it to an appropriate format upon output.
+performs appropriate conversions upon input or output.
 
-This encoding is almost invisible to Scheme code.  Strings are still
-indexed by character number, not by byte offset; @code{string-length}
-still returns the length of a string in characters, not in bytes.
-@code{string-ref} and @code{string-set!} are no longer constant-time
-operations, but Guile uses various strategies to reduce the impact of
-this change.
+The use of this variable-width encoding is almost invisible to Scheme
+code.  Strings are still indexed by character number, not by byte
+offset; @code{string-length} still returns the length of a string in
+characters, not in bytes.  @code{string-ref} and @code{string-set!} are
+no longer guaranteed to be constant-time operations, but Guile uses
+various strategies to reduce the impact of this change.
 
-However, the encoding is visible via Guile's C API, which gives the user
-direct access to a string's bytes.  This chapter explains how to work
-with Guile multibyte text in C code.  Since variable-width encodings are
-clumsier to work with than simple fixed-width encodings, Guile provides
-a set of standard macros and functions for manipulating multibyte text.
-Furthermore, Guile makes some promises about the encoding which you can
-use in writing your own text processing code.
+However, the encoding is visible via Guile's C interface, which gives
+the user direct access to a string's bytes.  This chapter explains how
+to work with Guile multibyte text in C code.  Since variable-width
+encodings are clumsier to work with than simple fixed-width encodings,
+Guile provides a set of standard macros and functions for manipulating
+multibyte text to make the job easier.  Furthermore, Guile makes some
+promises about the encoding which you can use in writing your own text
+processing code.
 
 While we discuss properties of Guile's encoding, and provide functions
 to operate on its character set, we do not actually specify either the
 character set or encoding here.  This is because we expect both of them
-to change in the future; currently, our encoding is the one used by
-Emacs 20.4, but we hope to change Guile (and Emacs as well) to use
-Unicode and UTF-8, with some extensions.
+to change in the future: currently, Guile uses the same encoding as GNU
+Emacs 20.4, but we hope to change Guile (and GNU Emacs as well) to use
+Unicode and UTF-8, with some extensions.  This will make it more
+comfortable to use Guile with other systems which use UTF-8, like the
+GTk user interface toolkit.
 
 @menu
 * Multibyte String Terminology::  
