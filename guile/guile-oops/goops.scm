@@ -618,6 +618,7 @@
 	    (slot-set! class 'print write-object))
 	  (list <top> <object> <class>
 		<procedure-class> <entity-class>
+		<operator-class> <operator-with-setter-class>
 		<entity> <entity-with-setter>
 		<method> <simple-method> <accessor-method>
 		<generic> <generic-with-setter>
