@@ -1,4 +1,5 @@
 - Guile 1.4.1
+  - revise guile-snarf for upward compatibility
   - back port ice-9/and-let*.scm naming fix [ttn]
   + write TODO summarizer [ttn]
   - include group membership attributes in guile-api.alist
