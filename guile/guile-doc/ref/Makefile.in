@@ -1,6 +1,6 @@
-# Makefile.in generated automatically by automake 1.1p from Makefile.am
+# Makefile.in generated automatically by automake 1.2 from Makefile.am
 
-# Copyright (C) 1994, 1995, 1996 Free Software Foundation, Inc.
+# Copyright (C) 1994, 1995, 1996, 1997 Free Software Foundation, Inc.
 # This Makefile.in is free software; the Free Software Foundation
 # gives unlimited permission to copy, distribute and modify it.
 
@@ -49,10 +49,6 @@ POST_INSTALL = true
 NORMAL_UNINSTALL = true
 PRE_UNINSTALL = true
 POST_UNINSTALL = true
-ACLOCAL = @ACLOCAL@
-AUTOCONF = @AUTOCONF@
-AUTOHEADER = @AUTOHEADER@
-AUTOMAKE = @AUTOMAKE@
 MAKEINFO = @MAKEINFO@
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@
@@ -61,7 +57,7 @@ AUTOMAKE_OPTIONS = foreign
 
 # MAKEINFO = makeinfo -I ../tutorial
 
-info_TEXINFOS = guile-ref.texi
+info_TEXINFOS = guile-ref.texi r4rs.texi
 
 #dist_texis = guile-ref.texi intro.texi \
 #	ci.texi			libguile-tools.texi	scheme-concepts.texi \
@@ -85,11 +81,11 @@ mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_CLEAN_FILES = 
 TEXI2DVI = texi2dvi
 TEXINFO_TEX = $(srcdir)/texinfo.tex
-INFO_DEPS = guile-ref.info
-DVIS = guile-ref.dvi
-TEXINFOS = guile-ref.texi
-DIST_COMMON =  $(guile_ref_TEXINFOS) Makefile.am Makefile.in mdate-sh \
-texinfo.tex
+INFO_DEPS = guile-ref.info r4rs.info
+DVIS = guile-ref.dvi r4rs.dvi
+TEXINFOS = guile-ref.texi r4rs.texi
+DIST_COMMON =  $(guile_ref_TEXINFOS) ChangeLog Makefile.am Makefile.in \
+mdate-sh stamp-vti texinfo.tex version.texi
 
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
@@ -108,8 +104,35 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status $(BUILT_SOURCES)
 	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
 
-guile-ref.info: guile-ref.texi $(guile_ref_TEXINFOS)
-guile-ref.dvi: guile-ref.texi $(guile_ref_TEXINFOS)
+version.texi: stamp-vti
+	cp $(srcdir)/stamp-vti $(srcdir)/version.texi
+
+stamp-vti: guile-ref.texi $(top_srcdir)/configure.in
+	@echo "@set UPDATED `cd $(srcdir) \
+	  && $(SHELL) ./mdate-sh guile-ref.texi`" > vti.tmp
+	@echo "@set EDITION $(VERSION)" >> vti.tmp
+	@echo "@set VERSION $(VERSION)" >> vti.tmp
+	@cmp -s vti.tmp $(srcdir)/stamp-vti \
+	  || (echo "Updating $(srcdir)/stamp-vti"; \
+	      cp vti.tmp $(srcdir)/stamp-vti)
+	@rm -f vti.tmp
+
+mostlyclean-vti:
+	rm -f vti.tmp
+
+clean-vti:
+
+distclean-vti:
+
+maintainer-clean-vti:
+	rm -f stamp-vti version.texi
+
+guile-ref.info: guile-ref.texi version.texi $(guile_ref_TEXINFOS)
+guile-ref.dvi: guile-ref.texi version.texi $(guile_ref_TEXINFOS)
+
+
+r4rs.info: r4rs.texi
+r4rs.dvi: r4rs.texi
 
 
 DVIPS = dvips
@@ -160,7 +183,7 @@ install-info-am: $(INFO_DEPS)
 	@if $(SHELL) -c 'install-info --version | sed 1q | fgrep -s -v -i debian' >/dev/null 2>&1; then \
 	  for file in $(INFO_DEPS); do \
 	    echo " install-info --info-dir=$(infodir) $(infodir)/$$file";\
-	    install-info --info-dir=$(infodir) $(infodir)/$$file; :;\
+	    install-info --info-dir=$(infodir) $(infodir)/$$file || :;\
 	  done; \
 	else : ; fi
 
@@ -192,7 +215,9 @@ mostlyclean-aminfo:
 	  guile-ref.fn guile-ref.fns guile-ref.ky guile-ref.log \
 	  guile-ref.pg guile-ref.toc guile-ref.tp guile-ref.tps \
 	  guile-ref.vr guile-ref.vrs guile-ref.op guile-ref.tr \
-	  guile-ref.cv
+	  guile-ref.cv r4rs.aux r4rs.cp r4rs.cps r4rs.dvi r4rs.fn \
+	  r4rs.fns r4rs.ky r4rs.log r4rs.pg r4rs.toc r4rs.tp r4rs.tps \
+	  r4rs.vr r4rs.vrs r4rs.op r4rs.tr r4rs.cv
 
 clean-aminfo:
 
@@ -239,7 +264,7 @@ uninstall: uninstall-info
 all: Makefile $(INFO_DEPS)
 
 install-strip:
-	$(MAKE) INSTALL_PROGRAM='$(INSTALL_PROGRAM) -s' install
+	$(MAKE) INSTALL_PROGRAM='$(INSTALL_PROGRAM) -s' INSTALL_SCRIPT='$(INSTALL_PROGRAM)' install
 installdirs:
 	$(mkinstalldirs)  $(infodir)
 
@@ -258,19 +283,20 @@ distclean-generic:
 maintainer-clean-generic:
 	test -z "$(MAINTAINERCLEANFILES)" || rm -f $(MAINTAINERCLEANFILES)
 	test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
-mostlyclean:  mostlyclean-aminfo mostlyclean-generic
+mostlyclean:  mostlyclean-vti mostlyclean-aminfo mostlyclean-generic
 
-clean:  clean-aminfo clean-generic mostlyclean
+clean:  clean-vti clean-aminfo clean-generic mostlyclean
 
-distclean:  distclean-aminfo distclean-generic clean
+distclean:  distclean-vti distclean-aminfo distclean-generic clean
 	rm -f config.status
 
-maintainer-clean:  maintainer-clean-aminfo maintainer-clean-generic \
-		distclean
+maintainer-clean:  maintainer-clean-vti maintainer-clean-aminfo \
+		maintainer-clean-generic distclean
 	@echo "This command is intended for maintainers to use;"
 	@echo "it deletes files that may require special tools to rebuild."
 
-.PHONY: default install-info-am uninstall-info mostlyclean-aminfo \
+.PHONY: default mostlyclean-vti distclean-vti clean-vti \
+maintainer-clean-vti install-info-am uninstall-info mostlyclean-aminfo \
 distclean-aminfo clean-aminfo maintainer-clean-aminfo tags distdir info \
 dvi installcheck install-exec install-data install uninstall all \
 installdirs mostlyclean-generic distclean-generic clean-generic \

@@ -129,11 +129,11 @@ interface to @emph{libtool} to make it easier to add C libraries as
 primitives (@pxref{Linking Guile with your code}), and (FIXME add more).
 
 On top of these extensions, which many other Scheme implementations
-provide, Guile also offers other the possibility of writing routines in
-other languages and running them simultaneously with Scheme.  The desire
-to implement other languages (in particular Emacs Lisp) on top of Scheme
-is responsible for Guile's only deviation from the R4RS @footnote{R4RS
-is the Revised^4 Report on the Algorithmic Language Scheme, the closest
+provide, Guile also offers the possibility of writing routines in other
+languages and running them simultaneously with Scheme.  The desire to
+implement other languages (in particular Emacs Lisp) on top of Scheme is
+responsible for Guile's only deviation from the R4RS @footnote{R4RS is
+the Revised^4 Report on the Algorithmic Language Scheme, the closest
 thing to a standard Scheme specification today} Scheme standard
 (@cite{r4rs}): Guile is case sensitive, whereas ``standard'' Scheme is
 not.
@@ -157,18 +157,25 @@ features that go beyond standard Scheme.
 @node Getting started
 @section Getting started
 
-I assume that you know how to program in Scheme, although I do not
-assume advanced knowledge.  If you don't, there are many good books on
-Scheme at all levels, and the Guile Tutorial might give you a good
-enough feel for the language.  I also assume that you know how to
-program in C, since there will be many examples of how to program in C
-using Guile as a library.
+We assume that you know how to program in Scheme, although we do not
+assume advanced knowledge.  If you don't know Scheme, there are many
+good books on Scheme at all levels, and the Guile Tutorial might give
+you a good enough feel for the language.  We also assume that you know
+how to program in C, since there will be many examples of how to program
+in C using Guile as a library.
 
 Many diverse topics from the world of Unix hacking will be covered here,
-like shared libraries, socket programming, garbage collection, and so
+such as shared libraries, socket programming, garbage collection, and so
 forth.  If at any time you feel you don't have enough background on a
-given topic, just go up a level or two, and you will find that the
-chapter begins with a few paragraphs that introduce the topic.
+given topic, just go up a level or two in the manual, and you will find
+that the chapter begins with a few paragraphs that introduce the topic.
+If you are still lost, read through the Guile tutorial and then come
+back to this reference manual.
+
+To run the core Guile interpreter and extension library you need no more
+than a basically configured GNU/Unix system and the Guile sources.  You
+should download and install the Guile sources (@pxref{Obtaining and
+Installing Guile}).
 
 
 @node Guile feature list
@@ -195,7 +202,7 @@ An embeddable version of the same interpreter, called @emph{libguile}.
 A portable high level API on top of libguile (the @code{gh_} interface).
 
 @item
-A collection of bundled C libraries with a Guile API.  As I write, this
+A collection of bundled C libraries with a Guile API.  As we write, this
 list includes:
 
 @table @strong

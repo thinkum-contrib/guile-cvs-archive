@@ -1,7 +1,41 @@
 @node Obtaining and Installing Guile
 @appendix Obtaining and Installing Guile
 
-[[include instructions for getting R4RS]]
+Guile can be obtained from the main GNU archive site
+@url{ftp://prep.ai.mit.edu/pub/gnu} or any of its mirrors.  The file
+will be named guile-version.tar.gz.  The current version is
+@value{VERSION}, so the file you should grab is:
+
+@url{ftp://prep.ai.mit.edu/pub/gnu/guile-@value{VERSION}.tar.gz}
+
+To unbundle Guile use the instruction
+@example
+zcat guile-@value{VERSION}.tar.gz | tar xvf -
+@end example
+which will create a directory called @file{guile-@value{VERSION}} with
+all the sources.  You can look at the file @file{INSTALL} for detailed
+instructions on how to build and install Guile, but you should be able
+to just do
+@example
+cd guile-@value{VERSION}
+./configure
+make install
+@end example
+
+This will install the Guile executable @file{guile}, the Guile library
+@file{libguile.a} and various associated header files and support
+libraries. It will also install the Guile tutorial and reference manual.
+
+@c [[include instructions for getting R4RS]]
+
+Since in this manual we frequently refer to the Scheme ``standard'',
+also known as R4RS, or the ``Revised(4) Report on the Algorithmic
+Language Scheme'', so we have included the report in the Guile
+distribution (@pxref{Top, Revised(4) Report on the Algorithmic Language
+Scheme, , r4rs}).  This will also be installed in your info directory.
+
+Any problems with the installation should be reported to
+@email{bug-guile@@gnu.ai.mit.edu}
 
 @page
 @node Invoking Guile

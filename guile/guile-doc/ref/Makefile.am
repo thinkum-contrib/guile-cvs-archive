@@ -5,7 +5,7 @@ AUTOMAKE_OPTIONS = foreign
 ## Add our own -I option.
 # MAKEINFO = makeinfo -I ../tutorial
 
-info_TEXINFOS = guile-ref.texi
+info_TEXINFOS = guile-ref.texi r4rs.texi
 
 ## Just a convenience var; no special significance.
 ## Most of these files are outdated and have been moved into a `sources' dir.

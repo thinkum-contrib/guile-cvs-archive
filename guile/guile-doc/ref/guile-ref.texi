@@ -15,8 +15,7 @@
 @c terminology is weird, but consistent with the function names and also
 @c with Emacs Lisp, which I assume takes Maclisp's lead.
 
-@set EDITION 1.1a
-@set VERSION 1.1a
+@include version.texi
 
 @c @iftex
 @c @cropmarks
@@ -63,12 +62,11 @@ by the Free Software Foundation.
 @subtitle $Id$
 @subtitle For use with Guile @value{VERSION}
 @author Mark Galassi
-@author Cygnus Solutions and
-@author Los Alamos National Laboratory
-@author @email{rosalia@@nis.lanl.gov}
+@author Cygnus Solution and Los Alamos National Laboratory
+@author @email{rosalia@@cygnus.com}
 @author
 @author Jim Blandy
-@author Free Software Foundation
+@author Free Software Foundation and MIT AI Lab
 @author @email{jimb@@red-bean.com}
 @author
 @author Gary Houston
