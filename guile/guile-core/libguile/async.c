@@ -136,7 +136,7 @@ SCM_DEFINE (scm_run_asyncs, "run-asyncs", 1, 0, 0,
 
 
 
-static pthread_mutex_t async_mutex = PTHREAD_MUTEX_INITIALIZER;
+static scm_i_pthread_mutex_t async_mutex = SCM_I_PTHREAD_MUTEX_INITIALIZER;
 
 /* System asyncs. */
 
@@ -152,7 +152,7 @@ scm_async_click ()
      invoked even when pending_asyncs is zero.
   */
 
-  scm_pthread_mutex_lock (&async_mutex);
+  scm_i_scm_pthread_mutex_lock (&async_mutex);
   t->pending_asyncs = 0;
   if (t->block_asyncs == 0)
     {
@@ -161,7 +161,7 @@ scm_async_click ()
     }
   else
     asyncs = SCM_EOL;
-  pthread_mutex_unlock (&async_mutex);
+  scm_i_pthread_mutex_unlock (&async_mutex);
 
   while (scm_is_pair (asyncs))
     {
@@ -191,11 +191,11 @@ void
 scm_i_queue_async_cell (SCM c, scm_i_thread *t)
 {
   SCM sleep_object;
-  pthread_mutex_t *sleep_mutex;
+  scm_i_pthread_mutex_t *sleep_mutex;
   int sleep_fd;
   SCM p;
   
-  scm_pthread_mutex_lock (&async_mutex);
+  scm_i_scm_pthread_mutex_lock (&async_mutex);
   p = t->active_asyncs;
   SCM_SETCDR (c, SCM_EOL);
   if (!scm_is_pair (p))
@@ -207,7 +207,7 @@ scm_i_queue_async_cell (SCM c, scm_i_thread *t)
 	{
 	  if (scm_is_eq (SCM_CAR (p), SCM_CAR (c)))
 	    {
-	      pthread_mutex_unlock (&async_mutex);
+	      scm_i_pthread_mutex_unlock (&async_mutex);
 	      return;
 	    }
 	  p = pp;
@@ -218,7 +218,7 @@ scm_i_queue_async_cell (SCM c, scm_i_thread *t)
   sleep_object = t->sleep_object;
   sleep_mutex = t->sleep_mutex;
   sleep_fd = t->sleep_fd;
-  pthread_mutex_unlock (&async_mutex);
+  scm_i_pthread_mutex_unlock (&async_mutex);
 
   if (sleep_mutex)
     {
@@ -231,9 +231,9 @@ scm_i_queue_async_cell (SCM c, scm_i_thread *t)
 	 sleep_mutex locked while setting t->sleep_mutex and will only
 	 unlock it again while waiting on sleep_cond.
       */
-      scm_pthread_mutex_lock (sleep_mutex);
-      pthread_cond_signal (&t->sleep_cond);
-      pthread_mutex_unlock (sleep_mutex);
+      scm_i_scm_pthread_mutex_lock (sleep_mutex);
+      scm_i_pthread_cond_signal (&t->sleep_cond);
+      scm_i_pthread_mutex_unlock (sleep_mutex);
     }
 
   if (sleep_fd >= 0)
@@ -255,12 +255,12 @@ scm_i_queue_async_cell (SCM c, scm_i_thread *t)
 
 int
 scm_i_setup_sleep (scm_i_thread *t,
-		   SCM sleep_object, pthread_mutex_t *sleep_mutex,
+		   SCM sleep_object, scm_i_pthread_mutex_t *sleep_mutex,
 		   int sleep_fd)
 {
   int pending;
 
-  scm_pthread_mutex_lock (&async_mutex);
+  scm_i_scm_pthread_mutex_lock (&async_mutex);
   pending = t->pending_asyncs;
   if (!pending)
     {
@@ -268,18 +268,18 @@ scm_i_setup_sleep (scm_i_thread *t,
       t->sleep_mutex = sleep_mutex;
       t->sleep_fd = sleep_fd;
     }
-  pthread_mutex_unlock (&async_mutex);
+  scm_i_pthread_mutex_unlock (&async_mutex);
   return pending;
 }
 
 void
 scm_i_reset_sleep (scm_i_thread *t)
 {
-  scm_pthread_mutex_lock (&async_mutex);
+  scm_i_scm_pthread_mutex_lock (&async_mutex);
   t->sleep_object = SCM_BOOL_F;
   t->sleep_mutex = NULL;
   t->sleep_fd = -1;
-  pthread_mutex_unlock (&async_mutex);  
+  scm_i_pthread_mutex_unlock (&async_mutex);  
 }
 
 SCM_DEFINE (scm_system_async_mark_for_thread, "system-async-mark", 1, 1, 0,

@@ -51,7 +51,7 @@
    a fluid in the normal way.
 */
 
-static pthread_mutex_t fluid_admin_mutex = PTHREAD_MUTEX_INITIALIZER;
+static scm_i_pthread_mutex_t fluid_admin_mutex = SCM_I_PTHREAD_MUTEX_INITIALIZER;
 
 /* Protected by fluid_admin_mutex, but also accessed during GC.  See
    next_fluid_num for a discussion of this.
@@ -195,7 +195,7 @@ next_fluid_num ()
   size_t n;
 
   scm_frame_begin (0);
-  scm_frame_pthread_mutex_lock (&fluid_admin_mutex);
+  scm_i_frame_pthread_mutex_lock (&fluid_admin_mutex);
 
   if (allocated_fluids_num == allocated_fluids_len)
     {

@@ -26,7 +26,7 @@
 #include "libguile/threads.h"
 
 
-SCM_API pthread_mutex_t scm_i_init_mutex;
+SCM_API scm_i_pthread_mutex_t scm_i_init_mutex;
 SCM_API int scm_initialized_p;
 
 SCM_API void scm_init_guile (void);

@@ -477,7 +477,7 @@ scm_t_port **scm_i_port_table;
 long scm_i_port_table_size = 0;	/* Number of ports in scm_i_port_table.  */
 long scm_i_port_table_room = 20;	/* Size of the array.  */
 
-pthread_mutex_t scm_i_port_table_mutex = PTHREAD_MUTEX_INITIALIZER;
+scm_i_pthread_mutex_t scm_i_port_table_mutex = SCM_I_PTHREAD_MUTEX_INITIALIZER;
 
 /* This function is not and should not be thread safe. */
 
@@ -748,9 +748,9 @@ SCM_DEFINE (scm_close_port, "close-port", 1, 0, 0,
     rv = (scm_ptobs[i].close) (port);
   else
     rv = 0;
-  scm_pthread_mutex_lock (&scm_i_port_table_mutex);
+  scm_i_scm_pthread_mutex_lock (&scm_i_port_table_mutex);
   scm_remove_from_port_table (port);
-  pthread_mutex_unlock (&scm_i_port_table_mutex);
+  scm_i_pthread_mutex_unlock (&scm_i_port_table_mutex);
   SCM_CLR_PORT_OPEN_FLAG (port);
   return scm_from_bool (rv >= 0);
 }
@@ -799,18 +799,18 @@ scm_c_port_for_each (void (*proc)(void *data, SCM p), void *data)
      can change arbitrarily (from a GC, for example).  So we first
      collect the ports into a vector. -mvo */
 
-  scm_pthread_mutex_lock (&scm_i_port_table_mutex);
+  scm_i_scm_pthread_mutex_lock (&scm_i_port_table_mutex);
   n = scm_i_port_table_size;
-  pthread_mutex_unlock (&scm_i_port_table_mutex);
+  scm_i_pthread_mutex_unlock (&scm_i_port_table_mutex);
 
   ports = scm_c_make_vector (n, SCM_BOOL_F);
 
-  scm_pthread_mutex_lock (&scm_i_port_table_mutex);
+  scm_i_scm_pthread_mutex_lock (&scm_i_port_table_mutex);
   if (n > scm_i_port_table_size)
     n = scm_i_port_table_size;
   for (i = 0; i < n; i++)
     SCM_SIMPLE_VECTOR_SET (ports, i, scm_i_port_table[i]->port);
-  pthread_mutex_unlock (&scm_i_port_table_mutex);
+  scm_i_pthread_mutex_unlock (&scm_i_port_table_mutex);
 
   for (i = 0; i < n; i++)
     proc (data, SCM_SIMPLE_VECTOR_REF (ports, i));
@@ -922,13 +922,13 @@ SCM_DEFINE (scm_flush_all_ports, "flush-all-ports", 0, 0, 0,
 {
   size_t i;
 
-  scm_pthread_mutex_lock (&scm_i_port_table_mutex);
+  scm_i_scm_pthread_mutex_lock (&scm_i_port_table_mutex);
   for (i = 0; i < scm_i_port_table_size; i++)
     {
       if (SCM_OPOUTPORTP (scm_i_port_table[i]->port))
 	scm_flush (scm_i_port_table[i]->port);
     }
-  pthread_mutex_unlock (&scm_i_port_table_mutex);
+  scm_i_pthread_mutex_unlock (&scm_i_port_table_mutex);
   return SCM_UNSPECIFIED;
 }
 #undef FUNC_NAME
@@ -1622,7 +1622,7 @@ write_void_port (SCM port SCM_UNUSED,
 static SCM
 scm_i_void_port (long mode_bits)
 {
-  scm_pthread_mutex_lock (&scm_i_port_table_mutex);
+  scm_i_scm_pthread_mutex_lock (&scm_i_port_table_mutex);
   {
     SCM answer = scm_new_port_table_entry (scm_tc16_void_port);
     scm_t_port * pt = SCM_PTAB_ENTRY(answer);
@@ -1631,7 +1631,7 @@ scm_i_void_port (long mode_bits)
   
     SCM_SETSTREAM (answer, 0);
     SCM_SET_CELL_TYPE (answer, scm_tc16_void_port | mode_bits);
-    pthread_mutex_unlock (&scm_i_port_table_mutex);
+    scm_i_pthread_mutex_unlock (&scm_i_port_table_mutex);
     return answer;
   }
 }

@@ -28,7 +28,13 @@
 #include "libguile/root.h"
 #include "libguile/iselect.h"
 
-#include <pthread.h>
+#if SCM_USE_PTHREAD_THREADS
+#include "libguile/pthread-threads.h"
+#endif
+
+#if SCM_USE_NULL_THREADS
+#include "libguile/null-threads.h"
+#endif
 
 
 
@@ -41,21 +47,21 @@ typedef struct scm_i_thread {
   struct scm_i_thread *next_thread;
 
   SCM handle;
-  pthread_t pthread;
+  scm_i_pthread_t pthread;
   
   SCM join_queue;
   SCM result;
   int exited;
 
   SCM sleep_object;
-  pthread_mutex_t *sleep_mutex;
-  pthread_cond_t sleep_cond;
+  scm_i_pthread_mutex_t *sleep_mutex;
+  scm_i_pthread_cond_t sleep_cond;
   int sleep_fd, sleep_pipe[2];
 
   /* This mutex represents this threads right to access the heap.
      That right can temporarily be taken away by the GC.  
   */
-  pthread_mutex_t heap_mutex;
+  scm_i_pthread_mutex_t heap_mutex;
 
   /* The freelists of this thread.  Each thread has its own lists so
      that they can all allocate concurrently.
@@ -129,12 +135,12 @@ SCM_API void *scm_i_with_guile_and_parent (void *(*func)(void *), void *data,
 
 /* This is the generic critical section for places where we are too
    lazy to allocate a specific mutex. */
-extern pthread_mutex_t scm_i_critical_section_mutex;
+extern scm_i_pthread_mutex_t scm_i_critical_section_mutex;
 
 #define SCM_CRITICAL_SECTION_START \
-  scm_pthread_mutex_lock (&scm_i_critical_section_mutex)
+  scm_i_scm_pthread_mutex_lock (&scm_i_critical_section_mutex)
 #define SCM_CRITICAL_SECTION_END \
-  pthread_mutex_unlock (&scm_i_critical_section_mutex)
+  scm_i_pthread_mutex_unlock (&scm_i_critical_section_mutex)
 
 extern int scm_i_thread_go_to_sleep;
 
@@ -182,8 +188,8 @@ SCM_API int scm_c_thread_exited_p (SCM thread);
 SCM_API SCM scm_thread_exited_p (SCM thread);
 
 #define SCM_I_CURRENT_THREAD \
-  ((scm_i_thread *) pthread_getspecific (scm_i_thread_key))
-SCM_API pthread_key_t scm_i_thread_key;
+  ((scm_i_thread *) scm_i_pthread_getspecific (scm_i_thread_key))
+SCM_API scm_i_pthread_key_t scm_i_thread_key;
 
 #define scm_i_dynwinds()         (SCM_I_CURRENT_THREAD->dynwinds)
 #define scm_i_set_dynwinds(w)    (SCM_I_CURRENT_THREAD->dynwinds = (w))
@@ -191,12 +197,13 @@ SCM_API pthread_key_t scm_i_thread_key;
 #define scm_i_set_last_debug_frame(f) \
                                  (SCM_I_CURRENT_THREAD->last_debug_frame = (f))
 
-SCM_API pthread_mutex_t scm_i_misc_mutex;
+SCM_API scm_i_pthread_mutex_t scm_i_misc_mutex;
 
 /* Convenience functions for working with the pthread API in guile
    mode.
 */
 
+#if SCM_USE_PTHREAD_THREADS
 SCM_API int scm_pthread_mutex_lock (pthread_mutex_t *mutex);
 SCM_API void scm_frame_pthread_mutex_lock (pthread_mutex_t *mutex);
 SCM_API int scm_pthread_cond_wait (pthread_cond_t *cond,
@@ -204,6 +211,7 @@ SCM_API int scm_pthread_cond_wait (pthread_cond_t *cond,
 SCM_API int scm_pthread_cond_timedwait (pthread_cond_t *cond,
 					pthread_mutex_t *mutex,
 					const struct timespec *abstime);
+#endif
 
 /* More convenience functions.
  */

@@ -225,12 +225,12 @@ SCM_API int scm_debug_cells_gc_interval ;
 void scm_i_expensive_validation_check (SCM cell);
 #endif
 
-SCM_API pthread_mutex_t scm_i_gc_admin_mutex;
+SCM_API scm_i_pthread_mutex_t scm_i_gc_admin_mutex;
 
 SCM_API int scm_block_gc;
 SCM_API int scm_gc_heap_lock;
 SCM_API unsigned int scm_gc_running_p;
-SCM_API pthread_mutex_t scm_i_sweep_mutex;
+SCM_API scm_i_pthread_mutex_t scm_i_sweep_mutex;
 
 
 #if (SCM_ENABLE_DEPRECATED == 1)
@@ -250,10 +250,10 @@ SCM_API size_t scm_default_max_segment_size;
 
 SCM_API size_t scm_max_segment_size;
 
-#define SCM_SET_FREELIST_LOC(key,ptr) pthread_setspecific ((key), (ptr))
-#define SCM_FREELIST_LOC(key) ((SCM *) pthread_getspecific (key))
-SCM_API pthread_key_t scm_i_freelist;
-SCM_API pthread_key_t scm_i_freelist2;
+#define SCM_SET_FREELIST_LOC(key,ptr) scm_i_pthread_setspecific ((key), (ptr))
+#define SCM_FREELIST_LOC(key) ((SCM *) scm_i_pthread_getspecific (key))
+SCM_API scm_i_pthread_key_t scm_i_freelist;
+SCM_API scm_i_pthread_key_t scm_i_freelist2;
 SCM_API struct scm_t_cell_type_statistics scm_i_master_freelist;
 SCM_API struct scm_t_cell_type_statistics scm_i_master_freelist2;
 

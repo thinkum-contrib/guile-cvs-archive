@@ -382,7 +382,7 @@ scm_init_guile ()
 }
 #endif
 
-pthread_mutex_t scm_i_init_mutex = PTHREAD_MUTEX_INITIALIZER;
+scm_i_pthread_mutex_t scm_i_init_mutex = SCM_I_PTHREAD_MUTEX_INITIALIZER;
 int scm_initialized_p = 0;
 
 static void *

@@ -41,24 +41,24 @@ scm_init_pthread_threads ()
   pthread_mutexattr_settype (&scm_i_plugin_mutex, SCM_MUTEX_FAST);
 #endif
   /* These values should be passed in a structure. */
-  scm_i_plugin_mutex_size = sizeof (pthread_mutex_t);
-  scm_i_plugin_mutex_init = (scm_t_mutex_init) pthread_mutex_init;
-  scm_i_plugin_mutex_lock = (scm_t_mutex_lock) pthread_mutex_lock;
-  scm_i_plugin_mutex_unlock = (scm_t_mutex_unlock) pthread_mutex_unlock;
+  scm_i_plugin_mutex_size = sizeof (scm_i_pthread_mutex_t);
+  scm_i_plugin_mutex_init = (scm_t_mutex_init) scm_i_pthread_mutex_init;
+  scm_i_plugin_mutex_lock = (scm_t_mutex_lock) scm_i_pthread_mutex_lock;
+  scm_i_plugin_mutex_unlock = (scm_t_mutex_unlock) scm_i_pthread_mutex_unlock;
 
 #if defined (SCM_MUTEX_RECURSIVE) && !defined (SCM_DEBUG_THREADS)
   pthread_mutexattr_init (&scm_i_plugin_rec_mutex);
   pthread_mutexattr_settype (&scm_i_plugin_rec_mutex, SCM_MUTEX_RECURSIVE);
-  scm_i_plugin_rec_mutex_size = sizeof (pthread_mutex_t);
-  scm_i_plugin_rec_mutex_init = (scm_t_rec_mutex_init) pthread_mutex_init;
+  scm_i_plugin_rec_mutex_size = sizeof (scm_i_pthread_mutex_t);
+  scm_i_plugin_rec_mutex_init = (scm_t_rec_mutex_init) scm_i_pthread_mutex_init;
   scm_i_plugin_rec_mutex_destroy = (scm_t_rec_mutex_destroy) pthread_mutex_destroy;
-  scm_i_plugin_rec_mutex_lock = (scm_t_rec_mutex_lock) pthread_mutex_lock;
-  scm_i_plugin_rec_mutex_trylock = (scm_t_rec_mutex_trylock) pthread_mutex_trylock;
-  scm_i_plugin_rec_mutex_unlock = (scm_t_rec_mutex_unlock) pthread_mutex_unlock;
+  scm_i_plugin_rec_mutex_lock = (scm_t_rec_mutex_lock) scm_i_pthread_mutex_lock;
+  scm_i_plugin_rec_mutex_trylock = (scm_t_rec_mutex_trylock) scm_i_pthread_mutex_trylock;
+  scm_i_plugin_rec_mutex_unlock = (scm_t_rec_mutex_unlock) scm_i_pthread_mutex_unlock;
 #endif
 
-  scm_i_plugin_cond_wait = (scm_t_cond_wait) pthread_cond_wait;
-  scm_i_plugin_cond_timedwait = (scm_t_cond_timedwait) pthread_cond_timedwait;
+  scm_i_plugin_cond_wait = (scm_t_cond_wait) scm_i_pthread_cond_wait;
+  scm_i_plugin_cond_timedwait = (scm_t_cond_timedwait) scm_i_pthread_cond_timedwait;
 
   scm_init_threads_plugin ();
 }

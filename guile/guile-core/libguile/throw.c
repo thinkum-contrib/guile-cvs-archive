@@ -458,7 +458,7 @@ scm_handle_by_message (void *handler_data, SCM tag, SCM args)
     exit (scm_exit_status (args));
 
   handler_message (handler_data, tag, args);
-  pthread_exit (NULL);
+  scm_i_pthread_exit (NULL);
 }
 
 

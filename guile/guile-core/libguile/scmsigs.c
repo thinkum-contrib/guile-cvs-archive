@@ -116,7 +116,7 @@ signal_delivery_thread (void *data)
   char sigbyte;
 
   sigfillset (&all_sigs);
-  pthread_sigmask (SIG_SETMASK, &all_sigs, NULL);
+  scm_i_pthread_sigmask (SIG_SETMASK, &all_sigs, NULL);
 
   while (1)
     {
@@ -150,8 +150,8 @@ start_signal_delivery_thread (void)
 static void
 ensure_signal_delivery_thread ()
 {
-  static pthread_once_t once = PTHREAD_ONCE_INIT;
-  pthread_once (&once, start_signal_delivery_thread);
+  static scm_i_pthread_once_t once = SCM_I_PTHREAD_ONCE_INIT;
+  scm_i_pthread_once (&once, start_signal_delivery_thread);
 }
 
 SCM

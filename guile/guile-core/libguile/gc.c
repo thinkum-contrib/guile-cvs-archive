@@ -72,7 +72,7 @@ unsigned int scm_gc_running_p = 0;
 
 /* Lock this mutex before doing lazy sweeping.
  */
-pthread_mutex_t scm_i_sweep_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+scm_i_pthread_mutex_t scm_i_sweep_mutex = SCM_I_PTHREAD_RECURSIVE_MUTEX_INITIALIZER;
 
 /* Set this to != 0 if every cell that is accessed shall be checked:
  */
@@ -445,7 +445,7 @@ scm_gc_for_newcell (scm_t_cell_type_statistics *freelist, SCM *free_cells)
 {
   SCM cell;
  
-  scm_pthread_mutex_lock (&scm_i_sweep_mutex);
+  scm_i_scm_pthread_mutex_lock (&scm_i_sweep_mutex);
 
   *free_cells = scm_i_sweep_some_segments (freelist);
   if (*free_cells == SCM_EOL && scm_i_gc_grow_heap_p (freelist))
@@ -487,7 +487,7 @@ scm_gc_for_newcell (scm_t_cell_type_statistics *freelist, SCM *free_cells)
 
   *free_cells = SCM_FREE_CELL_CDR (cell);
 
-  pthread_mutex_unlock (&scm_i_sweep_mutex);
+  scm_i_pthread_mutex_unlock (&scm_i_sweep_mutex);
 
   return cell;
 }
@@ -505,7 +505,7 @@ scm_igc (const char *what)
   if (scm_block_gc)
     return;
 
-  scm_pthread_mutex_lock (&scm_i_sweep_mutex);
+  scm_i_scm_pthread_mutex_lock (&scm_i_sweep_mutex);
 
   /* During the critical section, only the current thread may run. */
   scm_i_thread_put_to_sleep ();
@@ -603,7 +603,7 @@ scm_igc (const char *what)
   /*
     See above.
    */
-  pthread_mutex_unlock (&scm_i_sweep_mutex);
+  scm_i_pthread_mutex_unlock (&scm_i_sweep_mutex);
   scm_c_hook_run (&scm_after_gc_c_hook, 0);
 
   /*
@@ -888,7 +888,7 @@ scm_storage_prehistory ()
   scm_c_hook_init (&scm_after_gc_c_hook, 0, SCM_C_HOOK_NORMAL);
 }
 
-pthread_mutex_t scm_i_gc_admin_mutex = PTHREAD_MUTEX_INITIALIZER;
+scm_i_pthread_mutex_t scm_i_gc_admin_mutex = SCM_I_PTHREAD_MUTEX_INITIALIZER;
 
 int
 scm_init_storage ()
