@@ -22,6 +22,8 @@
 
 
 - Guile 1.6
+  + write workbook/build/maintainer-dirs.text [ttn]
+  + write guile-core/am/maintainer-dirs [ttn]
   - convert bug tracking/summarization process [ttn]
     +R define bugs db format (see bugs/README) [mvo]
     + import current BUGS [mvo]
