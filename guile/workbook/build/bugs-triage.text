@@ -1,0 +1,24 @@
+On the way In
+-------------
+
+When a bug is reported, someone must put it through bugs triage,
+lest it be lost.  (Losing some bugs is no big deal, though.)
+
+This person decides what to do w/ the bug: deal w/ it immediately (in the case
+of trusted patch or obvious fix), or add it to the database (or both).  That's
+pretty much all that's required.
+
+
+On the way Out
+--------------
+
+When release nears, someone (perhaps the release manager) must look at all the
+bugs and decide which ones to add a release-critical tag to (some of these may
+already have such a tag; they must be reviewed and affirmed).
+
+This is a more difficult form of triage than on the way in.  A bug sporting a
+release-critical tag for release R means that the non-resolution of this bug
+should block (gate) release R.  The blocking indicates the status quo is
+unacceptable in some way.  How to judge this depends on the severity and scope
+of the bug, and ability of the programmers on hand to fix the bug.  Overall
+stability is desirable (see stability.text).
