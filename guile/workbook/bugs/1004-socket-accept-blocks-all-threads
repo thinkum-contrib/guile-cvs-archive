@@ -1,9 +1,9 @@
 summary: all threads blocked on (accept socket)
 reported: Lamy Jean-Baptiste <jiba@tuxfamily.org>, 2002-03-04
-affects:
+affects: HEAD branch_release-1-6 branch_release-1-4
 see-also-dir: 1004.stuff
 test-case: socket-accept.scm
-patch:
+patch: nonblocking-accept.diff
 
 Lamy Jean-Baptiste sez:
 > I'm writing a peer-to-peer protocol to share objects between dynamic OO
