@@ -1,5 +1,12 @@
 1999-08-20  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
+	* goops.c (scm_add_slot): Conform to new-style methods (no
+	next-method argument).
+
+	* goops.scm (compute-slot-accessors): Use new-style standard
+	accessor forms when possible, otherwise use low-level getter or
+	setter directly.
+
 	* dispatch.scm (make-apply-generic apply-0-arity-method
 	make-method-cache): Removed.  (Have been moved to C level.)
 	(method-entry): Insert the cmethod entry into code-table before
