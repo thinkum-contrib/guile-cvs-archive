@@ -15,6 +15,12 @@ snapshots or distributions, but is a strictly internal document.
 CONVENTIONS: ChangeLog format. (Reverse chronological order.)
 ----------------------------------------------------------------------
 
+Wed Aug 27 17:59:57 1997  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* unif.c: We should remove the prototypes for selecting type of
+	uniform array.  Better to use symbolic names for the type and an
+	extra argument `fill'.
+
 Sun Mar  9 15:45:14 1997  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* We need to discuss the long-term solution to Guile configuration
