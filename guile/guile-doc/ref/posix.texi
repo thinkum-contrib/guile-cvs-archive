@@ -1,5 +1,24 @@
+@node POSIX System Calls and Networking
+@chapter POSIX System Calls and Networking
+
+@menu
+* Conventions::                 Conventions employed by the POSIX interface.
+* Ports and File Descriptors::	Scheme ``ports'' and Unix file descriptors
+				  have different representations.
+* File System::			stat, chown, chmod, etc.
+* User Information::		Retrieving a user's GECOS (/etc/passwd) entry.
+* Time::			gettimeofday, localtime, strftime, etc.
+* Processes::			getuid, getpid, etc.
+* Signals::                     sigaction, kill, pause, alarm, etc.
+* Terminals and Ptys::		ttyname, tcsetpgrp, etc.
+* Pipes::			Communicating data between processes.
+* Networking::			gethostbyaddr, getnetent, socket, bind, listen.
+* System Identification::	`uname' and getting info about this machine.
+* Locales::                     setlocale, etc.
+@end menu
+
 @node Conventions
-@chapter POSIX Interface Conventions
+@section POSIX Interface Conventions
 
 These interfaces provide access to operating system facilities.
 They provide a simple wrapping around the underlying C interfaces
@@ -78,7 +97,7 @@ The important thing to note is that the @code{errno} value can be
 extracted with @code{(car (list-ref stuff 4))}.
 
 @node Ports and File Descriptors
-@chapter Ports and File Descriptors
+@section Ports and File Descriptors
 
 Conventions generally follow those of scsh, @ref{The Scheme shell (scsh)}.
 
@@ -412,7 +431,7 @@ values instead of a list and has an additional select! interface.
 @end deffn
 
 @node File System
-@chapter File System
+@section File System
 
 These procedures allow querying and setting file system attributes
 (such as owner,
@@ -659,7 +678,7 @@ the @code{tmpnam} function in the system libraries.
 @end deffn
 
 @node User Information
-@chapter User Information
+@section User Information
 
 The facilities in this section provide an interface to the user and
 group database.
@@ -771,7 +790,7 @@ or getgrent respectively.
 @end deffn
 
 @node Time
-@chapter Time
+@section Time
 
 @deffn primitive current-time
 Returns the number of seconds since 1970-01-01 00:00:00 UTC, excluding
@@ -908,7 +927,7 @@ are included but subprocesses are not.
 @end deffn
 
 @node Processes
-@chapter Processes
+@section Processes
 
 @findex cd
 @deffn primitive chdir path
@@ -1182,7 +1201,7 @@ The return value is unspecified.
 @end deffn
 
 @node Signals
-@chapter Signals
+@section Signals
 
 Procedures to raise, handle and wait for signals.
 
@@ -1283,7 +1302,7 @@ of seconds remaining otherwise.
 @end deffn
 
 @node Terminals and Ptys
-@chapter Terminals and Ptys
+@section Terminals and Ptys
 
 @deffn primitive isatty? port
 Returns @code{#t} if @var{port} is using a serial
@@ -1322,7 +1341,7 @@ controlling terminal.  The return value is unspecified.
 @end deffn
 
 @node Pipes
-@chapter Pipes
+@section Pipes
 
 The following procedures provide an interface to the @code{popen} and 
 @code{pclose} system routines.  The code is in a separate "popen"
@@ -1360,7 +1379,7 @@ close a pipe, but doesn't return the status.
 @end deffn
 
 @node Networking
-@chapter Networking
+@section Networking
 
 @menu
 * Network Databases and Address Conversion::
@@ -1368,13 +1387,13 @@ close a pipe, but doesn't return the status.
 @end menu
 
 @node Network Databases and Address Conversion
-@section Network Databases and Address Conversion
+@subsection Network Databases and Address Conversion
 
 This section describes procedures which convert internet addresses
 and query various network databases.  Care should be taken when using
 the database routines since they are not reentrant.
 
-@subsection Address Conversion
+@subsubsection Address Conversion
 
 @deffn primitive inet-aton address
 Converts a string containing an Internet host address in the traditional
@@ -1421,7 +1440,7 @@ with the local-address-within-network number @var{lna}.
 @end smalllisp
 @end deffn
 
-@subsection The Host Database
+@subsubsection The Host Database
 
 A @dfn{host object} is a structure that represents what is known about a
 network host, and is the usual way of representing a system's network
@@ -1489,7 +1508,7 @@ Close the stream used by @code{gethostent}.  The return value is unspecified.
 If @var{stayopen} is omitted, this is equivalent to @code{endhostent}.
 Otherwise it is equivalent to @code{sethostent stayopen}.
 @end deffn
-@subsection The Network Database
+@subsubsection The Network Database
 
 The following functions accept an object representing a network
 and return a selected component:
@@ -1545,7 +1564,7 @@ If @var{stayopen} is omitted, this is equivalent to @code{endnetent}.
 Otherwise it is equivalent to @code{setnetent stayopen}.
 @end deffn
 
-@subsection The Protocol Database
+@subsubsection The Protocol Database
 
 The following functions accept an object representing a protocol
 and return a selected component:
@@ -1596,7 +1615,7 @@ If @var{stayopen} is omitted, this is equivalent to @code{endprotoent}.
 Otherwise it is equivalent to @code{setprotoent stayopen}.
 @end deffn
 
-@subsection The Service Database
+@subsubsection The Service Database
 
 The following functions accept an object representing a service
 and return a selected component:
@@ -1656,7 +1675,7 @@ Otherwise it is equivalent to @code{setservent stayopen}.
 @end deffn
 
 @node Network Sockets and Communication
-@section Network Sockets and Communication
+@subsection Network Sockets and Communication
 
 Socket ports can be created using @code{socket} and @code{socketpair}. 
 The ports are initially unbuffered, to
@@ -1966,7 +1985,7 @@ These procedures are inconvenient to use at present, but consider:
 @end example
 
 @node System Identification
-@chapter System Identification
+@section System Identification
 
 @deffn primitive uname
 Returns an object with some information about the computer system the
@@ -2003,7 +2022,7 @@ no other easy or unambiguous way of detecting such features.
 @end deffn
 
 @node Locales
-@chapter Locales
+@section Locales
 
 @deffn primitive setlocale category [locale]
 If @var{locale} is omitted, returns the current value of the specified
@@ -2017,178 +2036,3 @@ the string @var{locale}
 and the new value is returned as a system-dependent string.  If @var{locale}
 is an empty string, the locale will be set using envirionment variables.
 @end deffn
-
-@node Expect
-@chapter Expect
-
-The macros in this section are made available with:
-
-@smalllisp
-(use-modules (ice-9 expect))
-@end smalllisp
-
-@code{expect} is a macro for selecting actions based on the output from
-a port.  The name comes from a tool of similar functionality by Don Libes.
-Actions can be taken when a particular string is matched, when a timeout
-occurs, or when end-of-file is seen on the port.  The @code{expect} macro
-is described below; @code{expect-strings} is a front-end to @code{expect}
-based on regexec (see the regular expression documentation).
-
-@defmac expect-strings clause @dots{}
-By default, @code{expect-strings} will read from the current input port.
-The first term in each clause consists of an expression evaluating to
-a string pattern (regular expression).  As characters
-are read one-by-one from the port, they are accumulated in a buffer string
-which is matched against each of the patterns.  When a
-pattern matches, the remaining expression(s) in
-the clause are evaluated and the value of the last is returned.  For example:
-
-@smalllisp
-(with-input-from-file "/etc/passwd"
-  (lambda ()
-    (expect-strings
-      ("^nobody" (display "Got a nobody user.\n")
-                 (display "That's no problem.\n"))
-      ("^daemon" (display "Got a daemon user.\n")))))
-@end smalllisp
-
-The regular expression is compiled with the @code{REG_NEWLINE} flag, so
-that the ^ and $ anchors will match at any newline, not just at the start
-and end of the string.
-
-There are two other ways to write a clause:
-
-The expression(s) to evaluate
-can be omitted, in which case the result of the regular expression match
-(converted to strings, as obtained from regexec with match-pick set to "")
-will be returned if the pattern matches.
-
-The symbol @code{=>} can be used to indicate that the expression is a
-procedure which will accept the result of a successful regular expression
-match.  E.g.,
-
-@smalllisp
-("^daemon" => write)
-("^d\\(aemon\\)" => (lambda args (for-each write args)))
-("^da\\(em\\)on" => (lambda (all sub)
-                         (write all) (newline)
-                         (write sub) (newline)))
-@end smalllisp
-
-The order of the substrings corresponds to the order in which the
-opening brackets occur.
-
-A number of variables can be used to control the behaviour
-of @code{expect} (and @code{expect-strings}).
-Most have default top-level bindings to the value @code{#f}, 
-which produces the default behaviour.
-They can be redefined at the
-top level or locally bound in a form enclosing the expect expression.
-
-@table @code
-@item expect-port
-A port to read characters from, instead of the current input port.
-@item expect-timeout
-@code{expect} will terminate after this number of
-seconds, returning @code{#f} or the value returned by expect-timeout-proc.
-@item expect-timeout-proc
-A procedure called if timeout occurs.  The procedure takes a single argument:
-the accumulated string.
-@item expect-eof-proc
-A procedure called if end-of-file is detected on the input port.  The
-procedure takes a single argument: the accumulated string.
-@item expect-char-proc
-A procedure to be called every time a character is read from the
-port.  The procedure takes a single argument: the character which was read.
-@item expect-strings-compile-flags
-Flags to be used when compiling a regular expression, which are passed
-to @code{make-regexp} @xref{Regexp Functions}.  The default value
-is @code{regexp/newline}.
-@item expect-strings-exec-flags
-Flags to be used when executing a regular expression, which are
-passed to regexp-exec @xref{Regexp Functions}.
-The default value is @code{regexp/noteol}, which prevents @code{$}
-from matching the end of the string while it is still accumulating,
-but still allows it to match after a line break or at the end of file.
-@end table
-
-Here's an example using all of the variables:
-
-@smalllisp
-(let ((expect-port (open-input-file "/etc/passwd"))
-      (expect-timeout 1)
-      (expect-timeout-proc
-        (lambda (s) (display "Times up!\n")))
-      (expect-eof-proc
-        (lambda (s) (display "Reached the end of the file!\n")))
-      (expect-char-proc display)
-      (expect-strings-compile-flags (logior regexp/newline regexp/icase))
-      (expect-strings-exec-flags 0))
-   (expect-strings
-     ("^nobody"  (display "Got a nobody user\n"))))
-@end smalllisp
-@end defmac
-
-@defmac expect clause @dots{}
-@code{expect} is used in the same way as @code{expect-strings},
-but tests are specified not as patterns, but as procedures.  The
-procedures are called in turn after each character is read from the
-port, with two arguments: the value of the accumulated string and
-a flag to indicate whether end-of-file has been reached.  The flag
-will usually be @code{#f}, but if end-of-file is reached, the procedures
-are called an additional time with the final accumulated string and
-@code{#t}.
-
-The test is successful if the procedure returns a non-false value.
-
-If the @code{=>} syntax is used, then if the test succeeds it must return
-a list containing the arguments to be provided to the corresponding
-expression.
-
-In the following example, a string will only be matched at the beginning
-of the file:
-
-@smalllisp
-(let ((expect-port (open-input-file "/etc/passwd")))
-  (expect
-     ((lambda (s) (string=? s "fnord!"))
-        (display "Got a nobody user!\n"))))
-@end smalllisp
-
-The control variables described for @code{expect-strings} also
-influence the behaviour of @code{expect}, with the exception of 
-variables whose names begin with @code{expect-strings-}.
-@end defmac
-
-
-@page
-@node The Scheme shell (scsh)
-@chapter The Scheme shell (scsh)
-
-An incomplete port of the Scheme shell (scsh) 0.5.1 is available for
-Guile.  The idea is to allow Scheme code using scsh interfaces to be run
-inside the Guile interpreter.
-
-For information about scsh on the Web see
-@url{http://www-swiss.ai.mit.edu/scsh/scsh.html}.
-The original scsh is available by ftp from
-@url{ftp://swiss-ftp.ai.mit.edu:/pub/su}.
-
-The scsh code is distributed as a separate module, guile-scsh,
-which must be installed somewhere in Guile's load path before
-it can be used.  This is similar to the installation
-of slib (you may want to install that first, since it's needed before
-scsh can run in Guile: see @ref{SLIB} for details).
-
-This port of scsh does not currently use the Guile module system, but
-can be initialized with:
-
-@smalllisp
-(load-from-path "scsh/init")
-@end smalllisp
-
-@page
-@node Tcl/Tk Interface
-@chapter Tcl/Tk Interface
-
-

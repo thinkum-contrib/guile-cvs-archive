@@ -222,8 +222,8 @@ prefix for the new symbol's name.  The default prefix is @code{%%gensym}.
 @end deffn
 
 @page
-@node debugger user interface
-@appendix debugger user interface
+@node Debugger User Interface
+@appendix Debugger User Interface
  
 @c      --- The title and introduction of this appendix need to
 @c          distinguish this clearly from the chapter on the internal
@@ -398,35 +398,3 @@ Return the identifier given to @var{stack} by @code{start-stack}.
 
 @deffn primitive frame-overflow
 @end deffn
-
-@node Concept Index
-@unnumbered Concept Index
-@printindex cp
-
-
-@node Procedure Index
-@unnumbered Procedure Index
-This is an alphabetical list of all the procedures and macros in Guile.
-[[Remind people to look for functions under their Scheme names as well
-as their C names.]]
-@printindex fn
-
-
-@node Variable Index
-@unnumbered Variable Index
-This is an alphabetical list of all the important variables and
-constants in Guile.
-[[Remind people to look for variables under their Scheme names as well
-as their C names.]]
-@printindex vr
-
-
-@c Spell out this node fully, because it is the last real node
-@c in the top-level menu.  Leaving off the pointers here causes
-@c spurious makeinfo errors.
-@node Type Index
-@unnumbered Type Index
-This is an alphabetical list of all the important data types defined in
-the Guile Programmers Manual.
-@printindex tp
-

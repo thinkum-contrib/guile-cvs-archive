@@ -5,11 +5,11 @@ AUTOMAKE_OPTIONS = foreign
 ## Add our own -I option.
 # MAKEINFO = makeinfo -I ../tutorial
 
-info_TEXINFOS = guile-ref.texi r4rs.texi r5rs.texi
+info_TEXINFOS = guile.texi r4rs.texi r5rs.texi
 
 ## Just a convenience var; no special significance.
 ## Most of these files are outdated and have been moved into a `sources' dir.
-#dist_texis = guile-ref.texi intro.texi \
+#dist_texis = guile.texi intro.texi \
 #	ci.texi			libguile-tools.texi	scheme-concepts.texi \
 #	gh-ref.texi		scm-ref.texi \
 #	new-types.texi		ti.texi 		debug-c.texi \
@@ -20,8 +20,9 @@ info_TEXINFOS = guile-ref.texi r4rs.texi r5rs.texi
 #	contributors.texi	slib.texi		strings.texi \
 #	unix-other.texi		guile-scheme.texi
 
-dist_texis = guile-ref.texi intro.texi scheme.texi posix.texi gh.texi \
-	scm.texi appendices.texi
+dist_texis = guile.texi intro.texi scheme.texi posix.texi expect.texi \
+	scsh.texi tcltk.texi scripts.texi gh.texi scm.texi \
+	appendices.texi indices.texi
 
 ## FIXME: for now we just omit ../guile-user/more-resources.texi from
 ## the dependencies.  We don't want to try to put it into the

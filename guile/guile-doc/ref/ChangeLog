@@ -1,3 +1,29 @@
+2000-07-30  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* scheme.texi (Association Lists): New, more complete
+	documentation.
+	* guile.texi: New top-level manual file based on guile-ref.texi
+	but modified to reflect the better organization suggested in
+	sources/jimb-org.texi.
+	* expect.texi: New file to separate out Expect doc.
+	* indices.texi: New file to separate indices from appendices.
+	* intro.texi: Invoking Guile and Meta Switch nodes moved to Guile
+	Scripting part (scripts.texi).  Manual layout node moved to end of
+	introduction.
+	* posix.texi: All nodes downgraded one level.  Expect, SCSH and
+	Tcl/Tk nodes moved to dedicated files.
+	* scheme.texi: Stuff moved around in accordance with
+	sources/jimb-org.texi reorganization (cvs diff totally confused,
+	I'm afraid).
+	* scsh.texi: New file to separate out SCSH doc.
+	* scripts.texi: New file to separate out Guile scripting doc.
+	* tcltk.texi: New file to separate out Tcl/Tk interface doc.
+	* Makefile.am: Changed guile-ref to guile; more distribution
+	texis.
+	* Makefile.in: Changed guile-ref to guile; more distribution
+	texis.
+	
+
 2000-05-14  Marius Vollmer  <mvo@zagadka.ping.de>
 
 	* posix.texi (Conventions): Added example on how to retrieve errno

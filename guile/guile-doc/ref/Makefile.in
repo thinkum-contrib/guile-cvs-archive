@@ -65,9 +65,9 @@ AUTOMAKE_OPTIONS = foreign
 
 # MAKEINFO = makeinfo -I ../tutorial
 
-info_TEXINFOS = guile-ref.texi r4rs.texi r5rs.texi
+info_TEXINFOS = guile.texi r4rs.texi r5rs.texi
 
-#dist_texis = guile-ref.texi intro.texi \
+#dist_texis = guile.texi intro.texi \
 #	ci.texi			libguile-tools.texi	scheme-concepts.texi \
 #	gh-ref.texi		scm-ref.texi \
 #	new-types.texi		ti.texi 		debug-c.texi \
@@ -78,7 +78,7 @@ info_TEXINFOS = guile-ref.texi r4rs.texi r5rs.texi
 #	contributors.texi	slib.texi		strings.texi \
 #	unix-other.texi		guile-scheme.texi
 
-dist_texis = guile-ref.texi intro.texi scheme.texi posix.texi gh.texi 	scm.texi appendices.texi
+dist_texis = guile.texi intro.texi scheme.texi posix.texi expect.texi 	scsh.texi tcltk.texi scripts.texi gh.texi scm.texi 	appendices.texi indices.texi
 
 
 guile_ref_TEXINFOS = $(dist_texis)
@@ -87,9 +87,9 @@ EXTRA_DIST = $(dist_texis)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_CLEAN_FILES = 
 TEXI2DVI = texi2dvi
-INFO_DEPS = guile-ref.info r4rs.info r5rs.info
-DVIS = guile-ref.dvi r4rs.dvi r5rs.dvi
-TEXINFOS = guile-ref.texi r4rs.texi r5rs.texi
+INFO_DEPS = guile.info r4rs.info r5rs.info
+DVIS = guile.dvi r4rs.dvi r5rs.dvi
+TEXINFOS = guile.texi r4rs.texi r5rs.texi
 DIST_COMMON =  $(guile_ref_TEXINFOS) ChangeLog Makefile.am Makefile.in \
 mdate-sh stamp-vti texinfo.tex version.texi
 
@@ -112,8 +112,8 @@ Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
 $(srcdir)/version.texi: stamp-vti
 	@:
 
-$(srcdir)/stamp-vti: guile-ref.texi $(top_srcdir)/configure.in
-	@echo "@set UPDATED `$(SHELL) $(srcdir)/mdate-sh $(srcdir)/guile-ref.texi`" > vti.tmp
+$(srcdir)/stamp-vti: guile.texi $(top_srcdir)/configure.in
+	@echo "@set UPDATED `$(SHELL) $(srcdir)/mdate-sh $(srcdir)/guile.texi`" > vti.tmp
 	@echo "@set EDITION $(VERSION)" >> vti.tmp
 	@echo "@set VERSION $(VERSION)" >> vti.tmp
 	@cmp -s vti.tmp $(srcdir)/version.texi \
@@ -132,8 +132,8 @@ distclean-vti:
 maintainer-clean-vti:
 	-rm -f $(srcdir)/stamp-vti $(srcdir)/version.texi
 
-guile-ref.info: guile-ref.texi version.texi $(guile_ref_TEXINFOS)
-guile-ref.dvi: guile-ref.texi version.texi $(guile_ref_TEXINFOS)
+guile.info: guile.texi version.texi $(guile_ref_TEXINFOS)
+guile.dvi: guile.texi version.texi $(guile_ref_TEXINFOS)
 
 
 r4rs.info: r4rs.texi
@@ -240,17 +240,15 @@ dist-info: $(INFO_DEPS)
 	done
 
 mostlyclean-aminfo:
-	-rm -f guile-ref.aux guile-ref.cp guile-ref.cps guile-ref.dvi \
-	  guile-ref.fn guile-ref.fns guile-ref.ky guile-ref.kys \
-	  guile-ref.ps guile-ref.log guile-ref.pg guile-ref.toc \
-	  guile-ref.tp guile-ref.tps guile-ref.vr guile-ref.vrs \
-	  guile-ref.op guile-ref.tr guile-ref.cv guile-ref.cn r4rs.aux \
-	  r4rs.cp r4rs.cps r4rs.dvi r4rs.fn r4rs.fns r4rs.ky r4rs.kys \
-	  r4rs.ps r4rs.log r4rs.pg r4rs.toc r4rs.tp r4rs.tps r4rs.vr \
-	  r4rs.vrs r4rs.op r4rs.tr r4rs.cv r4rs.cn r5rs.aux r5rs.cp \
-	  r5rs.cps r5rs.dvi r5rs.fn r5rs.fns r5rs.ky r5rs.kys r5rs.ps \
-	  r5rs.log r5rs.pg r5rs.toc r5rs.tp r5rs.tps r5rs.vr r5rs.vrs \
-	  r5rs.op r5rs.tr r5rs.cv r5rs.cn
+	-rm -f guile.aux guile.cp guile.cps guile.dvi guile.fn guile.fns \
+	  guile.ky guile.kys guile.ps guile.log guile.pg guile.toc \
+	  guile.tp guile.tps guile.vr guile.vrs guile.op guile.tr \
+	  guile.cv guile.cn r4rs.aux r4rs.cp r4rs.cps r4rs.dvi r4rs.fn \
+	  r4rs.fns r4rs.ky r4rs.kys r4rs.ps r4rs.log r4rs.pg r4rs.toc \
+	  r4rs.tp r4rs.tps r4rs.vr r4rs.vrs r4rs.op r4rs.tr r4rs.cv \
+	  r4rs.cn r5rs.aux r5rs.cp r5rs.cps r5rs.dvi r5rs.fn r5rs.fns \
+	  r5rs.ky r5rs.kys r5rs.ps r5rs.log r5rs.pg r5rs.toc r5rs.tp \
+	  r5rs.tps r5rs.vr r5rs.vrs r5rs.op r5rs.tr r5rs.cv r5rs.cn
 
 clean-aminfo:
 

@@ -1,53 +1,10 @@
 @page
-@node Extensions to Scheme
-@chapter Extensions to Scheme
+@node R4RS Scheme
+@chapter R4RS Scheme
 
-@c This used to be ``R4RS as a starting point.'' -twp
-
-@c  with
-@c  enhancements to support 
-@c 
-@c 
-@c an extended version of the Scheme programming language,
-@c as defined in the @c ite{Revised^4 Report on the Algorithmic Language
-@c Scheme}, or @dfn{R4RS}.  In addition to the features described in R4RS,
-@c Guile provides the following enhancements:
-@c 
-@c @table @asis
-@c 
-@c @item system call access
-@c Guile provides full access to the POSIX system calls.
-@c 
-@c @item scripting support
-@c To help you write scripts in Scheme, Guile adopts some minor
-@c modifications to the Scheme syntax.  
-@c 
-@c @end table
-@c 
-@c That specification is freely available via the
-@c Internet; to get a copy, see @ref{Obtaining and Installing Guile}.
-@c 
-@c 
-@c 
-@c Guile also provides the following extensions to
-@c R4RS:
-@c 
-@c @table @asis
-@c 
-@c @item Unix support
-@c 
-@c @end table
-@c 
-@c 
-@c , with many extensions.
-@c 
-@c 
-@c To get a copy of @xref{Obtaining and Installing Guile}, 
-
-
-The current ``standard'' for the Scheme language is the
-@strong{Revised^4 Report on the Algorithmic Language Scheme}
-(@cite{r4rs}), and it is commonly referred to as R4RS.  Most Scheme
+Guile is an implementation of the Scheme language, which is defined by
+the @strong{Revised^4 Report on the Algorithmic Language Scheme}
+(@cite{r4rs}), commonly referred to as R4RS.  Most Scheme
 implementations conform to all the required features in R4RS as well as
 the optional ones.
 
@@ -325,105 +282,403 @@ guile>
 
 
 @page
-@node SLIB
-@chapter SLIB
-
-Before the the SLIB facilities can be used, the following Scheme
-expression must be executed:
-
-@smalllisp
-(use-modules (ice-9 slib))
-@end smalllisp
-
-@code{require} can then be used as described in 
-@ref{Top, , SLIB, slib, The SLIB Manual}. 
-
-For example:
-
-@smalllisp
-guile> (use-modules (ice-9 slib))
-guile> (require 'primes)
-guile> (probably-prime? 13)
-@end smalllisp
+@node Read Syntax Extensions
+@chapter Read Syntax Extensions
 
 @menu
-* SLIB installation::
-* JACAL::                       
+* Block Comments::
+* Interpreter Triggers::
+* Case Sensitivity::
+* Keywords::                    Self-quoting, customizable display keywords.
 @end menu
 
-@node SLIB installation
-@section SLIB installation
+@node Block Comments
+@section Block Comments
 
-The following seems to work, at least with slib 2c7:
+@node Interpreter Triggers
+@section Interpreter Triggers
 
-@enumerate
-@item
-Unpack slib somewhere, e.g., /usr/local/lib/slib.
+@node Case Sensitivity
+@section Case Sensitivity
 
-@item
-Create a symlink in the Guile site directory to slib, e.g.,:
+@node Keywords
+@section Keywords
 
-@example
-ln -s /usr/local/lib/slib /usr/local/share/guile/site/slib
-@end example
+[FIXME: need some initial schmooze about keywords; this is all taken
+from the NEWS file, and is accurate but not very useful to someone who
+has not used keywords before.]
 
-@item
-Use Guile to create the catalogue file, e.g.,:
+Guile supports a new R4RS--compliant syntax for keywords.  A token of the
+form #:NAME, where NAME has the same syntax as a Scheme symbol, is the
+external representation of the keyword named NAME.  Keyword objects
+print using this syntax as well, so values containing keyword objects
+can be read back into Guile.  When used in an expression, keywords are
+self-quoting objects.
 
-@example
-# guile
-guile> (use-modules (ice-9 slib))
-guile> (load "/usr/local/lib/slib/mklibcat.scm")
-guile> (quit)
-@end example
+Guile suports this read syntax, and uses this print syntax, regardless
+of the current setting of the `keyword' read option.  The `keyword' read
+option only controls whether Guile recognizes the `:NAME' syntax, which
+is incompatible with R4RS.  (R4RS says such token represent symbols.)
 
-The catalogue data should now be in
-@code{/usr/local/share/guile/site/slibcat}.
+The default behaviour is the R4RS--compliant one (@code{#:xxx} instead
+of @code{:xxx}).
 
-If instead you get an error such as:
+To change between the two keyword syntaxes you use the
+@code{read-options} procedure documented in @ref{General option
+interface} and @ref{Reader options}.
 
-@example
-Unbound variable: scheme-implementation-type
-@end example
-
-then a solution is to get a newer version of Guile,
-or to modify ice-9/slib.scm to use define-public for the
-offending variables.
-
-@item
-Install the documentation:
-
-@example
-cd /usr/local/lib/slib
-rm /usr/local/info/slib.info*
-cp slib.info /usr/local/info
-install-info slib.info /usr/local/info/dir
-@end example
-@end enumerate
-
-@node JACAL
-@section JACAL
-
-@cindex Jaffer, Aubrey
-@cindex symbolic math
-@cindex math -- symbolic
-Jacal is a symbolic math package written in Scheme by Aubrey Jaffer.  It
-is usually installed as an extra package in SLIB (@pxref{Packages not
-shipped with Guile}).
-
-You can use Guile's interface to SLIB to invoke Jacal:
-
+To use the @code{:xxx} keyword syntax, use
 @smalllisp
-(use-modules (ice-9 slib))
-(slib:load "math")
-(math)
+(read-set! keywords 'prefix)
 @end smalllisp
 
-@noindent
-For complete documentation on Jacal, please read the Jacal manual.  If
-it has been installed on line, you can look at @ref{Top, , Jacal, jacal,
-The SLIB Manual}.  Otherwise you can find it on the web at
-@url{http://www-swiss.ai.mit.edu/~jaffer/JACAL.html}
+To make keyword syntax R4RS compliant, with the @code{#:xxx} syntax,
+use:
+@smalllisp
+(read-set! keywords #f)
+@end smalllisp
+
+[FIXME: in state of flux right now; here are the Scheme primitives
+defined in @file{kw.c}:]
+
+@deffn primitive keyword? kw
+@code{keyword?} returns @code{#t} if the argument @var{kw} is a keyword;
+it returns @code{#f} otherwise.
+@end deffn
+
+@deffn primitive keyword-dash-symbol arg
+@code{keyword-dash-symbol} [FIXME: have no idea what this does; it is
+not commented.]
+@end deffn
+
+
+@page
+@node Exceptions
+@chapter Exceptions
+@cindex error handling
+@cindex exception handling
+
+
+@deffn primitive catch key thunk handler
+Invoke @var{thunk} in the dynamic context of @var{handler} for
+exceptions matching @var{key}.  If thunk throws to the symbol @var{key},
+then @var{handler} is invoked this way:
+
+@example
+(handler key args ...)
+@end example
+
+@var{key} is a symbol or #t.
+
+@var{thunk} takes no arguments.  If @var{thunk} returns normally, that
+is the return value of @code{catch}.
+
+Handler is invoked outside the scope of its own @code{catch}.  If
+@var{handler} again throws to the same key, a new handler from further
+up the call chain is invoked.
+
+If the key is @code{#t}, then a throw to @emph{any} symbol will match
+this call to @code{catch}.
+@end deffn
+
+@deffn primitive throw key &rest args ...
+Invoke the catch form matching @var{key}, passing @var{args} to the
+@var{handler}.  
+
+@var{key} is a symbol.  It will match catches of the same symbol or of
+#t.
+
+If there is no handler at all, an error is signaled.
+@end deffn
+
+@deffn procedure error msg args @dots{}
+Raise an error with key @code{misc-error} and a message constructed by
+displaying @var{msg} and writing @var{args}.
+@end deffn
+
+@deffn primitive scm-error key subr message args data
+Raise an error with key @var{key}.  @var{subr} can be a string naming
+the procedure associated with the error, or @code{#f}.  @var{message}
+is the error message string, possibly containing @code{%S} and @code{%s}
+escapes.  When an error is reported, these are replaced by formating the
+corresponding members of @var{args}: @code{%s} formats using @code{display}
+and @code{%S} formats using @code{write}.  @var{data} is a
+list or @code{#f} depending on @var{key}: if @var{key} is
+@code{system-error} then it should be a list
+containing the Unix @code{errno} value;  If @var{key} is @code{signal} then
+it should be a list containing the Unix signal number; otherwise it
+will usually be @code{#f}.
+@end deffn
+
+@deffn primitive strerror errno
+Returns the Unix error message corresponding to @var{errno}, an integer.
+@end deffn
+
+@deffn syntax false-if-exception expr
+Returns the result of evaluating its argument; however
+if an exception occurs then @code{#f} is returned instead.
+@end deffn
+
+It is traditional in Scheme to implement exception systems using
+@code{call-with-current-continuation}, but his has not been done, for
+performance reasons.  The implementation of
+@code{call-with-current-continuation} is a stack copying implementation.
+This allows it to interact well with ordinary C code.  Unfortunately, a
+stack-copying implementation can be slow -- creating a new continuation
+involves a block copy of the stack.
+
+Instead of using @code{call-with-current-continuation}, the exception
+primitives are implemented as built-ins that take advantage of the
+@emph{upward only} nature of exceptions.
+
+
+
+@page
+@node Modules
+@chapter Modules
+@cindex modules
+
+[FIXME: somewhat babbling; should be reviewed by someone who understands
+modules, once the new module system is in place]
+
+When programs become large, naming conflicts can occur when a function
+or global variable defined in one file has the same name as a function
+or global variable in another file.  Even just a @emph{similarity}
+between function names can cause hard-to-find bugs, since a programmer
+might type the wrong function name.
+
+The approach used to tackle this problem is called @emph{information
+encapsulation}, which consists of packaging functional units into a
+given name space that is clearly separated from other name spaces.
+@cindex encapsulation
+@cindex information encapsulation
+@cindex name space
+
+The language features that allow this are usually called @emph{the
+module system} because programs are broken up into modules that are
+compiled separately (or loaded separately in an interpreter).
+
+Older languages, like C, have limited support for name space
+manipulation and protection.  In C a variable or function is public by
+default, and can be made local to a module with the @code{static}
+keyword.  But you cannot reference public variables and functions from
+another module with different names.
+
+More advanced module systems have become a common feature in recently
+designed languages: ML, Python, Perl, and Modula 3 all allow the
+@emph{renaming} of objects from a foreign module, so they will not
+clutter the global name space.
+@cindex name space - private
+
+@menu
+* Scheme and modules::          
+* The Guile module system::     
+* Module Internals::
+@end menu
+
+@node Scheme and modules
+@section Scheme and modules
+
+Scheme, as defined in R4RS, does @emph{not} have a module system at all.
+
+Aubrey Jaffer, mostly to support his portable Scheme library SLIB,
+implemented a provide/require mechanism for many Scheme implementations.
+Library files in SLIB @emph{provide} a feature, and when user programs
+@emph{require} that feature, the library file is loaded in.
+
+For example, the file @file{random.scm} in the SLIB package contains the
+line
+@smalllisp
+(provide 'random)
+@end smalllisp
+so to use its procedures, a user would type
+@smalllisp
+(require 'random)
+@end smalllisp
+and they would magically become available, @emph{but still have the same
+names!}  So this method is nice, but not as good as a full-featured
+module system.
+
+@node The Guile module system
+@section The Guile module system
+
+In 1996 Tom Lord implemented a full-featured module system for Guile
+which allows loading Scheme source files into a private name space.
+
+This module system is regarded as being rather idiosyncratic, and will
+probably change to something more like the ML module system, so for now
+I will simply descrive how it works for a couple of simple cases.
+
+First of all, the Guile module system sets up a hierarchical name space,
+and that name space can be represented like Unix pathnames preceded by a
+@key{#} character.  The root name space for all Guile-supplied modules
+is called @code{ice-9}.
+
+So for example, the SLIB interface, contained in
+@file{$srcdir/ice-9/slib.scm}, starts out with
+@smalllisp
+(define-module (ice-9 slib))
+@end smalllisp
+and a user program can use
+@smalllisp
+(use-modules (ice-9 slib))
+@end smalllisp
+to have access to all procedures and variables defined within the slib
+module with @code{(define-public ...)}.
+
+So here are the functions involved:
+@deffn syntax define-module module-specification
+@var{module-specification} is of the form @code{(hierarchy file)}.  One
+example of this is
+@smalllisp
+(use-modules (ice-9 slib))
+@end smalllisp
+define-module makes this module available to Guile programs under the
+given @var{module-specification}.
+@end deffn
+
+@deffn syntax define-public @dots{}
+Makes a procedure or variable available to programs that use the current
+module.
+@end deffn
+
+@deffn syntax use-modules module-specification
+@var{module-specification} is of the form @code{(hierarchy file)}.  One
+example of this is
+@smalllisp
+(use-modules (ice-9 slib))
+@end smalllisp
+use-modules allows the current Guile program to use all publicly defined
+procedures and variables in the module denoted by
+@var{module-specification}.
+@end deffn
+
+[FIXME: must say more, and explain, and also demonstrate a private name
+space use, and demonstrate how one would do Python's "from Tkinter
+import *" versus "import Tkinter".  Must also add something about paths
+and standards for contributed modules.]
+
+Some modules are included in the Guile distribution; here are references
+to the entries in this manual which describe them in more detail:
+@table @strong
+@item boot-9
+boot-9 is Guile's initialization module, and it is always loaded when
+Guile starts up.
+@item (ice-9 debug)
+Mikael Djurfeldt's source-level debugging support for Guile
+(@pxref{Debugger User Interface}).
+@item (ice-9 threads)
+Guile's support for multi threaded execution (@pxref{Threads and Dynamic
+Roots}).
+@item (ice-9 slib)
+This module contains hooks for using Aubrey Jaffer's portable Scheme
+library SLIB from Guile (@pxref{SLIB}).
+@item (ice-9 jacal)
+This module contains hooks for using Aubrey Jaffer's symbolic math
+packge Jacal from Guile (@pxref{JACAL}).
+@end table
+
+
+@page
+@node Module Internals
+@section Module Internals
+
+@menu
+* First-class Variables::       
+* First-class Modules::         
+* Dynamic Libraries::		Loading libraries of compiled code at run time.
+@end menu
+
+@node First-class Variables
+@subsection First-class Variables
+
+@node First-class Modules
+@subsection First-class Modules
+
+@node Dynamic Libraries
+@subsection Dynamic Libraries
+
+Often you will want to extend Guile by linking it with some existing
+system library.  For example, linking Guile with a @code{curses} or
+@code{termcap} library would be useful if you want to implement a
+full-screen user interface for a Guile application.  However, if you
+were to link Guile with these libraries at compile time, it would bloat
+the interpreter considerably, affecting everyone on the system even if
+the new libraries are useful only to you.  Also, every time a new
+library is installed, you would have to reconfigure, recompile and
+relink Guile merely in order to provide a new interface.
+
+Many Unix systems permit you to get around this problem by using
+@dfn{dynamic loading}.  When a new library is linked, it can be made a
+@dfn{dynamic library} by passing certain switches to the linker.  A
+dynamic library does not need to be linked with an executable image at
+link time; instead, the executable may choose to load it dynamically at
+run time.  This is a powerful concept that permits an executable to link
+itself with almost any library without reconfiguration, if it has been
+written properly.
+
+Guile's dynamic linking functions make it relatively easy to write a
+module that incorporates code from third-party object code libraries.
+
+@deffn primitive dynamic-link library-file
+Open the dynamic library @var{library-file}.  A library handle
+representing the opened library is returned; this handle should be used
+as the @var{lib} argument to the following functions.
+@end deffn
+
+@deffn primitive dynamic-object? obj
+Return @code{#t} if @var{obj} is a dynamic library handle, or @code{#f}
+otherwise.
+@end deffn
+
+@deffn primitive dynamic-unlink lib
+Unlink the library represented by @var{library-handle}, and remove any
+imported symbols from the address space.
+@end deffn
+
+@deffn primitive dynamic-func func lib
+Import the symbol @var{func} from @var{lib} (a dynamic library handle).
+A @dfn{function handle} representing the imported function is returned.
+@end deffn
+
+@deffn primitive dynamic-call lib-thunk lib
+Call @var{lib-thunk}, a procedure of no arguments.  If @var{lib-thunk}
+is a string, it is assumed to be a symbol found in the dynamic library
+@var{lib} and is fetched with @code{dynamic-func}.  Otherwise, it should
+be a function handle returned by a previous call to @code{dynamic-func}.
+The return value is unspecified.
+@end deffn
+
+@deffn primitive dynamic-args-call proc lib args
+Call @var{proc}, a dynamically loaded function, passing it the argument
+list @var{args} (a list of strings).  As with @code{dynamic-call},
+@var{proc} should be either a function handle or a string, in which case
+it is first fetched from @var{lib} with @code{dynamic-func}.
+
+@var{proc} is assumed to return an integer, which is used as the return
+value from @code{dynamic-args-call}.
+@end deffn
+
+@deffn primitive c-registered-modules
+Return a list of the object code modules that have been imported into
+the current Guile process.  Each element of the list is a pair whose
+car is the name of the module (as it might be used by
+@code{use-modules}, for instance), and whose cdr is the function handle
+for that module's initializer function.
+@end deffn
+
+@deffn primitive c-clear-registered-modules
+Destroy the list of modules registered with the current Guile process.
+The return value is unspecified.  @strong{Warning:} this function does
+not actually unlink or deallocate these modules, but only destroys the
+records of which modules have been loaded.  It should therefore be used
+only by module bookkeeping operations.
+@end deffn
+
+[FIXME: provide a brief example here of writing the C hooks for an
+object code module, and using dynamic-link and dynamic-call to load the
+module.]
+
 
 @page
 @node Evaluation
@@ -1566,18 +1821,223 @@ of tools for using either association lists or hash tables.
 
 @node Association Lists
 @subsection Association Lists
+@cindex Association List
+@cindex Alist
+@cindex Database
 
-@c [FIXME: alist.c includes helper functions `sloppy-assq',
-@c `sloppy-assv', and so on.  These are made available to the Guile
-@c user; should they be documented here? -twp]
+An association list is a conventional data structure that is often used
+to implement simple key-value databases.  It consists of a list of
+entries in which each entry is a pair.  The @dfn{key} of each entry is
+the @code{car} of the pair and the @dfn{value} of each entry is the
+@code{cdr}.
 
+@example
+ASSOCIATION LIST ::=  '( (KEY1 . VALUE1)
+                         (KEY2 . VALUE2)
+                         (KEY3 . VALUE3)
+                         @dots{}
+                       )
+@end example
+
+Association lists are also known, for short, as @dfn{alists}.
+
+The structure of an association list is just one example of the infinite
+number of possible structures that can be built using pairs and lists.
+As such, the keys and values in an association list can be manipulated
+using the general list structure procedures @code{cons}, @code{car},
+@code{cdr}, @code{set-car!}, @code{set-cdr!} and so on.  However,
+because association lists are so useful, Guile also provides specific
+procedures for manipulating them.
+
+@menu
+* Alist Key Equality::
+* Adding or Setting Alist Entries::
+* Retrieving Alist Entries::
+* Removing Alist Entries::
+* Sloppy Alist Functions::
+* Alist Example::
+@end menu
+
+@node Alist Key Equality
+@subsubsection Alist Key Equality
+@findex assq
+@findex assv
+@findex assoc
+
+All of Guile's dedicated association list procedures, apart from
+@code{acons}, come in three flavours, depending on the level of equality
+that is required to decide whether an existing key in the association
+list is the same as the key that the procedure call uses to identify the
+required entry.
+
+@itemize @bullet
+
+@item
+Procedures with @dfn{assq} in their name use @code{eq?} to determine key
+equality.
+
+@item
+Procedures with @dfn{assv} in their name use @code{eqv?} to determine
+key equality.
+
+@item
+Procedures with @dfn{assoc} in their name use @code{equal?} to
+determine key equality.
+
+@end itemize
+
+@code{acons} is an exception because it is used to build association
+lists which do not require their entries' keys to be unique.
+
+@node Adding or Setting Alist Entries
+@subsubsection Adding or Setting Alist Entries
+@findex acons
+@findex assq-set!
+@findex assv-set!
+@findex assoc-set!
+
+@code{acons} adds a new entry to an association list and returns the
+combined association list.  The combined alist is formed by consing the
+new entry onto the head of the alist specified in the @code{acons}
+procedure call.  So the specified alist is not modified, but its
+contents become shared with the tail of the combined alist that
+@code{acons} returns.
+
+In the most common usage of @code{acons}, a variable holding the
+original association list is updated with the combined alist:
+
+@example
+(set! address-list (acons name address address-list))
+@end example
+
+In such cases, it doesn't matter that the old and new values of
+@code{address-list} share some of their contents, since the old value is
+usually no longer independently accessible.
+
+Note that @code{acons} adds the specified new entry regardless of
+whether the alist may already contain entries with keys that are, in
+some sense, the same as that of the new entry.  Thus @code{acons} is
+ideal for building alists where there is no concept of key uniqueness.
+
+@example
+(set! task-list (acons 3 "pay gas bill" '()))
+task-list
+@result{}
+((3 . "pay gas bill"))
+
+(set! task-list (acons 3 "tidy bedroom" task-list))
+task-list
+@result{}
+((3 . "tidy bedroom") (3 . "pay gas bill"))
+@end example
+
+@code{assq-set!}, @code{assv-set!} and @code{assoc-set!} are used to add
+or replace an entry in an association list where there @emph{is} a
+concept of key uniqueness.  If the specified association list already
+contains an entry whose key is the same as that specified in the
+procedure call, the existing entry is replaced by the new one.
+Otherwise, the new entry is consed onto the head of the old association
+list to create the combined alist.  In all cases, these procedures
+return the combined alist.
+
+@code{assq-set!} and friends @emph{may} destructively modify the
+structure of the old association list in such a way that an existing
+variable is correctly updated without having to @code{set!} it to the
+value returned:
+
+@example
+address-list
+@result{}
+(("mary" . "34 Elm Road") ("james" . "16 Bow Street"))
+
+(assoc-set! address-list "james" "1a London Road")
+@result{}
+(("mary" . "34 Elm Road") ("james" . "1a London Road"))
+
+address-list
+@result{}
+(("mary" . "34 Elm Road") ("james" . "1a London Road"))
+@end example 
+
+Or they may not:
+
+@example
+(assoc-set! address-list "bob" "11 Newington Avenue")
+@result{}
+(("bob" . "11 Newington Avenue") ("mary" . "34 Elm Road")
+ ("james" . "1a London Road"))
+
+address-list
+@result{}
+(("mary" . "34 Elm Road") ("james" . "1a London Road"))
+@end example
+
+The only safe way to update an association list variable when adding or
+replacing an entry like this is to @code{set!} the variable to the
+returned value:
+
+@example
+(set! address-list (assoc-set! address-list "bob" "11 Newington Avenue"))
+address-list
+@result{}
+(("bob" . "11 Newington Avenue") ("mary" . "34 Elm Road")
+ ("james" . "1a London Road"))
+@end example
+
+Because of this slight inconvenience, you may find it more convenient to
+use hash tables to store dictionary data.  If your application will not
+be modifying the contents of an alist very often, this may not make much
+difference to you.
+
+If you need to keep the old value of an association list in a form
+independent from the list that results from modification by
+@code{acons}, @code{assq-set!}, @code{assv-set!} or @code{assoc-set!},
+use @code{list-copy} to copy the old association list before modifying
+it.
+
+@c docstring begin (c-doc-string "alist.c" "acons")
+@c docstring md5 "4b08c10dea65d89a68b798adbe76d3ee"
 @deffn primitive acons key value alist
 Adds a new key-value pair to @var{alist}.  A new pair is
 created whose car is @var{key} and whose cdr is @var{value}, and the
 pair is consed onto @var{alist}, and the new list is returned.  This
 function is @emph{not} destructive; @var{alist} is not modified.
 @end deffn
+@c docstring end
 
+@c docstring begin (c-doc-string "alist.c" "assq-set!")
+@c docstring md5 "4af663653c4ecbf50567227397e2227d"
+@deffn primitive assq-set! alist key val
+@deffnx primitive assv-set! alist key value
+@deffnx primitive assoc-set! alist key value
+Reassociate @var{key} in @var{alist} with @var{value}: find any existing
+@var{alist} entry for @var{key} and associate it with the new
+@var{value}.  If @var{alist} does not contain an entry for @var{key},
+add a new one.  Return the (possibly new) alist.
+
+These functions do not attempt to verify the structure of @var{alist},
+and so may cause unusual results if passed an object that is not an
+association list.
+@end deffn
+@c docstring end
+
+@node Retrieving Alist Entries
+@subsubsection Retrieving Alist Entries
+@findex assq
+@findex assv
+@findex assoc
+@findex assq-ref
+@findex assv-ref
+@findex assoc-ref
+
+@code{assq}, @code{assv} and @code{assoc} take an alist and a key as
+arguments and return the entry for that key if an entry exists, or
+@code{#f} if there is no entry for that key.  Note that, in the cases
+where an entry exists, these procedures return the complete entry, that
+is @code{(KEY . VALUE)}, not just the value.
+
+@c docstring begin (c-doc-string "alist.c" "assq")
+@c docstring md5 "7531c2b5cb74d73c8f9f446cbe88d694"
 @deffn primitive assq key alist
 @deffnx primitive assv key alist
 @deffnx primitive assoc key alist
@@ -1589,7 +2049,22 @@ cannot be found in @var{alist} (according to whichever equality
 predicate is in use), then @code{#f} is returned.  These functions
 return the entire alist entry found (i.e. both the key and the value).
 @end deffn
+@c docstring end
 
+@code{assq-ref}, @code{assv-ref} and @code{assoc-ref}, on the other
+hand, take an alist and a key and return @emph{just the value} for that
+key, if an entry exists.  If there is no entry for the specified key,
+these procedures return @code{#f}.
+
+This creates an ambiguity: if the return value is @code{#f}, it means
+either that there is no entry with the specified key, or that there
+@emph{is} an entry for the specified key, with value @code{#f}.
+Consequently, @code{assq-ref} and friends should only be used where it
+is known that an entry exists, or where the ambiguity doesn't matter
+for some other reason.
+
+@c docstring begin (c-doc-string "alist.c" "assq-ref")
+@c docstring md5 "6cb36506d2044e42ee97f9dd4895fb5f"
 @deffn primitive assq-ref alist key
 @deffnx primitive assv-ref alist key
 @deffnx primitive assoc-ref alist key
@@ -1604,48 +2079,152 @@ functions are equivalent to
 
 where @var{associator} is one of @code{assq}, @code{assv} or @code{assoc}.
 @end deffn
+@c docstring end
 
-@deffn primitive assq-set! alist key value
-@deffnx primitive assv-set! alist key value
-@deffnx primitive assoc-set! alist key value
-Reassociate @var{key} in @var{alist} with @var{value}: find any existing
-@var{alist} entry for @var{key} and associate it with the new
-@var{value}.  If @var{alist} does not contain an entry for @var{key},
-add a new one.  Return the (possibly new) alist.
+@node Removing Alist Entries
+@subsubsection Removing Alist Entries
+@findex assq-remove!
+@findex assv-remove!
+@findex assoc-remove!
 
-These functions do not attempt to verify the structure of @var{alist},
-and so may cause unusual results if passed an object that is not an
-association list.
-@end deffn
+To remove the element from an association list whose key matches a
+specified key, use @code{assq-remove!}, @code{assv-remove!} or
+@code{assoc-remove!} (depending, as usual, on the level of equality
+required between the key that you specify and the keys in the
+association list).
 
+As with @code{assq-set!} and friends, the specified alist may or may not
+be modified destructively, and the only safe way to update a variable
+containing the alist is to @code{set!} it to the value that
+@code{assq-remove!} and friends return.
+
+@example
+address-list
+@result{}
+(("bob" . "11 Newington Avenue") ("mary" . "34 Elm Road")
+ ("james" . "1a London Road"))
+
+(set! address-list (assoc-remove! address-list "mary"))
+address-list
+@result{}
+(("bob" . "11 Newington Avenue") ("james" . "1a London Road"))
+@end example
+
+Note that, when @code{assq/v/oc-remove!} is used to modify an
+association list that has been constructed only using the corresponding
+@code{assq/v/oc-set!}, there can be at most one matching entry in the
+alist, so the question of multiple entries being removed in one go does
+not arise.  If @code{assq/v/oc-remove!} is applied to an association
+list that has been constructed using @code{acons}, or an
+@code{assq/v/oc-set!} with a different level of equality, or any mixture
+of these, it removes only the first matching entry from the alist, even
+if the alist might contain further matching entries.  For example:
+
+@example
+(define address-list '())
+(set! address-list (assq-set! address-list "mary" "11 Elm Street"))
+(set! address-list (assq-set! address-list "mary" "57 Pine Drive"))
+address-list
+@result{}
+(("mary" . "57 Pine Drive") ("mary" . "11 Elm Street"))
+
+(set! address-list (assoc-remove! address-list "mary"))
+address-list
+@result{}
+(("mary" . "11 Elm Street"))
+@end example
+
+In this example, the two instances of the string "mary" are not the same
+when compared using @code{eq?}, so the two @code{assq-set!} calls add
+two distinct entries to @code{address-list}.  When compared using
+@code{equal?}, both "mary"s in @code{address-list} are the same as the
+"mary" in the @code{assoc-remove!} call, but @code{assoc-remove!} stops
+after removing the first matching entry that it finds, and so one of the
+"mary" entries is left in place.
+
+@c docstring begin (c-doc-string "alist.c" "assq-remove!")
+@c docstring md5 "b472d05a41290757de4839772a118145"
 @deffn primitive assq-remove! alist key
 @deffnx primitive assv-remove! alist key
 @deffnx primitive assoc-remove! alist key
-Delete any entry in @var{alist} associated with @var{key}, and return
+Delete the first entry in @var{alist} associated with @var{key}, and return
 the resulting alist.
 @end deffn
+@c docstring end
 
-@strong{Caution:} it is important to remember that the @var{set!} and
-@var{remove!} functions do not always operate as intended.  In some
-circumstances, the functions will try to modify the first element in the
-list; for example, when adding a new entry to an alist,
-@code{assoc-set!} conses the new key-value pair on to the beginning of
-the alist.  However, when this happens, the symbol to which the alist is
-bound has not been modified---it still points to the old ``beginning''
-of the list, which still does not contain the new entry.  In order to be
-sure that these functions always succeed, even when modifying the
-beginning of the alist, you will have to rebind the alist symbol
-explicitly to point to the value returned by @code{assoc-set!}, like so:
+@node Sloppy Alist Functions
+@subsubsection Sloppy Alist Functions
+@findex sloppy-assq
+@findex sloppy-assv
+@findex sloppy-assoc
 
-@lisp
-(set! my-alist
-      (assq-set! my-alist 'sun4 "sparc-sun-solaris"))
-@end lisp
+@code{sloppy-assq}, @code{sloppy-assv} and @code{sloppy-assoc} behave
+like the corresponding non-@code{sloppy-} procedures, except that they
+return @code{#f} when the specified association list is not well-formed,
+where the non-@code{sloppy-} versions would signal an error.
 
-Because of this restriction, you may find it more convenient to use hash
-tables to store dictionary data.  If your application will not be
-modifying the contents of an alist very often, this may not make much
-difference to you.
+Specifically, there are two conditions for which the non-@code{sloppy-}
+procedures signal an error, which the @code{sloppy-} procedures handle
+instead by returning @code{#f}.  Firstly, if the specified alist as a
+whole is not a proper list:
+
+@example
+(assoc "mary" '((1 . 2) ("key" . "door") . "open sesame"))
+@result{}
+ERROR: In procedure assoc in expression (assoc "mary" (quote #)):
+ERROR: Wrong type argument in position 2 (expecting NULLP): "open sesame"
+ABORT: (wrong-type-arg)
+
+(sloppy-assoc "mary" '((1 . 2) ("key" . "door") . "open sesame"))
+@result{}
+#f
+@end example
+
+Secondly, if one of the entries in the specified alist is not a pair:
+
+@example
+(assoc 2 '((1 . 1) 2 (3 . 9)))
+@result{}
+ERROR: In procedure assoc in expression (assoc 2 (quote #)):
+ERROR: Wrong type argument in position 2 (expecting CONSP): 2
+ABORT: (wrong-type-arg)
+
+(sloppy-assoc 2 '((1 . 1) 2 (3 . 9)))
+@result{}
+#f
+@end example
+
+Unless you are explicitly working with badly formed association lists,
+it is much safer to use the non-@code{sloppy-} procedures, because they
+help to highlight coding and data errors that the @code{sloppy-}
+versions would silently cover up.
+
+@c docstring begin (c-doc-string "alist.c" "sloppy-assq")
+@c docstring md5 "2b0953a25e7b16e7bafc001f64cc17b2"
+@deffn primitive sloppy-assq key alist
+Behaves like @code{assq} but does not do any error checking.
+Recommended only for use in Guile internals.
+@end deffn
+@c docstring end
+
+@c docstring begin (c-doc-string "alist.c" "sloppy-assv")
+@c docstring md5 "be5fec71d63648322da6952af841b230"
+@deffn primitive sloppy-assv key alist
+Behaves like @code{assv} but does not do any error checking.
+Recommended only for use in Guile internals.
+@end deffn
+@c docstring end
+
+@c docstring begin (c-doc-string "alist.c" "sloppy-assoc")
+@c docstring md5 "91ff903a097128729a68f2c488f3985c"
+@deffn primitive sloppy-assoc key alist
+Behaves like @code{assoc} but does not do any error checking.
+Recommended only for use in Guile internals.
+@end deffn
+@c docstring end
+
+@node Alist Example
+@subsubsection Alist Example
 
 Here is a longer example of how alists may be used in practice.
 
@@ -3332,386 +3911,6 @@ Test whether obj is a compiled regular expression.
 @deffn primitive advance-dfa! dfa string
 @end deffn
 
-@page
-@node Keywords
-@chapter Keywords
-
-[FIXME: need some initial schmooze about keywords; this is all taken
-from the NEWS file, and is accurate but not very useful to someone who
-has not used keywords before.]
-
-Guile supports a new R4RS--compliant syntax for keywords.  A token of the
-form #:NAME, where NAME has the same syntax as a Scheme symbol, is the
-external representation of the keyword named NAME.  Keyword objects
-print using this syntax as well, so values containing keyword objects
-can be read back into Guile.  When used in an expression, keywords are
-self-quoting objects.
-
-Guile suports this read syntax, and uses this print syntax, regardless
-of the current setting of the `keyword' read option.  The `keyword' read
-option only controls whether Guile recognizes the `:NAME' syntax, which
-is incompatible with R4RS.  (R4RS says such token represent symbols.)
-
-The default behaviour is the R4RS--compliant one (@code{#:xxx} instead
-of @code{:xxx}).
-
-To change between the two keyword syntaxes you use the
-@code{read-options} procedure documented in @ref{General option
-interface} and @ref{Reader options}.
-
-To use the @code{:xxx} keyword syntax, use
-@smalllisp
-(read-set! keywords 'prefix)
-@end smalllisp
-
-To make keyword syntax R4RS compliant, with the @code{#:xxx} syntax,
-use:
-@smalllisp
-(read-set! keywords #f)
-@end smalllisp
-
-[FIXME: in state of flux right now; here are the Scheme primitives
-defined in @file{kw.c}:]
-
-@deffn primitive keyword? kw
-@code{keyword?} returns @code{#t} if the argument @var{kw} is a keyword;
-it returns @code{#f} otherwise.
-@end deffn
-
-@deffn primitive keyword-dash-symbol arg
-@code{keyword-dash-symbol} [FIXME: have no idea what this does; it is
-not commented.]
-@end deffn
-
-
-
-@page
-@node Exceptions
-@chapter Exceptions
-@cindex error handling
-@cindex exception handling
-
-
-
-
-@deffn primitive catch key thunk handler
-Invoke @var{thunk} in the dynamic context of @var{handler} for
-exceptions matching @var{key}.  If thunk throws to the symbol @var{key},
-then @var{handler} is invoked this way:
-
-@example
-(handler key args ...)
-@end example
-
-@var{key} is a symbol or #t.
-
-@var{thunk} takes no arguments.  If @var{thunk} returns normally, that
-is the return value of @code{catch}.
-
-Handler is invoked outside the scope of its own @code{catch}.  If
-@var{handler} again throws to the same key, a new handler from further
-up the call chain is invoked.
-
-If the key is @code{#t}, then a throw to @emph{any} symbol will match
-this call to @code{catch}.
-@end deffn
-
-@deffn primitive throw key &rest args ...
-Invoke the catch form matching @var{key}, passing @var{args} to the
-@var{handler}.  
-
-@var{key} is a symbol.  It will match catches of the same symbol or of
-#t.
-
-If there is no handler at all, an error is signaled.
-@end deffn
-
-@deffn procedure error msg args @dots{}
-Raise an error with key @code{misc-error} and a message constructed by
-displaying @var{msg} and writing @var{args}.
-@end deffn
-
-@deffn primitive scm-error key subr message args data
-Raise an error with key @var{key}.  @var{subr} can be a string naming
-the procedure associated with the error, or @code{#f}.  @var{message}
-is the error message string, possibly containing @code{%S} and @code{%s}
-escapes.  When an error is reported, these are replaced by formating the
-corresponding members of @var{args}: @code{%s} formats using @code{display}
-and @code{%S} formats using @code{write}.  @var{data} is a
-list or @code{#f} depending on @var{key}: if @var{key} is
-@code{system-error} then it should be a list
-containing the Unix @code{errno} value;  If @var{key} is @code{signal} then
-it should be a list containing the Unix signal number; otherwise it
-will usually be @code{#f}.
-@end deffn
-
-@deffn primitive strerror errno
-Returns the Unix error message corresponding to @var{errno}, an integer.
-@end deffn
-
-@deffn syntax false-if-exception expr
-Returns the result of evaluating its argument; however
-if an exception occurs then @code{#f} is returned instead.
-@end deffn
-
-It is traditional in Scheme to implement exception systems using
-@code{call-with-current-continuation}, but his has not been done, for
-performance reasons.  The implementation of
-@code{call-with-current-continuation} is a stack copying implementation.
-This allows it to interact well with ordinary C code.  Unfortunately, a
-stack-copying implementation can be slow -- creating a new continuation
-involves a block copy of the stack.
-
-Instead of using @code{call-with-current-continuation}, the exception
-primitives are implemented as built-ins that take advantage of the
-@emph{upward only} nature of exceptions.
-
-
-
-@page
-@node Modules
-@chapter Modules
-@cindex modules
-
-[FIXME: somewhat babbling; should be reviewed by someone who understands
-modules, once the new module system is in place]
-
-When programs become large, naming conflicts can occur when a function
-or global variable defined in one file has the same name as a function
-or global variable in another file.  Even just a @emph{similarity}
-between function names can cause hard-to-find bugs, since a programmer
-might type the wrong function name.
-
-The approach used to tackle this problem is called @emph{information
-encapsulation}, which consists of packaging functional units into a
-given name space that is clearly separated from other name spaces.
-@cindex encapsulation
-@cindex information encapsulation
-@cindex name space
-
-The language features that allow this are usually called @emph{the
-module system} because programs are broken up into modules that are
-compiled separately (or loaded separately in an interpreter).
-
-Older languages, like C, have limited support for name space
-manipulation and protection.  In C a variable or function is public by
-default, and can be made local to a module with the @code{static}
-keyword.  But you cannot reference public variables and functions from
-another module with different names.
-
-More advanced module systems have become a common feature in recently
-designed languages: ML, Python, Perl, and Modula 3 all allow the
-@emph{renaming} of objects from a foreign module, so they will not
-clutter the global name space.
-@cindex name space - private
-
-@menu
-* Scheme and modules::          
-* The Guile module system::     
-@end menu
-
-@node Scheme and modules
-@section Scheme and modules
-
-Scheme, as defined in R4RS, does @emph{not} have a module system at all.
-
-Aubrey Jaffer, mostly to support his portable Scheme library SLIB,
-implemented a provide/require mechanism for many Scheme implementations.
-Library files in SLIB @emph{provide} a feature, and when user programs
-@emph{require} that feature, the library file is loaded in.
-
-For example, the file @file{random.scm} in the SLIB package contains the
-line
-@smalllisp
-(provide 'random)
-@end smalllisp
-so to use its procedures, a user would type
-@smalllisp
-(require 'random)
-@end smalllisp
-and they would magically become available, @emph{but still have the same
-names!}  So this method is nice, but not as good as a full-featured
-module system.
-
-@node The Guile module system
-@section The Guile module system
-
-In 1996 Tom Lord implemented a full-featured module system for Guile
-which allows loading Scheme source files into a private name space.
-
-This module system is regarded as being rather idiosyncratic, and will
-probably change to something more like the ML module system, so for now
-I will simply descrive how it works for a couple of simple cases.
-
-First of all, the Guile module system sets up a hierarchical name space,
-and that name space can be represented like Unix pathnames preceded by a
-@key{#} character.  The root name space for all Guile-supplied modules
-is called @code{ice-9}.
-
-So for example, the SLIB interface, contained in
-@file{$srcdir/ice-9/slib.scm}, starts out with
-@smalllisp
-(define-module (ice-9 slib))
-@end smalllisp
-and a user program can use
-@smalllisp
-(use-modules (ice-9 slib))
-@end smalllisp
-to have access to all procedures and variables defined within the slib
-module with @code{(define-public ...)}.
-
-So here are the functions involved:
-@deffn syntax define-module module-specification
-@var{module-specification} is of the form @code{(hierarchy file)}.  One
-example of this is
-@smalllisp
-(use-modules (ice-9 slib))
-@end smalllisp
-define-module makes this module available to Guile programs under the
-given @var{module-specification}.
-@end deffn
-
-@deffn syntax define-public @dots{}
-Makes a procedure or variable available to programs that use the current
-module.
-@end deffn
-
-@deffn syntax use-modules module-specification
-@var{module-specification} is of the form @code{(hierarchy file)}.  One
-example of this is
-@smalllisp
-(use-modules (ice-9 slib))
-@end smalllisp
-use-modules allows the current Guile program to use all publicly defined
-procedures and variables in the module denoted by
-@var{module-specification}.
-@end deffn
-
-[FIXME: must say more, and explain, and also demonstrate a private name
-space use, and demonstrate how one would do Python's "from Tkinter
-import *" versus "import Tkinter".  Must also add something about paths
-and standards for contributed modules.]
-
-Some modules are included in the Guile distribution; here are references
-to the entries in this manual which describe them in more detail:
-@table @strong
-@item boot-9
-boot-9 is Guile's initialization module, and it is always loaded when
-Guile starts up.
-@item (ice-9 debug)
-Mikael Djurfeldt's source-level debugging support for Guile
-(@pxref{debugger user interface}).
-@item (ice-9 threads)
-Guile's support for multi threaded execution (@pxref{Threads and Dynamic
-Roots}).
-@item (ice-9 slib)
-This module contains hooks for using Aubrey Jaffer's portable Scheme
-library SLIB from Guile (@pxref{SLIB}).
-@item (ice-9 jacal)
-This module contains hooks for using Aubrey Jaffer's symbolic math
-packge Jacal from Guile (@pxref{JACAL}).
-@end table
-
-
-@page
-@node Module Internals
-@chapter Module Internals
-
-@menu
-* First-class Variables::       
-* First-class Modules::         
-* Dynamic Libraries::		Loading libraries of compiled code at run time.
-@end menu
-
-@node First-class Variables
-@section First-class Variables
-
-@node First-class Modules
-@section First-class Modules
-
-@node Dynamic Libraries
-@section Dynamic Libraries
-
-Often you will want to extend Guile by linking it with some existing
-system library.  For example, linking Guile with a @code{curses} or
-@code{termcap} library would be useful if you want to implement a
-full-screen user interface for a Guile application.  However, if you
-were to link Guile with these libraries at compile time, it would bloat
-the interpreter considerably, affecting everyone on the system even if
-the new libraries are useful only to you.  Also, every time a new
-library is installed, you would have to reconfigure, recompile and
-relink Guile merely in order to provide a new interface.
-
-Many Unix systems permit you to get around this problem by using
-@dfn{dynamic loading}.  When a new library is linked, it can be made a
-@dfn{dynamic library} by passing certain switches to the linker.  A
-dynamic library does not need to be linked with an executable image at
-link time; instead, the executable may choose to load it dynamically at
-run time.  This is a powerful concept that permits an executable to link
-itself with almost any library without reconfiguration, if it has been
-written properly.
-
-Guile's dynamic linking functions make it relatively easy to write a
-module that incorporates code from third-party object code libraries.
-
-@deffn primitive dynamic-link library-file
-Open the dynamic library @var{library-file}.  A library handle
-representing the opened library is returned; this handle should be used
-as the @var{lib} argument to the following functions.
-@end deffn
-
-@deffn primitive dynamic-object? obj
-Return @code{#t} if @var{obj} is a dynamic library handle, or @code{#f}
-otherwise.
-@end deffn
-
-@deffn primitive dynamic-unlink lib
-Unlink the library represented by @var{library-handle}, and remove any
-imported symbols from the address space.
-@end deffn
-
-@deffn primitive dynamic-func func lib
-Import the symbol @var{func} from @var{lib} (a dynamic library handle).
-A @dfn{function handle} representing the imported function is returned.
-@end deffn
-
-@deffn primitive dynamic-call lib-thunk lib
-Call @var{lib-thunk}, a procedure of no arguments.  If @var{lib-thunk}
-is a string, it is assumed to be a symbol found in the dynamic library
-@var{lib} and is fetched with @code{dynamic-func}.  Otherwise, it should
-be a function handle returned by a previous call to @code{dynamic-func}.
-The return value is unspecified.
-@end deffn
-
-@deffn primitive dynamic-args-call proc lib args
-Call @var{proc}, a dynamically loaded function, passing it the argument
-list @var{args} (a list of strings).  As with @code{dynamic-call},
-@var{proc} should be either a function handle or a string, in which case
-it is first fetched from @var{lib} with @code{dynamic-func}.
-
-@var{proc} is assumed to return an integer, which is used as the return
-value from @code{dynamic-args-call}.
-@end deffn
-
-@deffn primitive c-registered-modules
-Return a list of the object code modules that have been imported into
-the current Guile process.  Each element of the list is a pair whose
-car is the name of the module (as it might be used by
-@code{use-modules}, for instance), and whose cdr is the function handle
-for that module's initializer function.
-@end deffn
-
-@deffn primitive c-clear-registered-modules
-Destroy the list of modules registered with the current Guile process.
-The return value is unspecified.  @strong{Warning:} this function does
-not actually unlink or deallocate these modules, but only destroys the
-records of which modules have been loaded.  It should therefore be used
-only by module bookkeeping operations.
-@end deffn
-
-[FIXME: provide a brief example here of writing the C hooks for an
-object code module, and using dynamic-link and dynamic-call to load the
-module.]
 
 @page
 @node Dynamic Linking from Marius
@@ -4551,3 +4750,105 @@ modules and libraries.
 --- The name of this chapter needs to clearly distinguish it
     from the appendix describing the debugger UI.  The intro
     should have a pointer to the UI appendix.
+
+
+@page
+@node SLIB
+@chapter SLIB
+
+Before the the SLIB facilities can be used, the following Scheme
+expression must be executed:
+
+@smalllisp
+(use-modules (ice-9 slib))
+@end smalllisp
+
+@code{require} can then be used as described in 
+@ref{Top, , SLIB, slib, The SLIB Manual}. 
+
+For example:
+
+@smalllisp
+guile> (use-modules (ice-9 slib))
+guile> (require 'primes)
+guile> (probably-prime? 13)
+@end smalllisp
+
+@menu
+* SLIB installation::
+* JACAL::                       
+@end menu
+
+@node SLIB installation
+@section SLIB installation
+
+The following seems to work, at least with slib 2c7:
+
+@enumerate
+@item
+Unpack slib somewhere, e.g., /usr/local/lib/slib.
+
+@item
+Create a symlink in the Guile site directory to slib, e.g.,:
+
+@example
+ln -s /usr/local/lib/slib /usr/local/share/guile/site/slib
+@end example
+
+@item
+Use Guile to create the catalogue file, e.g.,:
+
+@example
+# guile
+guile> (use-modules (ice-9 slib))
+guile> (load "/usr/local/lib/slib/mklibcat.scm")
+guile> (quit)
+@end example
+
+The catalogue data should now be in
+@code{/usr/local/share/guile/site/slibcat}.
+
+If instead you get an error such as:
+
+@example
+Unbound variable: scheme-implementation-type
+@end example
+
+then a solution is to get a newer version of Guile,
+or to modify ice-9/slib.scm to use define-public for the
+offending variables.
+
+@item
+Install the documentation:
+
+@example
+cd /usr/local/lib/slib
+rm /usr/local/info/slib.info*
+cp slib.info /usr/local/info
+install-info slib.info /usr/local/info/dir
+@end example
+@end enumerate
+
+@node JACAL
+@section JACAL
+
+@cindex Jaffer, Aubrey
+@cindex symbolic math
+@cindex math -- symbolic
+Jacal is a symbolic math package written in Scheme by Aubrey Jaffer.  It
+is usually installed as an extra package in SLIB (@pxref{Packages not
+shipped with Guile}).
+
+You can use Guile's interface to SLIB to invoke Jacal:
+
+@smalllisp
+(use-modules (ice-9 slib))
+(slib:load "math")
+(math)
+@end smalllisp
+
+@noindent
+For complete documentation on Jacal, please read the Jacal manual.  If
+it has been installed on line, you can look at @ref{Top, , Jacal, jacal,
+The SLIB Manual}.  Otherwise you can find it on the web at
+@url{http://www-swiss.ai.mit.edu/~jaffer/JACAL.html}
