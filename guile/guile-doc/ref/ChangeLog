@@ -1,3 +1,9 @@
+1998-01-20  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* gh.texi (C to Scheme): Added documentation for gh_doubles2scm
+	and gh_doubles2dvect.
+	(Scheme to C): Added documentation for gh_scm2doubles.
+
 1998-01-15  Mark Galassi  <rosalia@nis.lanl.gov>
 
 	* gh.texi (Calling Scheme procedures from C): removed

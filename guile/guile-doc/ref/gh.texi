@@ -385,6 +385,12 @@ Given a null-terminated string @var{name}, return the symbol with that
 name.
 @end deftypefun
 
+@deftypefun SCM gh_doubles2scm (double *@var{dptr}, int @var{n})
+@deftypefunx SCM gh_doubles2dvect (double *@var{dptr}, int @var{n})
+Make a scheme vector containing the @var{n} doubles at memory location
+@var{dptr}.  @code{gh_doubles2dvect} returns a uniform double vector
+instead.
+@end deftypefun
 
 
 
@@ -432,6 +438,13 @@ is returned in @code{*@var{lenp}}.
 
 This function uses malloc to obtain storage for the returned string; the
 caller is responsible for freeing it.
+@end deftypefun
+
+@deftypefun double *gh_scm2doubles (SCM @var{vector})
+Allocate a double array large enough to contain the numbers in
+@var{vector} and return it. @var{vector} can be an ordinary vector (with
+inexact or integer values), a weak vector, or a uniform double or float
+vector.
 @end deftypefun
 
 
