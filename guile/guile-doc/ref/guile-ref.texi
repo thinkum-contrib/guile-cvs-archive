@@ -37,16 +37,11 @@
 @c      dynamic-link, dynamic-object?, dynamic-unlink, dynamic-func,
 @c      dynamic-call, dynamic-args-call
 @c   error.c: scm-error
-@c   eval.c: procedure-documentation, apply:nconc2last,
-@c      procedure->syntax, procedure->macro, procedure->memoizing-macro,
-@c      macro?, macro-type, macro-name, macro-transformer, promise?,
-@c      copy-tree, eval2, eval, eval!, macro-eval!, defined?
-@c   feature.c: program-arguments
+@c   eval.c: procedure->syntax, procedure->macro, procedure->memoizing-macro,
+@c      macro-name, macro-transformer
 @c   fluids.c: make-fluid, fluid?, fluid-ref, fluid-set, with-fluids*
 @c   gc.c: map-free-list, unhash-name
 @c   kw.c: make-keyword-from-dash-symbol
-@c   load.c: primitive-load, %package-data-dir, %search-load-path,
-@c      primitive-load-path, read-and-eval!
 @c   net_db.c: sethost, setnet, setproto, setserv
 @c   numbers.c: $asinh, $acosh, $atanh, $sqrt, $abs, $exp, $log, $sin,
 @c      $cos, $tan, $asin, $acos, $atan, $sinh, $cosh, $tanh, $expt,
@@ -57,17 +52,13 @@
 @c   readline.c: readline, add-history
 @c   srcprop.c: source-properties, set-source-properties!,
 @c      source-property, set-source-property!
-@c   stacks.c: stack? make-stack, stack-id, stack-ref, stack-length,
+@c   stacks.c: make-stack, stack-ref, stack-length,
 @c      frame?, last-stack-frame, frame-number, frame-source,
 @c      frame-procedure, frame-arguments, frame-previous, frame-next,
 @c      frame-real?, frame-procedure?, frame-evaluating-args?,
 @c      frame-overflow
-@c   strop.c: substring-move-left!, substring-move-right!
 @c   struct.c: struct-vtable-tag
-@c   symbols.c: string->obarray-symbol, intern-symbol, unintern-symbol,
-@c      symbol-binding, symbol-interned, symbol-bound?, symbol-set!,
-@c      symbol-fref, symbol-pref, symbol-fset!, symbol-pset!,
-@c      symbol-hash, builtin-bindings, builtin-weak-bindings, gensym
+@c   symbols.c: builtin-weak-bindings
 @c   tag.c: tag
 @c   threads.c: single-active-thread?, yield, call-with-new-thread,
 @c      make-condition-variable, wait-condition-variable,
@@ -76,9 +67,6 @@
 @c   unif.c: uniform-vector-ref, uniform-array-set1!
 @c   variable.c: make-variable, make-undefined-variable, variable?,
 @c      variable-ref, variable-set!, builtin-variable, variable-bound?
-@c   vectors.c: vector-move-left!, vector-move-right!
-@c   version.c: major-version, minor-version, version,
-@c      libguile-config-stamp
 @c   weaks.c: make-weak-vector, weak-vector, list->weak-vector,
 @c      weak-vector? make-weak-key-hash-table,
 @c      make-weak-value-hash-table, make-doubly-weak-hash-table,
@@ -92,8 +80,9 @@
 @c manual, please let me know.
 @c
 @c The following functions are currently left undocumented for various reasons.
-@c   ports.c: pt-size, pt-member [should be documented in a debugging or
-@c	Guile internals section]
+@c   * should be documented in a section on debugging or Guile internals:
+@c       ports.c: pt-size, pt-member
+@c       eval.c: apply:nconc2last
 @c
 @c Thanks. -twp
 
@@ -155,8 +144,7 @@ by the Free Software Foundation.
 @author @email{ghouston@@actrix.gen.nz}
 @author
 @author Tim Pierce
-@author University of Chicago
-@author @email{twpierce@@midway.uchicago.edu}
+@author @email{twp@@skepsis.com}
 @c The following two commands start the copyright page.
 @page
 @vskip 0pt plus 1filll
@@ -211,13 +199,14 @@ compatibility with many of these systems.
 
 * Extensions to Scheme::        Guile supports many features not in R4RS.
 * SLIB::                        Using the SLIB Scheme library.
+* Evaluation::                  Running and evaluating code on the fly.
 * Lists::                       Special list functions supported by Guile.
 * Data Structures::		Records, hash tables, etc.
 * Strings::                     Special things about strings.
 * Characters::			New character names.
 * Property Lists::              Managing metainformation about Scheme objects.
 * Ports::                       I/O in Scheme.
-* Bitwise Operations::          [Previously "Binary Numeric Operations" -twp]
+* Bitwise Operations::          Logical AND, OR, NOT, and so on.
 * Regular Expressions::         Pattern matching and substitution.
 * Keywords::                    Self-quoting, customizable display keywords.
 * Exceptions::                  Signalling and handling fatal errors.
@@ -229,6 +218,7 @@ compatibility with many of these systems.
 * Reflection::
 * Weak References::
 * Garbage Collection::
+* Configuration Data::		Version info, library directories, etc.
 * Internal Debugging Interface::
 
 Part III: Unix Programming
@@ -294,6 +284,7 @@ Appendices and Indices
 
 * Obtaining and Installing Guile::
 * Reporting Bugs::
+* Internals::
 * debugger user interface::
 
 * Concept Index::

@@ -372,6 +372,140 @@ The SLIB Manual}.  Otherwise you can find it on the web at
 @url{http://www-swiss.ai.mit.edu/~jaffer/JACAL.html}
 
 @page
+@node Evaluation
+@chapter Evaluation
+
+This chapter describes Guile functions that are concerned with loading
+and evaluating Scheme code at run time.  R4RS Scheme, because of strong
+differences in opinion among implementors, only provides a @code{load}
+function.  There are many useful programs that are difficult or
+impossible to write without more powerful evaluation procedures, so we
+have provided some.
+
+[FIXME: This needs some more text on the difference between procedures,
+macros and memoizing macros.  Also, any definitions listed here should
+be double-checked by someone who knows what's going on.  Ask Mikael, Jim
+or Aubrey for help. -twp]
+
+@deffn primitive procedure-documentation proc
+Return the documentation string associated with @code{proc}.  By
+convention, if a procedure contains more than one expression and the
+first expression is a string constant, that string is assumed to contain
+documentation for that procedure.
+@end deffn
+
+@deffn primitive procedure->syntax proc
+[FIXME: Get documentation from SCM/SLIB.]
+@end deffn
+
+@deffn primitive procedure->macro proc
+[FIXME: Get documentation from SCM/SLIB.]
+@end deffn
+
+@deffn primitive procedure->memoizing-macro proc
+[FIXME: Get documentation from SCM/SLIB.]
+@end deffn
+
+@deffn primitive macro? obj
+Return @code{#t} if @var{obj} is a regular macro, a memoizing macro or a
+syntax transformer.
+@end deffn
+
+@deffn primitive macro-type obj
+Return one of the symbols @code{syntax}, @code{macro} or @code{macro!},
+depending on whether @var{obj} is a syntax tranformer, a regular macro,
+or a memoizing macro, respectively.  If @var{obj} is not a macro,
+@code{#f} is returned.
+@end deffn
+
+@deffn primitive macro-name
+@end deffn
+
+@deffn primitive macro-transformer
+@end deffn
+
+@deffn primitive promise? obj
+Return true if @var{obj} is a promise, i.e. a delayed computation
+(@pxref{Delayed evaluation,,,r4rs.info,The Revised^4 Report on Scheme}).
+@end deffn
+
+@deffn primitive copy-tree obj
+Recursively copy the data tree that is bound to @var{obj}, and return a
+pointer to the new data structure.  @code{copy-tree} recurses down the
+contents of both pairs and vectors (since both cons cells and vector
+cells may point to arbitrary objects), and stops recursing when it hits
+any other object.
+@end deffn
+
+@deffn primitive eval exp
+Evaluate @var{exp}, a list representing a Scheme expression, in the
+top-level environment.
+@end deffn
+
+@deffn primitive eval! exp
+Evaluate @var{exp} in the top-level environment.  The expression is
+internally memoized, to speed up future evaluations of the same code.
+@end deffn
+
+@deffn primitive eval2 exp lookup
+Evaluate @var{exp}, a list representing a Scheme expression, in the
+environment designated by @var{lookup}, a symbol-lookup function.
+@code{(eval exp)} is equivalent to @code{(eval2 exp
+*top-level-lookup-closure*)}.
+@end deffn
+
+@deffn primitive macro-eval! exp env
+Evaluate and memoize @var{exp} in the environment @var{env}.
+@end deffn
+
+@deffn primitive defined? sym
+Return @code{#t} if @var{sym} is defined in the top-level environment.
+@end deffn
+
+@deffn primitive read-and-eval! [port]
+Read a form from @var{port} (standard input by default), memoize it and
+evaluate it in the top-level environment.  If no data is left to be read
+from @var{port}, an @code{end-of-file} error is signalled.
+@end deffn
+
+@deffn primitive primitive-load file
+Load @var{file} and evaluate its contents in the top-level environment.
+The load paths are not searched; @var{file} must either be a full
+pathname or be a pathname relative to the current directory.  If the
+variable @code{%load-hook} is defined, it should be bound to a procedure
+that will be called before any code is loaded.  See documentation for
+@code{%load-hook} later in this section.
+@end deffn
+
+@deffn primitive primitive-load-path file
+Search @var{%load-path} for @var{file} and load it into the top-level
+environment.  If @var{file} is a relative pathname and is not found in
+the list of search paths, an error is signalled.
+@end deffn
+
+@deffn primitive %search-load-path file
+Search @var{%load-path} for @var{file}.  If @var{file} is found in the
+list of paths to search or is an absolute pathname, return its full
+pathname.  Otherwise, return @code{#f}.
+@end deffn
+
+@defvar %load-hook
+A procedure to be run whenever @code{primitive-load} is called.  If this
+procedure is defined, it will be called with the filename argument that
+was passed to @code{primitive-load}.
+
+@example
+(define %load-path (lambda (file)
+                     (display "Loading ")
+                     (display file)
+                     (write-line "...."))) @result{} undefined
+(load-from-path "foo.scm")
+@print{} Loading /usr/local/share/guile/site/foo.scm....
+@end example
+
+@end defvar
+
+@page
 @node Lists
 @chapter Lists
 
@@ -1586,11 +1720,31 @@ than from the left.  This procedure essentially implements the
 @code{rindex} or @code{strrchr} functions from the C library.
 @end deffn
 
-@c Guile also implements two procedures called `substring-move-left!'
-@c and `substring-move-right!', for copying a substring from one
-@c string into a another one.  These procedures look strange and I
-@c am suspicious that they are only half-implemented, so they have not
-@c been documented until something definitive is done with them. -twp
+@deffn primitive substring-move-right! str1 start1 end1 str2 start2
+@deffnx primitive substring-move-left! str1 start1 end1 str2 start2
+Copy the substring of @var{str1} bounded by @var{start1} and @var{end1}
+into @var{str2} beginning at position @var{end2}.
+@code{substring-move-right!} begins copying from the rightmost character
+and moves left, and @code{substring-move-left!} copies from the leftmost
+character moving right.
+
+It is useful to have two functions that copy in different directions so
+that substrings can be copied back and forth within a single string.  If
+you wish to copy text from the left-hand side of a string to the
+right-hand side of the same string, and the source and destination
+overlap, you must be careful to copy the rightmost characters of the
+text first, to avoid clobbering your data.  Hence, when @var{str1} and
+@var{str2} are the same string, you should use
+@code{substring-move-right!} when moving text from left to right, and
+@code{substring-move-left!}  otherwise.  If @code{str1} and @samp{str2}
+are different strings, it does not matter which function you use.
+@end deffn
+
+@deffn primitive vector-move-right! vec1 start1 end1 vec2 start2
+@deffnx primitive vector-move-left! vec1 start1 end1 vec2 start2
+Vector versions of @code{substring-move-right!} and
+@code{substring-move-left!}
+@end deffn
 
 @deffn primitive substring-fill! str start end fill-char
 Change every character in @var{str} between @var{start} and @var{end} to
@@ -3400,6 +3554,45 @@ Returns an association list of statistics about Guile's current use of storage.
 Return an integer that for the lifetime of @var{obj} is uniquely
 returned by this function for @var{obj}
 @end deffn
+
+@page
+@node Configuration Data
+@chapter Configuration Data
+
+It is often useful to have site-specific information about the current
+Guile installation.  This chapter describes how to find out about
+Guile's configuration at run time.
+
+@deffn primitive version
+@deffnx primitive major-version
+@deffnx primitive minor-version
+Return a string describing Guile's version number, or its major or minor
+version numbers, respectively.
+
+@example
+(version) @result{} "1.3a"
+(major-version) @result{} "1"
+(minor-version) @result{} "3a"
+@end example
+@end deffn
+
+@deffn primitive libguile-config-stamp
+Return a string describing the date on which @code{libguile} was
+configured.  This is used to determine whether the Guile core
+interpreter and the ice-9 runtime have grown out of date with one
+another.
+@end deffn
+
+@deffn primitive %package-data-dir
+Return the name of the directory where Scheme packages, modules and
+libraries are kept.  On most Unix systems, this will be
+@samp{/usr/local/share/guile}.
+@end deffn
+
+@defvar %load-path
+Return the list of directories which should be searched for Scheme
+modules and libraries.
+@end defvar
 
 @page
 @node Internal Debugging Interface
