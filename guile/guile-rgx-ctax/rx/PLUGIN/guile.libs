@@ -1,1 +1,1 @@
--lguile -lrx
+-lrx -lguile

@@ -4,17 +4,18 @@ AUTOMAKE_OPTIONS = foreign
 
 INCLUDES = -I$(srcdir)/../libguile -I$(srcdir)/.. -I../
 
-lib_LIBRARIES = librx.a
-librx_a_SOURCES = rx.h hashrexp.c inst-rxposix.h rgx.c rgx.h rx.c \
+lib_PROGRAMS = librx.la
+librx_la_SOURCES = rx.h hashrexp.c inst-rxposix.h rgx.c rgx.h rx.c \
 rx.h rxall.h rxanal.c rxanal.h rxbasic.c rxbasic.h rxbitset.c rxbitset.h \
 rxcontext.h rxcset.c rxcset.h rxdbug.c rxgnucomp.c rxgnucomp.h rxhash.c \
 rxhash.h rxnfa.c rxnfa.h rxnode.c rxnode.h rxposix.c rxposix.h rxproto.h \
 rxsimp.c rxsimp.h rxspencer.c rxspencer.h rxstr.c rxstr.h rxsuper.c \
 rxsuper.h rxunfa.c rxunfa.h _rx.h
+librx_la_LDFLAGS = -version-info 0:0 -rpath $(libdir)
 
 check_PROGRAMS = runtests
 runtests_SOURCES = runtests.c testcases.h
-runtests_LDADD = librx.a
+runtests_LDADD = librx.la
 
 $(srcdir)/testcases.h: TESTS TESTS2C.sed
 	sed -f $(srcdir)/TESTS2C.sed $(srcdir)/TESTS > $(srcdir)/testcases.h
