@@ -207,6 +207,11 @@ void scm_wrong_num_args (SCM proc);
 void scm_wrong_type_arg (char *subr, int pos, SCM bad_value);
 void scm_memory_error (char *subr);
 static void scm_regex_error (char *subr, int code); (only used in rgx.c).
+
+Exception handlers can also be installed from C, using
+scm_internal_catch, scm_lazy_catch, or scm_stack_catch from
+libguile/throw.c.  These have not yet been documented, however the
+source contains some useful comments.
 @end example
 
 @page
