@@ -70,42 +70,32 @@ Guile.
 
 
 @page
-@node Block comments and interpreter triggers
-@chapter Block comments and interpreter triggers
-
-Guile provides the block comment tokens @code{#!} and @code{!#} to
-mark off a block of text that may span several lines.
-
-@example
-#! This is an example of a multi-line comment in Guile
-   Scheme.  The Guile lexer ignores everything between
-   the opening and closing comment tokens, just as if
-   each line began with a semicolon.
-!#
-@end example
-
-Note that the closing @code{!#} token must appear on a line by
-itself.  Even excess whitespace on the closing line will cause the
-closing token to be ignored.
-
-The @code{#!} block comment is the same as the @code{#!} token
-used in Unix to denote an executable shell script.  This is not
-entirely accidental; the choice of @code{#!} and @code{!#} tokens
-to mark block comments was made in order to facilitate the use of
-Guile in writing scripts.  As a result, it is important to follow
-the block comment syntax when writing a shell script in Guile;
-@xref{Invoking Guile}.
-
-@page
 @node Symbol case
 @chapter Symbol case
+
+[FIXME: I (MarkG) don't know what Symbol case is; someone should put
+something in here.  Could it be as trivial as the fact that there is an
+option in @file{read.c} which tells the interpreter to be
+case-insensitive?]
 
 
 @page
 @node Keywords
 @chapter Keywords
 
-[FIXME: in state of flux right now]
+[FIXME: in state of flux right now; here are the Scheme primitives
+defined in @file{kw.c}:]
+
+@defun keyword? kw
+@code{keyword?} returns @code{#t} if the argument @var{kw} is a keyword;
+it returns @code{#f} otherwise.
+@end defun
+
+@defun keyword-dash-symbol arg
+@code{keyword-dash-symbol} [FIXME: have no idea what this does; it is
+not commented.]
+@end defun
+
 
 @page
 @node Modules
@@ -1467,9 +1457,9 @@ This chapter discusses dictionary objects: data structures that are
 useful for organizing and indexing large bodies of information.
 
 @menu
-* Dictionary Types::  About dictionary types; what they're good for.
+* Dictionary Types::            About dictionary types; what they're good for.
 * Association Lists::           
-* Hash Tables::   
+* Hash Tables::                 
 @end menu
 
 @node Dictionary Types
@@ -1714,11 +1704,11 @@ that simulate ports in software.  @dfn{Soft ports} and @dfn{string
 ports} are two interesting and powerful examples of this technique.
 
 @menu
-* File Ports::
-* Soft Ports::
-* String Ports::
-* Extended I/O (fseek and line read/write)::
-* Closing Ports::
+* File Ports::                  
+* Soft Ports::                  
+* String Ports::                
+* Closing Ports::               
+* Extended I/O (fseek and line read/write)::  
 @end menu
 
 @node File Ports
@@ -2250,10 +2240,10 @@ installation includes regular expression support by checking whether the
 @code{*features*} list includes the @code{regex} symbol.
 
 @menu
-* Regexp Functions::    Functions that create and match regexps.
-* Match Structures::    Finding what was matched by a regexp.
-* Backslash Escapes::   Removing the special meaning of regexp metacharacters.
-* Rx Interface::	Tom Lord's Rx library does things differently.
+* Regexp Functions::            Functions that create and match regexps.
+* Match Structures::            Finding what was matched by a regexp.
+* Backslash Escapes::           Removing the special meaning of regexp metacharacters.
+* Rx Interface::                Tom Lord's Rx library does things differently.
 @end menu
 
 [FIXME: it may be useful to include an Examples section.  Parts of this
@@ -2673,19 +2663,6 @@ Test whether obj is a compiled regular expression.
 @node SLIB
 @chapter SLIB
 
-SLIB is a portable Scheme library which can be obtained by ftp from
-@url{ftp://prep.ai.mit.edu/pub/gnu/jacal}.
-
-The SLIB package should be unpacked somewhere in Guile's load path.
-The load path can be checked from inside the interpreter, e.g.,
-
-@smalllisp
-guile> %load-path
-("/usr/local/share/guile/site" "/usr/local/share/guile/1.3a" "/usr/local/share/guile" ".")
-@end smalllisp
-
-so we may have @code{/usr/local/share/guile/site/slib/...}.
-
 Before the the SLIB facilities can be used, the following Scheme
 expression must be executed:
 
@@ -2694,12 +2671,40 @@ expression must be executed:
 @end smalllisp
 
 @code{require} can then be used as described in 
-@ref{Top, , SLIB, slib, The SLIB Manual}, e.g.,
+@ref{Top, , SLIB, slib, The SLIB Manual}.  For example:
 
 @smalllisp
 (require 'format)
 (format "~8,48D" 10)
 @end smalllisp
+
+@menu
+* JACAL::                       
+@end menu
+
+@node JACAL
+@section JACAL
+
+@cindex Jaffer, Aubrey
+@cindex symbolic math
+@cindex math -- symbolic
+Jacal is a symbolic math package written in Scheme by Aubrey Jaffer.  It
+is usually installed as an extra package in SLIB (@pxref{Packages not
+shipped with Guile}).
+
+You can use Guile's interface to SLIB to invoke Jacal:
+
+@smalllisp
+(use-modules (ice-9 slib))
+(slib:load "math")
+(math)
+@end smalllisp
+
+@noindent
+For complete documentation on Jacal, please read the Jacal manual.  If
+it has been installed on line, you can look at @ref{Top, , Jacal, jacal,
+The SLIB Manual}.  Otherwise you can find it on the web at
+@url{http://www-swiss.ai.mit.edu/~jaffer/JACAL.html}
 
 @page
 @node POSIX system calls and networking
@@ -2711,19 +2716,19 @@ a module and @code{use-modules} or something similar will be required to
 make them available.
 
 @menu
-* conventions::
-* ports vs file descriptors::  
-* file system::
-* user database::
-* time::
-* processes::
-* signals::
+* conventions::                 
+* ports vs file descriptors::   
+* file system::                 
+* user database::               
+* time::                        
+* processes::                   
+* signals::                     
 * terminals and pseudo-terminals::  
 * pipes::                       
-* networking::
+* networking::                  
 * system identification (uname)::  
-* locales (setlocale):: 
-* expect::
+* locales (setlocale)::         
+* expect::                      
 @end menu
 
 @node conventions

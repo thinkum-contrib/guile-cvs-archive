@@ -1,3 +1,13 @@
+Sun Sep 21 18:45:57 1997  Mark Galassi  <rosalia@nis.lanl.gov>
+
+	* scheme.texi (SLIB): some little details, including splitting off
+	what does in the installation chapter.  Also added a section on
+	Jacal, which has some open issues.
+
+	* appendices.texi (Packages not shipped with Guile): added this
+ 	section to describe getting resources on SCSH, SLIB and Jacal (and
+ 	who knows what else in the future).
+
 Sat Aug 30 19:31:22 1997  Gary Houston  <ghouston@actrix.gen.nz>
 
 	* scheme.texi (Uniform Array): mention start and end arguments 

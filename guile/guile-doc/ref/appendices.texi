@@ -1,6 +1,17 @@
 @node Obtaining and Installing Guile
 @appendix Obtaining and Installing Guile
 
+Here is the information you will need to get and install Guile and extra
+packages and documentation you might need or find interesting.
+
+@menu
+* The Basic Guile Packge::      
+* Packages not shipped with Guile::  
+@end menu
+
+@node The Basic Guile Packge
+@section The Basic Guile Package
+
 Guile can be obtained from the main GNU archive site
 @url{ftp://prep.ai.mit.edu/pub/gnu} or any of its mirrors.  The file
 will be named guile-version.tar.gz.  The current version is
@@ -37,8 +48,57 @@ known as R4RS, or the
 ``Revised^4 Report on the Algorithmic Language Scheme'',
 @end ifinfo
 we have included the report in the Guile distribution;
-@xref{Top, , Introduction, r4rs, Revised(4) Report on the Algorithmic Language Scheme}.
+@xref{Top, , Introduction, r4rs, Revised(4) Report on the Algorithmic
+Language Scheme}.
 This will also be installed in your info directory.
+
+
+@node Packages not shipped with Guile
+@section Packages not shipped with Guile
+
+We ship the Guile tutorial and reference manual with the Guile
+distribution [FIXME: this is not currently true (Sat Sep 20 14:13:33 MDT
+1997), but will be soon.]  Since the Scheme standard (R4RS) is a stable
+document, we ship that too.
+
+Here are references (usually World Wide Web URLs) to some other freely
+redistributable documents and packages which you might find useful if
+you are using Guile.
+
+@table @strong
+@item SCSH
+the Scheme Shell.  Gary Houston has ported SCSH to Guile.  The relevant
+chapter (@pxref{The Scheme shell (scsh)}) has references to the SCSH web
+page with all its documentation.
+
+@item SLIB
+a portable Scheme library maintained by Aubrey Jaffer.  SLIB can be
+obtained by ftp from @url{ftp://prep.ai.mit.edu/pub/gnu/jacal/}.
+
+The SLIB package should be unpacked somewhere in Guile's load path.  It
+will typically be unpacked in @file{/usr/local/share/guile/site}, so
+that it will be @file{/usr/local/share/guile/site/slib}.
+
+Guile might have been installed with a different prefix, in which case
+the load path can be checked from inside the interpreter with:
+
+@smalllisp
+guile> %load-path
+("/usr/local/share/guile/site" "/usr/local/share/guile/1.3a" "/usr/local/share/guile" ".")
+@end smalllisp
+
+The relevant chapter (@pxref{SLIB}) has details on how to use SLIB with
+Guile.
+
+@item JACAL
+a symbolic math package by Aubrey Jaffer.  The latest version of Jacal
+can be obtained from @url{ftp://prep.ai.mit.edu/pub/gnu/jacal/}, and
+should be unpacked in @file{/usr/local/share/guile/site/slib} so that
+it will be in @file{/usr/local/share/guile/site/slib/jacal}.
+
+The relevant section (@pxref{JACAL}) has details on how to use Jacal.
+@end table
+
 
 @page
 @node Reporting Bugs
@@ -72,9 +132,9 @@ Scheme programs than the interpreter which evaluates them.
 and explain why they can't be used to debug interpreted Scheme or Lisp?]
  
 @menu
-* Single-Step::         Execute a program or function one step at a time.
-* Trace::               Print a report each time a given function is called.
-* Backtrace::           See a list of the statements that caused an error.
+* Single-Step::                 Execute a program or function one step at a time.
+* Trace::                       Print a report each time a given function is called.
+* Backtrace::                   See a list of the statements that caused an error.
 @end menu
  
 @node Single-Step
