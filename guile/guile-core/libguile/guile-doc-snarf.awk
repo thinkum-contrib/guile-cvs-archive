@@ -42,8 +42,8 @@ BEGIN { FS="|";
 
 /@@@/,/@!!!.*$/ { copy = $0; 
                       gsub(/.*@@@/,"",copy); 
-		      gsub(/^[ \t]*"?/,"", copy);
-		      gsub(/\"?[ \t]*@!!!.*$/,"", copy);
+		      sub(/^[ \t]*"?/,"", copy);
+		      sub(/\"?[ \t]*@!!!.*$/,"", copy);
                       gsub(/\\\"/,"\"",copy);
                       gsub(/[ \t]*$/,"", copy);
                       if (copy != "") { print copy > dot_doc_file } }
