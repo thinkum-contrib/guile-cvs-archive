@@ -1,3 +1,8 @@
+2001-11-18  Thien-Thi Nguyen  <ttn@glug.org>
+
+	* doc/guile-www.texi (direntry): Fix syntax error.
+	Thanks to Eric Gillespie, Jr.
+
 2001-11-17  Thien-Thi Nguyen  <ttn@glug.org>
 
 	* configure.in: Bump version to 1.0 for release.
