@@ -5,3 +5,14 @@
 setting up this directory to encourage published personal expression.
 everyone has their own style, so maybe this will be a lonely place.
 
+* 2002/03/27 14:11:09
+
+libguile doc snarfing currently uses cpp and requires a C language tokenizer,
+the latter implemented via flex.  it's probably ok to install the tokenizer in
+$libexec and write scripts/read-c-source to DTRT.  read-c-source needs to be
+extensible to support snarfing from comments (popular technique used in other
+projects).
+
+snarfing to produce guile-procedures.txt is another question.
+
+the tokenizer might be useful to a C translator.
