@@ -1,0 +1,50 @@
+# library_name -- modify this definition!
+#
+# The name of the library defined by this distribution.
+# The library will be installed under this name, i.e.:
+#
+#	gls/generic-module/*.scm
+#
+# This name should agree with the name package name
+# used in the source.
+#
+
+library_name=ctax
+
+
+
+
+# scm_files -- you might want to modify this definition.
+#
+# Set the variable scm_files to the list of 
+# installed Scheme sources:
+#
+
+scm_files=`grep -l installed-scm-file $srcdir/*.scm | sed -e "s,.*/,," | xargs echo`
+
+
+
+
+
+# aux_files -- modify this variable!
+#
+# Set the variable scm_files to the list of uninstalled files in the
+# distribution.   Probably your distribution should not include 
+# scm-plugins.* but should include some other documentation:
+#
+aux_files="	COPYING \
+		PLUGIN \
+		Makefile.in \
+		configure \
+		configure.in \
+		../doc/ctax.texi"
+
+
+# info_files -- you might want to modify this definition.
+#
+# Set the variable info_files to the list of 
+# installed info files:
+#
+
+info_files=
+
