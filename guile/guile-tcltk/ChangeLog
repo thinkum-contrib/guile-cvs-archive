@@ -1,3 +1,8 @@
+Sun Jan 12 21:03:55 1997  Marius Vollmer  <mvo@zagadka.ping.de>
+
+	* gtcltk-module.c: New file. See libguile/DYNAMIC-LINKING.
+	* Makefile.am (libgtcltk_la_SOURCES): Added gtcltk-module.c
+
 Sat Jan 11 14:42:14 1997  Marius Vollmer  <mvo@zagadka.ping.de>
 
 	* configure.in: Replaced AC_PROG_RANLIB with AM_PROG_LIBTOOL.
