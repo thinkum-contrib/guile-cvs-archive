@@ -1,73 +1,26 @@
 ;;;; ports.scm --- some naive benchmarks for Guile's I/O ports
-;;;; Jim Blandy <jimb@red-bean.com> --- April 1999
+;;;; Copyright (C) 1999  Jim Blandy <jimb@red-bean.com>
+;;;;
+;;;; This program is free software; you can redistribute it and/or modify
+;;;; it under the terms of the GNU General Public License as published by
+;;;; the Free Software Foundation; either version 2 of the License, or
+;;;; (at your option) any later version.
+;;;; 
+;;;; This program is distributed in the hope that it will be useful,
+;;;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;;;; GNU General Public License for more details.
+;;;; 
+;;;; You should have received a copy of the GNU General Public License
+;;;; along with this program; if not, write to the Free Software
+;;;; Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 (define-module (benchmarks ports)
   #:use-module (benchmarks lib))
 (export ports-run)
 
-(define data-dir "/home/jimb/guile/src/modules/modules/benchmarks")
-
-;;; This file contains one really big s-expression.
-(define data-file-1 (in-vicinity data-dir "ports-data-1"))
-
-;;; This file contains a lot of lines, of lengths typical of English text.
-(define data-file-2 (in-vicinity data-dir "ports-data-2"))
-
-(define (read-sexp) 
-  (time-accumulate
-   'read-sexp
-   (lambda ()
-     (do ((i 0 (+ i 1)))
-	 ((>= i 10))
-       (let ((data-1 (open-input-file data-file-1)))
-	 (time-pass (lambda () (read data-1)))
-	 (close-port data-1))))))
-
-(define (write-sexp)
-  (let ((sexp (let* ((data-1 (open-input-file data-file-1))
-		     (sexp (read data-1)))
-		(close data-1)
-		sexp))
-	(sink (open-output-file "/dev/null")))
-    (time-thunk-repeated
-     'write-sexp 100 (lambda () (write sexp sink)))
-    (close-port sink)))
-
-(define (read-lines)
-  (let ((data-2 (open-input-file data-file-2)))
-    (time-accumulate
-     'read-lines
-     (lambda ()
-       (do ((i 0 (+ i 1)))
-	   ((>= i 100))
-	 (fseek data-2 SEEK_SET 0)
-	 (gc)
-	 (time-pass (lambda ()
-		      (let loop ()
-			(let ((line (read-line data-2)))
-			  (or (eof-object? line)
-			      (loop)))))))))
-    (close-port data-2)))
-
-
-(define (write-lines)
-  (let ((lines (let ((data-2 (open-input-file data-file-2)))
-		 (let loop ((lines '()))
-		   (let ((line (read-line data-2)))
-		     (if (eof-object? line) lines
-			 (loop (cons line lines)))))))
-	(sink (open-output-file "/home/jimb/foo")))
-    (time-thunk-repeated 
-     'write-lines 500
-     (lambda ()
-       (for-each (lambda (line) 
-		   (display line sink)
-		   (newline sink))
-		 lines)))
-    (close-port sink)))
-
-
-;;; When writing benchmarks, beware of GC effects!  
+;;; GC behaves very oddly in these benchmarks.  If you can figure out
+;;; why Guile behaves as shown below, let me know.
 ;;;
 ;;; Here's the output from a typical call to port-run on my machine:
 ;;; 
@@ -104,8 +57,64 @@
 ;;;
 ;;; Maybe what this means is that this whole benchmarking approach is
 ;;; wrong --- I should start a separate Guile process for each test,
-;;; and try to calibrate for startup time.  But in that case, how does
-;;; the framework know how much time Guile spent in GC?
+;;; and try to calibrate for startup time.
+
+
+;;;; Helping the benchmark find its data files.
+
+(define (read-sexp) 
+  (time-accumulate
+   'read-sexp
+   (lambda ()
+     (do ((i 0 (+ i 1)))
+	 ((>= i 10))
+       (let ((data-1 (open-input-file (data-file "ports-data-1"))))
+	 (time-pass (lambda () (read data-1)))
+	 (close-port data-1))))))
+
+(define (write-sexp)
+  (let ((sexp (let* ((data-1 (open-input-file (data-file "ports-data-1")))
+		     (sexp (read data-1)))
+		(close data-1)
+		sexp))
+	(sink (open-output-file "/dev/null")))
+    (time-thunk-repeated
+     'write-sexp 100 (lambda () (write sexp sink)))
+    (close-port sink)))
+
+(define (read-lines)
+  (let ((data-2 (open-input-file (data-file "ports-data-2"))))
+    (time-accumulate
+     'read-lines
+     (lambda ()
+       (do ((i 0 (+ i 1)))
+	   ((>= i 100))
+	 (fseek data-2 SEEK_SET 0)
+	 (gc)
+	 (time-pass (lambda ()
+		      (let loop ()
+			(let ((line (read-line data-2)))
+			  (or (eof-object? line)
+			      (loop)))))))))
+    (close-port data-2)))
+
+
+(define (write-lines)
+  (let ((lines (let ((data-2 (open-input-file (data-file "ports-data-2"))))
+		 (let loop ((lines '()))
+		   (let ((line (read-line data-2)))
+		     (if (eof-object? line) lines
+			 (loop (cons line lines)))))))
+	(sink (open-output-file "/home/jimb/foo")))
+    (time-thunk-repeated 
+     'write-lines 500
+     (lambda ()
+       (for-each (lambda (line) 
+		   (display line sink)
+		   (newline sink))
+		 lines)))
+    (close-port sink)))
+
 
 (define (ports-run)
   (benchmark-title "ports" 4)
