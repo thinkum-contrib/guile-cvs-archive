@@ -1,3 +1,11 @@
+2000-06-29  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
+
+	* guile-tcl.c (free_interp): Bugfix: Memory leak: Free the
+	gtcltk_interp structure.
+	(scm_init_gtcl): Use new style smobs.
+	(print_interp): Removed.
+	(scm_tcl_create_interp): Use scm_memory_error.
+
 2000-03-22  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 	
 	* guile-tcl.c, guile-tk.c, guile-tk.h: Removed SCM_P macro
