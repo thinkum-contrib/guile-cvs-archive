@@ -1,3 +1,10 @@
+1999-06-15  Mikael Djurfeldt  <mdj@mdj-pc.nada.kth.se>
+
+	* goops.c (scm_sys_prep_layout_x): Handle empty layouts
+	correctly.  (Don't call scm_must_malloc.)
+	(scm_sys_allocate_instance): Don't allow empty instances.  (Maybe
+	this should be changed.)
+
 1999-04-12  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* goops.scm (slot-definition-init-value): Renamed from
