@@ -122,7 +122,6 @@ Part I: Preliminaries
 Part II: Guile Scheme
 
 * R4RS Scheme as a starting point::
-* Symbol case::
 * Keywords::
 * Modules::
 * Exceptions::
