@@ -1,2 +1,3 @@
-This directory is a tree of Guile modules.  It is laid out to be
-included directly in your GUILE_PATH.
+This directory is a tree of Guile modules.  To make them available to
+Guile, include the top-level directory (the one containing this README
+file) in the value of your GUILE_LOAD_PATH environment variable.
