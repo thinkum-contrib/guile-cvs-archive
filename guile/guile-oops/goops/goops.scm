@@ -33,7 +33,7 @@
 (export			  ; Define the exported symbols of this file
     find-class is-a?
     ensure-metaclass ensure-metaclass-with-supers
-    define-class   make-class ensure-class
+    define-class   class make-class ensure-class
     define-generic make-generic-function ensure-generic-function
     define-method  ensure-method method add-method
     object-eqv? object-equal?
@@ -104,6 +104,15 @@
 
 (define make-closure local-eval)
 
+(define (top-level-env)
+  (if *top-level-lookup-closure*
+      (list *top-level-lookup-closure*)
+      '()))
+
+(define (top-level-env? env)
+  (or (null? env)
+      (procedure? (car env))))
+
 ;--------------------------------------------------
 (define (specializers l)
   (cond
@@ -119,6 +128,7 @@
 
 ;--------------------------------------------------
 ; 						[FIXME] This is too complicate
+;;;*fixme* Remove?
 (define (%find-class name env . default)
   ;; Verify that name is a correct symbol
   (unless (symbol? name) (goops-error "find-class: bad symbol %S" name))
@@ -135,7 +145,7 @@
 
 ;;
 ;; Find-class
-;;
+;;*fixme* Remove?
 (define-macro (find-class name . default)
   (let ((%find-class (with-module STklos %find-class)))
     `(apply ,%find-class ,name ,(the-environment) ',default)))
@@ -169,17 +179,19 @@
 
 (define (ensure-metaclass supers env)
   (if (null? supers)
-      (%find-class '<class> env)
-      (let* ((all-metas (map (lambda (x) (class-of (%find-class x env))) supers))
+      <class>
+      (let* ((all-metas (map (lambda (x) (class-of x)) supers))
 	     (all-cpls  (apply append
-			       (map (lambda (m) (cdr (class-precedence-list m))) 
+			       (map (lambda (m)
+				      (cdr (class-precedence-list m))) 
 				    all-metas)))
 	     (needed-metas '()))
 	;; Find the most specific metaclasses.  The new metaclass will be
 	;; a subclass of these.
 	(for-each
 	 (lambda (meta)
-	   (when (and (not (member meta all-cpls)) (not (member meta needed-metas)))
+	   (when (and (not (member meta all-cpls))
+		      (not (member meta needed-metas)))
 	     (set! needed-metas (append needed-metas (list meta)))))
 	 all-metas)
 	;; Now return a subclass of the metaclasses we found.
@@ -194,49 +206,68 @@
 ;=============================================================================
 
 ;==== Define-class
-(define-macro (define-class name supers slots . options)
-  `(begin 
-     (make-class ,name ,supers ,slots ,@options) 
-     *unspecified*))
+(define define-class
+  (procedure->memoizing-macro
+    (lambda (exp env)
+      (if (not (top-level-env? env))
+	  (goops-error "define-class: Only allowed at top level")
+	  (let ((name (cadr exp))
+		(supers (caddr exp))
+		(slots (cadddr exp))
+		(options (cddddr exp)))
+	    `(define ,name
+	       (let ((old (and (defined? ',name) ,name))
+		     ;; 
+		     (new (make-class (list ,@supers)
+				      ',slots
+				      #:name ',name
+				      #:environment ',env
+				      ,@options)))
+		 (if (is-a? old <class>)
+		     (,class-redefinition old new))
+		 new)))))))
+
+;==== Class
+(define class
+  (procedure->memoizing-macro
+    (lambda (exp env)
+      (let ((supers (cadr exp))
+	    (slots (caddr exp))
+	    (options (cdddr exp)))
+	    `(make-class (list ,@supers)
+			 ',slots
+			 #:environment ',env
+			 ,@options)))))
 
 ;==== Make-class
-(define-macro (make-class name supers slots . options)
-  `(ensure-class
-       ',name							; name
-       ',supers							; supers
-       ',slots							; slots 
-       ,(or (get-keyword #:metaclass options #f)			; metaclass
-	    `(ensure-metaclass ',supers (the-environment)))
-       (the-environment)					; environment
-       ,@options))
+(define (make-class supers slots . options)
+  (let ((env (or (get-keyword #:environment options #f)
+		 (top-level-env))))
+    (let* ((name (get-keyword #:name options #f))
+	   (supers (if (null? supers) 
+		       (list <object>)
+		       supers))
+	   (metaclass (or (get-keyword #:metaclass options #f)
+			  (ensure-metaclass supers env))))
 
-;==== Ensure-class
-(define (ensure-class name supers slots metaclass env . options)
-  (let ((supers (if (null? supers) 
-		    (list (%find-class '<object> env))
-		    (map (lambda (x)
-			   (if (is-a? x <class>)
-			       x
-			       (%find-class x env)))
-			 supers))))
-    ;; Verify that all direct slots are different and that we don't inherit
-    ;; several time from the same class
-    (let ((tmp1 (find-duplicate supers))
-	  (tmp2 (find-duplicate (map slot-definition-name slots))))
-      (when tmp1
-	(goops-error "define-class: super class %S is duplicate in class %S"
-		     tmp1 name))
-      (when tmp2
-	(goops-error "define-class: slot %S is duplicate in class %S"
-		     tmp2 name)))
+      ;; Verify that all direct slots are different and that we don't inherit
+      ;; several time from the same class
+      (let ((tmp1 (find-duplicate supers))
+	    (tmp2 (find-duplicate (map (lambda (s)
+					 (if (pair? s)
+					     (slot-definition-name s)
+					     s))
+				       slots))))
+	(when tmp1
+	      (goops-error "define-class: super class %S is duplicate in class %S"
+			   tmp1 name))
+	(when tmp2
+	      (goops-error "define-class: slot %S is duplicate in class %S"
+			   tmp2 name)))
 
-    ;; Everything seems correct, build the class
-    (let ((old (%find-class name env #f))
-	  (cls (apply make metaclass #:dsupers supers #:slots slots 
-		      #:name name #:environment env options)))
-      (when old (class-redefinition old cls))
-      (set-symbol! name cls env)
-      cls)))
+      ;; Everything seems correct, build the class
+      (apply make metaclass #:dsupers supers #:slots slots 
+	     #:name name #:environment env options))))
 
 ;=============================================================================
 ;
@@ -380,44 +411,37 @@
 ;;;
 ;;; Slots
 ;;;
-(define (slot-definition-name s)
-  (if (pair? s) (car s) s))
+(define slot-definition-name car)
 
-(define (slot-definition-options s)
-  (and (pair? s) (cdr s)))
+(define slot-definition-options cdr)
 
 (define (slot-definition-allocation s)
-  (if (symbol? s)
-      #:instance
-      (get-keyword #:allocation (cdr s) #:instance)))
+  (get-keyword #:allocation (cdr s) #:instance))
 
 (define (slot-definition-getter s)
-  (and (pair? s) (get-keyword #:getter (cdr s) #f)))
+  (get-keyword #:getter (cdr s) #f))
 
 (define (slot-definition-setter s)
-  (and (pair? s) (get-keyword #:setter (cdr s) #f)))
+  (get-keyword #:setter (cdr s) #f))
 
 (define (slot-definition-accessor s)
-  (and (pair? s) (get-keyword #:accessor (cdr s) #f)))
+  (get-keyword #:accessor (cdr s) #f))
 
 (define (slot-definition-init-form s)
-  (if (pair? s) 
-      (let* ((none (list '**none**))
-	     (v1   (get-keyword #:init-form (cdr s) none))
-	     (v2   (get-keyword #:initform  (cdr s) none))) ; Backward compatibility
-	(if (eq? v1 none)
-	    (if (eq? v2 none)
-		(make-unbound)
-		v2)
-	    v1))
-      (make-unbound)))
+  (let* ((none (list '**none**))
+	 (v1   (get-keyword #:init-form (cdr s) none))
+	 (v2   (get-keyword #:initform  (cdr s) none))) ; Backward compatibility
+    (if (eq? v1 none)
+	(if (eq? v2 none)
+	    (make-unbound)
+	    v2)
+	v1)))
 
 (define (slot-definition-init-keyword s)
-  (and (pair? s) (get-keyword #:init-keyword (cdr s) #f)))
+  (get-keyword #:init-keyword (cdr s) #f))
 
-(define (slot-init-function c s)
-  (let ((s (slot-definition-name s)))
-    (cadr (assoc s (slot-ref c 'getters-n-setters)))))
+(define (slot-init-function class slot-name)
+  (cadr (assoc slot-name (slot-ref class 'getters-n-setters))))
 
 (define (class-slot-definition class slot-name)
   (assoc slot-name (class-slots class)))
@@ -693,8 +717,7 @@
 	    (goops-error "Bad setter closure for slot `%S' in %S: %S" slot class set)))))
 
   (map (lambda (s)
-	 (let* ((s     (if (pair? s) s (list s)))
-		(g-n-s (compute-get-n-set class s))
+	 (let* ((g-n-s (compute-get-n-set class s))
 		(name  (slot-definition-name s)))
 	   ; For each slot we have '(name init-function getter setter)
 	   ; If slot, we have the simplest form '(name init-function . index)
@@ -784,7 +807,8 @@
 
 (define-method initialize ((class <class>) initargs)
   (next-method)
-  (let ((dslots (get-keyword #:slots	  initargs '()))
+  (let ((dslots (map (lambda (s) (if (pair? s) s (list s)))
+		     (get-keyword #:slots initargs '())))
 	(supers (get-keyword #:dsupers	  initargs '()))
 	(env    (get-keyword #:environment initargs (global-environment))))
 
