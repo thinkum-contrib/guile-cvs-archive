@@ -2189,8 +2189,13 @@ so that they use the supplied @var{port} for input or output.
 @deffn primitive port-column [input-port]
 @deffnx primitive port-line [input-port]
 Return the current column number or line number of @var{input-port},
-using the current input port if none is specified.  This is useful for
-documenting the location of source code in a program file, for example.
+using the current input port if none is specified.  If the number is
+unknown, the result is #f.  Otherwise, the result is a 0-origin integer
+- i.e. the first character of the first line is line 0, column 0.
+(However, when you display a file position, for example in an error
+message, we recommand you add 1 to get 1-origin integers.  This is
+because lines and column numbers traditionally start with 1, and that is
+what non-programmers will find most natural.)
 @end deffn
 
 @deffn primitive set-port-column! [input-port] column

@@ -4,3 +4,5 @@ The Guile reference manual:
   function tracing, and splitting the manual into its own module.
 Doc bug fixes from:
 Marcus Daniels
+New entries from:
+Per Bothner
