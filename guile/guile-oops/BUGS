@@ -9,3 +9,4 @@ List of known bugs:
   for the case when the user supplies arguments: (next-method ...)
 
 * Need to check if another thread has already memoized the method
+  (Hmm... hasn't this been implemented now? MDJ 000827)
