@@ -1,5 +1,4 @@
 # Process this file with autoconf to produce a configure script.
 AC_INIT(http.scm)
-AM_INIT_AUTOMAKE(guile-www, 1.0a, no-define)
+AM_INIT_AUTOMAKE(guile-www, 1.0b, no-define)
 AC_OUTPUT(Makefile)
-
