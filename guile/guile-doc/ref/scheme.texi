@@ -61,6 +61,7 @@ We will use the expression @code{<group>} to represent @code{read},
 
 @subsubheading Low level
 
+@c NJFIXME
 @deffn primitive <group>-options-interface
 @deffnx primitive read-options-interface [SOME-INT]
 @deffnx primitive print-options-interface [SOME-INT]
@@ -85,6 +86,7 @@ and documentation string.
 @c @code{"yes"} and @code{"no"}.  It can be a 
 @c @end deftp
 
+@c NJFIXME
 @deffn procedure <group>-options [arg]
 @deffnx procedure read-options [arg]
 @deffnx procedure print-options [arg]
@@ -106,6 +108,7 @@ options) and symbols followed by values.
 [FIXME: I don't think 'full is ever any different from 'help.  What's
 up?]
 
+@c NJFIXME
 @deffn procedure <group>-enable option-symbol
 @deffnx procedure read-enable option-symbol
 @deffnx procedure print-enable option-symbol
@@ -116,6 +119,7 @@ group.  They only work if the option is boolean, and throw an error
 otherwise.
 @end deffn
 
+@c NJFIXME
 @deffn procedure <group>-disable option-symbol
 @deffnx procedure read-disable option-symbol
 @deffnx procedure print-disable option-symbol
@@ -126,6 +130,7 @@ options group.  They only work if the option is boolean, and throw an
 error otherwise.
 @end deffn
 
+@c NJFIXME
 @deffn syntax <group>-set! option-symbol value
 @deffnx syntax read-set! option-symbol value
 @deffnx syntax print-set! option-symbol value
@@ -304,52 +309,178 @@ guile>
 @node Keywords
 @section Keywords
 
-[FIXME: need some initial schmooze about keywords; this is all taken
-from the NEWS file, and is accurate but not very useful to someone who
-has not used keywords before.]
+Keywords are self-evaluating objects with a convenient read syntax that
+makes them easy to type.
 
-Guile supports a new R4RS--compliant syntax for keywords.  A token of the
-form #:NAME, where NAME has the same syntax as a Scheme symbol, is the
-external representation of the keyword named NAME.  Keyword objects
-print using this syntax as well, so values containing keyword objects
-can be read back into Guile.  When used in an expression, keywords are
-self-quoting objects.
+Guile's keyword support conforms to R4RS, and adds a (switchable) read
+syntax extension to permit keywords to begin with @code{:} as well as
+@code{#:}.
 
-Guile suports this read syntax, and uses this print syntax, regardless
-of the current setting of the `keyword' read option.  The `keyword' read
-option only controls whether Guile recognizes the `:NAME' syntax, which
-is incompatible with R4RS.  (R4RS says such token represent symbols.)
+@menu
+* Why Use Keywords?::
+* Keyword Read Syntax::
+* Keyword Primitives::
+@end menu
 
-The default behaviour is the R4RS--compliant one (@code{#:xxx} instead
-of @code{:xxx}).
+@node Why Use Keywords?
+@subsection Why Use Keywords?
 
-To change between the two keyword syntaxes you use the
-@code{read-options} procedure documented in @ref{General option
+Keywords are useful in contexts where a program or procedure wants to be
+able to accept a large number of optional arguments without making its
+interface unmanageable.
+
+To illustrate this, consider a hypothetical @code{make-window}
+procedure, which creates a new window on the screen for drawing into
+using some graphical toolkit.  There are many parameters that the caller
+might like to specify, but which could also be sensibly defaulted, for
+example:
+
+@itemize @bullet
+@item
+colour depth -- Default: the colour depth for the screen
+
+@item
+background colour -- Default: white
+
+@item
+width -- Default: 600
+
+@item
+height -- Default: 400
+@end itemize
+
+If @code{make-window} did not use keywords, the caller would have to
+pass in a value for each possible argument, remembering the correct
+argument order and using a special value to indicate the default value
+for that argument:
+
+@example
+(make-window 'default              ;; Colour depth
+             'default              ;; Background colour
+             800                   ;; Width
+             100                   ;; Height
+             @dots{})                  ;; More make-window arguments
+@end example
+
+With keywords, on the other hand, defaulted arguments are omitted, and
+non-default arguments are clearly tagged by the appropriate keyword.  As
+a result, the invocation becomes much clearer:
+
+@example
+(make-window #:width 800 #:height 100)
+@end example
+
+On the other hand, for a simpler procedure with few arguments, the use
+of keywords would be a hindrance rather than a help.  The primitive
+procedure @code{cons}, for example, would not be improved if it had to
+be invoked as
+
+@example
+(cons #:car x #:cdr y)
+@end example
+
+So the decision whether to use keywords or not is purely pragmatic: use
+them if they will clarify the procedure invocation at point of call.
+
+A procedure that supports keywords should take a rest argument and use a
+procedure like @code{get-keyword-value} below to extract individual
+arguments from the rest argument.  For example:
+
+@example
+(define (get-keyword-value args keyword default)
+  (let ((kv (memq keyword args)))
+    (if (and kv (>= (length kv) 2))
+        (cadr kv)
+        default)))
+
+(define (make-window . args)
+  (let ((depth  (get-keyword-value args #:depth  screen-depth))
+        (bg     (get-keyword-value args #:bg     "white"))
+        (width  (get-keyword-value args #:width  800))
+        (height (get-keyword-value args #:height 100))
+        @dots{})
+    @dots{}))
+@end example
+
+@node Keyword Read Syntax
+@subsection Keyword Read Syntax
+
+Guile, by default, only recognizes the keyword syntax specified by R4RS.
+A token of the form @code{#:NAME}, where @code{NAME} has the same syntax
+as a Scheme symbol, is the external representation of the keyword named
+@code{NAME}.  Keyword objects print using this syntax as well, so values
+containing keyword objects can be read back into Guile.  When used in an
+expression, keywords are self-quoting objects.
+
+If the @code{keyword} read option is set to @code{'prefix}, Guile also
+recognizes the alternative read syntax @code{:NAME}.  Otherwise, tokens
+of the form @code{:NAME} are read as symbols, as required by R4RS.
+
+To enable and disable the alternative non-R4RS keyword syntax, you use
+the @code{read-options} procedure documented in @ref{General option
 interface} and @ref{Reader options}.
 
-To use the @code{:xxx} keyword syntax, use
 @smalllisp
 (read-set! keywords 'prefix)
-@end smalllisp
 
-To make keyword syntax R4RS compliant, with the @code{#:xxx} syntax,
-use:
-@smalllisp
+#:type
+@result{}
+#:type
+
+:type
+@result{}
+#:type
+
 (read-set! keywords #f)
+
+#:type
+@result{}
+#:type
+
+:type
+@result{}
+ERROR: In expression :type:
+ERROR: Unbound variable: :type
+ABORT: (unbound-variable)
 @end smalllisp
 
-[FIXME: in state of flux right now; here are the Scheme primitives
-defined in @file{kw.c}:]
+@node Keyword Primitives
+@subsection Keyword Primitives
 
-@deffn primitive keyword? kw
-@code{keyword?} returns @code{#t} if the argument @var{kw} is a keyword;
-it returns @code{#f} otherwise.
-@end deffn
+Internally, a keyword is implemented as something like a tagged symbol,
+where the tag identifies the keyword as being self-evaluating, and the
+symbol, known as the keyword's @dfn{dash symbol} has the same name as
+the keyword name but prefixed by a single dash.  For example, the
+keyword @code{#:name} has the corresponding dash symbol @code{-name}.
 
-@deffn primitive keyword-dash-symbol arg
-@code{keyword-dash-symbol} [FIXME: have no idea what this does; it is
-not commented.]
+Most keyword objects are constructed automatically by the reader when it
+reads a token beginning with @code{#:}.  However, if you need to
+construct a keyword object programmatically, you can do so by calling
+@code{make-keyword-from-dash-symbol} with the corresponding dash symbol
+(as the reader does).  The dash symbol for a keyword object can be
+retrieved using the @code{keyword-dash-symbol} procedure.
+
+@c docstring begin (c-doc-string "keywords.c" "make-keyword-from-dash-symbol")
+@c docstring md5 "e677e1a01cf44ff68e8b9b4b210e0c4f"
+@deffn primitive make-keyword-from-dash-symbol symbol
+Make a keyword object from a @var{symbol} that starts with a dash.
 @end deffn
+@c docstring end
+
+@c docstring begin (c-doc-string "keywords.c" "keyword?")
+@c docstring md5 "d4dc84eb8bcf231d1af33b1ead9ea642"
+@deffn primitive keyword? obj
+Returns @code{#t} if the argument @var{obj} is a keyword, else @code{#f}.
+@end deffn
+@c docstring end
+
+@c docstring begin (c-doc-string "keywords.c" "keyword-dash-symbol")
+@c docstring md5 "20f0ff35bdc15dc75f1a0e96efb7aee1"
+@deffn primitive keyword-dash-symbol keyword
+Return the dash symbol for @var{keyword}.
+This is the inverse of @code{make-keyword-from-dash-symbol}.
+@end deffn
+@c docstring end
 
 
 @page
@@ -359,7 +490,10 @@ not commented.]
 @cindex exception handling
 
 
-@deffn primitive catch key thunk handler
+@c ARGFIXME tag/key
+@c docstring begin (c-doc-string "throw.c" "catch")
+@c docstring md5 "5fdeff1641f2d88c7cc7287d05b1fa97"
+@deffn primitive catch tag thunk handler
 Invoke @var{thunk} in the dynamic context of @var{handler} for
 exceptions matching @var{key}.  If thunk throws to the symbol @var{key},
 then @var{handler} is invoked this way:
@@ -380,8 +514,11 @@ up the call chain is invoked.
 If the key is @code{#t}, then a throw to @emph{any} symbol will match
 this call to @code{catch}.
 @end deffn
+@c docstring end
 
-@deffn primitive throw key &rest args ...
+@c docstring begin (c-doc-string "throw.c" "throw")
+@c docstring md5 "c15160c85651ed3a73432d85b0567004"
+@deffn primitive throw key . args
 Invoke the catch form matching @var{key}, passing @var{args} to the
 @var{handler}.  
 
@@ -390,34 +527,46 @@ Invoke the catch form matching @var{key}, passing @var{args} to the
 
 If there is no handler at all, an error is signaled.
 @end deffn
+@c docstring end
 
+@c begin (scm-doc-string "boot-9.scm" "error")
 @deffn procedure error msg args @dots{}
 Raise an error with key @code{misc-error} and a message constructed by
 displaying @var{msg} and writing @var{args}.
 @end deffn
+@c end
 
-@deffn primitive scm-error key subr message args data
+@c ARGFIXME rest/data
+@c docstring begin (c-doc-string "error.c" "scm-error")
+@c docstring md5 "aef34dec1e3aa3311ca47bf0dbecaf30"
+@deffn primitive scm-error key subr message args rest
 Raise an error with key @var{key}.  @var{subr} can be a string naming
 the procedure associated with the error, or @code{#f}.  @var{message}
-is the error message string, possibly containing @code{%S} and @code{%s}
+is the error message string, possibly containing @code{~S} and @code{~A}
 escapes.  When an error is reported, these are replaced by formating the
-corresponding members of @var{args}: @code{%s} formats using @code{display}
-and @code{%S} formats using @code{write}.  @var{data} is a
+corresponding members of @var{args}: @code{~A} (was @code{%s}) formats using @code{display}
+and @code{~S} (was @code{%S}) formats using @code{write}.  @var{data} is a
 list or @code{#f} depending on @var{key}: if @var{key} is
 @code{system-error} then it should be a list
 containing the Unix @code{errno} value;  If @var{key} is @code{signal} then
 it should be a list containing the Unix signal number; otherwise it
 will usually be @code{#f}.
 @end deffn
+@c docstring end
 
-@deffn primitive strerror errno
-Returns the Unix error message corresponding to @var{errno}, an integer.
+@c docstring begin (c-doc-string "error.c" "strerror")
+@c docstring md5 "dbc26709ae2f551752989173ae4af9c8"
+@deffn primitive strerror err
+Returns the Unix error message corresponding to @var{err}, an integer.
 @end deffn
+@c docstring end
 
+@c begin (scm-doc-string "boot-9.scm" "false-if-exception")
 @deffn syntax false-if-exception expr
 Returns the result of evaluating its argument; however
 if an exception occurs then @code{#f} is returned instead.
 @end deffn
+@c end
 
 It is traditional in Scheme to implement exception systems using
 @code{call-with-current-continuation}, but his has not been done, for
@@ -527,6 +676,7 @@ to have access to all procedures and variables defined within the slib
 module with @code{(define-public ...)}.
 
 So here are the functions involved:
+@c begin (scm-doc-string "boot-9.scm" "define-module")
 @deffn syntax define-module module-specification
 @var{module-specification} is of the form @code{(hierarchy file)}.  One
 example of this is
@@ -536,12 +686,16 @@ example of this is
 define-module makes this module available to Guile programs under the
 given @var{module-specification}.
 @end deffn
+@c end
 
+@c begin (scm-doc-string "boot-9.scm" "define-public")
 @deffn syntax define-public @dots{}
 Makes a procedure or variable available to programs that use the current
 module.
 @end deffn
+@c end
 
+@c begin (scm-doc-string "boot-9.scm" "use-modules")
 @deffn syntax use-modules module-specification
 @var{module-specification} is of the form @code{(hierarchy file)}.  One
 example of this is
@@ -552,6 +706,7 @@ use-modules allows the current Guile program to use all publicly defined
 procedures and variables in the module denoted by
 @var{module-specification}.
 @end deffn
+@c end
 
 [FIXME: must say more, and explain, and also demonstrate a private name
 space use, and demonstrate how one would do Python's "from Tkinter
@@ -620,36 +775,87 @@ written properly.
 Guile's dynamic linking functions make it relatively easy to write a
 module that incorporates code from third-party object code libraries.
 
-@deffn primitive dynamic-link library-file
+@c ARGFIXME fname/library-file
+@c docstring begin (c-doc-string "dynl.c" "dynamic-link")
+@c docstring md5 "2ef410cb63f6436e7250e9da6dd33200"
+@deffn primitive dynamic-link fname
 Open the dynamic library @var{library-file}.  A library handle
 representing the opened library is returned; this handle should be used
 as the @var{lib} argument to the following functions.
 @end deffn
+@c docstring end
 
+@c docstring begin (c-doc-string "dynl.c" "dynamic-object?")
+@c docstring md5 "b7b494344e5623db9305328822a0c47d"
 @deffn primitive dynamic-object? obj
 Return @code{#t} if @var{obj} is a dynamic library handle, or @code{#f}
 otherwise.
 @end deffn
+@c docstring end
 
-@deffn primitive dynamic-unlink lib
-Unlink the library represented by @var{library-handle}, and remove any
-imported symbols from the address space.
+@c ARGFIXME dobj/dynobj/library-handle
+@c docstring begin (c-doc-string "dynl.c" "dynamic-unlink")
+@c docstring md5 "0859155ac54f25515b18f01889a2d280"
+@deffn primitive dynamic-unlink dobj
+Unlink the library represented by @var{library-handle},
+and remove any imported symbols from the address space.
+GJB:FIXME:DOC: 2nd version below:
+Unlink the indicated object file from the application.  The
+argument @var{dynobj} must have been obtained by a call to
+@code{dynamic-link}.  After @code{dynamic-unlink} has been
+called on @var{dynobj}, its content is no longer accessible.
 @end deffn
+@c docstring end
 
-@deffn primitive dynamic-func func lib
+@c ARGFIXME symb/func/function dobj/lib/dynobj
+@c docstring begin (c-doc-string "dynl.c" "dynamic-func")
+@c docstring md5 "303b846a3f01958b06f001a174c833e8"
+@deffn primitive dynamic-func symb dobj
 Import the symbol @var{func} from @var{lib} (a dynamic library handle).
 A @dfn{function handle} representing the imported function is returned.
-@end deffn
+GJB:FIXME:DOC: 2nd version below
+Search the C function indicated by @var{function} (a string or symbol)
+in @var{dynobj} and return some Scheme object that can later be used
+with @code{dynamic-call} to actually call this function.  Right now,
+these Scheme objects are formed by casting the address of the function
+to @code{long} and converting this number to its Scheme representation.
 
-@deffn primitive dynamic-call lib-thunk lib
+Regardless whether your C compiler prepends an underscore @samp{_} to
+the global names in a program, you should @strong{not} include this
+underscore in @var{function}.  Guile knows whether the underscore is
+needed or not and will add it when necessary.
+@end deffn
+@c docstring end
+
+@c ARGFIXME lib-thunk/func/function lib/dobj/dynobj
+@c docstring begin (c-doc-string "dynl.c" "dynamic-call")
+@c docstring md5 "84cc70801942cc9501da97fe5a43160a"
+@deffn primitive dynamic-call func dobj
 Call @var{lib-thunk}, a procedure of no arguments.  If @var{lib-thunk}
 is a string, it is assumed to be a symbol found in the dynamic library
 @var{lib} and is fetched with @code{dynamic-func}.  Otherwise, it should
 be a function handle returned by a previous call to @code{dynamic-func}.
 The return value is unspecified.
-@end deffn
+GJB:FIXME:DOC 2nd version below
+Call the C function indicated by @var{function} and @var{dynobj}.  The
+function is passed no arguments and its return value is ignored.  When
+@var{function} is something returned by @code{dynamic-func}, call that
+function and ignore @var{dynobj}.  When @var{function} is a string (or
+symbol, etc.), look it up in @var{dynobj}; this is equivalent to
 
-@deffn primitive dynamic-args-call proc lib args
+@smallexample
+(dynamic-call (dynamic-func @var{function} @var{dynobj} #f))
+@end smallexample
+
+Interrupts are deferred while the C function is executing (with
+@code{SCM_DEFER_INTS}/@code{SCM_ALLOW_INTS}).
+@end deffn
+@c docstring end
+
+@c ARGFIXME func/proc/function dobj/dynobj
+@c docstring begin (c-doc-string "dynl.c" "dynamic-args-call")
+@c docstring md5 "061c803f433a98424d27eec2379d8539"
+@deffn primitive dynamic-args-call func dobj args
 Call @var{proc}, a dynamically loaded function, passing it the argument
 list @var{args} (a list of strings).  As with @code{dynamic-call},
 @var{proc} should be either a function handle or a string, in which case
@@ -657,16 +863,37 @@ it is first fetched from @var{lib} with @code{dynamic-func}.
 
 @var{proc} is assumed to return an integer, which is used as the return
 value from @code{dynamic-args-call}.
-@end deffn
 
+GJB:FIXME:DOC 2nd version below
+Call the C function indicated by @var{function} and @var{dynobj}, just
+like @code{dynamic-call}, but pass it some arguments and return its
+return value.  The C function is expected to take two arguments and
+return an @code{int}, just like @code{main}:
+
+@smallexample
+int c_func (int argc, char **argv);
+@end smallexample
+
+The parameter @var{args} must be a list of strings and is converted into
+an array of @code{char *}.  The array is passed in @var{argv} and its
+size in @var{argc}.  The return value is converted to a Scheme number
+and returned from the call to @code{dynamic-args-call}.
+@end deffn
+@c docstring end
+
+@c docstring begin (c-doc-string "dynl.c" "c-registered-modules")
+@c docstring md5 "8e0da2e7aeb386b1616cf7c02cfa72fc"
 @deffn primitive c-registered-modules
 Return a list of the object code modules that have been imported into
 the current Guile process.  Each element of the list is a pair whose
-car is the name of the module (as it might be used by
-@code{use-modules}, for instance), and whose cdr is the function handle
-for that module's initializer function.
+car is the name of the module, and whose cdr is the function handle
+for that module's initializer function.  The name is the string that
+has been passed to scm_register_module_xxx.
 @end deffn
+@c docstring end
 
+@c docstring begin (c-doc-string "dynl.c" "c-clear-registered-modules")
+@c docstring md5 "cca20d0091f73ddeaeba5c2759b606d1"
 @deffn primitive c-clear-registered-modules
 Destroy the list of modules registered with the current Guile process.
 The return value is unspecified.  @strong{Warning:} this function does
@@ -674,6 +901,7 @@ not actually unlink or deallocate these modules, but only destroys the
 records of which modules have been loaded.  It should therefore be used
 only by module bookkeeping operations.
 @end deffn
+@c docstring end
 
 [FIXME: provide a brief example here of writing the C hooks for an
 object code module, and using dynamic-link and dynamic-call to load the
@@ -696,48 +924,110 @@ macros and memoizing macros.  Also, any definitions listed here should
 be double-checked by someone who knows what's going on.  Ask Mikael, Jim
 or Aubrey for help. -twp]
 
+@c docstring begin (c-doc-string "procs.c" "procedure-documentation")
+@c docstring md5 "4364d265d04f438b51339cb46712f4b4"
 @deffn primitive procedure-documentation proc
 Return the documentation string associated with @code{proc}.  By
 convention, if a procedure contains more than one expression and the
 first expression is a string constant, that string is assumed to contain
 documentation for that procedure.
 @end deffn
+@c docstring end
 
-@deffn primitive procedure->syntax proc
-[FIXME: Get documentation from SCM/SLIB.]
+@c docstring begin (c-doc-string "macros.c" "procedure->syntax")
+@c docstring md5 "ec8ae60298789340b2a9b804a1b5a70a"
+@deffn primitive procedure->syntax code
+Returns a @dfn{macro} which, when a symbol defined to this value
+appears as the first symbol in an expression, returns the result
+of applying @var{code} to the expression and the environment.
 @end deffn
+@c docstring end
 
-@deffn primitive procedure->macro proc
-[FIXME: Get documentation from SCM/SLIB.]
+@c docstring begin (c-doc-string "macros.c" "procedure->macro")
+@c docstring md5 "a1c40e162410c3c5e348352eb0390542"
+@deffn primitive procedure->macro code
+Returns a @dfn{macro} which, when a symbol defined to this value
+appears as the first symbol in an expression, evaluates the result
+of applying @var{code} to the expression and the environment.
+The value returned from @var{code} which has been passed to
+@code{procedure->memoizing-macro} replaces the form passed to
+@var{code}.  For example:
+
+@example
+(define trace
+  (procedure->macro
+   (lambda (x env) `(set! ,(cadr x) (tracef ,(cadr x) ',(cadr x))))))
+
+(trace @i{foo}) @equiv{} (set! @i{foo} (tracef @i{foo} '@i{foo})).
+@end example
 @end deffn
+@c docstring end
 
-@deffn primitive procedure->memoizing-macro proc
-[FIXME: Get documentation from SCM/SLIB.]
+@c docstring begin (c-doc-string "macros.c" "procedure->memoizing-macro")
+@c docstring md5 "fb5a7d909bd38cc0710cd9a2b9fadf35"
+@deffn primitive procedure->memoizing-macro code
+Returns a @dfn{macro} which, when a symbol defined to this value
+appears as the first symbol in an expression, evaluates the result
+of applying @var{proc} to the expression and the environment.
+The value returned from @var{proc} which has been passed to
+@code{procedure->memoizing-macro} replaces the form passed to
+@var{proc}.  For example:
+
+@example
+(define trace
+  (procedure->macro
+   (lambda (x env) `(set! ,(cadr x) (tracef ,(cadr x) ',(cadr x))))))
+
+(trace @i{foo}) @equiv{} (set! @i{foo} (tracef @i{foo} '@i{foo})).
+@end example
+
 @end deffn
+@c docstring end
 
+@c docstring begin (c-doc-string "macros.c" "macro?")
+@c docstring md5 "03a99145e8620227bc93c8376fbf7dcf"
 @deffn primitive macro? obj
 Return @code{#t} if @var{obj} is a regular macro, a memoizing macro or a
 syntax transformer.
 @end deffn
+@c docstring end
 
-@deffn primitive macro-type obj
+@c ARGFIXME m/obj
+@c docstring begin (c-doc-string "macros.c" "macro-type")
+@c docstring md5 "c1be92db64cbd88b9bb85276428f5d74"
+@deffn primitive macro-type m
 Return one of the symbols @code{syntax}, @code{macro} or @code{macro!},
 depending on whether @var{obj} is a syntax tranformer, a regular macro,
 or a memoizing macro, respectively.  If @var{obj} is not a macro,
 @code{#f} is returned.
 @end deffn
+@c docstring end
 
-@deffn primitive macro-name
+@c docstring begin (c-doc-string "macros.c" "macro-name")
+@c docstring md5 "2830d8d15e193217236534f1862449f7"
+@deffn primitive macro-name m
+
 @end deffn
+@c docstring end
 
-@deffn primitive macro-transformer
+@c docstring begin (c-doc-string "macros.c" "macro-transformer")
+@c docstring md5 "9966b576b5e63da81cb708d174f936ba"
+@deffn primitive macro-transformer m
+
 @end deffn
+@c docstring end
 
-@deffn primitive promise? obj
+@c ARGFIXME x/obj
+@c docstring begin (c-doc-string "eval.c" "promise?")
+@c docstring md5 "cef915d909438ba9af69d30ba359ee23"
+@deffn primitive promise? x
 Return true if @var{obj} is a promise, i.e. a delayed computation
 (@pxref{Delayed evaluation,,,r4rs.info,The Revised^4 Report on Scheme}).
 @end deffn
+@c docstring end
 
+@c docstring begin (c-doc-string "eval.c" "copy-tree")
+@c docstring md5 "f38abb1b3506d0c1c8f7ace8046a8b05"
 @deffn primitive copy-tree obj
 Recursively copy the data tree that is bound to @var{obj}, and return a
 pointer to the new data structure.  @code{copy-tree} recurses down the
@@ -745,42 +1035,67 @@ contents of both pairs and vectors (since both cons cells and vector
 cells may point to arbitrary objects), and stops recursing when it hits
 any other object.
 @end deffn
+@c docstring end
 
-@deffn primitive eval exp
+@c ARGFIXME obj/exp
+@c docstring begin (c-doc-string "eval.c" "eval")
+@c docstring md5 "a1e1d79d23c65aaffae7c8e7a7904eff"
+@deffn primitive eval obj
 Evaluate @var{exp}, a list representing a Scheme expression, in the
 top-level environment.
 @end deffn
+@c docstring end
 
-@deffn primitive eval2 exp lookup
+@c ARGFIXME obj/exp env_thunk/lookup
+@c docstring begin (c-doc-string "eval.c" "eval2")
+@c docstring md5 "9e95d09aab433abdef5977a6d1bde757"
+@deffn primitive eval2 obj env_thunk
 Evaluate @var{exp}, a Scheme expression, in the environment designated
 by @var{lookup}, a symbol-lookup function.  @code{(eval exp)} is
 equivalent to @code{(eval2 exp *top-level-lookup-closure*)}.
 @end deffn
+@c docstring end
 
-@deffn primitive local-eval! exp [env]
+@c docstring begin (c-doc-string "debug.c" "local-eval")
+@c docstring md5 "506ec1178ae3ccf7e095bab2bbcc0d67"
+@deffn primitive local-eval exp [env]
 Evaluate @var{exp} in its environment.  If @var{env} is supplied,
 it is the environment in which to evaluate @var{exp}.  Otherwise,
 @var{exp} must be a memoized code object (in which case, its environment
 is implicit).
 @end deffn
+@c docstring end
 
+@c docstring begin (c-doc-string "strports.c" "eval-string")
+@c docstring md5 "215fd32368d85b52459b42ba46f7184f"
 @deffn primitive eval-string string
 Evaluate @var{string} as the text representation of a Scheme form
 or forms, and return whatever value they produce.
 @end deffn
+@c docstring end
 
-@deffn primitive defined? sym
+@c NJFIXME explain [env]
+@c docstring begin (c-doc-string "evalext.c" "defined?")
+@c docstring md5 "e292d80196883b1292b5638b6b13eedc"
+@deffn primitive defined? sym [env]
 Return @code{#t} if @var{sym} is defined in the top-level environment.
 @end deffn
+@c docstring end
 
+@c docstring begin (c-doc-string "load.c" "read-and-eval!")
+@c docstring md5 "91657a86ba64aa0ba1b50916c865cc7f"
 @deffn primitive read-and-eval! [port]
 Read a form from @var{port} (standard input by default), and evaluate it
 (memoizing it in the process) in the top-level environment.  If no data
 is left to be read from @var{port}, an @code{end-of-file} error is
 signalled.
 @end deffn
+@c docstring end
 
-@deffn primitive primitive-load file
+@c ARGFIXME file/filename
+@c docstring begin (c-doc-string "load.c" "primitive-load")
+@c docstring md5 "2f72b4b3c5ea0033a2b7bc99ef1e03dd"
+@deffn primitive primitive-load filename
 Load @var{file} and evaluate its contents in the top-level environment.
 The load paths are not searched; @var{file} must either be a full
 pathname or be a pathname relative to the current directory.  If the
@@ -788,14 +1103,22 @@ variable @code{%load-hook} is defined, it should be bound to a procedure
 that will be called before any code is loaded.  See documentation for
 @code{%load-hook} later in this section.
 @end deffn
+@c docstring end
 
-@deffn primitive primitive-load-path file
+@c ARGFIXME file/filename
+@c docstring begin (c-doc-string "load.c" "primitive-load-path")
+@c docstring md5 "e779a0292829227e95437fa298a66fc5"
+@deffn primitive primitive-load-path filename
 Search @var{%load-path} for @var{file} and load it into the top-level
 environment.  If @var{file} is a relative pathname and is not found in
 the list of search paths, an error is signalled.
 @end deffn
+@c docstring end
 
-@deffn primitive %search-load-path file
+@c ARGFIXME file/filename
+@c docstring begin (c-doc-string "load.c" "%search-load-path")
+@c docstring md5 "883363b33b1bd9b7491efea6dbdeef8c"
+@deffn primitive %search-load-path filename
 Search @var{%load-path} for @var{file}, which must be readable by the
 current user.  If @var{file} is found in the list of paths to search or
 is an absolute pathname, return its full pathname.  Otherwise, return
@@ -803,6 +1126,7 @@ is an absolute pathname, return its full pathname.  Otherwise, return
 @code{%load-extensions} list; @code{%search-load-path} will try each
 extension automatically.
 @end deffn
+@c docstring end
 
 @defvar %load-hook
 A procedure to be run whenever @code{primitive-load} is called.  If this
@@ -834,19 +1158,29 @@ list @code{("" ".scm")}.
 This chapter describes Guile list functions not found in standard
 Scheme.
 
-@deffn primitive append! [lst@dots{}]
+@c ARGFIXME args ?
+@c docstring begin (c-doc-string "list.c" "append!")
+@c docstring md5 "0259c7ab95479ffe3691550f471a47d7"
+@deffn primitive append! . args
 A destructive version of @code{append} (@pxref{Pairs and Lists,,,r4rs,
 The Revised^4 Report on Scheme}).  The cdr field of each list's final
 pair is changed to point to the head of the next list, so no consing is
 performed.  Return a pointer to the mutated list.
 @end deffn
+@c docstring end
 
+@c docstring begin (c-doc-string "list.c" "last-pair")
+@c docstring md5 "252e7462df5507d761011683bd3bab12"
 @deffn primitive last-pair lst
 Return a pointer to the last pair in @var{lst}, signalling an error if
 @var{lst} is circular.
 @end deffn
+@c docstring end
 
-@deffn primitive reverse! lst [newtail]
+@c NJFIXME explain new_tail
+@c docstring begin (c-doc-string "list.c" "reverse!")
+@c docstring md5 "4e423ebc21373a93765b0ac45982b4c8"
+@deffn primitive reverse! lst [new_tail]
 A destructive version of @code{reverse} (@pxref{Pairs and Lists,,,r4rs,
 The Revised^4 Report on Scheme}).  The cdr of each cell in @var{lst} is
 modified to point to the previous list element.  Return a pointer to the
@@ -859,43 +1193,82 @@ original list was bound now points to the tail.  To ensure that the head
 of the modified list is not lost, it is wise to save the return value of
 @code{reverse!}
 @end deffn
+@c docstring end
 
-@deffn primitive list-set! lst k val
-Set the @var{k}th element of @var{lst} to @var{val}.
+@c docstring begin (c-doc-string "list.c" "list-set!")
+@c docstring md5 "151c8e923452e2847db696566f06a8f3"
+@deffn primitive list-set! list k val
+Set the @var{k}th element of @var{list} to @var{val}.
 @end deffn
+@c docstring end
 
-@deffn primitive list-cdr-ref lst k
-@deffnx primitive list-tail lst k
+@c docstring begin (c-doc-string "list.c" "list-tail")
+@c docstring md5 "a7a763585d038f1a8f6339284f22e016"
+@deffn primitive list-tail lst k
+@deffnx primitive list-cdr-ref lst k
 Return the "tail" of @var{lst} beginning with its @var{k}th element.
 The first element of the list is considered to be element 0.
 
-@code{list-cdr-ref} and @code{list-tail} are identical.  It may help to
+@code{list-tail} and @code{list-cdr-ref} are identical.  It may help to
 think of @code{list-cdr-ref} as accessing the @var{k}th cdr of the list,
 or returning the results of cdring @var{k} times down @var{lst}.
 @end deffn
+@c docstring end
 
-@deffn primitive list-cdr-set! lst k val
-Set the @var{k}th cdr of @var{lst} to @var{val}.
+@c docstring begin (c-doc-string "list.c" "list-cdr-set!")
+@c docstring md5 "97838601187b2943d95f89037362c7c0"
+@deffn primitive list-cdr-set! list k val
+Set the @var{k}th cdr of @var{list} to @var{val}.
 @end deffn
+@c docstring end
 
+@c docstring begin (c-doc-string "list.c" "list-head")
+@c docstring md5 "43272096c61c5964cb57b8f7b322090c"
 @deffn primitive list-head lst k
 Copy the first @var{k} elements from @var{lst} into a new list, and
 return it.
 @end deffn
+@c docstring end
 
+@c docstring begin (c-doc-string "list.c" "list-copy")
+@c docstring md5 "215f62a5f0dec314262c1b794c4c4973"
 @deffn primitive list-copy lst
 Return a (newly-created) copy of @var{lst}.
 @end deffn
+@c docstring end
 
+@c docstring begin (c-doc-string "list.c" "delq")
+@c docstring md5 "d81022da19ebda54685dfc2bfa35b0da"
 @deffn primitive delq item lst
-@deffnx primitive delv item lst
-@deffnx primitive delete item lst
-Return a newly-created copy of @var{lst} with @var{item} removed.  These
-procedures mirror @code{memq}, @code{memv} and @code{member}:
+Return a newly-created copy of @var{lst} with elements `eq?' to @var{item} removed.
+This procedure mirrors @code{memq}:
 @code{delq} compares elements of @var{lst} against @var{item} with
-@code{eq?}, @code{delv} uses @code{eqv?} and @code{delete} uses @code{equal?}
+@code{eq?}.
 @end deffn
+@c docstring end
 
+@c docstring begin (c-doc-string "list.c" "delv")
+@c docstring md5 "78f17a903d0ed8b32b4e43c55a830c68"
+@deffn primitive delv item lst
+Return a newly-created copy of @var{lst} with elements `eqv?' to @var{item} removed.
+This procedure mirrors @code{memv}:
+@code{delv} compares elements of @var{lst} against @var{item} with
+@code{eqv?}.
+@end deffn
+@c docstring end
+
+@c docstring begin (c-doc-string "list.c" "delete")
+@c docstring md5 "84885abdb2c572e5930d0ac714a4b3d6"
+@deffn primitive delete item lst
+Return a newly-created copy of @var{lst} with elements `equal?' to @var{item} removed.
+This procedure mirrors @code{member}:
+@code{delete} compares elements of @var{lst} against @var{item} with
+@code{equal?}.
+@end deffn
+@c docstring end
+
+@c docstring begin (c-doc-string "list.c" "delq!")
+@c docstring md5 "0aff2f2745903b297e81a8270b39000a"
 @deffn primitive delq! item lst
 @deffnx primitive delv! item lst
 @deffnx primitive delete! item lst
@@ -906,19 +1279,38 @@ destructive list functions, these functions cannot modify the binding of
 @var{lst}, and so cannot be used to delete the first element of
 @var{lst} destructively.
 @end deffn
+@c docstring end
 
 [FIXME: is there any reason to have the `sloppy' functions available at
 high level at all?  Maybe these docs should be relegated to a "Guile
 Internals" node or something. -twp]
 
-@deffn primitive sloppy-memq
-@deffnx primitive sloppy-memv
-@deffnx primitive sloppy-member
-These procedures behave like @code{memq}, @code{memv} and @code{member}
-(@pxref{Pairs and Lists,,,r4rs, The Revised^4 Report on Scheme}), but do
-not perform any type or error checking.  Their use is recommended only
-in writing Guile internals, not for high-level Scheme programs.
+@c docstring begin (c-doc-string "list.c" "sloppy-memq")
+@c docstring md5 "e00233197e5f63b367e09de33e458198"
+@deffn primitive sloppy-memq x lst
+This procedure behaves like @code{memq}, but does no type or error checking.
+Its use is recommended only in writing Guile internals,
+not for high-level Scheme programs.
 @end deffn
+@c docstring end
+
+@c docstring begin (c-doc-string "list.c" "sloppy-memv")
+@c docstring md5 "466fe289c9fa6f70f2828f05a15ed705"
+@deffn primitive sloppy-memv x lst
+This procedure behaves like @code{memv}, but does no type or error checking.
+Its use is recommended only in writing Guile internals,
+not for high-level Scheme programs.
+@end deffn
+@c docstring end
+
+@c docstring begin (c-doc-string "list.c" "sloppy-member")
+@c docstring md5 "39b419b393953deb3094acd1684f4e71"
+@deffn primitive sloppy-member x lst
+This procedure behaves like @code{member}, but does no type or error checking.
+Its use is recommended only in writing Guile internals,
+not for high-level Scheme programs.
+@end deffn
+@c docstring end
 
 @page
 @node Data Structures
