@@ -2406,7 +2406,6 @@ in no way depend on this.
 @end defun
 
 @defun quit &opt exit_val
-@defunx restart
 @defunx abort
 Throw back to the error handler of the current dynamic root.
 
@@ -2414,6 +2413,26 @@ If integer @var{exit_val} is specified and if Guile is being used
 stand-alone and if quit is called from the initial dynamic-root,
 @var{exit_val} becomes the exit status of the Guile process and the
 process exits.
+@end defun
+
+When Guile is run interactively, errors are caught from within the
+read-eval-print loop.  An error message will be printed and @code{abort}
+called.  A default set of signal handlers is installed, e.g., to allow
+user interrupt of the interpreter.
+
+It is possible to switch to a "batch mode", in which the interpreter
+will terminate after an error and in which all signals cause their
+default actions.  Switching to batch mode causes any handlers installed
+from Scheme code to be removed.  An example of where this is useful is
+after forking a new process intended to run non-interactively.
+
+@defun batch-mode?
+Returns a boolean indicating whether the interpreter is in batch mode.
+@end defun
+
+@defun set-batch-mode?! arg
+If @var{arg} is true, switches the interpreter to batch mode.
+The @code{#f} case has not been implemented.
 @end defun
 
 @node Threads

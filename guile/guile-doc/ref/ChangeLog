@@ -1,3 +1,7 @@
+Wed Oct  8 04:51:54 1997  Gary Houston  <ghouston@actrix.gen.nz>
+
+	*  scheme.texi (Dynamic Roots): added batch mode procedures.
+
 1997-10-03  Mikael Djurfeldt  <mdj@nada.kth.se>
 
 	* scheme.texi (Vtables): Changed 0 --> @code{vtable-index-layout};
