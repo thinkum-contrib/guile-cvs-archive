@@ -150,13 +150,17 @@ one, so that dropping references to one of these ports will not result
 in its garbage collection: it could be retrieved with fdopen or
 fdes->ports.
 
+@c docstring begin (c-doc-string "ports.c" "port-revealed")
+@c docstring md5 "1b7c38c06c8f072cdafa2710b72f7f3b"
 @deffn primitive port-revealed port
 Returns the revealed count for @var{port}.
 @end deffn
 
-@deffn primitive set-port-revealed! port count
-Sets the revealed count for a port to a given value.  The return value
-is unspecified.
+@c docstring begin (c-doc-string "ports.c" "set-port-revealed!")
+@c docstring md5 "84596c3911799dc63419755ab4a79901"
+@deffn primitive set-port-revealed! port rcount
+Sets the revealed count for a port to a given value.
+The return value is unspecified.
 @end deffn
 
 @c docstring begin (c-doc-string "ioext.c" "fileno")
@@ -280,6 +284,7 @@ descriptor are moved to a different file descriptor and have
 their revealed counts set to zero.
 @end deffn
 
+@c docstring begin (c-doc-string "ports.c" "unread-char")
 @deffn primitive unread-char char [port]
 Place @var{char} in @var{port} so that it will be read by the
 next read operation.  If called multiple times, the unread characters
@@ -287,6 +292,7 @@ will be read again in last-in first-out order.  If @var{port} is
 not supplied, the current input port is used.
 @end deffn
 
+@c docstring begin (c-doc-string "ports.c" "unread-string")
 @deffn primitive unread-string str [port]
 Place the string @var{str} in @var{port} so that its characters will be
 read in subsequent read operations.  If called multiple times, the
@@ -294,14 +300,23 @@ unread characters will be read again in last-in first-out order.  If
 @var{port} is not supplied, the current-input-port is used.
 @end deffn
 
+@c docstring begin (c-doc-string "posix.c" "pipe")
+@c docstring md5 "b21d64a66a4e2c47fece645b9828d479"
 @deffn primitive pipe
-Creates a pipe which can be used for communication.  The return value
-is a pair in which the CAR contains an input port and the CDR an
-output port.  Data written to the output port can be read from the
-input port.  Note that both ports are buffered so it may be necessary
-to flush the output port before data will actually be sent across the pipe.
-Alternatively a buffer can be added to the port using @code{setvbuf}
-(see below).
+Returns a newly created pipe: a pair of ports which are linked
+together on the local machine.  The CAR is the input port and
+the CDR is the output port.  Data written (and flushed) to the
+output port can be read from the input port.
+Pipes are commonly used for communication with a newly
+forked child process.  The need to flush the output port
+can be avoided by making it unbuffered using @code{setvbuf}.
+
+Writes occur atomically provided the size of the data in
+bytes is not greater than the value of @code{PIPE_BUF}
+Note that the output port is likely to block if too much data
+(typically equal to @code{PIPE_BUF}) has been written but not
+yet read from the input port
+
 @end deffn
 
 The next group of procedures perform a @code{dup2}
@@ -370,6 +385,8 @@ This procedure does not have any side effects on other ports or
 revealed counts.
 @end deffn
 
+@c docstring begin (c-doc-string "ports.c" "port-mode")
+@c docstring md5 "cbcb46422ab6eb230fd54bb014026d79"
 @deffn primitive port-mode port
 Returns the port modes associated with the open port @var{port}.  These
 will not necessarily be identical to the modes used when the port was
@@ -377,13 +394,17 @@ opened, since modes such as "append" which are used only during
 port creation are not retained.
 @end deffn
 
-@deffn primitive close-all-ports-except port @dots{}
+@c docstring begin (c-doc-string "ports.c" "close-all-ports-except")
+@c docstring md5 "cc236f9737a0e718d33eb00106cd33f9"
+@deffn primitive close-all-ports-except . ports
 Close all open file ports used by the interpreter
 except for those supplied as arguments.  This procedure
 is intended to be used before an exec call to close file descriptors
 which are not needed in the new process.
 @end deffn
 
+@c docstring begin (c-doc-string "fports.c" "setvbuf")
+@c docstring md5 "5395a53e279959cd6b364a3411887c0b"
 @deffn primitive setvbuf port mode [size]
 Set the buffering mode for @var{port}.  @var{mode} can be:
 @table @code
@@ -471,6 +492,8 @@ permissions, sizes and types of files); deleting, copying, renaming and
 linking files; creating and removing directories and querying their
 contents; syncing the file system and creating special files.
 
+@c docstring begin (c-doc-string "posix.c" "access?")
+@c docstring md5 "fec352f04f8b19b3630c323ba6335b50"
 @deffn primitive access? path how
 Returns @code{#t} if @var{path} corresponds to an existing
 file and the current process
@@ -607,7 +630,9 @@ the new permissions as a decimal number, e.g., @code{(chmod "foo" #o755)}.
 The return value is unspecified.
 @end deffn
 
-@deffn primitive utime path [actime] [modtime]
+@c docstring begin (c-doc-string "posix.c" "utime")
+@c docstring md5 "a597b09b22a3bc59ca04020d6bb400a1"
+@deffn primitive utime pathname [actime [modtime]]
 @code{utime} sets the access and modification times for
 the file named by @var{path}.  If @var{actime} or @var{modtime}
 is not supplied, then the current time is used.
@@ -714,11 +739,15 @@ Close the directory stream @var{stream}.
 The return value is unspecified.
 @end deffn
 
+@c docstring begin (c-doc-string "posix.c" "sync")
+@c docstring md5 "809c00c0d6bb882356fbbaf6dd0ac9ac"
 @deffn primitive sync
 Flush the operating system disk buffers.
 The return value is unspecified.
 @end deffn
 
+@c docstring begin (c-doc-string "posix.c" "mknod")
+@c docstring md5 "37bb82ebe81454e550e191712db6cc1d"
 @deffn primitive mknod path type perms dev
 Creates a new special file, such as a file corresponding to a device.
 @var{path} specifies the name of the file.  @var{type} should
@@ -737,6 +766,8 @@ E.g.,
 The return value is unspecified.
 @end deffn
 
+@c docstring begin (c-doc-string "posix.c" "tmpnam")
+@c docstring md5 "3bdd82c1272c895eec4c85721803e3a4"
 @deffn primitive tmpnam
 Create a new file in the file system with a unique name.  The return
 value is the name of the new file.  This function is implemented with
@@ -806,13 +837,17 @@ Return the next entry in the user database, using the stream set by
 Closes the stream used by @code{getpwent}.  The return value is unspecified.
 @end deffn
 
-@deffn primitive setpw [reset?]
+@c docstring begin (c-doc-string "posix.c" "setpw")
+@c docstring md5 "f39c63ddaf54069d21088cde473078ee"
+@deffn primitive setpw [arg]
 If called with a true argument, initialize or reset the password data
 stream.  Otherwise, close the stream.  The @code{setpwent} and
 @code{endpwent} procedures are implemented on top of this.
 @end deffn
 
-@deffn primitive getpw [obj]
+@c docstring begin (c-doc-string "posix.c" "getpw")
+@c docstring md5 "d05295a6037f032998eb0c4927943258"
+@deffn primitive getpw [user]
 Look up an entry in the user database.  @var{obj} can be an integer,
 a string, or omitted, giving the behaviour of getpwuid, getpwnam
 or getpwent respectively.
@@ -856,13 +891,17 @@ Closes the stream used by @code{getgrent}.
 The return value is unspecified.
 @end deffn
 
-@deffn primitive setgr [reset?]
+@c docstring begin (c-doc-string "posix.c" "setgr")
+@c docstring md5 "c6e15cd397d2ca16aadcb82a424d1237"
+@deffn primitive setgr [arg]
 If called with a true argument, initialize or reset the group data
 stream.  Otherwise, close the stream.  The @code{setgrent} and
 @code{endgrent} procedures are implemented on top of this.
 @end deffn
 
-@deffn primitive getgr [obj]
+@c docstring begin (c-doc-string "posix.c" "getgr")
+@c docstring md5 "19d002f8bf8c9b053e5b627ef0c0c12f"
+@deffn primitive getgr [name]
 Look up an entry in the group database.  @var{obj} can be an integer,
 a string, or omitted, giving the behaviour of getgrgid, getgrnam
 or getgrent respectively.
@@ -871,11 +910,15 @@ or getgrent respectively.
 @node Time
 @section Time
 
+@c docstring begin (c-doc-string "stime.c" "current-time")
+@c docstring md5 "76ada7f61352b11add7ccf27e827c00e"
 @deffn primitive current-time
 Returns the number of seconds since 1970-01-01 00:00:00 UTC, excluding
 leap seconds.
 @end deffn
 
+@c docstring begin (c-doc-string "stime.c" "gettimeofday")
+@c docstring md5 "6173388c8f5f06a9e6e617b7fbff8b06"
 @deffn primitive gettimeofday
 Returns a pair containing the number of seconds and microseconds since
 1970-01-01 00:00:00 UTC, excluding leap seconds.  Note: whether true
@@ -913,6 +956,8 @@ Time zone offset in seconds west of UTC (-46800 to 43200).
 Time zone label (a string), not necessarily unique.
 @end table
 
+@c docstring begin (c-doc-string "stime.c" "localtime")
+@c docstring md5 "2cd2c36738ad96121f1fd05b02a5f6c8"
 @deffn primitive localtime time [zone]
 Returns an object representing the broken down components of @var{time},
 an integer like the one returned by @code{current-time}.  The time zone
@@ -921,13 +966,17 @@ otherwise the @code{TZ} environment variable or the system default is
 used.
 @end deffn
 
+@c docstring begin (c-doc-string "stime.c" "gmtime")
+@c docstring md5 "b2cc512c9fdda6b204c6e69faa51696d"
 @deffn primitive gmtime time
 Returns an object representing the broken down components of @var{time},
 an integer like the one returned by @code{current-time}.  The values
 are calculated for UTC.
 @end deffn
 
-@deffn primitive mktime bd-time [zone]
+@c docstring begin (c-doc-string "stime.c" "mktime")
+@c docstring md5 "b0a52e1fa300c648f6d42c3fc5a9741a"
+@deffn primitive mktime sbd_time [zone]
 @var{bd-time} is an object representing broken down time and @code{zone}
 is an optional time zone specifier (otherwise the TZ environment variable
 or the system default is used).
@@ -938,14 +987,18 @@ by @code{current-time}; the CDR is a broken down time object, similar to
 as @var{bd-time} but with normalized values.
 @end deffn
 
+@c docstring begin (c-doc-string "stime.c" "tzset")
+@c docstring md5 "19a4fe747252c8d6acd0bd77966b1caa"
 @deffn primitive tzset
-Initialize the timezone from the TZ environment variable or the system
-default.  Usually this is done automatically by other procedures which
-use the time zone, but this procedure may need to be used if TZ
-is changed.
+Initialize the timezone from the TZ environment variable
+or the system default.  It's not usually necessary to call this procedure
+since it's done automatically by other procedures that depend on the
+timezone.
 @end deffn
 
-@deffn primitive strftime template time
+@c docstring begin (c-doc-string "stime.c" "strftime")
+@c docstring md5 "d48f88a920766a67d4c189d73c0b69be"
+@deffn primitive strftime format stime
 Formats a time specification @var{time} using @var{template}.  @var{time}
 is an object with time components in the form returned by @code{localtime}
 or @code{gmtime}.  @var{template} is a string which can include formatting
@@ -955,7 +1008,9 @@ is the formatted string.
 @xref{Formatting Date and Time, , , libc, The GNU C Library Reference Manual}.)
 @end deffn
 
-@deffn primitive strptime template string
+@c docstring begin (c-doc-string "stime.c" "strptime")
+@c docstring md5 "661008b711878fa53539faa1a029642a"
+@deffn primitive strptime format string
 Performs the reverse action to @code{strftime}, parsing @var{string}
 according to the specification supplied in @var{template}.  The
 interpretation of month and day names is dependent on the current
@@ -973,6 +1028,8 @@ The value of this variable is the number of time units per second
 reported by the following procedures.
 @end defvar
 
+@c docstring begin (c-doc-string "stime.c" "times")
+@c docstring md5 "b0aa01e543a9c263ece37ca05f7f84df"
 @deffn primitive times
 Returns an object with information about real and processor time.
 The following procedures accept such an object as an argument and
@@ -995,14 +1052,17 @@ terminated child processes.
 @end table
 @end deffn
 
+@c docstring begin (c-doc-string "stime.c" "get-internal-real-time")
+@c docstring md5 "4f434d8279713973fdf950a0e18ce2d7"
 @deffn primitive get-internal-real-time
 Returns the number of time units since the interpreter was started.
 @end deffn
 
+@c docstring begin (c-doc-string "stime.c" "get-internal-run-time")
+@c docstring md5 "2c97d4f310b90b5801d9174cc04b7a17"
 @deffn primitive get-internal-run-time
 Returns the number of time units of processor time used by the interpreter.
-Both "system" and "user" time
-are included but subprocesses are not.
+Both "system" and "user" time are included but subprocesses are not.
 @end deffn
 
 @node Runtime Environment
@@ -1095,26 +1155,38 @@ file creation mask.  Otherwise the file creation mask is set to
 E.g., @code{(umask #o022)} sets the mask to octal 22, decimal 18.
 @end deffn
 
+@c docstring begin (c-doc-string "posix.c" "getpid")
+@c docstring md5 "d64b0376645a2061be247c643f452cb9"
 @deffn primitive getpid
 Returns an integer representing the current process ID.
 @end deffn
 
+@c docstring begin (c-doc-string "posix.c" "getgroups")
+@c docstring md5 "d89f8836ad2d17963495d668c764a73f"
 @deffn primitive getgroups
 Returns a vector of integers representing the current supplimentary group IDs.
 @end deffn
 
+@c docstring begin (c-doc-string "posix.c" "getppid")
+@c docstring md5 "0cdc7ef0d2c250329872db2b7098231f"
 @deffn primitive getppid
 Returns an integer representing the process ID of the parent process.
 @end deffn
 
+@c docstring begin (c-doc-string "posix.c" "getuid")
+@c docstring md5 "628a0e80108003152f3d376c5ab3eaac"
 @deffn primitive getuid
 Returns an integer representing the current real user ID.
 @end deffn
 
+@c docstring begin (c-doc-string "posix.c" "getgid")
+@c docstring md5 "45faad2fa3e5db9f71132fa04d33402f"
 @deffn primitive getgid
 Returns an integer representing the current real group ID.
 @end deffn
 
+@c docstring begin (c-doc-string "posix.c" "geteuid")
+@c docstring md5 "87092a4dd6a394ace63c9295c19ab843"
 @deffn primitive geteuid
 Returns an integer representing the current effective user ID.
 If the system does not support effective IDs, then the real ID
@@ -1122,6 +1194,8 @@ is returned.  @code{(feature? 'EIDs)} reports whether the system
 supports effective IDs.
 @end deffn
 
+@c docstring begin (c-doc-string "posix.c" "getegid")
+@c docstring md5 "bfc32b3275906666e8811e76bdf99cad"
 @deffn primitive getegid
 Returns an integer representing the current effective group ID.
 If the system does not support effective IDs, then the real ID
@@ -1129,18 +1203,24 @@ is returned.  @code{(feature? 'EIDs)} reports whether the system
 supports effective IDs.
 @end deffn
 
+@c docstring begin (c-doc-string "posix.c" "setuid")
+@c docstring md5 "fa6f3d61ce1397155d101c2069b171c0"
 @deffn primitive setuid id
 Sets both the real and effective user IDs to the integer @var{id}, provided
 the process has appropriate privileges.
 The return value is unspecified.
 @end deffn
 
+@c docstring begin (c-doc-string "posix.c" "setgid")
+@c docstring md5 "316a8122112a57369ab9d61729428743"
 @deffn primitive setgid id
 Sets both the real and effective group IDs to the integer @var{id}, provided
 the process has appropriate privileges.
 The return value is unspecified.
 @end deffn
 
+@c docstring begin (c-doc-string "posix.c" "seteuid")
+@c docstring md5 "60e9495314eb531c1829fac934f3ad3c"
 @deffn primitive seteuid id
 Sets the effective user ID to the integer @var{id}, provided the process
 has appropriate privileges.  If effective IDs are not supported, the
@@ -1149,6 +1229,8 @@ system supports effective IDs.
 The return value is unspecified.
 @end deffn
 
+@c docstring begin (c-doc-string "posix.c" "setegid")
+@c docstring md5 "8b73eeb128697b61a76866128ba57210"
 @deffn primitive setegid id
 Sets the effective group ID to the integer @var{id}, provided the process
 has appropriate privileges.  If effective IDs are not supported, the
@@ -1157,11 +1239,15 @@ system supports effective IDs.
 The return value is unspecified.
 @end deffn
 
+@c docstring begin (c-doc-string "posix.c" "getpgrp")
+@c docstring md5 "8c78e5e22c15d0826c9faf29b1019877"
 @deffn primitive getpgrp
 Returns an integer representing the current process group ID.
 This is the POSIX definition, not BSD.
 @end deffn
 
+@c docstring begin (c-doc-string "posix.c" "setpgid")
+@c docstring md5 "b554c02ee5a2eb9dbacd35ff8213e54f"
 @deffn primitive setpgid pid pgid
 Move the process @var{pid} into the process group @var{pgid}.  @var{pid} or
 @var{pgid} must be integers: they can be zero to indicate the ID of the
@@ -1170,6 +1256,8 @@ Fails on systems that do not support job control.
 The return value is unspecified.
 @end deffn
 
+@c docstring begin (c-doc-string "posix.c" "setsid")
+@c docstring md5 "0d7a41500edeeb36881d9a1dc9859d58"
 @deffn primitive setsid
 Creates a new session.  The current process becomes the session leader
 and is put in a new process group.  The process will be detached
@@ -1177,6 +1265,8 @@ from its controlling terminal if it has one.
 The return value is an integer representing the new process group ID.
 @end deffn
 
+@c docstring begin (c-doc-string "posix.c" "waitpid")
+@c docstring md5 "7d85e72e16d275d85603b5411271f980"
 @deffn primitive waitpid pid [options]
 This procedure collects status information from a child process which
 has terminated or (optionally) stopped.  Normally it will
@@ -1225,22 +1315,30 @@ The following three
 functions can be used to decode the process status code returned
 by @code{waitpid}.
 
+@c docstring begin (c-doc-string "posix.c" "status:exit-val")
+@c docstring md5 "df18364eb12231a4a0c93b295c630082"
 @deffn primitive status:exit-val status
 Returns the exit status value, as would be
 set if a process ended normally through a
 call to @code{exit} or @code{_exit}, if any, otherwise @code{#f}.
 @end deffn
 
+@c docstring begin (c-doc-string "posix.c" "status:term-sig")
+@c docstring md5 "7f91f18c1c62586bb4f034f42efaffae"
 @deffn primitive status:term-sig status
 Returns the signal number which terminated the
 process, if any, otherwise @code{#f}.
 @end deffn
 
+@c docstring begin (c-doc-string "posix.c" "status:stop-sig")
+@c docstring md5 "633f8a62bb90a33cf87cd00930645733"
 @deffn primitive status:stop-sig status
 Returns the signal number which stopped the
 process, if any, otherwise @code{#f}.
 @end deffn
 
+@c docstring begin (c-doc-string "simpos.c" "system")
+@c docstring md5 "7c50840a0247c0bbfc1ac441f86a00c2"
 @deffn primitive system [cmd]
 Executes @var{cmd} using the operating system's "command processor".
 Under Unix this is usually the default shell @code{sh}.  The value
@@ -1251,13 +1349,17 @@ If @code{system} is called without arguments, it returns a boolean
 indicating whether the command processor is available.
 @end deffn
 
+@c docstring begin (c-doc-string "simpos.c" "primitive-exit")
+@c docstring md5 "57f4d6971bfc4b6ca0a9df4fc2c00d25"
 @deffn primitive primitive-exit [status]
 Terminate the current process without unwinding the Scheme stack.
 This is would typically be useful after a fork.  The exit status
 is @var{status} if supplied, otherwise zero.
 @end deffn
 
-@deffn primitive execl path [arg] ...
+@c docstring begin (c-doc-string "posix.c" "execl")
+@c docstring md5 "cd0d489078f789de94be773713ecb674"
+@deffn primitive execl filename . args
 Executes the file named by @var{path} as a new process image.
 The remaining arguments are supplied to the process; from a C program
 they are accessable as the @code{argv} argument to @code{main}.
@@ -1271,17 +1373,21 @@ This procedure is currently implemented using the @code{execv} system
 call, but we call it @code{execl} because of its Scheme calling interface.
 @end deffn
 
-@deffn primitive execlp path [arg] ...
+@c docstring begin (c-doc-string "posix.c" "execlp")
+@c docstring md5 "c3f02c5d2a9269ce276001169c94655e"
+@deffn primitive execlp filename . args
 Similar to @code{execl}, however if
 @var{filename} does not contain a slash
 then the file to execute will be located by searching the
 directories listed in the @code{PATH} environment variable.
 
-This procedure is currently implemented using the @code{execlv} system
+This procedure is currently implemented using the @code{execvp} system
 call, but we call it @code{execlp} because of its Scheme calling interface.
 @end deffn
 
-@deffn primitive execle path env [arg] ...
+@c docstring begin (c-doc-string "posix.c" "execle")
+@c docstring md5 "d10c587e80f8ee6cff0592fbceeec910"
+@deffn primitive execle filename env . args
 Similar to @code{execl}, but the environment of the new process is
 specified by @var{env}, which must be a list of strings as returned by the
 @code{environ} procedure.
@@ -1290,6 +1396,8 @@ This procedure is currently implemented using the @code{execve} system
 call, but we call it @code{execle} because of its Scheme calling interface.
 @end deffn
 
+@c docstring begin (c-doc-string "posix.c" "primitive-fork")
+@c docstring md5 "eabfa452559e1470c613e80264e7044a"
 @deffn primitive primitive-fork
 Creates a new "child" process by duplicating the current "parent" process.
 In the child the return value is 0.  In the parent the return value is
@@ -1299,6 +1407,8 @@ This procedure has been renamed from @code{fork} to avoid a naming conflict
 with the scsh fork.
 @end deffn
 
+@c docstring begin (c-doc-string "posix.c" "nice")
+@c docstring md5 "51b6f142ac4d280e5202794c5833cce3"
 @deffn primitive nice incr
 Increment the priority of the current process by @var{incr}.  A higher
 priority value means that the process runs less often.
@@ -1310,8 +1420,9 @@ The return value is unspecified.
 
 Procedures to raise, handle and wait for signals.
 
+@c docstring begin (c-doc-string "posix.c" "kill")
+@c docstring md5 "89234a82ee49845eeb05e34ce0f3de1d"
 @deffn primitive kill pid sig
-
 Sends a signal to the specified process or group of processes.
 
 @var{pid} specifies the processes to which the signal is sent:
@@ -1341,15 +1452,18 @@ Interrupt signal.
 @end defvar
 @end deffn
 
+@c docstring begin (c-doc-string "scmsigs.c" "raise")
+@c docstring md5 "34d64fd2e6c30628d87f1fbfe95529ba"
 @deffn primitive raise sig
 
 Sends a specified signal @var{sig} to the current process, where
 @var{sig} is as described for the kill procedure.
 @end deffn
 
-@deffn primitive sigaction signum [action] [flags]
-
-Install or report the signal hander for a specified signal.
+@c docstring begin (c-doc-string "scmsigs.c" "sigaction")
+@c docstring md5 "711e4020d3560c464f4d7389fd5a192b"
+@deffn primitive sigaction signum [handler [flags]]
+Install or report the signal handler for a specified signal.
 
 @var{signum} is the signal number, which can be specified using the value
 of variables such as @code{SIGINT}.
@@ -1367,7 +1481,7 @@ argument, or the value of @code{SIG_DFL} (default action) or
 @code{SIG_IGN} (ignore), or @code{#f} to restore whatever signal handler
 was installed before @code{sigaction} was first used.  Flags can
 optionally be specified for the new handler (@code{SA_RESTART} will
-always be added if it's available and the system is using rstartable
+always be added if it's available and the system is using restartable
 system calls.)  The return value is a pair with information about the
 old handler as described above.
 
@@ -1377,12 +1491,16 @@ provide solutions to the problem of consistent access to data
 structures.
 @end deffn
 
+@c docstring begin (c-doc-string "scmsigs.c" "restore-signals")
+@c docstring md5 "eddce6d08083df8e1b1e1db2085990a1"
 @deffn primitive restore-signals
 Return all signal handlers to the values they had before any call to
 @code{sigaction} was made.  The return value is unspecified.
 @end deffn
 
-@deffn primitive alarm secs
+@c docstring begin (c-doc-string "scmsigs.c" "alarm")
+@c docstring md5 "fb201fc65cdf59655d3e9fe4d56f5413"
+@deffn primitive alarm i
 Set a timer to raise a @code{SIGALRM} signal after the specified
 number of seconds (an integer).  It's advisable to install a signal
 handler for
@@ -1394,18 +1512,28 @@ if any.  The new value replaces the previous alarm.  If there was
 no previous alarm, the return value is zero.
 @end deffn
 
+@c docstring begin (c-doc-string "scmsigs.c" "pause")
+@c docstring md5 "e7a27b324a4e166e8106ab72e3bf76d2"
 @deffn primitive pause
 Pause the current process (thread?) until a signal arrives whose
 action is to either terminate the current process or invoke a
 handler procedure.  The return value is unspecified.
 @end deffn
 
-@deffn primitive sleep secs
+@c docstring begin (c-doc-string "scmsigs.c" "sleep")
+@c docstring md5 "29a83fb23c767777af8c568af52986f0"
+@deffn primitive sleep i
 Wait for the given number of seconds (an integer) or until a signal
 arrives.  The return value is zero if the time elapses or the number
 of seconds remaining otherwise.
 @end deffn
 
+@c docstring begin (c-doc-string "scmsigs.c" "usleep")
+@c docstring md5 "b14fae046cbe4af8d61e44ef4b6c17b1"
+@deffn primitive usleep i
+Sleep for I microseconds.
+`usleep' is not available on all platforms.
+@end deffn
 
 @node Terminals and Ptys
 @section Terminals and Ptys
@@ -1417,16 +1545,22 @@ Returns @code{#t} if @var{port} is using a serial
 non-file device, otherwise @code{#f}.
 @end deffn
 
+@c docstring begin (c-doc-string "posix.c" "ttyname")
+@c docstring md5 "769ec94e0f90139be8922437146e3709"
 @deffn primitive ttyname port
 Returns a string with the name of the serial terminal device underlying
 @var{port}.
 @end deffn
 
+@c docstring begin (c-doc-string "posix.c" "ctermid")
+@c docstring md5 "3fd556dfb560cb868465ec099c5d606a"
 @deffn primitive ctermid
 Returns a string containing the file name of the controlling terminal
 for the current process.
 @end deffn
 
+@c docstring begin (c-doc-string "posix.c" "tcgetpgrp")
+@c docstring md5 "dbcc77abaa96c964be12da405c8dabb3"
 @deffn primitive tcgetpgrp port
 Returns the process group ID of the foreground
 process group associated with the terminal open on the file descriptor
@@ -1440,6 +1574,8 @@ terminated, and no other job has yet been moved into the
 foreground.
 @end deffn
 
+@c docstring begin (c-doc-string "posix.c" "tcsetpgrp")
+@c docstring md5 "c09a1fa2ae2242c5c52aa775c98a7e60"
 @deffn primitive tcsetpgrp port pgid
 Set the foreground process group ID for the terminal used by the file
 descriptor underlying @var{port} to the integer @var{pgid}.
@@ -1460,7 +1596,7 @@ module:
 @end smalllisp
 
 @findex popen
-@deffn primitive open-pipe command modes
+@deffn procedure open-pipe command modes
 Executes the shell command @var{command} (a string) in a subprocess.
 A pipe to the process is created and returned.  @var{modes} specifies
 whether an input or output pipe to the process is created: it should 
@@ -1476,7 +1612,7 @@ Equivalent to @code{(open-pipe command OPEN_WRITE)}.
 @end deffn
 
 @findex pclose
-@deffn primitive close-pipe port
+@deffn procedure close-pipe port
 Closes the pipe created by @code{open-pipe}, then waits for the process
 to terminate and returns its status value, @xref{Processes, waitpid}, for
 information on how to interpret this value.
@@ -1821,7 +1957,9 @@ are always held in host order at the Scheme level.  The procedures in
 this section automatically convert between host and network order when
 required.  The arguments and return values are thus in host order.
 
-@deffn primitive socket family style protocol
+@c docstring begin (c-doc-string "socket.c" "socket")
+@c docstring md5 "965daf176c8ac254b6cddc4934625264"
+@deffn primitive socket family style proto
 Returns a new socket port of the type specified by @var{family}, @var{style}
 and @var{protocol}.  All three parameters are integers.  Typical values
 for @var{family} are the values of @code{AF_UNIX}
@@ -1836,7 +1974,9 @@ A single socket port cannot by used for communication until
 it has been connected to another socket.
 @end deffn
 
-@deffn primitive socketpair family style protocol
+@c docstring begin (c-doc-string "socket.c" "socketpair")
+@c docstring md5 "ef9f03e6277e74fe68ea3b9a01a37815"
+@deffn primitive socketpair family style proto
 Returns a pair of connected (but unnamed) socket ports of the type specified
 by @var{family}, @var{style} and @var{protocol}.
 Many systems support only
@@ -1844,7 +1984,9 @@ socket pairs of the @code{AF_UNIX} family.  Zero is likely to be
 the only meaningful value for @var{protocol}.
 @end deffn
 
-@deffn primitive getsockopt socket level optname
+@c docstring begin (c-doc-string "socket.c" "getsockopt")
+@c docstring md5 "e73f6a51446d47ced30b5e3f749ddc99"
+@deffn primitive getsockopt sock level optname
 Returns the value of a particular socket option for the socket
 port @var{socket}.  @var{level} is an integer code for type of option
 being requested, e.g., @code{SOL_SOCKET} for socket-level options.
@@ -1856,7 +1998,9 @@ The returned value is typically an integer but @code{SO_LINGER} returns a
 pair of integers.
 @end deffn
 
-@deffn primitive setsockopt socket level optname value
+@c docstring begin (c-doc-string "socket.c" "setsockopt")
+@c docstring md5 "e84af63ac4248fd180ce5b416d4e94f0"
+@deffn primitive setsockopt sock level optname value
 Sets the value of a particular socket option for the socket
 port @var{socket}.  @var{level} is an integer code for type of option
 being set, e.g., @code{SOL_SOCKET} for socket-level options.
@@ -1870,7 +2014,9 @@ be a pair.
 The return value is unspecified.
 @end deffn
 
-@deffn primitive shutdown socket how
+@c docstring begin (c-doc-string "socket.c" "shutdown")
+@c docstring md5 "5732740941f750f78f6a8968e0ff2d60"
+@deffn primitive shutdown sock how
 Sockets can be closed simply by using @code{close-port}. The
 @code{shutdown} procedure allows reception or tranmission on a
 connection to be shut down individually, according to the parameter
@@ -1890,7 +2036,9 @@ Stop both reception and transmission.
 The return value is unspecified.
 @end deffn
 
-@deffn primitive connect socket family address [arg ...]
+@c docstring begin (c-doc-string "socket.c" "connect")
+@c docstring md5 "3bd3faf268d08e8f7c806531ebd831d4"
+@deffn primitive connect sock fam address . args
 Initiates a connection from @var{socket} to the address
 specified by @var{address} and possibly @var{arg @dots{}}.  The format
 required for @var{address}
@@ -1907,7 +2055,9 @@ must be a single integer port number.
 The return value is unspecified.
 @end deffn
 
-@deffn primitive bind socket family address arg ...
+@c docstring begin (c-doc-string "socket.c" "bind")
+@c docstring md5 "79e4fbd1add7b475192c5f9b096ea53e"
+@deffn primitive bind sock fam address . args
 Assigns an address to the socket port @var{socket}.
 Generally this only needs to be done for server sockets,
 so they know where to look for incoming connections.  A socket
@@ -1946,7 +2096,9 @@ No address.
 The return value is unspecified.
 @end deffn
 
-@deffn primitive listen socket backlog
+@c docstring begin (c-doc-string "socket.c" "listen")
+@c docstring md5 "1e6d6047057201e563c89d0249643f12"
+@deffn primitive listen sock backlog
 This procedure enables @var{socket} to accept connection
 requests.  @var{backlog} is an integer specifying
 the maximum length of the queue for pending connections.
@@ -1956,7 +2108,9 @@ server calls @code{accept} to accept a connection from the queue.
 The return value is unspecified.
 @end deffn
 
-@deffn primitive accept socket
+@c docstring begin (c-doc-string "socket.c" "accept")
+@c docstring md5 "1aefc750ffb6a5bb46d9fa07c06bc740"
+@deffn primitive accept sock
 Accepts a connection on a bound, listening socket @var{socket}.  If there
 are no pending connections in the queue, it waits until
 one is available unless the non-blocking option has been set on the
@@ -1991,20 +2145,26 @@ If the socket family is @code{AF_INET}, returns the Internet port
 number.
 @end table
 
-@deffn primitive getsockname socket
+@c docstring begin (c-doc-string "socket.c" "getsockname")
+@c docstring md5 "f205624ada648b4497f8152eed3680b7"
+@deffn primitive getsockname sock
 Returns the address of @var{socket}, in the same form as the object
 returned by @code{accept}.  On many systems the address of a socket
 in the @code{AF_FILE} namespace cannot be read.
 @end deffn
 
-@deffn primitive getpeername socket
+@c docstring begin (c-doc-string "socket.c" "getpeername")
+@c docstring md5 "2bc2e07bdc4aeb7234bcbb9b2c60492c"
+@deffn primitive getpeername sock
 Returns the address of the socket that the socket @var{socket} is connected to,
 in the same form as the object
 returned by @code{accept}.  On many systems the address of a socket
 in the @code{AF_FILE} namespace cannot be read.
 @end deffn
 
-@deffn primitive recv! socket buf [flags]
+@c docstring begin (c-doc-string "socket.c" "recv!")
+@c docstring md5 "6641b9492d91a8ed93b7a014573f7b7e"
+@deffn primitive recv! sock buf [flags]
 Receives data from the socket port @var{socket}.  @var{socket} must already
 be bound to the address from which data is to be received.
 @var{buf} is a string into which
@@ -2022,7 +2182,9 @@ Note that the data is read directly from the socket file descriptor:
 any unread buffered port data is ignored.
 @end deffn
 
-@deffn primitive send socket message [flags]
+@c docstring begin (c-doc-string "socket.c" "send")
+@c docstring md5 "a730daa282f9da71cf70b3e0ace5aad6"
+@deffn primitive send sock message [flags]
 Transmits the string @var{message} on the socket port @var{socket}. 
 @var{socket} must already be bound to a destination address.  The
 value returned is the number of bytes transmitted -- it's possible for
@@ -2034,7 +2196,9 @@ Note that the data is written directly to the socket file descriptor:
 any unflushed buffered port data is ignored.
 @end deffn
 
-@deffn primitive recvfrom! socket buf [flags] [start] [end]
+@c docstring begin (c-doc-string "socket.c" "recvfrom!")
+@c docstring md5 "35d7a3685b8e1381fb636ff7f932b435"
+@deffn primitive recvfrom! sock buf [flags [start [end]]]
 Returns data from the socket port @var{socket} and also information about
 where the data was received from.  @var{socket} must already
 be bound to the address from which data is to be received.
@@ -2058,7 +2222,9 @@ Note that the data is read directly from the socket file descriptor:
 any unread buffered port data is ignored.
 @end deffn
 
-@deffn primitive sendto socket message family address arg ... [flags]
+@c docstring begin (c-doc-string "socket.c" "sendto")
+@c docstring md5 "b3dd6558686046ac2ddaea96094f42c6"
+@deffn primitive sendto sock message fam address . args_and_flags
 Transmits the string @var{message} on the socket port @var{socket}.  The
 destination address is specified using the @var{family}, @var{address} and
 @var{arg} arguments, in a similar way to the @code{connect}
@@ -2077,25 +2243,33 @@ between "host" and "network" order.  Although the procedures above do
 this automatically for addresses, the conversion will still need to
 be done when sending or receiving encoded integer data from the network.
 
-@deffn primitive htons value
+@c docstring begin (c-doc-string "socket.c" "htons")
+@c docstring md5 "4596612c4f4d3efcbc749a99cda1b6c0"
+@deffn primitive htons in
 Returns a new integer from @var{value} by converting from host to
 network order. @var{value} must be within the range of a C unsigned
 short integer.
 @end deffn
 
-@deffn primitive ntohs value
+@c docstring begin (c-doc-string "socket.c" "ntohs")
+@c docstring md5 "6787f327922baea1a73a92cd8bfb4705"
+@deffn primitive ntohs in
 Returns a new integer from @var{value} by converting from network to
 host order.  @var{value} must be within the range of a C unsigned short
 integer.
 @end deffn
 
-@deffn primitive htonl value
+@c docstring begin (c-doc-string "socket.c" "htonl")
+@c docstring md5 "7eb14613b521f039a1e3e054b9a375c3"
+@deffn primitive htonl in
 Returns a new integer from @var{value} by converting from host to
 network order. @var{value} must be within the range of a C unsigned
 long integer.
 @end deffn
 
-@deffn primitive ntohl value
+@c docstring begin (c-doc-string "socket.c" "ntohl")
+@c docstring md5 "e0a3274acc7b73c3f9cc5bda9006b925"
+@deffn primitive ntohl in
 Returns a new integer from @var{value} by converting from network to
 host order. @var{value} must be within the range of a C unsigned
 long integer.
@@ -2120,6 +2294,8 @@ These procedures are inconvenient to use at present, but consider:
 @node System Identification
 @section System Identification
 
+@c docstring begin (c-doc-string "posix.c" "uname")
+@c docstring md5 "3c16496be65edfe89cabf2fc65c69c46"
 @deffn primitive uname
 Returns an object with some information about the computer system the
 program is running on.
@@ -2157,6 +2333,8 @@ no other easy or unambiguous way of detecting such features.
 @node Locales
 @section Locales
 
+@c docstring begin (c-doc-string "posix.c" "setlocale")
+@c docstring md5 "46992e5988838154fce306044f430a60"
 @deffn primitive setlocale category [locale]
 If @var{locale} is omitted, returns the current value of the specified
 locale category 
