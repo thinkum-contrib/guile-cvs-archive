@@ -1,0 +1,58 @@
+Thu Aug 15 01:31:49 1996  Jim Blandy  <jimb@totoro.cyclic.com>
+
+	* Added the gtcltk-lib tree to Guile. 
+
+Thu Mar 21 19:58:44 1996  Jim Blandy  <jimb@totoro.cyclic.com>
+
+	* Makefile.in (X_CFLAGS): New variable, whose value is provided by
+	the configure script.
+	(ALL_CFLAGS): Include the value of X_CFLAGS, so the pre-processor
+	can find the X Window System #include files.
+
+Fri Mar  1 12:47:41 1996  Tom Lord  <lord@beehive>
+
+	* guile-tcl.c (scm_tcl_apply_command): handle arguments
+	which are procedures correctly.
+
+Thu Feb 29 18:35:48 1996  Tom Lord  <lord@beehive>
+
+	* guile-tcl.c (scm_tcl_global_eval):  defer/allow ints
+	(invoke_tcl_command): mark ints during callout
+	(scm_tcl_delete_command): defer/allow ints
+	(scm_tcl_get_int): not leaking result any more
+	(scm_tcl_get_double): not leaking result any more
+	(scm_tcl_get_boolean): not leaking result any more
+	(scm_tcl_split_list): not leaking result any more, defer/allow ints better
+	(scm_tcl_merge): defer/allow ints better
+	(scm_tcl_trace_var2): not leaking result any more, defer/allow ints better
+	(scm_tcl_apply_command): handle ints/memory less spastically
+	(trace_variable): mask ints during trace
+
+
+***	(scm_tcl_untrace_var2): This looks bogus.
+
+
+
+Tue Jan 30 15:12:31 1996  Tom Lord  <lord@beehive>
+
+	* Makefile.in (ALL_CFLAGS): standards.info
+
+Fri Jan 26 13:53:10 1996  Tom Lord  <lord@beehive>
+
+	* (in gtk): fixed bug reported by Aleksandar Bakic <bakicale@cps.msu.edu>.
+	Anonymous procedures as menu-item commands didn't work, now they do.
+
+Wed Aug 16 13:19:31 1995  Tom Lord  <lord@beehive>
+
+	* Makefile.in (install): Install the header files.
+	(reported by webbb@lx3.tucson.saic.com (Brian Webb))
+
+	* Gtcl.scm ((reify-tcl-command interp name)): allowed
+	widget names to be unquoted when passed to a Tcl command.
+	(reported by hjstein@MATH.HUJI.AC.IL)
+
+Sat Jul  1 23:20:25 1995  Tom Lord  <lord@beehive>
+
+	* PTTTTHHROK
+
+
