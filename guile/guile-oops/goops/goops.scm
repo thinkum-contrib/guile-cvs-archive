@@ -28,7 +28,8 @@
 
 (define-module (goops goops)
   :use-module (goops goopscore)
-  :use-module (goops compat))
+  :use-module (goops compat)
+  :use-module (ice-9 setf))
 
 (export			  ; Define the exported symbols of this file
     find-class is-a?
@@ -52,8 +53,10 @@
     apply-generic apply-method apply-methods compute-applicable-methods 
     method-more-specific? sort-applicable-methods
     class-subclasses class-methods
-    slot-value ;(setter slot-value)
+    slot-value
     goops-error
+    setf!
+    setter
 )
 
 ;;; *fixme* Should go into goops.c
@@ -644,25 +647,30 @@
 (define (compute-slot-accessors class slots env)
   (for-each
       (lambda (s)
-	(let ((name     (slot-definition-name     s))
-	      (getter   (slot-definition-getter   s))
-	      (setter   (slot-definition-setter   s))
-	      (accessor (slot-definition-accessor s)))
-	  (when getter
-	    (ensure-method getter (list 'o) (list class)
+	(let ((name          (slot-definition-name     s))
+	      (getter-name   (slot-definition-getter   s))
+	      (setter-name   (slot-definition-setter   s))
+	      (accessor-name (slot-definition-accessor s)))
+	  (when getter-name
+	    (ensure-method getter-name (list 'o) (list class)
 			   `((slot-ref o ',name)) 
 			   env <accessor-method>))
-	  (when setter
-	    (ensure-method setter (list 'o 'v) (list class <top>)
+	  (when setter-name
+	    (ensure-method setter-name (list 'o 'v) (list class <top>)
 			   `((slot-set! o ',name v)) 
 			   env <accessor-method>))
-	  (when accessor
-	    (ensure-method accessor (list 'o) (list class)
+	  (when accessor-name
+	    (ensure-method accessor-name (list 'o) (list class)
 			   `((slot-ref o ',name)) 
 			   env <accessor-method>)
-	    (ensure-method `(setter ,accessor) (list 'o 'v) (list class <top>)
-			   `((slot-set! o ',name v))
-			   env <accessor-method>))))
+	    (let* ((af (lookup-symbol accessor-name env))
+		   (sf (setter af))
+		   (gf (or sf (make <generic> #:name `(setter ,name))))
+		   (mt (ensure-method #f '(o v) (list class <top>)
+				     `((slot-set! o ',name v))
+				     env <accessor-method>)))
+	      (add-method gf mt)
+	      (setf! (setter af) gf)))))
       slots))
 
 ;;;
