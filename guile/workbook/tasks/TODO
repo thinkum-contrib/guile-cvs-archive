@@ -3,7 +3,7 @@
     - write $w/modules/arch-survey.text [ttn]
     - write $w/modules/compiled-modules.text
   - integrate docs into distribution
-  - write 1.4-1.6 compatibility header
+  - write 1.4-HEAD compatibility header
   - determine/document policy on how/why/when of removing things
   - back port :select and :renamer interface
   - back port scripts/ and guile-tools
