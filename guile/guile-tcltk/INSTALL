@@ -52,10 +52,10 @@ DIR/include and DIR/lib.  --with-tcltk still specifies the Tcl ditto.
 Use this option if your system keeps Tcl and Tk in different places.
 
 --with-tcl=LIBNAME --- look for the Tcl library under the name
-LIBNAME.  By default, Guile looks for "-ltcl7.5".
+LIBNAME.  By default, Guile looks for "-ltcl7.6" or "-ltcl7.5".
 
 --with-tk=LIBNAME --- look for the Tk library under the name
-LIBNAME.  By default, Guile looks for "-ltk4.1".
+LIBNAME.  By default, Guile looks for "-ltk4.2" or "-ltk4.1".
 
 --enable-maintainer-mode --- If you have automake, autoconf, and
 libtool installed on your system, this switch causes configure to

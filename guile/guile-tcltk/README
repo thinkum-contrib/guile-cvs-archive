@@ -12,6 +12,11 @@ symbol `threads' is present in the scheme variable `*features*'.)
 See below for instructions on how to use `guile-tcltk' without
 threads.
 
+Requirements =========================================================
+
+This package should be used together with tcl7.[56] and tk4.[12].
+It does not work together with tk8.0.
+
 
 How to get started ===================================================
 
