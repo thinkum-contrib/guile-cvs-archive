@@ -8,6 +8,13 @@ AC_PROG_CC
 AC_PROG_CPP
 AC_PROG_RANLIB
 
+### Some compilers don't check /usr/local/include and /usr/local/lib
+### by default.  However, that's where Tcl and Tk are usually installed. 
+test $gcc = yes || {
+  test -d /usr/local/include && CFLAGS="${CFLAGS} -I/usr/local/include"
+  test -d /usr/local/lib     && CFLAGS="${CFLAGS} -L/usr/local/lib"
+}
+
 dnl Checks for libraries.
 AC_PATH_XTRA
 
