@@ -1,3 +1,11 @@
+2000-06-06  Dirk Herrmann  <D.Herrmann@tu-bs.de>
+
+	* lib.scm (pass-if, expect-fail):  Generalized to allow a sequence
+	of expressions.
+
+	* tests/threads.test:  Added.  Does not check whether threads are
+	available and needs more test cases.
+
 2000-05-26  Dirk Herrmann  <D.Herrmann@tu-bs.de>
 
 	* tests/hooks.test:  make-hook-with-name is deprecated.
