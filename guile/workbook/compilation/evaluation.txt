@@ -339,7 +339,8 @@ do formulate the decisions as I assume that we will agree about.
   actually obtain the result for scm_lookupcar:  First, in function
   symbol2memoized_symbol the environment is scanned to obtain the iloc,
   second, in function memoized_symbol2location the environment is scanned
-  according to the iloc data.
+  according to the iloc data.  This, however, only applies to the first lookup
+  of a local variable.
 
 * revoke macro transformers from being stored in variables.  I.e.
     (define-macro (foo ...) ...)
@@ -369,11 +370,13 @@ do formulate the decisions as I assume that we will agree about.
   environment where the macro was defined.  That is, somehow the relationship
   between the macro and its environment has to be retained.]
 
-* Separating memoization/compilation and execution.  Instead of doing
-  memoization combined with execution, these two issues should be separated.
+* Separate execution of memoized code from all other steps.  Instead of doing
+  syntax transformation and memoization combined with execution, these issues
+  should be separated.  A first step would be to extract the execution phase.
   That is, after reading an expression, the code is first transformed by the
   syntax transformer (if one is given).  Then, the resulting code is processed
-  by a memoization phase.  In this phase, all remaining syntax checks and
+  by a phase that handles the built-in syntax transformer and this way also
+  performs the memoization.  In this phase, all remaining syntax checks and
   transformations are performed.  The result of this phase is the memoized
   code that is run by the executor.
 
@@ -383,6 +386,14 @@ do formulate the decisions as I assume that we will agree about.
   creates acros, macros and mmacros may break.  Third, "macros" won't work at
   all any more.  In general, code that makes use of guile's built-in system to
   create acros, macros and mmacros may have problems.
+
+* Split the handling of the built-in syntax transformer into two separate
+  tasks:  First, the handling of user-provided acros, macros and mmacros.
+  Second, the handling of the built-in syntactic forms.  The interface between
+  the two steps would then be fully macro expanded scheme code, which makes
+  use of a limited set of syntactic forms.  In principle, even the handling of
+  standard scheme forms like 'cond could be done in the first phase.  This
+  would limit the set of syntactic forms that can appear in the second phase.
 
 * Allow to write memoized code to disk and load it back in.
 
@@ -425,7 +436,16 @@ Data structures relevant for evaluation:
   and the executor.  There should also be some way to store memoized/compiled
   code and read it in later.  The format of the memoized code may also
   influence the layout of the stack/continuation data structure as well as the
-  layout of the local environment data structure.
+  layout of the local environment data structure.  It may make sense to split
+  up the compilation/memoization phase into two phases:  The first phase would
+  perform a scheme->scheme optimization, where those optimizations would be
+  performed, that can be performed on scheme code itself.  The second phase
+  would then perform the memoization and possibly some optimizations that are
+  based on the format of the memoized code.  The advantage of the
+  scheme->scheme compilation phase is, that all memoizer backends would
+  benefit from the optimizations performed in that phase.  Further, for such a
+  phase a lot of optimizer code from the scheme community could be used
+  without need to do a lot of guile-specific tuning.
 
 * stack/continuation - This is an interface between the executor and the
   debugger.  In a 'stackless' execution model, scheme stacks and continuations
