@@ -28,7 +28,7 @@
 
 (define-module (oop goops)
   :use-module (oop goopscore)
-  :no-backtrace
+  ;:no-backtrace
   )
 
 (export			  ; Define the exported symbols of this file
@@ -47,7 +47,7 @@
     slot-definition-init-thunk slot-definition-init-keyword 
     slot-init-function class-slot-definition
     method-source
-    compute-cpl compute-get-n-set
+    compute-cpl compute-std-cpl compute-get-n-set
     allocate-instance initialize make-instance make
     no-next-method  no-applicable-method no-method
     change-class 
@@ -878,7 +878,10 @@
 
 ;;; compute-cpl
 ;;;
-(define-method (compute-cpl class)
+(define-method compute-cpl ((class <class>))
+  (compute-std-cpl class))
+
+(define (compute-std-cpl class)
   
   (define (filter-cpl class)
     (let ((res  '()))
