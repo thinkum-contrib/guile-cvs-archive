@@ -2,14 +2,15 @@ Tue Jun 17 01:45:59 1997  Tim Pierce  <twp@twp.tezcat.com>
 
 	* http.scm (http:request): Change calling conventions to
 	accept a method and a URL rather than a port and request string.
+	* Makefile: New file. (Oops.)
 
 Mon Jun 16 17:49:20 1997  Tim Pierce  <twpierce@bio-5.bsd.uchicago.edu>
 
 	Release preparations.
-	* (Makefile.am, configure.in, install-sh, mkinstalldirs, missing):
+	* Makefile.am, configure.in, install-sh, mkinstalldirs, missing:
 	New files.
-	* (Makefile.in, configure, aclocal.m4): Generated, not re.
-	* (README): New file.
+	* Makefile.in, configure, aclocal.m4: Generated, not re.
+	* README: New file.
 
 Sun Jun 15 00:50:22 1997  Tim Pierce  <twp@twp.tezcat.com>
 
@@ -22,10 +23,9 @@ Sun Jun 15 00:50:22 1997  Tim Pierce  <twp@twp.tezcat.com>
 Mon Jun  9 23:42:32 1997  Tim Pierce  <twp@twp.tezcat.com>
 
 	New WWW module.
-	(cgi.scm): New file.
-	(http.scm): New file.
-	(main.scm): New file.
-	(url.scm): New file.
-	(wwwcat): New file.
+	* cgi.scm: New file.
+	* http.scm: New file.
+	* main.scm: New file.
+	* url.scm: New file.
+	* wwwcat: New file.
 	
-
