@@ -81,16 +81,6 @@
 #define SCM_NUM2USHORT_DEF(pos, arg, def) \
   (SCM_UNBNDP (arg) ? def : scm_num2ushort (arg, pos, FUNC_NAME))
 
-#define SCM_NUM2BITS(pos, arg) (scm_num2bits (arg, pos, FUNC_NAME))
-
-#define SCM_NUM2BITS_DEF(pos, arg, def) \
-  (SCM_UNBNDP (arg) ? def : scm_num2bits (arg, pos, FUNC_NAME))
-
-#define SCM_NUM2UBITS(pos, arg) (scm_num2ubits (arg, pos, FUNC_NAME))
-
-#define SCM_NUM2UBITS_DEF(pos, arg, def) \
-  (SCM_UNBNDP (arg) ? def : scm_num2ubits (arg, pos, FUNC_NAME))
-
 #define SCM_NUM2INT(pos, arg) (scm_num2int (arg, pos, FUNC_NAME))
 
 #define SCM_NUM2INT_DEF(pos, arg, def) \
