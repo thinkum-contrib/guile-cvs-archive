@@ -8,6 +8,7 @@ Package: libgoops5
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}
+Replaces: libgoops2
 Suggests: libgoops5-dev, goops, goops-doc
 Description: Shared libraries for goops.
  GOOPS is the object oriented extension to Guile.
@@ -52,6 +53,7 @@ Package: libgoops5-dev
 Section: devel
 Architecture: any
 Depends: libgoops5 (= ${Source-Version})
+Replaces: libgoops2-dev
 Description: Development headers and static libraries for goops.
  GOOPS is the object oriented extension to Guile.
  .
