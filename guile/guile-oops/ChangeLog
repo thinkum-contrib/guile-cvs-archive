@@ -1,3 +1,21 @@
+1998-11-25  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* goops/goops.scm (*unbound*, make-unbound, unbound?): Replaced by
+	primitives.
+	(compute-get-n-set): Use an ordinary scheme variable for slots
+	with class and each-subclass allocation.
+
+	* goops.c (SCM_GOOPS_UNBOUND, SCM_GOOPS_UNBOUNDP): New macros:
+	Implements an unbound value internal to goops.  We can't use
+	SCM_UNDEFINED since that value can't be handled by scheme code;
+	Replaced SCM_UNDEFINED --> SCM_UNBOUNDP and SCM_UNBNDP -->
+	SCM_GOOPS_UNBOUNDP on suitable places.
+	(scm_goops_the_unbound_value): Holds the unbound value.
+	(Later we may choose to implement this as an ISYM or for
+	efficiency.)
+	(scm_init_goops): Initialize the unbound value.
+	(scm_make_unbound, scm_unbound_p): New primitives.
+
 1998-11-24  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* goops/goops.scm: Added <complex> to list of print slot
