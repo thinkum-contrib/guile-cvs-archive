@@ -1,6 +1,6 @@
 Brief Installation Instructions ===========================================
 
-To build PACKAGE on unix, there are two basic steps:
+To build guile-oops on unix, there are two basic steps:
 
 	1. Type "./configure", to configure the package for your system.
 	2. Type "make", to build the package.
@@ -11,11 +11,11 @@ are included below.
 
 What You Get ==============================================================
 
-The `configure' script examines your system, and adapts PACKAGE to
+The `configure' script examines your system, and adapts guile-oops to
 compile and run on it.
 
-To install PACKAGE, type `make install'.  This installs the executable
-and libraries mentioned above, as well as PACKAGE's header files and
+To install guile-oops, type `make install'.  This installs the executable
+and libraries mentioned above, as well as guile-oops's header files and
 Scheme libraries.
 
 Make also builds shared libraries, on systems that support them.
@@ -28,7 +28,7 @@ Flags Accepted by Configure ===============================================
 
 If you run the configure script with no arguments, it should examine
 your system and set things up appropriately.  However, there are a few
-switches specific to PACKAGE you may find useful in some circumstances.
+switches specific to guile-oops you may find useful in some circumstances.
 
 --enable-maintainer-mode --- If you have automake, autoconf, and
 libtool installed on your system, this switch causes configure to
@@ -41,10 +41,10 @@ will build shared libraries if your system supports them.  Guile
 always builds static libraries.
 
 
-Building a Statically Linked PACKAGE ========================================
+Building a Statically Linked guile-oops ===================================
 
 Sometimes it's useful to build a statically-linked version of the
-PACKAGE executable.  It's helpful in debugging, and for producing
+guile-oops executable.  It's helpful in debugging, and for producing
 stand-alone executables for distribution to machines you don't
 control.
 
