@@ -1,3 +1,8 @@
+2000-07-28  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* sources/data-rep.texi (Garbage Collection): Fix "accomodate"
+	spelling mistake.
+
 1998-07-27  Mark Galassi  <rosalia@cygnus.com>
 
 	* simple test
