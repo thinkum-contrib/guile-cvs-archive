@@ -174,9 +174,7 @@ remove_duplicate_slots (SCM l, SCM res, SCM slots_already_seen)
   if (SCM_NULLP (l))
     return res;
 
-  tmp = (SCM_NIMP (SCM_CAR (l)) && SCM_CONSP (SCM_CAR (l))
-	 ? SCM_CAR (SCM_CAR (l))
-	 : SCM_CAR (l));
+  tmp = SCM_CAAR (l);
   if (!(SCM_NIMP (tmp) && SCM_SYMBOLP (tmp)))
     scm_misc_error ("%compute-slots", "bad slot name %S", SCM_LIST1 (tmp));
   
@@ -201,6 +199,18 @@ build_slots_list (SCM dslots, SCM cpl)
   return remove_duplicate_slots (scm_reverse (res), SCM_EOL, SCM_EOL);
 }
 
+static SCM
+maplist (SCM ls)
+{
+  SCM orig = ls;
+  while (SCM_NIMP (ls))
+    {
+      if (!(SCM_NIMP (SCM_CAR (ls)) && SCM_CONSP (SCM_CAR (ls))))
+	SCM_SETCAR (ls, scm_cons (SCM_CAR (ls), SCM_EOL));
+      ls = SCM_CDR (ls);
+    }
+  return orig;
+}
 
 SCM_PROC (s_sys_compute_slots, "%compute-slots", 1, 0, 0, scm_sys_compute_slots);
 
@@ -229,7 +239,7 @@ compute_getters_n_setters (SCM slots)
   long i   = 0;
 
   for (  ; SCM_NNULLP(slots); slots = SCM_CDR(slots)) 
-    res = scm_cons (scm_cons (SCM_CAR (slots),
+    res = scm_cons (scm_cons (SCM_CAAR (slots),
 			      scm_cons (SCM_BOOL_F, 
 					SCM_MAKINUM (i++))),
 		    res);
@@ -272,9 +282,10 @@ scm_get_keyword (SCM key, SCM l, SCM default_value)
 {
   int len;
   SCM_ASSERT (SCM_NIMP (key) && SCM_KEYWORDP (key),
-	      key, SCM_ARG1, s_get_keyword);
+	      key, "Bad keyword: %S", s_get_keyword);
   len = scm_ilength (l);
-  SCM_ASSERT (len >= 0 && (len & 1) == 0, l, SCM_ARG2, s_get_keyword);
+  SCM_ASSERT (len >= 0 && (len & 1) == 0, l,
+	      "Bad keyword-value list: %S", s_get_keyword);
   return scm_i_get_keyword (key, l, len, default_value, s_get_keyword);
 }
 
@@ -303,32 +314,33 @@ scm_sys_initialize_object (SCM obj, SCM initargs)
     SCM slot_name  = SCM_CAR(slots);
     SCM slot_value = 0;
     
-    if (SCM_NIMP (slot_name) && SCM_CONSP (slot_name)) {
-      /* This slot admits (perhaps) to be initialized at creation time */
-      int n = scm_ilength (SCM_CDR (slot_name));
-      if (n & 1) /* odd or -1 */
-	scm_misc_error (s_sys_initialize_object,
-			"class contains bogus slot definition: %S",
-			SCM_LIST1 (slot_name));
-      tmp 	= scm_i_get_keyword (init_keyword,
-				   SCM_CDR (slot_name),
-				   n,
-				   0,
-				   s_sys_initialize_object);
-      slot_name = SCM_CAR(slot_name);
-      if (tmp) {
-	/* an initarg was provided for this slot */
-	if (!(SCM_NIMP (tmp) && SCM_KEYWORDP (tmp)))
+    if (SCM_NIMP (SCM_CDR (slot_name)))
+      {
+	/* This slot admits (perhaps) to be initialized at creation time */
+	int n = scm_ilength (SCM_CDR (slot_name));
+	if (n & 1) /* odd or -1 */
 	  scm_misc_error (s_sys_initialize_object,
-			  "initarg must be a keyword. It was %S",
-			  SCM_LIST1 (tmp));
-	slot_value = scm_i_get_keyword (tmp,
-				      initargs,
-				      n_initargs,
-				      0,
-				      s_sys_initialize_object);
+			  "class contains bogus slot definition: %S",
+			  SCM_LIST1 (slot_name));
+	tmp 	= scm_i_get_keyword (init_keyword,
+				     SCM_CDR (slot_name),
+				     n,
+				     0,
+				     s_sys_initialize_object);
+	slot_name = SCM_CAR(slot_name);
+	if (tmp) {
+	  /* an initarg was provided for this slot */
+	  if (!(SCM_NIMP (tmp) && SCM_KEYWORDP (tmp)))
+	    scm_misc_error (s_sys_initialize_object,
+			    "initarg must be a keyword. It was %S",
+			    SCM_LIST1 (tmp));
+	  slot_value = scm_i_get_keyword (tmp,
+					  initargs,
+					  n_initargs,
+					  0,
+					  s_sys_initialize_object);
+	}
       }
-    }
 
     if (slot_value)
       /* set slot to provided value */
@@ -427,7 +439,7 @@ scm_basic_make_class (SCM class, SCM name, SCM dsupers, SCM dslots)
 
   /* Initialize its slots */
   cpl   = compute_cpl (dsupers, SCM_LIST1(z));
-  slots = build_slots_list (dslots, cpl);
+  slots = build_slots_list (maplist (dslots), cpl);
   nfields = SCM_MAKINUM (scm_ilength (slots));
   g_n_s = compute_getters_n_setters (slots);
 
@@ -468,7 +480,7 @@ scm_basic_make_class (SCM class, SCM name, SCM dsupers, SCM dslots)
 /******************************************************************************/
 
 static void
-create_Top_Object_Class(void)
+create_basic_classes (void)
 {
   SCM slots_of_class = scm_cons (Intern ("layout"),
 		       scm_cons (Intern ("vcell"),
@@ -496,6 +508,7 @@ create_Top_Object_Class(void)
   SCM cs = scm_makfrom0str (SCM_METACLASS_GOOPS_LAYOUT);
   SCM cl = scm_make_struct_layout (cs);
   SCM name = Intern ("<class>");
+  slots_of_class = maplist (slots_of_class);
   scm_class_class = scm_permanent_object (scm_make_vtable_vtable (cl,
 							SCM_INUM0,
 							SCM_EOL));
@@ -504,11 +517,11 @@ create_Top_Object_Class(void)
 
   SCM_SLOT(scm_class_class, scm_si_name) 		 = name;
   SCM_SLOT(scm_class_class, scm_si_direct_supers)	 = SCM_EOL;  /* will be changed */
-  SCM_SLOT(scm_class_class, scm_si_direct_slots)	 = slots_of_class;
+  SCM_SLOT(scm_class_class, scm_si_direct_slots) = slots_of_class;
   SCM_SLOT(scm_class_class, scm_si_direct_subclasses)= SCM_EOL;
   SCM_SLOT(scm_class_class, scm_si_direct_methods) = SCM_EOL;  
   SCM_SLOT(scm_class_class, scm_si_cpl)		 = SCM_EOL;  /* will be changed */
-  SCM_SLOT(scm_class_class, scm_si_slots)		 = slots_of_class;
+  SCM_SLOT(scm_class_class, scm_si_slots) = slots_of_class;
   SCM_SLOT(scm_class_class, scm_si_nfields)	 = SCM_MAKINUM (SCM_N_CLASS_SLOTS);
   SCM_SLOT(scm_class_class, scm_si_getters_n_setters)
     = compute_getters_n_setters (slots_of_class);
@@ -1955,7 +1968,7 @@ scm_init_goops (void)
   scm_make_extended_class = make_extended_class;
   scm_change_object_class = change_object_class;
 
-  create_Top_Object_Class ();
+  create_basic_classes ();
   make_standard_classes ();
   make_smob_classes ();
   make_struct_classes ();
