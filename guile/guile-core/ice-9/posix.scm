@@ -1,70 +1,190 @@
-;;; installed-scm-file
+(module (ice-9 posix)
+	(open (ice-9 guile) 
+	      ((ice-9 config) define-public)))
 
-;;;; Copyright (C) 1999 Free Software Foundation, Inc.
-;;;; 
-;;;; This program is free software; you can redistribute it and/or modify
-;;;; it under the terms of the GNU General Public License as published by
-;;;; the Free Software Foundation; either version 2, or (at your option)
-;;;; any later version.
-;;;; 
-;;;; This program is distributed in the hope that it will be useful,
-;;;; but WITHOUT ANY WARRANTY; without even the implied warranty of
-;;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-;;;; GNU General Public License for more details.
-;;;; 
-;;;; You should have received a copy of the GNU General Public License
-;;;; along with this software; see the file COPYING.  If not, write to
-;;;; the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
-;;;; Boston, MA 02111-1307 USA
-;;;; 
 
-(define (stat:dev f) (vector-ref f 0))
-(define (stat:ino f) (vector-ref f 1))
-(define (stat:mode f) (vector-ref f 2))
-(define (stat:nlink f) (vector-ref f 3))
-(define (stat:uid f) (vector-ref f 4))
-(define (stat:gid f) (vector-ref f 5))
-(define (stat:rdev f) (vector-ref f 6))
-(define (stat:size f) (vector-ref f 7))
-(define (stat:atime f) (vector-ref f 8))
-(define (stat:mtime f) (vector-ref f 9))
-(define (stat:ctime f) (vector-ref f 10))
-(define (stat:blksize f) (vector-ref f 11))
-(define (stat:blocks f) (vector-ref f 12))
+;;; {Non-polymorphic versions of POSIX functions}
 
-;; derived from stat mode.
-(define (stat:type f) (vector-ref f 13))
-(define (stat:perms f) (vector-ref f 14))
+(define-public (getgrnam name) (getgr name))
+(define-public (getgrgid id) (getgr id))
+(define-public (gethostbyaddr addr) (gethost addr))
+(define-public (gethostbyname name) (gethost name))
+(define-public (getnetbyaddr addr) (getnet addr))
+(define-public (getnetbyname name) (getnet name))
+(define-public (getprotobyname name) (getproto name))
+(define-public (getprotobynumber addr) (getproto addr))
+(define-public (getpwnam name) (getpw name))
+(define-public (getpwuid uid) (getpw uid))
+(define-public (getservbyname name proto) (getserv name proto))
+(define-public (getservbyport port proto) (getserv port proto))
+(define-public (endgrent) (setgr))
+(define-public (endhostent) (sethost))
+(define-public (endnetent) (setnet))
+(define-public (endprotoent) (setproto))
+(define-public (endpwent) (setpw))
+(define-public (endservent) (setserv))
+(define-public (getgrent) (getgr))
+(define-public (gethostent) (gethost))
+(define-public (getnetent) (getnet))
+(define-public (getprotoent) (getproto))
+(define-public (getpwent) (getpw))
+(define-public (getservent) (getserv))
+(define-public (reopen-file . args) (apply freopen args))
+(define-public (setgrent) (setgr #f))
+(define-public (sethostent) (sethost #t))
+(define-public (setnetent) (setnet #t))
+(define-public (setprotoent) (setproto #t))
+(define-public (setpwent) (setpw #t))
+(define-public (setservent) (setserv #t))
 
-(define (passwd:name obj) (vector-ref obj 0))
-(define (passwd:passwd obj) (vector-ref obj 1))
-(define (passwd:uid obj) (vector-ref obj 2))
-(define (passwd:gid obj) (vector-ref obj 3))
-(define (passwd:gecos obj) (vector-ref obj 4))
-(define (passwd:dir obj) (vector-ref obj 5))
-(define (passwd:shell obj) (vector-ref obj 6))
+(define-public (passwd:name obj) (vector-ref obj 0))
+(define-public (passwd:passwd obj) (vector-ref obj 1))
+(define-public (passwd:uid obj) (vector-ref obj 2))
+(define-public (passwd:gid obj) (vector-ref obj 3))
+(define-public (passwd:gecos obj) (vector-ref obj 4))
+(define-public (passwd:dir obj) (vector-ref obj 5))
+(define-public (passwd:shell obj) (vector-ref obj 6))
 
-(define (group:name obj) (vector-ref obj 0))
-(define (group:passwd obj) (vector-ref obj 1))
-(define (group:gid obj) (vector-ref obj 2))
-(define (group:mem obj) (vector-ref obj 3))
+(define-public (group:name obj) (vector-ref obj 0))
+(define-public (group:passwd obj) (vector-ref obj 1))
+(define-public (group:gid obj) (vector-ref obj 2))
+(define-public (group:mem obj) (vector-ref obj 3))
 
-(define (utsname:sysname obj) (vector-ref obj 0))
-(define (utsname:nodename obj) (vector-ref obj 1))
-(define (utsname:release obj) (vector-ref obj 2))
-(define (utsname:version obj) (vector-ref obj 3))
-(define (utsname:machine obj) (vector-ref obj 4))
+(define-public (hostent:name obj) (vector-ref obj 0))
+(define-public (hostent:aliases obj) (vector-ref obj 1))
+(define-public (hostent:addrtype obj) (vector-ref obj 2))
+(define-public (hostent:length obj) (vector-ref obj 3))
+(define-public (hostent:addr-list obj) (vector-ref obj 4))
 
-(define (getpwent) (getpw))
-(define (setpwent) (setpw #t))
-(define (endpwent) (setpw))
+(define-public (netent:name obj) (vector-ref obj 0))
+(define-public (netent:aliases obj) (vector-ref obj 1))
+(define-public (netent:addrtype obj) (vector-ref obj 2))
+(define-public (netent:net obj) (vector-ref obj 3))
 
-(define (getpwnam name) (getpw name))
-(define (getpwuid uid) (getpw uid))
+(define-public (protoent:name obj) (vector-ref obj 0))
+(define-public (protoent:aliases obj) (vector-ref obj 1))
+(define-public (protoent:proto obj) (vector-ref obj 2))
 
-(define (getgrent) (getgr))
-(define (setgrent) (setgr #f))
-(define (endgrent) (setgr))
+(define-public (servent:name obj) (vector-ref obj 0))
+(define-public (servent:aliases obj) (vector-ref obj 1))
+(define-public (servent:port obj) (vector-ref obj 2))
+(define-public (servent:proto obj) (vector-ref obj 3))
 
-(define (getgrnam name) (getgr name))
-(define (getgrgid id) (getgr id))
+(define-public (sockaddr:fam obj) (vector-ref obj 0))
+(define-public (sockaddr:path obj) (vector-ref obj 1))
+(define-public (sockaddr:addr obj) (vector-ref obj 1))
+(define-public (sockaddr:port obj) (vector-ref obj 2))
+
+(define-public (utsname:sysname obj) (vector-ref obj 0))
+(define-public (utsname:nodename obj) (vector-ref obj 1))
+(define-public (utsname:release obj) (vector-ref obj 2))
+(define-public (utsname:version obj) (vector-ref obj 3))
+(define-public (utsname:machine obj) (vector-ref obj 4))
+
+(define-public (tm:sec obj) (vector-ref obj 0))
+(define-public (tm:min obj) (vector-ref obj 1))
+(define-public (tm:hour obj) (vector-ref obj 2))
+(define-public (tm:mday obj) (vector-ref obj 3))
+(define-public (tm:mon obj) (vector-ref obj 4))
+(define-public (tm:year obj) (vector-ref obj 5))
+(define-public (tm:wday obj) (vector-ref obj 6))
+(define-public (tm:yday obj) (vector-ref obj 7))
+(define-public (tm:isdst obj) (vector-ref obj 8))
+(define-public (tm:gmtoff obj) (vector-ref obj 9))
+(define-public (tm:zone obj) (vector-ref obj 10))
+
+(define-public (set-tm:sec obj val) (vector-set! obj 0 val))
+(define-public (set-tm:min obj val) (vector-set! obj 1 val))
+(define-public (set-tm:hour obj val) (vector-set! obj 2 val))
+(define-public (set-tm:mday obj val) (vector-set! obj 3 val))
+(define-public (set-tm:mon obj val) (vector-set! obj 4 val))
+(define-public (set-tm:year obj val) (vector-set! obj 5 val))
+(define-public (set-tm:wday obj val) (vector-set! obj 6 val))
+(define-public (set-tm:yday obj val) (vector-set! obj 7 val))
+(define-public (set-tm:isdst obj val) (vector-set! obj 8 val))
+(define-public (set-tm:gmtoff obj val) (vector-set! obj 9 val))
+(define-public (set-tm:zone obj val) (vector-set! obj 10 val))
+
+(define-public (tms:clock obj) (vector-ref obj 0))
+(define-public (tms:utime obj) (vector-ref obj 1))
+(define-public (tms:stime obj) (vector-ref obj 2))
+(define-public (tms:cutime obj) (vector-ref obj 3))
+(define-public (tms:cstime obj) (vector-ref obj 4))
+
+(define-public (file-position . args) (apply ftell args))
+(define-public (file-set-position . args) (apply fseek args))
+
+(define-public (open-input-pipe command) (open-pipe command OPEN_READ))
+(define-public (open-output-pipe command) (open-pipe command OPEN_WRITE))
+
+(define-public (move->fdes fd/port fd)
+  (cond ((integer? fd/port)
+	 (dup->fdes fd/port fd)
+	 (close fd/port)
+	 fd)
+	(else
+	 (primitive-move->fdes fd/port fd)
+	 (set-port-revealed! fd/port 1)
+	 fd/port)))
+
+(define-public (release-port-handle port)
+  (let ((revealed (port-revealed port)))
+    (if (> revealed 0)
+	(set-port-revealed! port (- revealed 1)))))
+
+(define-public (dup->port port/fd mode . maybe-fd)
+  (let ((port (fdopen (apply dup->fdes port/fd maybe-fd)
+		      mode)))
+    (if (pair? maybe-fd)
+	(set-port-revealed! port 1))
+    port))
+  
+(define-public (dup->inport port/fd . maybe-fd)
+  (apply dup->port port/fd "r" maybe-fd))
+
+(define-public (dup->outport port/fd . maybe-fd)
+  (apply dup->port port/fd "w" maybe-fd))
+
+(define-public (dup port/fd . maybe-fd)
+  (if (integer? port/fd)
+      (apply dup->fdes port/fd maybe-fd)
+      (apply dup->port port/fd (port-mode port/fd) maybe-fd)))
+
+(define-public (duplicate-port port modes)
+  (dup->port port modes))
+
+(define-public (fdes->inport fdes)
+  (let loop ((rest-ports (fdes->ports fdes)))
+    (cond ((null? rest-ports)
+	   (let ((result (fdopen fdes "r")))
+	     (set-port-revealed! result 1)
+	     result))
+	  ((input-port? (car rest-ports))
+	   (set-port-revealed! (car rest-ports)
+			       (+ (port-revealed (car rest-ports)) 1))
+	   (car rest-ports))
+	  (else
+	   (loop (cdr rest-ports))))))
+
+(define-public (fdes->outport fdes)
+  (let loop ((rest-ports (fdes->ports fdes)))
+    (cond ((null? rest-ports)
+	   (let ((result (fdopen fdes "w")))
+	     (set-port-revealed! result 1)
+	     result))
+	  ((output-port? (car rest-ports))
+	   (set-port-revealed! (car rest-ports)
+			       (+ (port-revealed (car rest-ports)) 1))
+	   (car rest-ports))
+	  (else
+	   (loop (cdr rest-ports))))))
+
+(define-public (port->fdes port)
+  (set-port-revealed! port (+ (port-revealed port) 1))
+  (fileno port))
+
+(define-public (setenv name value)
+  (if value
+      (putenv (string-append name "=" value))
+      (putenv name)))
+

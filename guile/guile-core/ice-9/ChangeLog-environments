@@ -1,0 +1,37 @@
+1999-08-24  Jost Boekemeier  <jostobfe@calvados.zrz.tu-berlin.de>
+
+	* guile.scm (error-catching-loop): Correct non-RnRS usage of internal
+	defines.
+
+1999-08-12  Jost Boekemeier  <jostobfe@calvados.zrz.tu-berlin.de>
+
+        * arrays.scm, check-version.scm defmacro.scm, error.scm,
+	files.scm, guile.scm, hooks.scm, keywords.scm lists.scm,
+	macros.scm, math.scm, misc.scm, modules.scm, options.scm
+	posix.scm, provide.scm, run-test.scm, structs.scm, symbols.scm:
+	new file
+	* Makefile.am: added files
+
+	* debug.scm (define-module): the module imports the modules:
+	hooks, options, defmacro
+	(variable-set!): disabled
+
+	* r4rs.scm (defined?): `defined?' is a special form now.
+	(%load-announce): added environment parameter
+	(load): `load' loads and evaluates expressions in
+	`interaction-environment'
+
+	* boot-9.scm: added warning that this module is obsolete
+	(c-module-registry): load all c modules into the root environment
+	(primitive-load-path): load expressions in file "ice-9/r4rs" into
+	interaction-environment
+	(symbol-property): disabled
+	(record-constructor): evaluates expressions in interaction
+	environment
+	(record-accessor): dto.
+	(record-modifier): dto.
+	(modules): disabled
+	(scm-style-repl): evaluates expressions in interaction-environment
+	(environments): disabled
+	(macros): disabled
+	(variables): disabled

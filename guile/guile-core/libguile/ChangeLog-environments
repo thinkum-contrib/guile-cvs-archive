@@ -1,0 +1,288 @@
+1999-08-21  Jost Boekemeier  <jostobfe@calvados.zrz.tu-berlin.de>
+
+	* print.c (scm_init_print): renamed scm_intern0() to 
+	scm_intern().
+
+	* eval.c (scm_m_atfop): Funktion uses symbol properties which
+	aren't supported anymore. Disabled.
+	(scm_m_atbind): Disabled.
+
+1999-08-19  Jost Boekemeier  <jostobfe@calvados.zrz.tu-berlin.de>
+
+	* eval.c (scm_lookupcar, scm_lookupcar1): Renamed `check' to 
+	`modify' which corresponds to the environment_cells `modify'
+        parameter.  Special value modify == -1 means that the function 
+        should return undef_cell instead of throwing an error.
+
+	* readline.c (scm_init_readline): Funktion accepts 
+	environment and returns scheme value. Intern 
+	"*readline-completion-function*" in readline's environment.
+	* eval.c (scm_init_eval): Create symbols nil and t in eval's 
+	environment.
+	* lang.c (scm_init_lang): function accepts environment and 
+	returns scheme value.  "nil-while" is interned in lang's 
+	environment.
+
+	* gsubr.c (scm_init_gsubr): make "name" a permanent symbol.
+
+	* Makefile.am : removed kw.h
+	* Makefile.in : regenerated
+		
+1999-08-12  Jost Boekemeier  <jostobfe@calvados.zrz.tu-berlin.de>
+
+	Removed symbol slots and ssymbols.
+	* tags.h (scm_tc7_ssymbol, scm_tc_7_msymbol): removed tags 
+	5 and 7,
+	(scm_tc7_msymbol): added tag 29
+	* gc.c (scm_gc_mark): Do not mark symbol_func and
+	symbol_slots.
+	* symbols.h (SCM_SYMBOL_PROPS): removed
+	(SCM_SYMBOL_FUNC): Removed
+	(SCM_SYMBOL_SLOTS): Removed
+	(SCM_HASHCODE): Symbol carries its own hash code
+	(SCM_SYMBOL_SLOTS): Changed to 2.
+
+	Symbols don't carry values anymore. Instead an environment 
+	binds symbols to locations which carry values.
+	* symbols.c: rewritten
+	* symbols.h: removed ssymbols, removed slots from msymbols,
+	added `SCM_HASHCODE',
+	* debug.c eval.c feature.c feature.c filesys.c fports.c 
+	gh_funcs.c gc.c gsubr.c keywords.c load.c macros.c net_db.c 
+	objects.c options.c ports.c posix.c procs.c read.c 
+	readline.c regex-posix.c scmsigs.c script.c socket.c 
+	srcprop.c stime.c struct.c, cpp_cnvt.awk:
+	Changed scm_sysintern() into scm_environment_intern() or
+	scm_permanent_object(scm_intern(...)) depending on the 
+	context.
+
+	Added environments.
+	* environments.c, environments.h: new file.
+	* gc.c (scm_igc): Added finalize method for weak environment
+	observers.
+	* Makefile.am: added environments.c, added environments.h
+	* Makefile.in: regenerated.
+
+        * libguile.h: removed reference to old "kw.h".
+
+	* init.c (scm_load_startup_files): load ice-9/boot-9.scm and
+	ice-9/init.scm into scm_root_environment.
+	(scm_boot_guile_1): Create the root environment by calling
+	scm_init_environment(). All other modules create bindings 
+	in this environment.  Store some module's init functions in
+	scm_c_module_registry so that these modules can be 
+	initialized when needed.
+	(invoke_main_func): removed old module's post initialisation
+	function (scm_post_boot_init_modules()).
+
+        Memory pointers changed to type (void*)
+	* gc.c (scm_must_malloc): returns (void*)
+	(scm_must_realloc): returns and accepts (void*)
+	(scm_must_free): accepts (void*)
+
+	defined? is a special form.
+	* evalext.c (scm_defined_p): turned `scm_defined_p' into a
+	special form (macro) which tries to find a symbol in the
+	current environment frame or above.
+	(scm_m_undefine): use ENVIRONMENT_UNDEFINE() to remove a 
+	binding.
+
+	eval conforms to r5rs.
+	* eval.c (scm_eval2): removed
+	(scm_eval): evaluate expressions in a environment context,
+	create the top of the environment stack: (env-smob . EOL).
+	(scm_eval_x): dto.
+
+	* procs.h (SCM_TOP_LEVEL): replaced by SCM_TOP_LEVEL_ENV
+	from environments.h
+	* eval.c (SCM_CEVAL, scm_m_define): SCM_TOP_LEVEL -> 
+	SCM_TOP_LEVEL_ENV
+	* evalext.c (scm_m_undefine): dto.
+
+	Symbol lookup via scm_lookupcar():
+	* eval.c (scm_lookupcar1, scm_lookupcar): additional 
+	parameter `modify' which corresponds to 
+	SCM_ENVIRONMENT_CELL()'s `for_write' parameter.
+	(SCM_CEVAL): request a writeable location via
+	scm_lookupcar() only if we know that the location will be 
+	changed (with set!).
+	(EVALCELLCAR): dto. (argument `modify' is always zero).
+
+	Memoization protocol, environment representation:
+	* eval.c (scm_lookupcar1): rewritten: environment smob 
+	replaces `top_thunk'.  Changed memoize method to
+	`scm_eval_environment_memoize_cell_internal()'.
+	(scm_lookupcar): scm_lookupcar1 doesn't return 0; test 
+	removed.
+	(scm_unmemocar): Changed unmemoize method to
+	`eval_environment_update_memoized'.
+	Renamed scm_sym2vcell() to SCM_ENVIRONMENT_DEFINE().
+
+	* struct.c (scm_make_struct_layout): Renamed 
+	scm_intern_obarray() to scm_permanent_object(scm_intern(...))
+
+	* stacks.c (get_applybody): replaced lookup for 
+	scm_sym_apply by value of scm_i_apply.
+	(narrow_stack): removed reference to system_module_env_p
+
+	* snarf.h : rewritten.  Create symbols in the appropriate
+	environment.
+
+	New startup sequence.
+	* script.c (sym_go): new symbol
+	(sym_top_repl ("top-repl")): removed
+	(scm_compile_shell_switches): evaluate "-c" arguments in
+	scm_root_environment
+	(scm_compile_shell_switches): intern "use-emacs-interface"
+	in scm_root_environment
+	(scm_compile_shell_switches): When interactive load
+	modules.scm into the root environment and start a repl in
+	module `ice-9/guile'.
+
+	* root.h (scm_symhash): removed
+	(scm_keyword_environment): replaces scm_keyword_obarray
+	(scm_root_environment): new variable
+	(scm_c_module_registry): new variable
+	(scm_interaction_environment): new variable
+	* gc.c (scm_init_storage): removed scm_symhash
+
+	* gc.c (scm_init_storage): Moved most-positive-fixnum,
+	most-negative-fixnum and bignum-radix to scm_init_root() 
+	because they need a top-level environment.
+	* root.c (scm_init_root): added most-positive-fixnum,
+	most-negative-fixnum and bignum-radix 
+	(from scm_init_storage()).
+
+	* backtrace.c, coop-threads.c, coop.c, debug.c, dynwind.c,
+	feature.c, filesys.c, fluids.c, fports.c, gh_data.c, 
+	gh_eval.c, gh_init.c, gscm.c, hashtab.c, init.c, iselect.c, 
+	keywords.c, load.c, ramap.c, read.c, readline.c, root.c, 
+	struct.c, throw.c, unif.c: removed length argument from 
+	scm_intern, renamed scm_intern0 to scm_intern.
+
+	Changed keyword obarray into a finite environment.
+	* keywords.c (scm_make_keyword_from_dash_symbol): 
+	Renamed scm_sym2ovcell_soft() to 
+	SCM_ENVIRONMENT_CELL()/SCM_ENVIRONMENT_DEFINE().
+	(scm_init_keywords): Renamed scm_keyword_obarray to 
+	scm_keyword_environment.
+	(scm_c_make_keyword): changed scm_sysintern0() to
+	scm_permanent_object(...);
+	(scm_init_keywords): changed scm_keyword_obarray to
+	scm_keyword_environment
+
+	* gdbint.c (gdb_binding): Look up name in root environment.
+
+	All functions that evaluate expressions must do this in an 
+	environment context.
+	* _scm.h: added "environments.h" since environments are 
+	used by every c file.
+	* debug.c (scm_memcons): third argument `environment' is 
+	required
+	(scm_procedure_environment): scm_tc7_cclo, scm_tcs_subrs, 
+	scm_tc7_contin don't close over an environment, throw error.
+	* debug.h: removed declaration for scm_eval_string() which is
+	not defined in debug.c
+	* feature.c (scm_make_named_hook): added environment 
+	parameter
+	* gdbint.c (gdb_eval): added environment parameter
+	* gh_eval.c: (gh_eval_str, gh_eval_file): evaluate in
+	scm_interaction_environment
+	* gh_funcs.c: (gh_new_procedure, gh_define): evaluate in
+	scm_interaction_environment
+	* gh_data.c (gh_lookup): look up symbols in
+	scm_interaction_environment	
+	(gh_module_lookup): look up symbols in the given environment
+	* gsubr.c (scm_make_gsubr): added environment parameter
+	* macros.c (scm_make_synt): added environment parameter
+	* print.c (scm_init_print): make printer in specified 
+	environment
+	* procs.c (scm_make_subr_opt, scm_make_subr, 
+	scm_init_iprocs): added environment parameter
+	* strports.c (scm_eval_0str, scm_eval_string): added 
+	environment parameter
+	* load.c (load_data): new type
+	(load): load and evaluate expressions in a given environment,
+	argument to load must be (struct load_data*)
+	(scm_primitive_load (primitive-load)): added environment 
+	parameter, load hook called with additional environment 
+	argument,
+	encapsulate environment and port into load_data.
+	(scm_init_load_path): added environment parameter
+	(scm_primitive_load_path (primitive-load-path)): dto.
+	(scm_read_and_eval_x (read-and-eval!)): environment is 
+	optional and defaults to interaction-environment 
+	(`scm_interaction_environment').
+	(init_build_info): added environment parameter
+	* async.c (scm_init_async): create "%gc-thunk" in module's 
+	environment.
+	* evalext.c (scm_init_evalext): create 
+	scm_m_generalized_set_x in module's environment.
+	* feature.c (scm_make_named_hook): intern hook in feature's
+	environment.
+	* (scm_init_feature): intern `*features*' in feature's 
+	environment.
+	* gsubr.c (scm_init_gsubr): create `scm_gsubr_apply' in 
+	module's environment.
+	* guardians.c (scm_init_guardian): create guard in module's
+	environment.
+	* procs.c (scm_make_subr): added environment argument.
+	(scm_init_iprocs): added environment argument.
+	* options.c (scm_init_opts): Do not intern options into one 
+	of the environments. Make them permanent symbols instead.
+	* load.c (scm_init_load): intern "%load-path", 
+	"%load-extensions" and "%load-hook", "%guile-build-info" in 
+	module's environment.
+	(init_build_info): renamed scm_intern0 to scm_intern.
+	* ramap.c (scm_init_ramap): create scm_array_equal_p in
+	module's environment.
+	* strports.c (scm_eval_string): evaluate form in environment
+	* stacks.c (narrow_stack): removed scm_system_module_env_p
+
+	Turned all .c files into guile c-modules. All module's
+	init functions create bindings in a given environment and
+	return a scheme value.
+	* alist.c, arbiters.c, async.c, backtrace.c, boolean.c,
+	chars.c continuations.c, debug.c, dynamic_linking.c,
+	dynwind.c, eq.c, error.c eval.c, evalext.c, feature.c,
+	filesys.c, fluids.c, fports.c, gc.c gdbint.c, gsubr.c,
+	guardian.c, hash.c, hashtab.c, ioext.c, iselect.c
+	keywords.c, list.c, load.c, macros.c, mallocs.c, net_db.c,
+	numbers.c objects.c, objprop.c, options.c, pairs.c,
+	ports.c, posix.c, print.c procprop.c, procs.c, ramap.c,
+	random.c, read.c, readline.c regex-posix.c, root.c,
+	scmsigs.c, script.c, simpos.c, socket.c, sort.c srcprop.c,
+	stackchk.c, stacks.c, stime.c, strings.c, strop.c,
+	strorder.c strports.c, struct.c, symbols.c, tag.c,
+	threads.c, throw.c, unif.c vectors.c, version.c, vports.c,
+	weaks.c: changed init function so that it evaluates in a
+	given environment and returns a scheme value.  * dynl.c
+	(scm_dynamic_call): Call the module init function in a
+	environment context and return its return-value.
+
+	Switched to new environment implementation
+	* eval.c (scm_m_define): rewritten.
+	* debug.c (scm_memcons): rewritten.
+	* evalext.c (scm_m_undefine): rewritten
+
+	Removed all references to variables and modules.
+	* Makefile.am: removed modules.h modules.c variables.c
+	variables.h debug.c (scm_make_gloc (make-gloc), scm_gloc_p
+	(gloc?)): removed
+	* debug.c, eval.c, evalext.c, gdbint.c, init.c,
+	libguile.h: removed #include "modules.h" 
+	* debug.c, init.c, libguile.h, symbols.c, variable.c: 
+	removed #include "variables.h"
+
+	Removed old module registry.
+	* dynl.c (scm_register_module_xxx, struct moddata,
+	scm_registered_modules, scm_clear_registered_modules): 
+	removed
+
+	Removed all variables used by the old module system.
+	* debug.c, eval.c, evalext.c, gdbint.c, init.c, root.c, 
+	root.h: removed top_level_lookup_closure 
+	(*top-level-lookup-closure*),
+	scm_top_level_lookup_closure_var,
+	scm_can_use_top_level_lookup_closure_var.
+	* eval.c, init.c, root.h: removed scm_system_transformer.
