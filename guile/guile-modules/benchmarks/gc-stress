@@ -1,0 +1,11 @@
+#!/home/jimb/guile/pentium/bin/guile -s
+!#
+
+(debug-disable 'debug)
+
+(use-modules (benchmarks lib)
+             (benchmarks gc-stress))
+
+(start-log "gc-stress.log")
+(gc-stress-run)
+(end-log)
