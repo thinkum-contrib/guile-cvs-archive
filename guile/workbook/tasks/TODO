@@ -91,6 +91,12 @@
 
 
 - Eventually
+
+  - procprop.c: instead of using a stand-in value for everything
+    except closures, we should find other ways to store the procedure
+    properties for those other kinds of procedures.  For example,
+    subrs have their own property slot, which is unused at present.
+
   - Select pthreads compile with "gcc -pthread" when available, with
     something like the block below in configure.in.
 
