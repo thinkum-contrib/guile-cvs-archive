@@ -40,7 +40,7 @@
 ;; Once connected, the TCP socket port to the UI server.
 (define ui-port #f)
 
-(define* (ui-connect name #:optional host)
+(define* (ui-connect name debug #:optional host)
   "Connect to the debug UI server as @var{name}, a string that should
 be sufficient to describe the calling application to the debug UI
 user.  The optional @var{host} arg specifies the hostname or dotted
@@ -68,7 +68,9 @@ decimal IP address where the UI server is running; default is
   ;; Write initial context to debug server.
   (write-form (list 'name name))
   (write-form (cons 'modules (map module-name (loaded-modules))))
-  (debug-stack (make-stack #t ui-connect) #:continuable)
+  ;; If `debug' is true, debug immediately.
+  (if debug
+      (debug-stack (make-stack #t ui-connect) #:continuable))
 ;  (ui-command-loop #f)
   )
 
@@ -286,24 +288,43 @@ decimal IP address where the UI server is running; default is
 	       (with-output-to-string (lambda () (write value))))
 	     values)))
   (let ((value #f))
-    (let ((output
-	   (with-output-to-string
-	    (lambda ()
-	      (if m
-		  (begin
-		    (display "Evaluating in module ")
-		    (write (module-name m))
-		    (newline)
-		    (set! value
-			  (call-with-values (lambda () (eval x m))
-			    value-consumer)))
-		  (begin
-		    (display "Evaluating in current module ")
-		    (write (module-name (current-module)))
-		    (newline)
-		    (set! value
-			  (call-with-values (lambda () (primitive-eval x))
-			    value-consumer))))))))
+    (let* ((do-eval (if m
+			(lambda ()
+			  (display "Evaluating in module ")
+			  (write (module-name m))
+			  (newline)
+			  (set! value
+				(call-with-values (lambda ()
+						    (eval x m))
+				  value-consumer)))
+			(lambda ()
+			  (display "Evaluating in current module ")
+			  (write (module-name (current-module)))
+			  (newline)
+			  (set! value
+				(call-with-values (lambda ()
+						    (primitive-eval x))
+				  value-consumer)))))
+	   (output
+	    (with-output-to-string
+	     (lambda ()
+	       (catch #t
+		      do-eval
+		      (lambda (key . args)
+			(case key
+			  ((misc-error signal unbound-variable
+			    numerical-overflow)
+			   (apply display-error #f
+				  (current-output-port) args)
+			   (set! value '("error-in-evaluation")))
+			  (else
+			   (display "EXCEPTION: ")
+			   (display key)
+			   (display " ")
+			   (write args)
+			   (newline)
+			   (set! value
+				 '("unhandled-exception-in-evaluation"))))))))))
       (list output value))))
 
 (define (write-status status)
