@@ -1,6 +1,12 @@
 TODO list for Guile
 -------------------
 
+- Squash bugs in workbook/bugs
+
+- 
+
+- Bring docs online, split and unsplit, using texi2html.
+
 - Add generic gsubrs.
 
   Need to find a place to stick the SCM *gf value. 
@@ -22,8 +28,6 @@ TODO list for Guile
 - Arrange for tests written in a mix of C and Scheme.
 
 - Check load re load-path.
-
-- Bring docs online, split and unsplit, using texi2html.
 
 - Uninterned symbols
 
