@@ -4,18 +4,30 @@ AC_INIT(gtkthreads.c)
 AM_INIT_AUTOMAKE($PACKAGE, $VERSION, no-define)
 AM_MAINTAINER_MODE
 
-#--------------------------------------------------------------------
-#
-# User options
-#
-#--------------------------------------------------------------------
-
-
-#--------------------------------------------------------------------
-
 AC_PROG_CC
 AC_PROG_CPP
 AM_PROG_LIBTOOL
+
+GUILE_FLAGS
+
+CFLAGS="$CFLAGS $GUILE_CFLAGS"
+LIBS="$LIBS $GUILE_LDFLAGS"
+
+AC_MSG_CHECKING(that Guile is recent enough)
+AC_EGREP_CPP(guile_is_recent_enough,
+	     [#include <libguile/boolean.h>
+	      #ifdef SCM_TRUE_P
+	        guile_is_recent_enough
+	      #endif
+	     ],
+	     [guile_recent_enough=yes],
+	     [guile_recent_enough=no])
+echo $guile_recent_enough
+if test $guile_recent_enough = no; then
+  AC_MSG_ERROR([
+Your Guile is too old.
+You need guile-core-1.3.5 >2000-03-29 or later.])
+fi
 
 ## If we're using GCC, ask for aggressive warnings.
 case "$GCC" in
@@ -27,9 +39,7 @@ case "$GCC" in
 esac
 
 CFLAGS="`gtk-config --cflags` $CFLAGS"
-
-### Add the Guile libraries to the link command.
-LIBS="$LIBS `guile-config link` `gtk-config --libs gthread`"
+LIBS="$LIBS `gtk-config --libs gthread`"
 
 AC_OUTPUT(Makefile)
 
