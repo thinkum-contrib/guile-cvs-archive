@@ -1,5 +1,8 @@
 1998-11-24  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
+	* goops/goops.scm: Added <complex> to list of print slot
+	initializations.
+
 	* goops.c (scm_class_of): Use TEST_CHANGE_CLASS to check for class
 	redefinition if argument is a goops instance.
 
