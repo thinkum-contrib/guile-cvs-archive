@@ -1,6 +1,6 @@
 - Guile 1.4.1
-  - write provisional guile.texi [ttn]
-  - revise guile-snarf for upward compatibility [ttn]
+  +R write provisional guile.texi [ttn]
+  + revise guile-snarf for upward compatibility [ttn]
   + back port ice-9/and-let*.scm naming fix [ttn]
   + write TODO summarizer [ttn]
   - include group membership attributes in guile-api.alist
