@@ -1,3 +1,15 @@
+1999-03-06  Mikael Djurfeldt  <mdj@barbara.nada.kth.se>
+
+	* goops/goops.scm (initialize <class>): Convert all slot
+	definitions to lists; Simplified code dealing with slot
+	definitions throughout since slot definitions can no longer be
+	simple symbols.
+	(slot-init-function): Only take slot names as second arg.
+	(class): New special form.
+	(ensure-class): Removed.
+	(make-class): Remade into a procedure.
+	(define-class): Now uses the procedure `make-class'.
+
 1999-03-01  Mikael Djurfeldt  <mdj@barbara.nada.kth.se>
 
 	* guile-oops.c (inner_main): Renamed

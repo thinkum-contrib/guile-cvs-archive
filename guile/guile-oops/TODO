@@ -1,3 +1,5 @@
+* Remove assumption of single-symbol slot definitions from goops.c.
+
 * Add sort.c to libguile
 
 * Fix some *fixme*'s
