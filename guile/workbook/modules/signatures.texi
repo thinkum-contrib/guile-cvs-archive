@@ -1,4 +1,4 @@
-@c devel/modules/signatures.texi
+@c modules/signatures.texi
 
 @node    Module Signatures
 @section Module Signatures
@@ -46,6 +46,8 @@ Some Questions:
 
 @itemize
 
+@item Should signatures be "inside" the module system?
+
 @item Are signatures "out of style"?
 
 @item Do signatures map onto "module use == instance"?  (See Ior.)
@@ -63,4 +65,4 @@ See Also:
 
 @end itemize
 
-@c devel/modules/signatures.texi ends here
+@c modules/signatures.texi ends here
