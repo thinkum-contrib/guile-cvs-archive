@@ -1,3 +1,8 @@
+Thu Jan  2 13:33:52 1997  Marius Vollmer  <mvo@zagadka.ping.de>
+
+	* ltconfig, ltmain.sh: New files for libtool support. libguile, rx
+ 	and gtcltk-lib can now be build as shared libraries.
+
 Thu Dec 12 00:14:32 1996  Gary Houston  <ghouston@actrix.gen.nz>
 
 	* scsh: new directory.
