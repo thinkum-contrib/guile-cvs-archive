@@ -3,29 +3,9 @@ AC_INIT(goops.c)
 AM_INIT_AUTOMAKE(PACKAGE, VERSION, no-define)
 AM_MAINTAINER_MODE
 
-#--------------------------------------------------------------------
-#
-# User options
-#
-#--------------------------------------------------------------------
-
-
-#--------------------------------------------------------------------
-
 AC_PROG_CC
-AC_PROG_CPP
+AC_PROG_LN_S
 AM_PROG_LIBTOOL
-
-AC_AIX
-AC_ISC_POSIX
-AC_MINIX
-
-AC_C_CONST
-
-AC_HEADER_STDC
-AC_HEADER_DIRENT
-AC_HEADER_TIME
-AC_HEADER_SYS_WAIT
 
 ### Add the Guile libraries to the link command.
 LIBS="$LIBS `guile-config link`"
