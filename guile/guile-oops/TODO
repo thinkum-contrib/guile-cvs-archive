@@ -1,4 +1,4 @@
-* display + write
+* Replace compute-get-n-set
 
 * Method compilation:
 
@@ -20,6 +20,11 @@
 exp1 ... are atomic
 
   NOTE: Use slot types if present.
+
+  10. Mark values as newly created/input.  (A function is functional
+      also if it sets a newly created value.)  Mark procedures as
+      functional/imperative.  Call functional procedures at compile
+      time if their value is a constant.
 
 * scm_slot_SCM in C interfac (make sure that the right mark in the
   layout is set)

@@ -1,1 +1,5 @@
+* next-method currently assumes that argument types are the same as
+  that for the "parent" method.  Type checking should be introduced
+  for the case when the user supplies arguments: (next-method ...)
+
 * Need to check if another thread has already memoized the method

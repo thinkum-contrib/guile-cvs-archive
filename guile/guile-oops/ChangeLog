@@ -1,3 +1,19 @@
+1999-12-19  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* Version 0.1.4 released.
+
+	* Makefile.am (libgoopscore_la_LDFLAGS): Bumped version number.
+
+	* stklos.scm (write-object): Exported.
+	(define-method): STKlos version.
+
+	* goops.c (scm_sys_logand): Temporary replacement for the
+	INUM-only libguile version.
+
+	* goops.scm (%logand): Exported.
+
+	* dispatch.scm (cache-try-hash!): Use %logand.
+
 1999-12-18  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* goops.scm (make-bound-check-get): New procedure. Uses
