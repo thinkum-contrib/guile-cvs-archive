@@ -54,12 +54,6 @@
 #define SCM_SYSERROR_MSG(str, args, val) \
   do { scm_syserror_msg (FUNC_NAME, (str), (args), (val)); } while (0)
 
-#define SCM_WTA(pos, scm) \
-  do { scm_wta (scm, (char *) pos, FUNC_NAME); } while (0)
-
-#define RETURN_SCM_WTA(pos, scm) \
-  do { return scm_wta (scm, (char *) pos, FUNC_NAME); } while (0)
-
 #define SCM_MISC_ERROR(str, args) \
   do { scm_misc_error (FUNC_NAME, str, args); } while (0)
 
@@ -166,7 +160,7 @@
     else					\
       {						\
 	cvar = 0.0;				\
-        SCM_WTA (pos, z);			\
+        SCM_WRONG_TYPE_ARG (pos, z);		\
       }						\
   } while (0)
 
@@ -407,6 +401,12 @@
 
 
 #if (SCM_DEBUG_DEPRECATED == 0)
+
+#define SCM_WTA(pos, scm) \
+  do { scm_wta (scm, (char *) pos, FUNC_NAME); } while (0)
+
+#define RETURN_SCM_WTA(pos, scm) \
+  do { return scm_wta (scm, (char *) pos, FUNC_NAME); } while (0)
 
 #define SCM_VALIDATE_STRINGORSUBSTR SCM_VALIDATE_STRING
 
