@@ -5,8 +5,8 @@ AUTOMAKE_OPTIONS = foreign
 lib_LTLIBRARIES = libgtcltk.la libguiledlopenhelper.la
 bin_PROGRAMS = guile-tcltk
 
-libgtcltk_la_SOURCES = \
-	guile-tcl.c guile-tk.c guile-tcl.h guile-tk.h gtcltk-module.c
+libgtcltk_la_SOURCES = guile-tcl.c guile-tk.c \
+		       guile-tcl.h guile-tk.h gtcltk-module.c
 EXTRA_libgtcltk_la_SOURCES = tclInt.h tclUnixPort.h tclUnixNotfy.c
 BUILT_SOURCES = guile-tcl.x guile-tk.x
 libgtcltk_la_DEPENDENCIES = @LIBLOBJS@
