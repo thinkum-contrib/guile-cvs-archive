@@ -372,6 +372,99 @@ The SLIB Manual}.  Otherwise you can find it on the web at
 @url{http://www-swiss.ai.mit.edu/~jaffer/JACAL.html}
 
 @page
+@node Lists
+@chapter Lists
+
+This chapter describes Guile list functions not found in standard
+Scheme.
+
+@deffn procedure append! [lst@dots{}]
+A destructive version of @code{append} (@pxref{Pairs and Lists,,,r4rs,
+The Revised^4 Report on Scheme}).  The cdr field of each list's final
+pair is changed to point to the head of the next list, so no consing is
+performed.  Return a pointer to the mutated list.
+@end deffn
+
+@deffn procedure last-pair lst
+Return a pointer to the last pair in @var{lst}, signalling an error if
+@var{lst} is circular.
+@end deffn
+
+@deffn procedure reverse! lst [newtail]
+A destructive version of @code{reverse} (@pxref{Pairs and Lists,,,r4rs,
+The Revised^4 Report on Scheme}).  The cdr of each cell in @var{lst} is
+modified to point to the previous list element.  Return a pointer to the
+head of the reversed list.
+
+Caveat: because the list is modified in place, the tail of the original
+list now becomes its head, and the head of the original list now becomes
+the tail.  Therefore, the @var{lst} symbol to which the head of the
+original list was bound now points to the tail.  To ensure that the head
+of the modified list is not lost, it is wise to save the return value of
+@code{reverse!}
+@end deffn
+
+@deffn procedure list-set! lst k val
+Set the @var{k}th element of @var{lst} to @var{val}.
+@end deffn
+
+@deffn procedure list-cdr-ref lst k
+@deffnx procedure list-tail lst k
+Return the "tail" of @var{lst} beginning with its @var{k}th element.
+The first element of the list is considered to be element 0.
+
+@code{list-cdr-ref} and @code{list-tail} are identical.  It may help to
+think of @code{list-cdr-ref} as accessing the @var{k}th cdr of the list,
+or returning the results of cdring @var{k} times down @var{lst}.
+@end deffn
+
+@deffn procedure list-cdr-set! lst k val
+Set the @var{k}th cdr of @var{lst} to @var{val}.
+@end deffn
+
+@deffn procedure list-head lst k
+Copy the first @var{k} elements from @var{lst} into a new list, and
+return it.
+@end deffn
+
+@deffn procedure list-copy lst
+Return a (newly-created) copy of @var{lst}.
+@end deffn
+
+@deffn procedure delq item lst
+@deffnx procedure delv item lst
+@deffnx procedure delete item lst
+Return a newly-created copy of @var{lst} with @var{item} removed.  These
+procedures mirror @code{memq}, @code{memv} and @code{member}:
+@code{delq} compares elements of @var{lst} against @var{item} with
+@code{eq?}, @code{delv} uses @code{eqv?} and @code{delete} uses @code{equal?}
+@end deffn
+
+@deffn procedure delq! item lst
+@deffnx procedure delv! item lst
+@deffnx procedure delete! item lst
+These procedures are destructive versions of @code{delq}, @code{delv}
+and @code{delete}: they modify the pointers in the existing @var{lst}
+rather than creating a new list.  Caveat evaluator: Like other
+destructive list functions, these functions cannot modify the binding of
+@var{lst}, and so cannot be used to delete the first element of
+@var{lst} destructively.
+@end deffn
+
+[FIXME: is there any reason to have the `sloppy' functions available at
+high level at all?  Maybe these docs should be relegated to a "Guile
+Internals" node or something. -twp]
+
+@deffn procedure sloppy-memq
+@deffnx procedure sloppy-memv
+@deffnx procedure sloppy-member
+These procedures behave like @code{memq}, @code{memv} and @code{member}
+(@pxref{Pairs and Lists,,,r4rs, The Revised^4 Report on Scheme}), but do
+not perform any type or error checking.  Their use is recommended only
+in writing Guile internals, not for high-level Scheme programs.
+@end deffn
+
+@page
 @node Data Structures
 @chapter Data Structures
 
@@ -1243,6 +1336,17 @@ of tools for using either association lists or hash tables.
 @node Association Lists
 @subsection Association Lists
 
+@c [FIXME: alist.c includes helper functions `sloppy-assq',
+@c `sloppy-assv', and so on.  These are made available to the Guile
+@c user; should they be documented here? -twp]
+
+@defun acons key value alist
+Adds a new key-value pair to @var{alist}.  A new pair is
+created whose car is @var{key} and whose cdr is @var{value}, and the
+pair is consed onto @var{alist}, and the new list is returned.  This
+function is @emph{not} destructive; @var{alist} is not modified.
+@end defun
+
 @defun assq key alist
 @defunx assv key alist
 @defunx assoc key alist
@@ -1391,7 +1495,8 @@ strings in a case-insensitive manner, so that references to keys
 named ``foobar'', ``FOOBAR'' and ``FooBaR'' will all yield the
 same item.  Guile provides you with @dfn{extended} hash tables
 that permit you to specify a hash function and associator function
-of your choosing.
+of your choosing.  The functions described in the rest of this section
+can be used to implement such custom hash table structures.
 
 If you are unfamiliar with the inner workings of hash tables, then
 this facility will probably be a little too abstract for you to
@@ -1408,9 +1513,9 @@ table.  Each function returns an integer in the range 0 to
 @var{size}-1.
 @end defun
 
-@deffn Function hashx-ref hasher assoc table key [default]
-@deffnx Procedure hashx-set! hasher assoc table key value
-@deffnx Procedure hashx-remove! hasher assoc table key
+@deffn function hashx-ref hasher assoc table key [default]
+@deffnx procedure hashx-set! hasher assoc table key value
+@deffnx procedure hashx-remove! hasher assoc table key
 These behave the same way as the corresponding @code{ref} and
 @code{set!} functions described above, but use @var{hasher} as a
 hash function and @var{assoc} to compare keys.  @code{hasher} must
@@ -1422,12 +1527,26 @@ By way of illustration, @code{hashq-ref table key} is equivalent
 to @code{hashx-ref hashq assq table key}.
 @end deffn
 
-[FIXME: I have not included the `-get-handle' and
-`-create-handle!' functions here, since the typical guile user
-will probably only need to use the ref and set! functions, and
-extra documentation they don't need to know may only be
-confusing. -twp]
+@deffn procedure hashq-get-handle table key
+@deffnx procedure hashv-get-handle table key
+@deffnx procedure hash-get-handle table key
+@deffnx procedure hashx-get-handle hasher assoc table key
+These procedures are similar to their @code{-ref} cousins, but return a
+@dfn{handle} from the hash table rather than the value associated with
+@var{key}.  By convention, a handle in a hash table is the pair which
+associates a key with a value.  Where @code{hashq-ref table key} returns
+only a @code{value}, @code{hashq-get-handle table key} returns the pair
+@code{(key . value)}.
+@end deffn
 
+@deffn procedure hashq-create-handle! table key init
+@deffnx procedure hashv-create-handle! table key init
+@deffnx procedure hash-create-handle! table key init
+@deffnx procedure hashx-create-handle! hasher assoc table key init
+These functions look up @var{key} in @var{table} and return its handle,
+If @var{key} is not already present, a new handle is created which
+associates @var{key} with @var{init}.
+@end deffn
 
 @page
 @node Strings
@@ -1443,11 +1562,49 @@ but you are likely to run into one or both of these special string types
 eventually, and it will be helpful to know how they work.
 
 @menu
-* Shared Substrings::           
-* Read Only Strings::           
+* String Fun::                  New functions for manipulating strings.
+* Shared Substrings::           Strings which share memory with each other.
+* Read Only Strings::           Treating certain non-strings as strings.
 @end menu
 
-@node  Shared Substrings
+@node String Fun
+@section String Fun
+
+@deffn procedure string-index str chr [frm [to]]
+Return the index of the first occurrence of @var{chr} in @var{str}.  The
+optional integer arguments @var{frm} and @var{to} limit the search to
+a portion of the string.  This procedure essentially implements the
+@code{index} or @code{strchr} functions from the C library.
+@end deffn
+
+@deffn procedure string-rindex str chr [frm [to]]
+Like @code{string-index}, but search from the right of the string rather
+than from the left.  This procedure essentially implements the
+@code{rindex} or @code{strrchr} functions from the C library.
+@end deffn
+
+@c Guile also implements two procedures called `substring-move-left!'
+@c and `substring-move-right!', for copying a substring from one
+@c string into a another one.  These procedures look strange and I
+@c am suspicious that they are only half-implemented, so they have not
+@c been documented until something definitive is done with them. -twp
+
+@deffn procedure substring-fill! str start end fill-char
+Change every character in @var{str} between @var{start} and @var{end} to
+@var{fill-char}.
+@end deffn
+
+@deffn procedure string-null? str
+Return @code{#t} if @var{str}'s length is nonzero, and @code{#f}
+otherwise.
+@end deffn
+
+@deffn procedure string-upcase! str
+@deffnx procedure string-downcase! str
+Upcase or downcase every character in @code{str}, respectively.
+@end deffn
+
+@node Shared Substrings
 @section Shared Substrings
 
 Whenever you extract a substring using @code{substring}, the Scheme
@@ -1507,10 +1664,12 @@ substrings.
 bar @result{} "quirk"
 @end example
 
-Shared substrings are also treated as read-only strings by Guile.  This
-is because programmers might not always be aware that a given string is
-really a shared substring, and might innocently try to mutate it without
-realizing that the change would affect its parent string.
+Guile considers shared substrings to be immutable.  This is because
+programmers might not always be aware that a given string is really a
+shared substring, and might innocently try to mutate it without
+realizing that the change would affect its parent string.  (We are
+currently considering a "copy-on-write" strategy that would permit
+modifying shared substrings without affecting the parent string.)
 
 In general, shared substrings are useful in circumstances where it is
 important to divide a string into smaller portions, but you do not
@@ -1689,8 +1848,8 @@ procedures.  Thunks 2 and 4 can instead be @code{#f} if there is no useful
 operation for them to perform.
 
 If thunk 3 returns @code{#f} or an @code{eof-object} (@pxref{Input,
-eof-object?, ,r4rs, Revised(4) Scheme}) it indicates that the port has
-reached end-of-file.  For example:
+eof-object?, ,r4rs, The Revised^4 Report on Scheme}) it indicates that
+the port has reached end-of-file.  For example:
 
 @example
 (define stdout (current-output-port))

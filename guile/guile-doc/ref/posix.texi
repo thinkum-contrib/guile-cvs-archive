@@ -1380,67 +1380,93 @@ with the local-address-within-network number @var{lna}.
 @end smalllisp
 @end deffn
 
-The following functions accept an object representing a host on a network
-and return a selected component.
+A @dfn{host object} is a structure that represents what is known about a
+network host, and is the usual way of representing a system's network
+identity inside software.  The @code{hostent} functions accept a host
+object and return some information about that host's presence on the
+network.
 
-@table @code
-@item hostent:name
-The "official" host name.
-@item hostent:aliases
-A list of aliases for the host.
-@item hostent:addrtype
-The type of address, equal to the value of @code{AF_INET} for Internet
-addresses.
-@item hostent:length
-The length of each address in bytes.
-@item hostent:addr-list
-The list of network addresses.
-@end table
-
-@deffn procedure gethostbyname name
-Lookup @var{name} (a string) in the host database.
+@deffn procedure hostent:name host
+The "official" hostname for @var{host}.
+@end deffn
+@deffn procedure hostent:aliases host
+A list of aliases for @var{host}.
+@end deffn
+@deffn procedure hostent:addrtype host
+The host address type.  For hosts with Internet addresses, this will
+return @code{AF_INET}.
+@end deffn
+@deffn procedure hostent:length host
+The length of each address for @var{host}, in bytes.
+@end deffn
+@deffn procedure hostent:addr-list host
+The list of network addresses associated with @var{host}.
 @end deffn
 
-@deffn procedure gethostbyaddr address
-Lookup @var{address} (an integer) in the host database.
+The @code{gethost} functions are used to find a particular host's entry
+in the host database.
+
+@deffn procedure gethost [host]
+@deffnx procedure gethostbyname hostname
+@deffnx procedure gethostbyaddr address
+Look up a host by name or address, and return a host object.  The
+@code{gethost} procedure will accept either a string name or an integer
+address; if given no arguments, it behaves like @code{gethostent} (see
+below).
 @end deffn
+
+The following three procedures may be used to step through the host
+database from beginning to end.  [FIXME: document the `sethost' variant
+of `sethostent'.]
 
 @deffn procedure sethostent
-Initializes a stream used by @code{gethostent} to read from the host database.
-The next use of @code{gethostent} will return the first entry.  The
-return value is unspecified.
+Initialize an internal stream from which host objects may be read.  This
+procedure must be called before any calls to @code{gethostent}, and may
+also be called afterward to reset the host entry stream.
 @end deffn
 
 @deffn procedure gethostent
-Return the next entry from the host database.
+Return the next host object from the host database, or @code{#f} if
+there are no more hosts to be found (or an error has been encountered).
+This procedure may not be used before @code{sethostent} has been called.
 @end deffn
 
 @deffn procedure endhostent
 Close the stream used by @code{gethostent}.  The return value is unspecified.
 @end deffn
 
-The following functions accept an object representing a network
+The @code{netent} functions accept an object representing a network
 and return a selected component.
 
-@table @code
-@item netent:name
+@deffn procedure netent:name net
 The "official" network name.
-@item netent:aliases
+@end deffn
+@deffn procedure netent:aliases net
 A list of aliases for the network.
-@item netent:addrtype
-The type of address, equal to the value of @code{AF_INET} for Internet
-addresses.
-@item netent:net
+@end deffn
+@deffn procedure netent:addrtype net
+The type of the network number.  Currently, this returns only
+@code{AF_INET}.
+@end deffn
+@deffn procedure netent:net net
 The network number.
-@end table
-
-@deffn procedure getnetbyname name
-Lookup @var{name} (a string) in the network database.
 @end deffn
 
-@deffn procedure getnetbyaddr address
-Lookup @var{address} (an integer) in the network database.
+The @code{getnet} procedures look up a particular network in the network
+database.  Each returns a @dfn{network object} that describes the
+network's technical nature.
+
+@deffn procedure getnet [net]
+@deffnx procedure getnetbyname net-name
+@deffnx procedure getnetbyaddr net-number
+Look up a network by name or net number in the network database.  The
+@var{net-name} argument must be a string, and the @var{net-number}
+argument must be an integer.  @code{getnet} will accept either type of
+argument, behaving like @code{getnetent} (see below) if no arguments are
+given.
 @end deffn
+
+[FIXME: document the `setnet' variant of `setnetent'.]
 
 @deffn procedure setnetent
 Initializes a stream used by @code{getnetent} to read from the network
@@ -1457,25 +1483,32 @@ Return the next entry from the network database.
 Close the stream used by @code{getnetent}.  The return value is unspecified.
 @end deffn
 
-The following functions accept an object representing a protocol
+The @code{protoent} procedures accept an object representing a protocol
 and return a selected component.
 
-@table @code
-@item protoent:name
+@deffn procedure protoent:name protocol
 The "official" protocol name.
-@item protoent:aliases
+@end deffn
+@deffn procedure protoent:aliases protocol
 A list of aliases for the protocol.
-@item protoent:proto
+@end deffn
+@deffn procedure protoent:proto protocol
 The protocol number.
-@end table
-
-@deffn procedure getprotobyname name
-Lookup @var{name} (a string) in the protocol database.
 @end deffn
 
-@deffn procedure getprotobynumber number
-Lookup a protocol number in the network database.
+The @code{getproto} procedures look up a particular network protocol and
+return a @dfn{protocol object}.
+
+@deffn procedure getproto [protocol]
+@deffnx procedure getprotobyname name
+@deffnx procedure getprotobynumber number
+Look up a network protocol by name or by number.  @code{getprotobyname}
+takes a string argument, and @code{getprotobynumber} takes an integer
+argument.  @code{getproto} will accept either type, behaving like
+@code{getprotoent} (see below) if no arguments are supplied.
 @end deffn
+
+[FIXME: document the `setproto' variant of `setprotoent'.]
 
 @deffn procedure setprotoent
 Initializes a stream used by @code{getprotoent} to read from the protocol
@@ -1492,30 +1525,41 @@ Return the next entry from the protocol database.
 Close the stream used by @code{getprotoent}.  The return value is unspecified.
 @end deffn
 
-The following functions accept an object representing a network service
-and return a selected component.
+The @code{servent} procedures accept a @dfn{service object} and return
+some information about that service.
 
-@table @code
-@item servent:name
+@deffn procedure servent:name serv
 The "official" name of the network service.
-@item servent:aliases
+@end deffn
+@deffn procedure servent:aliases serv
 A list of aliases for the network service. 
-@item servent:port
+@end deffn
+@deffn procedure servent:port serv
 The Internet port used by the service.
-@item servent:proto
-The protocol used by the service.  A service may be listed multiple
-times in the database with different protocols.
-@end table
-
-@deffn procedure getservbyname name protocol
-Lookup an entry in the service database with @var{name} (a string) and
-using @var{protocol} (a string).
+@end deffn
+@deffn procedure servent:proto serv
+The protocol used by the service.  A service may be listed many times
+in the database under different protocol names.
 @end deffn
 
-@deffn procedure getservbyport port protocol
-Lookup an entry in the service database using @var{port} (a number) and
-@var{protocol} (a string).
+The @code{getserv} procedures look up a network service and return a
+@dfn{service object} which describes the names and network ports
+conventionally assigned to the service.
+
+@deffn procedure getserv [name protocol]
+@deffnx procedure getservbyname name protocol
+@deffnx procedure getservbyport port protocol
+Look up a network service by name or by service number, and return a
+network service object.  The @var{protocol} argument specifies the name
+of the desired protocol; if the protocol found in the network service
+database does not match this name, a system error is signalled.
+
+The @code{getserv} procedure will take either a service name or number
+as its first argument; if given no arguments, it behaves like
+@code{getservent} (see below).
 @end deffn
+
+[FIXME: document the `setserv' variant of `setservent'.]
 
 @deffn procedure setservent
 Initializes a stream used by @code{getservent} to read from the services

@@ -15,6 +15,89 @@
 @c terminology is weird, but consistent with the function names and also
 @c with Emacs Lisp, which I assume takes Maclisp's lead.
 
+@c Tim's notes:
+
+@c The following Guile procedures are not documented.  We have a lot
+@c of work to do.
+@c
+@c   arbiters.c: make-arbiter, try-arbiter, release-arbiter
+@c   async.c: async, async-mark, system-async, system-async-mark,
+@c      run-asyncs, noop, set-tick-rate, set-switch-rate,
+@c      unmask-signals, mask-signals
+@c   backtrace.c: backtrace, display-error, display-application,
+@c      display-backtrace
+@c   chars.c: char-is-both?
+@c   debug.c: single-step, memoized?, unmemoize, memoized-environment,
+@c      procedure-name, procedure-source, procedure-environment,
+@c      local-eval, debug-object?, debug-hang
+@c   dynl.c: c-registered-modules, c-clear-registered-modules,
+@c      dynamic-link, dynamic-object?, dynamic-unlink, dynamic-func,
+@c      dynamic-call, dynamic-args-call
+@c   error.c: scm-error
+@c   eval.c: procedure-documentation, apply:nconc2last,
+@c      procedure->syntax, procedure->macro, procedure->memoizing-macro,
+@c      macro?, macro-type, macro-name, macro-transformer, promise?,
+@c      copy-tree, eval2, eval, eval!, macro-eval!, defined?
+@c   feature.c: program-arguments
+@c   fluids.c: make-fluid, fluid?, fluid-ref, fluid-set, with-fluids*
+@c   gc.c: map-free-list, unhash-name
+@c   ioext.c: %read-delimited!, %read-line
+@c   kw.c: make-keyword-from-dash-symbol
+@c   load.c: primitive-load, %package-data-dir, %search-load-path,
+@c      primitive-load-path, read-and-eval!
+@c   net_db.c: sethost, setnet, setproto, setserv
+@c   numbers.c: $asinh, $acosh, $atanh, $sqrt, $abs, $exp, $log, $sin,
+@c      $cos, $tan, $asin, $acos, $atan, $sinh, $cosh, $tanh, $expt,
+@c      $atan2
+@c   ports.c: current-error-port, set-current-input-port,
+@c      set-current-output-port, set-current-error-port, pt-size,
+@c      pt-member, port-line, set-port-line!, port-column,
+@c      set-port-column!, port-filename, set-port-filename!,
+@c      %make-void-port
+@c   posix.c: setpw, setgr, tmpname
+@c   print.c: current-pstate
+@c   procs.c: make-cclo, closure?, thunk?
+@c   read.c: read-hash-extend
+@c   readline.c: readline, add-history
+@c   simpos.c: system, software-type
+@c   srcprop.c: source-properties, set-source-properties!,
+@c      source-property, set-source-property!
+@c   stacks.c: stack? make-stack, stack-id, stack-ref, stack-length,
+@c      frame?, last-stack-frame, frame-number, frame-source,
+@c      frame-procedure, frame-arguments, frame-previous, frame-next,
+@c      frame-real?, frame-procedure?, frame-evaluating-args?,
+@c      frame-overflow
+@c   strop.c: substring-move-left!, substring-move-right!
+@c   struct.c: struct-vtable-tag
+@c   symbols.c: string->obarray-symbol, intern-symbol, unintern-symbol,
+@c      symbol-binding, symbol-interned, symbol-bound?, symbol-set!,
+@c      symbol-fref, symbol-pref, symbol-fset!, symbol-pset!,
+@c      symbol-hash, builtin-bindings, builtin-weak-bindings, gensym
+@c   tag.c: tag
+@c   threads.c: single-active-thread?, yield, call-with-new-thread,
+@c      make-condition-variable, wait-condition-variable,
+@c      signal-condition-variable
+@c   throw.c: lazy-catch, vector-set-length!
+@c   unif.c: uniform-vector-ref, uniform-array-set1!
+@c   variable.c: make-variable, make-undefined-variable, variable?,
+@c      variable-ref, variable-set!, builtin-variable, variable-bound?
+@c   vectors.c: vector-move-left!, vector-move-right!
+@c   version.c: major-version, minor-version, version,
+@c      libguile-config-stamp
+@c   weaks.c: make-weak-vector, weak-vector, list->weak-vector,
+@c      weak-vector? make-weak-key-hash-table,
+@c      make-weak-value-hash-table, make-doubly-weak-hash-table,
+@c      weak-key-hash-table?, weak-value-hash-table?,
+@c      doubly-weak-hash-table?
+@c
+@c If you have worked with some of these concepts, implemented them,
+@c or just happen to know what they do, please write up a little
+@c explanation -- it would be a big help.  Alternatively, if you
+@c know of a great reason why some of these should *not* go in the
+@c manual, please let me know.  I am inclined to think that any
+@c primitive declared in Scheme space should be documented, but may
+@c be persuadable to the contrary.  Thanks. -twp
+
 @include version.texi
 
 @c @iftex
@@ -23,7 +106,7 @@
 
 @dircategory Guile -- GNU extension language
 @direntry
-* guile-ref: (guile-ref).                       The Guile Reference Manual.
+* guile-ref: (guile-ref).  The Guile Reference Manual.
 @end direntry
 
 @setchapternewpage off
@@ -129,6 +212,7 @@ compatibility with many of these systems.
 
 * Extensions to Scheme::        Guile supports many features not in R4RS.
 * SLIB::                        Using the SLIB Scheme library.
+* Lists::                       Special list functions supported by Guile.
 * Data Structures::		Records, hash tables, etc.
 * Strings::                     Special things about strings.
 * Property Lists::              Managing metainformation about Scheme objects.
