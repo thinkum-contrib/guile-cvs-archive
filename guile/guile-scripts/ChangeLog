@@ -1,0 +1,6 @@
+2002-05-14  Marius Vollmer  <marius.vollmer@uni-dortmund.de>
+
+	* (update-guile-api.alist): Deal with commit failures by only
+	warning about them, not aborting.  This is useful for read-only
+	CVS checkouts, like anonymous ones.
+
