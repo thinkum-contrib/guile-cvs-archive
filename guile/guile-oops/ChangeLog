@@ -1,3 +1,11 @@
+1999-09-02  Mikael Djurfeldt  <mdj@mdj-pc.nada.kth.se>
+
+	* Makefile.am (install-exec-hook): Install libgoopscore under
+	$(prefix)/share/guile/oop/goops instead of creating links.
+	Creating links is not portable.  The double installation solution
+	will be replaced when Guile starts to use the ltdl portability
+	library for dynamic loading.
+
 1999-08-29  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
 	* goops.c (create_standard_classes): scm_class_foreign_object made
