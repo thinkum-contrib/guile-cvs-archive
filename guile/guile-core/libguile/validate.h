@@ -144,12 +144,6 @@
 
 #define SCM_VALIDATE_STRING(pos, str) SCM_MAKE_VALIDATE (pos, str, STRINGP)
 
-#define SCM_VALIDATE_STRINGORSUBSTR(pos, str) \
-  do { \
-    SCM_ASSERT (SCM_STRINGP (str) || SCM_SUBSTRP (str), \
-                str, pos, FUNC_NAME); \
-  } while (0)
-
 #define SCM_VALIDATE_STRING_COPY(pos, str, cvar) \
   do { \
     SCM_ASSERT (SCM_STRINGP (str), str, pos, FUNC_NAME); \
@@ -415,6 +409,14 @@
   do { \
     SCM_ASSERT (SCM_VECTORP (v) && len == SCM_VECTOR_LENGTH (v), v, pos, FUNC_NAME); \
   } while (0)
+
+
+
+#if (SCM_DEBUG_DEPRECATED == 0)
+
+#define SCM_VALIDATE_STRINGORSUBSTR SCM_VALIDATE_STRING
+
+#endif  /* SCM_DEBUG_DEPRECATED == 0 */
 
 #endif
 
