@@ -1,3 +1,8 @@
+2001-03-30  Marius Vollmer  <mvo@zagadka.ping.de>
+
+	* configure.in: Do not use "==" in test command, this is not
+	portable.  Thanks to Alexandre Oliva!
+
 2001-03-09  Mikael Djurfeldt  <mdj@linnaeus.mit.edu>
 
 	* GOOPS-VERSION (GOOPS_MINOR_VERSION): Bumped to 0.3.
