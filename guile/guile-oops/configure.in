@@ -24,6 +24,8 @@ AM_PROG_LIBTOOL
 CFLAGS="$CFLAGS $GUILE_CFLAGS"
 LIBS="$LIBS $GUILE_LDFLAGS"
 
+AC_CHECK_FUNCS(scm_simple_format)
+
 AC_CACHE_CHECK(for two argument scm_mutex_init,
 ac_cv_func_scm_mutex_init_two_args,
 AC_TRY_COMPILE([#include <libguile.h>],[scm_mutex_init (NULL, NULL);],
