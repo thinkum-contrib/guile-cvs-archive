@@ -27,7 +27,7 @@
       (begin
 	(set! angle (+ angle delta))
 	(c 'coords h x0 y0 (x1 angle) (y1 angle))
-	(usleep 5000)
+	(usleep 10000)
 	(hand-loop))))
 
 (define mu (make-mutex))
