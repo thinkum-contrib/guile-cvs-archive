@@ -1,9 +1,0 @@
-Makefile
-config.log
-config.status
-*.x
-.deps
-*.lo
-libtool
-.libs
-*.la
