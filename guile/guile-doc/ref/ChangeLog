@@ -1,3 +1,8 @@
+1999-10-18  Gary Houston  <ghouston@freewire.co.uk>
+
+	* scheme.texi (C Port Interface): update the description of 
+	the rw_random port flag.
+
 1999-09-22  Gary Houston  <ghouston@freewire.co.uk>
 
 	* scheme.texi: added a bit of documentation for port internals.

@@ -2467,22 +2467,25 @@ string is used as the buffer.
 
 @subsection The @code{rw_random} flag
 
-Special treatment is required for ports which can be seeked at random
-and which are open for both reading and writing.  The port implemention
-must be given a chance to update its state, by calling the 
-@code{flush} or @code{end_input} ptob procedures.  E.g., in the case
-of an fport, @code{flush} causes buffered output to be written to the
-file descriptor, while @code{end_input} causes the descriptor position
-to be adjusted to account for buffered input which was never read.
+Special treatment is required for ports which can be seeked at random.
+Before various operations, such as seeking the port or changing from
+input to output on a bidirectional port or vice versa, the port
+implemention must be given a chance to update its state.  The write
+buffer is updated by calling the @code{flush} ptob procedure and the
+input buffer is updated by calling the @code{end_input} ptob procedure.
+In the case of an fport, @code{flush} causes buffered output to be
+written to the file descriptor, while @code{end_input} causes the
+descriptor position to be adjusted to account for buffered input which
+was never read.
 
 The special treatment must be performed if the @code{rw_random} flag in
 the port is non-zero.
 
 @subsection The @code{rw_active} variable
 
-The @code{rw_active} variable in the port is only used if 
-@code{rw_random} is set.  It's defined as an enum with the
-following values:
+The @code{rw_active} variable in the port is only used if
+@code{rw_random} is set.  It's defined as an enum with the following
+values:
 
 @table @code
 @item SCM_PORT_READ
@@ -2492,7 +2495,7 @@ the read buffer may have unread data.
 the write buffer may have unwritten data.
 
 @item SCM_PORT_NEITHER
-neither the write nor the read buffer has unprocessed data.
+neither the write nor the read buffer has data.
 @end table
 
 @subsection Reading from a port.
