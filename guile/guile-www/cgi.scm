@@ -118,7 +118,7 @@
     (if server-software
 	(let ((slash (string-index server-software #\/)))
 	  (set! cgi-server-software-type    (substring server-software 0 slash))
-	  (set! cgi-server-software-version (substring server-software (1+ slash))))
+	  (set! cgi-server-software-version (substring server-software (1+ slash))))))
 
   (set! cgi-server-hostname	   (getenv "SERVER_NAME"))
   (set! cgi-gateway-interface	   (getenv "GATEWAY_INTERFACE"));"CGI/revision"
@@ -127,7 +127,7 @@
     (if server-protocol
 	(let ((slash (string-index server-protocol #\/)))
 	  (set! cgi-server-protocol-name     (substring server-protocol 0 slash))
-	  (set! cgi-server-protocol-version  (substring server-protocol (1+ slash))))
+	  (set! cgi-server-protocol-version  (substring server-protocol (1+ slash))))))
 
   (let ((port (getenv "SERVER_PORT")))
     (set! cgi-server-port (and port (string->number port))))
