@@ -1,0 +1,29 @@
+summary: ash has problems with inexact numbers
+reported: Bill Schottstaedt <bil@ccrma.Stanford.EDU>, 2003-10-13
+affects: HEAD branch_release-1-6 branch_release-1-4
+
+Under scm_ash, the doc string:
+
+	    "Formally, the function returns an integer equivalent to\n"
+	    "@code{(inexact->exact (floor (* @var{n} (expt 2 @var{cnt}))))}.\n"
+
+is incorrect:
+
+guile> (ash .1 2)
+0.4
+
+but ash is not handling negative shifts correctly:
+
+guile> (ash .1 -2)
+
+Backtrace:
+In standard input:
+    4: 0* [ash 0.1 -2]
+
+standard input:4:1: In procedure quotient in expression (ash 0.1 -2):
+standard input:4:1: Wrong type argument in position 1: 0.1
+ABORT: (wrong-type-arg)
+
+The scm_quotient function assumes its arguments are ints/bignums,
+so it can't be used directly in ash.
+
