@@ -49,6 +49,11 @@
    part of the guile-doc CVS module.  */
 
 
+/* Exceptions.  */
+
+extern SCM scm_text_unknown_encoding;
+
+
 /* Converting text.  */
 
 /* The type for conversion context objects.  */
@@ -165,5 +170,7 @@ struct scm_mb_encoding
   struct scm_mb_encoding *next;
 };
 
+
+extern void scm_init_mbconv (void);
 
 #endif  /* SCM_MBCONV_H */
