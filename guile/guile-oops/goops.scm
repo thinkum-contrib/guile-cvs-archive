@@ -484,7 +484,9 @@
 	  `(make <method>
 		 #:specializers (list* ,@(specializers args))
 		 #:procedure (lambda ,(cons 'next-method (formals args))
-			       ,@body)))))))
+			       ,@(if (null? body)
+				     (list *unspecified*)
+				     body))))))))
 
 ;;; {add-method!}
 ;;;
