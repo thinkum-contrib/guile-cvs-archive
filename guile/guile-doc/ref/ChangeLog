@@ -1,3 +1,7 @@
+1999-09-11  Gary Houston  <ghouston@easynet.co.uk>
+
+	* posix.texi (File System): added "directory?".
+
 1999-09-06  James Blandy  <jimb@mule.m17n.org>
 
 	* mbapi.texi, mltext.texi: New files, describing interfaces for

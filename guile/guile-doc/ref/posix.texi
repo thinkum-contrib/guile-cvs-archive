@@ -584,6 +584,11 @@ Open the directory specified by @var{path} and return a directory
 port.
 @end deffn
 
+@deffn primitive directory? object
+Returns a boolean indicating whether @var{object} is a directory port
+as returned by @code{opendir}.
+@end deffn
+
 @deffn primitive readdir port
 Return (as a string) the next directory entry from the directory port
 @var{port}.  If there is no remaining entry to be read then the
