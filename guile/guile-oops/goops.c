@@ -1016,6 +1016,17 @@ scm_method_procedure (SCM obj)
   return scm_slot_ref (obj, Intern ("procedure"));
 }
 
+SCM_PROC (s_accessor_method_slot_definition, "accessor-method-slot-definition", 1, 0, 0, scm_accessor_method_slot_definition);
+
+SCM
+scm_accessor_method_slot_definition (SCM obj)
+{
+  SCM_ASSERT (SCM_NIMP (obj) && METHODP (obj),
+	      obj, SCM_ARG1, s_method_procedure);
+  return scm_slot_ref (obj, Intern ("slot-definition"));
+}  
+
+
 /******************************************************************************
  *
  * S l o t   a c c e s s
@@ -2222,30 +2233,37 @@ make_stdcls (SCM *var, char *name, SCM meta, SCM super, SCM slots)
    DEFVAR(tmp, *var);
 }
 
+
+SCM_KEYWORD (k_slot_definition, "slot-definition");
+
 static void
 create_standard_classes (void)
 {
-  SCM tmp0;
-  SCM tmp1 = SCM_LIST4 (Intern ("generic-function"), 
-			Intern ("specializers"), 
-			Intern ("procedure"),
-			Intern ("code-table"));
+  SCM slots;
+  SCM method_slots = SCM_LIST4 (Intern ("generic-function"), 
+				Intern ("specializers"), 
+				Intern ("procedure"),
+				Intern ("code-table"));
+  SCM amethod_slots = SCM_LIST1 (SCM_LIST3 (Intern ("slot-definition"),
+					    k_init_keyword,
+					    k_slot_definition));
 #ifdef USE_THREADS
-  SCM tmp2 = SCM_LIST1 (Intern ("make-mutex"));
+  SCM mutex_slot = SCM_LIST1 (Intern ("make-mutex"));
 #else
-  SCM tmp2 = SCM_BOOL_F;
+  SCM mutex_slot = SCM_BOOL_F;
 #endif
-  SCM tmp3 = SCM_LIST4 (Intern ("methods"),
-			SCM_LIST3 (Intern ("n-specialized"),
-				   k_init_value,
-				   SCM_INUM0),
-			SCM_LIST3 (Intern ("used-by"),
-				   k_init_value,
-				   SCM_BOOL_F),
-			SCM_LIST3 (Intern ("cache-mutex"),
-				   k_init_thunk,
-				   scm_closure (SCM_LIST2 (SCM_EOL, tmp2),
-						SCM_EOL)));
+  SCM gf_slots = SCM_LIST4 (Intern ("methods"),
+			    SCM_LIST3 (Intern ("n-specialized"),
+				       k_init_value,
+				       SCM_INUM0),
+			    SCM_LIST3 (Intern ("used-by"),
+				       k_init_value,
+				       SCM_BOOL_F),
+			    SCM_LIST3 (Intern ("cache-mutex"),
+				       k_init_thunk,
+				       scm_closure (SCM_LIST2 (SCM_EOL,
+							       mutex_slot),
+						    SCM_EOL)));
 
   /* Foreign class slot classes */
   make_stdcls (&scm_class_foreign_slot,	   "<foreign-slot>",
@@ -2279,11 +2297,11 @@ create_standard_classes (void)
 
   /* Continue initialization of class <class> */
   
-  tmp0 = build_class_class_slots ();
-  SCM_SLOT (scm_class_class, scm_si_direct_slots) = tmp0;
-  SCM_SLOT (scm_class_class, scm_si_slots) = tmp0;
+  slots = build_class_class_slots ();
+  SCM_SLOT (scm_class_class, scm_si_direct_slots) = slots;
+  SCM_SLOT (scm_class_class, scm_si_slots) = slots;
   SCM_SLOT (scm_class_class, scm_si_getters_n_setters)
-    = compute_getters_n_setters (tmp0);
+    = compute_getters_n_setters (slots);
   
   make_stdcls (&scm_class_foreign_class, "<foreign-class>",
 	       scm_class_class, scm_class_class,
@@ -2308,19 +2326,19 @@ create_standard_classes (void)
 	       "<operator-with-setter-class>",
 	       scm_class_class, scm_class_operator_class, SCM_EOL);
   make_stdcls (&scm_class_method,	   "<method>",
-	       scm_class_class, scm_class_object,	   tmp1);
+	       scm_class_class, scm_class_object,	   method_slots);
   make_stdcls (&scm_class_simple_method,   "<simple-method>",
 	       scm_class_class, scm_class_method,	   SCM_EOL);
   SCM_SET_CLASS_FLAGS (scm_class_simple_method, SCM_CLASSF_SIMPLE_METHOD);
   make_stdcls (&scm_class_accessor,	   "<accessor-method>",
-	       scm_class_class, scm_class_simple_method,   SCM_EOL);
+	       scm_class_class, scm_class_simple_method,   amethod_slots);
   SCM_SET_CLASS_FLAGS (scm_class_accessor, SCM_CLASSF_ACCESSOR_METHOD);
   make_stdcls (&scm_class_entity,	   "<entity>",
 	       scm_class_entity_class, scm_class_object,   SCM_EOL);
   make_stdcls (&scm_class_entity_with_setter, "<entity-with-setter>",
 	       scm_class_entity_class, scm_class_entity,   SCM_EOL);
   make_stdcls (&scm_class_generic,	   "<generic>",
-	       scm_class_entity_class, scm_class_entity,   tmp3);
+	       scm_class_entity_class, scm_class_entity,   gf_slots);
   SCM_SET_CLASS_FLAGS (scm_class_generic, SCM_CLASSF_PURE_GENERIC);
   make_stdcls (&scm_class_generic_with_setter, "<generic-with-setter>",
 	       scm_class_entity_class,
