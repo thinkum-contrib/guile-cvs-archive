@@ -84,6 +84,10 @@ typedef union jit_code {
 
 #define jit_delay(insn, branch)		((insn), jit_fill_delay_after(branch))
 
+#ifndef jit_die
+#define jit_die(reg) ((void)0)
+#endif
+
 
 /* ALU synonyms */
 #define jit_addi_ui(d, rs, is)		jit_addi_i((d), (rs), (is))	
