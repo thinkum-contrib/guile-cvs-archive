@@ -1,0 +1,10 @@
+calli: calli.#f unknown
+jmpi: jmpi.#f unknown
+jmpr: jmpr.#f unknown
+nop: nop.#f unknown
+patch: patch.#f unknown
+prepare: prepare.#f unknown
+ret: ret.#f unknown
+prolog: prolog.#f unknown
+finish: finish.#f unknown
+leaf: leaf.#f unknown

@@ -1,0 +1,73 @@
+#!/bin/sh
+exec guile -s "$0"
+!#
+
+(define internal-test-list
+  (list
+   "tests/internal-test-success.scm"
+   "tests/internal-test-failure.scm"
+   "tests/internal-test-ignore.scm"))
+
+(define test-list
+  (list
+   "tests/test-call-counts.scm"
+   "tests/test-call-frequencies.scm"
+   ))
+
+(define (run-tests test-list)
+
+  (define failures 0)
+  (define successes 0)
+  (define ignores 0)
+
+  (define (run-test test-file)
+    (let* ((status (system (simple-format #f "guile -s \"~A\"" test-file)))
+           (exit-val (status:exit-val status)))
+      (cond
+       ((not exit-val) (set! failures (+ failures 1)))
+       ((zero? exit-val) (set! successes (+ successes 1)))
+       ((= exit-val 77) (set! ignores (+ ignores 1)))
+       (else (set! failures (+ failures 1))))))
+  
+  (map run-test test-list)
+  (list failures successes ignores))
+
+(define (display-test-results results)
+  (let ((failures (car results))
+        (successes (cadr results))
+        (ignores (caddr results)))
+
+    (simple-format #t
+                   (string-append 
+                    "Tests-complete.\n"
+                    "    ~A successe(s)\n"
+                    "    ~A failure(s)\n"
+                    "    ~A ignore(s)\n"
+                    "  ~A% failure rate.\n")
+                   successes
+                   failures
+                   ignores
+                   (let ((total (+ successes failures)))
+                     (if (zero? total)
+                         0
+                         (* 100 (/ failures total)))))))
+
+(display "Running tests.\n")
+
+;; First a self test.
+(if (not (equal? '(1 1 1) (run-tests internal-test-list)))
+    (begin
+      (display "ERROR: Testing infrastructure is broken.\n")
+      (exit 1)))
+
+;; Now the real tests.
+
+(let ((test-results (run-tests test-list)))
+  (display-test-results test-results)
+  (if (zero? (car test-results))
+      (exit 0)
+      (exit 1)))
+
+;; Local Variables:
+;; mode: scheme
+;; End:

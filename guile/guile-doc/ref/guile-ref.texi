@@ -8,8 +8,6 @@
 @c Jim's notes:
 
 @c Remember to use "subr" whereever appropriate.
-@c Actually, use "primitive", not "subr."  Why coin a new term?
-@c FIXME: gotta change existing "subr" uses to "Primitive".
 @c In my text for the Guile snarfer, I've used the term "subr" to denote
 @c a C function made available to the Scheme world as a function.  This
 @c terminology is weird, but consistent with the function names and also
@@ -128,7 +126,7 @@ Part I: Guile Scheme
 * Arrays::
 * Binary Numeric Operations::
 * Shared and Read-Only Strings::
-* Property Lists::
+* Object Properties::
 * Association Lists and Hash Tables::
 * Input/Output Ports::
 * Garbage Collection::

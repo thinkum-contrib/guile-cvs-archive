@@ -298,7 +298,7 @@ be called any number of times.
 
 @example
 (define x 'normal-binding)
-@result{} x
+=> x
 
 (define a-cont  (call-with-current-continuation 
 		  (lambda (escape)
@@ -322,22 +322,22 @@ be called any number of times.
 ;; Prints: 
 special-binding
 ;; Evaluates to:
-@result{} a-cont
+=> a-cont
 
 x
-@result{} normal-binding
+=> normal-binding
 
 (a-cont #f)
 ;; Prints:
 special-binding
 ;; Evaluates to:
-@result{} a-cont  ;; the value of the (define a-cont...)
+=> a-cont  ;; the value of the (define a-cont...)
 
 x
-@result{} normal-binding
+=> normal-binding
 
 a-cont
-@result{} special-binding
+=> special-binding
 @end example
 
 @end defun
@@ -695,15 +695,15 @@ of the type this vtable will describe.
                       'foo))
 
 (struct? x)
-@result{} #t
+=> #t
 (struct-vtable? x)
-@result{} #t
+=> #t
 (eq? x (struct-vtable x))
-@result{} #t
+=> #t
 (struct-ref x struct-vtable-offset)
-@result{} foo
+=> foo
 (struct-ref x 0)
-@result{} pruosrpw
+=> pruosrpw
 
 
 (define y
@@ -713,29 +713,29 @@ of the type this vtable will describe.
                'bar))
 
 (struct? y)
-@result{} #t
+=> #t
 (struct-vtable? y)
-@result{} #t
+=> #t
 (eq? x y)
-@result{} ()
+=> ()
 (eq? x (struct-vtable y))
-@result{} #t
+=> #t
 (struct-ref y 0)
-@result{} pwpwpw
+=> pwpwpw
 (struct-ref y struct-vtable-offset)
-@result{} bar
+=> bar
 
 
 (define z (make-struct y 0 'a 'b 'c))
 
 (struct? z)
-@result{} #t
+=> #t
 (struct-vtable? z)
-@result{} ()
+=> ()
 (eq? y (struct-vtable z))
-@result{} #t
+=> #t
 (map (lambda (n) (struct-ref z n)) '(0 1 2))
-@result{} (a b c)
+=> (a b c)
 @end example
 
 @end defun
@@ -1146,142 +1146,6 @@ Returns
 @node Binary Numeric Operations
 @chapter Binary Numeric Operations
 
-@defun logand n1 n2
-Returns the integer which is the bit-wise AND of the two integer
-arguments.
-
-Example:
-@lisp
-(number->string (logand #b1100 #b1010) 2)
-   @result{} "1000"
-@end lisp
-@end defun
-
-@defun logior n1 n2
-Returns the integer which is the bit-wise OR of the two integer
-arguments.
-
-Example:
-@lisp
-(number->string (logior #b1100 #b1010) 2)
-   @result{} "1110"
-@end lisp
-@end defun
-
-@defun logxor n1 n2
-Returns the integer which is the bit-wise XOR of the two integer
-arguments.
-
-Example:
-@lisp
-(number->string (logxor #b1100 #b1010) 2)
-   @result{} "110"
-@end lisp
-@end defun
-
-@defun lognot n
-Returns the integer which is the 2s-complement of the integer argument.
-
-Example:
-@lisp
-(number->string (lognot #b10000000) 2)
-   @result{} "-10000001"
-(number->string (lognot #b0) 2)
-   @result{} "-1"
-@end lisp
-@end defun
-
-@defun logtest j k
-@example
-(logtest j k) @equiv{} (not (zero? (logand j k)))
-
-(logtest #b0100 #b1011) @result{} #f
-(logtest #b0100 #b0111) @result{} #t
-@end example
-@end defun
-
-@defun logbit? index j
-@example
-(logbit? index j) @equiv{} (logtest (integer-expt 2 index) j)
-
-(logbit? 0 #b1101) @result{} #t
-(logbit? 1 #b1101) @result{} #f
-(logbit? 2 #b1101) @result{} #t
-(logbit? 3 #b1101) @result{} #t
-(logbit? 4 #b1101) @result{} #f
-@end example
-@end defun
-
-@defun ash int count
-Returns an integer equivalent to
-@code{(inexact->exact (floor (* @var{int} (expt 2 @var{count}))))}.@refill
-
-Example:
-@lisp
-(number->string (ash #b1 3) 2)
-   @result{} "1000"
-(number->string (ash #b1010 -1) 2)
-   @result{} "101"
-@end lisp
-@end defun
-
-@defun logcount n
-Returns the number of bits in integer @var{n}.  If integer is positive,
-the 1-bits in its binary representation are counted.  If negative, the
-0-bits in its two's-complement binary representation are counted.  If 0,
-0 is returned.
-
-Example:
-@lisp
-(logcount #b10101010)
-   @result{} 4
-(logcount 0)
-   @result{} 0
-(logcount -2)
-   @result{} 1
-@end lisp
-@end defun
-
-@defun integer-length n
-Returns the number of bits neccessary to represent @var{n}.
-
-Example:
-@lisp
-(integer-length #b10101010)
-   @result{} 8
-(integer-length 0)
-   @result{} 0
-(integer-length #b1111)
-   @result{} 4
-@end lisp
-@end defun
-
-@defun integer-expt n k
-Returns @var{n} raised to the non-negative integer exponent @var{k}.
-
-Example:
-@lisp
-(integer-expt 2 5)
-   @result{} 32
-(integer-expt -3 3)
-   @result{} -27
-@end lisp
-@end defun
-
-@defun bit-extract n start end
-Returns the integer composed of the @var{start} (inclusive) through
-@var{end} (exclusive) bits of @var{n}.  The @var{start}th bit becomes
-the 0-th bit in the result.@refill
-
-Example:
-@lisp
-(number->string (bit-extract #b1101101010 0 4) 2)
-   @result{} "1010"
-(number->string (bit-extract #b1101101010 4 9) 2)
-   @result{} "10110"
-@end lisp
-@end defun
-
 @page
 @node Shared and Read-Only Strings
 @chapter Shared and Read-Only Strings
@@ -1337,10 +1201,10 @@ string primitives like @code{string-length}, @code{string-ref},
 of @var{bar} and indices of @var{foo} automatically.
 
 @example
-(string-length? bar) @result{} 5	; bar only extends from indices 4 to 9
-(string-ref bar 3)  @result{} #\c	; same as (string-ref foo 7)
+(string-length? bar) => 5	; bar only extends from indices 4 to 9
+(string-ref bar 3)  => #\c	; same as (string-ref foo 7)
 (make-shared-substring bar 2)
-  @result{} "ick"			; can even make a shared substring!
+  => "ick"			; can even make a shared substring!
 @end example
 
 Because creating a shared substring does not require allocating new
@@ -1351,7 +1215,7 @@ substrings.
 
 @example
 (string-set! foo 7 #\r)
-bar @result{} "quirk"
+bar => "quirk"
 @end example
 
 Shared substrings are also treated as read-only strings by Guile.  This
@@ -1378,11 +1242,11 @@ This illustrates the difference between @code{string?} and
 @code{read-only-string?}:
 
 @example
-(string? "a string") @result{} #t
-(string? 'a-symbol") @result{} #f
+(string? "a string") => #t
+(string? 'a-symbol") => #f
 
-(read-only-string? "a string") @result{} #t
-(read-only-string? 'a-symbol") @result{} #t
+(read-only-string? "a string") => #t
+(read-only-string? 'a-symbol") => #t
 @end example
 @end defun
 
@@ -1400,97 +1264,55 @@ accept a symbol as well.
 Another of example of a read-only string is a "shared substring".
 Shared substrings are defined in the next chapter.
 
+
 @page
-@node Property Lists
-@chapter Property Lists
+@node Object Properties
+@chapter Object Properties
 
-Every object in the system can have a @dfn{property list} that may
-be used for information about that object.  For example, a
-function may have a property list that includes information about
-the source file in which it is defined.
+[FIXME: this is pasted in from Tom Lord's original guile.texi and should
+be reviewed]
 
-Property lists are implemented as assq lists (@pxref{Association Lists}).
-
-Currently, property lists are implemented differently for procedures and
-closures than for other kinds of objects.  Therefore, when manipulating
-a property list associated with a procedure object, use the
-@code{procedure} functions; otherwise, use the @code{object} functions.
+The system maintains an assoc list of properties associated with every
+object in the system.   A property list is protected by the object it is
+for;  if that object is garbage collected, then the property list may
+be as well.
 
 @defun object-properties obj
-@defunx procedure-properties obj
-Return @var{obj}'s property list.
-@end defun
-
-@defun set-object-properties! obj alist
-@defunx set-procedure-properties! obj alist
-Set @var{obj}'s property list to @var{alist}.
+@defunx set-object-properties obj alist
+Return (perhaps setting) the properties of @var{obj}.
 @end defun
 
 @defun object-property obj key
-@defunx procedure-property obj key
-Return the property of @var{obj} with name @var{key}.
-@end defun
-
-@defun set-object-property! obj key value
-@defunx set-procedure-property! obj key value
-In @var{obj}'s property list, set the property named @var{key} to
-@var{value}.
+@defunx set-object-property! obj key val
+Return (perhaps setting) a specific property of @var{obj}.
 @end defun
 
 [Interface bug:  there should be a second level of interface in which
 the user provides a "property table" that is possibly private.]
 
+
 @page
 @node Association Lists and Hash Tables
 @chapter Association Lists and Hash Tables
 
-This chapter discusses dictionary objects: data structures that are
-useful for organizing and indexing large bodies of information.
+[FIXME: this is pasted in from Tom Lord's original guile.texi and should
+be reviewed]
 
 @menu
-* Dictionary Types::  About dictionary types; what they're good for.
+* Dictionaries in general::     
 * Association Lists::           
-* Hash Tables::   
+* Hash Tables (Hash Values)::   
 @end menu
 
-@node Dictionary Types
-@section Dictionary Types
-
-A @dfn{dictionary} object is a data structure used to index
-information in a user-defined way.  In standard Scheme, the main
-aggregate data types are lists and vectors.  Lists are not really
-indexed at all, and vectors are indexed only by number
-(e.g. @code{(vector-ref foo 5)}).  Often you will find it useful
-to index your data on some other type; for example, in a library
-catalog you might want to look up a book by the name of its
-author.  Dictionaries are used to help you organize information in
-such a way.
-
-An @dfn{association list} (or @dfn{alist} for short) is a list of
-key-value pairs.  Each pair represents a single quantity or
-object; the @code{car} of the pair is a key which is used to
-identify the object, and the @code{cdr} is the object's value.
-
-A @dfn{hash table} also permits you to index objects with
-arbitrary keys, but in a way that makes looking up any one object
-extremely fast.  A well-designed hash system makes hash table
-lookups almost as fast as conventional array or vector references.
-
-Alists are popular among Lisp programmers because they use only
-the language's primitive operations (lists, @dfn{car}, @dfn{cdr}
-and the equality primitives).  No changes to the language core are
-necessary.  Therefore, with Scheme's built-in list manipulation
-facilities, it is very convenient to handle data stored in an
-association list.  Also, alists are highly portable and can be
-easily implemented on even the most minimal Lisp systems.
-
-However, alists are inefficient, especially for storing large
-quantities of data.  Because we want Guile to be useful for large
-software systems as well as small ones, Guile provides a rich set
-of tools for using either association lists or hash tables.
+@node Dictionaries in general
+@section Dictionaries in general
 
 @node Association Lists
 @section Association Lists
+
+[FIXME: while assq, assv and assoc are implemented as per R4RS, all of
+the other alist functions have their argument orders in reverse.  This
+should surely be changed? -twp]
 
 @defun assq key alist
 @defunx assv key alist
@@ -1519,9 +1341,9 @@ functions are equivalent to
 where @var{associator} is one of @code{assq}, @code{assv} or @code{assoc}.
 @end defun
 
-@deffn Procedure assq-set! alist key value
-@deffnx Procedure assv-set! alist key value
-@deffnx Procedure assoc-set! alist key value
+@defun assq-set! alist key value
+@defunx assv-set! alist key value
+@defunx assoc-set! alist key value
 Reassociate @var{key} in @var{alist} with @var{value}: find any existing
 @var{alist} entry for @var{key} and associate it with the new
 @var{value}.  If @var{alist} does not contain an entry for @var{key},
@@ -1530,38 +1352,23 @@ add a new one.  Return the (possibly new) alist.
 These functions do not attempt to verify the structure of @var{alist},
 and so may cause unusual results if passed an object that is not an
 association list.
-@end deffn
+@end defun
 
-@deffn Procedure assq-remove! alist key
-@deffnx Procedure assv-remove! alist key
-@deffnx Procedure assoc-remove! alist key
+@defun assq-remove! alist key
+@defunx assv-remove! alist key
+@defunx assoc-remove! alist key
 Delete any entry in @var{alist} associated with @var{key}, and return
 the resulting alist.
-@end deffn
+@end defun
 
-@strong{Caution:} it is important to remember that the @var{set!} and
-@var{remove!} functions do not always operate as intended.  In some
-circumstances, the functions will try to modify the first element in the
-list; for example, when adding a new entry to an alist,
-@code{assoc-set!} conses the new key-value pair on to the beginning of
-the alist.  However, when this happens, the symbol to which the alist is
-bound has not been modified---it still points to the old ``beginning''
-of the list, which still does not contain the new entry.  In order to be
-sure that these functions always succeed, even when modifying the
-beginning of the alist, you will have to rebind the alist symbol
-explicitly to point to the value returned by @code{assoc-set!}, like so:
+When using the @var{set!} and @var{remove!} functions, it is often wise
+to set the value of the affected alist explicitly to the value returned
+by these functions.  Although @code{assq-set!} and family are mutators,
+adding or removing an element at the beginning of a list can only be
+done by modifying the list's environment frame, which cannot be done by
+an ordinary function.
 
-@lisp
-(set! my-alist
-      (assq-set! my-alist 'sun4 "sparc-sun-solaris"))
-@end lisp
-
-Because of this restriction, you may find it more convenient to use hash
-tables to store dictionary data.  If your application will not be
-modifying the contents of an alist very often, this may not make much
-difference to you.
-
-Here is a longer example of how alists may be used in practice.
+Example:
 
 @lisp
 (define capitals '(("New York" . "Albany")
@@ -1569,14 +1376,14 @@ Here is a longer example of how alists may be used in practice.
                    ("Florida"  . "Miami")))
 
 ;; What's the capital of Oregon?
-(assoc "Oregon" capitals)       @result{} ("Oregon" . "Salem")
-(assoc-ref capitals "Oregon")   @result{} "Salem"
+(assoc "Oregon" capitals)       => ("Oregon" . "Salem")
+(assoc-ref capitals "Oregon")   => "Salem"
 
 ;; We left out South Dakota.
 (set! capitals
       (assoc-set! capitals "South Dakota" "Bismarck"))
 capitals
-@result{} (("South Dakota" . "Bismarck")
+=> (("South Dakota" . "Bismarck")
     ("New York" . "Albany")
     ("Oregon" . "Salem")
     ("Florida" . "Miami"))
@@ -1585,7 +1392,7 @@ capitals
 (set! capitals
       (assoc-set! capitals "Florida" "Tallahassee"))
 capitals
-@result{} (("South Dakota" . "Bismarck")
+=> (("South Dakota" . "Bismarck")
     ("New York" . "Albany")
     ("Oregon" . "Salem")
     ("Florida" . "Tallahassee"))
@@ -1594,248 +1401,44 @@ capitals
 (set! capitals
       (assoc-remove! capitals "Oregon"))
 capitals
-@result{} (("South Dakota" . "Bismarck")
+=> (("South Dakota" . "Bismarck")
     ("New York" . "Albany")
     ("Florida" . "Tallahassee"))
 @end lisp
 
-@node Hash Tables
-@section Hash Tables
+Note that the explicit @code{set!} to @var{capitals} turned out to be
+unnecessary in two of three instances: the change would have remained in
+effect even if @code{capitals} had not explicitly been rebound.
+However, it is not practical in general to predict when an explicit
+@code{set!} is necessary, so it is often prudent to risk a little
+redundancy.
 
-Like the association list functions, the hash table functions come
-in several varieties: @code{hashq}, @code{hashv}, and @code{hash}.
-The @code{hashq} functions use @code{eq?} to determine whether two
-keys match.  The @code{hashv} functions use @code{eqv?}, and the
-@code{hash} functions use @code{equal?}.
+@node Hash Tables (Hash Values)
+@section Hash Tables (Hash Values)
 
-In each of the functions that follow, the @var{table} argument
-must be a vector.  The @var{key} and @var{value} arguments may be
-any Scheme object.
-
-@defun hashq-ref table key [default]
-@defunx hashv-ref table key [default]
-@defunx hash-ref table key [default]
-Look up @var{key} in the hash table @var{table}, and return the
-value (if any) associated with it.  If @var{key} is not found,
-return @var{default} (or @code{#f} if no @var{default} argument is
-supplied).
-@end defun
-
-@deffn Procedure hashq-set! table key value
-@deffnx Procedure hashv-set! table key value
-@deffnx Procedure hash-set! table key value
-Find the entry in @var{table} associated with @var{key}, and store
-@var{value} there.
-@end deffn
-
-@deffn Procedure hashq-remove! table key
-@deffnx Procedure hashv-remove! table key
-@deffnx Procedure hash-remove! table key
-Remove @var{key} (and any value associated with it) from @var{table}.
-@end deffn
-
-The standard hash table functions may be too limited for some
-applications.  For example, you may want a hash table to store
-strings in a case-insensitive manner, so that references to keys
-named ``foobar'', ``FOOBAR'' and ``FooBaR'' will all yield the
-same item.  Guile provides you with @dfn{extended} hash tables
-that permit you to specify a hash function and associator function
-of your choosing.
-
-If you are unfamiliar with the inner workings of hash tables, then
-this facility will probably be a little too abstract for you to
-use comfortably.  If you are interested in learning more, see an
-introductory textbook on data structures or algorithms for an
-explanation of how hash tables are implemented.
-
-@defun hashq key size
-@defunx hashv key size
-@defunx hash key size
-Default hash functions for Guile hash tables.  @var{key} is the
-object to be hashed, and @var{size} is the size of the target hash
-table.  Each function returns an integer in the range 0 to
-@var{size}-1.
-@end defun
-
-@deffn Function hashx-ref hasher assoc table key [default]
-@deffnx Procedure hashx-set! hasher assoc table key value
-@deffnx Procedure hashx-remove! hasher assoc table key
-These behave the same way as the corresponding @code{ref} and
-@code{set!} functions described above, but use @var{hasher} as a
-hash function and @var{assoc} to compare keys.  @code{hasher} must
-be a function that takes two arguments, a key to be hashed and a
-table size.  @code{assoc} must be an associator function, like
-@code{assoc}, @code{assq} or @code{assv}.
-
-By way of illustration, @code{hashq-ref table key} is equivalent
-to @code{hashx-ref hashq assq table key}.
-@end deffn
-
-[FIXME: I have not included the `-get-handle' and
-`-create-handle!' functions here, since the typical guile user
-will probably only need to use the ref and set! functions, and
-extra documentation they don't need to know may only be
-confusing. -twp]
 
 @page
 @node Input/Output Ports
 @chapter Input/Output Ports
 
-Input and output devices in Scheme are represented by @dfn{ports}.
-All input and output in Scheme programs is accomplished by
-operating on a port: characters are read from an input port and
-written to an output port.  This chapter explains the operations
-that Guile provides for working with ports.
-
-The formal definition of a port is very generic: an input port is
-simply ``an object which can deliver characters on command,'' and
-an output port is ``an object which can accept characters.''
-Because this definition is so loose, it is easy to write functions
-that simulate ports in software.  @dfn{Soft ports} and @dfn{string
-ports} are two interesting and powerful examples of this technique.
+[FIXME: this is pasted in from Tom Lord's original guile.texi and should
+be reviewed]
 
 @menu
-* File Ports::
-* Soft Ports::
-* String Ports::
-* Extended I/O (fseek and line read/write)::
-* Closing Ports::
+* File Ports::                  
+* Soft Ports::                  
+* String Ports::                
+* Extended I/O (fseek and line read/write)::  
 @end menu
 
 @node File Ports
 @section File Ports
 
-@defun open-file string modes
-Open the file whose name is @var{string}, and return a port
-representing that file.  Whether an input or output port is
-allocated is determined by the @var{modes} string.  This is
-interpreted in the traditional Unix manner: use @samp{r} for
-reading, @samp{w} for writing, and @samp{a} for appending.  In
-addition, @samp{0} can be used to specifiy an unbuffered port.
-
-See
-the @code{stdio} documentation for your system for more
-I/O mode options.
-
-If a file cannot be opened, @code{open-file} throws an exception.
-@end defun
-
-@defun open-input-file string
-A procedure required by R4RS, equivalent to
-@smalllisp
-(open-file @var{string} "r")
-@end smalllisp
-@end defun
-
-@defun open-output-file string
-A procedure required by R4RS, equivalent to
-@smalllisp
-(open-file @var{string} "w")
-@end smalllisp
-@end defun
-
-@defun port-mode port
-Return the mode flags from the open @var{port}.
-@end defun
-
 @node Soft Ports
 @section Soft Ports
 
-A @dfn{soft-port} is a port based on a vector of procedures capable of
-accepting or delivering characters.  It allows emulation of I/O ports.
-
-@defun make-soft-port vector modes
-Returns a port capable of receiving or delivering characters as
-specified by the @var{modes} string (@pxref{File Ports,
-open-file}).  @var{vector} must be a vector of length 6.  Its components
-are as follows:
-
-@enumerate 0
-@item
-procedure accepting one character for output
-@item
-procedure accepting a string for output
-@item
-thunk for flushing output
-@item
-thunk for getting one character
-@item
-thunk for closing port (not by garbage collection)
-@end enumerate
-
-For an output-only port only elements 0, 1, 2, and 4 need be
-procedures.  For an input-only port only elements 3 and 4 need be
-procedures.  Thunks 2 and 4 can instead be @code{#f} if there is no useful
-operation for them to perform.
-
-If thunk 3 returns @code{#f} or an @code{eof-object} (@pxref{Input,
-eof-object?, ,r4rs, Revised(4) Scheme}) it indicates that the port has
-reached end-of-file.  For example:
-
-@example
-(define stdout (current-output-port))
-(define p (make-soft-port
-           (vector
-            (lambda (c) (write c stdout))
-            (lambda (s) (display s stdout))
-            (lambda () (display "." stdout))
-            (lambda () (char-upcase (read-char)))
-            (lambda () (display "@@" stdout)))
-           "rw"))
-
-(write p p) @result{} #<input-output-soft#\space45d10#\>
-@end example
-@end defun
-
 @node String Ports
 @section String Ports
-
-@deffn Procedure call-with-output-string proc
-@var{proc} must be a procedure of one argument.  This procedure calls
-@var{proc} with one argument: a (newly created) output port.  When the
-function returns, the string composed of the characters written into the
-port is returned.
-@end deffn
-
-@deffn Procedure call-with-input-string string proc
-@var{proc} must be a procedure of one argument.  This procedure calls
-@var{proc} with one argument: an (newly created) input port from which
-@var{string}'s contents may be read.  When @var{proc} returns, the port
-is closed and the value yielded by the procedure @var{proc} is
-returned.
-@end deffn
-
-@defun eval-string string
-Evaluate @var{string} as the text representation of a Scheme form
-or forms, and return whatever value they produce.
-[FIXME: figure out where this should go... eval-string is not
-really closely related to other string port functions.  It just
-happens to appear in strports.c because it uses a string port to
-read from the string. -twp]
-@end defun
-
-@node Closing Ports
-@section Closing Ports
-The following procedures return @code{#t} if they successfully
-close a port or @code{#f} if it was already
-closed.  They can also raise exceptions if an error occurs: some
-errors arising from writing output may be delayed until close.
-See also @ref{ports vs file descriptors, close}, for a procedure
-which can close file descriptors.
-
-@deffn procedure close-port port
-Close the specified port object.
-@end deffn
-
-@deffn procedure close-input-port port
-Close the specified input port object.  This procedure is required by 
-R4RS.
-@end deffn
-
-@deffn procedure close-output-port port
-Close the specified output port object.  This procedure is required by 
-R4RS.
-@end deffn
 
 @node Extended I/O (fseek and line read/write)
 @section Extended I/O (fseek and line read/write)
@@ -1914,12 +1517,10 @@ value returned by @code{(current-output-port)}; equivalent to:
 (newline [port])
 @end smalllisp
 @end deffn
-
 @deffn procedure ftell port
 Returns an integer representing the current position of @var{port},
 measured from the beginning.
 @end deffn
-
 @deffn procedure fseek port offset whence
 Sets the current position of @var{port} to the integer @var{offset},
 which is interpreted according to the value of @var{whence}.
@@ -2203,316 +1804,11 @@ be reviewed]
 @node Regular Expressions
 @chapter Regular Expressions
 
-@cindex regular expressions
-@cindex regex
-@cindex emacs regexp
-
-A @dfn{regular expression} (or @dfn{regexp}) is a pattern that
-describes a whole class of strings.  A full description of regular
-expressions and their syntax is beyond the scope of this manual;
-an introduction can be found in the Emacs manual (@pxref{Regexps,
-, Syntax of Regular Expressions, emacs, The GNU Emacs Manual}, or
-in many general Unix reference books.
-
-If your system does not include a POSIX regular expression library, and
-you have not linked Guile with a third-party regexp library such as Rx,
-these functions will not be available.  You can tell whether your Guile
-installation includes regular expression support by checking whether the
-@code{*features*} list includes the @code{regex} symbol.
-
-@menu
-* Regexp Functions::    Functions that create and match regexps.
-* Match Structures::    Finding what was matched by a regexp.
-* Backslash Escapes::   Removing the special meaning of regexp metacharacters.
-* Rx Interface::	Tom Lord's Rx library does things differently.
-@end menu
-
-[FIXME: it may be useful to include an Examples section.  Parts of this
-interface are bewildering on first glance.]
-
-@node Regexp Functions
-@section Regexp Functions
-
-By default, Guile supports POSIX extended regular expressions.
-That means that the characters @samp{(}, @samp{)}, @samp{+} and
-@samp{?} are special, and must be escaped if you wish to match the
-literal characters.
-
-This regular expression interface was modeled after that
-implemented by SCSH, the Scheme Shell.  It is intended to be
-upwardly compatible with SCSH regular expressions.
-
-@defun string-match pattern str [start]
-Compile the string @var{pattern} into a regular expression and compare
-it with @var{str}.  The optional numeric argument @var{start} specifies
-the position of @var{str} at which to begin matching.
-
-@code{string-match} returns a @dfn{match structure} which
-describes what, if anything, was matched by the regular
-expression.  @xref{Match Structures}.  If @var{str} does not match
-@var{pattern} at all, @code{string-match} returns @code{#f}.
-@end defun
-
-Each time @code{string-match} is called, it must compile its
-@var{pattern} argument into a regular expression structure.  This
-operation is expensive, which makes @code{string-match} inefficient if
-the same regular expression is used several times (for example, in a
-loop).  For better performance, you can compile a regular expression in
-advance and then match strings against the compiled regexp.
-
-@defun make-regexp str [flag @dots{}]
-Compile the regular expression described by @var{str}, and return the
-compiled regexp structure.  If @var{str} does not describe a legal
-regular expression, @code{make-regexp} throws a
-@code{regular-expression-syntax} error.
-
-The @var{flag} arguments change the behavior of the compiled regexp.
-The following flags may be supplied:
-
-@table @code
-@item regexp/icase
-Consider uppercase and lowercase letters to be the same when matching.
-
-@item regexp/newline
-If a newline appears in the target string, then permit the @samp{^} and
-@samp{$} operators to match immediately after or immediately before the
-newline, respectively.  Also, the @samp{.} and @samp{[^...]} operators
-will never match a newline character.  The intent of this flag is to
-treat the target string as a buffer containing many lines of text, and
-the regular expression as a pattern that may match a single one of those
-lines.
-
-@item regexp/basic
-Compile a basic (``obsolete'') regexp instead of the extended
-(``modern'') regexps that are the default.  Basic regexps do not
-consider @samp{|}, @samp{+} or @samp{?} to be special characters, and
-require the @samp{@{...@}} and @samp{(...)} metacharacters to be
-backslash-escaped (@pxref{Backslash Escapes}).  There are several other
-differences between basic and extended regular expressions, but these
-are the most significant.
-
-@item regexp/extended
-Compile an extended regular expression rather than a basic regexp.  This
-is the default behavior; this flag will not usually be needed.  If a
-call to @code{make-regexp} includes both @code{regexp/basic} and
-@code{regexp/extended} flags, the one which comes last will override
-the earlier one.
-@end table
-
-@end defun
-
-@defun regexp-exec regexp str [start]
-Match the compiled regular expression @var{regexp} against @code{str}.
-If the optional integer @var{start} argument is provided, begin matching
->From that position in the string.  Return a match structure describing
-the results of the match, or @code{#f} if no match could be found.
-@end defun
-
-@defun regexp? obj
-Return @code{#t} if @var{obj} is a compiled regular expression, or
-@code{#f} otherwise.
-@end defun
-
-Regular expressions are commonly used to find patterns in one string and
-replace them with the contents of another string.
-
-@defun regexp-substitute port match [item@dots{}]
-Write to the output port @var{port} selected contents of the match
-structure @var{match}.  Each @var{item} specifies what should be
-written, and may be one of the following arguments:
-
-@itemize @bullet
-@item
-A string.  String arguments are written out verbatim.
-
-@item
-An integer.  The submatch with that number is written.
-
-@item
-The symbol @samp{pre}.  The portion of the matched string preceding
-the regexp match is written.
-
-@item
-The symbol @samp{post}.  The portion of the matched string following
-the regexp match is written.
-@end itemize
-
-@var{port} may be @code{#f}, in which case nothing is written; instead,
-@code{regexp-substitute} constructs a string from the specified
-@var{item}s and returns that.
-@end defun
-
-@defun regexp-substitute/global port regexp target [item@dots{}]
-Similar to @code{regexp-substitute}, but can be used to perform global
-substitutions on @var{str}.  Instead of taking a match structure as an
-argument, @code{regexp-substitute/global} takes two string arguments: a
-@var{regexp} string describing a regular expression, and a @var{target}
-string which should be matched against this regular expression.
-
-Each @var{item} behaves as in @var{regexp-substitute}, with the
-following exceptions:
-
-@itemize @bullet
-@item
-A function may be supplied.  When this function is called, it will be
-passed one argument: a match structure for a given regular expression
-match.  It should return a string to be written out to @var{port}.
-
-@item
-The @samp{post} symbol causes @code{regexp-substitute/global} to recurse
-on the unmatched portion of @var{str}.  This @emph{must} be supplied in
-order to perform global search-and-replace on @var{str}; if it is not
-present among the @var{item}s, then @code{regexp-substitute/global} will
-return after processing a single match.
-@end itemize
-@end defun
-
-@node Match Structures
-@section Match Structures
-
-@cindex match structures
-
-A @dfn{match structure} is the object returned by @code{string-match} and
-@code{regexp-exec}.  It describes which portion of a string, if any,
-matched the given regular expression.  Match structures include: a
-reference to the string that was checked for matches; the starting and
-ending positions of the regexp match; and, if the regexp included any
-parenthesized subexpressions, the starting and ending positions of each
-submatch.
-
-In each of the regexp match functions described below, the @code{match}
-argument must be a match structure returned by a previous call to
-@code{string-match} or @code{regexp-exec}.  Most of these functions
-return some information about the original target string that was
-matched against a regular expression; we will call that string
-@var{target} for easy reference.
-
-@defun regexp-match? obj
-Return @code{#t} if @var{obj} is a match structure returned by a
-previous call to @code{regexp-exec}, or @code{#f} otherwise.
-@end defun
-
-@defun match:substring match [n]
-Return the portion of @var{target} matched by subexpression number
-@var{n}.  Submatch 0 (the default) represents the entire regexp match.
-If the regular expression as a whole matched, but the subexpression
-number @var{n} did not match, return @code{#f}.
-@end defun
-
-@defun match:start match [n]
-Return the starting position of submatch number @var{n}.
-@end defun
-
-@defun match:end match [n]
-Return the ending position of submatch number @var{n}.
-@end defun
-
-@defun match:prefix match
-Return the unmatched portion of @var{target} preceding the regexp match.
-@end defun
-
-@defun match:suffix match
-Return the unmatched portion of @var{target} following the regexp match.
-@end defun
-
-@defun match:count match
-Return the number of parenthesized subexpressions from @var{match}.
-Note that the entire regular expression match itself counts as a
-subexpression, and failed submatches are included in the count.
-@end defun
-
-@defun match:string match
-Return the original @var{target} string.
-@end defun
-
-@node Backslash Escapes
-@section Backslash Escapes
-
-Sometimes you will want a regexp to match characters like @samp{*} or
-@samp{$} exactly.  For example, to check whether a particular string
-represents a menu entry from an Info node, it would be useful to match
-it against a regexp like @samp{^* [^:]*::}.  However, this won't work;
-because the asterisk is a metacharacter, it won't match the @samp{*} at
-the beginning of the string.  In this case, we want to make the first
-asterisk un-magic.
-
-You can do this by preceding the metacharacter with a backslash
-character @samp{\}.  (This is also called @dfn{quoting} the
-metacharacter, and is known as a @dfn{backslash escape}.)  When Guile
-sees a backslash in a regular expression, it considers the following
-glyph to be an ordinary character, no matter what special meaning it
-would ordinarily have.  Therefore, we can make the above example work by
-changing the regexp to @samp{^\* [^:]*::}.  The @samp{\*} sequence tells
-the regular expression engine to match only a single asterisk in the
-target string.
-
-Since the backslash is itself a metacharacter, you may force a regexp to
-match a backslash in the target string by preceding the backslash with
-itself.  For example, to find variable references in a @TeX{} program,
-you might want to find occurrences of the string @samp{\let\} followed
-by any number of alphabetic characters.  The regular expression
-@samp{\\let\\[A-Za-z]*} would do this: the double backslashes in the
-regexp each match a single backslash in the target string.
-
-@defun regexp-quote str
-Quote each special character found in @var{str} with a backslash, and
-return the resulting string.
-@end defun
-
-@strong{Very important:} Using backslash escapes in Guile source code
-(as in Emacs Lisp or C) can be tricky, because the backslash character
-has special meaning for the Guile reader.  For example, if Guile
-encounters the character sequence @samp{\n} in the middle of a string
-while processing Scheme code, it replaces those characters with a
-newline character.  Similarly, the character sequence @samp{\t} is
-replaced by a horizontal tab.  Several of these @dfn{escape sequences}
-are processed by the Guile reader before your code is executed.
-Unrecognized escape sequences are ignored: if the characters @samp{\*}
-appear in a string, they will be translated to the single character
-@samp{*}.
-
-This translation is obviously undesirable for regular expressions, since
-we want to be able to include backslashes in a string in order to
-escape regexp metacharacters.  Therefore, to make sure that a backslash
-is preserved in a string in your Guile program, you must use @emph{two}
-consecutive backslashes:
-
-@lisp
-(define Info-menu-entry-pattern (make-regexp "^\\* [^:]*"))
-@end lisp
-
-The string in this example is preprocessed by the Guile reader before
-any code is executed.  The resulting argument to @code{make-regexp} is
-the string @samp{^\* [^:]*}, which is what we really want.
-
-This also means that in order to write a regular expression that matches
-a single backslash character, the regular expression string in the
-source code must include @emph{four} backslashes.  Each consecutive pair
-of backslashes gets translated by the Guile reader to a single
-backslash, and the resulting double-backslash is interpreted by the
-regexp engine as matching a single backslash character.  Hence:
-
-@lisp
-(define tex-variable-pattern (make-regexp "\\\\let\\\\=[A-Za-z]*"))
-@end lisp
-
-The reason for the unwieldiness of this syntax is historical.  Both
-regular expression pattern matchers and Unix string processing systems
-have traditionally used backslashes with the special meanings
-described above.  The POSIX regular expression specification and ANSI C
-standard both require these semantics.  Attempting to abandon either
-convention would cause other kinds of compatibility problems, possibly
-more severe ones.  Therefore, without extending the Scheme reader to
-support strings with different quoting conventions (an ungainly and
-confusing extension when implemented in other languages), we must adhere
-to this cumbersome escape syntax.
-
-@node Rx Interface
-@section Rx Interface
-
 [FIXME: this is taken from Gary and Mark's quick summaries and should be
 reviewed and expanded.  Rx is pretty stable, so could already be done!]
 
+@cindex regular expressions
+@cindex regex
 @cindex rx
 @cindex finite automaton
 
@@ -2640,6 +1936,13 @@ Test whether obj is a compiled regular expression.
 @deffn procedure advance-dfa! dfa string
 @end deffn
 
+
+@cindex emacs regexp
+An introduction to the sytax of regular expressions can be
+found in the Emacs manual (@pxref{Regexps, ,Syntax of Regular Expressions,
+emacs, The Emacs Editor}).
+
+
 @page
 @node SLIB
 @chapter SLIB
@@ -2647,34 +1950,26 @@ Test whether obj is a compiled regular expression.
 SLIB is a portable Scheme library which can be obtained by ftp from
 @url{ftp://prep.ai.mit.edu/pub/gnu/jacal}.
 
-The SLIB package should be unpacked somewhere in Guile's load path.
-The load path can be checked from inside the interpreter, e.g.,
+The slib package should be unpacked in the installed ice-9 directory.
 
-@smalllisp
-guile> %load-path
-("/usr/local/share/guile/site" "/usr/local/share/guile/1.3a" "/usr/local/share/guile" ".")
-@end smalllisp
-
-so we may have @code{/usr/local/share/guile/site/slib/...}.
-
-Before the the SLIB facilities can be used, the following Scheme
-expression must be executed:
-
+To get access to SLIB facilities, use:
 @smalllisp
 (use-modules (ice-9 slib))
 @end smalllisp
 
-@code{require} can then be used as described in 
-@ref{Top, , SLIB, slib, The SLIB Manual}, e.g.,
+after which @code{require} can be used as described in 
+@ref{Top, , SLIB, slib, The SLIB Manual}.
 
-@smalllisp
-(require 'format)
-(format "~8,48D" 10)
-@end smalllisp
 
 @page
 @node POSIX system calls and networking
 @chapter POSIX system calls and networking
+
+--- I think people will generally know whether they're looking
+    for a system call or not, so this should be an okay category.
+
+[FIXME: I have just pasted Gary's stuff in, since Jim's outline pretty
+much matched Gary's chapters.  Slight review needed.]
 
 The low level Unix interfaces are currently available by default in the
 Guile top level.  However in the future they will probably be placed in
@@ -2682,23 +1977,22 @@ a module and @code{use-modules} or something similar will be required to
 make them available.
 
 @menu
-* conventions::
-* ports vs file descriptors::  
-* file system::
-* user database::
-* time::
-* processes::
-* signals::
+* conventions (includes error handling)::  
+* ports vs. file descriptors::  
+* file system (mknod goes here no?)::  
+* user database::               
+* time (includes gettimeofday or whatever strftime strptime)::  
+* processes::                   
 * terminals and pseudo-terminals::  
 * pipes::                       
-* networking::
+* networking includes databases - address conversion and sockets::  
 * system identification (uname)::  
 * locales (setlocale):: 
 * expect::
 @end menu
 
-@node conventions
-@section conventions
+@node conventions (includes error handling)
+@section conventions (includes error handling)
 
 The low-level interfaces are designed to give Scheme programs access to
 as much functionality as possible from the underlying Unix system.  They
@@ -2760,8 +2054,8 @@ in the data passed by the exception.  Accessing the
 global errno value directly would be unreliable due to
 continuations, interrupts or multiple threads.
 
-@node ports vs file descriptors
-@section ports vs file descriptors
+@node ports vs. file descriptors
+@section ports vs. file descriptors
 
 Conventions largely follow those of scsh, @ref{The Scheme shell (scsh)}.
 
@@ -2831,7 +2125,7 @@ side effect the revealed count of @var{port} is incremented.
 Returns a new port based on the file descriptor @var{fdes} with
 modes given by the string @var{modes}.  The revealed count of the port
 is initialized to zero.  The modes string is the same as that accepted
-by @ref{File Ports, open-file}.
+by @code{open-file}.
 @end deffn
 
 @defun fdes->ports fdes
@@ -2841,14 +2135,16 @@ underlying file descriptor, without changing their revealed counts.
 
 @defun fdes->inport fdes
 Returns an existing input port which has @var{fdes} as its underlying file
-descriptor, if one exists, and increments its revealed count.
-Otherwise, returns a new input port with a revealed count of 1.
+descriptor, if one exists, without changing its revealed count.
+Otherwise, returns a new input port created with
+fdopen and sets its revealed count to 1.
 @end defun
 
 @defun fdes->outport fdes
 Returns an existing output port which has @var{fdes} as its underlying file
-descriptor, if one exists, and increments its revealed count.
-Otherwise, returns a new output port with a revealed count of 1.
+descriptor, if one exists, without changing its revealed count.
+Otherwise, returns a new output port created with
+fdopen and sets its revealed count to 1.
 @end defun
 
 @defun primitive-move->fdes port fdes
@@ -2873,24 +2169,6 @@ The return value is unspecified.
 Decrements the revealed count for a port.
 @end deffn
 
-@findex fflush
-@deffn procedure force-output [port]
-Flush the specified output port, or the current output port if @var{port}
-is omitted.  The return value is unspecified.
-@end deffn
-
-@deffn procedure flush-all-ports
-Flush all open output ports.  The return value is unspecified.
-@end deffn
-
-@deffn procedure close port/fd
-Similar to close-port (@pxref{Closing Ports, close-port}),
-but also works on file descriptors.  A side
-effect of closing a file descriptor is that any ports using that file
-descriptor are moved to a different file descriptor and have
-their revealed counts set to zero.
-@end deffn
-
 @deffn procedure pipe
 Creates a pipe which can be used for communication.  The return value
 is a pair in which the CAR contains an input port and the CDR an
@@ -2901,50 +2179,16 @@ Alternatively a new unbuffered output port can be created using
 @code{duplicate-port} with an appropriate mode string.
 @end deffn
 
-The next group of procedures perform a @code{dup2}
-system call, if @var{newfd} (an
-integer) is supplied, otherwise a @code{dup}.  The file descriptor to be
-duplicated can be supplied as an integer or contained in a port.  The
-type of value returned varies depending on which procedure is used.
-
-All procedures also have the side effect when performing @code{dup2} that any
-ports using @var{newfd} are moved to a different file descriptor and have
-their revealed counts set to zero.
-
-@deffn procedure dup->fdes port/fd [newfd]
-Returns an integer file descriptor.
-@end deffn
-
-@deffn procedure dup->inport port/fd [newfd]
-Returns a new input port using the new file descriptor.
-@end deffn
-
-@deffn procedure dup->outport port/fd [newfd]
-Returns a new output port using the new file descriptor.
-@end deffn
-
-@deffn procedure dup port/fd [newfd]
-Returns a new port if @var{port/fd} is a port, with the same mode as the
-supplied port, otherwise returns an integer file descriptor.
-@end deffn
-
-@deffn procedure dup->port port/fd mode [newfd]
-Returns a new port using the new file descriptor.  @var{mode} supplies a 
-mode string for the port (@pxref{File Ports, open-file}).
-@end deffn
-
 @deffn procedure duplicate-port port modes
 Returns a new port which is opened on a duplicate of the file
 descriptor underlying @var{port}, with mode string @var{modes}
-as for @ref{File Ports, open-file}.  The two ports
+as for @code{open-file}.  The two ports
 will share a file position and file status flags.
 
 Unexpected behaviour can result if both ports are subsequently used
 and the original and/or duplicate ports are buffered.
 The mode string can include @code{0} to obtain an unbuffered duplicate
 port.
-
-This procedure is equivalent to @code{(dup->port @var{port} @var{modes})}.
 @end deffn
 
 @deffn procedure redirect-port old-port new-port
@@ -2958,9 +2202,6 @@ The return value is unspecified.
 
 Unexpected behaviour can result if both ports are subsequently used
 and the original and/or duplicate ports are buffered.
-
-This procedure does not have any side effects on other ports or
-revealed counts.
 @end deffn
 
 @deffn procedure port-mode port
@@ -2977,57 +2218,9 @@ is intended to be used before an exec call to close file descriptors
 which are not needed in the new process.
 @end deffn
 
-@deffn procedure setvbuf port mode [size]
-Set the buffering mode for @var{port}.  @var{mode} can be:
-@table @code
-@item _IONBF
-non-buffered
-@item _IOLBF
-line buffered
-@item _IOFBF
-block buffered, using a newly allocated buffer of @var{size} bytes.
-However if @var{size} is zero or unspecified, the port will be made
-non-buffered.
-@end table
-
-This procedure should not be used after I/O has been performed with
-the port.
-
-Ports are usually block buffered by default, with a default buffer size.
-Procedures e.g., @ref{File Ports, open-file}, which accept a
-mode string allow @code{0} to be added to request an unbuffered port.
-@end deffn
-
 @deffn procedure freopen filename modes port
 Reopen @var{port} on the specified @var{filename}
-with mode string @var{modes} as for @ref{File Ports, open-file}.
-@end deffn
-
-@deffn procedure fcntl port command value
-Apply @var{command} to @var{port}'s file descriptor, with
-@var{value} as an argument.
-
-Values for @var{command} are:
-
-@table @code
-@item F_DUPFD
-Duplicate a file descriptor
-@item F_GETFD
-Get flags associated with the file descriptor.
-@item F_SETFD
-Set flags associated with the file descriptor to @var{value}.
-@item F_GETFL
-Get flags associated with the open file.
-@item F_SETFL
-Set flags associated with the open file to @var{value}
-@item F_GETOWN
-Get the process ID of a socket's owner, for @code{SIGIO} signals.
-@item F_SETOWN
-Set the process that owns a socket to @var{value}, for @code{SIGIO} signals.
-@item FD_CLOEXEC
-The value used to indicate the "close on exec" flag with @code{F_GETFL} or
-@code{F_SETFL}.
-@end table
+with mode string @var{modes} as for @code{open-file}.
 @end deffn
 
 @deffn procedure select reads writes excepts [secs] [usecs]
@@ -3042,7 +2235,7 @@ either an integer or a real number, or both @var{secs} and @var{usecs}
 can be specified as integers, in which case @var{usecs} is an additional
 timeout expressed in microseconds.
 
-Buffered input or output data is (currently, but this may change)
+Buffered input or output data is (currently, but this will change)
 ignored: select uses the underlying file descriptor of a port
 (@code{char-ready?} will check input buffers, output buffers are
 problematic).
@@ -3055,8 +2248,10 @@ doesn't accept input lists or a microsecond timeout, returns multiple
 values instead of a list and has an additional select! interface.
 @end deffn
 
-@node file system
-@section file system
+@node file system (mknod goes here no?)
+@section file system (mknod goes here no?)
+
+[FIXME: must grab stuff from Gary's misc. section]
 
 These procedures allow querying and setting file system attributes
 (such as owner,
@@ -3271,8 +2466,9 @@ Creates a new special file, such as a file corresponding to a device.
 @var{path} specifies the name of the file.  @var{type} should
 be one of the following symbols:
 regular, directory, symlink, block-special, char-special,
-fifo, or socket.  @var{perms} (an integer) specifies the file permissions.
-@var{dev} (an integer) specifies which device the special file refers
+fifo, or socket.  @var{perms} specifies the file permissions and
+should be a decimal value.
+@var{dev} is an integer specifying which device the special file refers
 to.  Its exact interpretation depends on the kind of special file
 being created.
 
@@ -3384,8 +2580,10 @@ a string, or omitted, giving the behaviour of getgrgid, getgrnam
 or getgrent respectively.
 @end deffn
 
-@node time
-@section time
+@node time (includes gettimeofday or whatever strftime strptime)
+@section time (includes gettimeofday or whatever strftime strptime)
+
+[FIXME: must grab from Gary's misc. section]
 
 @deffn procedure current-time
 Returns the number of seconds since 1970-01-01 00:00:00 UTC, excluding
@@ -3603,6 +2801,37 @@ from its controlling terminal if it has one.
 The return value is an integer representing the new process group ID.
 @end deffn
 
+@deffn procedure kill pid sig
+
+Sends a signal to the specified process or group of processes.
+
+@var{pid} specifies the processes to which the signal is sent:
+
+@table @r
+@item @var{pid} greater than 0
+The process whose identifier is @var{pid}.
+@item @var{pid} equal to 0
+All processes in the current process group.
+@item @var{pid} less than -1
+The process group whose identifier is -@var{pid}
+@item @var{pid} equal to -1
+If the process is privileged, all processes except for some special
+system processes.  Otherwise, all processes with the current effective
+user ID.
+@end table
+
+@var{sig} should be specified using a variable corresponding to
+the Unix symbolic name, e.g.,
+
+@defvar SIGHUP
+Hang-up signal.
+@end defvar
+
+@defvar SIGINT
+Interrupt signal.
+@end defvar
+@end deffn
+
 @deffn procedure waitpid pid [options]
 This procedure collects status information from a child process which
 has terminated or (optionally) stopped.  Normally it will
@@ -3667,12 +2896,6 @@ Returns the signal number which stopped the
 process, if any, otherwise @code{#f}.
 @end deffn
 
-@deffn procedure primitive-exit [status]
-Terminate the current process without unwinding the Scheme stack.
-This is would typically be useful after a fork.  The exit status
-is @var{status} if supplied, otherwise zero.
-@end deffn
-
 @deffn procedure execl path [arg] ...
 Executes the file named by @var{path} as a new process image.
 The remaining arguments are supplied to the process; from a C program
@@ -3715,23 +2938,10 @@ Modifies the environment of the current process, which is
 also the default environment inherited by child processes.
 
 If @var{string} is of the form @code{NAME=VALUE} then it will be written
-directly into the environment, replacing any existing environment string
-with
+directly into the environment, replacing any existing variable with
 name matching @code{NAME}.  If @var{string} does not contain an equal
-sign, then any existing string with name matching @var{string} will
+sign, then any existing variable with name matching @var{string} will
 be removed.
-
-The return value is unspecified.
-@end deffn
-
-@deffn procedure setenv name value
-Modifies the environment of the current process, which is
-also the default environment inherited by child processes.
-
-If @var{value} is @code{#f}, then @var{name} is removed from the
-environment.  Otherwise, the string @var{name}=@var{value} is added
-to the environment, replacing any existing string with name matching
-@var{name}.
 
 The return value is unspecified.
 @end deffn
@@ -3749,108 +2959,6 @@ If @var{env} is supplied then the return value is unspecified.
 Increment the priority of the current process by @var{incr}.  A higher
 priority value means that the process runs less often.
 The return value is unspecified.
-@end deffn
-
-@node signals
-@section signals
-
-Procedures to raise, handle and wait for signals.
-
-@deffn procedure kill pid sig
-
-Sends a signal to the specified process or group of processes.
-
-@var{pid} specifies the processes to which the signal is sent:
-
-@table @r
-@item @var{pid} greater than 0
-The process whose identifier is @var{pid}.
-@item @var{pid} equal to 0
-All processes in the current process group.
-@item @var{pid} less than -1
-The process group whose identifier is -@var{pid}
-@item @var{pid} equal to -1
-If the process is privileged, all processes except for some special
-system processes.  Otherwise, all processes with the current effective
-user ID.
-@end table
-
-@var{sig} should be specified using a variable corresponding to
-the Unix symbolic name, e.g.,
-
-@defvar SIGHUP
-Hang-up signal.
-@end defvar
-
-@defvar SIGINT
-Interrupt signal.
-@end defvar
-@end deffn
-
-@deffn procedure raise sig
-
-Sends a specified signal @var{sig} to the current process, where
-@var{sig} is as described for the kill procedure.
-@end deffn
-
-@deffn procedure sigaction signum [action] [flags]
-
-Install or report the signal hander for a specified signal.
-
-@var{signum} is the signal number, which can be specified using the value
-of variables such as @code{SIGINT}.
-
-If @var{action} is omitted, @code{sigaction} returns a pair: the
-CAR is the current
-signal hander, which will be either an integer with the value @code{SIG_DFL}
-(default action) or @code{SIG_IGN} (ignore), or the Scheme procedure which
-handles the signal, or @code{#f} if a non-Scheme procedure handles the
-signal.  The CDR contains the current @code{sigaction} flags for the handler.
-
-If @var{action} is provided, it is installed as the new handler for
-@var{signum}.
-@var{action} can be a Scheme procedure taking one argument, or the value of
-@code{SIG_DFL} (default action) or @code{SIG_IGN} (ignore), or @code{#f}
-to restore
-whatever signal handler was installed before @code{sigaction} was first used.
-Flags can optionally be specified for the new handler (@code{SA_RESTART} is
-always used if the system provides it, so need not be specified.)  The
-return value is a pair with information about the old handler as
-described above.
-
-This interface does not provide access to the "signal blocking"
-facility.  Maybe this is not needed, since the thread support may
-provide solutions to the problem of consistent access to data
-structures.
-@end deffn
-
-@deffn procedure restore-signals
-Return all signal handlers to the values they had before any call to
-@code{sigaction} was made.  The return value is unspecified.
-@end deffn
-
-@deffn procedure alarm secs
-Set a timer to raise a @code{SIGALRM} signal after the specified
-number of seconds (an integer).  It's advisable to install a signal
-handler for
-@code{SIGALRM} beforehand, since the default action is to terminate
-the process.
-
-The return value indicates the time remaining for the previous alarm,
-if any.  The new value replaces the previous alarm.  If there was
-no previous alarm, the return value is zero.
-@end deffn
-
-@deffn procedure pause
-Pause the current process (thread?) until a signal arrives whose
-action is to either terminate the current process or invoke a
-handler procedure.  The return value is unspecified.
-@end deffn
-
-@deffn procedure sleep secs
-Wait for the given number of seconds (an integer) or until a signal
-arrives.  The return value is zero if the time elapses or the number
-of seconds remaining otherwise.
 @end deffn
 
 @node terminals and pseudo-terminals
@@ -3889,11 +2997,13 @@ Set the foreground process group ID for the terminal used by the file
 descriptor underlying @var{port} to the integer @var{pgid}.
 The calling process
 must be a member of the same session as @var{pgid} and must have the same
-controlling terminal.  The return value is unspecified.
+controlling terminal.  The return value is unspeficied.
 @end deffn
 
 @node pipes
 @section pipes
+
+[FIXME: must grab stuff from Gary's misc. section]
 
 These procedures provide an interface to the @code{popen} and 
 @code{pclose} system routines.
@@ -3920,12 +3030,14 @@ Closes the pipe created by @code{open-pipe}, then waits for the process
 to terminate and returns its status value, as for the @code{system}
 procedure.
 
-@code{close-port} (@pxref{Closing Ports, close-port}) can also be used to
-close a pipe, but doesn't return the status.
+@code{close-port} can also be used to close a pipe, but doesn't return
+the status.
 @end deffn
 
-@node networking
-@section networking
+@node networking includes databases - address conversion and sockets
+@section networking includes databases - address conversion and sockets
+
+[FIXME: must grab stuff from Gary's misc. section]
 
 @menu
 * Networking Databases::        
@@ -3944,7 +3056,7 @@ Converts a string containing an Internet host address in the traditional
 dotted decimal notation into an integer.
 
 @smalllisp
-(inet-aton "127.0.0.1") @result{} 2130706433
+(inet-aton "127.0.0.1") ==> 2130706433
 
 @end smalllisp
 @end deffn
@@ -3954,7 +3066,7 @@ Converts an integer Internet host address into a string with the
 traditional dotted decimal representation.
 
 @smalllisp
-(inet-ntoa 2130706433) @result{} "127.0.0.1"
+(inet-ntoa 2130706433) ==> "127.0.0.1"
 @end smalllisp
 @end deffn
 
@@ -3962,7 +3074,7 @@ traditional dotted decimal representation.
 Returns the network number part of the given integer Internet address.
 
 @smalllisp
-(inet-netof 2130706433) @result{} 127
+(inet-netof 2130706433) ==> 127
 @end smalllisp
 @end deffn
 
@@ -3971,7 +3083,7 @@ Returns the local-address-with-network part of the given Internet
 address.
 
 @smalllisp
-(inet-lnaof 2130706433) @result{} 1
+(inet-lnaof 2130706433) ==> 1
 @end smalllisp
 @end deffn
 
@@ -3980,7 +3092,7 @@ Makes an Internet host address by combining the network number @var{net}
 with the local-address-within-network number @var{lna}.
 
 @smalllisp
-(inet-makeaddr 127 1) @result{} 2130706433
+(inet-makeaddr 127 1) ==> 2130706433
 @end smalllisp
 @end deffn
 
@@ -4143,7 +3255,7 @@ Socket ports can be created using @code{socket} and @code{socketpair}.
 The ports are initially unbuffered, to
 makes reading and writing to the same port more reliable.  Buffered
 ports can be obtained with
-@code{duplicate-port}, @xref{ports vs file descriptors}.
+@code{duplicate-port}, @xref{ports vs. file descriptors}.
 
 These procedures convert Internet addresses
 and port values between "host" order and "network" order as required.  The
@@ -4427,6 +3539,9 @@ A description of the hardware.
 @node locales (setlocale)
 @section locales (setlocale)
 
+--- Note that there is no more 'misc'.  It's better to have
+    small sections than unhelpful names.
+
 @deffn procedure setlocale category [locale]
 If @var{locale} is omitted, returns the current value of the specified
 locale category 
@@ -4443,11 +3558,8 @@ is an empty string, the locale will be set using envirionment variables.
 @node expect
 @section expect
 
-The macros in this section are made available with:
-
-@smalllisp
-(use-modules (ice-9 expect))
-@end smalllisp
+Using these macros requires for now:
+(load-from-path "ice-9/expect")
 
 @code{expect} is a macro for selecting actions based on the output from
 a port.  The name comes from a tool of similar functionality by Don Libes.
@@ -4568,27 +3680,37 @@ be used with @code{expect}.
 @node The Scheme shell (scsh)
 @chapter The Scheme shell (scsh)
 
-An incomplete port of the Scheme shell (scsh) 0.5.1 is available for
-Guile.  The idea is to allow Scheme code using scsh interfaces to be run
-inside the Guile interpreter.
+--- includes info on how to get SCSH features (open this
+    module), but mostly just a pointer to the SCSH manual.
+    This should not be under POSIX.  SCSH includes plenty of
+    high-level stuff for starting processes and string
+    processing.  SCSH is not a subset of POSIX, nor the
+    reverse.
+
+[FIXME: I'm pasting in Gary's stuff from unix.texi's SCSH chapter; it
+should be almost entirely OK.]
+
+
+Guile includes an incomplete port of the Scheme shell (scsh) 0.4.4.
 
 For information about scsh on the Web see
 @url{http://www-swiss.ai.mit.edu/scsh/scsh.html}.
 The original scsh is available by ftp from
 @url{ftp://swiss-ftp.ai.mit.edu:/pub/su}.
 
-The scsh code is distributed as a separate module, guile-scsh,
-which must be installed somewhere in Guile's load path before
-it can be used.  This is similar to the installation
-of slib (you may want to install that first, since it's needed before
-scsh can run in Guile: see @ref{SLIB} for details).
-
 This port of scsh does not currently use the Guile module system, but
-can be initialized with:
-
+can be initialized using:
 @smalllisp
 (load-from-path "scsh/init")
 @end smalllisp
+
+Note that SLIB must be installed before scsh can be initialized, see
+@ref{SLIB} for details.
+
+[FIXME: I (Mark) think we should also put examples of using scsh in
+Guile that highlight how it is different from SCSH; for example, the
+SLIB requirement.]
+
 
 @page
 @node Tcl/Tk Interface
