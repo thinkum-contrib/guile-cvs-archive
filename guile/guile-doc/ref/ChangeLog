@@ -1,7 +1,9 @@
 1997-11-18  Tim Pierce  <twp@twp.tezcat.com>
 
-	* guile-ref.texi: Reorganize top-level menu.  @include posix.texi.
 	* posix.texi: New file; moved docs for POSIX interface here.
+	* Makefile.am: Add posix.texi.
+	* Makefile.in: Regenerated.
+	* guile-ref.texi: Reorganize top-level menu.  @include posix.texi.
 	* scheme.texi: Moved many nodes around, some restructuring
 	(e.g. new "Data Structures" node for records, structures, arrays,
 	hash tables, and so on).
