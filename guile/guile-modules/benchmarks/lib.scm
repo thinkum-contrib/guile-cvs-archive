@@ -106,9 +106,9 @@
 ;;; As implemented here, a times is a list:
 ;;;    (GC USER SYSTEM CHILD-USER CHILD-SYSTEM)
 ;;; where
-;;;   GC is the number of seconds Guile has spent in GC
-;;;   USER is the number of seconds this process has occupied the CPU
-;;;   SYSTEM is the number of seconds the CPU has spent in the kernel on
+;;;   GC is the time Guile has spent in GC
+;;;   USER is the time this process has occupied the CPU
+;;;   SYSTEM is the time the CPU has spent in the kernel on
 ;;;       behalf of this program
 ;;;   CHILD-USER and CHILD-SYSTEM are the same as USER and SYSTEM, but
 ;;;       include the time accumulated by child processes.
@@ -146,7 +146,7 @@
 ;;; Return the additive identity for times.
 (define (times:zero)
   (list 0 0 0 0 0))
-  
+
 
 ;;;; Running benchmarks.
 

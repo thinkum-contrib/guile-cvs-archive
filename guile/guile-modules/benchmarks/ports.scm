@@ -19,45 +19,52 @@
   #:use-module (benchmarks lib))
 (export ports-run)
 
-;;; GC behaves very oddly in these benchmarks.  If you can figure out
-;;; why Guile behaves as shown below, let me know.
+;;; BENCHMARKING IS WEIRD.
 ;;;
-;;; Here's the output from a typical call to port-run on my machine:
-;;; 
-;;; 	$ ./port
-;;; 	Opened log file, Sat 22 May 16:47:13
-;;; 	System: Linux savonarola.red-bean.com 2.0.36 #1 ... i586 
-;;; 	Benchmark lib version: 2
-;;; 	Benchmark: ports
-;;; 	Benchmark revision: 1
-;;; 	read-sexp
-;;; 	10 passes  3.270s user   0.830s gc   0.090s sys
-;;; 	write-sexp
-;;; 	100 passes  9.250s user   0.000s gc   0.060s sys
-;;; 	read-lines
-;;; 	100 passes  6.000s user   0.000s gc   0.150s sys
-;;; 	write-lines
-;;; 	500 passes  9.070s user   2.450s gc   1.550s sys
-;;; 
-;;; If I comment out the call to write-sexp, then I get this:
+;;; You need to be very careful about benchmarking --- I've frequently
+;;; encountered odd effects that dwarf the impact of code changes I'm
+;;; evaluating.
 ;;;
-;;; 	$ ./port
-;;; 	Opened log file, Sat 22 May 16:52:57
-;;; 	System: Linux savonarola.red-bean.com 2.0.36 #1 ... i586 
-;;; 	Benchmark lib version: 2
-;;; 	Benchmark: ports
-;;; 	Benchmark revision: 1
-;;; 	read-lines
-;;; 	100 passes  6.320s user   20.040s gc   0.120s sys
-;;; 	write-lines
-;;; 	500 passes  8.940s user   5.490s gc   1.640s sys
+;;; Some known issues:
 ;;;
-;;; The total GC time increases by a factor of eight.  I don't really
-;;; know what's going on here.
+;;; - GC behaves very oddly in these benchmarks.  Here's the output
+;;;   from a typical call to port-run on my machine:
+;;;   
+;;; 	  read-sexp	 10 passes  3.270s user   0.830s gc   0.090s sys
+;;; 	  write-sexp	100 passes  9.250s user   0.000s gc   0.060s sys
+;;; 	  read-lines	100 passes  6.000s user   0.000s gc   0.150s sys
+;;; 	  write-lines	500 passes  9.070s user   2.450s gc   1.550s sys
+;;;   
+;;;   If I comment out the calls to read-sexp and write-sexp, then I
+;;;   get this:
+;;;  
+;;; 	  read-lines	100 passes  6.320s user  20.040s gc   0.120s sys
+;;; 	  write-lines	500 passes  8.940s user   5.490s gc   1.640s sys
+;;;  
+;;;   The total GC time increases by a factor of eight.
 ;;;
-;;; Maybe what this means is that this whole benchmarking approach is
-;;; wrong --- I should start a separate Guile process for each test,
-;;; and try to calibrate for startup time.
+;;; - Using a dynamically linked executable increases benchmark run
+;;;   times by 15 to 30 percent.
+;;;
+;;; In all of these cases, I can concoct a reasonable hypothesis
+;;; explaining the behavior.  But I think the lesson is that guessing
+;;; about this stuff is bad.
+;;;
+;;; So as I discover them, I'm going to record principles for
+;;; benchmarking here.  (I suppose I could just read a book and learn
+;;; all this the easy way.  "Experience keeps a dear school, but fools
+;;; will learn in no other." -- Franklin)
+;;;
+;;; Rule 1: DON'T COMPARE TWO BENCHMARK RESULTS UNLESS YOU CAN
+;;; RECREATE EACH OF THEM ON DEMAND.
+;;;
+;;; That is, you should be able to flip a switch one way, get the one
+;;; set of results, and then flip a switch the other way, and get the
+;;; other set of results.  If you can't do that, then you don't have a
+;;; handle on the difference between the two configurations under
+;;; test, so you shouldn't even begin to guess why one is slower or
+;;; faster than the other.  If you've only seen the figures change
+;;; once, you can't be sure what changed.
 
 
 ;;;; Helping the benchmark find its data files.
@@ -87,10 +94,10 @@
     (time-accumulate
      'read-lines
      (lambda ()
+       (gc)
        (do ((i 0 (+ i 1)))
 	   ((>= i 100))
 	 (fseek data-2 SEEK_SET 0)
-	 (gc)
 	 (time-pass (lambda ()
 		      (let loop ()
 			(let ((line (read-line data-2)))
