@@ -41,6 +41,7 @@
 
 #include <libguile.h>
 #include <lightning.h>
+#include <dlfcn.h>
 
 #include "disassemble.h"
 
@@ -191,8 +192,36 @@ get_arg (SCM arg_hash, SCM sym)
 {
   SCM id = scm_hashq_ref (arg_hash, sym, SCM_BOOL_F);
   if (id == SCM_BOOL_F)
-    scm_misc_error ("assemble", "undefined argument: ~A", sym);
+    scm_misc_error ("assemble", "undefined argument: ~A", SCM_LIST1 (sym));
   return SCM_INUM (id);
+}
+
+SCM_SYMBOL (sym_scm, "scm");
+SCM_SYMBOL (sym_subr, "subr");
+
+static unsigned long
+imm2int (SCM imm)
+{
+  if (scm_ilength (imm) == 2)
+    {
+      if (SCM_CAR (imm) == sym_scm)
+	return SCM_CADR (imm);
+      else if (SCM_CAR (imm) == sym_subr && SCM_STRINGP (SCM_CADR (imm)))
+	{
+	  char buf[50];
+	  void *addr;
+	  
+	  snprintf (buf, 50, "scm_%s", SCM_CHARS (SCM_CADR (imm)));
+	  addr = dlsym (NULL, buf);
+	  if (addr == NULL)
+	    scm_misc_error ("assemble", "undefined subr: ~A", SCM_LIST1 (imm));
+	  return (unsigned long)addr;
+	}
+    }
+  else if (SCM_NUMBERP (imm))
+    return scm_num2ulong (imm, (char *)SCM_ARG1, "assemble");
+  
+  scm_misc_error ("assemble", "unrecognized immediate: ~S", SCM_LIST1 (imm));
 }
 
 static int
@@ -263,7 +292,7 @@ assemble1 (SCM insn, SCM label_hash, SCM arg_hash)
                                        "in ~A, not a symbol: ~A", \
                                        SCM_LIST2 (insn, s));
 
-#define AS_INT(x)     (scm_num2ulong ((x), (char *)SCM_ARG1, "assemble"))
+#define AS_INT(x)     (imm2int ((x)))
 #define AS_REG(x)     (sym2reg ((x)))
 #define IS_REG(x)     (SCM_SYMBOLP ((x)))
 
