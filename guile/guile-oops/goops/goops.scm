@@ -27,7 +27,7 @@
 ;;;;
 
 (define-module (goops goops)
-  :use-module (goops goops)
+  :use-module (goops core)
   :use-module (goops compat))
 
 (export			  ; Define the exported symbols of this file
@@ -789,17 +789,26 @@
       (slot-set! class 'getters-n-setters (compute-getters-n-setters class 
 								     slots 
 								     env)))
-    (%prep-layout! class)
-    (slot-set! class 'print write-object)
+
     ;; Update the "direct-subclasses" of each inherited classes
     (for-each (lambda (x)
 		(slot-set! x 'direct-subclasses 
 			   (cons class (slot-ref x 'direct-subclasses))))
 	      supers)
-    (%inherit-magic! class supers)
 
     ;; Build getters - setters - accessors
-    (compute-slot-accessors class dslots env)))
+    (compute-slot-accessors class dslots env)
+
+    ;; Support for the underlying structs:
+    
+    ;; Inherit class flags (invisible on scheme level) from supers
+    (%inherit-magic! class supers)
+
+    ;; Set the layout slot
+    (%prep-layout! class)
+
+    ;; Set the struct print closure
+    (slot-set! class 'print write-object)))
 
 
 (define-method initialize ((generic <generic>) initargs)
