@@ -24,8 +24,7 @@
 ;  :no-backtrace
   )
 
-(export memoize-method!
-	make-apply-generic apply-0-arity-method make-method-cache)
+(export memoize-method!)
 
 (define hashsets 8)
 (define hashset-index 10)
@@ -35,23 +34,25 @@
 
 ;;; Method cache
 
-;; (#@dispatch args N-SPECIALIZED #((TYPE1 ... FORMALS ENV FORM1 ...) ...) GF)
-;; (#@hash-dispatch args N-SPECIALIZED HASHSET MASK
-;;                  #((TYPE1 ... FORMALS ENV FORM1 ...) ...)
-;;                  GF)
+;; (#@dispatch args N-SPECIALIZED #((TYPE1 ... ENV FORMALS FORM1 ...) ...) GF)
+;; (#@dispatch args N-SPECIALIZED HASHSET MASK
+;;             #((TYPE1 ... ENV FORMALS FORM1 ...) ...)
+;;             GF)
 
 ;;; Representation
 
 (define (method-cache-hashed? x)
   (integer? (cadddr x)))
 
+(define max-non-hashed-index (- hash-threshold 2))
+
+(define (passed-hash-threshold? exp)
+  (car (vector-ref (method-cache-entries exp) max-non-hashed-index)))
+
 (define method-cache-n-specialized caddr)
 (define (set-method-cache-n-specialized! exp n)
   (set-car! (cddr exp) n))
 (define method-cache-entries cadddr)
-
-(define (make-method-cache gf)
-  `(@dispatch args 1 ,(make-vector initial-hash-size '(#f)) ,gf))
 
 (define (method-cache->hashed! exp)
   (set-cdr! (cddr exp) (cons 0 (cons (- initial-hash-size 1) (cdddr exp))))
@@ -190,7 +191,7 @@
 	  ((method-cache-hashed? exp)
 	   (method-cache-install! hashed-method-cache-insert!
 				  exp args applicable))
-	  ((>= (+ 1 (method-cache-n-methods exp)) hash-threshold)
+	  ((passed-hash-threshold? exp)
 	   (method-cache-install! hashed-method-cache-insert!
 				  (method-cache->hashed! exp)
 				  args
@@ -201,27 +202,16 @@
 (define (method-entry methods types)
   (cond ((assoc types (slot-ref (car methods) 'code-table))
 	 => (lambda (types-code) (cdr types-code)))
-	(else (let ((method (car methods))
-		    ;;*fixme* new seek primitive => no double types
-		    (entry (append types (compile-method methods types))))
+	(else (let* ((method (car methods))
+		     ;;*fixme* new seek primitive => no double types
+		     (place-holder (list #f))
+		     (entry (append types place-holder)))
+		;; In order to handle recursion nicely, put the entry
+		;; into the code-table before compiling the method 
 		(slot-set! (car methods) 'code-table
 			   (acons types entry
 				  (slot-ref (car methods) 'code-table)))
+		(let ((cmethod (compile-method methods types)))
+		  (set-car! place-holder (car cmethod))
+		  (set-cdr! place-holder (cdr cmethod)))
 		entry))))
-
-(define (apply-0-arity-method gf)
-  ;;*fixme* Want to use generic cam.  How to avoid looping?
-  (let ((applicable (apply find-method gf '())))
-    (if (not applicable)
-	(no-applicable-method gf '())
-	(let* ((code (compile-method applicable '()))
-	       (closure (cons 'lambda (cons '(gf) (cdr (code-code code))))))
-	  (set-object-procedure! gf
-				 (local-eval closure (code-environment code)))
-	  (gf)))))
-
-(define (make-apply-generic gf)
-  (list apply-0-arity-method
-	(make-method-cache gf)
-	(make-method-cache gf)
-	(make-method-cache gf)))
