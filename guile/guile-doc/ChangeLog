@@ -1,3 +1,7 @@
+1998-07-27  Mark Galassi  <rosalia@cygnus.com>
+
+	* simple test
+
 1998-04-13  Marius Vollmer  <mvo@zagadka.ping.de>
 
 	Have "make dist" include the sources directory:
