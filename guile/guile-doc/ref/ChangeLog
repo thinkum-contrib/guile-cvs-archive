@@ -1,3 +1,12 @@
+1997-10-03  Mikael Djurfeldt  <mdj@nada.kth.se>
+
+	* scheme.texi (Vtables): Changed 0 --> @code{vtable-index-layout};
+	Changed @code{struct-vtable-offset} --> @code{vtable-offset-user};
+	Added short note about the print call-back initializer.  (This
+	section is in need of review.  However, we shoudn't spend much
+	time on it since the structs will be replaced by something
+	equivalent, but with a different interface.}
+
 Sun Sep 28 00:02:35 1997  Mark Galassi  <rosalia@nis.lanl.gov>
 
 	* scheme.texi (Keywords): very small re-organization to take

@@ -986,12 +986,13 @@ integer value small enough to fit in one machine word.
 @node  Vtables
 @section Vtables
 
-Vtables are structures that are used to represent structure types.
-Each vtable contains a layout specification in field 0 -- instances
-of the type are laid out according to that specification.  Vtables
-contain additional fields which are used only internally to libguile.
-The variable @code{struct-vtable-offset} is bound to a field number.
-Vtable fields at that position or greater are user definable.
+Vtables are structures that are used to represent structure types.  Each
+vtable contains a layout specification in field
+@code{vtable-index-layout} -- instances of the type are laid out
+according to that specification.  Vtables contain additional fields
+which are used only internally to libguile.  The variable
+@code{vtable-offset-user} is bound to a field number.  Vtable fields
+at that position or greater are user definable.
 
 @defun struct-vtable struct
 Return the vtable structure that describes the type of @var{struct}.
@@ -1014,14 +1015,15 @@ Return a new, self-describing vtable structure.
 
 @var{new-fields} is a layout specification describing fields
 of the resulting structure beginning at the position bound to
-@code{struct-vtable-offset}.
+@code{vtable-offset-user}.
 
 @var{tail-size} specifies the size of the tail-array (if any) of
 this vtable.
 
 @var{inits} initializes the fields of the vtable.  Minimally, one
 initializer must be provided: the layout specification for instances
-of the type this vtable will describe.
+of the type this vtable will describe.  If a second initializer is
+provided, it will be interpreted as a print call-back function.
 
 @example
 ;;; loading ,a...
@@ -1036,10 +1038,10 @@ of the type this vtable will describe.
 @result{} #t
 (eq? x (struct-vtable x))
 @result{} #t
-(struct-ref x struct-vtable-offset)
+(struct-ref x vtable-offset-user)
 @result{} foo
 (struct-ref x 0)
-@result{} pruosrpw
+@result{} pruosrpwpw
 
 
 (define y
@@ -1058,7 +1060,7 @@ of the type this vtable will describe.
 @result{} #t
 (struct-ref y 0)
 @result{} pwpwpw
-(struct-ref y struct-vtable-offset)
+(struct-ref y vtable-offset-user)
 @result{} bar
 
 
