@@ -49,7 +49,7 @@ Replace @code{>=} (greater than or equal) with @code{_geq}.
 Replace @code{<} (less than) with @code{_less}.
 
 @item
-Replace @code{>} (greater than) with @code{gr}.
+Replace @code{>} (greater than) with @code{_gr}.
 
 @item
 Prefix with @code{scm_}.
