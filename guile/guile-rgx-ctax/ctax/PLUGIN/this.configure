@@ -33,11 +33,9 @@ scm_files=`grep -l installed-scm-file $srcdir/*.scm | sed -e "s,.*/,," | xargs e
 # scm-plugins.* but should include some other documentation:
 #
 aux_files="	COPYING \
-		PLUGIN \
 		Makefile.in \
 		configure \
-		configure.in \
-		../doc/ctax.texi"
+		configure.in"
 
 
 # info_files -- you might want to modify this definition.
