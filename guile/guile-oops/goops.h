@@ -145,13 +145,14 @@ typedef struct scm_method_t {
 #define scm_si_constructor	 SCM_N_CLASS_SLOTS
 #define scm_si_destructor	 SCM_N_CLASS_SLOTS + 1
 
-#define scm_si_methods		  0  /* offset of methods slot in a <generic> */
+#define scm_si_methods		 0  /* offset of methods slot in a <generic> */
+#define scm_si_n_specialized	 1
 
-#define scm_si_generic_function	  0  /* offset of gf    slot in a <method> */
-#define scm_si_specializers	  1  /* offset of spec. slot in a <method> */
+#define scm_si_generic_function	 0  /* offset of gf    slot in a <method> */
+#define scm_si_specializers	 1  /* offset of spec. slot in a <method> */
 
-#define scm_si_procedure 	  2  /* offset of proc. slot in a <method> */
-#define scm_si_code_table	  3  /* offset of code. slot in a <method> */
+#define scm_si_procedure 	 2  /* offset of proc. slot in a <method> */
+#define scm_si_code_table	 3  /* offset of code. slot in a <method> */
 
 /* C interface */
 extern SCM scm_class_foreign_class, scm_class_foreign_object;

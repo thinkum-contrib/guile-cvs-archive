@@ -1665,7 +1665,7 @@ scm_make (SCM args)
 
   if (class == scm_class_generic || class == scm_class_generic_with_setter)
     {
-      z = scm_make_struct (class, SCM_INUM0, SCM_LIST1 (SCM_EOL));
+      z = scm_make_struct (class, SCM_INUM0, SCM_LIST2 (SCM_EOL, SCM_INUM0));
       scm_set_procedure_property_x (z, scm_i_name,
 				    scm_get_keyword (k_name,
 						     args,
@@ -1810,7 +1810,8 @@ create_standard_classes (void)
 			Intern ("specializers"), 
 			Intern ("procedure"),
 			Intern ("code-table"));
-  SCM tmp2 = SCM_LIST1 (Intern ("methods"));
+  SCM tmp2 = SCM_LIST2 (Intern ("methods"),
+			Intern ("n-specialized"));
 
   /* Foreign class slot classes */
   make_stdcls (&scm_class_foreign_slot,	   "<foreign-slot>",
@@ -2246,7 +2247,7 @@ SCM_SYMBOL (sym_internal_add_method_x, "internal-add-method!");
 void
 scm_add_method (SCM gf, SCM m)
 {
-  scm_eval2 (SCM_LIST4 (sym_internal_add_method_x, SCM_BOOL_F, gf, m),
+  scm_eval2 (SCM_LIST3 (sym_internal_add_method_x, gf, m),
 	     scm_goops_lookup_closure);
 }
 
