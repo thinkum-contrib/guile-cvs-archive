@@ -927,7 +927,7 @@
 			     (make <accessor-method>
 				   #:specializers (list class <top>)
 				   #:procedure (if (pair? g-n-s)
-						 (car g-n-s)
+						 (cadr g-n-s)
 						 (standard-set g-n-s))))))))
       slots (slot-ref class 'getters-n-setters)))
 
@@ -1185,7 +1185,9 @@
       (slot-set! class 'nfields	  	  0)
       (slot-set! class 'getters-n-setters (compute-getters-n-setters class 
 								     slots 
-								     env)))
+								     env))
+      ;; Build getters - setters - accessors
+      (compute-slot-accessors class slots env))
 
     ;; Update the "direct-subclasses" of each inherited classes
     (for-each (lambda (x)
@@ -1193,9 +1195,6 @@
 			   'direct-subclasses 
 			   (cons class (slot-ref x 'direct-subclasses))))
 	      supers)
-
-    ;; Build getters - setters - accessors
-    (compute-slot-accessors class dslots env)
 
     ;; Support for the underlying structs:
     
