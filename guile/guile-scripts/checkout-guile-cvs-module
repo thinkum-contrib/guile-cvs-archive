@@ -1,0 +1,20 @@
+#!/bin/sh
+# Usage: checkout-guile-cvs-module [-l username] module
+# If "-l USERNAME" is omitted, user is taken from USER env var.
+#
+# Description: Do "cvs co MODULE", placing that directory in cwd.
+
+user=$USER
+
+if [ x"$1" = x-l ] ; then
+   user=$2 ; shift ; shift ;
+i
+
+if [ x"$1" = x ] ; then
+   echo usage: $0 '[-l username] module'
+   exit 1
+fi
+
+cvs -d :ext:${user}@subversions.gnu.org:/cvs co -d $1 guile/$1
+
+exit $?
