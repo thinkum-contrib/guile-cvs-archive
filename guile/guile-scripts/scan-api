@@ -1,6 +1,6 @@
 #!/bin/sh
 # Usage: scan-api guile sofile
-# The output is an alist: ((scheme ...) (C ...))
+# The output is an alist: ((meta ...) (scheme ...) (C ...))
 
 guile=$1
 sofile=$2
@@ -28,14 +28,14 @@ nm $sofile \
 }
 
 echo ';; Generated' `date` 'by guile-scripts/scan-api -- do not edit!'
-echo ';; GUILE_LOAD_PATH:' $GUILE_LOAD_PATH
-echo ';; LTDL_LOAD_PATH:' $LTDL_LOAD_PATH
-echo ';; guile:' $guile
-echo ';; sofile:' $sofile
-echo
 echo '('
+echo '(meta (GUILE_LOAD_PATH . "'$GUILE_LOAD_PATH'")'
+echo '      (LTDL_LOAD_PATH . "'$LTDL_LOAD_PATH'")'
+echo '      (guile . "'$guile'")'
+echo '      (sofile . "'$sofile'")'
+echo '      (pwd . "'`pwd`'"))'
 echo '(scheme' ; scheme ; echo ') ;; end of scheme'
 echo '(C     ' ; C      ; echo ') ;; end of C'
-echo ')'
+echo ') ;; eof'
 
 # scan-api ends here
