@@ -191,7 +191,7 @@ distclean-libtool:
 maintainer-clean-libtool:
 
 librx.la: $(librx_la_OBJECTS) $(librx_la_DEPENDENCIES)
-	$(LINK) -rpath lib $(librx_la_LDFLAGS) $(librx_la_OBJECTS) $(librx_la_LIBADD) $(LIBS)
+	$(LINK) -rpath $(libdir) $(librx_la_LDFLAGS) $(librx_la_OBJECTS) $(librx_la_LIBADD) $(LIBS)
 
 mostlyclean-checkPROGRAMS:
 
