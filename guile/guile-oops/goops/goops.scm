@@ -26,11 +26,8 @@
 ;;;; Erick Gallesio <eg@unice.fr>.
 ;;;;
 
-;; Load the primitives if not loaded
-(if (not (defined? '<top>))
-    (try-module-dynamic-link '(goops goops)))
-
-(define-module (goops goops))
+(define-module (goops goops)
+  :use-module (goops goops))
 
 (export			  ; Define the exported symbols of this file
     find-class is-a?
@@ -57,6 +54,18 @@
     slot-value ;(setter slot-value)
 )
 
+;;; *fixme* Should go into goops.c
+
+(export
+    stklos-version instance?  slot-ref-using-class
+    slot-set-using-class! slot-bound-using-class?
+    slot-exists-using-class? slot-ref slot-set! slot-bound? class-of
+    class-name class-direct-supers class-direct-subclasses
+    class-direct-methods class-direct-slots class-precedence-list
+    class-slots class-environment generic-function-name
+    generic-function-methods method-generic-function method-specializers
+    method-procedure slot-exists? make find-method)
+ 
 ;=============================================================================
 ;
 ;			 C o m p a t i b i l i t y
