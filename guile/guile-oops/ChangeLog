@@ -1,5 +1,9 @@
 1999-12-15  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
+	* goops.c (scm_compute_applicable_methods): Bugfix: An accessor is
+	only applicable if the argument matches the formal exactly in its
+	first argument.
+
 	* goops.scm (make-accessor): Make it possible to create accessors
 	without names.  (Thanks to Eric Moore.)
 

@@ -1749,7 +1749,12 @@ scm_compute_applicable_methods (SCM gf, SCM args, int len, int find_method_p)
   /* Build a list of all applicable methods */
   for (l = SCM_SLOT (gf, scm_si_methods); SCM_NNULLP (l); l = SCM_CDR (l))
     {
-      for (i = 0, fl = SPEC_OF (SCM_CAR (l)); ; i++, fl = SCM_CDR (fl))
+      fl = SPEC_OF (SCM_CAR (l));
+      /* Only accept accessors which match exactly in first arg. */
+      if (SCM_ACCESSORP (SCM_CAR (l))
+	  && (SCM_IMP (fl) || types[0] != SCM_CAR (fl)))
+	continue;
+      for (i = 0; ; i++, fl = SCM_CDR (fl))
 	{
 	  if ((SCM_NIMP (fl) && SCM_INSTANCEP (fl))
 	      /* We have a dotted argument list */
