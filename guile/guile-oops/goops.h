@@ -189,6 +189,9 @@ extern SCM scm_class_int, scm_class_float, scm_class_double;
 extern const char *scm_s_slot_set_x;
 
 SCM scm_goops_version (void);
+SCM scm_oldfmt (SCM);
+char *scm_c_oldfmt0 (char *);
+char *scm_c_oldfmt (char *, int n);
 void scm_load_goops (void);
 SCM scm_make_foreign_object (SCM class, SCM initargs);
 SCM scm_make_class (SCM meta, char *s_name, SCM supers, size_t size,
