@@ -1,7 +1,12 @@
 1999-12-18  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
+	* goops.scm (make-bound-check-get): New procedure. Uses
+	`@assert-bound-ref'.
+	(bound-check-get): New procedure.
+
 	* goops.c (scm_init_goops): Conditionally add extra arg to
 	scm_mutex_init.
+	(scm_at_assert_bound_ref): New function.
 
 	* configure.in: Define SCM_MUTEX_INIT_TWO_ARGS if scm_mutex_init
 	takes an extra attributes arg.
@@ -18,8 +23,6 @@
 	(make-closure-variable): New procedure.  Only use boundness
 	checking if necessary.
 	(compute-get-n-set): Use `make-closure-variable'.
-	(make-get): Use `assert-bound' for versions of Guile which don't
-	have boundness check in eval.c.
 	
 1999-12-15  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
