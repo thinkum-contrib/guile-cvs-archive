@@ -1,5 +1,10 @@
 - Guile 1.4.2
+  - integrate docs into distribution
+  - write 1.4-1.6 compatibility header
+  - determine/document policy on how/why/when of removing things
+  - back port :select and :renamer interface
   - fix bugs
+
 
 - Guile 1.6
   - document libtool conventions [rlb]
@@ -50,8 +55,6 @@
   - forward port guile-1.6.x stuff
     - guile-snarf and docs
     - determine rest of list
-  - write 1.4-1.6 compatibility header
-  - determine/document policy on how/why/when of removing things
   - extend render-bugs to harvest (and run?) test cases
   - fix signal-handling + threading
     - remove GUILE_OLD_ASYNC_CLICK and friends
