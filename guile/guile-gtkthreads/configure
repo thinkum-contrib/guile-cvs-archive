@@ -1451,23 +1451,15 @@ echo "configure:1451: checking whether the C compiler needs -belf" >&5
 if eval "test \"`echo '$''{'lt_cv_cc_needs_belf'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
-  
-     ac_ext=c
-# CFLAGS is not in ac_cpp because -g, -O, etc. are not valid cpp options.
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='${CC-cc} -c $CFLAGS $CPPFLAGS conftest.$ac_ext 1>&5'
-ac_link='${CC-cc} -o conftest${ac_exeext} $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS 1>&5'
-cross_compiling=$ac_cv_prog_cc_cross
-
-     cat > conftest.$ac_ext <<EOF
-#line 1464 "configure"
+  cat > conftest.$ac_ext <<EOF
+#line 1456 "configure"
 #include "confdefs.h"
 
 int main() {
 
 ; return 0; }
 EOF
-if { (eval echo configure:1471: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo configure:1463: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   lt_cv_cc_needs_belf=yes
 else
@@ -1477,13 +1469,6 @@ else
   lt_cv_cc_needs_belf=no
 fi
 rm -f conftest*
-     ac_ext=c
-# CFLAGS is not in ac_cpp because -g, -O, etc. are not valid cpp options.
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='${CC-cc} -c $CFLAGS $CPPFLAGS conftest.$ac_ext 1>&5'
-ac_link='${CC-cc} -o conftest${ac_exeext} $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS 1>&5'
-cross_compiling=$ac_cv_prog_cc_cross
-
 fi
 
 echo "$ac_t""$lt_cv_cc_needs_belf" 1>&6
@@ -1577,7 +1562,7 @@ exec 5>>./config.log
 
 
 echo $ac_n "checking for gtk""... $ac_c" 1>&6
-echo "configure:1581: checking for gtk" >&5
+echo "configure:1566: checking for gtk" >&5
 gtk-config --libs gthread > /dev/null || {
   echo "configure: cannot find gtk-config: Is gtk installed?" 1>&2
   exit 1
@@ -1586,7 +1571,7 @@ LIBS="`gtk-config --libs gthread` $LIBS"
 echo "$ac_t""yes" 1>&6
 
 echo $ac_n "checking for guile-gtk""... $ac_c" 1>&6
-echo "configure:1590: checking for guile-gtk" >&5
+echo "configure:1575: checking for guile-gtk" >&5
 build-guile-gtk cflags > /dev/null || {
   echo "configure: cannot find build-guile-gtk: Is guile-gtk installed?" 1>&2
   exit 1
@@ -1596,12 +1581,12 @@ LIBS="`build-guile-gtk libs` $LIBS"
 echo "$ac_t""yes" 1>&6
 
 echo $ac_n "checking that Guile is recent enough""... $ac_c" 1>&6
-echo "configure:1600: checking that Guile is recent enough" >&5
+echo "configure:1585: checking that Guile is recent enough" >&5
 cat > conftest.$ac_ext <<EOF
-#line 1602 "configure"
+#line 1587 "configure"
 #include "confdefs.h"
-#include <libguile/boolean.h>
-	      #ifdef SCM_TRUE_P
+#include <libguile/struct.h>
+	      #ifdef SCM_SET_STRUCT_LAYOUT
 	        guile_is_recent_enough
 	      #endif
 	     
@@ -1633,19 +1618,19 @@ case "$GCC" in
 esac
 
 echo $ac_n "checking for thread_create in GThreadFunctions""... $ac_c" 1>&6
-echo "configure:1637: checking for thread_create in GThreadFunctions" >&5
+echo "configure:1622: checking for thread_create in GThreadFunctions" >&5
 if eval "test \"`echo '$''{'ac_cv_struct_thread_create'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 1642 "configure"
+#line 1627 "configure"
 #include "confdefs.h"
 #include <glib.h>
 int main() {
 GThreadFunctions g; g.thread_create;
 ; return 0; }
 EOF
-if { (eval echo configure:1649: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+if { (eval echo configure:1634: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
   rm -rf conftest*
   ac_cv_struct_thread_create=yes
 else
@@ -1668,12 +1653,12 @@ fi
 for ac_func in sgtk_gdk_threads_enter
 do
 echo $ac_n "checking for $ac_func""... $ac_c" 1>&6
-echo "configure:1672: checking for $ac_func" >&5
+echo "configure:1657: checking for $ac_func" >&5
 if eval "test \"`echo '$''{'ac_cv_func_$ac_func'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 1677 "configure"
+#line 1662 "configure"
 #include "confdefs.h"
 /* System header to define __stub macros and hopefully few prototypes,
     which can conflict with char $ac_func(); below.  */
@@ -1696,7 +1681,7 @@ $ac_func();
 
 ; return 0; }
 EOF
-if { (eval echo configure:1700: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo configure:1685: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   eval "ac_cv_func_$ac_func=yes"
 else

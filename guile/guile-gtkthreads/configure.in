@@ -27,8 +27,8 @@ AC_MSG_RESULT(yes)
 
 AC_MSG_CHECKING(that Guile is recent enough)
 AC_EGREP_CPP(guile_is_recent_enough,
-	     [#include <libguile/boolean.h>
-	      #ifdef SCM_TRUE_P
+	     [#include <libguile/struct.h>
+	      #ifdef SCM_SET_STRUCT_LAYOUT
 	        guile_is_recent_enough
 	      #endif
 	     ],
