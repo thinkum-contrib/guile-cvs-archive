@@ -620,7 +620,7 @@ coop_create (coop_userf_t *f, void *pu)
   else
 #endif
     {
-      t = malloc (sizeof (coop_t));
+      t = scm_malloc (sizeof (coop_t), "coop");
 
       t->specific = NULL;
       t->n_keys = 0;
@@ -647,7 +647,7 @@ coop_create (coop_userf_t *f, void *pu)
       while (coop_child || mother_awake_p)
 	usleep (0);
 #else
-      t->sto = malloc (COOP_STKSIZE);
+      t->sto = scm_malloc (COOP_STKSIZE);
       sto = COOP_STKALIGN (t->sto, QT_STKALIGN);
       t->sp = QT_SP (sto, COOP_STKSIZE - QT_STKALIGN);
 #endif
@@ -730,7 +730,7 @@ coop_join(coop_t *t)
   /* Create a join list if necessary */
   if (t->joining == NULL)
     {
-      t->joining = malloc(sizeof(coop_q_t));
+      t->joining = scm_malloc(sizeof(coop_q_t));
       coop_qinit((coop_q_t *) t->joining);
     }
 
