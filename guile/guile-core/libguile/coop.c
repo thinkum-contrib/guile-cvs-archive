@@ -59,9 +59,9 @@ extern unsigned int sleep (unsigned int);
 
 #if defined(MISSING_USLEEP_DECL)
 #ifdef USLEEP_RETURNS_VOID
-extern void usleep (unsigned);
+extern void usleep (USLEEP_ARG_TYPE);
 #else
-extern int usleep (unsigned);
+extern int usleep (USLEEP_ARG_TYPE);
 #endif
 #endif
 
@@ -673,7 +673,7 @@ void
 #else
 int
 #endif
-usleep (unsigned usec)
+usleep (USLEEP_ARG_TYPE usec)
 {
   struct timeval timeout;
   timeout.tv_sec = 0;
