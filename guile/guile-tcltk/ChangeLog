@@ -1,3 +1,18 @@
+Thu Aug 15 03:29:58 1996  Jim Blandy  <jimb@floss.cyclic.com>
+
+	This subtree shouldn't participate in the build process at all if
+ 	the top-level makefile elected not to configure it.
+	* PLUGIN/guile.config, PLUGIN/guile.inits, PLUGIN/guile.libs: All
+ 	renamed to mumble.in.
+	* configure.in: Construct the PLUGIN/mumble files from the
+	PLUGIN/mumble.in files.  This way, if we're never configured, the
+	mumble files will not appear, and other subdirs won't get
+	confused.
+	* GUILE.vars.in: Remove this; integrate its guts into...
+	* PLUGIN/guile.config.in: here.
+	* Makefile.in (ancillary, dist-dir): Distribution code adjusted
+	appropriately.
+
 Thu Aug 15 01:31:49 1996  Jim Blandy  <jimb@totoro.cyclic.com>
 
 	* Added the gtcltk-lib tree to Guile. 
