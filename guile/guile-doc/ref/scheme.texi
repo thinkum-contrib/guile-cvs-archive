@@ -2101,20 +2101,42 @@ source of data, but only the value that is returned by
 @node String Ports
 @section String Ports
 
+The following allow string ports to be opened by analogy to R4R*
+file port facilities:
+
 @deffn primitive call-with-output-string proc
-@var{proc} must be a procedure of one argument.  This procedure calls
-@var{proc} with one argument: a (newly created) output port.  When the
-function returns, the string composed of the characters written into the
-port is returned.
+Calls the one-argument procedure @var{proc} with a newly created output
+port.  When the function returns, the string composed of the characters
+written into the port is returned.
 @end deffn
 
 @deffn primitive call-with-input-string string proc
-@var{proc} must be a procedure of one argument.  This procedure calls
-@var{proc} with one argument: an (newly created) input port from which
-@var{string}'s contents may be read.  When @var{proc} returns, the port
-is closed and the value yielded by the procedure @var{proc} is
-returned.
+Calls the one-argument procedure @var{proc} with a newly created input
+port from which @var{string}'s contents may be read.  The value yielded
+by the @var{proc} is returned.
 @end deffn
+
+@deffn procedure with-output-to-string thunk
+Calls the zero-argument procedure @var{thunk} with the current output
+port set temporarily to a new string port.  It returns a string
+composed of the characters written to the current output.
+@end deffn
+
+@deffn procedure with-input-from-string string thunk
+Calls the zero-argument procedure @var{thunk} with the current input
+port set temporarily to a string port opened on the specified
+@var{string}.  The value yielded by @var{thunk} is returned.
+@end deffn
+
+A string port can be used in many procedures which accept a port
+but which are not dependent on implementation details of fports.
+E.g., seeking and truncating will work on a string port,
+but trying to extract the file descriptor number will fail.
+
+At present there isn't a procedure that simply returns a new string
+port.  There's also no way of opening read/write string ports from
+Scheme even though it's possible from C.  SRFI 6 could be implemented
+without much difficulty.
 
 @node Soft Ports
 @section Soft Ports
@@ -2614,9 +2636,26 @@ port without blocking.  It can be assumed that the current state of
 Set using @code{scm_set_port_input_waiting}.
 
 @item seek
-Set the current position of the port.  It can be assumed that the current
-state of @code{rw_active} is @code{SCM_PORT_NEITHER}.
-Set using @code{scm_set_port_seek}.
+Set the current position of the port.  The procedure can not make
+any assumptions about the value of @code{rw_active} when it's
+called.  It can reset the buffers first if desired by using something
+like:
+
+@example
+      if (pt->rw_active == SCM_PORT_READ)
+	scm_end_input (object);
+      else if (pt->rw_active == SCM_PORT_WRITE)
+	ptob->flush (object);
+@end example
+
+However note that this will have the side effect of discarding any data
+in the unread-char buffer, in addition to any side effects from the
+@code{end_input} and @code{flush} ptob procedures.  This is undesirable
+when seek is called to measure the current position of the port, i.e.,
+@code{(seek p 0 SEEK_CUR)}.  The libguile fport and string port
+implementations take care to avoid this problem.
+
+The procedure is set using @code{scm_set_port_seek}.
 
 @item truncate
 Truncate the port data to be specified length.  It can be assumed that the

@@ -1,3 +1,9 @@
+1999-10-24  Gary Houston  <ghouston@freewire.co.uk>
+
+	* scheme.texi (String Ports): add with-output-to-string and
+	with-input-from-string.
+	(Port Implementation): update for ptob seek.
+
 1999-10-18  Gary Houston  <ghouston@freewire.co.uk>
 
 	* scheme.texi (C Port Interface): update the description of 
