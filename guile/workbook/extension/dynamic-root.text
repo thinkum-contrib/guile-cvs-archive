@@ -74,6 +74,13 @@ Alternatively, the user can jump out of the callback:
 Discussion
 ==========
 
+Why bother providing this kind of facility?  Because otherwise most C
+applications that link Guile will need to find some other way to
+prevent the use of continuations across callbacks if they are to avoid
+a source of bugs.  It makes sense to provide this in libguile, where
+the ability to modify the internals of the continuation implementation
+is a significant advantage, as discussed further below.
+
 There are two ways that longjmp may be invoked from a Scheme callback:
 raising an exception or invoking a continuation.  Exceptions can be
 caught using scm_internal_catch, but a primitive "continuation
@@ -143,9 +150,9 @@ is invoked.
 
 To implement the continuation barrier, for each thread we can have a
 simple list representing the barrier (let's call it
-with-continuation-barrier, wcb) dynamic state.  The head of the list
+with-continuation-barrier, w-c-b) dynamic state.  The head of the list
 would be stored in a thread-local location.  Whenever the scope of a
-wcb expression is entered, a new cons cell could be inserted at the
+w-c-b expression is entered, a new cons cell could be inserted at the
 head of the list.  When the scope is exited, the cell would be removed
 (this implies a need for an integrated exception handler, to catch
 non-local exit.  Non-local exit or entry by continuation will not be
@@ -154,7 +161,7 @@ stored in a continuation when it is captured.  When a continuation is
 invoked, the stored cell pointer can be compared with the address of
 the cell currently at the head of the list.
 
-This wcb list comparison would also prevent cross-thread invokation,
+This w-c-b list comparison would also prevent cross-thread invokation,
 so comparison of thread-ids can be dropped.
 
 An example implementation to play with is attached below.
@@ -178,31 +185,70 @@ gives symmetry with scm_internal_catch.
 
 On the other hand, the body procedure is expected to be a Scheme
 closure in most cases.  This suggests implementing two C procedures,
-the first taking four arguments:
+the first taking four arguments.  In the example implementation it's:
 
-scm_t_catch_body body, void *body_data,
-scm_t_catch_handler handler, void *handler_data
+SCM
+scm_c_c_continuation_barrier (scm_t_catch_body body, void *body_data,
+			      scm_t_catch_handler handler,
+			      void *handler_data)
 
-and the second taking three arguments:
-SCM body, scm_t_catch_handler handler, void *handler_data
+The second procedure takes three arguments:
 
-If there is also to be a Scheme interface, then it would be implemented
-with a third variant:
-SCM body, SCM handler
+SCM
+scm_c_continuation_barrier (SCM body,
+			    scm_t_catch_handler handler,
+			    void *handler_data)
 
-The second and third variants would be implemented by calling the
-first, similar to the old scm_call_with_dynamic_root and its wrappers.
+Should the facility be provide at the Scheme level too, or just in C?
+There's no obvious reason to restrict the application of callbacks to
+C, hence there is a third variant that takes two SCM arguments:
+
+SCM_DEFINE (scm_with_continuation_barrier, "with-continuation-barrier",
+	    2, 0, 0,
+	    (SCM body, SCM handler),
+	    "")
+#define FUNC_NAME s_scm_with_continuation_barrier
+
+The second and third variants are implemented by calling the first,
+similar to the old scm_internal_cwdr and its wrappers.
 
 The return value from all variants should be the result of calling
 the body, unless an exception occurred in which case it's the result
 of calling the handler.  So the return type is SCM, as for
 scm_internal_catch.
 
+Guile's current (version 1.6) usage of call-with-dynamic-root
+=============================================================
+
+There are three relevant functions exported from root.c:
+
+scm_internal_cwdr is not documented.  It implements
+scm_call_with_dynamic_root and scm_apply_with_dynamic_root and is
+also called from coop-threads.c.
+
+scm_call_with_dynamic_root implements call-with-dynamic-root and is
+documented in the reference manual.  It is not used by Guile.
+
+scm_apply_with_dynamic_root is not documented.  It is not used by
+Guile.
+
+The usage of scm_internal_cwdr during spawning of coop threads is for
+two reasons: firstly to complete the initialisation of the new
+dynamic-root, secondly to install the exception handler.  It would be
+easy to reimplement these using some other method, particularly since
+some of the dynamic-root initialisation will no longer be required if
+these functions are removed.
+
+Hence there should be no problem in deprecating all three exported
+functions.  To remove them completely will require minor changes to
+coop thread spawning, which will benefit by simplification of the
+scm_root struct.
+
 To do
 =====
 
-libguile usage and threads, error handling and reporting, more on
-convenience of use, Scheme-level interface.
+error handling and reporting (stack trace?), more on convenience of
+use (e.g., try it out in Guppi).
 
 References
 ==========
