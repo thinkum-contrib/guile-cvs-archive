@@ -46,16 +46,23 @@
 
 #include <libguile/snarf.h>
 
-#define SCM_I_CLASS(C_NAME, S_NAME, SUPERS, SIZE, CONSTR, DESTR)	\
-%%%	scm_load_goops ();						\
-	C_NAME = scm_permanent_object (scm_intern0 (S_NAME));		\
-	SCM_SETCDR (C_NAME,						\
-		    scm_make_class (scm_class_foreign_class,		\
-				    S_NAME, SUPERS, SIZE,		\
-				    (void * (*) (SCM)) CONSTR,		\
-				    (size_t (*) (void *)) DESTR));	\
-	C_NAME = SCM_CDR (C_NAME)
+#ifndef SCM_SNARF_INIT
+/* Old snarf.h */
+#define SCM_SNARF_INIT(X) %%% X
+#endif
 
+#define SCM_I_CLASS(C_NAME, S_NAME, SUPERS, SIZE, CONSTR, DESTR)	\
+SCM_SNARF_INIT(								\
+  scm_load_goops ();							\
+  C_NAME = scm_permanent_object (scm_intern0 (S_NAME));			\
+  SCM_SETCDR (C_NAME,							\
+  	    scm_make_class (scm_class_foreign_class,			\
+  			    S_NAME, SUPERS, SIZE,			\
+  			    (void * (*) (SCM)) CONSTR,			\
+  			    (size_t (*) (void *)) DESTR));		\
+  C_NAME = SCM_CDR (C_NAME)						\
+)
+     
 #ifndef SCM_MAGIC_SNARFER
 #define SCM_CLASS(C_NAME, S_NAME, SUPERS, SIZE, CONSTR, DESTR)		\
 	static SCM C_NAME = SCM_BOOL_F
@@ -76,7 +83,7 @@ SCM_I_CLASS(C_NAME, S_NAME, SUPERS, SIZE, CONSTR, DESTR)
 #define SCM_VIRTUAL_SLOT(C_CLASS, C_TYPE, C_SLOT, S_SLOT, S_TYPE, GET, SET, A)
 #else
 #define SCM_VIRTUAL_SLOT(C_CLASS, C_TYPE, C_SLOT, S_SLOT, S_TYPE, GET, SET, A) \
-%%%	scm_add_slot (C_CLASS, S_SLOT, S_TYPE, GET, SET, A)
+SCM_SNARF_INIT (scm_add_slot (C_CLASS, S_SLOT, S_TYPE, GET, SET, A))
 #endif
 
 #define SCM_I_GETTER_NAME(C_CLASS, C_SLOT) scm_get_ ## C_CLASS ## _ ## C_SLOT
@@ -110,10 +117,10 @@ SCM_I_GETTER (C_CLASS, C_TYPE, C_SLOT, GET)				\
 
 #else
 #define SCM_I_SLOT(C_CLASS, C_TYPE, C_SLOT, S_SLOT, S_TYPE, PRED, GET, SET, A) \
-%%%	scm_add_slot (C_CLASS, S_SLOT, S_TYPE,	\
-		      SCM_I_GETTER_NAME (C_CLASS, C_SLOT),		\
-		      SCM_I_SETTER_NAME (C_CLASS, C_SLOT),		\
-		      A)
+SCM_SNARF_INIT (scm_add_slot (C_CLASS, S_SLOT, S_TYPE,			\
+			      SCM_I_GETTER_NAME (C_CLASS, C_SLOT),	\
+			      SCM_I_SETTER_NAME (C_CLASS, C_SLOT),	\
+			      A))
 #endif
 
 #ifndef SCM_MAGIC_SNARFER
@@ -122,10 +129,10 @@ SCM_I_GETTER (C_CLASS, C_TYPE, C_SLOT, GET)				\
 
 #else
 #define SCM_I_ROSLOT(C_CLASS, C_TYPE, C_SLOT, S_SLOT, S_TYPE, GET, A)	\
-%%%	scm_add_slot (C_CLASS, S_SLOT, S_TYPE,				\
-		      SCM_I_GETTER_NAME (C_CLASS, C_SLOT),		\
-		      0,						\
-		      A)
+SCM_SNARF_INIT (scm_add_slot (C_CLASS, S_SLOT, S_TYPE,			\
+			      SCM_I_GETTER_NAME (C_CLASS, C_SLOT),	\
+			      0,					\
+			      A))
 #endif
 
 #define SCM_SLOT_PTR(C_CLASS, C_TYPE, C_SLOT, S_SLOT, S_TYPE, A)	\
