@@ -1,3 +1,10 @@
+1999-01-30  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* goops/goops.scm: Don't use module (ice-9 setf).
+
+	* goops.c, goops.h, goops/goops.scm: Changed module name from
+	(goops *) to (oop *).
+
 1999-01-21  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* goops.c (scm_class_of, CLASS_REDEF): Moved to

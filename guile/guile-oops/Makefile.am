@@ -15,7 +15,7 @@ BUILT_SOURCES = goops.x
 subpkgdatadir = $(datadir)/guile
 subpkgdata_DATA = goops/goops.scm goops/compat.scm goops/describe.scm
 
-goopsdir = $(subpkgdatadir)/goops
+goopsdir = $(subpkgdatadir)/oop
 
 install-exec-hook:
 	$(mkinstalldirs) $(goopsdir)
