@@ -966,58 +966,128 @@
 
 ;;; compute-cpl
 ;;;
+;;; Correct behaviour:
+;;;
+;;; (define-class food ())
+;;; (define-class fruit (food))
+;;; (define-class spice (food))
+;;; (define-class apple (fruit))
+;;; (define-class cinnamon (spice))
+;;; (define-class pie (apple cinnamon))
+;;; => cpl (pie) = pie apple fruit cinnamon spice food object top
+;;;
+;;; (define-class d ())
+;;; (define-class e ())
+;;; (define-class f ())
+;;; (define-class b (d e))
+;;; (define-class c (e f))
+;;; (define-class a (b c))
+;;; => cpl (a) = a b d c e f object top
+;;;
+
 (define-method compute-cpl ((class <class>))
-  (compute-std-cpl class))
+  (compute-std-cpl class class-direct-supers))
 
-(define (compute-std-cpl class)
-  (let* ((h (make-vector 7 '()))
-	 (tail (list <object> <top>))
-	 (anchor (cons #f '()))
-	 (ls anchor))
-    ;; Do a depth first traversal of inheritance tree and convert it
-    ;; to a list of descriptors of the form (<class> . #dependencies)
-    ;; Each time a class is encountered, the dependency count is
-    ;; incremented.  (0 actually means 1 dependency.)
-    (let traverse ((class class))
-      (if (not (memq class tail))
-	  (begin
-	    (let* ((handle (hashq-create-handle! h class -1))
-		   (el (list handle)))
-	      (set-cdr! handle (+ (cdr handle) 1))
-	      (set-cdr! ls el)
-	      (set! ls el))
-	    (do ((classes (slot-ref class 'direct-supers)
-			  (cdr classes)))
-		((null? classes))
-	      (traverse (car classes))))))
-    ;; Convert the descriptor list to a list of classes while
-    ;; decrementing the dependency counts.  Skip descriptors with
-    ;; non-zero dependency count.
-    (do ((dls (cdr anchor) (cdr dls))
-	 (cpl (cdr anchor)))
-	((null? dls)
-	 ;; We are finished.  Patch the tail of the list.
-	 (if (null? cpl)
-	     ;; We had a 1-1 correspondence between dls and cpl
-	     ;; ls countains the last pair of the original list
-	     (set-cdr! ls tail)
-	     ;; We skipped one or more descriptors.  Replace the
-	     ;; pair after the computed classes with the tail.
-	     (begin
-	       (set-car! cpl (car tail))
-	       (set-cdr! cpl (cdr tail))))
-	 ;; The result
-	 (cdr anchor))
-      ;; Check dependency count
-      (if (zero? (cdar dls))
-	  (begin
-	    ;; Replace the descriptor with the actual class
-	    ;; and move to next pair
-	    (set-car! cpl (caar dls))
-	    (set! cpl (cdr cpl)))
-	  ;; Decrement dependency count and skip class
-	  (set-cdr! (car dls) (- (cdar dls) 1))))))
+;; Support
 
+(define (every test . lists)
+  (let scan ((tails lists))
+    (if (member #t (map null? tails))             ;(any null? lists)
+	#t
+	(and (apply test (map car tails))
+	     (scan (map cdr tails))))))
+
+(define (collect-if test? list)
+  (cond ((null? list) '())
+	((test? (car list)) (cons (car list) (collect-if test? (cdr list))))
+	(else (collect-if test? (cdr list)))))
+
+;; Modified from TinyClos:
+;;
+;; A simple topological sort.
+;;
+;; It's in this file so that both TinyClos and Objects can use it.
+;;
+;; This is a fairly modified version of code I originally got from Anurag
+;; Mendhekar <anurag@moose.cs.indiana.edu>.
+;;
+
+(define (compute-std-cpl c get-direct-supers)
+  (top-sort ((build-transitive-closure get-direct-supers) c)
+	    ((build-constraints get-direct-supers) c)
+	    (std-tie-breaker get-direct-supers)))
+
+
+(define (top-sort elements constraints tie-breaker)
+  (let loop ((elements    elements)
+	     (constraints constraints)
+	     (result      '()))
+    (if (null? elements)
+	result
+	(let ((can-go-in-now
+	       (collect-if
+		(lambda (x)
+		  (every (lambda (constraint)
+			   (or (not (eq? (cadr constraint) x))
+			       (memq (car constraint) result)))
+			 constraints))
+		elements)))
+	  (if (null? can-go-in-now)
+	      (goops-error "top-sort: Invalid constraints")
+	      (let ((choice (if (null? (cdr can-go-in-now))
+				(car can-go-in-now)
+				(tie-breaker result
+					     can-go-in-now))))
+		(loop
+		 (collect-if (lambda (x) (not (eq? x choice)))
+			     elements)
+		 constraints
+		 (append result (list choice)))))))))
+
+(define (std-tie-breaker get-supers)
+  (lambda (partial-cpl min-elts)
+    (let loop ((pcpl (reverse partial-cpl)))
+      (let ((current-elt (car pcpl)))
+	(let ((ds-of-ce (get-supers current-elt)))
+	  (let ((common (collect-if (lambda (x)
+				      (memq x ds-of-ce))
+				    min-elts)))
+	    (if (null? common)
+		(if (null? (cdr pcpl))
+		    (goops-error "std-tie-breaker: Nothing valid")
+		    (loop (cdr pcpl)))
+		(car common))))))))
+
+
+(define (build-transitive-closure get-follow-ons)
+  (lambda (x)
+    (let track ((result '())
+		(pending (list x)))
+      (if (null? pending)
+	  result
+	  (let ((next (car pending)))
+	    (if (memq next result)
+		(track result (cdr pending))
+		(track (cons next result)
+		       (append (get-follow-ons next)
+			       (cdr pending)))))))))
+
+(define (build-constraints get-follow-ons)
+  (lambda (x)
+    (let loop ((elements ((build-transitive-closure get-follow-ons) x))
+	       (this-one '())
+	       (result '()))
+      (if (or (null? this-one) (null? (cdr this-one)))
+	  (if (null? elements)
+	      result
+	      (loop (cdr elements)
+		    (cons (car elements)
+			  (get-follow-ons (car elements)))
+		    result))
+	  (loop elements
+		(cdr this-one)
+		(cons (list (car this-one) (cadr this-one))
+		      result))))))
 
 ;;; compute-get-n-set
 ;;;
