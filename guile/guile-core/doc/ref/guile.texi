@@ -270,6 +270,7 @@ Part V: Guile Modules
 * Pretty Printing::             Nicely formatting Scheme objects for output.
 * Formatted Output::            The @code{format} procedure.
 * Rx Regexps::                  The Rx regular expression library.
+* File Tree Walk::              Traversing the file system.
 * Expect::			Controlling interactive programs with Guile.
 * The Scheme shell (scsh)::     Using scsh interfaces in Guile.
 
