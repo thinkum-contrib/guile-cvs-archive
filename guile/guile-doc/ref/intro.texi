@@ -6,9 +6,9 @@
 Guile is an interpreter for the Scheme programming language, packaged
 for use in a wide variety of environments.  Guile implements Scheme as
 described in the
-@iftex
+@tex
 Revised$^4$
-@end iftex
+@end tex
 @ifinfo
 Revised^4
 @end ifinfo
@@ -24,15 +24,15 @@ Like a shell, Guile can run interactively, reading expressions from the
 user, evaluating them, and displaying the results, or as a script
 interpreter, reading and executing Scheme code from a file.  However,
 Guile is also packaged as an object library, allowing other applications
-to incorporate the full power of the Scheme programming language.  An
-application can use Guile as an extension language, a clean and powerful
-configuration language, or as multi-purpose ``glue'', connecting
-primitives provided by the application.  It is easy to call Scheme code
-from C code and vice versa, giving the application designer full control
-of how and when to invoke the interpreter.  Applications can add new
-functions, data types, control structures, and even syntax to Guile,
-creating a domain-specific language tailored to the task at hand, but
-based on a robust language design.
+to easily incorporate a complete Scheme interpreter.  An application can
+use Guile as an extension language, a clean and powerful configuration
+language, or as multi-purpose ``glue'', connecting primitives provided
+by the application.  It is easy to call Scheme code from C code and vice
+versa, giving the application designer full control of how and when to
+invoke the interpreter.  Applications can add new functions, data types,
+control structures, and even syntax to Guile, creating a domain-specific
+language tailored to the task at hand, but based on a robust language
+design.
 
 Guile's module system allows one to break up a large program into
 manageable sections with well-defined interfaces between them.  Modules
@@ -44,10 +44,10 @@ interfaces, database access routines, compilers, GUI toolkit interfaces,
 and HTTP client functions, among others.
 
 In the future, we hope to expand Guile to support other languages like
-Tcl and Perl by compiling them to Scheme code.  This means that, if an
-application uses Guile as its extension language, users can extend it in
-the language of their choice, rather than having the tastes of the
-application's author imposed on them.
+Tcl and Perl by compiling them to Scheme code.  This means that users
+can program applications which use Guile in the language of their
+choice, rather than having the tastes of the application's author
+imposed on them.
 
 This manual assumes you know Scheme, as described in R4RS.  From there,
 it describes:
@@ -102,6 +102,9 @@ guile> @kbd{C-d}
 $
 @end example
 
+@c [[When we get a fancier read-eval-print loop, with features for bouncing
+@c around among modules, referring to the value of the last expression,
+@c etc. then this section will get longer.]]
 
 @node Guile Scripts
 @chapter Guile Scripts
@@ -111,7 +114,7 @@ script is simply a file of Scheme code with some extra information at
 the beginning which tells the operating system how to invoke Guile, and
 then tells Guile how to handle the Scheme code.
 
-Before we go into details, here is a trivial Guile script:
+Before we present the details, here is a trivial Guile script:
 @example
 #!/usr/local/bin/guile -s
 !#
@@ -138,23 +141,24 @@ that.  Here is the simplest case:
 @item
 The first two characters of the file must be @samp{#!}.
 
-The operating system interprets this as a sign that the rest of the line
-is the name of an executable that can interpret the script; Guile
-interprets these characters as the beginning of a multi-line comment,
-terminated by the characters @samp{!#} on a line by themselves.  (This
-is an extension to the syntax described in R4RS, added to support shell
-scripts.)
+The operating system interprets this to mean that the rest of the line
+is the name of an executable that can interpret the script.  Guile,
+however, interprets these characters as the beginning of a multi-line
+comment, terminated by the characters @samp{!#} on a line by themselves.
+(This is an extension to the syntax described in R4RS, added to support
+shell scripts.)
 
 @item
-Next, on the same line, must come the full pathname to the Guile
-interpreter.  On most systems, this would be
+Immediately after those two characters must come the full pathname to
+the Guile interpreter.  On most systems, this would be
 @samp{/usr/local/bin/guile}.
 
 @item
 Then must come a space, followed by a command-line argument to pass to
 Guile; this should be @samp{-s}.  This switch tells Guile to run a
 script, instead of soliciting the user for input from the terminal.
-There are more elaborate things to do here; see @ref{The Meta Switch}
+There are more elaborate things one can do here; see @ref{The Meta
+Switch}.
 
 @item
 Follow this with a newline.
@@ -165,13 +169,12 @@ The second line of the script should contain only the characters
 operating system never reads this far, but Guile treats this as the end
 of the comment begun on the first line by the @samp{#!} characters.
 
-@item
-The rest of the file should be a series of arbitrary Scheme definitions
-and expressions.
+@Item
+The rest of the file should be a Scheme program.
 
 @end itemize
 
-Guile evaluates the definitions and expressions in the order they
+Guile reads the program, evaluating expressions in the order that they
 appear.  Upon reaching the end of the file, Guile exits.
 
 The function @code{command-line} returns the name of the script file and
@@ -210,9 +213,9 @@ As another example, here is a simple replacement for the POSIX
 @node Invoking Guile
 @section Invoking Guile
 
-Guile processes its command-line arguments from left to right,
-recognizing the switches described below.  For examples, see
-@ref{Scripting Examples}.
+Here we describe Guile's command-line processing in detail.  Guile
+processes its arguments from left to right, recognizing the switches
+described below.  For examples, see @ref{Scripting Examples}.
 
 @table @code
 
@@ -292,15 +295,16 @@ Display the current version of Guile, and then exit.
 Guile's command-line switches allow the programmer to describe
 reasonably complicated actions in scripts.  Unfortunately, the POSIX
 script invocation mechanism only allows one argument to appear on the
-@samp{#!} line after the path to the Guile executable.  Suppose you
-wrote a script starting like this:
+@samp{#!} line after the path to the Guile executable, and imposes
+arbitrary limits on that argument's length.  Suppose you wrote a script
+starting like this:
 @example
 #!/usr/local/bin/guile -e main -s
 !#
 (define (main args)
-	(map (lambda (arg) (display arg) (display " "))
-	     (cdr args))
-	(newline))
+  (map (lambda (arg) (display arg) (display " "))
+       (cdr args))
+  (newline))
 @end example
 The intended meaning is clear: load the file, and then call @code{main}
 on the command-line arguments.  However, the system will treat
@@ -309,10 +313,10 @@ everything after the Guile path as a single argument --- the string
 
 As a workaround, the meta switch @code{\} allows the Guile programmer to
 specify an arbitrary number of options without patching the kernel.  If
-the first argument to a Guile script is @code{\}, Guile will open the
-script file, parse arguments starting from the file's second line
-(according to rules described below), and substitute them for the
-@code{\} switch.
+the first argument to Guile is @code{\}, Guile will open the script file
+whose name follows the @code{\}, parse arguments starting from the
+file's second line (according to rules described below), and substitute
+them for the @code{\} switch.
 
 Working in concert with the meta switch, Guile treats the characters
 @samp{#!} as the beginning of a comment which extends through the next
@@ -326,9 +330,9 @@ Thus, consider a script named @file{/u/jimb/ekko} which starts like this:
 -e main -s
 !#
 (define (main args)
-	(map (lambda (arg) (display arg) (display " "))
-	     (cdr args))
-	(newline))
+        (map (lambda (arg) (display arg) (display " "))
+             (cdr args))
+        (newline))
 @end example
 
 Suppose a user invokes this script as follows:
@@ -550,7 +554,9 @@ Once you've compiled your source files, you can link them against Guile
 by passing the flag @code{-lguile} to your linker.  If you installed
 Guile with multi-thread support (by passing @code{--enable-threads} to
 the @code{configure} script), you may also need to link against the
-QuickThreads library, @code{-lqt}.
+QuickThreads library, @code{-lqt}.  Guile refers to various mathematical
+functions, so you will probably need to link against the mathematical
+library, @code{-lm}, as well.
 
 @menu
 * Guile Initialization Functions::  What to call first.
@@ -595,7 +601,7 @@ that mistake.
 
 One common way to use Guile is to write a set of C functions which
 perform some useful task, make them callable from Scheme, and then link
-the program with Guile, producing a Scheme interpreter just like
+the program with Guile.  This yields a Scheme interpreter just like
 @code{guile}, but augmented with extra functions for some specific
 application --- a special-purpose scripting language.
 
@@ -611,7 +617,7 @@ files, interacting with the user or running any scripts or expressions
 specified by @code{-s} or @code{-e} options, and then exiting.
 @xref{Invoking Guile}, for more details.
 
-Since this function typically does not return, you should do all
+Since this function does not return, you must do all
 application-specific initialization before calling this function.
 
 If you do not use this function to start Guile, you are responsible for
@@ -666,9 +672,9 @@ CFLAGS=-I/usr/local/include -L/usr/local/lib
 LIBS=-lguile -lqt -lrx -lm
 
 simple-guile: simple-guile.o
-	$@{CC@} $@{CFLAGS@} simple-guile.o $@{LIBS@} -o simple-guile
+        $@{CC@} $@{CFLAGS@} simple-guile.o $@{LIBS@} -o simple-guile
 simple-guile.o: simple-guile.c
-	$@{CC@} -c $@{CFLAGS@} simple-guile.c
+        $@{CC@} -c $@{CFLAGS@} simple-guile.c
 @end example
 
 If you are using the GNU Autoconf package to make your application more
@@ -702,9 +708,9 @@ CFLAGS=@@CFLAGS@@
 LIBS=@@LIBS@@
 
 simple-guile: simple-guile.o
-	$@{CC@} $@{CFLAGS@} simple-guile.o $@{LIBS@} -o simple-guile
+        $@{CC@} $@{CFLAGS@} simple-guile.o $@{LIBS@} -o simple-guile
 simple-guile.o: simple-guile.c
-	$@{CC@} -c $@{CFLAGS@} simple-guile.c
+        $@{CC@} -c $@{CFLAGS@} simple-guile.c
 @end example
 
 The developer should use Autoconf to generate the @file{configure}
