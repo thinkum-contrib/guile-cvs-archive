@@ -1,0 +1,9 @@
+summary: guile-www does not support ssl
+reported: Bill Gribble <grib@linuxdevel.com>, 2002-02-07
+
+Bill Gribble sez:
+> I had been waiting for the right opporunity to use guile-www, and it's
+> here :)  The only problem is that I really need SSL support.
+>
+> I believe I can hack it in (I have a little experience programming with
+> the openSSL libraries) but I'm wondering if you've done it already.
