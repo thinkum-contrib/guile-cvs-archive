@@ -34,7 +34,7 @@ e.g., @code{copy-file}.
 The interfaces are intended as far as possible to be portable across
 different versions of Unix.  In some cases procedures which can't be
 implemented on particular systems may become no-ops, or perform limited
-actions.  In other cases they may throw errors. 
+actions.  In other cases they may throw errors.
 
 General naming conventions are as follows:
 
@@ -71,7 +71,7 @@ Errors which the C-library would report by returning a NULL
 pointer or through some other means are reported by raising a
 @code{system-error} exception.
 The value of the Unix @code{errno} variable is available
-in the data passed by the exception. 
+in the data passed by the exception.
 
 Here's an ad-hoc@footnote{This may be changed in the future; be prepared
 to rewrite this sort of code.} way to extract the @code{errno} value
@@ -150,21 +150,18 @@ one, so that dropping references to one of these ports will not result
 in its garbage collection: it could be retrieved with fdopen or
 fdes->ports.
 
-@c docstring begin (c-doc-string "ports.c" "port-revealed")
-@c docstring md5 "1b7c38c06c8f072cdafa2710b72f7f3b"
+@c docstring begin (texi-doc-string "guile" "port-revealed")
 @deffn primitive port-revealed port
 Returns the revealed count for @var{port}.
 @end deffn
 
-@c docstring begin (c-doc-string "ports.c" "set-port-revealed!")
-@c docstring md5 "84596c3911799dc63419755ab4a79901"
+@c docstring begin (texi-doc-string "guile" "set-port-revealed!")
 @deffn primitive set-port-revealed! port rcount
 Sets the revealed count for a port to a given value.
 The return value is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "ioext.c" "fileno")
-@c docstring md5 "96b7af8fd2b539a34033de7db0bc414c"
+@c docstring begin (texi-doc-string "guile" "fileno")
 @deffn primitive fileno port
 Returns the integer file descriptor underlying @var{port}.
 Does not change its revealed count.
@@ -175,8 +172,7 @@ Returns the integer file descriptor underlying @var{port}.  As a
 side effect the revealed count of @var{port} is incremented.
 @end deffn
 
-@c docstring begin (c-doc-string "ioext.c" "fdopen")
-@c docstring md5 "71ccc066db901cf5d9a5758eb2cf15ab"
+@c docstring begin (texi-doc-string "guile" "fdopen")
 @deffn primitive fdopen fdes modes
 Returns a new port based on the file descriptor @var{fdes}.
 Modes are given by the string @var{modes}.  The revealed count of the port
@@ -184,8 +180,7 @@ is initialized to zero.  The modes string is the same as that accepted
 by @ref{File Ports, open-file}.
 @end deffn
 
-@c docstring begin (c-doc-string "ioext.c" "fdes->ports")
-@c docstring md5 "1b8dd9a8d7712545b06371a15ef9664a"
+@c docstring begin (texi-doc-string "guile" "fdes->ports")
 @deffn primitive fdes->ports fd
 Returns a list of existing ports which have @var{fdes} as an
 underlying file descriptor, without changing their revealed counts.
@@ -203,8 +198,7 @@ descriptor, if one exists, and increments its revealed count.
 Otherwise, returns a new output port with a revealed count of 1.
 @end deffn
 
-@c docstring begin (c-doc-string "ioext.c" "primitive-move->fdes")
-@c docstring md5 "d8ad943dd458d64daaa8b72f1e03c0f9"
+@c docstring begin (texi-doc-string "guile" "primitive-move->fdes")
 @deffn primitive primitive-move->fdes port fd
 Moves the underlying file descriptor for @var{port} to the integer
 value @var{fdes} without changing the revealed count of @var{port}.
@@ -226,8 +220,7 @@ The return value is unspecified.
 Decrements the revealed count for a port.
 @end deffn
 
-@c docstring begin (c-doc-string "filesys.c" "fsync")
-@c docstring md5 "6978ec5715e3c25f0189963c4ec3bed0"
+@c docstring begin (texi-doc-string "guile" "fsync")
 @deffn primitive fsync object
 Copies any unwritten data for the specified output file descriptor to disk.
 If @var{port/fd} is a port, its buffer is flushed before the underlying
@@ -235,8 +228,7 @@ file descriptor is fsync'd.
 The return value is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "filesys.c" "open")
-@c docstring md5 "a85466a480dd4c11058d32f5dd5b211f"
+@c docstring begin (texi-doc-string "guile" "open")
 @deffn primitive open path flags [mode]
 Open the file named by @var{path} for reading and/or writing.
 @var{flags} is an integer specifying how the file should be opened.
@@ -251,7 +243,7 @@ Basic flags are:
 Open the file read-only.
 @end defvar
 @defvar O_WRONLY
-Open the file write-only. 
+Open the file write-only.
 @end defvar
 @defvar O_RDWR
 Open the file read/write.
@@ -267,15 +259,13 @@ See the Unix documentation of the @code{open} system call
 for additional flags.
 @end deffn
 
-@c docstring begin (c-doc-string "filesys.c" "open-fdes")
-@c docstring md5 "90888c2d7883edc7ecc98055b058a6e3"
+@c docstring begin (texi-doc-string "guile" "open-fdes")
 @deffn primitive open-fdes path flags [mode]
 Similar to @code{open} but returns a file descriptor instead of a
 port.
 @end deffn
 
-@c docstring begin (c-doc-string "filesys.c" "close")
-@c docstring md5 "7efb0d041e4df8717bc3265908e10d19"
+@c docstring begin (texi-doc-string "guile" "close")
 @deffn primitive close fd_or_port
 Similar to close-port (@pxref{Generic Port Operations, close-port}),
 but also works on file descriptors.  A side
@@ -284,7 +274,7 @@ descriptor are moved to a different file descriptor and have
 their revealed counts set to zero.
 @end deffn
 
-@c docstring begin (c-doc-string "ports.c" "unread-char")
+@c docstring begin (texi-doc-string "guile" "unread-char")
 @deffn primitive unread-char char [port]
 Place @var{char} in @var{port} so that it will be read by the
 next read operation.  If called multiple times, the unread characters
@@ -292,8 +282,7 @@ will be read again in last-in first-out order.  If @var{port} is
 not supplied, the current input port is used.
 @end deffn
 
-@c docstring begin (c-doc-string "ports.c" "unread-string")
-@c docstring md5 "7b185a3d540acdf2ec7f6b114c6c3c80"
+@c docstring begin (texi-doc-string "guile" "unread-string")
 @deffn primitive unread-string str port
 Place the string @var{str} in @var{port} so that its characters will be
 read in subsequent read operations.  If called multiple times, the
@@ -301,8 +290,7 @@ unread characters will be read again in last-in first-out order.  If
 @var{port} is not supplied, the current-input-port is used.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "pipe")
-@c docstring md5 "b21d64a66a4e2c47fece645b9828d479"
+@c docstring begin (texi-doc-string "guile" "pipe")
 @deffn primitive pipe
 Returns a newly created pipe: a pair of ports which are linked
 together on the local machine.  The CAR is the input port and
@@ -316,8 +304,7 @@ Writes occur atomically provided the size of the data in
 bytes is not greater than the value of @code{PIPE_BUF}
 Note that the output port is likely to block if too much data
 (typically equal to @code{PIPE_BUF}) has been written but not
-yet read from the input port
-
+yet read from the input port.
 @end deffn
 
 The next group of procedures perform a @code{dup2}
@@ -330,8 +317,7 @@ All procedures also have the side effect when performing @code{dup2} that any
 ports using @var{newfd} are moved to a different file descriptor and have
 their revealed counts set to zero.
 
-@c docstring begin (c-doc-string "ioext.c" "dup->fdes")
-@c docstring md5 "e08bccef01e4894730c1769700b7bec4"
+@c docstring begin (texi-doc-string "guile" "dup->fdes")
 @deffn primitive dup->fdes fd_or_port [fd]
 Returns an integer file descriptor.
 @end deffn
@@ -350,7 +336,7 @@ supplied port, otherwise returns an integer file descriptor.
 @end deffn
 
 @deffn procedure dup->port port/fd mode [newfd]
-Returns a new port using the new file descriptor.  @var{mode} supplies a 
+Returns a new port using the new file descriptor.  @var{mode} supplies a
 mode string for the port (@pxref{File Ports, open-file}).
 @end deffn
 
@@ -368,8 +354,7 @@ port.
 This procedure is equivalent to @code{(dup->port @var{port} @var{modes})}.
 @end deffn
 
-@c docstring begin (c-doc-string "ioext.c" "redirect-port")
-@c docstring md5 "22f3981d9fbf44f4167feb4bd623445c"
+@c docstring begin (texi-doc-string "guile" "redirect-port")
 @deffn primitive redirect-port old new
 This procedure takes two ports and duplicates the underlying file
 descriptor from @var{old-port} into @var{new-port}.  The
@@ -386,8 +371,7 @@ This procedure does not have any side effects on other ports or
 revealed counts.
 @end deffn
 
-@c docstring begin (c-doc-string "ports.c" "port-mode")
-@c docstring md5 "cbcb46422ab6eb230fd54bb014026d79"
+@c docstring begin (texi-doc-string "guile" "port-mode")
 @deffn primitive port-mode port
 Returns the port modes associated with the open port @var{port}.  These
 will not necessarily be identical to the modes used when the port was
@@ -395,8 +379,7 @@ opened, since modes such as "append" which are used only during
 port creation are not retained.
 @end deffn
 
-@c docstring begin (c-doc-string "ports.c" "close-all-ports-except")
-@c docstring md5 "cc236f9737a0e718d33eb00106cd33f9"
+@c docstring begin (texi-doc-string "guile" "close-all-ports-except")
 @deffn primitive close-all-ports-except . ports
 Close all open file ports used by the interpreter
 except for those supplied as arguments.  This procedure
@@ -404,8 +387,7 @@ is intended to be used before an exec call to close file descriptors
 which are not needed in the new process.
 @end deffn
 
-@c docstring begin (c-doc-string "fports.c" "setvbuf")
-@c docstring md5 "5395a53e279959cd6b364a3411887c0b"
+@c docstring begin (texi-doc-string "guile" "setvbuf")
 @deffn primitive setvbuf port mode [size]
 Set the buffering mode for @var{port}.  @var{mode} can be:
 @table @code
@@ -419,8 +401,7 @@ If @var{size} is omitted, a default size will be used.
 @end table
 @end deffn
 
-@c docstring begin (c-doc-string "filesys.c" "fcntl")
-@c docstring md5 "bcba351d5e557d889d805a4a159474f9"
+@c docstring begin (texi-doc-string "guile" "fcntl")
 @deffn primitive fcntl object cmd [value]
 Apply @var{command} to the specified file descriptor or the underlying
 file descriptor of the specified port.  @var{value} is an optional
@@ -449,8 +430,7 @@ The value used to indicate the "close on exec" flag with @code{F_GETFL} or
 @end table
 @end deffn
 
-@c docstring begin (c-doc-string "filesys.c" "select")
-@c docstring md5 "3a9976b72e1ed744c099ec8cccd9091e"
+@c docstring begin (texi-doc-string "guile" "select")
 @deffn primitive select reads writes excepts [secs [usecs]]
 This procedure has a variety of uses: waiting for the ability
 to provide input, accept output, or the existance of
@@ -481,7 +461,6 @@ The @var{usecs} argument is not supported.
 Multiple values are returned instead of a list.
 Duplicates in the input vectors appear only once in output.
 An additional @code{select!} interface is provided.
-
 @end deffn
 
 @node File System
@@ -493,12 +472,11 @@ permissions, sizes and types of files); deleting, copying, renaming and
 linking files; creating and removing directories and querying their
 contents; syncing the file system and creating special files.
 
-@c docstring begin (c-doc-string "posix.c" "access?")
-@c docstring md5 "fec352f04f8b19b3630c323ba6335b50"
+@c docstring begin (texi-doc-string "guile" "access?")
 @deffn primitive access? path how
 Returns @code{#t} if @var{path} corresponds to an existing
 file and the current process
-has the type of access specified by @var{how}, otherwise 
+has the type of access specified by @var{how}, otherwise
 @code{#f}.
 @var{how} should be specified
 using the values of the variables listed below.  Multiple values can
@@ -524,8 +502,7 @@ test for existence of the file.
 @end deffn
 
 @findex fstat
-@c docstring begin (c-doc-string "filesys.c" "stat")
-@c docstring md5 "6258bdc5e2a1fdc5765d0b8ae45d6162"
+@c docstring begin (texi-doc-string "guile" "stat")
 @deffn primitive stat object
 Returns an object containing various information
 about the file determined by @var{obj}.
@@ -583,16 +560,14 @@ An integer representing the access permission bits.
 @end table
 @end deffn
 
-@c docstring begin (c-doc-string "filesys.c" "lstat")
-@c docstring md5 "d3bc46e5d4874ca97d101da839e9fa2c"
+@c docstring begin (texi-doc-string "guile" "lstat")
 @deffn primitive lstat str
 Similar to @code{stat}, but does not follow symbolic links, i.e.,
-it will return information about a symbolic link itself, not the 
+it will return information about a symbolic link itself, not the
 file it points to.  @var{path} must be a string.
 @end deffn
 
-@c docstring begin (c-doc-string "filesys.c" "readlink")
-@c docstring md5 "70c166689a39a0484ca8722dc9b6e3b9"
+@c docstring begin (texi-doc-string "guile" "readlink")
 @deffn primitive readlink path
 Returns the value of the symbolic link named by
 @var{path} (a string), i.e., the
@@ -601,8 +576,7 @@ file that the link points to.
 
 @findex fchown
 @findex lchown
-@c docstring begin (c-doc-string "filesys.c" "chown")
-@c docstring md5 "ac17eac22a6c30da8c8c0a22e6bd44fd"
+@c docstring begin (texi-doc-string "guile" "chown")
 @deffn primitive chown object owner group
 Change the ownership and group of the file referred to by @var{object} to
 the integer values @var{owner} and @var{group}.  @var{object} can be
@@ -619,8 +593,7 @@ as @code{-1}, then that ID is not changed.
 @end deffn
 
 @findex fchmod
-@c docstring begin (c-doc-string "filesys.c" "chmod")
-@c docstring md5 "0e1f7a11f4dc6e5da3d7d18568051261"
+@c docstring begin (texi-doc-string "guile" "chmod")
 @deffn primitive chmod object mode
 Changes the permissions of the file referred to by @var{obj}.
 @var{obj} can be a string containing a file name or a port or integer file
@@ -631,8 +604,7 @@ the new permissions as a decimal number, e.g., @code{(chmod "foo" #o755)}.
 The return value is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "utime")
-@c docstring md5 "a597b09b22a3bc59ca04020d6bb400a1"
+@c docstring begin (texi-doc-string "guile" "utime")
 @deffn primitive utime pathname [actime [modtime]]
 @code{utime} sets the access and modification times for
 the file named by @var{path}.  If @var{actime} or @var{modtime}
@@ -652,44 +624,38 @@ time to the current time.
 @end deffn
 
 @findex unlink
-@c docstring begin (c-doc-string "filesys.c" "delete-file")
-@c docstring md5 "17c3347fef1336332a4f969555bf219d"
+@c docstring begin (texi-doc-string "guile" "delete-file")
 @deffn primitive delete-file str
 Deletes (or "unlinks") the file specified by @var{path}.
 @end deffn
 
-@c docstring begin (c-doc-string "filesys.c" "copy-file")
-@c docstring md5 "137aa2aa9468d418b6a13e3813c47ae6"
+@c docstring begin (texi-doc-string "guile" "copy-file")
 @deffn primitive copy-file oldfile newfile
 Copy the file specified by @var{path-from} to @var{path-to}.
 The return value is unspecified.
 @end deffn
 
 @findex rename
-@c docstring begin (c-doc-string "filesys.c" "rename-file")
-@c docstring md5 "2227b92a3acae923dfd02ba05cc96f96"
+@c docstring begin (texi-doc-string "guile" "rename-file")
 @deffn primitive rename-file oldname newname
 Renames the file specified by @var{path-from} to @var{path-to}.
 The return value is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "filesys.c" "link")
-@c docstring md5 "9c6d02d42828001aa16a5fee686d0bea"
+@c docstring begin (texi-doc-string "guile" "link")
 @deffn primitive link oldpath newpath
 Creates a new name @var{path-to} in the file system for the file
 named by @var{path-from}.  If @var{path-from} is a symbolic link, the
 link may or may not be followed depending on the system.
 @end deffn
 
-@c docstring begin (c-doc-string "filesys.c" "symlink")
-@c docstring md5 "31fd2786fc026c9944eb29996d3e9b52"
+@c docstring begin (texi-doc-string "guile" "symlink")
 @deffn primitive symlink oldpath newpath
 Create a symbolic link named @var{path-to} with the value (i.e., pointing to)
 @var{path-from}.  The return value is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "filesys.c" "mkdir")
-@c docstring md5 "e67a54a12f318c54aa999605f4f49d88"
+@c docstring begin (texi-doc-string "guile" "mkdir")
 @deffn primitive mkdir path [mode]
 Create a new directory named by @var{path}.  If @var{mode} is omitted
 then the permissions of the directory file are set using the current
@@ -697,58 +663,50 @@ umask.  Otherwise they are set to the decimal value specified with
 @var{mode}.  The return value is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "filesys.c" "rmdir")
-@c docstring md5 "e058b4b205337d0817fd5e7d27235c67"
+@c docstring begin (texi-doc-string "guile" "rmdir")
 @deffn primitive rmdir path
 Remove the existing directory named by @var{path}.  The directory must
 be empty for this to succeed.  The return value is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "filesys.c" "opendir")
-@c docstring md5 "5915ceb721cbe59a4dd75673276f0a0e"
+@c docstring begin (texi-doc-string "guile" "opendir")
 @deffn primitive opendir dirname
 Open the directory specified by @var{path} and return a directory
 stream.
 @end deffn
 
-@c docstring begin (c-doc-string "filesys.c" "directory-stream?")
-@c docstring md5 "0c75fe0d0847c50736785514575e77c4"
+@c docstring begin (texi-doc-string "guile" "directory-stream?")
 @deffn primitive directory-stream? obj
 Returns a boolean indicating whether @var{object} is a directory stream
 as returned by @code{opendir}.
 @end deffn
 
-@c docstring begin (c-doc-string "filesys.c" "readdir")
-@c docstring md5 "0e21ed21b970dcae94e724bf996eee8c"
+@c docstring begin (texi-doc-string "guile" "readdir")
 @deffn primitive readdir port
 Return (as a string) the next directory entry from the directory stream
 @var{stream}.  If there is no remaining entry to be read then the
 end of file object is returned.
 @end deffn
 
-@c docstring begin (c-doc-string "filesys.c" "rewinddir")
-@c docstring md5 "14f889dbb2edfc4ac8aed8c2ff3b5ae1"
+@c docstring begin (texi-doc-string "guile" "rewinddir")
 @deffn primitive rewinddir port
 Reset the directory port @var{stream} so that the next call to
 @code{readdir} will return the first directory entry.
 @end deffn
 
-@c docstring begin (c-doc-string "filesys.c" "closedir")
-@c docstring md5 "2122c53d261111a56719cd5791d00702"
+@c docstring begin (texi-doc-string "guile" "closedir")
 @deffn primitive closedir port
 Close the directory stream @var{stream}.
 The return value is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "sync")
-@c docstring md5 "809c00c0d6bb882356fbbaf6dd0ac9ac"
+@c docstring begin (texi-doc-string "guile" "sync")
 @deffn primitive sync
 Flush the operating system disk buffers.
 The return value is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "mknod")
-@c docstring md5 "37bb82ebe81454e550e191712db6cc1d"
+@c docstring begin (texi-doc-string "guile" "mknod")
 @deffn primitive mknod path type perms dev
 Creates a new special file, such as a file corresponding to a device.
 @var{path} specifies the name of the file.  @var{type} should
@@ -767,24 +725,19 @@ E.g.,
 The return value is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "tmpnam")
-@c docstring md5 "3bdd82c1272c895eec4c85721803e3a4"
+@c docstring begin (texi-doc-string "guile" "tmpnam")
 @deffn primitive tmpnam
 Create a new file in the file system with a unique name.  The return
 value is the name of the new file.  This function is implemented with
 the @code{tmpnam} function in the system libraries.
 @end deffn
 
-@c docstring begin (c-doc-string "filesys.c" "dirname")
-@c docstring md5 "c8dcb11b303d7bb6960a0ed4bfb161c9"
+@c docstring begin (texi-doc-string "guile" "dirname")
 @deffn primitive dirname filename
-
 @end deffn
 
-@c docstring begin (c-doc-string "filesys.c" "basename")
-@c docstring md5 "d7bfcd5fcff6d8e4de208ef039d997e2"
+@c docstring begin (texi-doc-string "guile" "basename")
 @deffn primitive basename filename [suffix]
-
 @end deffn
 
 
@@ -838,16 +791,14 @@ Return the next entry in the user database, using the stream set by
 Closes the stream used by @code{getpwent}.  The return value is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "setpw")
-@c docstring md5 "f39c63ddaf54069d21088cde473078ee"
+@c docstring begin (texi-doc-string "guile" "setpw")
 @deffn primitive setpw [arg]
 If called with a true argument, initialize or reset the password data
 stream.  Otherwise, close the stream.  The @code{setpwent} and
 @code{endpwent} procedures are implemented on top of this.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "getpw")
-@c docstring md5 "d05295a6037f032998eb0c4927943258"
+@c docstring begin (texi-doc-string "guile" "getpw")
 @deffn primitive getpw [user]
 Look up an entry in the user database.  @var{obj} can be an integer,
 a string, or omitted, giving the behaviour of getpwuid, getpwnam
@@ -892,16 +843,14 @@ Closes the stream used by @code{getgrent}.
 The return value is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "setgr")
-@c docstring md5 "c6e15cd397d2ca16aadcb82a424d1237"
+@c docstring begin (texi-doc-string "guile" "setgr")
 @deffn primitive setgr [arg]
 If called with a true argument, initialize or reset the group data
 stream.  Otherwise, close the stream.  The @code{setgrent} and
 @code{endgrent} procedures are implemented on top of this.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "getgr")
-@c docstring md5 "19d002f8bf8c9b053e5b627ef0c0c12f"
+@c docstring begin (texi-doc-string "guile" "getgr")
 @deffn primitive getgr [name]
 Look up an entry in the group database.  @var{obj} can be an integer,
 a string, or omitted, giving the behaviour of getgrgid, getgrnam
@@ -911,15 +860,13 @@ or getgrent respectively.
 @node Time
 @section Time
 
-@c docstring begin (c-doc-string "stime.c" "current-time")
-@c docstring md5 "76ada7f61352b11add7ccf27e827c00e"
+@c docstring begin (texi-doc-string "guile" "current-time")
 @deffn primitive current-time
 Returns the number of seconds since 1970-01-01 00:00:00 UTC, excluding
 leap seconds.
 @end deffn
 
-@c docstring begin (c-doc-string "stime.c" "gettimeofday")
-@c docstring md5 "6173388c8f5f06a9e6e617b7fbff8b06"
+@c docstring begin (texi-doc-string "guile" "gettimeofday")
 @deffn primitive gettimeofday
 Returns a pair containing the number of seconds and microseconds since
 1970-01-01 00:00:00 UTC, excluding leap seconds.  Note: whether true
@@ -957,8 +904,7 @@ Time zone offset in seconds west of UTC (-46800 to 43200).
 Time zone label (a string), not necessarily unique.
 @end table
 
-@c docstring begin (c-doc-string "stime.c" "localtime")
-@c docstring md5 "2cd2c36738ad96121f1fd05b02a5f6c8"
+@c docstring begin (texi-doc-string "guile" "localtime")
 @deffn primitive localtime time [zone]
 Returns an object representing the broken down components of @var{time},
 an integer like the one returned by @code{current-time}.  The time zone
@@ -967,16 +913,14 @@ otherwise the @code{TZ} environment variable or the system default is
 used.
 @end deffn
 
-@c docstring begin (c-doc-string "stime.c" "gmtime")
-@c docstring md5 "b2cc512c9fdda6b204c6e69faa51696d"
+@c docstring begin (texi-doc-string "guile" "gmtime")
 @deffn primitive gmtime time
 Returns an object representing the broken down components of @var{time},
 an integer like the one returned by @code{current-time}.  The values
 are calculated for UTC.
 @end deffn
 
-@c docstring begin (c-doc-string "stime.c" "mktime")
-@c docstring md5 "b0a52e1fa300c648f6d42c3fc5a9741a"
+@c docstring begin (texi-doc-string "guile" "mktime")
 @deffn primitive mktime sbd_time [zone]
 @var{bd-time} is an object representing broken down time and @code{zone}
 is an optional time zone specifier (otherwise the TZ environment variable
@@ -988,8 +932,7 @@ by @code{current-time}; the CDR is a broken down time object, similar to
 as @var{bd-time} but with normalized values.
 @end deffn
 
-@c docstring begin (c-doc-string "stime.c" "tzset")
-@c docstring md5 "19a4fe747252c8d6acd0bd77966b1caa"
+@c docstring begin (texi-doc-string "guile" "tzset")
 @deffn primitive tzset
 Initialize the timezone from the TZ environment variable
 or the system default.  It's not usually necessary to call this procedure
@@ -997,8 +940,7 @@ since it's done automatically by other procedures that depend on the
 timezone.
 @end deffn
 
-@c docstring begin (c-doc-string "stime.c" "strftime")
-@c docstring md5 "d48f88a920766a67d4c189d73c0b69be"
+@c docstring begin (texi-doc-string "guile" "strftime")
 @deffn primitive strftime format stime
 Formats a time specification @var{time} using @var{template}.  @var{time}
 is an object with time components in the form returned by @code{localtime}
@@ -1009,14 +951,13 @@ is the formatted string.
 @xref{Formatting Date and Time, , , libc, The GNU C Library Reference Manual}.)
 @end deffn
 
-@c docstring begin (c-doc-string "stime.c" "strptime")
-@c docstring md5 "661008b711878fa53539faa1a029642a"
+@c docstring begin (texi-doc-string "guile" "strptime")
 @deffn primitive strptime format string
 Performs the reverse action to @code{strftime}, parsing @var{string}
 according to the specification supplied in @var{template}.  The
 interpretation of month and day names is dependent on the current
 locale.  The
-value returned is a pair.  The CAR has an object with time components 
+value returned is a pair.  The CAR has an object with time components
 in the form returned by @code{localtime} or @code{gmtime},
 but the time zone components
 are not usefully set.
@@ -1029,8 +970,7 @@ The value of this variable is the number of time units per second
 reported by the following procedures.
 @end defvar
 
-@c docstring begin (c-doc-string "stime.c" "times")
-@c docstring md5 "b0aa01e543a9c263ece37ca05f7f84df"
+@c docstring begin (texi-doc-string "guile" "times")
 @deffn primitive times
 Returns an object with information about real and processor time.
 The following procedures accept such an object as an argument and
@@ -1048,19 +988,17 @@ The CPU time units used by the system on behalf of the calling process.
 The CPU time units used by terminated child processes of the calling
 process, whose status has been collected (e.g., using @code{waitpid}).
 @item tms:cstime
-Similarly, the CPU times units used by the system on behalf of 
+Similarly, the CPU times units used by the system on behalf of
 terminated child processes.
 @end table
 @end deffn
 
-@c docstring begin (c-doc-string "stime.c" "get-internal-real-time")
-@c docstring md5 "4f434d8279713973fdf950a0e18ce2d7"
+@c docstring begin (texi-doc-string "guile" "get-internal-real-time")
 @deffn primitive get-internal-real-time
 Returns the number of time units since the interpreter was started.
 @end deffn
 
-@c docstring begin (c-doc-string "stime.c" "get-internal-run-time")
-@c docstring md5 "2c97d4f310b90b5801d9174cc04b7a17"
+@c docstring begin (texi-doc-string "guile" "get-internal-run-time")
 @deffn primitive get-internal-run-time
 Returns the number of time units of processor time used by the interpreter.
 Both "system" and "user" time are included but subprocesses are not.
@@ -1069,8 +1007,7 @@ Both "system" and "user" time are included but subprocesses are not.
 @node Runtime Environment
 @section Runtime Environment
 
-@c docstring begin (c-doc-string "feature.c" "program-arguments")
-@c docstring md5 "3770213cd3f1159249731d0ac2ce36e1"
+@c docstring begin (texi-doc-string "guile" "program-arguments")
 @deffn primitive program-arguments
 @deffnx procedure command-line
 Return the list of command line arguments passed to Guile, as a list of
@@ -1079,8 +1016,7 @@ strings.  The list includes the invoked program name, which is usually
 options like @code{-e} and @code{-l}.
 @end deffn
 
-@c docstring begin (c-doc-string "simpos.c" "getenv")
-@c docstring md5 "30277e0b3c4bbd72385ae8681f22c3fc"
+@c docstring begin (texi-doc-string "guile" "getenv")
 @deffn primitive getenv nam
 Looks up the string @var{name} in the current environment.  The return
 value is @code{#f} unless a string of the form @code{NAME=VALUE} is
@@ -1100,8 +1036,7 @@ to the environment, replacing any existing string with name matching
 The return value is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "environ")
-@c docstring md5 "ad213dbcc3273ac1e90199dfc466932e"
+@c docstring begin (texi-doc-string "guile" "environ")
 @deffn primitive environ [env]
 If @var{env} is omitted, returns the current environment as a list of strings.
 Otherwise it sets the current environment, which is also the
@@ -1111,8 +1046,7 @@ Each member of @var{env} should be of the form
 If @var{env} is supplied then the return value is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "putenv")
-@c docstring md5 "3eeac174e2574ed521922f185e523fed"
+@c docstring begin (texi-doc-string "guile" "putenv")
 @deffn primitive putenv str
 Modifies the environment of the current process, which is
 also the default environment inherited by child processes.
@@ -1132,22 +1066,19 @@ The return value is unspecified.
 @section Processes
 
 @findex cd
-@c docstring begin (c-doc-string "filesys.c" "chdir")
-@c docstring md5 "2685497e5e67430a9883dbe608a75510"
+@c docstring begin (texi-doc-string "guile" "chdir")
 @deffn primitive chdir str
 Change the current working directory to @var{path}.
 The return value is unspecified.
 @end deffn
 
 @findex pwd
-@c docstring begin (c-doc-string "filesys.c" "getcwd")
-@c docstring md5 "1484f4d06fb0bd01a2d643512ef56cfc"
+@c docstring begin (texi-doc-string "guile" "getcwd")
 @deffn primitive getcwd
 Returns the name of the current working directory.
 @end deffn
 
-@c docstring begin (c-doc-string "filesys.c" "umask")
-@c docstring md5 "13d23b48788b85e19cf645d70e41b7c2"
+@c docstring begin (texi-doc-string "guile" "umask")
 @deffn primitive umask [mode]
 If @var{mode} is omitted, retuns a decimal number representing the current
 file creation mask.  Otherwise the file creation mask is set to
@@ -1156,38 +1087,32 @@ file creation mask.  Otherwise the file creation mask is set to
 E.g., @code{(umask #o022)} sets the mask to octal 22, decimal 18.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "getpid")
-@c docstring md5 "d64b0376645a2061be247c643f452cb9"
+@c docstring begin (texi-doc-string "guile" "getpid")
 @deffn primitive getpid
 Returns an integer representing the current process ID.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "getgroups")
-@c docstring md5 "d89f8836ad2d17963495d668c764a73f"
+@c docstring begin (texi-doc-string "guile" "getgroups")
 @deffn primitive getgroups
 Returns a vector of integers representing the current supplimentary group IDs.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "getppid")
-@c docstring md5 "0cdc7ef0d2c250329872db2b7098231f"
+@c docstring begin (texi-doc-string "guile" "getppid")
 @deffn primitive getppid
 Returns an integer representing the process ID of the parent process.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "getuid")
-@c docstring md5 "628a0e80108003152f3d376c5ab3eaac"
+@c docstring begin (texi-doc-string "guile" "getuid")
 @deffn primitive getuid
 Returns an integer representing the current real user ID.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "getgid")
-@c docstring md5 "45faad2fa3e5db9f71132fa04d33402f"
+@c docstring begin (texi-doc-string "guile" "getgid")
 @deffn primitive getgid
 Returns an integer representing the current real group ID.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "geteuid")
-@c docstring md5 "87092a4dd6a394ace63c9295c19ab843"
+@c docstring begin (texi-doc-string "guile" "geteuid")
 @deffn primitive geteuid
 Returns an integer representing the current effective user ID.
 If the system does not support effective IDs, then the real ID
@@ -1195,8 +1120,7 @@ is returned.  @code{(feature? 'EIDs)} reports whether the system
 supports effective IDs.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "getegid")
-@c docstring md5 "bfc32b3275906666e8811e76bdf99cad"
+@c docstring begin (texi-doc-string "guile" "getegid")
 @deffn primitive getegid
 Returns an integer representing the current effective group ID.
 If the system does not support effective IDs, then the real ID
@@ -1204,24 +1128,21 @@ is returned.  @code{(feature? 'EIDs)} reports whether the system
 supports effective IDs.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "setuid")
-@c docstring md5 "fa6f3d61ce1397155d101c2069b171c0"
+@c docstring begin (texi-doc-string "guile" "setuid")
 @deffn primitive setuid id
 Sets both the real and effective user IDs to the integer @var{id}, provided
 the process has appropriate privileges.
 The return value is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "setgid")
-@c docstring md5 "316a8122112a57369ab9d61729428743"
+@c docstring begin (texi-doc-string "guile" "setgid")
 @deffn primitive setgid id
 Sets both the real and effective group IDs to the integer @var{id}, provided
 the process has appropriate privileges.
 The return value is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "seteuid")
-@c docstring md5 "60e9495314eb531c1829fac934f3ad3c"
+@c docstring begin (texi-doc-string "guile" "seteuid")
 @deffn primitive seteuid id
 Sets the effective user ID to the integer @var{id}, provided the process
 has appropriate privileges.  If effective IDs are not supported, the
@@ -1230,8 +1151,7 @@ system supports effective IDs.
 The return value is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "setegid")
-@c docstring md5 "8b73eeb128697b61a76866128ba57210"
+@c docstring begin (texi-doc-string "guile" "setegid")
 @deffn primitive setegid id
 Sets the effective group ID to the integer @var{id}, provided the process
 has appropriate privileges.  If effective IDs are not supported, the
@@ -1240,15 +1160,13 @@ system supports effective IDs.
 The return value is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "getpgrp")
-@c docstring md5 "8c78e5e22c15d0826c9faf29b1019877"
+@c docstring begin (texi-doc-string "guile" "getpgrp")
 @deffn primitive getpgrp
 Returns an integer representing the current process group ID.
 This is the POSIX definition, not BSD.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "setpgid")
-@c docstring md5 "b554c02ee5a2eb9dbacd35ff8213e54f"
+@c docstring begin (texi-doc-string "guile" "setpgid")
 @deffn primitive setpgid pid pgid
 Move the process @var{pid} into the process group @var{pgid}.  @var{pid} or
 @var{pgid} must be integers: they can be zero to indicate the ID of the
@@ -1257,8 +1175,7 @@ Fails on systems that do not support job control.
 The return value is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "setsid")
-@c docstring md5 "0d7a41500edeeb36881d9a1dc9859d58"
+@c docstring begin (texi-doc-string "guile" "setsid")
 @deffn primitive setsid
 Creates a new session.  The current process becomes the session leader
 and is put in a new process group.  The process will be detached
@@ -1266,8 +1183,7 @@ from its controlling terminal if it has one.
 The return value is an integer representing the new process group ID.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "waitpid")
-@c docstring md5 "7d85e72e16d275d85603b5411271f980"
+@c docstring begin (texi-doc-string "guile" "waitpid")
 @deffn primitive waitpid pid [options]
 This procedure collects status information from a child process which
 has terminated or (optionally) stopped.  Normally it will
@@ -1316,30 +1232,26 @@ The following three
 functions can be used to decode the process status code returned
 by @code{waitpid}.
 
-@c docstring begin (c-doc-string "posix.c" "status:exit-val")
-@c docstring md5 "df18364eb12231a4a0c93b295c630082"
+@c docstring begin (texi-doc-string "guile" "status:exit-val")
 @deffn primitive status:exit-val status
 Returns the exit status value, as would be
 set if a process ended normally through a
 call to @code{exit} or @code{_exit}, if any, otherwise @code{#f}.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "status:term-sig")
-@c docstring md5 "7f91f18c1c62586bb4f034f42efaffae"
+@c docstring begin (texi-doc-string "guile" "status:term-sig")
 @deffn primitive status:term-sig status
 Returns the signal number which terminated the
 process, if any, otherwise @code{#f}.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "status:stop-sig")
-@c docstring md5 "633f8a62bb90a33cf87cd00930645733"
+@c docstring begin (texi-doc-string "guile" "status:stop-sig")
 @deffn primitive status:stop-sig status
 Returns the signal number which stopped the
 process, if any, otherwise @code{#f}.
 @end deffn
 
-@c docstring begin (c-doc-string "simpos.c" "system")
-@c docstring md5 "7c50840a0247c0bbfc1ac441f86a00c2"
+@c docstring begin (texi-doc-string "guile" "system")
 @deffn primitive system [cmd]
 Executes @var{cmd} using the operating system's "command processor".
 Under Unix this is usually the default shell @code{sh}.  The value
@@ -1350,22 +1262,20 @@ If @code{system} is called without arguments, it returns a boolean
 indicating whether the command processor is available.
 @end deffn
 
-@c docstring begin (c-doc-string "simpos.c" "primitive-exit")
-@c docstring md5 "57f4d6971bfc4b6ca0a9df4fc2c00d25"
+@c docstring begin (texi-doc-string "guile" "primitive-exit")
 @deffn primitive primitive-exit [status]
 Terminate the current process without unwinding the Scheme stack.
 This is would typically be useful after a fork.  The exit status
 is @var{status} if supplied, otherwise zero.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "execl")
-@c docstring md5 "cd0d489078f789de94be773713ecb674"
+@c docstring begin (texi-doc-string "guile" "execl")
 @deffn primitive execl filename . args
 Executes the file named by @var{path} as a new process image.
 The remaining arguments are supplied to the process; from a C program
 they are accessable as the @code{argv} argument to @code{main}.
 Conventionally the first @var{arg} is the same as @var{path}.
-All arguments must be strings.  
+All arguments must be strings.
 
 If @var{arg} is missing, @var{path} is executed with a null
 argument list, which may have system-dependent side-effects.
@@ -1374,8 +1284,7 @@ This procedure is currently implemented using the @code{execv} system
 call, but we call it @code{execl} because of its Scheme calling interface.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "execlp")
-@c docstring md5 "c3f02c5d2a9269ce276001169c94655e"
+@c docstring begin (texi-doc-string "guile" "execlp")
 @deffn primitive execlp filename . args
 Similar to @code{execl}, however if
 @var{filename} does not contain a slash
@@ -1386,8 +1295,7 @@ This procedure is currently implemented using the @code{execvp} system
 call, but we call it @code{execlp} because of its Scheme calling interface.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "execle")
-@c docstring md5 "d10c587e80f8ee6cff0592fbceeec910"
+@c docstring begin (texi-doc-string "guile" "execle")
 @deffn primitive execle filename env . args
 Similar to @code{execl}, but the environment of the new process is
 specified by @var{env}, which must be a list of strings as returned by the
@@ -1397,8 +1305,7 @@ This procedure is currently implemented using the @code{execve} system
 call, but we call it @code{execle} because of its Scheme calling interface.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "primitive-fork")
-@c docstring md5 "eabfa452559e1470c613e80264e7044a"
+@c docstring begin (texi-doc-string "guile" "primitive-fork")
 @deffn primitive primitive-fork
 Creates a new "child" process by duplicating the current "parent" process.
 In the child the return value is 0.  In the parent the return value is
@@ -1408,8 +1315,7 @@ This procedure has been renamed from @code{fork} to avoid a naming conflict
 with the scsh fork.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "nice")
-@c docstring md5 "51b6f142ac4d280e5202794c5833cce3"
+@c docstring begin (texi-doc-string "guile" "nice")
 @deffn primitive nice incr
 Increment the priority of the current process by @var{incr}.  A higher
 priority value means that the process runs less often.
@@ -1421,8 +1327,7 @@ The return value is unspecified.
 
 Procedures to raise, handle and wait for signals.
 
-@c docstring begin (c-doc-string "posix.c" "kill")
-@c docstring md5 "89234a82ee49845eeb05e34ce0f3de1d"
+@c docstring begin (texi-doc-string "guile" "kill")
 @deffn primitive kill pid sig
 Sends a signal to the specified process or group of processes.
 
@@ -1453,16 +1358,13 @@ Interrupt signal.
 @end defvar
 @end deffn
 
-@c docstring begin (c-doc-string "scmsigs.c" "raise")
-@c docstring md5 "34d64fd2e6c30628d87f1fbfe95529ba"
+@c docstring begin (texi-doc-string "guile" "raise")
 @deffn primitive raise sig
-
 Sends a specified signal @var{sig} to the current process, where
 @var{sig} is as described for the kill procedure.
 @end deffn
 
-@c docstring begin (c-doc-string "scmsigs.c" "sigaction")
-@c docstring md5 "711e4020d3560c464f4d7389fd5a192b"
+@c docstring begin (texi-doc-string "guile" "sigaction")
 @deffn primitive sigaction signum [handler [flags]]
 Install or report the signal handler for a specified signal.
 
@@ -1492,15 +1394,13 @@ provide solutions to the problem of consistent access to data
 structures.
 @end deffn
 
-@c docstring begin (c-doc-string "scmsigs.c" "restore-signals")
-@c docstring md5 "eddce6d08083df8e1b1e1db2085990a1"
+@c docstring begin (texi-doc-string "guile" "restore-signals")
 @deffn primitive restore-signals
 Return all signal handlers to the values they had before any call to
 @code{sigaction} was made.  The return value is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "scmsigs.c" "alarm")
-@c docstring md5 "fb201fc65cdf59655d3e9fe4d56f5413"
+@c docstring begin (texi-doc-string "guile" "alarm")
 @deffn primitive alarm i
 Set a timer to raise a @code{SIGALRM} signal after the specified
 number of seconds (an integer).  It's advisable to install a signal
@@ -1513,24 +1413,21 @@ if any.  The new value replaces the previous alarm.  If there was
 no previous alarm, the return value is zero.
 @end deffn
 
-@c docstring begin (c-doc-string "scmsigs.c" "pause")
-@c docstring md5 "e7a27b324a4e166e8106ab72e3bf76d2"
+@c docstring begin (texi-doc-string "guile" "pause")
 @deffn primitive pause
 Pause the current process (thread?) until a signal arrives whose
 action is to either terminate the current process or invoke a
 handler procedure.  The return value is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "scmsigs.c" "sleep")
-@c docstring md5 "29a83fb23c767777af8c568af52986f0"
+@c docstring begin (texi-doc-string "guile" "sleep")
 @deffn primitive sleep i
 Wait for the given number of seconds (an integer) or until a signal
 arrives.  The return value is zero if the time elapses or the number
 of seconds remaining otherwise.
 @end deffn
 
-@c docstring begin (c-doc-string "scmsigs.c" "usleep")
-@c docstring md5 "b14fae046cbe4af8d61e44ef4b6c17b1"
+@c docstring begin (texi-doc-string "guile" "usleep")
 @deffn primitive usleep i
 Sleep for I microseconds.
 `usleep' is not available on all platforms.
@@ -1539,29 +1436,25 @@ Sleep for I microseconds.
 @node Terminals and Ptys
 @section Terminals and Ptys
 
-@c docstring begin (c-doc-string "ioext.c" "isatty?")
-@c docstring md5 "1b2ffca3673bfbb1d10eb7acb8370467"
+@c docstring begin (texi-doc-string "guile" "isatty?")
 @deffn primitive isatty? port
 Returns @code{#t} if @var{port} is using a serial
 non-file device, otherwise @code{#f}.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "ttyname")
-@c docstring md5 "769ec94e0f90139be8922437146e3709"
+@c docstring begin (texi-doc-string "guile" "ttyname")
 @deffn primitive ttyname port
 Returns a string with the name of the serial terminal device underlying
 @var{port}.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "ctermid")
-@c docstring md5 "3fd556dfb560cb868465ec099c5d606a"
+@c docstring begin (texi-doc-string "guile" "ctermid")
 @deffn primitive ctermid
 Returns a string containing the file name of the controlling terminal
 for the current process.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "tcgetpgrp")
-@c docstring md5 "dbcc77abaa96c964be12da405c8dabb3"
+@c docstring begin (texi-doc-string "guile" "tcgetpgrp")
 @deffn primitive tcgetpgrp port
 Returns the process group ID of the foreground
 process group associated with the terminal open on the file descriptor
@@ -1575,8 +1468,7 @@ terminated, and no other job has yet been moved into the
 foreground.
 @end deffn
 
-@c docstring begin (c-doc-string "posix.c" "tcsetpgrp")
-@c docstring md5 "c09a1fa2ae2242c5c52aa775c98a7e60"
+@c docstring begin (texi-doc-string "guile" "tcsetpgrp")
 @deffn primitive tcsetpgrp port pgid
 Set the foreground process group ID for the terminal used by the file
 descriptor underlying @var{port} to the integer @var{pgid}.
@@ -1588,7 +1480,7 @@ controlling terminal.  The return value is unspecified.
 @node Pipes
 @section Pipes
 
-The following procedures provide an interface to the @code{popen} and 
+The following procedures provide an interface to the @code{popen} and
 @code{pclose} system routines.  The code is in a separate "popen"
 module:
 
@@ -1600,7 +1492,7 @@ module:
 @deffn procedure open-pipe command modes
 Executes the shell command @var{command} (a string) in a subprocess.
 A pipe to the process is created and returned.  @var{modes} specifies
-whether an input or output pipe to the process is created: it should 
+whether an input or output pipe to the process is created: it should
 be the value of @code{OPEN_READ} or @code{OPEN_WRITE}.
 @end deffn
 
@@ -1640,8 +1532,7 @@ the database routines since they are not reentrant.
 
 @subsubsection Address Conversion
 
-@c docstring begin (c-doc-string "net_db.c" "inet-aton")
-@c docstring md5 "a8f0bc778d0cf8be1c6935663e0095fc"
+@c docstring begin (texi-doc-string "guile" "inet-aton")
 @deffn primitive inet-aton address
 Converts a string containing an Internet host address in the traditional
 dotted decimal notation into an integer.
@@ -1652,18 +1543,17 @@ dotted decimal notation into an integer.
 @end smalllisp
 @end deffn
 
-@c docstring begin (c-doc-string "net_db.c" "inet-ntoa")
-@c docstring md5 "4c53383e55ab10d2414b864d401c5727"
+@c docstring begin (texi-doc-string "guile" "inet-ntoa")
 @deffn primitive inet-ntoa inetid
 Converts an integer Internet host address into a string with the
 traditional dotted decimal representation.
 
 @smalllisp
-(inet-ntoa 2130706433) @result{} "127.0.0.1"@end smalllisp
+(inet-ntoa 2130706433) @result{} "127.0.0.1"
+@end smalllisp
 @end deffn
 
-@c docstring begin (c-doc-string "net_db.c" "inet-netof")
-@c docstring md5 "e581d05cbd37681c208c1dc725c24747"
+@c docstring begin (texi-doc-string "guile" "inet-netof")
 @deffn primitive inet-netof address
 Returns the network number part of the given integer Internet address.
 
@@ -1672,8 +1562,7 @@ Returns the network number part of the given integer Internet address.
 @end smalllisp
 @end deffn
 
-@c docstring begin (c-doc-string "net_db.c" "inet-lnaof")
-@c docstring md5 "6a95d1a178fdf8355e3db513bead6558"
+@c docstring begin (texi-doc-string "guile" "inet-lnaof")
 @deffn primitive inet-lnaof address
 Returns the local-address-with-network part of the given Internet
 address.
@@ -1683,8 +1572,7 @@ address.
 @end smalllisp
 @end deffn
 
-@c docstring begin (c-doc-string "net_db.c" "inet-makeaddr")
-@c docstring md5 "95472f652402e6b02cf659de5b80785f"
+@c docstring begin (texi-doc-string "guile" "inet-makeaddr")
 @deffn primitive inet-makeaddr net lna
 Makes an Internet host address by combining the network number @var{net}
 with the local-address-within-network number @var{lna}.
@@ -1722,8 +1610,7 @@ The list of network addresses associated with @var{host}.
 
 The following procedures are used to search the host database:
 
-@c docstring begin (c-doc-string "net_db.c" "gethost")
-@c docstring md5 "a3404f167c6f690968b6fd6868d2c927"
+@c docstring begin (texi-doc-string "guile" "gethost")
 @deffn primitive gethost [host]
 @deffnx procedure gethostbyname hostname
 @deffnx procedure gethostbyaddr address
@@ -1744,7 +1631,7 @@ database from beginning to end.
 @deffn procedure sethostent [stayopen]
 Initialize an internal stream from which host objects may be read.  This
 procedure must be called before any calls to @code{gethostent}, and may
-also be called afterward to reset the host entry stream.  If 
+also be called afterward to reset the host entry stream.  If
 @var{stayopen} is supplied and is not @code{#f}, the database is not
 closed by subsequent @code{gethostbyname} or @code{gethostbyaddr} calls,
 possibly giving an efficiency gain.
@@ -1760,8 +1647,7 @@ This procedure may not be used before @code{sethostent} has been called.
 Close the stream used by @code{gethostent}.  The return value is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "net_db.c" "sethost")
-@c docstring md5 "fe5859cf2f433aa294dc21fb024758d5"
+@c docstring begin (texi-doc-string "guile" "sethost")
 @deffn primitive sethost [stayopen]
 If @var{stayopen} is omitted, this is equivalent to @code{endhostent}.
 Otherwise it is equivalent to @code{sethostent stayopen}.
@@ -1787,8 +1673,7 @@ The network number.
 
 The following procedures are used to search the network database:
 
-@c docstring begin (c-doc-string "net_db.c" "getnet")
-@c docstring md5 "90766cd966150d87361355dc54ea441a"
+@c docstring begin (texi-doc-string "guile" "getnet")
 @deffn primitive getnet [net]
 @deffnx procedure getnetbyname net-name
 @deffnx procedure getnetbyaddr net-number
@@ -1805,7 +1690,7 @@ database from beginning to end.
 @deffn procedure setnetent [stayopen]
 Initialize an internal stream from which network objects may be read.  This
 procedure must be called before any calls to @code{getnetent}, and may
-also be called afterward to reset the net entry stream.  If 
+also be called afterward to reset the net entry stream.  If
 @var{stayopen} is supplied and is not @code{#f}, the database is not
 closed by subsequent @code{getnetbyname} or @code{getnetbyaddr} calls,
 possibly giving an efficiency gain.
@@ -1819,8 +1704,7 @@ Return the next entry from the network database.
 Close the stream used by @code{getnetent}.  The return value is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "net_db.c" "setnet")
-@c docstring md5 "3c799404c874fdcf64dc90c6edf58475"
+@c docstring begin (texi-doc-string "guile" "setnet")
 @deffn primitive setnet [stayopen]
 If @var{stayopen} is omitted, this is equivalent to @code{endnetent}.
 Otherwise it is equivalent to @code{setnetent stayopen}.
@@ -1843,8 +1727,7 @@ The protocol number.
 
 The following procedures are used to search the protocol database:
 
-@c docstring begin (c-doc-string "net_db.c" "getproto")
-@c docstring md5 "fc2a312858c9fac717c4d3e7aeb3a8ae"
+@c docstring begin (texi-doc-string "guile" "getproto")
 @deffn primitive getproto [protocol]
 @deffnx procedure getprotobyname name
 @deffnx procedure getprotobynumber number
@@ -1860,7 +1743,7 @@ database from beginning to end.
 @deffn procedure setprotoent [stayopen]
 Initialize an internal stream from which protocol objects may be read.  This
 procedure must be called before any calls to @code{getprotoent}, and may
-also be called afterward to reset the protocol entry stream.  If 
+also be called afterward to reset the protocol entry stream.  If
 @var{stayopen} is supplied and is not @code{#f}, the database is not
 closed by subsequent @code{getprotobyname} or @code{getprotobynumber} calls,
 possibly giving an efficiency gain.
@@ -1874,8 +1757,7 @@ Return the next entry from the protocol database.
 Close the stream used by @code{getprotoent}.  The return value is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "net_db.c" "setproto")
-@c docstring md5 "a6d4e36df0f2369cf600db462882c867"
+@c docstring begin (texi-doc-string "guile" "setproto")
 @deffn primitive setproto [stayopen]
 If @var{stayopen} is omitted, this is equivalent to @code{endprotoent}.
 Otherwise it is equivalent to @code{setprotoent stayopen}.
@@ -1890,7 +1772,7 @@ and return a selected component:
 The "official" name of the network service.
 @end deffn
 @deffn procedure servent:aliases serv
-A list of aliases for the network service. 
+A list of aliases for the network service.
 @end deffn
 @deffn procedure servent:port serv
 The Internet port used by the service.
@@ -1902,8 +1784,7 @@ in the database under different protocol names.
 
 The following procedures are used to search the service database:
 
-@c docstring begin (c-doc-string "net_db.c" "getserv")
-@c docstring md5 "167798f1dcf2f83db97edea824eb9ff0"
+@c docstring begin (texi-doc-string "guile" "getserv")
 @deffn primitive getserv [name [protocol]]
 @deffnx procedure getservbyname name protocol
 @deffnx procedure getservbyport port protocol
@@ -1923,7 +1804,7 @@ database from beginning to end.
 @deffn procedure setservent [stayopen]
 Initialize an internal stream from which service objects may be read.  This
 procedure must be called before any calls to @code{getservent}, and may
-also be called afterward to reset the service entry stream.  If 
+also be called afterward to reset the service entry stream.  If
 @var{stayopen} is supplied and is not @code{#f}, the database is not
 closed by subsequent @code{getservbyname} or @code{getservbyport} calls,
 possibly giving an efficiency gain.
@@ -1937,8 +1818,7 @@ Return the next entry from the services database.
 Close the stream used by @code{getservent}.  The return value is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "net_db.c" "setserv")
-@c docstring md5 "e33108541670434d076307d3a3ad4345"
+@c docstring begin (texi-doc-string "guile" "setserv")
 @deffn primitive setserv [stayopen]
 If @var{stayopen} is omitted, this is equivalent to @code{endservent}.
 Otherwise it is equivalent to @code{setservent stayopen}.
@@ -1947,7 +1827,7 @@ Otherwise it is equivalent to @code{setservent stayopen}.
 @node Network Sockets and Communication
 @subsection Network Sockets and Communication
 
-Socket ports can be created using @code{socket} and @code{socketpair}. 
+Socket ports can be created using @code{socket} and @code{socketpair}.
 The ports are initially unbuffered, to
 makes reading and writing to the same port more reliable.
 A buffer can be added to the port using @code{setvbuf},
@@ -1958,8 +1838,7 @@ are always held in host order at the Scheme level.  The procedures in
 this section automatically convert between host and network order when
 required.  The arguments and return values are thus in host order.
 
-@c docstring begin (c-doc-string "socket.c" "socket")
-@c docstring md5 "965daf176c8ac254b6cddc4934625264"
+@c docstring begin (texi-doc-string "guile" "socket")
 @deffn primitive socket family style proto
 Returns a new socket port of the type specified by @var{family}, @var{style}
 and @var{protocol}.  All three parameters are integers.  Typical values
@@ -1975,8 +1854,7 @@ A single socket port cannot by used for communication until
 it has been connected to another socket.
 @end deffn
 
-@c docstring begin (c-doc-string "socket.c" "socketpair")
-@c docstring md5 "ef9f03e6277e74fe68ea3b9a01a37815"
+@c docstring begin (texi-doc-string "guile" "socketpair")
 @deffn primitive socketpair family style proto
 Returns a pair of connected (but unnamed) socket ports of the type specified
 by @var{family}, @var{style} and @var{protocol}.
@@ -1985,8 +1863,7 @@ socket pairs of the @code{AF_UNIX} family.  Zero is likely to be
 the only meaningful value for @var{protocol}.
 @end deffn
 
-@c docstring begin (c-doc-string "socket.c" "getsockopt")
-@c docstring md5 "e73f6a51446d47ced30b5e3f749ddc99"
+@c docstring begin (texi-doc-string "guile" "getsockopt")
 @deffn primitive getsockopt sock level optname
 Returns the value of a particular socket option for the socket
 port @var{socket}.  @var{level} is an integer code for type of option
@@ -1999,8 +1876,7 @@ The returned value is typically an integer but @code{SO_LINGER} returns a
 pair of integers.
 @end deffn
 
-@c docstring begin (c-doc-string "socket.c" "setsockopt")
-@c docstring md5 "e84af63ac4248fd180ce5b416d4e94f0"
+@c docstring begin (texi-doc-string "guile" "setsockopt")
 @deffn primitive setsockopt sock level optname value
 Sets the value of a particular socket option for the socket
 port @var{socket}.  @var{level} is an integer code for type of option
@@ -2015,8 +1891,7 @@ be a pair.
 The return value is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "socket.c" "shutdown")
-@c docstring md5 "5732740941f750f78f6a8968e0ff2d60"
+@c docstring begin (texi-doc-string "guile" "shutdown")
 @deffn primitive shutdown sock how
 Sockets can be closed simply by using @code{close-port}. The
 @code{shutdown} procedure allows reception or tranmission on a
@@ -2037,8 +1912,7 @@ Stop both reception and transmission.
 The return value is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "socket.c" "connect")
-@c docstring md5 "3bd3faf268d08e8f7c806531ebd831d4"
+@c docstring begin (texi-doc-string "guile" "connect")
 @deffn primitive connect sock fam address . args
 Initiates a connection from @var{socket} to the address
 specified by @var{address} and possibly @var{arg @dots{}}.  The format
@@ -2056,8 +1930,7 @@ must be a single integer port number.
 The return value is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "socket.c" "bind")
-@c docstring md5 "79e4fbd1add7b475192c5f9b096ea53e"
+@c docstring begin (texi-doc-string "guile" "bind")
 @deffn primitive bind sock fam address . args
 Assigns an address to the socket port @var{socket}.
 Generally this only needs to be done for server sockets,
@@ -2068,9 +1941,9 @@ starts communicating.
 The format of @var{address} and @var{ARG} @dots{} depends on the family
 of the socket.
 
-For a socket of family @code{AF_UNIX}, only @var{address}
-is specified and must 
-be a string with the filename where the socket is to be created.
+For a socket of family @code{AF_UNIX}, only @var{address} is specified
+and must be a string with the filename where the socket is to be
+created.
 
 For a socket of family @code{AF_INET}, @var{address} must be an integer
 Internet host address and @var{arg} @dots{} must be a single integer
@@ -2097,8 +1970,7 @@ No address.
 The return value is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "socket.c" "listen")
-@c docstring md5 "1e6d6047057201e563c89d0249643f12"
+@c docstring begin (texi-doc-string "guile" "listen")
 @deffn primitive listen sock backlog
 This procedure enables @var{socket} to accept connection
 requests.  @var{backlog} is an integer specifying
@@ -2109,8 +1981,7 @@ server calls @code{accept} to accept a connection from the queue.
 The return value is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "socket.c" "accept")
-@c docstring md5 "1aefc750ffb6a5bb46d9fa07c06bc740"
+@c docstring begin (texi-doc-string "guile" "accept")
 @deffn primitive accept sock
 Accepts a connection on a bound, listening socket @var{socket}.  If there
 are no pending connections in the queue, it waits until
@@ -2146,16 +2017,14 @@ If the socket family is @code{AF_INET}, returns the Internet port
 number.
 @end table
 
-@c docstring begin (c-doc-string "socket.c" "getsockname")
-@c docstring md5 "f205624ada648b4497f8152eed3680b7"
+@c docstring begin (texi-doc-string "guile" "getsockname")
 @deffn primitive getsockname sock
 Returns the address of @var{socket}, in the same form as the object
 returned by @code{accept}.  On many systems the address of a socket
 in the @code{AF_FILE} namespace cannot be read.
 @end deffn
 
-@c docstring begin (c-doc-string "socket.c" "getpeername")
-@c docstring md5 "2bc2e07bdc4aeb7234bcbb9b2c60492c"
+@c docstring begin (texi-doc-string "guile" "getpeername")
 @deffn primitive getpeername sock
 Returns the address of the socket that the socket @var{socket} is connected to,
 in the same form as the object
@@ -2163,8 +2032,7 @@ returned by @code{accept}.  On many systems the address of a socket
 in the @code{AF_FILE} namespace cannot be read.
 @end deffn
 
-@c docstring begin (c-doc-string "socket.c" "recv!")
-@c docstring md5 "6641b9492d91a8ed93b7a014573f7b7e"
+@c docstring begin (texi-doc-string "guile" "recv!")
 @deffn primitive recv! sock buf [flags]
 Receives data from the socket port @var{socket}.  @var{socket} must already
 be bound to the address from which data is to be received.
@@ -2183,10 +2051,9 @@ Note that the data is read directly from the socket file descriptor:
 any unread buffered port data is ignored.
 @end deffn
 
-@c docstring begin (c-doc-string "socket.c" "send")
-@c docstring md5 "a730daa282f9da71cf70b3e0ace5aad6"
+@c docstring begin (texi-doc-string "guile" "send")
 @deffn primitive send sock message [flags]
-Transmits the string @var{message} on the socket port @var{socket}. 
+Transmits the string @var{message} on the socket port @var{socket}.
 @var{socket} must already be bound to a destination address.  The
 value returned is the number of bytes transmitted -- it's possible for
 this to be less than the length of @var{message} if the socket is
@@ -2197,8 +2064,7 @@ Note that the data is written directly to the socket file descriptor:
 any unflushed buffered port data is ignored.
 @end deffn
 
-@c docstring begin (c-doc-string "socket.c" "recvfrom!")
-@c docstring md5 "35d7a3685b8e1381fb636ff7f932b435"
+@c docstring begin (texi-doc-string "guile" "recvfrom!")
 @deffn primitive recvfrom! sock buf [flags [start [end]]]
 Returns data from the socket port @var{socket} and also information about
 where the data was received from.  @var{socket} must already
@@ -2223,8 +2089,7 @@ Note that the data is read directly from the socket file descriptor:
 any unread buffered port data is ignored.
 @end deffn
 
-@c docstring begin (c-doc-string "socket.c" "sendto")
-@c docstring md5 "b3dd6558686046ac2ddaea96094f42c6"
+@c docstring begin (texi-doc-string "guile" "sendto")
 @deffn primitive sendto sock message fam address . args_and_flags
 Transmits the string @var{message} on the socket port @var{socket}.  The
 destination address is specified using the @var{family}, @var{address} and
@@ -2244,32 +2109,28 @@ between "host" and "network" order.  Although the procedures above do
 this automatically for addresses, the conversion will still need to
 be done when sending or receiving encoded integer data from the network.
 
-@c docstring begin (c-doc-string "socket.c" "htons")
-@c docstring md5 "4596612c4f4d3efcbc749a99cda1b6c0"
+@c docstring begin (texi-doc-string "guile" "htons")
 @deffn primitive htons in
 Returns a new integer from @var{value} by converting from host to
 network order. @var{value} must be within the range of a C unsigned
 short integer.
 @end deffn
 
-@c docstring begin (c-doc-string "socket.c" "ntohs")
-@c docstring md5 "6787f327922baea1a73a92cd8bfb4705"
+@c docstring begin (texi-doc-string "guile" "ntohs")
 @deffn primitive ntohs in
 Returns a new integer from @var{value} by converting from network to
 host order.  @var{value} must be within the range of a C unsigned short
 integer.
 @end deffn
 
-@c docstring begin (c-doc-string "socket.c" "htonl")
-@c docstring md5 "7eb14613b521f039a1e3e054b9a375c3"
+@c docstring begin (texi-doc-string "guile" "htonl")
 @deffn primitive htonl in
 Returns a new integer from @var{value} by converting from host to
 network order. @var{value} must be within the range of a C unsigned
 long integer.
 @end deffn
 
-@c docstring begin (c-doc-string "socket.c" "ntohl")
-@c docstring md5 "e0a3274acc7b73c3f9cc5bda9006b925"
+@c docstring begin (texi-doc-string "guile" "ntohl")
 @deffn primitive ntohl in
 Returns a new integer from @var{value} by converting from network to
 host order. @var{value} must be within the range of a C unsigned
@@ -2295,8 +2156,7 @@ These procedures are inconvenient to use at present, but consider:
 @node System Identification
 @section System Identification
 
-@c docstring begin (c-doc-string "posix.c" "uname")
-@c docstring md5 "3c16496be65edfe89cabf2fc65c69c46"
+@c docstring begin (texi-doc-string "guile" "uname")
 @deffn primitive uname
 Returns an object with some information about the computer system the
 program is running on.
@@ -2334,12 +2194,10 @@ no other easy or unambiguous way of detecting such features.
 @node Locales
 @section Locales
 
-@c docstring begin (c-doc-string "posix.c" "setlocale")
-@c docstring md5 "46992e5988838154fce306044f430a60"
+@c docstring begin (texi-doc-string "guile" "setlocale")
 @deffn primitive setlocale category [locale]
 If @var{locale} is omitted, returns the current value of the specified
-locale category 
-as a system-dependent string.
+locale category as a system-dependent string.
 @var{category} should be specified using the values @code{LC_COLLATE},
 @code{LC_ALL} etc.
 

@@ -25,7 +25,7 @@ R4RS, mostly introduced to make eventual Emacs Lisp translation easier.
 Later chapters will introduce major extensions to Scheme.
 
 @menu
-* Guile options interface::     
+* Guile options interface::
 @end menu
 
 @node Guile options interface
@@ -45,12 +45,12 @@ configure @emph{reading}, @emph{printing}, @emph{debugging} or
 @emph{evaluating}.
 
 @menu
-* General option interface::    
-* Reader options::              
-* Printing options::            
-* Debugger options::            
-* Evaluator options::           
-* Examples of option use::      
+* General option interface::
+* Reader options::
+* Printing options::
+* Debugger options::
+* Evaluator options::
+* Examples of option use::
 @end menu
 
 @node General option interface
@@ -83,7 +83,7 @@ and documentation string.
 @c @deftp {Data type} scm_option
 @c @code{scm_option} is used to represent run time options.  It can be a
 @c @emph{boolean} type, in which case the option will be set by the strings
-@c @code{"yes"} and @code{"no"}.  It can be a 
+@c @code{"yes"} and @code{"no"}.  It can be a
 @c @end deftp
 
 @c NJFIXME
@@ -460,20 +460,17 @@ construct a keyword object programmatically, you can do so by calling
 (as the reader does).  The dash symbol for a keyword object can be
 retrieved using the @code{keyword-dash-symbol} procedure.
 
-@c docstring begin (c-doc-string "keywords.c" "make-keyword-from-dash-symbol")
-@c docstring md5 "e677e1a01cf44ff68e8b9b4b210e0c4f"
+@c docstring begin (texi-doc-string "guile" "make-keyword-from-dash-symbol")
 @deffn primitive make-keyword-from-dash-symbol symbol
 Make a keyword object from a @var{symbol} that starts with a dash.
 @end deffn
 
-@c docstring begin (c-doc-string "keywords.c" "keyword?")
-@c docstring md5 "d4dc84eb8bcf231d1af33b1ead9ea642"
+@c docstring begin (texi-doc-string "guile" "keyword?")
 @deffn primitive keyword? obj
 Returns @code{#t} if the argument @var{obj} is a keyword, else @code{#f}.
 @end deffn
 
-@c docstring begin (c-doc-string "keywords.c" "keyword-dash-symbol")
-@c docstring md5 "20f0ff35bdc15dc75f1a0e96efb7aee1"
+@c docstring begin (texi-doc-string "guile" "keyword-dash-symbol")
 @deffn primitive keyword-dash-symbol keyword
 Return the dash symbol for @var{keyword}.
 This is the inverse of @code{make-keyword-from-dash-symbol}.
@@ -488,8 +485,7 @@ This is the inverse of @code{make-keyword-from-dash-symbol}.
 
 
 @c ARGFIXME tag/key
-@c docstring begin (c-doc-string "throw.c" "catch")
-@c docstring md5 "5fdeff1641f2d88c7cc7287d05b1fa97"
+@c docstring begin (texi-doc-string "guile" "catch")
 @deffn primitive catch tag thunk handler
 Invoke @var{thunk} in the dynamic context of @var{handler} for
 exceptions matching @var{key}.  If thunk throws to the symbol @var{key},
@@ -512,11 +508,10 @@ If the key is @code{#t}, then a throw to @emph{any} symbol will match
 this call to @code{catch}.
 @end deffn
 
-@c docstring begin (c-doc-string "throw.c" "throw")
-@c docstring md5 "c15160c85651ed3a73432d85b0567004"
+@c docstring begin (texi-doc-string "guile" "throw")
 @deffn primitive throw key . args
 Invoke the catch form matching @var{key}, passing @var{args} to the
-@var{handler}.  
+@var{handler}.
 
 @var{key} is a symbol.  It will match catches of the same symbol or of
 #t.
@@ -532,8 +527,7 @@ displaying @var{msg} and writing @var{args}.
 @c end
 
 @c ARGFIXME rest/data
-@c docstring begin (c-doc-string "error.c" "scm-error")
-@c docstring md5 "aef34dec1e3aa3311ca47bf0dbecaf30"
+@c docstring begin (texi-doc-string "guile" "scm-error")
 @deffn primitive scm-error key subr message args rest
 Raise an error with key @var{key}.  @var{subr} can be a string naming
 the procedure associated with the error, or @code{#f}.  @var{message}
@@ -548,8 +542,7 @@ it should be a list containing the Unix signal number; otherwise it
 will usually be @code{#f}.
 @end deffn
 
-@c docstring begin (c-doc-string "error.c" "strerror")
-@c docstring md5 "dbc26709ae2f551752989173ae4af9c8"
+@c docstring begin (texi-doc-string "guile" "strerror")
 @deffn primitive strerror err
 Returns the Unix error message corresponding to @var{err}, an integer.
 @end deffn
@@ -561,10 +554,8 @@ if an exception occurs then @code{#f} is returned instead.
 @end deffn
 @c end
 
-@c docstring begin (c-doc-string "throw.c" "lazy-catch")
-@c docstring md5 "6610205be1694688b362a2ffe3f57528"
+@c docstring begin (texi-doc-string "guile" "lazy-catch")
 @deffn primitive lazy-catch tag thunk handler
-
 @end deffn
 
 It is traditional in Scheme to implement exception systems using
@@ -619,8 +610,8 @@ clutter the global name space.
 @cindex name space - private
 
 @menu
-* Scheme and modules::          
-* The Guile module system::     
+* Scheme and modules::
+* The Guile module system::
 * Module Internals::
 @end menu
 
@@ -712,14 +703,11 @@ space use, and demonstrate how one would do Python's "from Tkinter
 import *" versus "import Tkinter".  Must also add something about paths
 and standards for contributed modules.]
 
-@c docstring begin (c-doc-string "modules.c" "standard-eval-closure")
-@c docstring md5 "d75383d1d2288f7db01336d44a32f1cf"
+@c docstring begin (texi-doc-string "guile" "standard-eval-closure")
 @deffn primitive standard-eval-closure module
-
 @end deffn
 
-@c docstring begin (c-doc-string "modules.c" "interaction-environment")
-@c docstring md5 "0c735dd5a7fa6d0c947b9916a6365a8e"
+@c docstring begin (texi-doc-string "guile" "interaction-environment")
 @deffn primitive interaction-environment
 This procedure returns a specifier for the environment that contains
 implementation-defined bindings, typically a superset of those listed in
@@ -754,8 +742,8 @@ packge Jacal from Guile (@pxref{JACAL}).
 @section Module Internals
 
 @menu
-* First-class Variables::       
-* First-class Modules::         
+* First-class Variables::
+* First-class Modules::
 * Dynamic Libraries::		Loading libraries of compiled code at run time.
 @end menu
 
@@ -791,24 +779,21 @@ Guile's dynamic linking functions make it relatively easy to write a
 module that incorporates code from third-party object code libraries.
 
 @c ARGFIXME fname/library-file
-@c docstring begin (c-doc-string "dynl.c" "dynamic-link")
-@c docstring md5 "2ef410cb63f6436e7250e9da6dd33200"
+@c docstring begin (texi-doc-string "guile" "dynamic-link")
 @deffn primitive dynamic-link fname
 Open the dynamic library @var{library-file}.  A library handle
 representing the opened library is returned; this handle should be used
 as the @var{lib} argument to the following functions.
 @end deffn
 
-@c docstring begin (c-doc-string "dynl.c" "dynamic-object?")
-@c docstring md5 "b7b494344e5623db9305328822a0c47d"
+@c docstring begin (texi-doc-string "guile" "dynamic-object?")
 @deffn primitive dynamic-object? obj
 Return @code{#t} if @var{obj} is a dynamic library handle, or @code{#f}
 otherwise.
 @end deffn
 
 @c ARGFIXME dobj/dynobj/library-handle
-@c docstring begin (c-doc-string "dynl.c" "dynamic-unlink")
-@c docstring md5 "0859155ac54f25515b18f01889a2d280"
+@c docstring begin (texi-doc-string "guile" "dynamic-unlink")
 @deffn primitive dynamic-unlink dobj
 Unlink the library represented by @var{library-handle},
 and remove any imported symbols from the address space.
@@ -820,8 +805,7 @@ called on @var{dynobj}, its content is no longer accessible.
 @end deffn
 
 @c ARGFIXME symb/func/function dobj/lib/dynobj
-@c docstring begin (c-doc-string "dynl.c" "dynamic-func")
-@c docstring md5 "303b846a3f01958b06f001a174c833e8"
+@c docstring begin (texi-doc-string "guile" "dynamic-func")
 @deffn primitive dynamic-func symb dobj
 Import the symbol @var{func} from @var{lib} (a dynamic library handle).
 A @dfn{function handle} representing the imported function is returned.
@@ -839,8 +823,7 @@ needed or not and will add it when necessary.
 @end deffn
 
 @c ARGFIXME lib-thunk/func/function lib/dobj/dynobj
-@c docstring begin (c-doc-string "dynl.c" "dynamic-call")
-@c docstring md5 "84cc70801942cc9501da97fe5a43160a"
+@c docstring begin (texi-doc-string "guile" "dynamic-call")
 @deffn primitive dynamic-call func dobj
 Call @var{lib-thunk}, a procedure of no arguments.  If @var{lib-thunk}
 is a string, it is assumed to be a symbol found in the dynamic library
@@ -863,8 +846,7 @@ Interrupts are deferred while the C function is executing (with
 @end deffn
 
 @c ARGFIXME func/proc/function dobj/dynobj
-@c docstring begin (c-doc-string "dynl.c" "dynamic-args-call")
-@c docstring md5 "061c803f433a98424d27eec2379d8539"
+@c docstring begin (texi-doc-string "guile" "dynamic-args-call")
 @deffn primitive dynamic-args-call func dobj args
 Call @var{proc}, a dynamically loaded function, passing it the argument
 list @var{args} (a list of strings).  As with @code{dynamic-call},
@@ -890,8 +872,7 @@ size in @var{argc}.  The return value is converted to a Scheme number
 and returned from the call to @code{dynamic-args-call}.
 @end deffn
 
-@c docstring begin (c-doc-string "dynl.c" "c-registered-modules")
-@c docstring md5 "8e0da2e7aeb386b1616cf7c02cfa72fc"
+@c docstring begin (texi-doc-string "guile" "c-registered-modules")
 @deffn primitive c-registered-modules
 Return a list of the object code modules that have been imported into
 the current Guile process.  Each element of the list is a pair whose
@@ -900,8 +881,7 @@ for that module's initializer function.  The name is the string that
 has been passed to scm_register_module_xxx.
 @end deffn
 
-@c docstring begin (c-doc-string "dynl.c" "c-clear-registered-modules")
-@c docstring md5 "cca20d0091f73ddeaeba5c2759b606d1"
+@c docstring begin (texi-doc-string "guile" "c-clear-registered-modules")
 @deffn primitive c-clear-registered-modules
 Destroy the list of modules registered with the current Guile process.
 The return value is unspecified.  @strong{Warning:} this function does
@@ -931,8 +911,7 @@ macros and memoizing macros.  Also, any definitions listed here should
 be double-checked by someone who knows what's going on.  Ask Mikael, Jim
 or Aubrey for help. -twp]
 
-@c docstring begin (c-doc-string "procs.c" "procedure-documentation")
-@c docstring md5 "4364d265d04f438b51339cb46712f4b4"
+@c docstring begin (texi-doc-string "guile" "procedure-documentation")
 @deffn primitive procedure-documentation proc
 Return the documentation string associated with @code{proc}.  By
 convention, if a procedure contains more than one expression and the
@@ -940,16 +919,14 @@ first expression is a string constant, that string is assumed to contain
 documentation for that procedure.
 @end deffn
 
-@c docstring begin (c-doc-string "macros.c" "procedure->syntax")
-@c docstring md5 "ec8ae60298789340b2a9b804a1b5a70a"
+@c docstring begin (texi-doc-string "guile" "procedure->syntax")
 @deffn primitive procedure->syntax code
 Returns a @dfn{macro} which, when a symbol defined to this value
 appears as the first symbol in an expression, returns the result
 of applying @var{code} to the expression and the environment.
 @end deffn
 
-@c docstring begin (c-doc-string "macros.c" "procedure->macro")
-@c docstring md5 "a1c40e162410c3c5e348352eb0390542"
+@c docstring begin (texi-doc-string "guile" "procedure->macro")
 @deffn primitive procedure->macro code
 Returns a @dfn{macro} which, when a symbol defined to this value
 appears as the first symbol in an expression, evaluates the result
@@ -967,8 +944,7 @@ The value returned from @var{code} which has been passed to
 @end example
 @end deffn
 
-@c docstring begin (c-doc-string "macros.c" "procedure->memoizing-macro")
-@c docstring md5 "473b9a0ebd73ec006adbebb132b0c086"
+@c docstring begin (texi-doc-string "guile" "procedure->memoizing-macro")
 @deffn primitive procedure->memoizing-macro code
 Returns a @dfn{macro} which, when a symbol defined to this value
 appears as the first symbol in an expression, evaluates the result
@@ -986,16 +962,14 @@ The value returned from @var{proc} which has been passed to
 @end example
 @end deffn
 
-@c docstring begin (c-doc-string "macros.c" "macro?")
-@c docstring md5 "03a99145e8620227bc93c8376fbf7dcf"
+@c docstring begin (texi-doc-string "guile" "macro?")
 @deffn primitive macro? obj
 Return @code{#t} if @var{obj} is a regular macro, a memoizing macro or a
 syntax transformer.
 @end deffn
 
 @c ARGFIXME m/obj
-@c docstring begin (c-doc-string "macros.c" "macro-type")
-@c docstring md5 "c1be92db64cbd88b9bb85276428f5d74"
+@c docstring begin (texi-doc-string "guile" "macro-type")
 @deffn primitive macro-type m
 Return one of the symbols @code{syntax}, @code{macro} or @code{macro!},
 depending on whether @var{obj} is a syntax tranformer, a regular macro,
@@ -1003,35 +977,28 @@ or a memoizing macro, respectively.  If @var{obj} is not a macro,
 @code{#f} is returned.
 @end deffn
 
-@c docstring begin (c-doc-string "macros.c" "macro-name")
-@c docstring md5 "2830d8d15e193217236534f1862449f7"
+@c docstring begin (texi-doc-string "guile" "macro-name")
 @deffn primitive macro-name m
-
 @end deffn
 
-@c docstring begin (c-doc-string "macros.c" "macro-transformer")
-@c docstring md5 "9966b576b5e63da81cb708d174f936ba"
+@c docstring begin (texi-doc-string "guile" "macro-transformer")
 @deffn primitive macro-transformer m
-
 @end deffn
 
 @c ARGFIXME x/obj
-@c docstring begin (c-doc-string "eval.c" "promise?")
-@c docstring md5 "cef915d909438ba9af69d30ba359ee23"
+@c docstring begin (texi-doc-string "guile" "promise?")
 @deffn primitive promise? x
 Return true if @var{obj} is a promise, i.e. a delayed computation
 (@pxref{Delayed evaluation,,,r4rs.info,The Revised^4 Report on Scheme}).
 @end deffn
 
-@c docstring begin (c-doc-string "eval.c" "force")
-@c docstring md5 "6d17d45e09a92e6f25e1a8719bfa9035"
+@c docstring begin (texi-doc-string "guile" "force")
 @deffn primitive force x
 If the promise X has not been computed yet, compute and return
 X, otherwise just return the previously computed value.
 @end deffn
 
-@c docstring begin (c-doc-string "eval.c" "copy-tree")
-@c docstring md5 "f38abb1b3506d0c1c8f7ace8046a8b05"
+@c docstring begin (texi-doc-string "guile" "copy-tree")
 @deffn primitive copy-tree obj
 Recursively copy the data tree that is bound to @var{obj}, and return a
 pointer to the new data structure.  @code{copy-tree} recurses down the
@@ -1040,8 +1007,7 @@ cells may point to arbitrary objects), and stops recursing when it hits
 any other object.
 @end deffn
 
-@c docstring begin (c-doc-string "eval.c" "cons-source")
-@c docstring md5 "1b57e02f8bf28c52492bca637b64615a"
+@c docstring begin (texi-doc-string "guile" "cons-source")
 @deffn primitive cons-source xorig x y
 Create and return a new pair whose car and cdr are @var{x} and @var{y}.
 Any source properties associated with @var{xorig} are also associated
@@ -1049,24 +1015,21 @@ with the new pair.
 @end deffn
 
 @c ARGFIXME environment/environment specifier
-@c docstring begin (c-doc-string "eval.c" "eval")
-@c docstring md5 "22b65278991681904573206d0b8f937d"
+@c docstring begin (texi-doc-string "guile" "eval")
 @deffn primitive eval exp environment
 Evaluate @var{exp}, a list representing a Scheme expression, in the
 environment given by @var{environment specifier}.
 @end deffn
 
 @c ARGFIXME obj/exp env_thunk/lookup
-@c docstring begin (c-doc-string "eval.c" "eval2")
-@c docstring md5 "9e95d09aab433abdef5977a6d1bde757"
+@c docstring begin (texi-doc-string "guile" "eval2")
 @deffn primitive eval2 obj env_thunk
 Evaluate @var{exp}, a Scheme expression, in the environment designated
 by @var{lookup}, a symbol-lookup function.  @code{(eval exp)} is
 equivalent to @code{(eval2 exp *top-level-lookup-closure*)}.
 @end deffn
 
-@c docstring begin (c-doc-string "debug.c" "local-eval")
-@c docstring md5 "506ec1178ae3ccf7e095bab2bbcc0d67"
+@c docstring begin (texi-doc-string "guile" "local-eval")
 @deffn primitive local-eval exp [env]
 Evaluate @var{exp} in its environment.  If @var{env} is supplied,
 it is the environment in which to evaluate @var{exp}.  Otherwise,
@@ -1074,29 +1037,24 @@ it is the environment in which to evaluate @var{exp}.  Otherwise,
 is implicit).
 @end deffn
 
-@c docstring begin (c-doc-string "strports.c" "eval-string")
-@c docstring md5 "47f435f849663729e311e4fe8b621dd6"
+@c docstring begin (texi-doc-string "guile" "eval-string")
 @deffn primitive eval-string string
 Evaluate @var{string} as the text representation of a Scheme form
 or forms, and return whatever value they produce.
 Evaluation takes place in (interaction-environment).
 @end deffn
 
-@c docstring begin (c-doc-string "eval.c" "apply:nconc2last")
-@c docstring md5 "de49b8c12eae402aa52cb31b6470c5b1"
+@c docstring begin (texi-doc-string "guile" "apply:nconc2last")
 @deffn primitive apply:nconc2last lst
-
 @end deffn
 
 @c NJFIXME explain [env]
-@c docstring begin (c-doc-string "evalext.c" "defined?")
-@c docstring md5 "e292d80196883b1292b5638b6b13eedc"
+@c docstring begin (texi-doc-string "guile" "defined?")
 @deffn primitive defined? sym [env]
 Return @code{#t} if @var{sym} is defined in the top-level environment.
 @end deffn
 
-@c docstring begin (c-doc-string "load.c" "read-and-eval!")
-@c docstring md5 "91657a86ba64aa0ba1b50916c865cc7f"
+@c docstring begin (texi-doc-string "guile" "read-and-eval!")
 @deffn primitive read-and-eval! [port]
 Read a form from @var{port} (standard input by default), and evaluate it
 (memoizing it in the process) in the top-level environment.  If no data
@@ -1104,21 +1062,16 @@ is left to be read from @var{port}, an @code{end-of-file} error is
 signalled.
 @end deffn
 
-@c docstring begin (c-doc-string "eval.c" "eval-options-interface")
-@c docstring md5 "4f9bd6cb2f73b5c4cb95ce0dbc08dcff"
+@c docstring begin (texi-doc-string "guile" "eval-options-interface")
 @deffn primitive eval-options-interface [setting]
-
 @end deffn
 
-@c docstring begin (c-doc-string "eval.c" "evaluator-traps-interface")
-@c docstring md5 "7de01bbbdf1f676c33c354925e8917a3"
+@c docstring begin (texi-doc-string "guile" "evaluator-traps-interface")
 @deffn primitive evaluator-traps-interface [setting]
-
 @end deffn
 
 @c ARGFIXME file/filename
-@c docstring begin (c-doc-string "load.c" "primitive-load")
-@c docstring md5 "2f72b4b3c5ea0033a2b7bc99ef1e03dd"
+@c docstring begin (texi-doc-string "guile" "primitive-load")
 @deffn primitive primitive-load filename
 Load @var{file} and evaluate its contents in the top-level environment.
 The load paths are not searched; @var{file} must either be a full
@@ -1129,8 +1082,7 @@ that will be called before any code is loaded.  See documentation for
 @end deffn
 
 @c ARGFIXME file/filename
-@c docstring begin (c-doc-string "load.c" "primitive-load-path")
-@c docstring md5 "e779a0292829227e95437fa298a66fc5"
+@c docstring begin (texi-doc-string "guile" "primitive-load-path")
 @deffn primitive primitive-load-path filename
 Search @var{%load-path} for @var{file} and load it into the top-level
 environment.  If @var{file} is a relative pathname and is not found in
@@ -1138,8 +1090,7 @@ the list of search paths, an error is signalled.
 @end deffn
 
 @c ARGFIXME file/filename
-@c docstring begin (c-doc-string "load.c" "%search-load-path")
-@c docstring md5 "883363b33b1bd9b7491efea6dbdeef8c"
+@c docstring begin (texi-doc-string "guile" "%search-load-path")
 @deffn primitive %search-load-path filename
 Search @var{%load-path} for @var{file}, which must be readable by the
 current user.  If @var{file} is found in the list of paths to search or
@@ -1177,29 +1128,25 @@ list @code{("" ".scm")}.
 @node Pairs
 @chapter Pairs
 
-@c docstring begin (c-doc-string "pairs.c" "cons")
-@c docstring md5 "63f0e16d88d920b8e3be7e2137b02aed"
+@c docstring begin (texi-doc-string "guile" "cons")
 @deffn primitive cons x y
 Returns a newly allocated pair whose car is @var{x} and whose cdr is
 @var{y}.  The pair is guaranteed to be different (in the sense of
 @code{eqv?}) from every previously existing object.
 @end deffn
 
-@c docstring begin (c-doc-string "pairs.c" "pair?")
-@c docstring md5 "b71204dbf80371e04a12617e1daaee38"
+@c docstring begin (texi-doc-string "guile" "pair?")
 @deffn primitive pair? x
 Returns @code{#t} if @var{x} is a pair; otherwise returns @code{#f}.
 @end deffn
 
-@c docstring begin (c-doc-string "pairs.c" "set-car!")
-@c docstring md5 "1e126129e9900b15271c633464ddb3b0"
+@c docstring begin (texi-doc-string "guile" "set-car!")
 @deffn primitive set-car! pair value
 Stores @var{value} in the car field of @var{pair}.  The value returned
 by @code{set-car!} is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "pairs.c" "set-cdr!")
-@c docstring md5 "f4fdbbfb9d189cccb9305a52421a97bc"
+@c docstring begin (texi-doc-string "guile" "set-cdr!")
 @deffn primitive set-cdr! pair value
 Stores @var{value} in the cdr field of @var{pair}.  The value returned
 by @code{set-cdr!} is unspecified.
@@ -1210,14 +1157,12 @@ by @code{set-cdr!} is unspecified.
 @node Lists
 @chapter Lists
 
-@c docstring begin (c-doc-string "list.c" "list")
-@c docstring md5 "c006f2b74e3edc63fae792335a92ed7b"
+@c docstring begin (texi-doc-string "guile" "list")
 @deffn primitive list . objs
 Return a list containing OBJS, the arguments to `list'.
 @end deffn
 
-@c docstring begin (c-doc-string "list.c" "cons*")
-@c docstring md5 "2e1cbf777b41ca1b2808f6597306922b"
+@c docstring begin (texi-doc-string "guile" "cons*")
 @deffn primitive cons* arg . rest
 Like `list', but the last arg provides the tail of the constructed list,
 returning (cons ARG1 (cons ARG2 (cons ... ARGn))).
@@ -1226,46 +1171,45 @@ is returned as result.
 This function is called `list*' in some other Schemes and in Common LISP.
 @end deffn
 
-@c docstring begin (c-doc-string "list.c" "list?")
-@c docstring md5 "b78ddbadc3efbc2630fefe61aa118b27"
+@c docstring begin (texi-doc-string "guile" "list?")
 @deffn primitive list? x
 Return #t iff X is a proper list, else #f.
 @end deffn
 
-@c docstring begin (c-doc-string "list.c" "null?")
-@c docstring md5 "2892108f8a596c9649739c6a5c3610e2"
+@c docstring begin (texi-doc-string "guile" "null?")
 @deffn primitive null? x
 Return #t iff X is the empty list, else #f.
 @end deffn
 
-@c docstring begin (c-doc-string "list.c" "length")
-@c docstring md5 "77bf06d7a7a60002040ceff44e65f8a0"
+@c docstring begin (texi-doc-string "guile" "length")
 @deffn primitive length lst
 Return the number of elements in list LST.
 @end deffn
 
-@c docstring begin (c-doc-string "list.c" "append")
-@c docstring md5 "76e5d6633d1453a480a29b6e817e21a1"
+@c docstring begin (texi-doc-string "guile" "append")
 @deffn primitive append . args
 Returns a list consisting of the elements of the first LIST
 followed by the elements of the other LISTs.
 
+@example
   (append '(x) '(y))          =>  (x y)
   (append '(a) '(b c d))      =>  (a b c d)
   (append '(a (b)) '((c)))    =>  (a (b) (c))
+@end example
 
 The resulting list is always newly allocated, except that it shares
 structure with the last LIST argument.  The last argument may
 actually be any object; an improper list results if the last
 argument is not a proper list.
+
+@example
   (append '(a b) '(c . d))    =>  (a b c . d)
   (append '() 'a)             =>  a
-
+@end example
 @end deffn
 
 @c ARGFIXME args ?
-@c docstring begin (c-doc-string "list.c" "append!")
-@c docstring md5 "0259c7ab95479ffe3691550f471a47d7"
+@c docstring begin (texi-doc-string "guile" "append!")
 @deffn primitive append! . args
 A destructive version of @code{append} (@pxref{Pairs and Lists,,,r4rs,
 The Revised^4 Report on Scheme}).  The cdr field of each list's final
@@ -1273,22 +1217,19 @@ pair is changed to point to the head of the next list, so no consing is
 performed.  Return a pointer to the mutated list.
 @end deffn
 
-@c docstring begin (c-doc-string "list.c" "last-pair")
-@c docstring md5 "252e7462df5507d761011683bd3bab12"
+@c docstring begin (texi-doc-string "guile" "last-pair")
 @deffn primitive last-pair lst
 Return a pointer to the last pair in @var{lst}, signalling an error if
 @var{lst} is circular.
 @end deffn
 
-@c docstring begin (c-doc-string "list.c" "reverse")
-@c docstring md5 "3bde5f0e4180e8e78c25e4218108e170"
+@c docstring begin (texi-doc-string "guile" "reverse")
 @deffn primitive reverse lst
 Return a new list that contains the elements of LST but in reverse order.
 @end deffn
 
 @c NJFIXME explain new_tail
-@c docstring begin (c-doc-string "list.c" "reverse!")
-@c docstring md5 "4e423ebc21373a93765b0ac45982b4c8"
+@c docstring begin (texi-doc-string "guile" "reverse!")
 @deffn primitive reverse! lst [new_tail]
 A destructive version of @code{reverse} (@pxref{Pairs and Lists,,,r4rs,
 The Revised^4 Report on Scheme}).  The cdr of each cell in @var{lst} is
@@ -1303,20 +1244,17 @@ of the modified list is not lost, it is wise to save the return value of
 @code{reverse!}
 @end deffn
 
-@c docstring begin (c-doc-string "list.c" "list-ref")
-@c docstring md5 "d0c1f657510159d6a16cd06aacbcc90a"
+@c docstring begin (texi-doc-string "guile" "list-ref")
 @deffn primitive list-ref list k
 Return the Kth element from LIST.
 @end deffn
 
-@c docstring begin (c-doc-string "list.c" "list-set!")
-@c docstring md5 "151c8e923452e2847db696566f06a8f3"
+@c docstring begin (texi-doc-string "guile" "list-set!")
 @deffn primitive list-set! list k val
 Set the @var{k}th element of @var{list} to @var{val}.
 @end deffn
 
-@c docstring begin (c-doc-string "list.c" "list-tail")
-@c docstring md5 "a7a763585d038f1a8f6339284f22e016"
+@c docstring begin (texi-doc-string "guile" "list-tail")
 @deffn primitive list-tail lst k
 @deffnx primitive list-cdr-ref lst k
 Return the "tail" of @var{lst} beginning with its @var{k}th element.
@@ -1327,27 +1265,23 @@ think of @code{list-cdr-ref} as accessing the @var{k}th cdr of the list,
 or returning the results of cdring @var{k} times down @var{lst}.
 @end deffn
 
-@c docstring begin (c-doc-string "list.c" "list-cdr-set!")
-@c docstring md5 "97838601187b2943d95f89037362c7c0"
+@c docstring begin (texi-doc-string "guile" "list-cdr-set!")
 @deffn primitive list-cdr-set! list k val
 Set the @var{k}th cdr of @var{list} to @var{val}.
 @end deffn
 
-@c docstring begin (c-doc-string "list.c" "list-head")
-@c docstring md5 "43272096c61c5964cb57b8f7b322090c"
+@c docstring begin (texi-doc-string "guile" "list-head")
 @deffn primitive list-head lst k
 Copy the first @var{k} elements from @var{lst} into a new list, and
 return it.
 @end deffn
 
-@c docstring begin (c-doc-string "list.c" "list-copy")
-@c docstring md5 "215f62a5f0dec314262c1b794c4c4973"
+@c docstring begin (texi-doc-string "guile" "list-copy")
 @deffn primitive list-copy lst
 Return a (newly-created) copy of @var{lst}.
 @end deffn
 
-@c docstring begin (c-doc-string "list.c" "memq")
-@c docstring md5 "87d9a80dbd5c09cb76bf99de8bb53320"
+@c docstring begin (texi-doc-string "guile" "memq")
 @deffn primitive memq x lst
 Return the first sublist of LST whose car is `eq?' to X
 where the sublists of LST are the non-empty lists returned
@@ -1356,8 +1290,7 @@ X does not occur in LST, then `#f' (not the empty list) is
 returned.
 @end deffn
 
-@c docstring begin (c-doc-string "list.c" "memv")
-@c docstring md5 "721a49fcdf0e9f285acd8550c97fbcaf"
+@c docstring begin (texi-doc-string "guile" "memv")
 @deffn primitive memv x lst
 Return the first sublist of LST whose car is `eqv?' to X
 where the sublists of LST are the non-empty lists returned
@@ -1366,8 +1299,7 @@ X does not occur in LST, then `#f' (not the empty list) is
 returned.
 @end deffn
 
-@c docstring begin (c-doc-string "list.c" "member")
-@c docstring md5 "e44cf3f8688f4930e549861d77b14a16"
+@c docstring begin (texi-doc-string "guile" "member")
 @deffn primitive member x lst
 Return the first sublist of LST whose car is `equal?' to X
 where the sublists of LST are the non-empty lists returned
@@ -1376,8 +1308,7 @@ X does not occur in LST, then `#f' (not the empty list) is
 returned.
 @end deffn
 
-@c docstring begin (c-doc-string "list.c" "delq")
-@c docstring md5 "d81022da19ebda54685dfc2bfa35b0da"
+@c docstring begin (texi-doc-string "guile" "delq")
 @deffn primitive delq item lst
 Return a newly-created copy of @var{lst} with elements `eq?' to @var{item} removed.
 This procedure mirrors @code{memq}:
@@ -1385,8 +1316,7 @@ This procedure mirrors @code{memq}:
 @code{eq?}.
 @end deffn
 
-@c docstring begin (c-doc-string "list.c" "delv")
-@c docstring md5 "78f17a903d0ed8b32b4e43c55a830c68"
+@c docstring begin (texi-doc-string "guile" "delv")
 @deffn primitive delv item lst
 Return a newly-created copy of @var{lst} with elements `eqv?' to @var{item} removed.
 This procedure mirrors @code{memv}:
@@ -1394,8 +1324,7 @@ This procedure mirrors @code{memv}:
 @code{eqv?}.
 @end deffn
 
-@c docstring begin (c-doc-string "list.c" "delete")
-@c docstring md5 "84885abdb2c572e5930d0ac714a4b3d6"
+@c docstring begin (texi-doc-string "guile" "delete")
 @deffn primitive delete item lst
 Return a newly-created copy of @var{lst} with elements `equal?' to @var{item} removed.
 This procedure mirrors @code{member}:
@@ -1403,8 +1332,7 @@ This procedure mirrors @code{member}:
 @code{equal?}.
 @end deffn
 
-@c docstring begin (c-doc-string "list.c" "delq!")
-@c docstring md5 "0aff2f2745903b297e81a8270b39000a"
+@c docstring begin (texi-doc-string "guile" "delq!")
 @deffn primitive delq! item lst
 @deffnx primitive delv! item lst
 @deffnx primitive delete! item lst
@@ -1416,22 +1344,19 @@ destructive list functions, these functions cannot modify the binding of
 @var{lst} destructively.
 @end deffn
 
-@c docstring begin (c-doc-string "list.c" "delq1!")
-@c docstring md5 "fb1f3cce4042ee6b9a69e002032240ae"
+@c docstring begin (texi-doc-string "guile" "delq1!")
 @deffn primitive delq1! item lst
 Like `delq!', but only deletes the first occurrence of ITEM from LST.
 Tests for equality using `eq?'.  See also `delv1!' and `delete1!'.
 @end deffn
 
-@c docstring begin (c-doc-string "list.c" "delv1!")
-@c docstring md5 "377e67cf5ad155a750524f6ed5beb993"
+@c docstring begin (texi-doc-string "guile" "delv1!")
 @deffn primitive delv1! item lst
 Like `delv!', but only deletes the first occurrence of ITEM from LST.
 Tests for equality using `eqv?'.  See also `delq1!' and `delete1!'.
 @end deffn
 
-@c docstring begin (c-doc-string "list.c" "delete1!")
-@c docstring md5 "c5a64173bf6da16d51b800e531c45ab9"
+@c docstring begin (texi-doc-string "guile" "delete1!")
 @deffn primitive delete1! item lst
 Like `delete!', but only deletes the first occurrence of ITEM from LST.
 Tests for equality using `equal?'.  See also `delq1!' and `delv1!'.
@@ -1441,36 +1366,33 @@ Tests for equality using `equal?'.  See also `delq1!' and `delv1!'.
 high level at all?  Maybe these docs should be relegated to a "Guile
 Internals" node or something. -twp]
 
-@c docstring begin (c-doc-string "list.c" "sloppy-memq")
-@c docstring md5 "e00233197e5f63b367e09de33e458198"
+@c docstring begin (texi-doc-string "guile" "sloppy-memq")
 @deffn primitive sloppy-memq x lst
 This procedure behaves like @code{memq}, but does no type or error checking.
 Its use is recommended only in writing Guile internals,
 not for high-level Scheme programs.
 @end deffn
 
-@c docstring begin (c-doc-string "list.c" "sloppy-memv")
-@c docstring md5 "466fe289c9fa6f70f2828f05a15ed705"
+@c docstring begin (texi-doc-string "guile" "sloppy-memv")
 @deffn primitive sloppy-memv x lst
 This procedure behaves like @code{memv}, but does no type or error checking.
 Its use is recommended only in writing Guile internals,
 not for high-level Scheme programs.
 @end deffn
 
-@c docstring begin (c-doc-string "list.c" "sloppy-member")
-@c docstring md5 "39b419b393953deb3094acd1684f4e71"
+@c docstring begin (texi-doc-string "guile" "sloppy-member")
 @deffn primitive sloppy-member x lst
 This procedure behaves like @code{member}, but does no type or error checking.
 Its use is recommended only in writing Guile internals,
 not for high-level Scheme programs.
 @end deffn
 
-@c begin (c-doc-string "eval.c" "map")
+@c begin (texi-doc-string "guile" "map")
 @deffn primitive map proc arg1 . args
 @deffnx primitive map-in-order proc arg1 . args
 @end deffn
 
-@c begin (c-doc-string "eval.c" "for-each")
+@c begin (texi-doc-string "guile" "for-each")
 @deffn primitive for-each proc arg1 . args
 @end deffn
 
@@ -1615,7 +1537,7 @@ memory, private to the structure, divided up into typed fields.  A
 vtable is another structure used to hold type-specific data.  Multiple
 structures can share a common vtable.
 
-Three concepts are key to understanding structures.  
+Three concepts are key to understanding structures.
 
 @itemize @bullet{}
 @item @dfn{layout specifications}
@@ -1632,7 +1554,7 @@ accessors common to all structure objects.
 @item @dfn{vtables}
 
 Vtables, themselves structures, are first class representations of
-disjoint sub-types of structures in general.   In most cases, when a 
+disjoint sub-types of structures in general.   In most cases, when a
 new structure is created, programmers must specifiy a vtable for the
 new structure.   Each vtable has a field describing the layout of its
 instances.   Vtables can have additional, user-defined fields as well.
@@ -1648,7 +1570,7 @@ state.  The @dfn{layout} of the structure's type determines how that
 memory is divided into fields.
 
 Each field has a specified type.  There are only three types allowed, each
-corresponding to a one letter code.  The allowed types are: 
+corresponding to a one letter code.  The allowed types are:
 
 @itemize @bullet{}
 @item 'u' -- unprotected
@@ -1709,8 +1631,8 @@ size of a word is a machine dependent value defined to be equal to the
 value of the C expression: @code{sizeof (long)}.
 
 The last field of a structure layout may specify a tail array.
-A tail array is indicated by capitalizing the field's protection 
-code ('W', 'R' or 'O').   A tail-array field is replaced by 
+A tail array is indicated by capitalizing the field's protection
+code ('W', 'R' or 'O').   A tail-array field is replaced by
 a read-only binary data field containing an array size.   The array
 size is determined at the time the structure is created.  It is followed
 by a corresponding number of fields of the type specified for the
@@ -1723,7 +1645,7 @@ described as:
 "pW"
 @end example
 
-In the above example, field 0 contains the size of the vector and 
+In the above example, field 0 contains the size of the vector and
 fields beginning at 1 contain the vector elements.
 
 A kind of tagged vector (a constant tag followed by conventioal
@@ -1738,8 +1660,7 @@ Structure layouts are represented by specially interned symbols whose
 name is a string of type and protection codes.  To create a new
 structure layout, use this procedure:
 
-@c docstring begin (c-doc-string "struct.c" "make-struct-layout")
-@c docstring md5 "47b54dfa8fa09a3fffda1fb1aa69f981"
+@c docstring begin (texi-doc-string "guile" "make-struct-layout")
 @deffn primitive make-struct-layout fields
 Return a new structure layout object.
 
@@ -1748,7 +1669,7 @@ strung together.  The first character of each pair describes a field
 type, the second a field protection.  Allowed types are 'p' for
 GC-protected Scheme data, 'u' for unprotected binary data, and 's' for
 a field that points to the structure itself.    Allowed protections
-are 'w' for mutable fields, 'r' for read-only fields, and 'o' for opaque 
+are 'w' for mutable fields, 'r' for read-only fields, and 'o' for opaque
 fields.  The last field protection specification may be capitalized to
 indicate that the field is a tail-array.
 @end deffn
@@ -1761,8 +1682,7 @@ indicate that the field is a tail-array.
 This section describes the basic procedures for creating and accessing
 structures.
 
-@c docstring begin (c-doc-string "struct.c" "make-struct")
-@c docstring md5 "9401449ba9dff362d7b489f1a154a0e1"
+@c docstring begin (texi-doc-string "guile" "make-struct")
 @deffn primitive make-struct vtable tail_array_size . init
 Create a new structure.
 
@@ -1791,15 +1711,13 @@ more powerful.
 For more information, see the documentation for @code{make-vtable-vtable}.
 @end deffn
 
-@c docstring begin (c-doc-string "struct.c" "struct?")
-@c docstring md5 "976e05af8eccb70cacd9d9e3b7bb05ef"
+@c docstring begin (texi-doc-string "guile" "struct?")
 @deffn primitive struct? x
 Return #t iff @var{obj} is a structure object, else #f.
 @end deffn
 
 
-@c docstring begin (c-doc-string "struct.c" "struct-ref")
-@c docstring md5 "eccf89dbedea2b9c3befdf233973539e"
+@c docstring begin (texi-doc-string "guile" "struct-ref")
 @deffn primitive struct-ref handle pos
 @deffnx primitive struct-set! struct n value
 Access (or modify) the @var{n}th field of @var{struct}.
@@ -1823,14 +1741,12 @@ which are used only internally to libguile.  The variable
 @code{vtable-offset-user} is bound to a field number.  Vtable fields
 at that position or greater are user definable.
 
-@c docstring begin (c-doc-string "struct.c" "struct-vtable")
-@c docstring md5 "8fd40f6d2276ae117f3784982ac49cf7"
+@c docstring begin (texi-doc-string "guile" "struct-vtable")
 @deffn primitive struct-vtable handle
 Return the vtable structure that describes the type of @var{struct}.
 @end deffn
 
-@c docstring begin (c-doc-string "struct.c" "struct-vtable?")
-@c docstring md5 "1dbf6a3ad479dd61df1f612faf4a8215"
+@c docstring begin (texi-doc-string "guile" "struct-vtable?")
 @deffn primitive struct-vtable? x
 Return #t iff obj is a vtable structure.
 @end deffn
@@ -1843,8 +1759,7 @@ created by using @code{(make-struct V' ...)}.  Another possibility is
 that @code{V} is an instance of the type it itself describes.  Vtable
 structures of the second sort are created by this procedure:
 
-@c docstring begin (c-doc-string "struct.c" "make-vtable-vtable")
-@c docstring md5 "3e04c26524387b173f78e1bd8d4a3986"
+@c docstring begin (texi-doc-string "guile" "make-vtable-vtable")
 @deffn primitive make-vtable-vtable user_fields tail_array_size . init
 Return a new, self-describing vtable structure.
 
@@ -1902,25 +1817,18 @@ compared to the class <class> which is the class of itself.)
 (define ball (make-ball green 'Nisse))
 ball @result{} #<a green ball owned by Nisse>
 @end example
-
 @end deffn
 
-@c docstring begin (c-doc-string "struct.c" "struct-vtable-name")
-@c docstring md5 "da448bf82cdb7504a8f0d160a040d0ba"
+@c docstring begin (texi-doc-string "guile" "struct-vtable-name")
 @deffn primitive struct-vtable-name vtable
-
 @end deffn
 
-@c docstring begin (c-doc-string "struct.c" "set-struct-vtable-name!")
-@c docstring md5 "f896da3fe6202dcdcd2c14933135ba07"
+@c docstring begin (texi-doc-string "guile" "set-struct-vtable-name!")
 @deffn primitive set-struct-vtable-name! vtable name
-
 @end deffn
 
-@c docstring begin (c-doc-string "struct.c" "struct-vtable-tag")
-@c docstring md5 "627dc539d0b8a22545fa904434cb21b2"
+@c docstring begin (texi-doc-string "guile" "struct-vtable-tag")
 @deffn primitive struct-vtable-tag handle
-
 @end deffn
 
 
@@ -1931,8 +1839,8 @@ ball @result{} #<a green ball owned by Nisse>
 @menu
 * Conventional Arrays::   Arrays with arbitrary data.
 * Array Mapping::         Applying a procedure to the contents of an array.
-* Uniform Arrays::        Arrays with data of a single type.       
-* Bit Vectors::           Vectors of bits.      
+* Uniform Arrays::        Arrays with data of a single type.
+* Bit Vectors::           Vectors of bits.
 @end menu
 
 @node Conventional Arrays
@@ -1948,11 +1856,11 @@ is usually required to access a particular cell.
 
 A conventional array is displayed as @code{#} followed by the @dfn{rank}
 (number of dimensions) followed by the cells, organised into dimensions
-using parentheses.  The nesting depth of the parentheses is equal to 
+using parentheses.  The nesting depth of the parentheses is equal to
 the rank.
 
 When an array is created, the number of dimensions and range of each
-dimension must be specified, e.g., to create a 2x3 array with a 
+dimension must be specified, e.g., to create a 2x3 array with a
 zero-based index:
 
 @example
@@ -1978,8 +1886,7 @@ a vector:
 
 The following procedures can be used with conventional arrays (or vectors).
 
-@c docstring begin (c-doc-string "unif.c" "array?")
-@c docstring md5 "d222507378723f16fee9ef538bcdf41e"
+@c docstring begin (texi-doc-string "guile" "array?")
 @deffn primitive array? v [prot]
 Returns @code{#t} if the @var{obj} is an array, and @code{#f} if not.
 
@@ -1995,29 +1902,25 @@ Creates and returns an array that has as many dimensions as there are
 @c array-ref's type is `compiled-closure'.  There's some weird stuff
 @c going on in array.c, too.  Let's call it a primitive. -twp
 
-@c docstring begin (c-doc-string "unif.c" "uniform-vector-ref")
-@c docstring md5 "322d9d2c70fba5b618aa7ac0bab4622d"
+@c docstring begin (texi-doc-string "guile" "uniform-vector-ref")
 @deffn primitive uniform-vector-ref v args
 @deffnx primitive array-ref v . args
 Returns the element at the @code{(index1, index2)} element in @var{array}.
 @end deffn
 
-@c docstring begin (c-doc-string "unif.c" "array-in-bounds?")
-@c docstring md5 "7993315fd76aaa61aaf1878f69aea131"
+@c docstring begin (texi-doc-string "guile" "array-in-bounds?")
 @deffn primitive array-in-bounds? v . args
 Returns @code{#t} if its arguments would be acceptable to array-ref.
 @end deffn
 
-@c docstring begin (c-doc-string "unif.c" "array-set!")
-@c docstring md5 "717e43270963f93d595c962357f42eea"
+@c docstring begin (texi-doc-string "guile" "array-set!")
 @deffn primitive array-set! v obj . args
 @deffnx primitive uniform-array-set1! v obj args
 Sets the element at the @code{(index1, index2)} element in @var{array} to
 @var{new-value}.  The value returned by array-set! is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "unif.c" "make-shared-array")
-@c docstring md5 "7fec65aa8a76540efb40fd0bb41b7bd8"
+@c docstring begin (texi-doc-string "guile" "make-shared-array")
 @deffn primitive make-shared-array oldra mapfunc . dims
 @code{make-shared-array} can be used to create shared subarrays of other
 arrays.  The @var{mapper} is a function that translates coordinates in
@@ -2036,26 +1939,22 @@ it can be otherwise arbitrary.  A simple example:
 @end example
 @end deffn
 
-@c docstring begin (c-doc-string "unif.c" "shared-array-increments")
-@c docstring md5 "8285365ea9b2e4171c5b3517e4ae063a"
+@c docstring begin (texi-doc-string "guile" "shared-array-increments")
 @deffn primitive shared-array-increments ra
 For each dimension, return the distance between elements in the root vector.
 @end deffn
 
-@c docstring begin (c-doc-string "unif.c" "shared-array-offset")
-@c docstring md5 "9ddd2e75d82e4ae850e6476adb4daa73"
+@c docstring begin (texi-doc-string "guile" "shared-array-offset")
 @deffn primitive shared-array-offset ra
 Return the root vector index of the first element in the array.
 @end deffn
 
-@c docstring begin (c-doc-string "unif.c" "shared-array-root")
-@c docstring md5 "e1bfbe3d85d1cbad0df94d52ce7adbff"
+@c docstring begin (texi-doc-string "guile" "shared-array-root")
 @deffn primitive shared-array-root ra
 Return the root vector of a shared array.
 @end deffn
 
-@c docstring begin (c-doc-string "unif.c" "transpose-array")
-@c docstring md5 "efd6ca08cca40b2d259da5dce64cc410"
+@c docstring begin (texi-doc-string "guile" "transpose-array")
 @deffn primitive transpose-array ra . args
 Returns an array sharing contents with @var{array}, but with dimensions
 arranged in a different order.  There must be one @var{dim} argument for
@@ -2078,8 +1977,7 @@ examples:
 @end example
 @end deffn
 
-@c docstring begin (c-doc-string "unif.c" "enclose-array")
-@c docstring md5 "76273492668070ba292ca6372100ab73"
+@c docstring begin (texi-doc-string "guile" "enclose-array")
 @deffn primitive enclose-array ra . axes
 @var{dim0}, @var{dim1} @dots{} should be nonnegative integers less than
 the rank of @var{array}.  @var{enclose-array} returns an array
@@ -2111,8 +2009,7 @@ Returns a list of inclusive bounds of integers.
 @end example
 @end deffn
 
-@c docstring begin (c-doc-string "unif.c" "array-dimensions")
-@c docstring md5 "fd28f6a64ba7ecb468d2e5582f2ac3ab"
+@c docstring begin (texi-doc-string "guile" "array-dimensions")
 @deffn primitive array-dimensions ra
 @code{Array-dimensions} is similar to @code{array-shape} but replaces
 elements with a @code{0} minimum with one greater than the maximum. So:
@@ -2121,21 +2018,18 @@ elements with a @code{0} minimum with one greater than the maximum. So:
 @end example
 @end deffn
 
-@c docstring begin (c-doc-string "unif.c" "array-rank")
-@c docstring md5 "02fe9bf3336946ee2442583fbdf571d0"
+@c docstring begin (texi-doc-string "guile" "array-rank")
 @deffn primitive array-rank ra
 Returns the number of dimensions of @var{obj}.  If @var{obj} is not an
 array, @code{0} is returned.
 @end deffn
 
-@c docstring begin (c-doc-string "unif.c" "array->list")
-@c docstring md5 "a54ba48675553a2bd5f6c99669be0c1c"
+@c docstring begin (texi-doc-string "guile" "array->list")
 @deffn primitive array->list v
 Returns a list consisting of all the elements, in order, of @var{array}.
 @end deffn
 
-@c docstring begin (c-doc-string "ramap.c" "array-copy!")
-@c docstring md5 "8d7ebc78c36c9270799dc32457fd1602"
+@c docstring begin (texi-doc-string "guile" "array-copy!")
 @deffn primitive array-copy! src dst
 @deffnx primitive array-copy-in-order! src dst
 Copies every element from vector or array @var{source} to the
@@ -2144,15 +2038,13 @@ the same rank as @var{source}, and be at least as large in each
 dimension.  The order is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "ramap.c" "array-fill!")
-@c docstring md5 "dd87dd766aa737b361441395ecbd6c69"
+@c docstring begin (texi-doc-string "guile" "array-fill!")
 @deffn primitive array-fill! ra fill
 Stores @var{fill} in every element of @var{array}.  The value returned
 is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "ramap.c" "array-equal?")
-@c docstring md5 "d64086021f3d75c41f34bb8f76c76f40"
+@c begin (texi-doc-string "guile" "array-equal?")
 @deffn primitive array-equal? ra0 ra1
 Returns @code{#t} iff all arguments are arrays with the same shape, the
 same type, and have corresponding elements which are either
@@ -2161,8 +2053,7 @@ same type, and have corresponding elements which are either
 @var{array-equal?} but not @var{equal?} to a vector or uniform vector.
 @end deffn
 
-@c docstring begin (c-doc-string "unif.c" "array-contents")
-@c docstring md5 "a4bacdebe2242fbd93c93db598c60dbe"
+@c docstring begin (texi-doc-string "guile" "array-contents")
 @deffn primitive array-contents ra [strict]
 @deffnx primitive array-contents array strict
 If @var{array} may be @dfn{unrolled} into a one dimensional shared array
@@ -2180,8 +2071,7 @@ memory.
 @node Array Mapping
 @subsection Array Mapping
 
-@c docstring begin (c-doc-string "ramap.c" "array-map!")
-@c docstring md5 "faa97c2e17651ead613160720249fbdf"
+@c docstring begin (texi-doc-string "guile" "array-map!")
 @deffn primitive array-map! ra0 proc . lra
 @deffnx primitive array-map-in-order! ra0 proc . lra
 @var{array1}, @dots{} must have the same number of dimensions as
@@ -2192,15 +2082,13 @@ as the corresponding element in @var{array0}.  The value returned is
 unspecified.  The order of application is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "ramap.c" "array-for-each")
-@c docstring md5 "72be972b3f18aa272fe6633d72ffced7"
+@c docstring begin (texi-doc-string "guile" "array-for-each")
 @deffn primitive array-for-each proc ra0 . lra
 @var{proc} is applied to each tuple of elements of @var{array0} @dots{}
 in row-major order.  The value returned is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "ramap.c" "array-index-map!")
-@c docstring md5 "9633e61c5b183e30102a3ed8fe523588"
+@c docstring begin (texi-doc-string "guile" "array-index-map!")
 @deffn primitive array-index-map! ra proc
 applies @var{proc} to the indices of each element of @var{array} in
 turn, storing the result in the corresponding element.  The value
@@ -2228,7 +2116,7 @@ Another example:
 @noindent
 @dfn{Uniform arrays} have elements all of the
 same type and occupy less storage than conventional
-arrays.  Uniform arrays with a single zero-based dimension 
+arrays.  Uniform arrays with a single zero-based dimension
 are also known as @dfn{uniform vectors}.  The procedures in
 this section can also be used on conventional arrays, vectors,
 bit-vectors and strings.
@@ -2264,7 +2152,7 @@ are identical to strings:
 @end example
 
 @noindent
-Unshared uniform arrays of booleans with a single zero-based dimension 
+Unshared uniform arrays of booleans with a single zero-based dimension
 are identical to @ref{Bit Vectors, bit-vectors}.
 
 @example
@@ -2278,8 +2166,7 @@ except that a single character from the above table is put between
 @code{#} and @code{(}.  For example, a uniform vector of signed
 long integers is displayed in the form @code{'#e(3 5 9)}.
 
-@c docstring begin (c-doc-string "unif.c" "array?")
-@c docstring md5 "d222507378723f16fee9ef538bcdf41e"
+@c docstring begin (texi-doc-string "guile" "array?")
 @deffn primitive array? v [prot]
 Returns @code{#t} if the @var{obj} is an array, and @code{#f} if not.
 
@@ -2293,16 +2180,14 @@ Creates and returns a uniform array of type corresponding to
 and fills it with @var{prototype}.
 @end deffn
 
-@c docstring begin (c-doc-string "unif.c" "array-prototype")
-@c docstring md5 "28e904ac048755689a5362d51f9320a1"
+@c docstring begin (texi-doc-string "guile" "array-prototype")
 @deffn primitive array-prototype ra
 Returns an object that would produce an array of the same type as
 @var{array}, if used as the @var{prototype} for
 @code{make-uniform-array}.
 @end deffn
 
-@c docstring begin (c-doc-string "unif.c" "list->uniform-array")
-@c docstring md5 "4bcbb04a4c3f9e163ac8a0f5728211be"
+@c docstring begin (texi-doc-string "guile" "list->uniform-array")
 @deffn primitive list->uniform-array ndim prot lst
 @deffnx procedure list->uniform-vector prot lst
 Returns a uniform array of the type indicated by prototype @var{prot}
@@ -2315,26 +2200,23 @@ Stores @var{fill} in every element of @var{uve}.  The value returned is
 unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "unif.c" "uniform-vector-length")
-@c docstring md5 "4ffaf3c32742e8d0b022870193f456ab"
+@c docstring begin (texi-doc-string "guile" "uniform-vector-length")
 @deffn primitive uniform-vector-length v
 Returns the number of elements in @var{uve}.
 @end deffn
 
-@c docstring begin (c-doc-string "unif.c" "dimensions->uniform-array")
-@c docstring md5 "a722928e35fa1c7c17dc61826cd57aea"
+@c docstring begin (texi-doc-string "guile" "dimensions->uniform-array")
 @deffn primitive dimensions->uniform-array dims prot [fill]
 @deffnx primitive make-uniform-vector length prototype [fill]
 Creates and returns a uniform array or vector of type corresponding to
 @var{prototype} with dimensions @var{dims} or length @var{length}.  If
-@var{fill} is supplied, it's used to fill the array, otherwise 
+@var{fill} is supplied, it's used to fill the array, otherwise
 @var{prototype} is used.
 @end deffn
 
 @c Another compiled-closure. -twp
 
-@c docstring begin (c-doc-string "unif.c" "uniform-array-read!")
-@c docstring md5 "1a1d6c2a8c40494ca2549a9b1599eac0"
+@c docstring begin (texi-doc-string "guile" "uniform-array-read!")
 @deffn primitive uniform-array-read! ra [port_or_fd [start [end]]]
 @deffnx primitive uniform-vector-read! uve [port-or-fdes] [start] [end]
 Attempts to read all elements of @var{ura}, in lexicographic order, as
@@ -2353,8 +2235,7 @@ leaving the remainder of the vector unchanged.
 returned by @code{(current-input-port)}.
 @end deffn
 
-@c docstring begin (c-doc-string "unif.c" "uniform-array-write")
-@c docstring md5 "ef18434cfde294dd87570889a0d78b3c"
+@c docstring begin (texi-doc-string "guile" "uniform-array-write")
 @deffn primitive uniform-array-write v [port_or_fd [start [end]]]
 @deffnx primitive uniform-vector-write uve [port-or-fdes] [start] [end]
 Writes all elements of @var{ura} as binary objects to
@@ -2364,7 +2245,7 @@ The optional arguments @var{start}
 and @var{end} allow
 a specified region of a vector (or linearized array) to be written.
 
-The number of objects actually written is returned. 
+The number of objects actually written is returned.
 @var{port-or-fdes} may be
 omitted, in which case it defaults to the value returned by
 @code{(current-output-port)}.
@@ -2382,35 +2263,31 @@ They are displayed as a sequence of @code{0}s and
 @code{1}s prefixed by @code{#*}, e.g.,
 
 @example
-(make-uniform-vector 8 #t #f) @result{} 
+(make-uniform-vector 8 #t #f) @result{}
 #*00000000
 
 #b(#t #f #t) @result{}
 #*101
 @end example
 
-@c docstring begin (c-doc-string "unif.c" "bit-count")
-@c docstring md5 "e6cef746c6e6e7441626829c22c9f202"
+@c docstring begin (texi-doc-string "guile" "bit-count")
 @deffn primitive bit-count b bitvector
 Returns the number of occurrences of the boolean B in BITVECTOR.
 @end deffn
 
-@c docstring begin (c-doc-string "unif.c" "bit-position")
-@c docstring md5 "6b6f07226ca76c04fb5a18a06d48d87a"
+@c docstring begin (texi-doc-string "guile" "bit-position")
 @deffn primitive bit-position item v k
 Returns the minimum index of an occurrence of @var{bool} in @var{bv}
 which is at least @var{k}.  If no @var{bool} occurs within the specified
 range @code{#f} is returned.
 @end deffn
 
-@c docstring begin (c-doc-string "unif.c" "bit-invert!")
-@c docstring md5 "f016fcaf48ed8ff7ca3374058c468c29"
+@c docstring begin (texi-doc-string "guile" "bit-invert!")
 @deffn primitive bit-invert! v
 Modifies @var{bv} by replacing each element with its negation.
 @end deffn
 
-@c docstring begin (c-doc-string "unif.c" "bit-set*!")
-@c docstring md5 "b3bd23c681fd0f2f29cbd3d1d7280371"
+@c docstring begin (texi-doc-string "guile" "bit-set*!")
 @deffn primitive bit-set*! v kv obj
 If uve is a bit-vector @var{bv} and uve must be of the same length.  If
 @var{bool} is @code{#t}, uve is OR'ed into @var{bv}; If @var{bool} is @code{#f}, the
@@ -2423,8 +2300,7 @@ corresponding to the indexes in uve are set to @var{bool}.
 The return value is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "unif.c" "bit-count*")
-@c docstring md5 "dcbb47c0a47faa3bc2430c2b39cfe7c5"
+@c docstring begin (texi-doc-string "guile" "bit-count*")
 @deffn primitive bit-count* v kv obj
 Returns
 @example
@@ -2442,8 +2318,8 @@ useful for organizing and indexing large bodies of information.
 
 @menu
 * Dictionary Types::            About dictionary types; what they're good for.
-* Association Lists::           
-* Hash Tables::                 
+* Association Lists::
+* Hash Tables::
 @end menu
 
 @node Dictionary Types
@@ -2620,7 +2496,7 @@ address-list
 address-list
 @result{}
 (("mary" . "34 Elm Road") ("james" . "1a London Road"))
-@end example 
+@end example
 
 Or they may not:
 
@@ -2658,8 +2534,7 @@ independent from the list that results from modification by
 use @code{list-copy} to copy the old association list before modifying
 it.
 
-@c docstring begin (c-doc-string "alist.c" "acons")
-@c docstring md5 "4b08c10dea65d89a68b798adbe76d3ee"
+@c docstring begin (texi-doc-string "guile" "acons")
 @deffn primitive acons key value alist
 Adds a new key-value pair to @var{alist}.  A new pair is
 created whose car is @var{key} and whose cdr is @var{value}, and the
@@ -2667,8 +2542,7 @@ pair is consed onto @var{alist}, and the new list is returned.  This
 function is @emph{not} destructive; @var{alist} is not modified.
 @end deffn
 
-@c docstring begin (c-doc-string "alist.c" "assq-set!")
-@c docstring md5 "4af663653c4ecbf50567227397e2227d"
+@c docstring begin (texi-doc-string "guile" "assq-set!")
 @deffn primitive assq-set! alist key val
 @deffnx primitive assv-set! alist key value
 @deffnx primitive assoc-set! alist key value
@@ -2697,8 +2571,7 @@ arguments and return the entry for that key if an entry exists, or
 where an entry exists, these procedures return the complete entry, that
 is @code{(KEY . VALUE)}, not just the value.
 
-@c docstring begin (c-doc-string "alist.c" "assq")
-@c docstring md5 "7531c2b5cb74d73c8f9f446cbe88d694"
+@c docstring begin (texi-doc-string "guile" "assq")
 @deffn primitive assq key alist
 @deffnx primitive assv key alist
 @deffnx primitive assoc key alist
@@ -2723,8 +2596,7 @@ Consequently, @code{assq-ref} and friends should only be used where it
 is known that an entry exists, or where the ambiguity doesn't matter
 for some other reason.
 
-@c docstring begin (c-doc-string "alist.c" "assq-ref")
-@c docstring md5 "6cb36506d2044e42ee97f9dd4895fb5f"
+@c docstring begin (texi-doc-string "guile" "assq-ref")
 @deffn primitive assq-ref alist key
 @deffnx primitive assv-ref alist key
 @deffnx primitive assoc-ref alist key
@@ -2801,8 +2673,7 @@ two distinct entries to @code{address-list}.  When compared using
 after removing the first matching entry that it finds, and so one of the
 "mary" entries is left in place.
 
-@c docstring begin (c-doc-string "alist.c" "assq-remove!")
-@c docstring md5 "b472d05a41290757de4839772a118145"
+@c docstring begin (texi-doc-string "guile" "assq-remove!")
 @deffn primitive assq-remove! alist key
 @deffnx primitive assv-remove! alist key
 @deffnx primitive assoc-remove! alist key
@@ -2857,22 +2728,19 @@ it is much safer to use the non-@code{sloppy-} procedures, because they
 help to highlight coding and data errors that the @code{sloppy-}
 versions would silently cover up.
 
-@c docstring begin (c-doc-string "alist.c" "sloppy-assq")
-@c docstring md5 "2b0953a25e7b16e7bafc001f64cc17b2"
+@c docstring begin (texi-doc-string "guile" "sloppy-assq")
 @deffn primitive sloppy-assq key alist
 Behaves like @code{assq} but does not do any error checking.
 Recommended only for use in Guile internals.
 @end deffn
 
-@c docstring begin (c-doc-string "alist.c" "sloppy-assv")
-@c docstring md5 "be5fec71d63648322da6952af841b230"
+@c docstring begin (texi-doc-string "guile" "sloppy-assv")
 @deffn primitive sloppy-assv key alist
 Behaves like @code{assv} but does not do any error checking.
 Recommended only for use in Guile internals.
 @end deffn
 
-@c docstring begin (c-doc-string "alist.c" "sloppy-assoc")
-@c docstring md5 "91ff903a097128729a68f2c488f3985c"
+@c docstring begin (texi-doc-string "guile" "sloppy-assoc")
 @deffn primitive sloppy-assoc key alist
 Behaves like @code{assoc} but does not do any error checking.
 Recommended only for use in Guile internals.
@@ -2933,8 +2801,7 @@ must be a vector.  The @var{key} and @var{value} arguments may be
 any Scheme object.
 
 @c ARGFIXME obj/key
-@c docstring begin (c-doc-string "hashtab.c" "hashq-ref")
-@c docstring md5 "28730daf72a064b580d825ae42399e5a"
+@c docstring begin (texi-doc-string "guile" "hashq-ref")
 @deffn primitive hashq-ref table obj [dflt]
 Look up @var{key} in the hash table @var{table}, and return the
 value (if any) associated with it.  If @var{key} is not found,
@@ -2943,8 +2810,7 @@ supplied).  Uses `eq?' for equality testing.
 @end deffn
 
 @c ARGFIXME obj/key
-@c docstring begin (c-doc-string "hashtab.c" "hashv-ref")
-@c docstring md5 "b7aaaca404d2ba59d0d275e6d2a15452"
+@c docstring begin (texi-doc-string "guile" "hashv-ref")
 @deffn primitive hashv-ref table obj [dflt]
 Look up @var{key} in the hash table @var{table}, and return the
 value (if any) associated with it.  If @var{key} is not found,
@@ -2953,8 +2819,7 @@ supplied).  Uses `eqv?' for equality testing.
 @end deffn
 
 @c ARGFIXME obj/key
-@c docstring begin (c-doc-string "hashtab.c" "hash-ref")
-@c docstring md5 "d12924317535d3c282fe3f2b11664ab1"
+@c docstring begin (texi-doc-string "guile" "hash-ref")
 @deffn primitive hash-ref table obj [dflt]
 Look up @var{key} in the hash table @var{table}, and return the
 value (if any) associated with it.  If @var{key} is not found,
@@ -2963,48 +2828,42 @@ supplied).  Uses `equal?' for equality testing.
 @end deffn
 
 @c ARGFIXME obj/key
-@c docstring begin (c-doc-string "hashtab.c" "hashq-set!")
-@c docstring md5 "ba8246c129e45df7b00dbfbf897566cf"
+@c docstring begin (texi-doc-string "guile" "hashq-set!")
 @deffn primitive hashq-set! table obj val
 Find the entry in @var{table} associated with @var{key}, and store
 @var{value} there. Uses `eq?' for equality testing.
 @end deffn
 
 @c ARGFIXME obj/key
-@c docstring begin (c-doc-string "hashtab.c" "hashv-set!")
-@c docstring md5 "3fbcd49e55650301ad667e93b68988c0"
+@c docstring begin (texi-doc-string "guile" "hashv-set!")
 @deffn primitive hashv-set! table obj val
 Find the entry in @var{table} associated with @var{key}, and store
 @var{value} there. Uses `eqv?' for equality testing.
 @end deffn
 
 @c ARGFIXME obj/key
-@c docstring begin (c-doc-string "hashtab.c" "hash-set!")
-@c docstring md5 "642e964d21cbfecb9a7d6b13a03f68c0"
+@c docstring begin (texi-doc-string "guile" "hash-set!")
 @deffn primitive hash-set! table obj val
 Find the entry in @var{table} associated with @var{key}, and store
 @var{value} there. Uses `equal?' for equality testing.
 @end deffn
 
 @c ARGFIXME obj/key
-@c docstring begin (c-doc-string "hashtab.c" "hashq-remove!")
-@c docstring md5 "f144594e98cde3b238cd3f53dc45ad0f"
+@c docstring begin (texi-doc-string "guile" "hashq-remove!")
 @deffn primitive hashq-remove! table obj
 Remove @var{key} (and any value associated with it) from @var{table}.
 Uses `eq?' for equality tests.
 @end deffn
 
 @c ARGFIXME obj/key
-@c docstring begin (c-doc-string "hashtab.c" "hashv-remove!")
-@c docstring md5 "950b97d209638a2a3275adba8a1a0b08"
+@c docstring begin (texi-doc-string "guile" "hashv-remove!")
 @deffn primitive hashv-remove! table obj
 Remove @var{key} (and any value associated with it) from @var{table}.
 Uses `eqv?' for equality tests.
 @end deffn
 
 @c ARGFIXME obj/key
-@c docstring begin (c-doc-string "hashtab.c" "hash-remove!")
-@c docstring md5 "56b3e6e610cd63ac8b67261a70c9be53"
+@c docstring begin (texi-doc-string "guile" "hash-remove!")
 @deffn primitive hash-remove! table obj
 Remove @var{key} (and any value associated with it) from @var{table}.
 Uses `equal?' for equality tests.
@@ -3025,8 +2884,7 @@ use comfortably.  If you are interested in learning more, see an
 introductory textbook on data structures or algorithms for an
 explanation of how hash tables are implemented.
 
-@c docstring begin (c-doc-string "hash.c" "hashq")
-@c docstring md5 "53e121189ab2d4f5c50128ddc6522c62"
+@c docstring begin (texi-doc-string "guile" "hashq")
 @deffn primitive hashq key size
 Determine a hash value for KEY that is suitable for lookups in
 a hashtable of size SIZE, where eq? is used as the equality
@@ -3039,8 +2897,7 @@ with symbols:  (hashq 'foo n) (gc) (hashq 'foo n) may produce two
 different values, since 'foo will be garbage collected.
 @end deffn
 
-@c docstring begin (c-doc-string "hash.c" "hashv")
-@c docstring md5 "5781e62397822ae08f8ae5f242e538fd"
+@c docstring begin (texi-doc-string "guile" "hashv")
 @deffn primitive hashv key size
 Determine a hash value for KEY that is suitable for lookups in
 a hashtable of size SIZE, where eqv? is used as the equality
@@ -3053,8 +2910,7 @@ with symbols:  (hashv 'foo n) (gc) (hashv 'foo n) may produce two
 different values, since 'foo will be garbage collected.
 @end deffn
 
-@c docstring begin (c-doc-string "hash.c" "hash")
-@c docstring md5 "ec9576df3988dd1208fc32a46236d821"
+@c docstring begin (texi-doc-string "guile" "hash")
 @deffn primitive hash key size
 Determine a hash value for KEY that is suitable for lookups in
 a hashtable of size SIZE, where equal? is used as the equality
@@ -3063,8 +2919,7 @@ SIZE - 1.
 @end deffn
 
 @c ARGFIXME hash/hasher
-@c docstring begin (c-doc-string "hashtab.c" "hashx-ref")
-@c docstring md5 "9d9eedc81aa8d5ccf7943ba1f4279a79"
+@c docstring begin (texi-doc-string "guile" "hashx-ref")
 @deffn primitive hashx-ref hash assoc table obj [dflt]
 This behaves the same way as the corresponding @code{ref}
 function, but uses @var{hasher} as a
@@ -3077,8 +2932,7 @@ By way of illustration, @code{hashq-ref table key} is equivalent
 to @code{hashx-ref hashq assq table key}.
 @end deffn
 
-@c docstring begin (c-doc-string "hashtab.c" "hashx-set!")
-@c docstring md5 "0ba43f8c584cc43850a2da2f1c88b036"
+@c docstring begin (texi-doc-string "guile" "hashx-set!")
 @deffn primitive hashx-set! hash assoc table obj val
 This behaves the same way as the corresponding @code{set!}
 function, but uses @var{hasher} as a
@@ -3091,8 +2945,7 @@ By way of illustration, @code{hashq-set! table key} is equivalent
 to @code{hashx-set! hashq assq table key}.
 @end deffn
 
-@c docstring begin (c-doc-string "hashtab.c" "hashq-get-handle")
-@c docstring md5 "0290d4abd6634be8bd15343a32122bee"
+@c docstring begin (texi-doc-string "guile" "hashq-get-handle")
 @deffn primitive hashq-get-handle table obj
 This procedure is similar to its @code{-ref} cousin, but returns a
 @dfn{handle} from the hash table rather than the value associated with
@@ -3102,8 +2955,7 @@ only a @code{value}, @code{hashq-get-handle table key} returns the pair
 @code{(key . value)}.
 @end deffn
 
-@c docstring begin (c-doc-string "hashtab.c" "hashv-get-handle")
-@c docstring md5 "808640f427ca5b50ebeae3460538a882"
+@c docstring begin (texi-doc-string "guile" "hashv-get-handle")
 @deffn primitive hashv-get-handle table obj
 This procedure is similar to its @code{-ref} cousin, but returns a
 @dfn{handle} from the hash table rather than the value associated with
@@ -3113,8 +2965,7 @@ only a @code{value}, @code{hashv-get-handle table key} returns the pair
 @code{(key . value)}.
 @end deffn
 
-@c docstring begin (c-doc-string "hashtab.c" "hash-get-handle")
-@c docstring md5 "6ab362d2e7918010a4226e8824228761"
+@c docstring begin (texi-doc-string "guile" "hash-get-handle")
 @deffn primitive hash-get-handle table obj
 This procedure is similar to its @code{-ref} cousin, but returns a
 @dfn{handle} from the hash table rather than the value associated with
@@ -3124,8 +2975,7 @@ only a @code{value}, @code{hash-get-handle table key} returns the pair
 @code{(key . value)}.
 @end deffn
 
-@c docstring begin (c-doc-string "hashtab.c" "hashx-get-handle")
-@c docstring md5 "afafc5a816e0beb95777ae8ce15f22c6"
+@c docstring begin (texi-doc-string "guile" "hashx-get-handle")
 @deffn primitive hashx-get-handle hash assoc table obj
 This behaves the same way as the corresponding @code{-get-handle}
 function, but uses @var{hasher} as a
@@ -3135,32 +2985,28 @@ table size.  @code{assoc} must be an associator function, like
 @code{assoc}, @code{assq} or @code{assv}.
 @end deffn
 
-@c docstring begin (c-doc-string "hashtab.c" "hashq-create-handle!")
-@c docstring md5 "c196e03a432d1a2531403cd457d7ee4f"
+@c docstring begin (texi-doc-string "guile" "hashq-create-handle!")
 @deffn primitive hashq-create-handle! table key init
 This function looks up @var{key} in @var{table} and returns its handle.
 If @var{key} is not already present, a new handle is created which
 associates @var{key} with @var{init}.
 @end deffn
 
-@c docstring begin (c-doc-string "hashtab.c" "hashv-create-handle!")
-@c docstring md5 "97c30822f3cb2655bd270d1a5bc39fc3"
+@c docstring begin (texi-doc-string "guile" "hashv-create-handle!")
 @deffn primitive hashv-create-handle! table key init
 This function looks up @var{key} in @var{table} and returns its handle.
 If @var{key} is not already present, a new handle is created which
 associates @var{key} with @var{init}.
 @end deffn
 
-@c docstring begin (c-doc-string "hashtab.c" "hash-create-handle!")
-@c docstring md5 "46220deb30a49587f95d25b6db9a538e"
+@c docstring begin (texi-doc-string "guile" "hash-create-handle!")
 @deffn primitive hash-create-handle! table key init
 This function looks up @var{key} in @var{table} and returns its handle.
 If @var{key} is not already present, a new handle is created which
 associates @var{key} with @var{init}.
 @end deffn
 
-@c docstring begin (c-doc-string "hashtab.c" "hashx-create-handle!")
-@c docstring md5 "5ef6c677afb129fca6f76c725458c6d0"
+@c docstring begin (texi-doc-string "guile" "hashx-create-handle!")
 @deffn primitive hashx-create-handle! hash assoc table obj init
 This behaves the same way as the corresponding @code{-create-handle}
 function, but uses @var{hasher} as a
@@ -3170,8 +3016,7 @@ table size.  @code{assoc} must be an associator function, like
 @code{assoc}, @code{assq} or @code{assv}.
 @end deffn
 
-@c docstring begin (c-doc-string "hashtab.c" "hash-fold")
-@c docstring md5 "36a5b67e8f40912d109fb263b4ec525e"
+@c docstring begin (texi-doc-string "guile" "hash-fold")
 @deffn primitive hash-fold proc init table
 An iterator over hash-table elements.
 Accumulates and returns a result by applying PROC successively.
@@ -3181,23 +3026,20 @@ prior-result is either INIT (for the first application of PROC)
 or the return value of the previous application of PROC.
 For example, @code{(hash-fold acons () tab)} will convert a hash
 table into an a-list of key-value pairs.
-
 @end deffn
 
 
 @node Vectors
 @section Vectors
 
-@c docstring begin (c-doc-string "vectors.c" "make-vector")
-@c docstring md5 "bdaed77c90dab802b4105d5a57c07e6a"
+@c docstring begin (texi-doc-string "guile" "make-vector")
 @deffn primitive make-vector k [fill]
 Returns a newly allocated vector of @var{k} elements.  If a second
 argument is given, then each element is initialized to @var{fill}.
 Otherwise the initial contents of each element is unspecified. (r5rs)
 @end deffn
 
-@c docstring begin (c-doc-string "vectors.c" "vector")
-@c docstring md5 "6edbfae8a98921cc35dfe51dbc3e37de"
+@c docstring begin (texi-doc-string "guile" "vector")
 @deffn primitive vector . l
 @deffnx primitive list->vector l
 Returns a newly allocated vector whose elements contain the given
@@ -3208,8 +3050,7 @@ arguments.  Analogous to @samp{list}. (r5rs)
 @end format
 @end deffn
 
-@c docstring begin (c-doc-string "vectors.c" "vector->list")
-@c docstring md5 "d19c868ee96ca6ddd3d992bce83dd8bc"
+@c docstring begin (texi-doc-string "guile" "vector->list")
 @deffn primitive vector->list v
 @samp{Vector->list} returns a newly allocated list of the objects contained
 in the elements of @var{vector}.  (r5rs)
@@ -3223,15 +3064,13 @@ list->vector '(dididit dah))
 @end format
 @end deffn
 
-@c docstring begin (c-doc-string "vectors.c" "vector-fill!")
-@c docstring md5 "5d965812b248ee00159eb643307dc91f"
+@c docstring begin (texi-doc-string "guile" "vector-fill!")
 @deffn primitive vector-fill! v fill_x
 Stores @var{fill} in every element of @var{vector}.
 The value returned by @samp{vector-fill!} is unspecified. (r5rs)
 @end deffn
 
-@c docstring begin (c-doc-string "vectors.c" "vector?")
-@c docstring md5 "8f385d275eb2ebe494e2ef8d1b640c8e"
+@c docstring begin (texi-doc-string "guile" "vector?")
 @deffn primitive vector? obj
 Returns @t{#t} if @var{obj} is a vector, otherwise returns @t{#f}. (r5rs)
 @end deffn
@@ -3241,14 +3080,12 @@ Returns @t{#t} if @var{obj} is a vector, otherwise returns @t{#f}. (r5rs)
 @node Booleans
 @chapter Booleans
 
-@c docstring begin (c-doc-string "boolean.c" "not")
-@c docstring md5 "ebf38c18d80e363fde5f7d7e8f2eaaed"
+@c docstring begin (texi-doc-string "guile" "not")
 @deffn primitive not x
 Return @code{#t} iff @var{x} is @code{#f}, else return @code{#f}.
 @end deffn
 
-@c docstring begin (c-doc-string "boolean.c" "boolean?")
-@c docstring md5 "1f50026211725e3ee5649d9b28a8f46f"
+@c docstring begin (texi-doc-string "guile" "boolean?")
 @deffn primitive boolean? obj
 Return @code{#t} iff @var{obj} is either @code{#t} or @code{#f}.
 @end deffn
@@ -3258,8 +3095,7 @@ Return @code{#t} iff @var{obj} is either @code{#t} or @code{#f}.
 @node Equality
 @chapter Equality
 
-@c docstring begin (c-doc-string "eq.c" "eq?")
-@c docstring md5 "89ea474f62e36a96f719465a15eabf56"
+@c docstring begin (texi-doc-string "guile" "eq?")
 @deffn primitive eq? x y
 Return @code{#t} iff @var{x} references the same object as @var{y}.
 @code{eq?} is similar to @code{eqv?} except that in some cases it is
@@ -3267,8 +3103,7 @@ capable of discerning distinctions finer than those detectable by
 @code{eqv?}.
 @end deffn
 
-@c docstring begin (c-doc-string "eq.c" "eqv?")
-@c docstring md5 "29b474ae9c244acc8c01e40dd20eaa15"
+@c docstring begin (texi-doc-string "guile" "eqv?")
 @deffn primitive eqv? x y
 The @code{eqv?} procedure defines a useful equivalence relation on objects.
 Briefly, it returns @code{#t} if @var{x} and @var{y} should normally be
@@ -3277,8 +3112,7 @@ interpretation, but works for comparing immediate integers, characters,
 and inexact numbers.
 @end deffn
 
-@c docstring begin (c-doc-string "eq.c" "equal?")
-@c docstring md5 "db2940c6cea679d77448418d30962289"
+@c docstring begin (texi-doc-string "guile" "equal?")
 @deffn primitive equal? x y
 Return @code{#t} iff @var{x} and @var{y} are recursively @code{eqv?} equivalent.
 @code{equal?} recursively compares the contents of pairs,
@@ -3311,58 +3145,49 @@ eventually, and it will be helpful to know how they work.
 @node String Fun
 @section String Fun
 
-@c docstring begin (c-doc-string "strings.c" "string")
-@c docstring md5 "2f53a5b80913d6ffd1c96939701be94a"
+@c docstring begin (texi-doc-string "guile" "string")
 @deffn primitive string . chrs
 @deffnx primitive list->string chrs
 Returns a newly allocated string composed of the arguments, CHRS.
 @end deffn
 
-@c docstring begin (c-doc-string "strings.c" "make-string")
-@c docstring md5 "364c35c806265d290ea8eb804728b076"
+@c docstring begin (texi-doc-string "guile" "make-string")
 @deffn primitive make-string k [chr]
 Returns a newly allocated string of
 length K.  If CHR is given, then all elements of the string
 are initialized to CHR, otherwise the contents of the
 STRING are unspecified.
-
 @end deffn
 
-@c docstring begin (c-doc-string "strings.c" "string-append")
-@c docstring md5 "747f06b456ca6ecdc45264b4b143e193"
+@c docstring begin (texi-doc-string "guile" "string-append")
 @deffn primitive string-append . args
 Returns a newly allocated string whose characters form the
 concatenation of the given strings, ARGS.
 @end deffn
 
-@c docstring begin (c-doc-string "strings.c" "string-length")
-@c docstring md5 "cfc80bf95ce7bbf06727abc3c88cbfe2"
+@c docstring begin (texi-doc-string "guile" "string-length")
 @deffn primitive string-length string
 Returns the number of characters in STRING
 @end deffn
 
-@c docstring begin (c-doc-string "strings.c" "string-ref")
-@c docstring md5 "fade777137561f7d4716d2c227be1baf"
+@c docstring begin (texi-doc-string "guile" "string-ref")
 @deffn primitive string-ref str k
 Returns character K of STR using zero-origin indexing.
 K must be a valid index of STR.
 @end deffn
 
-@c docstring begin (c-doc-string "strings.c" "string-set!")
-@c docstring md5 "c6fe14c142bf763b97313158539fe5ad"
+@c docstring begin (texi-doc-string "guile" "string-set!")
 @deffn primitive string-set! str k chr
 Stores CHR in element K of STRING and returns an unspecified value.
 K must be a valid index of STR.
 @end deffn
 
-@c docstring begin (c-doc-string "strings.c" "string?")
-@c docstring md5 "b60e94a49a045e6e0378dd634f4bb808"
+@c docstring begin (texi-doc-string "guile" "string?")
 @deffn primitive string? obj
 Returns #t iff OBJ is a string, else returns #f.
 @end deffn
 
-@c docstring begin (c-doc-string "strings.c" "substring")
-@c docstring md5 "8f5239fb94a7d6cb396b11b6ddf16d95"
+@c docstring begin (texi-doc-string "guile" "substring")
 @deffn primitive substring str start [end]
 Returns a newly allocated string formed from the characters
 of STR beginning with index START (inclusive) and ending with
@@ -3372,8 +3197,7 @@ STR must be a string, START and END must be exact integers satisfying:
 0 <= START <= END <= (string-length STR).
 @end deffn
 
-@c docstring begin (c-doc-string "strop.c" "string-index")
-@c docstring md5 "4a4e4236fabe6f52d9941996dd21ff7d"
+@c docstring begin (texi-doc-string "guile" "string-index")
 @deffn primitive string-index str chr [frm [to]]
 Return the index of the first occurrence of @var{chr} in @var{str}.  The
 optional integer arguments @var{frm} and @var{to} limit the search to
@@ -3397,8 +3221,7 @@ it is used as the ending index (exclusive).
 @end example
 @end deffn
 
-@c docstring begin (c-doc-string "strop.c" "string-rindex")
-@c docstring md5 "c980b9e436090e5ff5e7c637c2086baf"
+@c docstring begin (texi-doc-string "guile" "string-rindex")
 @deffn primitive string-rindex str chr [frm [to]]
 Like @code{string-index}, but search from the right of the string rather
 than from the left.  This procedure essentially implements the
@@ -3420,8 +3243,7 @@ the entire string.
 @end example
 @end deffn
 
-@c docstring begin (c-doc-string "strop.c" "substring-move!")
-@c docstring md5 "f80c0be2b33dccd55252a5182c383845"
+@c docstring begin (texi-doc-string "guile" "substring-move!")
 @deffn primitive substring-move! str1 start1 end1 str2 start2
 @deffnx primitive substring-move-left! str1 start1 end1 str2 start2
 @deffnx primitive substring-move-right! str1 start1 end1 str2 start2
@@ -3495,21 +3317,18 @@ y
 @end example
 @end deftypefn
 
-@c docstring begin (c-doc-string "vectors.c" "vector-move-left!")
-@c docstring md5 "9df24519200e992ba75e7b0f7c1a95b7"
+@c docstring begin (texi-doc-string "guile" "vector-move-left!")
 @deffn primitive vector-move-left! vec1 start1 end1 vec2 start2
 Vector version of @code{substring-move-left!}.
 @end deffn
 
-@c docstring begin (c-doc-string "vectors.c" "vector-move-right!")
-@c docstring md5 "541c64a3013e16959ee23f083e0f0ef8"
+@c docstring begin (texi-doc-string "guile" "vector-move-right!")
 @deffn primitive vector-move-right! vec1 start1 end1 vec2 start2
 Vector version of @code{substring-move-right!}.
 @end deffn
 
 @c ARGFIXME fill/fill-char
-@c docstring begin (c-doc-string "strop.c" "substring-fill!")
-@c docstring md5 "70b55ba606fbed9c9ca1d8d5a5f945ad"
+@c docstring begin (texi-doc-string "guile" "substring-fill!")
 @deffn primitive substring-fill! str start end fill
 Change every character in @var{str} between @var{start} and @var{end} to
 @var{fill-char}.
@@ -3524,8 +3343,7 @@ y
 @end example
 @end deffn
 
-@c docstring begin (c-doc-string "strop.c" "string-null?")
-@c docstring md5 "9891a8b4b4b311a4bc4fd8ade81973c0"
+@c docstring begin (texi-doc-string "guile" "string-null?")
 @deffn primitive string-null? str
 Return @code{#t} if @var{str}'s length is nonzero, and @code{#f}
 otherwise.
@@ -3542,8 +3360,7 @@ otherwise.
 @end deffn
 
 @c ARGFIXME v/str
-@c docstring begin (c-doc-string "strop.c" "string-upcase!")
-@c docstring md5 "2cc5acd363e41a5de788947011dc1f55"
+@c docstring begin (texi-doc-string "guile" "string-upcase!")
 @deffn primitive string-upcase! v
 Destructively upcase every character in @code{str}.
 
@@ -3558,15 +3375,13 @@ y
 @end example
 @end deffn
 
-@c docstring begin (c-doc-string "strop.c" "string-upcase")
-@c docstring md5 "a2500d5c32e6017b7fae41f12e26e6a5"
+@c docstring begin (texi-doc-string "guile" "string-upcase")
 @deffn primitive string-upcase str
 Upcase every character in @code{str}.
 @end deffn
 
 @c ARGFIXME v/str
-@c docstring begin (c-doc-string "strop.c" "string-downcase!")
-@c docstring md5 "0f71eab3778d9e253efc882ccb264d07"
+@c docstring begin (texi-doc-string "guile" "string-downcase!")
 @deffn primitive string-downcase! v
 Destructively downcase every character in @code{str}.
 
@@ -3584,82 +3399,71 @@ y
 @end example
 @end deffn
 
-@c docstring begin (c-doc-string "strop.c" "string-downcase")
-@c docstring md5 "28e159fc6d050890ca949b324a1b139d"
+@c docstring begin (texi-doc-string "guile" "string-downcase")
 @deffn primitive string-downcase str
 Downcase every character in @code{str}.
 @end deffn
 
-@c docstring begin (c-doc-string "strop.c" "string-capitalize!")
-@c docstring md5 "aa6b9e5705ef27c2b10d46beadc0cc57"
+@c docstring begin (texi-doc-string "guile" "string-capitalize!")
 @deffn primitive string-capitalize! str
 Destructively capitalize every character in @code{str}.
 @end deffn
 
-@c docstring begin (c-doc-string "strop.c" "string-capitalize")
-@c docstring md5 "cb858edc2b5c4d5556eaa471a6e5e8fb"
+@c docstring begin (texi-doc-string "guile" "string-capitalize")
 @deffn primitive string-capitalize str
 Capitalize every character in @code{str}.
 @end deffn
 
-@c docstring begin (c-doc-string "strorder.c" "string-ci<=?")
-@c docstring md5 "c83812f7247d7726394fbef12308ea0d"
+@c docstring begin (texi-doc-string "guile" "string-ci<=?")
 @deffn primitive string-ci<=? s1 s2
-Case insensitive lexicographic ordering predicate; 
+Case insensitive lexicographic ordering predicate;
 returns @t{#t} if @var{s1} is lexicographically less than
 or equal to @var{s2} regardless of case.  (r5rs)
 @end deffn
 
-@c docstring begin (c-doc-string "strorder.c" "string-ci<?")
-@c docstring md5 "2f86df51b869ab0cf7c0c34278bc498f"
+@c docstring begin (texi-doc-string "guile" "string-ci<?")
 @deffn primitive string-ci<? s1 s2
-Case insensitive lexicographic ordering predicate; 
+Case insensitive lexicographic ordering predicate;
 returns @t{#t} if @var{s1} is lexicographically less than
 @var{s2} regardless of case.  (r5rs)
 @end deffn
 
-@c docstring begin (c-doc-string "strorder.c" "string-ci=?")
-@c docstring md5 "05d37e36168ea70cf2010bd006ae73e0"
+@c docstring begin (texi-doc-string "guile" "string-ci=?")
 @deffn primitive string-ci=? s1 s2
 Case-insensitive string equality predicate; returns @t{#t} if
 the two strings are the same length and their component characters
 match (ignoring case) at each position; otherwise returns @t{#f}. (r5rs)
 @end deffn
 
-@c docstring begin (c-doc-string "strorder.c" "string-ci>=?")
-@c docstring md5 "9836fce71d8674cabb71e503bf8fa7cc"
+@c docstring begin (texi-doc-string "guile" "string-ci>=?")
 @deffn primitive string-ci>=? s1 s2
-Case insensitive lexicographic ordering predicate; 
+Case insensitive lexicographic ordering predicate;
 returns @t{#t} if @var{s1} is lexicographically greater than
 or equal to @var{s2} regardless of case.  (r5rs)
 @end deffn
 
-@c docstring begin (c-doc-string "strorder.c" "string-ci>?")
-@c docstring md5 "3ab2a7e37e6bf69bd42142541606b751"
+@c docstring begin (texi-doc-string "guile" "string-ci>?")
 @deffn primitive string-ci>? s1 s2
-Case insensitive lexicographic ordering predicate; 
+Case insensitive lexicographic ordering predicate;
 returns @t{#t} if @var{s1} is lexicographically greater than
 @var{s2} regardless of case.  (r5rs)
 @end deffn
 
-@c docstring begin (c-doc-string "strorder.c" "string<=?")
-@c docstring md5 "0a36616dc0f9de15c1c4f18aba18e7f9"
+@c docstring begin (texi-doc-string "guile" "string<=?")
 @deffn primitive string<=? s1 s2
 Lexicographic ordering predicate; returns @t{#t} if @var{s1}
 is lexicographically less than or equal to @var{s2}.  (r5rs)
 @end deffn
 
-@c docstring begin (c-doc-string "strorder.c" "string<?")
-@c docstring md5 "6a65f2fca17d4426cdbe739ad231b11b"
+@c docstring begin (texi-doc-string "guile" "string<?")
 @deffn primitive string<? s1 s2
 Lexicographic ordering predicate; returns @t{#t} if @var{s1}
 is lexicographically less than @var{s2}.  (r5rs)
 @end deffn
 
-@c docstring begin (c-doc-string "strorder.c" "string=?")
-@c docstring md5 "debdbce480bf37ec8df40e20c41d2196"
+@c docstring begin (texi-doc-string "guile" "string=?")
 @deffn primitive string=? s1 s2
-Lexicographic equality predicate; 
+Lexicographic equality predicate;
 Returns @t{#t} if the two strings are the same length and contain the same
 characters in the same positions, otherwise returns @t{#f}. (r5rs)
 
@@ -3668,22 +3472,19 @@ upper and lower case letters as though they were the same character, but
 @samp{string=?} treats upper and lower case as distinct characters.
 @end deffn
 
-@c docstring begin (c-doc-string "strorder.c" "string>=?")
-@c docstring md5 "08c53e5d367ff40e808e925df18eaf33"
+@c docstring begin (texi-doc-string "guile" "string>=?")
 @deffn primitive string>=? s1 s2
 Lexicographic ordering predicate; returns @t{#t} if @var{s1}
 is lexicographically greater than or equal to @var{s2}.  (r5rs)
 @end deffn
 
-@c docstring begin (c-doc-string "strorder.c" "string>?")
-@c docstring md5 "feacc1341057fdbd2e77bade8aa05928"
+@c docstring begin (texi-doc-string "guile" "string>?")
 @deffn primitive string>? s1 s2
 Lexicographic ordering predicate; returns @t{#t} if @var{s1}
 is lexicographically greater than @var{s2}.  (r5rs)
 @end deffn
 
-@c docstring begin (c-doc-string "strop.c" "string->list")
-@c docstring md5 "4c24bb2b3800c4703c7a00d006cf03b8"
+@c docstring begin (texi-doc-string "guile" "string->list")
 @deffn primitive string->list str
 @samp{String->list} returns a newly allocated list of the
 characters that make up the given string.  @samp{List->string}
@@ -3693,20 +3494,17 @@ and @samp{list->string} are
 inverses so far as @samp{equal?} is concerned.  (r5rs)
 @end deffn
 
-@c docstring begin (c-doc-string "strop.c" "string-ci->symbol")
-@c docstring md5 "708b35f77793b85a7de4ced1db0b3da8"
+@c docstring begin (texi-doc-string "guile" "string-ci->symbol")
 @deffn primitive string-ci->symbol str
 Return the symbol whose name is @var{str}, downcased in necessary(???).
 @end deffn
 
-@c docstring begin (c-doc-string "strop.c" "string-copy")
-@c docstring md5 "31f46473b889c18adf9876f7effef9c0"
+@c docstring begin (texi-doc-string "guile" "string-copy")
 @deffn primitive string-copy str
 Returns a newly allocated copy of the given @var{string}. (r5rs)
 @end deffn
 
-@c docstring begin (c-doc-string "strop.c" "string-fill!")
-@c docstring md5 "37da4038f6337a92dc72c755b0a9deaf"
+@c docstring begin (texi-doc-string "guile" "string-fill!")
 @deffn primitive string-fill! str chr
 Stores @var{char} in every element of the given @var{string} and returns an
 unspecified value.  (r5rs)
@@ -3728,8 +3526,7 @@ substring, except that it actually shares storage space with its parent
 string.
 
 @c ARGFIXME frm/start to/end
-@c docstring begin (c-doc-string "strings.c" "make-shared-substring")
-@c docstring md5 "2ce64ce89bf0e295a8e67e01fde2db90"
+@c docstring begin (texi-doc-string "guile" "make-shared-substring")
 @deffn primitive make-shared-substring str [frm [to]]
 Return a shared substring of @var{str}.  The semantics are the same as
 for the @code{substring} function: the shared substring returned
@@ -3796,8 +3593,7 @@ and read only strings.  Mutable strings answer @code{#t} to
 strings, whether or not they are mutable return #t to this:
 
 @c ARGFIXME x/obj
-@c docstring begin (c-doc-string "strings.c" "read-only-string?")
-@c docstring md5 "00ca719e7e89083d3f16e830cb1ffe90"
+@c docstring begin (texi-doc-string "guile" "read-only-string?")
 @deffn primitive read-only-string? x
 Return true if OBJ can be read as a string,
 
@@ -3892,145 +3688,124 @@ Several characters have more than one name:
 #\null, #\nul
 @end itemize
 
-@c docstring begin (c-doc-string "chars.c" "char?")
-@c docstring md5 "5cc0007d96ece7a13b313d1f7011a6b3"
+@c docstring begin (texi-doc-string "guile" "char?")
 @deffn primitive char? x
 Return @code{#t} iff @var{x} is a character, else @code{#f}.
 @end deffn
 
-@c docstring begin (c-doc-string "chars.c" "char=?")
-@c docstring md5 "b6a884eb768fdab41ff05d70c5c0859f"
+@c docstring begin (texi-doc-string "guile" "char=?")
 @deffn primitive char=? x y
 Return @code{#t} iff @var{x} is the same character as @var{y}, else @code{#f}.
 @end deffn
 
-@c docstring begin (c-doc-string "chars.c" "char<?")
-@c docstring md5 "638bf99b2f77ddabf07577aafeddb8a9"
+@c docstring begin (texi-doc-string "guile" "char<?")
 @deffn primitive char<? x y
 Return @code{#t} iff @var{x} is less than @var{y} in the ASCII sequence,
 else @code{#f}.
 @end deffn
 
-@c docstring begin (c-doc-string "chars.c" "char<=?")
-@c docstring md5 "b3dc3ca5d8ccc9236c9adb3c14654901"
+@c docstring begin (texi-doc-string "guile" "char<=?")
 @deffn primitive char<=? x y
 Return @code{#t} iff @var{x} is less than or equal to @var{y} in the
 ASCII sequence, else @code{#f}.
 @end deffn
 
-@c docstring begin (c-doc-string "chars.c" "char>?")
-@c docstring md5 "1fb86873faba01eeafccbe357c22cf56"
+@c docstring begin (texi-doc-string "guile" "char>?")
 @deffn primitive char>? x y
 Return @code{#t} iff @var{x} is greater than @var{y} in the ASCII
 sequence, else @code{#f}.
 @end deffn
 
-@c docstring begin (c-doc-string "chars.c" "char>=?")
-@c docstring md5 "c8700e25268998e370fa2b84cc6c0294"
+@c docstring begin (texi-doc-string "guile" "char>=?")
 @deffn primitive char>=? x y
 Return @code{#t} iff @var{x} is greater than or equal to @var{y} in the
 ASCII sequence, else @code{#f}.
 @end deffn
 
-@c docstring begin (c-doc-string "chars.c" "char-ci=?")
-@c docstring md5 "fd91ff7b7d1b97257dcf5406d2effb6f"
+@c docstring begin (texi-doc-string "guile" "char-ci=?")
 @deffn primitive char-ci=? x y
 Return @code{#t} iff @var{x} is the same character as @var{y} ignoring
 case, else @code{#f}.
 @end deffn
 
-@c docstring begin (c-doc-string "chars.c" "char-ci<?")
-@c docstring md5 "51966f9cd8a841ac630955735213ca0e"
+@c docstring begin (texi-doc-string "guile" "char-ci<?")
 @deffn primitive char-ci<? x y
 Return @code{#t} iff @var{x} is less than @var{y} in the ASCII sequence
 ignoring case, else @code{#f}.
 @end deffn
 
-@c docstring begin (c-doc-string "chars.c" "char-ci<=?")
-@c docstring md5 "60900d5285bec7167bc8610c1d7c0707"
+@c docstring begin (texi-doc-string "guile" "char-ci<=?")
 @deffn primitive char-ci<=? x y
 Return @code{#t} iff @var{x} is less than or equal to @var{y} in the
 ASCII sequence ignoring case, else @code{#f}.
 @end deffn
 
-@c docstring begin (c-doc-string "chars.c" "char-ci>?")
-@c docstring md5 "a67bcf8a46bce567a26806e59cec0f8c"
+@c docstring begin (texi-doc-string "guile" "char-ci>?")
 @deffn primitive char-ci>? x y
 Return @code{#t} iff @var{x} is greater than @var{y} in the ASCII
 sequence ignoring case, else @code{#f}.
 @end deffn
 
-@c docstring begin (c-doc-string "chars.c" "char-ci>=?")
-@c docstring md5 "967176678eedc75de4ea02ea062c0c6e"
+@c docstring begin (texi-doc-string "guile" "char-ci>=?")
 @deffn primitive char-ci>=? x y
 Return @code{#t} iff @var{x} is greater than or equal to @var{y} in the
 ASCII sequence ignoring case, else @code{#f}.
 @end deffn
 
-@c docstring begin (c-doc-string "chars.c" "char-alphabetic?")
-@c docstring md5 "2e67961c9d58a00c2a81ee7db8ce8c33"
+@c docstring begin (texi-doc-string "guile" "char-alphabetic?")
 @deffn primitive char-alphabetic? chr
 Return @code{#t} iff @var{chr} is alphabetic, else @code{#f}.
 Alphabetic means the same thing as the isalpha C library function.
 @end deffn
 
-@c docstring begin (c-doc-string "chars.c" "char-numeric?")
-@c docstring md5 "9c4fd1b877463a2e0bf0085384be605f"
+@c docstring begin (texi-doc-string "guile" "char-numeric?")
 @deffn primitive char-numeric? chr
 Return @code{#t} iff @var{chr} is numeric, else @code{#f}.
 Numeric means the same thing as the isdigit C library function.
 @end deffn
 
-@c docstring begin (c-doc-string "chars.c" "char-whitespace?")
-@c docstring md5 "142a0c5405198e728e5f4bfefd94ea5d"
+@c docstring begin (texi-doc-string "guile" "char-whitespace?")
 @deffn primitive char-whitespace? chr
 Return @code{#t} iff @var{chr} is whitespace, else @code{#f}.
 Whitespace means the same thing as the isspace C library function.
 @end deffn
 
-@c docstring begin (c-doc-string "chars.c" "char-upper-case?")
-@c docstring md5 "dc6cdf08d6d6f5d18bbf129858be9b9a"
+@c docstring begin (texi-doc-string "guile" "char-upper-case?")
 @deffn primitive char-upper-case? chr
 Return @code{#t} iff @var{chr} is uppercase, else @code{#f}.
 Uppercase means the same thing as the isupper C library function.
 @end deffn
 
-@c docstring begin (c-doc-string "chars.c" "char-lower-case?")
-@c docstring md5 "ef2bae2b20aed6dd8747b0be3dfb5e39"
+@c docstring begin (texi-doc-string "guile" "char-lower-case?")
 @deffn primitive char-lower-case? chr
 Return @code{#t} iff @var{chr} is lowercase, else @code{#f}.
 Lowercase means the same thing as the islower C library function.
 @end deffn
 
-@c docstring begin (c-doc-string "chars.c" "char-is-both?")
-@c docstring md5 "c147b87171e8074960e8abe996520f23"
+@c docstring begin (texi-doc-string "guile" "char-is-both?")
 @deffn primitive char-is-both? chr
 Return @code{#t} iff @var{chr} is either uppercase or lowercase, else @code{#f}.
 Uppercase and lowercase are as defined by the isupper and islower
 C library functions.
 @end deffn
 
-@c docstring begin (c-doc-string "chars.c" "char->integer")
-@c docstring md5 "673412cb0c3ed258a471592a0026e525"
+@c docstring begin (texi-doc-string "guile" "char->integer")
 @deffn primitive char->integer chr
 Return the number corresponding to ordinal position of @var{chr} in the
 ASCII sequence.
 @end deffn
 
-@c docstring begin (c-doc-string "chars.c" "integer->char")
-@c docstring md5 "d8b295198a875b6c3e0029887ea9bbeb"
+@c docstring begin (texi-doc-string "guile" "integer->char")
 @deffn primitive integer->char n
 Return the character at position @var{n} in the ASCII sequence.
 @end deffn
 
-@c docstring begin (c-doc-string "chars.c" "char-upcase")
-@c docstring md5 "176af27092da02a3609e73f95ce55ca7"
+@c docstring begin (texi-doc-string "guile" "char-upcase")
 @deffn primitive char-upcase chr
 Return the uppercase character version of @var{chr}.
 @end deffn
 
-@c docstring begin (c-doc-string "chars.c" "char-downcase")
-@c docstring md5 "62b73bf1358b40ff93fb3d39602649fd"
+@c docstring begin (texi-doc-string "guile" "char-downcase")
 @deffn primitive char-downcase chr
 Return the lowercase character version of @var{chr}.
 @end deffn
@@ -4040,58 +3815,40 @@ Return the lowercase character version of @var{chr}.
 @node Hooks
 @chapter Hooks
 
-@c docstring begin (c-doc-string "hooks.c" "make-hook-with-name")
-@c docstring md5 "4d39a736ed23d2650f32171ffce911e0"
+@c docstring begin (texi-doc-string "guile" "make-hook-with-name")
 @deffn primitive make-hook-with-name name [n_args]
-
 @end deffn
 
-@c docstring begin (c-doc-string "hooks.c" "make-hook")
-@c docstring md5 "087b54fd9b4dce02c82f05e56b32118f"
+@c docstring begin (texi-doc-string "guile" "make-hook")
 @deffn primitive make-hook [n_args]
-
 @end deffn
 
-@c docstring begin (c-doc-string "hooks.c" "hook?")
-@c docstring md5 "616427dc58e243402a1a3f2e826b2194"
+@c docstring begin (texi-doc-string "guile" "hook?")
 @deffn primitive hook? x
-
 @end deffn
 
-@c docstring begin (c-doc-string "hooks.c" "hook-empty?")
-@c docstring md5 "040ca85325a0b09fb21aa86aec51ee34"
+@c docstring begin (texi-doc-string "guile" "hook-empty?")
 @deffn primitive hook-empty? hook
-
 @end deffn
 
-@c docstring begin (c-doc-string "hooks.c" "add-hook!")
-@c docstring md5 "ce17974a42304b212694678664336055"
+@c docstring begin (texi-doc-string "guile" "add-hook!")
 @deffn primitive add-hook! hook proc [append_p]
-
 @end deffn
 
-@c docstring begin (c-doc-string "hooks.c" "remove-hook!")
-@c docstring md5 "0b61fffdabd631b304a32c6dff157d36"
+@c docstring begin (texi-doc-string "guile" "remove-hook!")
 @deffn primitive remove-hook! hook proc
-
 @end deffn
 
-@c docstring begin (c-doc-string "hooks.c" "reset-hook!")
-@c docstring md5 "5aa2fbe328edf1452527244b33d57ebc"
+@c docstring begin (texi-doc-string "guile" "reset-hook!")
 @deffn primitive reset-hook! hook
-
 @end deffn
 
-@c docstring begin (c-doc-string "hooks.c" "run-hook")
-@c docstring md5 "45f8ab325bccefd0cc264b8cc7ae596c"
+@c docstring begin (texi-doc-string "guile" "run-hook")
 @deffn primitive run-hook hook . args
-
 @end deffn
 
-@c docstring begin (c-doc-string "hooks.c" "hook->list")
-@c docstring md5 "82b38218f950fcaeb2a2d6980c09da36"
+@c docstring begin (texi-doc-string "guile" "hook->list")
 @deffn primitive hook->list hook
-
 @end deffn
 
 
@@ -4099,89 +3856,65 @@ Return the lowercase character version of @var{chr}.
 @node Procedures
 @chapter Procedures
 
-@c docstring begin (c-doc-string "procprop.c" "procedure-properties")
-@c docstring md5 "019f325969f292274ab9ec9143a091bb"
+@c docstring begin (texi-doc-string "guile" "procedure-properties")
 @deffn primitive procedure-properties proc
 Return @var{obj}'s property list.
 @end deffn
 
-@c docstring begin (c-doc-string "procprop.c" "procedure-property")
-@c docstring md5 "0e5f2a4f9971d500b107a90311842ebc"
+@c docstring begin (texi-doc-string "guile" "procedure-property")
 @deffn primitive procedure-property p k
 Return the property of @var{obj} with name @var{key}.
 @end deffn
 
-@c docstring begin (c-doc-string "procprop.c" "set-procedure-properties!")
-@c docstring md5 "e5208ff597af390eff37ebe8eb96a7a3"
+@c docstring begin (texi-doc-string "guile" "set-procedure-properties!")
 @deffn primitive set-procedure-properties! proc new_val
 Set @var{obj}'s property list to @var{alist}.
 @end deffn
 
-@c docstring begin (c-doc-string "procprop.c" "set-procedure-property!")
-@c docstring md5 "70e031772c1078ea8dbb21cddb30afb4"
+@c docstring begin (texi-doc-string "guile" "set-procedure-property!")
 @deffn primitive set-procedure-property! p k v
 In @var{obj}'s property list, set the property named @var{key} to
 @var{value}.
 @end deffn
 
-@c docstring begin (c-doc-string "procs.c" "closure?")
-@c docstring md5 "662358b00013ac9c369c0fcfebf9db31"
+@c docstring begin (texi-doc-string "guile" "closure?")
 @deffn primitive closure? obj
-
 @end deffn
 
-@c docstring begin (c-doc-string "procs.c" "make-procedure-with-setter")
-@c docstring md5 "4d17f47850df45bd0b72f6b59634d8e2"
+@c docstring begin (texi-doc-string "guile" "make-procedure-with-setter")
 @deffn primitive make-procedure-with-setter procedure setter
-
 @end deffn
 
-@c docstring begin (c-doc-string "procs.c" "procedure")
-@c docstring md5 "19d19de092f7748a13e2c32b8e7609c6"
+@c docstring begin (texi-doc-string "guile" "procedure")
 @deffn primitive procedure proc
-
 @end deffn
 
-@c docstring begin (c-doc-string "procs.c" "procedure-with-setter?")
-@c docstring md5 "ae193cffd4b795883a0c67147b2e5a8b"
+@c docstring begin (texi-doc-string "guile" "procedure-with-setter?")
 @deffn primitive procedure-with-setter? obj
-
 @end deffn
 
-@c docstring begin (c-doc-string "procs.c" "procedure?")
-@c docstring md5 "7455fc2160c5f4a91f1320e4e493bbfa"
+@c docstring begin (texi-doc-string "guile" "procedure?")
 @deffn primitive procedure? obj
-
 @end deffn
 
-@c docstring begin (c-doc-string "procs.c" "thunk?")
-@c docstring md5 "1eb9a507198e7b4f01fae9f61ccbcdd5"
+@c docstring begin (texi-doc-string "guile" "thunk?")
 @deffn primitive thunk? obj
-
 @end deffn
 
-@c docstring begin (c-doc-string "srcprop.c" "set-source-properties!")
-@c docstring md5 "7e1cd44e2527d5d4064ca871d3c26a7a"
+@c docstring begin (texi-doc-string "guile" "set-source-properties!")
 @deffn primitive set-source-properties! obj plist
-
 @end deffn
 
-@c docstring begin (c-doc-string "srcprop.c" "set-source-property!")
-@c docstring md5 "1bea0557ab6a38583ac23876116d446e"
+@c docstring begin (texi-doc-string "guile" "set-source-property!")
 @deffn primitive set-source-property! obj key datum
-
 @end deffn
 
-@c docstring begin (c-doc-string "srcprop.c" "source-properties")
-@c docstring md5 "d7b76c5abe087afa422ec486ef106499"
+@c docstring begin (texi-doc-string "guile" "source-properties")
 @deffn primitive source-properties obj
-
 @end deffn
 
-@c docstring begin (c-doc-string "srcprop.c" "source-property")
-@c docstring md5 "493e9daf2ef5bc47151f2b661d9ac03e"
+@c docstring begin (texi-doc-string "guile" "source-property")
 @deffn primitive source-property obj key
-
 @end deffn
 
 
@@ -4201,31 +3934,27 @@ closures than for other kinds of objects.  Therefore, when manipulating
 a property list associated with a procedure object, use the
 @code{procedure} functions; otherwise, use the @code{object} functions.
 
-@c docstring begin (c-doc-string "objprop.c" "object-properties")
-@c docstring md5 "8f4a151eb542ef2a8b073f591ef0d8dd"
+@c docstring begin (texi-doc-string "guile" "object-properties")
 @deffn primitive object-properties obj
 @deffnx primitive procedure-properties obj
 Return @var{obj}'s property list.
 @end deffn
 
 @c ARGFIXME alist/plist
-@c docstring begin (c-doc-string "objprop.c" "set-object-properties!")
-@c docstring md5 "589ed6bdc6ccadc43c9a75837d7311bb"
+@c docstring begin (texi-doc-string "guile" "set-object-properties!")
 @deffn primitive set-object-properties! obj plist
 @deffnx primitive set-procedure-properties! obj alist
 Set @var{obj}'s property list to @var{alist}.
 @end deffn
 
-@c docstring begin (c-doc-string "objprop.c" "object-property")
-@c docstring md5 "ec85959dcc703130c1402f054bd16fde"
+@c docstring begin (texi-doc-string "guile" "object-property")
 @deffn primitive object-property obj key
 @deffnx primitive procedure-property obj key
 Return the property of @var{obj} with name @var{key}.
 @end deffn
 
 @c ARGFIXME val/value
-@c docstring begin (c-doc-string "objprop.c" "set-object-property!")
-@c docstring md5 "79e692acc9f3d3312e67f0e9bbf87ec6"
+@c docstring begin (texi-doc-string "guile" "set-object-property!")
 @deffn primitive set-object-property! obj key val
 @deffnx primitive set-procedure-property! obj key value
 In @var{obj}'s property list, set the property named @var{key} to
@@ -4234,6 +3963,41 @@ In @var{obj}'s property list, set the property named @var{key} to
 
 [Interface bug:  there should be a second level of interface in which
 the user provides a "property table" that is possibly private.]
+
+
+@page
+@node Primitive Properties
+@chapter Primitive Properties
+
+@c docstring begin (texi-doc-string "guile" "primitive-make-property")
+@deffn primitive primitive-make-property not_found_proc
+Create a @dfn{property token} that can be used with
+@code{primitive-property-ref} and @code{primitive-property-set!}.
+See @code{primitive-property-ref} for the significance of
+@var{not_found_proc}.
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "primitive-property-ref")
+@deffn primitive primitive-property-ref prop obj
+Return the property @var{prop} of @var{obj}.  When no value
+has yet been associated with @var{prop} and @var{obj}, call
+@var{not-found-proc} instead (see @code{primitive-make-property})
+and use its return value.  That value is also associated with
+@var{obj} via @code{primitive-property-set!}.  When
+@var{not-found-proc} is @code{#f}, use @code{#f} as the
+default value of @var{prop}.
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "primitive-property-set!")
+@deffn primitive primitive-property-set! prop obj val
+Associate @var{code} with @var{prop} and @var{obj}.
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "primitive-property-del!")
+@deffn primitive primitive-property-del! prop obj
+Remove any value associated with @var{prop} and @var{obj}.
+@end deffn
+
 
 @page
 @node Ports
@@ -4253,7 +4017,7 @@ ports} are two interesting and powerful examples of this technique.
 
 @menu
 * File Ports:: Ports on an operating system file.
-* String Ports:: Ports on a Scheme string. 
+* String Ports:: Ports on a Scheme string.
 * Soft Ports:: Ports on arbitrary Scheme procedures.
 * Void Ports:: Ports on nothing at all.
 * Generic Port Operations:: procedures for any type of port: close, flush etc.
@@ -4270,12 +4034,11 @@ See also @ref{Ports and File Descriptors, open}, for an interface
 to the Unix @code{open} system call.
 
 @c ARGFIXME string/filename mode/modes
-@c docstring begin (c-doc-string "fports.c" "open-file")
-@c docstring md5 "5e54300495ca6487c092a8ee33960e8a"
+@c docstring begin (texi-doc-string "guile" "open-file")
 @deffn primitive open-file filename modes
 Open the file whose name is @var{string}, and return a port
 representing that file.  The attributes of the port are
-determined by the @var{mode} string.  The way in 
+determined by the @var{mode} string.  The way in
 which this is interpreted is similar to C stdio:
 
 The first character must be one of the following:
@@ -4333,8 +4096,7 @@ Open @var{filename} for output.  Equivalent to
 @end smalllisp
 @end deffn
 
-@c docstring begin (c-doc-string "ports.c" "port-mode")
-@c docstring md5 "cbcb46422ab6eb230fd54bb014026d79"
+@c docstring begin (texi-doc-string "guile" "port-mode")
 @deffn primitive port-mode port
 Returns the port modes associated with the open port @var{port}.  These
 will not necessarily be identical to the modes used when the port was
@@ -4342,16 +4104,14 @@ opened, since modes such as "append" which are used only during
 port creation are not retained.
 @end deffn
 
-@c docstring begin (c-doc-string "ports.c" "port-filename")
-@c docstring md5 "0d4492b1ad5b408f73a67a4483c9cda5"
+@c docstring begin (texi-doc-string "guile" "port-filename")
 @deffn primitive port-filename port
 Return the filename associated with @var{port}.  This function returns
 the strings "standard input", "standard output" and "standard error"
 when called on the current input, output and error ports respectively.
 @end deffn
 
-@c docstring begin (c-doc-string "ports.c" "set-port-filename!")
-@c docstring md5 "000176087c3df83a2edc97c01b842b88"
+@c docstring begin (texi-doc-string "guile" "set-port-filename!")
 @deffn primitive set-port-filename! port filename
 Change the filename associated with @var{port}, using the current input
 port if none is specified.  Note that this does not change the port's
@@ -4365,8 +4125,7 @@ source of data, but only the value that is returned by
 The following allow string ports to be opened by analogy to R4R*
 file port facilities:
 
-@c docstring begin (c-doc-string "strports.c" "call-with-output-string")
-@c docstring md5 "6deec0e2965dc973e64dd0454cb920e7"
+@c docstring begin (texi-doc-string "guile" "call-with-output-string")
 @deffn primitive call-with-output-string proc
 Calls the one-argument procedure @var{proc} with a newly created output
 port.  When the function returns, the string composed of the characters
@@ -4374,8 +4133,7 @@ written into the port is returned.
 @end deffn
 
 @c ARGFIXME str/string
-@c docstring begin (c-doc-string "strports.c" "call-with-input-string")
-@c docstring md5 "57c9881b5134a0cf096d27e845e5f741"
+@c docstring begin (texi-doc-string "guile" "call-with-input-string")
 @deffn primitive call-with-input-string str proc
 Calls the one-argument procedure @var{proc} with a newly created input
 port from which @var{string}'s contents may be read.  The value yielded
@@ -4413,8 +4171,7 @@ A @dfn{soft-port} is a port based on a vector of procedures capable of
 accepting or delivering characters.  It allows emulation of I/O ports.
 
 @c ARGFIXME pv/vector
-@c docstring begin (c-doc-string "vports.c" "make-soft-port")
-@c docstring md5 "81e8d424c897ad3a50368a47cc75a026"
+@c docstring begin (texi-doc-string "guile" "make-soft-port")
 @deffn primitive make-soft-port pv modes
 Returns a port capable of receiving or delivering characters as
 specified by the @var{modes} string (@pxref{File Ports,
@@ -4464,8 +4221,7 @@ the port has reached end-of-file.  For example:
 This kind of port just causes errors if you try to use it in
 a normal way.
 
-@c docstring begin (c-doc-string "ports.c" "%make-void-port")
-@c docstring md5 "4866bfdf696b28a4f5cdeb06eca094b1"
+@c docstring begin (texi-doc-string "guile" "%make-void-port")
 @deffn primitive %make-void-port mode
 Create and return a new void port.  A void port acts like
 /dev/null.  The @var{mode} argument
@@ -4479,15 +4235,13 @@ documentation for @code{open-file} in @ref{File Ports}.
 This section describes port maintainence procedures
 which are not specific to a single port type.
 
-@c docstring begin (c-doc-string "ports.c" "eof-object?")
-@c docstring md5 "9be47ac1e75831b3ccde0f7e3080e617"
+@c docstring begin (texi-doc-string "guile" "eof-object?")
 @deffn primitive eof-object? x
 Returns @code{#t} if @var{x} is an end-of-file object; otherwise
 returns @code{#f}.
 @end deffn
 
-@c docstring begin (c-doc-string "ports.c" "char-ready?")
-@c docstring md5 "45a815264717d4dd56be81d7a6ec3581"
+@c docstring begin (texi-doc-string "guile" "char-ready?")
 @deffn primitive char-ready? [port]
 Returns @code{#t} if a character is ready on input @var{port} and
 returns @code{#f} otherwise.  If @code{char-ready?} returns @code{#t}
@@ -4504,16 +4258,14 @@ indistinguishable from an interactive port that has no ready
 characters.}
 @end deffn
 
-@c docstring begin (c-doc-string "ports.c" "read-char")
-@c docstring md5 "a7b0a9710b5d9d038be5a05e7e9a51d1"
+@c docstring begin (texi-doc-string "guile" "read-char")
 @deffn primitive read-char [port]
 Returns the next character available from @var{port}, updating
 @var{port} to point to the following character.  If no more
 characters are available, an end-of-file object is returned.
 @end deffn
 
-@c docstring begin (c-doc-string "ports.c" "peek-char")
-@c docstring md5 "fa35db0422d032a2d1bb7d987ed007ef"
+@c docstring begin (texi-doc-string "guile" "peek-char")
 @deffn primitive peek-char [port]
 Returns the next character available from @var{port},
 @emph{without} updating @var{port} to point to the following
@@ -4528,8 +4280,7 @@ interactive port will hang waiting for input whenever a call to
 @code{read-char} would have hung.}
 @end deffn
 
-@c docstring begin (c-doc-string "ports.c" "unread-char")
-@c docstring md5 "91964be137b84ba6bc72e79047edace9"
+@c docstring begin (texi-doc-string "guile" "unread-char")
 @deffn primitive unread-char cobj port
 Place @var{char} in @var{port} so that it will be read by the
 next read operation.  If called multiple times, the unread characters
@@ -4537,8 +4288,7 @@ will be read again in last-in first-out order.  If @var{port} is
 not supplied, the current input port is used.
 @end deffn
 
-@c docstring begin (c-doc-string "ports.c" "unread-string")
-@c docstring md5 "7b185a3d540acdf2ec7f6b114c6c3c80"
+@c docstring begin (texi-doc-string "guile" "unread-string")
 @deffn primitive unread-string str port
 Place the string @var{str} in @var{port} so that its characters will be
 read in subsequent read operations.  If called multiple times, the
@@ -4546,8 +4296,7 @@ unread characters will be read again in last-in first-out order.  If
 @var{port} is not supplied, the current-input-port is used.
 @end deffn
 
-@c docstring begin (c-doc-string "ports.c" "close-port")
-@c docstring md5 "57df6bf58a9ac90f2cfa0d455c7fd5fb"
+@c docstring begin (texi-doc-string "guile" "close-port")
 @deffn primitive close-port port
 Close the specified port object.  Returns @code{#t} if it successfully
 closes a port or @code{#f} if it was already
@@ -4557,8 +4306,7 @@ See also @ref{Ports and File Descriptors, close}, for a procedure
 which can close file descriptors.
 @end deffn
 
-@c docstring begin (c-doc-string "ports.c" "close-input-port")
-@c docstring md5 "3c88ef048827b8142288f8a75a719b43"
+@c docstring begin (texi-doc-string "guile" "close-input-port")
 @deffn primitive close-input-port port
 Close the specified input port object.  The routine has no effect if
 the file has already been closed.  An exception may be raised if an
@@ -4568,8 +4316,7 @@ See also @ref{Ports and File Descriptors, close}, for a procedure
 which can close file descriptors.
 @end deffn
 
-@c docstring begin (c-doc-string "ports.c" "close-output-port")
-@c docstring md5 "448904bdcf541439f26d3446e83943a8"
+@c docstring begin (texi-doc-string "guile" "close-output-port")
 @deffn primitive close-output-port port
 Close the specified output port object.  The routine has no effect if
 the file has already been closed.  An exception may be raised if an
@@ -4579,60 +4326,52 @@ See also @ref{Ports and File Descriptors, close}, for a procedure
 which can close file descriptors.
 @end deffn
 
-@c docstring begin (c-doc-string "ports.c" "input-port?")
-@c docstring md5 "fdb784176469883b2336520d8dba706e"
+@c docstring begin (texi-doc-string "guile" "input-port?")
 @deffn primitive input-port? x
 Returns @code{#t} if @var{x} is an input port, otherwise returns
 @code{#f}.  Any object satisfying this predicate also satisfies
 @code{port?}.
 @end deffn
 
-@c docstring begin (c-doc-string "ports.c" "output-port?")
-@c docstring md5 "2bcb4b3057317aa6989dd6d65a7415e0"
+@c docstring begin (texi-doc-string "guile" "output-port?")
 @deffn primitive output-port? x
 Returns @code{#t} if @var{x} is an output port, otherwise returns
 @code{#f}.  Any object satisfying this predicate also satisfies
 @code{port?}.
 @end deffn
 
-@c docstring begin (c-doc-string "ports.c" "port-closed?")
-@c docstring md5 "4f1a004d7627e50605933386d457660f"
+@c docstring begin (texi-doc-string "guile" "port-closed?")
 @deffn primitive port-closed? port
 Returns @code{#t} if @var{port} is closed or @code{#f} if it is open.
 @end deffn
 
-@c docstring begin (c-doc-string "ports.c" "current-input-port")
-@c docstring md5 "51b0cc701f084a13243e0534dd88281c"
+@c docstring begin (texi-doc-string "guile" "current-input-port")
 @deffn primitive current-input-port
 Returns the current input port.  This is the default port used by many
 input procedures.  Initially, @code{current-input-port} returns the
 value of @code{???}.
 @end deffn
 
-@c docstring begin (c-doc-string "ports.c" "current-load-port")
-@c docstring md5 "1fcbcd51296ea3bc4618e77e38c5f569"
+@c docstring begin (texi-doc-string "guile" "current-load-port")
 @deffn primitive current-load-port
 Return the current-load-port.
 The load port is used internally by `primitive-load'.
 @end deffn
 
-@c docstring begin (c-doc-string "ports.c" "current-output-port")
-@c docstring md5 "f5ef4b321862fb51ed1fdf0e156d252c"
+@c docstring begin (texi-doc-string "guile" "current-output-port")
 @deffn primitive current-output-port
 Returns the current output port.  This is the default port used by many
 output procedures.  Initially, @code{current-output-port} returns the
 value of @code{???}.
 @end deffn
 
-@c docstring begin (c-doc-string "ports.c" "current-error-port")
-@c docstring md5 "bf76742c32f1b2d0d4e7a5acaa4497fb"
+@c docstring begin (texi-doc-string "guile" "current-error-port")
 @deffn primitive current-error-port
 Return the port to which errors and warnings should be sent (the
 @dfn{standard error} in Unix and C terminology).
 @end deffn
 
-@c docstring begin (c-doc-string "ports.c" "set-current-input-port")
-@c docstring md5 "10fe496a3bb33c437c58decb1a3a3eea"
+@c docstring begin (texi-doc-string "guile" "set-current-input-port")
 @deffn primitive set-current-input-port port
 @deffnx primitive set-current-output-port port
 @deffnx primitive set-current-error-port port
@@ -4641,24 +4380,21 @@ Change the ports returned by @code{current-input-port},
 so that they use the supplied @var{port} for input or output.
 @end deffn
 
-@c docstring begin (c-doc-string "ports.c" "set-current-output-port")
-@c docstring md5 "a403bcc46697a537db2c1db2d3b1ea12"
+@c docstring begin (texi-doc-string "guile" "set-current-output-port")
 @deffn primitive set-current-output-port port
 Set the current default output port to PORT.
 @end deffn
 
-@c docstring begin (c-doc-string "ports.c" "set-current-error-port")
-@c docstring md5 "cb9950f5398adb9ca4cb64db4bc4b1e7"
+@c docstring begin (texi-doc-string "guile" "set-current-error-port")
 @deffn primitive set-current-error-port port
 Set the current default error port to PORT.
 @end deffn
 
 @findex fflush
-@c docstring begin (c-doc-string "ports.c" "force-output")
-@c docstring md5 "0593e34c2c4872feaa830641e760e018"
+@c docstring begin (texi-doc-string "guile" "force-output")
 @deffn primitive force-output [port]
 Flush the specified output port, or the current output port if @var{port}
-is omitted.  The current output buffer contents are passed to the 
+is omitted.  The current output buffer contents are passed to the
 underlying port implementation (e.g., in the case of fports, the
 data will be written to the file and the output buffer will be cleared.)
 It has no effect on an unbuffered port.
@@ -4666,23 +4402,20 @@ It has no effect on an unbuffered port.
 The return value is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "ports.c" "flush-all-ports")
-@c docstring md5 "949cc3278aef32016a7219e03695f4d1"
+@c docstring begin (texi-doc-string "guile" "flush-all-ports")
 @deffn primitive flush-all-ports
 Equivalent to calling @code{force-output} on
 all open output ports.  The return value is unspecified.
 @end deffn
 
-@c docstring begin (c-doc-string "ports.c" "drain-input")
-@c docstring md5 "5a56448ddac936cec4752dd89c5bb907"
+@c docstring begin (texi-doc-string "guile" "drain-input")
 @deffn primitive drain-input port
 Drains @var{PORT}'s read buffers (including any pushed-back characters)
 and returns the contents as a single string.
 @end deffn
 
 @c ARGFIXME object/fd/port
-@c docstring begin (c-doc-string "ports.c" "seek")
-@c docstring md5 "e0070af2bebae1e3de656a06d23112dc"
+@c docstring begin (texi-doc-string "guile" "seek")
 @deffn primitive seek object offset whence
 Sets the current position of @var{fd/port} to the integer @var{offset},
 which is interpreted according to the value of @var{whence}.
@@ -4710,16 +4443,14 @@ the current position of a port can be obtained using:
 @end deffn
 
 @c ARGFIXME object/fd/port
-@c docstring begin (c-doc-string "ioext.c" "fseek")
-@c docstring md5 "2e68437abef90dc6d6980f558c632850"
+@c docstring begin (texi-doc-string "guile" "fseek")
 @deffn primitive fseek object offset whence
 Obsolete.  Almost the same as seek, above, but the return value is
 unspecified.
 @end deffn
 
 @c ARGFIXME object/fd/port
-@c docstring begin (c-doc-string "ioext.c" "ftell")
-@c docstring md5 "c06f4f1e78eb5dbce00062ceda2645aa"
+@c docstring begin (texi-doc-string "guile" "ftell")
 @deffn primitive ftell object
 Returns an integer representing the current position of @var{fd/port},
 measured from the beginning.  Equivalent to:
@@ -4731,8 +4462,7 @@ measured from the beginning.  Equivalent to:
 @findex truncate
 @findex ftruncate
 @c ARGFIXME obj/object size/length
-@c docstring begin (c-doc-string "ports.c" "truncate-file")
-@c docstring md5 "a5aed3a36b05abed78b34ce6b71c8637"
+@c docstring begin (texi-doc-string "guile" "truncate-file")
 @deffn primitive truncate-file object [length]
 Truncates the object referred to by @var{obj} to at most @var{size} bytes.
 @var{obj} can be a string containing a file name or an integer file
@@ -4744,8 +4474,7 @@ The return value is unspecified.
 @end deffn
 
 @c ARGFIXME port/input-port
-@c docstring begin (c-doc-string "ports.c" "port-column")
-@c docstring md5 "59f674b1d850a3d0ff4e98d1b251f2dc"
+@c docstring begin (texi-doc-string "guile" "port-column")
 @deffn primitive port-column port
 @deffnx primitive port-line [input-port]
 Return the current column number or line number of @var{input-port},
@@ -4759,8 +4488,7 @@ what non-programmers will find most natural.)
 @end deffn
 
 @c ARGFIXME port/input-port
-@c docstring begin (c-doc-string "ports.c" "set-port-column!")
-@c docstring md5 "902062f2633ffe4ba8d39e01be17e909"
+@c docstring begin (texi-doc-string "guile" "set-port-column!")
 @deffn primitive set-port-column! port column
 @deffnx primitive set-port-line! port line
 Set the current column or line number of @var{port}, using the
@@ -4797,7 +4525,7 @@ Append the terminating delimiter (if any) to the returned string.
 @item peek
 Push the terminating delimiter (if any) back on to the port.
 @item split
-Return a pair containing the string read from the port and the 
+Return a pair containing the string read from the port and the
 terminating delimiter or end-of-file object.
 
 NOTE: if the scsh module is loaded then
@@ -4840,8 +4568,7 @@ NOTE: if the scsh module is loaded then @var{delims} must be an scsh
 char-set, not a string.
 @end deffn
 
-@c docstring begin (c-doc-string "ioext.c" "write-line")
-@c docstring md5 "eff9e2e0ff8b8225018d194b40ce81d3"
+@c docstring begin (texi-doc-string "guile" "write-line")
 @deffn primitive write-line obj [port]
 Display @var{obj} and a newline character to @var{port}.  If @var{port}
 is not specified, @code{(current-output-port)} is used.  This function
@@ -4858,8 +4585,7 @@ primitives.  These will mainly be of interest to people hacking Guile
 internals.
 
 @c ARGFIXME gobble/gobble?
-@c docstring begin (c-doc-string "ioext.c" "%read-delimited!")
-@c docstring md5 "52e561c3dc21812ae4f536f27efadca6"
+@c docstring begin (texi-doc-string "guile" "%read-delimited!")
 @deffn primitive %read-delimited! delims buf gobble [port [start [end]]]
 Read characters from @var{port} into @var{buf} until one of the
 characters in the @var{delims} string is encountered.  If @var{gobble?}
@@ -4876,8 +4602,7 @@ the delimiter returned is the @var{eof-object}; if the buffer was filled
 without encountering a delimiter, this value is @var{#f}.
 @end deffn
 
-@c docstring begin (c-doc-string "ioext.c" "%read-line")
-@c docstring md5 "7e85de9b97a27bf9c27b1d5167b3bdcd"
+@c docstring begin (texi-doc-string "guile" "%read-line")
 @deffn primitive %read-line [port]
 Read a newline-terminated line from @var{port}, allocating storage as
 necessary.  The newline terminator (if any) is removed from the string,
@@ -5094,58 +4819,53 @@ Set using @code{scm_set_port_truncate}.
 @node Numbers
 @chapter Numbers
 
-@c docstring begin (c-doc-string "numbers.c" "exact?")
-@c docstring md5 "5b0462f8eabd2a9edd490e1796755098"
+@c docstring begin (texi-doc-string "guile" "exact?")
 @deffn primitive exact? x
 Return #t if X is an exact number, #f otherwise.
 @end deffn
 
-@c docstring begin (c-doc-string "numbers.c" "odd?")
-@c docstring md5 "89a1df727df411063148bf3e614abe94"
+@c docstring begin (texi-doc-string "guile" "odd?")
 @deffn primitive odd? n
 Return #t if N is an odd number, #f otherwise.
 @end deffn
 
-@c docstring begin (c-doc-string "numbers.c" "even?")
-@c docstring md5 "b430ab220f028e41717b1b9e0611b7a7"
+@c docstring begin (texi-doc-string "guile" "even?")
 @deffn primitive even? n
 Return #t if N is an even number, #f otherwise.
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "abs")
+@c begin (texi-doc-string "guile" "abs")
 @deffn primitive abs
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "quotient")
+@c begin (texi-doc-string "guile" "quotient")
 @deffn primitive quotient
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "remainder")
+@c begin (texi-doc-string "guile" "remainder")
 @deffn primitive remainder
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "modulo")
+@c begin (texi-doc-string "guile" "modulo")
 @deffn primitive modulo
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "gcd")
+@c begin (texi-doc-string "guile" "gcd")
 @deffn primitive gcd
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "lcm")
+@c begin (texi-doc-string "guile" "lcm")
 @deffn primitive lcm
 @end deffn
 
-@c docstring begin (c-doc-string "numbers.c" "number->string")
-@c docstring md5 "b414ea1d857b2039c14aeeff405fafa5"
+@c docstring begin (texi-doc-string "guile" "number->string")
 @deffn primitive number->string n [radix]
 Return a string holding the external representation of the
 number N in the given RADIX.  If N is inexact, a radix of 10
 will be used.
 @end deffn
 
-@c docstring begin (c-doc-string "numbers.c" "string->number")
-@c docstring md5 "176295e3ecc0f7a248a881bdb0bf913d"
+@c docstring begin (texi-doc-string "guile" "string->number")
 @deffn primitive string->number string [radix]
 Returns a number of the maximally precise representation
 expressed by the given STRING. RADIX must be an exact integer,
@@ -5156,13 +4876,12 @@ radix is 10. If string is not a syntactically valid notation
 for a number, then `string->number' returns #f.  (r5rs)
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "number?")
+@c docstring begin (texi-doc-string "guile" "number?")
 @deffn primitive number? x
 Return #t if X is any kind of number, #f else.
 @end deffn
 
-@c docstring begin (c-doc-string "numbers.c" "complex?")
-@c docstring md5 "6b5bcd5b7adfa1240624236007c6357d"
+@c docstring begin (texi-doc-string "guile" "complex?")
 @deffn primitive complex? x
 Return #t if X is a complex number, #f else.  Note that the
 sets of real, rational and integer values form subsets of the
@@ -5170,7 +4889,7 @@ set of complex numbers, i. e. the predicate will also be
 fulfilled if X is a real, rational or integer number.
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "real?")
+@c docstring begin (texi-doc-string "guile" "real?")
 @deffn primitive real? x
 Return #t if X is a real number, #f else.  Note that the
 sets of integer and rational values form subsets of the set of real
@@ -5178,8 +4897,7 @@ numbers, i.e. the predicate will also be fulfilled if X is an
 integer number or a rational number.
 @end deffn
 
-@c docstring begin (c-doc-string "numbers.c" "rational?")
-@c docstring md5 "d5323eae3dab88b0d4b13f5ea18ec427"
+@c docstring begin (texi-doc-string "guile" "rational?")
 @deffn primitive rational? x
 Return #t if X is a rational number, #f else.  Note that the
 set of integer values forms a subset of the set of rational
@@ -5187,201 +4905,192 @@ numbers, i. e. the predicate will also be fulfilled if X is an
 integer number.
 @end deffn
 
-@c docstring begin (c-doc-string "numbers.c" "integer?")
-@c docstring md5 "0948d1f1758127dfa9798b1e7ff133ea"
+@c docstring begin (texi-doc-string "guile" "integer?")
 @deffn primitive integer? x
 Return #t if X is an integer number, #f else.
 @end deffn
 
-@c docstring begin (c-doc-string "numbers.c" "inexact?")
-@c docstring md5 "dec1546af70e3ea24843470d9153be09"
+@c docstring begin (texi-doc-string "guile" "inexact?")
 @deffn primitive inexact? x
 Return #t if X is an inexact number, #f else.
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "=")
+@c begin (texi-doc-string "guile" "=")
 @deffn primitive =
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "<")
+@c begin (texi-doc-string "guile" "<")
 @deffn primitive <
 @end deffn
 
-@c begin (c-doc-string "numbers.c" ">")
+@c begin (texi-doc-string "guile" ">")
 @deffn primitive >
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "<=")
+@c begin (texi-doc-string "guile" "<=")
 @deffn primitive <=
 @end deffn
 
-@c begin (c-doc-string "numbers.c" ">=")
+@c begin (texi-doc-string "guile" ">=")
 @deffn primitive >=
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "zero?")
+@c begin (texi-doc-string "guile" "zero?")
 @deffn primitive zero?
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "positive?")
+@c begin (texi-doc-string "guile" "positive?")
 @deffn primitive positive?
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "negative?")
+@c begin (texi-doc-string "guile" "negative?")
 @deffn primitive negative?
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "max")
+@c begin (texi-doc-string "guile" "max")
 @deffn primitive max
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "min")
+@c begin (texi-doc-string "guile" "min")
 @deffn primitive min
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "+")
+@c begin (texi-doc-string "guile" "+")
 @deffn primitive +
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "-")
+@c begin (texi-doc-string "guile" "-")
 @deffn primitive -
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "*")
+@c begin (texi-doc-string "guile" "*")
 @deffn primitive *
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "/")
+@c begin (texi-doc-string "guile" "/")
 @deffn primitive /
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "$asinh")
+@c begin (texi-doc-string "guile" "$asinh")
 @deffn primitive $asinh
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "$acosh")
+@c begin (texi-doc-string "guile" "$acosh")
 @deffn primitive $acosh
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "$atanh")
+@c begin (texi-doc-string "guile" "$atanh")
 @deffn primitive $atanh
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "truncate")
+@c begin (texi-doc-string "guile" "truncate")
 @deffn primitive truncate
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "round")
+@c begin (texi-doc-string "guile" "round")
 @deffn primitive round
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "exact->inexact")
+@c begin (texi-doc-string "guile" "exact->inexact")
 @deffn primitive exact->inexact
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "floor")
+@c begin (texi-doc-string "guile" "floor")
 @deffn primitive floor
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "ceiling")
+@c begin (texi-doc-string "guile" "ceiling")
 @deffn primitive ceiling
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "$sqrt")
+@c begin (texi-doc-string "guile" "$sqrt")
 @deffn primitive $sqrt
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "$abs")
+@c begin (texi-doc-string "guile" "$abs")
 @deffn primitive $abs
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "$exp")
+@c begin (texi-doc-string "guile" "$exp")
 @deffn primitive $exp
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "$log")
+@c begin (texi-doc-string "guile" "$log")
 @deffn primitive $log
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "$sin")
+@c begin (texi-doc-string "guile" "$sin")
 @deffn primitive $sin
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "$cos")
+@c begin (texi-doc-string "guile" "$cos")
 @deffn primitive $cos
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "$tan")
+@c begin (texi-doc-string "guile" "$tan")
 @deffn primitive $tan
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "$asin")
+@c begin (texi-doc-string "guile" "$asin")
 @deffn primitive $asin
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "$acos")
+@c begin (texi-doc-string "guile" "$acos")
 @deffn primitive $acos
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "$atan")
+@c begin (texi-doc-string "guile" "$atan")
 @deffn primitive $atan
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "$sinh")
+@c begin (texi-doc-string "guile" "$sinh")
 @deffn primitive $sinh
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "$cosh")
+@c begin (texi-doc-string "guile" "$cosh")
 @deffn primitive $cosh
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "$tanh")
+@c begin (texi-doc-string "guile" "$tanh")
 @deffn primitive $tanh
 @end deffn
 
-@c docstring begin (c-doc-string "numbers.c" "$expt")
-@c docstring md5 "c0d8151c5c2c8c9e1b37cc2576b664d3"
+@c docstring begin (texi-doc-string "guile" "$expt")
 @deffn primitive $expt z1 z2
-
 @end deffn
 
-@c docstring begin (c-doc-string "numbers.c" "$atan2")
-@c docstring md5 "c53521a27931169da95813c65437cfcf"
+@c docstring begin (texi-doc-string "guile" "$atan2")
 @deffn primitive $atan2 z1 z2
-
 @end deffn
 
-@c docstring begin (c-doc-string "numbers.c" "make-rectangular")
-@c docstring md5 "81d3cb3729f7853d49e3591d7f8a2bae"
+@c docstring begin (texi-doc-string "guile" "make-rectangular")
 @deffn primitive make-rectangular real imaginary
 Return a complex number constructed of the given REAL and
 IMAGINARY parts.
 @end deffn
 
-@c docstring begin (c-doc-string "numbers.c" "make-polar")
-@c docstring md5 "976bce3c496772d9e63c36f00a052f7e"
+@c docstring begin (texi-doc-string "guile" "make-polar")
 @deffn primitive make-polar z1 z2
 Return the complex number Z1 * e^(i * Z2).
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "real-part")
+@c begin (texi-doc-string "guile" "real-part")
 @deffn primitive real-part
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "imag-part")
+@c begin (texi-doc-string "guile" "imag-part")
 @deffn primitive imag-part
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "magnitude")
+@c begin (texi-doc-string "guile" "magnitude")
 @deffn primitive magnitude
 @end deffn
 
-@c begin (c-doc-string "numbers.c" "angle")
+@c begin (texi-doc-string "guile" "angle")
 @deffn primitive angle
 @end deffn
 
-@c docstring begin (c-doc-string "numbers.c" "inexact->exact")
-@c docstring md5 "042c6574b95f672ed52e38d2056bb586"
+@c docstring begin (texi-doc-string "guile" "inexact->exact")
 @deffn primitive inexact->exact z
 Returns an exact number that is numerically closest to Z.
 @end deffn
@@ -5391,89 +5100,72 @@ Returns an exact number that is numerically closest to Z.
 @node Random
 @chapter Random
 
-@c docstring begin (c-doc-string "random.c" "copy-random-state")
-@c docstring md5 "e23691e0e6e86de67ddfefc2892aea64"
+@c docstring begin (texi-doc-string "guile" "copy-random-state")
 @deffn primitive copy-random-state [state]
 Return a copy of the random state STATE.
 @end deffn
 
-@c docstring begin (c-doc-string "random.c" "random")
-@c docstring md5 "15d9f6070300a56218e126c08cd0fb3d"
+@c docstring begin (texi-doc-string "guile" "random")
 @deffn primitive random n [state]
 Return a number in [0,N).
-
-Accepts a positive integer or real n and returns a 
-number of the same type between zero (inclusive) and 
-N (exclusive). The values returned have a uniform 
+Accepts a positive integer or real n and returns a
+number of the same type between zero (inclusive) and
+N (exclusive). The values returned have a uniform
 distribution.
-
 The optional argument STATE must be of the type produced by
 `seed->random-state'. It defaults to the value of the variable
 *random-state*. This object is used to maintain the state of
 the pseudo-random-number generator and is altered as a side
 effect of the random operation.
-
 @end deffn
 
-@c docstring begin (c-doc-string "random.c" "random:exp")
-@c docstring md5 "bda26ab094f9464f5e7513a074110abe"
+@c docstring begin (texi-doc-string "guile" "random:exp")
 @deffn primitive random:exp [state]
 Returns an inexact real in an exponential distribution with mean 1.
 For an exponential distribution with mean u use (* u (random:exp)).
-
 @end deffn
 
-@c docstring begin (c-doc-string "random.c" "random:hollow-sphere!")
-@c docstring md5 "86f26a095a5084456ca82eca43d90f92"
+@c docstring begin (texi-doc-string "guile" "random:hollow-sphere!")
 @deffn primitive random:hollow-sphere! v [state]
 Fills vect with inexact real random numbers
 the sum of whose squares is equal to 1.0.
-Thinking of vect as coordinates in space of 
+Thinking of vect as coordinates in space of
 dimension n = (vector-length vect), the coordinates
-are uniformly distributed over the surface of the 
+are uniformly distributed over the surface of the
 unit n-shere.
-
 @end deffn
 
-@c docstring begin (c-doc-string "random.c" "random:normal")
-@c docstring md5 "e3d18c468cf0837a95aa4d761b06618b"
+@c docstring begin (texi-doc-string "guile" "random:normal")
 @deffn primitive random:normal [state]
 Returns an inexact real in a normal distribution.
 The distribution used has mean 0 and standard deviation 1.
 For a normal distribution with mean m and standard deviation
 d use @code{(+ m (* d (random:normal)))}.
-
 @end deffn
 
-@c docstring begin (c-doc-string "random.c" "random:normal-vector!")
-@c docstring md5 "ca01a0a2b982be4cf91f5c01f34ebad1"
+@c docstring begin (texi-doc-string "guile" "random:normal-vector!")
 @deffn primitive random:normal-vector! v [state]
 Fills vect with inexact real random numbers that are
 independent and standard normally distributed
 (i.e., with mean 0 and variance 1).
-
 @end deffn
 
-@c docstring begin (c-doc-string "random.c" "random:solid-sphere!")
-@c docstring md5 "f3f50c667eb05b6a52d4e238c84791f2"
+@c docstring begin (texi-doc-string "guile" "random:solid-sphere!")
 @deffn primitive random:solid-sphere! v [state]
 Fills vect with inexact real random numbers
 the sum of whose squares is less than 1.0.
-Thinking of vect as coordinates in space of 
-dimension n = (vector-length vect), the coordinates 
+Thinking of vect as coordinates in space of
+dimension n = (vector-length vect), the coordinates
 are uniformly distributed within the unit n-shere.
 The sum of the squares of the numbers is returned.
-
 @end deffn
 
-@c docstring begin (c-doc-string "random.c" "random:uniform")
-@c docstring md5 "4203472358525e34c8f9d9b6fc4ab2d3"
+@c docstring begin (texi-doc-string "guile" "random:uniform")
 @deffn primitive random:uniform [state]
 Returns a uniformly distributed inexact real random number in [0,1).
 @end deffn
 
-@c docstring begin (c-doc-string "random.c" "seed->random-state")
-@c docstring md5 "08325e35121b07828813b940966aa50d"
+@c docstring begin (texi-doc-string "guile" "seed->random-state")
 @deffn primitive seed->random-state seed
 Return a new random state using SEED.
 @end deffn
@@ -5483,64 +5175,44 @@ Return a new random state using SEED.
 @node Sorting
 @chapter Sorting
 
-@c docstring begin (c-doc-string "sort.c" "merge!")
-@c docstring md5 "367b4ffd6b90c60f7948e548b40cb2e6"
+@c docstring begin (texi-doc-string "guile" "merge!")
 @deffn primitive merge! alist blist less
-
 @end deffn
 
-@c docstring begin (c-doc-string "sort.c" "merge")
-@c docstring md5 "869d5db39656392d54e584778a838841"
+@c docstring begin (texi-doc-string "guile" "merge")
 @deffn primitive merge alist blist less
-
 @end deffn
 
-@c docstring begin (c-doc-string "sort.c" "restricted-vector-sort!")
-@c docstring md5 "fdfb2d1b508df2407df5aa06fb6b2e11"
+@c docstring begin (texi-doc-string "guile" "restricted-vector-sort!")
 @deffn primitive restricted-vector-sort! vec less startpos endpos
-
 @end deffn
 
-@c docstring begin (c-doc-string "sort.c" "sort!")
-@c docstring md5 "e3072b7809b03a14569c03a9b4037211"
+@c docstring begin (texi-doc-string "guile" "sort!")
 @deffn primitive sort! items less
-
 @end deffn
 
-@c docstring begin (c-doc-string "sort.c" "sort")
-@c docstring md5 "9564c57edb55b1c7f5df1193dd2815a9"
+@c docstring begin (texi-doc-string "guile" "sort")
 @deffn primitive sort items less
-
 @end deffn
 
-@c docstring begin (c-doc-string "sort.c" "sort-list!")
-@c docstring md5 "8e0bde719221599da474718c1c19cbec"
+@c docstring begin (texi-doc-string "guile" "sort-list!")
 @deffn primitive sort-list! items less
-
 @end deffn
 
-@c docstring begin (c-doc-string "sort.c" "sort-list")
-@c docstring md5 "aaa69aa76b735dae7480c7009b258524"
+@c docstring begin (texi-doc-string "guile" "sort-list")
 @deffn primitive sort-list items less
-
 @end deffn
 
-@c docstring begin (c-doc-string "sort.c" "sorted?")
-@c docstring md5 "2780363e0672d97c235caae689c5f15a"
+@c docstring begin (texi-doc-string "guile" "sorted?")
 @deffn primitive sorted? items less
-
 @end deffn
 
-@c docstring begin (c-doc-string "sort.c" "stable-sort!")
-@c docstring md5 "d0d1a2e69eb7b0c9363e66c805b39222"
+@c docstring begin (texi-doc-string "guile" "stable-sort!")
 @deffn primitive stable-sort! items less
-
 @end deffn
 
-@c docstring begin (c-doc-string "sort.c" "stable-sort")
-@c docstring md5 "a10b23541391f5530554f6e876ae3908"
+@c docstring begin (texi-doc-string "guile" "stable-sort")
 @deffn primitive stable-sort items less
-
 @end deffn
 
 
@@ -5548,32 +5220,24 @@ Return a new random state using SEED.
 @node Reading and Writing
 @chapter Reading and Writing
 
-@c docstring begin (c-doc-string "print.c" "get-print-state")
-@c docstring md5 "b5b525fc82e120ec1ff39dcbbf98f5f2"
+@c docstring begin (texi-doc-string "guile" "get-print-state")
 @deffn primitive get-print-state port
-
 @end deffn
 
-@c docstring begin (c-doc-string "print.c" "newline")
-@c docstring md5 "d9351ef8f5403ffc8fba539fde744af6"
+@c docstring begin (texi-doc-string "guile" "newline")
 @deffn primitive newline [port]
 Send a newline to PORT.
 @end deffn
 
-@c docstring begin (c-doc-string "print.c" "port-with-print-state")
-@c docstring md5 "4db8bca5cc04e8bba7efc513f9ad9574"
+@c docstring begin (texi-doc-string "guile" "port-with-print-state")
 @deffn primitive port-with-print-state port pstate
-
 @end deffn
 
-@c docstring begin (c-doc-string "print.c" "print-options-interface")
-@c docstring md5 "f674aa5a515cc67a715de7b69d997bf1"
+@c docstring begin (texi-doc-string "guile" "print-options-interface")
 @deffn primitive print-options-interface [setting]
-
 @end deffn
 
-@c docstring begin (c-doc-string "print.c" "simple-format")
-@c docstring md5 "09a7aab6f9ebdc145c2db0111ea19dd5"
+@c docstring begin (texi-doc-string "guile" "simple-format")
 @deffn primitive simple-format destination message . args
 Write MESSAGE to DESTINATION, defaulting to `current-output-port'.
 MESSAGE can contain ~A (was %s) and ~S (was %S) escapes.  When printed,
@@ -5584,28 +5248,21 @@ if DESTINATION is #f, then return a string containing the formatted text.
 Does not add a trailing newline.
 @end deffn
 
-@c docstring begin (c-doc-string "print.c" "write-char")
-@c docstring md5 "b8769ac8c925ec06222f903385ba1cc6"
+@c docstring begin (texi-doc-string "guile" "write-char")
 @deffn primitive write-char chr [port]
 Send character CHR to PORT.
 @end deffn
 
-@c docstring begin (c-doc-string "read.c" "read")
-@c docstring md5 "946c5cca51d7fff7a135cfd2a59946b2"
+@c docstring begin (texi-doc-string "guile" "read")
 @deffn primitive read [port]
-
 @end deffn
 
-@c docstring begin (c-doc-string "read.c" "read-hash-extend")
-@c docstring md5 "d0608894cab62e617219a26d9342ff16"
+@c docstring begin (texi-doc-string "guile" "read-hash-extend")
 @deffn primitive read-hash-extend chr proc
-
 @end deffn
 
-@c docstring begin (c-doc-string "read.c" "read-options-interface")
-@c docstring md5 "1451ab22009c0806d033e31a567ff56a"
+@c docstring begin (texi-doc-string "guile" "read-options-interface")
 @deffn primitive read-options-interface [setting]
-
 @end deffn
 
 
@@ -5613,8 +5270,7 @@ Send character CHR to PORT.
 @node Bitwise Operations
 @chapter Bitwise Operations
 
-@c docstring begin (c-doc-string "numbers.c" "logand")
-@c docstring md5 "a5e8c2e926e6d7030f8f36b143763b11"
+@c docstring begin (texi-doc-string "guile" "logand")
 @deffn primitive logand n1 n2
 Returns the integer which is the bit-wise AND of the two integer
 arguments.
@@ -5626,8 +5282,7 @@ Example:
 @end lisp
 @end deffn
 
-@c docstring begin (c-doc-string "numbers.c" "logior")
-@c docstring md5 "22d86a341b51518e0958d7129c516644"
+@c docstring begin (texi-doc-string "guile" "logior")
 @deffn primitive logior n1 n2
 Returns the integer which is the bit-wise OR of the two integer
 arguments.
@@ -5639,8 +5294,7 @@ Example:
 @end lisp
 @end deffn
 
-@c docstring begin (c-doc-string "numbers.c" "logxor")
-@c docstring md5 "6e6e1ef3f6c8d0d19303c0d19d49ea9e"
+@c docstring begin (texi-doc-string "guile" "logxor")
 @deffn primitive logxor n1 n2
 Returns the integer which is the bit-wise XOR of the two integer
 arguments.
@@ -5652,8 +5306,7 @@ Example:
 @end lisp
 @end deffn
 
-@c docstring begin (c-doc-string "numbers.c" "lognot")
-@c docstring md5 "56635b7a5f96eeec9d2d86c1886f712a"
+@c docstring begin (texi-doc-string "guile" "lognot")
 @deffn primitive lognot n
 Returns the integer which is the 2s-complement of the integer argument.
 
@@ -5664,12 +5317,10 @@ Example:
 (number->string (lognot #b0) 2)
    @result{} "-1"
 @end lisp
-
 @end deffn
 
 @c ARGFIXME j/n1 k/n2
-@c docstring begin (c-doc-string "numbers.c" "logtest")
-@c docstring md5 "6669bd04534157444acc1f382c8d21aa"
+@c docstring begin (texi-doc-string "guile" "logtest")
 @deffn primitive logtest n1 n2
 @example
 (logtest j k) @equiv{} (not (zero? (logand j k)))
@@ -5679,8 +5330,7 @@ Example:
 @end example
 @end deffn
 
-@c docstring begin (c-doc-string "numbers.c" "logbit?")
-@c docstring md5 "2fb07f2f5f5e80c44e6a190f9bea8ca9"
+@c docstring begin (texi-doc-string "guile" "logbit?")
 @deffn primitive logbit? index j
 @example
 (logbit? index j) @equiv{} (logtest (integer-expt 2 index) j)
@@ -5694,8 +5344,7 @@ Example:
 @end deffn
 
 @c ARGFIXME n/int cnt/count
-@c docstring begin (c-doc-string "numbers.c" "ash")
-@c docstring md5 "2cbeef97afa475cb12dd77db28331e52"
+@c docstring begin (texi-doc-string "guile" "ash")
 @deffn primitive ash n cnt
 The function ash performs an arithmetic shift left by CNT bits
 (or shift right, if CNT is negative).  'Arithmetic' means, that
@@ -5716,8 +5365,7 @@ Example:
 @end lisp
 @end deffn
 
-@c docstring begin (c-doc-string "numbers.c" "logcount")
-@c docstring md5 "b54f80d36c37cd4c14c9c98510840343"
+@c docstring begin (texi-doc-string "guile" "logcount")
 @deffn primitive logcount n
 Returns the number of bits in integer @var{n}.  If integer is positive,
 the 1-bits in its binary representation are counted.  If negative, the
@@ -5735,8 +5383,7 @@ Example:
 @end lisp
 @end deffn
 
-@c docstring begin (c-doc-string "numbers.c" "integer-length")
-@c docstring md5 "d75b22514bfd2dd9343566a30a7cbe1a"
+@c docstring begin (texi-doc-string "guile" "integer-length")
 @deffn primitive integer-length n
 Returns the number of bits neccessary to represent @var{n}.
 
@@ -5751,8 +5398,7 @@ Example:
 @end lisp
 @end deffn
 
-@c docstring begin (c-doc-string "numbers.c" "integer-expt")
-@c docstring md5 "ac2a2e46bd0010076c5202233b64fd06"
+@c docstring begin (texi-doc-string "guile" "integer-expt")
 @deffn primitive integer-expt n k
 Returns @var{n} raised to the non-negative integer exponent @var{k}.
 
@@ -5765,8 +5411,7 @@ Example:
 @end lisp
 @end deffn
 
-@c docstring begin (c-doc-string "numbers.c" "bit-extract")
-@c docstring md5 "a852814ec2bc10e090297e1e2596fdc3"
+@c docstring begin (texi-doc-string "guile" "bit-extract")
 @deffn primitive bit-extract n start end
 Returns the integer composed of the @var{start} (inclusive) through
 @var{end} (exclusive) bits of @var{n}.  The @var{start}th bit becomes
@@ -5844,8 +5489,7 @@ loop).  For better performance, you can compile a regular expression in
 advance and then match strings against the compiled regexp.
 
 @c ARGFIXME pat/str flags/flag
-@c docstring begin (c-doc-string "regex-posix.c" "make-regexp")
-@c docstring md5 "aee18436bb43ff7b2c21be497749063e"
+@c docstring begin (texi-doc-string "guile" "make-regexp")
 @deffn primitive make-regexp pat . flags
 Compile the regular expression described by @var{str}, and return the
 compiled regexp structure.  If @var{str} does not describe a legal
@@ -5884,12 +5528,10 @@ call to @code{make-regexp} includes both @code{regexp/basic} and
 @code{regexp/extended} flags, the one which comes last will override
 the earlier one.
 @end table
-
 @end deffn
 
 @c ARGFIXME rx/regexp
-@c docstring begin (c-doc-string "regex-posix.c" "regexp-exec")
-@c docstring md5 "1d702fa8d3f54c4578d943c2a1fd6e66"
+@c docstring begin (texi-doc-string "guile" "regexp-exec")
 @deffn primitive regexp-exec rx str [start [flags]]
 Match the compiled regular expression @var{regexp} against @code{str}.
 If the optional integer @var{start} argument is provided, begin matching
@@ -5898,8 +5540,7 @@ the results of the match, or @code{#f} if no match could be found.
 @end deffn
 
 @c ARGFIXME x/obj
-@c docstring begin (c-doc-string "regex-posix.c" "regexp?")
-@c docstring md5 "7a7e0941bb34c355bb0b40aafffbeb58"
+@c docstring begin (texi-doc-string "guile" "regexp?")
 @deffn primitive regexp? x
 Return @code{#t} if @var{obj} is a compiled regular expression, or
 @code{#f} otherwise.
@@ -6167,7 +5808,7 @@ literal string e.g., @code{"\\(a\\)\\?"}.
 @c NJFIXME not in libguile!
 @deffn primitive regexec regex string [match-pick] [flags]
 
-Match @var{string} against the compiled POSIX regular expression 
+Match @var{string} against the compiled POSIX regular expression
 @var{regex}.
 @var{match-pick} and @var{flags} are optional.  Possible flags (which can be
 combined using the logior procedure) are:
@@ -6209,7 +5850,7 @@ a number: the numbered matching substring (0 for the entire match).
 @code{#\<}: the beginning of @var{string} to the beginning of the part matched
 by regex.
 
-@code{#\>}: the end of the matched part of @var{string} to the end of 
+@code{#\>}: the end of the matched part of @var{string} to the end of
 @var{string}.
 
 @code{#\c}: the "final tag", which seems to be associated with the "cut
@@ -6295,9 +5936,9 @@ dynamic linking apparatus, and a more high-level interface that
 integrates dynamically linked libraries into the module system.
 
 @menu
-* Low level dynamic linking::   
-* Compiled Code Modules::       
-* Dynamic Linking and Compiled Code Modules::  
+* Low level dynamic linking::
+* Compiled Code Modules::
+* Dynamic Linking and Compiled Code Modules::
 @end menu
 
 @node Low level dynamic linking
@@ -6638,8 +6279,7 @@ anyway).
 be reviewed]
 
 @c ARGFIXME in-guard/thunk1 thunk/thunk2 out-guard/thunk3
-@c docstring begin (c-doc-string "dynwind.c" "dynamic-wind")
-@c docstring md5 "5a7e758c7b25001a47aadfd1c51dd5c4"
+@c docstring begin (texi-doc-string "guile" "dynamic-wind")
 @deffn primitive dynamic-wind thunk1 thunk2 thunk3
 All three arguments must be 0-argument procedures.
 
@@ -6655,7 +6295,7 @@ be called any number of times.
 (define x 'normal-binding)
 @result{} x
 
-(define a-cont  (call-with-current-continuation 
+(define a-cont  (call-with-current-continuation
 		  (lambda (escape)
 		     (let ((old-x x))
 		       (dynamic-wind
@@ -6674,7 +6314,7 @@ be called any number of times.
 			  ;;
 			  (lambda () (set! x old-x)))))))
 
-;; Prints: 
+;; Prints:
 special-binding
 ;; Evaluates to:
 @result{} a-cont
@@ -6694,7 +6334,6 @@ x
 a-cont
 @result{} special-binding
 @end example
-
 @end deffn
 
 
@@ -6711,8 +6350,8 @@ reviewed and largely reorganized.]
 @menu
 * Arbiters::
 * Asyncs::
-* Dynamic Roots::               
-* Threads::                     
+* Dynamic Roots::
+* Threads::
 * Fluids::
 @end menu
 
@@ -6720,21 +6359,18 @@ reviewed and largely reorganized.]
 @node Arbiters
 @section Arbiters
 
-@c docstring begin (c-doc-string "arbiters.c" "make-arbiter")
-@c docstring md5 "c0d57a88e7cf7e3e7c058d242cbe410e"
+@c docstring begin (texi-doc-string "guile" "make-arbiter")
 @deffn primitive make-arbiter name
 Returns an object of type arbiter and name name. Its state is initially unlocked.
 Arbiters are a way to achieve process synchronization.
 @end deffn
 
-@c docstring begin (c-doc-string "arbiters.c" "try-arbiter")
-@c docstring md5 "513d99b1d2ad51cfc438de2418448d62"
+@c docstring begin (texi-doc-string "guile" "try-arbiter")
 @deffn primitive try-arbiter arb
 Returns #t and locks arbiter if arbiter was unlocked. Otherwise, returns #f.
 @end deffn
 
-@c docstring begin (c-doc-string "arbiters.c" "release-arbiter")
-@c docstring md5 "d71214327dc517a1472912ea60514dce"
+@c docstring begin (texi-doc-string "guile" "release-arbiter")
 @deffn primitive release-arbiter arb
 Returns #t and unlocks arbiter if arbiter was locked. Otherwise, returns #f.
 @end deffn
@@ -6743,52 +6379,36 @@ Returns #t and unlocks arbiter if arbiter was locked. Otherwise, returns #f.
 @node Asyncs
 @section Asyncs
 
-@c docstring begin (c-doc-string "async.c" "async")
-@c docstring md5 "1ba8bc14d9f1b9dc2f7d582fda148cb1"
+@c docstring begin (texi-doc-string "guile" "async")
 @deffn primitive async thunk
-
 @end deffn
 
-@c docstring begin (c-doc-string "async.c" "system-async")
-@c docstring md5 "6692c2e509241911c42042d1b509ac34"
+@c docstring begin (texi-doc-string "guile" "system-async")
 @deffn primitive system-async thunk
-
 @end deffn
 
-@c docstring begin (c-doc-string "async.c" "async-mark")
-@c docstring md5 "3b092bbfb5b3da39b47883492da3d548"
+@c docstring begin (texi-doc-string "guile" "async-mark")
 @deffn primitive async-mark a
-
 @end deffn
 
-@c docstring begin (c-doc-string "async.c" "system-async-mark")
-@c docstring md5 "90b6038e8f2c129a26828dbdb029ad4e"
+@c docstring begin (texi-doc-string "guile" "system-async-mark")
 @deffn primitive system-async-mark a
-
 @end deffn
 
-@c docstring begin (c-doc-string "async.c" "run-asyncs")
-@c docstring md5 "16b23c885ea450cecd453efadbb7757c"
+@c docstring begin (texi-doc-string "guile" "run-asyncs")
 @deffn primitive run-asyncs list_of_a
-
 @end deffn
 
-@c docstring begin (c-doc-string "async.c" "noop")
-@c docstring md5 "17922f5acb291feb44658da6f3ed932b"
+@c docstring begin (texi-doc-string "guile" "noop")
 @deffn primitive noop . args
-
 @end deffn
 
-@c docstring begin (c-doc-string "async.c" "unmask-signals")
-@c docstring md5 "b3810f713812dfaf78901ac38949db15"
+@c docstring begin (texi-doc-string "guile" "unmask-signals")
 @deffn primitive unmask-signals
-
 @end deffn
 
-@c docstring begin (c-doc-string "async.c" "mask-signals")
-@c docstring md5 "496bc62429e144f2e3ca7c31b1cff5b9"
+@c docstring begin (texi-doc-string "guile" "mask-signals")
 @deffn primitive mask-signals
-
 @end deffn
 
 
@@ -6812,8 +6432,7 @@ dynamic root.  For example, if you want to apply a procedure, but to
 not allow that procedure to capture the current continuation, calling
 the procedure under a new dynamic root will do the job.
 
-@c docstring begin (c-doc-string "root.c" "call-with-dynamic-root")
-@c docstring md5 "684d60639b8939251fef9785bf2883a9"
+@c docstring begin (texi-doc-string "guile" "call-with-dynamic-root")
 @deffn primitive call-with-dynamic-root thunk handler
 Evaluate @code{(thunk)} in a new dynamic context, returning its value.
 
@@ -6860,8 +6479,7 @@ be under a new dynamic root.)
 @end deffn
 
 
-@c docstring begin (c-doc-string "root.c" "dynamic-root")
-@c docstring md5 "2bb35890a286c045ce6c69d6fc4a8e36"
+@c docstring begin (texi-doc-string "guile" "dynamic-root")
 @deffn primitive dynamic-root
 Return an object representing the current dynamic root.
 
@@ -6923,8 +6541,8 @@ When using Guile threads, keep in mind that each guile thread is
 executed in a new dynamic root.
 
 @menu
-* Low level thread primitives::  
-* Higher level thread procedures::  
+* Low level thread primitives::
+* Higher level thread procedures::
 @end menu
 
 
@@ -6934,7 +6552,7 @@ executed in a new dynamic root.
 @c NJFIXME no current mechanism for making sure that these docstrings
 @c are in sync.
 
-@c begin (c-doc-string "threads.c" "call-with-new-thread")
+@c begin (texi-doc-string "guile" "call-with-new-thread")
 @deffn primitive call-with-new-thread thunk error-thunk
 Evaluate @code{(thunk)} in a new thread, and new dynamic context,
 returning a new thread object representing the thread.
@@ -6949,47 +6567,47 @@ with-new-thread was evaluated, but not in the callers thread.
 All the evaluation rules for dynamic roots apply to threads.
 @end deffn
 
-@c begin (c-doc-string "threads.c" "join-thread")
+@c begin (texi-doc-string "guile" "join-thread")
 @deffn primitive join-thread thread
 Suspend execution of the calling thread until the target @var{thread}
 terminates, unless the target @var{thread} has already terminated.
 @end deffn
 
-@c begin (c-doc-string "threads.c" "yield")
+@c begin (texi-doc-string "guile" "yield")
 @deffn primitive yield
 If one or more threads are waiting to execute, calling yield forces an
 immediate context switch to one of them. Otherwise, yield has no effect.
 @end deffn
 
-@c begin (c-doc-string "threads.c" "make-mutex")
+@c begin (texi-doc-string "guile" "make-mutex")
 @deffn primitive make-mutex
 Create a new mutex object.
 @end deffn
 
-@c begin (c-doc-string "threads.c" "lock-mutex")
+@c begin (texi-doc-string "guile" "lock-mutex")
 @deffn primitive lock-mutex mutex
 Lock @var{mutex}. If the mutex is already locked, the calling thread
 blocks until the mutex becomes available. The function returns when
 the calling thread owns the lock on @var{mutex}.
 @end deffn
 
-@c begin (c-doc-string "threads.c" "unlock-mutex")
+@c begin (texi-doc-string "guile" "unlock-mutex")
 @deffn primitive unlock-mutex mutex
 Unlocks @var{mutex} if the calling thread owns the lock on @var{mutex}.
 Calling unlock-mutex on a mutex not owned by the current thread results
 in undefined behaviour. Once a mutex has been unlocked, one thread
-blocked on @var{mutex} is awakened and grabs the mutex lock. 
+blocked on @var{mutex} is awakened and grabs the mutex lock.
 @end deffn
 
-@c begin (c-doc-string "threads.c" "make-condition-variable")
+@c begin (texi-doc-string "guile" "make-condition-variable")
 @deffn primitive make-condition-variable
 @end deffn
 
-@c begin (c-doc-string "threads.c" "wait-condition-variable")
+@c begin (texi-doc-string "guile" "wait-condition-variable")
 @deffn primitive wait-condition-variable cond-var mutex
 @end deffn
 
-@c begin (c-doc-string "threads.c" "signal-condition-variable")
+@c begin (texi-doc-string "guile" "signal-condition-variable")
 @deffn primitive signal-condition-variable cond-var
 @end deffn
 
@@ -6999,7 +6617,7 @@ blocked on @var{mutex} is awakened and grabs the mutex lock.
 
 @c NJFIXME the following doc is a repeat of the previous node!
 
-@c begin (c-doc-string "threads.c" "call-with-new-thread")
+@c begin (texi-doc-string "guile" "call-with-new-thread")
 @deffn primitive call-with-new-thread thunk error-thunk
 Evaluate @code{(thunk)} in a new thread, and new dynamic context,
 returning a new thread object representing the thread.
@@ -7014,44 +6632,43 @@ with-new-thread was evaluated, but not in the callers thread.
 All the evaluation rules for dynamic roots apply to threads.
 @end deffn
 
-@c begin (c-doc-string "threads.c" "join-thread")
+@c begin (texi-doc-string "guile" "join-thread")
 @deffn primitive join-thread thread
 Suspend execution of the calling thread until the target @var{thread}
 terminates, unless the target @var{thread} has already terminated.
 @end deffn
 
-@c begin (c-doc-string "threads.c" "yield")
+@c begin (texi-doc-string "guile" "yield")
 @deffn primitive yield
 If one or more threads are waiting to execute, calling yield forces an
 immediate context switch to one of them. Otherwise, yield has no effect.
 @end deffn
 
-@c begin (c-doc-string "threads.c" "make-mutex")
+@c begin (texi-doc-string "guile" "make-mutex")
 @deffn primitive make-mutex
 Create a new mutex object.
 @end deffn
 
-@c begin (c-doc-string "threads.c" "lock-mutex")
+@c begin (texi-doc-string "guile" "lock-mutex")
 @deffn primitive lock-mutex mutex
 Lock @var{mutex}. If the mutex is already locked, the calling thread
 blocks until the mutex becomes available. The function returns when
 the calling thread owns the lock on @var{mutex}.
 @end deffn
 
-@c begin (c-doc-string "threads.c" "unlock-mutex")
+@c docstring begin (texi-doc-string "guile" "unlock-mutex")
 @deffn primitive unlock-mutex mutex
 Unlocks @var{mutex} if the calling thread owns the lock on @var{mutex}.
 Calling unlock-mutex on a mutex not owned by the current thread results
 in undefined behaviour. Once a mutex has been unlocked, one thread
-blocked on @var{mutex} is awakened and grabs the mutex lock. 
+blocked on @var{mutex} is awakened and grabs the mutex lock.
 @end deffn
 
 
 @node Fluids
 @section Fluids
 
-@c docstring begin (c-doc-string "fluids.c" "make-fluid")
-@c docstring md5 "96eebe29392700d94402d5645df24559"
+@c docstring begin (texi-doc-string "guile" "make-fluid")
 @deffn primitive make-fluid
 Return a newly created fluid.
 Fluids are objects of a certain type (a smob) that can hold one SCM
@@ -7062,27 +6679,23 @@ inherits the values from its parent.  Because each thread executes
 in its own dynamic root, you can use fluids for thread local storage.
 @end deffn
 
-@c docstring begin (c-doc-string "fluids.c" "fluid?")
-@c docstring md5 "69df02e8718c165fc436ee6c97d0dec4"
+@c docstring begin (texi-doc-string "guile" "fluid?")
 @deffn primitive fluid? obj
 Return #t iff @var{obj} is a fluid; otherwise, return #f.
 @end deffn
 
-@c docstring begin (c-doc-string "fluids.c" "fluid-ref")
-@c docstring md5 "ca0dde7953a27e5ca7ffb4e870c725fc"
+@c docstring begin (texi-doc-string "guile" "fluid-ref")
 @deffn primitive fluid-ref fluid
 Return the value associated with @var{fluid} in the current dynamic root.
 If @var{fluid} has not been set, then this returns #f.
 @end deffn
 
-@c docstring begin (c-doc-string "fluids.c" "fluid-set!")
-@c docstring md5 "0b793ba07aa5dc00929360faec2e4f63"
+@c docstring begin (texi-doc-string "guile" "fluid-set!")
 @deffn primitive fluid-set! fluid value
 Set the value associated with @var{fluid} in the current dynamic root.
 @end deffn
 
-@c docstring begin (c-doc-string "fluids.c" "with-fluids*")
-@c docstring md5 "544241b2ad335ba3af801c821df581a4"
+@c docstring begin (texi-doc-string "guile" "with-fluids*")
 @deffn primitive with-fluids* fluids values thunk
 Set @var{fluids} to @var{values} temporary, and call @var{thunk}.
 @var{fluids} must be a list of fluids and @var{values} must be the same
@@ -7105,7 +6718,7 @@ the hash entry for that key disappears as soon as the key is no longer
 referneced from anywhere else. For weak value hashes, the same happens
 as soon as the value is no longer in use. Entries in a doubly weak hash
 disappear when either the key or the value are not used anywhere else
-anymore. 
+anymore.
 
 Property lists offer the same kind of functionality as weak key hashes
 in many situations. (@pxref{Property Lists})
@@ -7141,8 +6754,7 @@ they constitute a doubly-weak table has to be used.
 @section Weak key hashes
 
 @c ARGFIXME k/size
-@c docstring begin (c-doc-string "weaks.c" "make-weak-key-hash-table")
-@c docstring md5 "dc96c22df97b209947c8d5c86fffb2a4"
+@c docstring begin (texi-doc-string "guile" "make-weak-key-hash-table")
 @deffn primitive make-weak-key-hash-table k
 @deffnx primitive make-weak-value-hash-table size
 @deffnx primitive make-doubly-weak-hash-table size
@@ -7154,8 +6766,7 @@ regular hash tables. (@pxref{Hash Tables})
 @end deffn
 
 @c ARGFIXME x/obj
-@c docstring begin (c-doc-string "weaks.c" "weak-key-hash-table?")
-@c docstring md5 "2110c6b32683107ba18034dd51c728d2"
+@c docstring begin (texi-doc-string "guile" "weak-key-hash-table?")
 @deffn primitive weak-key-hash-table? x
 @deffnx primitive weak-value-hash-table? obj
 @deffnx primitive doubly-weak-hash-table? obj
@@ -7164,28 +6775,20 @@ that a doubly weak hash table is neither a weak key nor a weak value
 hash table.
 @end deffn
 
-@c docstring begin (c-doc-string "weaks.c" "make-weak-value-hash-table")
-@c docstring md5 "fb4d4c2e073dbc796c91301c7354626a"
+@c docstring begin (texi-doc-string "guile" "make-weak-value-hash-table")
 @deffn primitive make-weak-value-hash-table k
-
 @end deffn
 
-@c docstring begin (c-doc-string "weaks.c" "weak-value-hash-table?")
-@c docstring md5 "153f4d8d1c920b5b96bbe785f26948c4"
+@c docstring begin (texi-doc-string "guile" "weak-value-hash-table?")
 @deffn primitive weak-value-hash-table? x
-
 @end deffn
 
-@c docstring begin (c-doc-string "weaks.c" "make-doubly-weak-hash-table")
-@c docstring md5 "dfeed8361b0ead623e683a0c23a10d74"
+@c docstring begin (texi-doc-string "guile" "make-doubly-weak-hash-table")
 @deffn primitive make-doubly-weak-hash-table k
-
 @end deffn
 
-@c docstring begin (c-doc-string "weaks.c" "doubly-weak-hash-table?")
-@c docstring md5 "c9e3cadd3bb01eeab465925fbaebef76"
+@c docstring begin (texi-doc-string "guile" "doubly-weak-hash-table?")
 @deffn primitive doubly-weak-hash-table? x
-
 @end deffn
 
 
@@ -7196,8 +6799,7 @@ Weak vectors are mainly useful in Guile's implementation of weak hash
 tables.
 
 @c ARGFIXME k/size
-@c docstring begin (c-doc-string "weaks.c" "make-weak-vector")
-@c docstring md5 "254e4d88c39f754d6a03f1e0030a8976"
+@c docstring begin (texi-doc-string "guile" "make-weak-vector")
 @deffn primitive make-weak-vector k [fill]
 Return a weak vector with @var{size} elements. If the optional
 argument @var{fill} is given, all entries in the vector will be set to
@@ -7205,8 +6807,7 @@ argument @var{fill} is given, all entries in the vector will be set to
 @end deffn
 
 @c NJFIXME should vector->list here be list->vector ?
-@c docstring begin (c-doc-string "weaks.c" "weak-vector")
-@c docstring md5 "1286363bbed11579a6871be63b9230af"
+@c docstring begin (texi-doc-string "guile" "weak-vector")
 @deffn primitive weak-vector . l
 @deffnx primitive list->weak-vector l
 Construct a weak vector from a list: @code{weak-vector} uses the list of
@@ -7216,8 +6817,7 @@ its arguments while @code{list->weak-vector} uses its only argument
 @end deffn
 
 @c ARGFIXME x/obj
-@c docstring begin (c-doc-string "weaks.c" "weak-vector?")
-@c docstring md5 "bdec6d089ac6623f3c6d417c09409813"
+@c docstring begin (texi-doc-string "guile" "weak-vector?")
 @deffn primitive weak-vector? x
 Return @var{#t} if @var{obj} is a weak vector. Note that all weak
 hashes are also weak vectors.
@@ -7228,34 +6828,24 @@ hashes are also weak vectors.
 @node Objects
 @chapter Objects
 
-@c docstring begin (c-doc-string "objects.c" "entity?")
-@c docstring md5 "f76399dd479f4d3ef7bc435a8d7dd6d2"
+@c docstring begin (texi-doc-string "guile" "entity?")
 @deffn primitive entity? obj
-
 @end deffn
 
-@c docstring begin (c-doc-string "objects.c" "operator?")
-@c docstring md5 "3061a1fbaa789faf774ca3b4e3c63620"
+@c docstring begin (texi-doc-string "guile" "operator?")
 @deffn primitive operator? obj
-
 @end deffn
 
-@c docstring begin (c-doc-string "objects.c" "set-object-procedure!")
-@c docstring md5 "48d04baad3f104bd24a77a62b25856d0"
+@c docstring begin (texi-doc-string "guile" "set-object-procedure!")
 @deffn primitive set-object-procedure! obj proc
-
 @end deffn
 
-@c docstring begin (c-doc-string "objects.c" "make-class-object")
-@c docstring md5 "28bcb1c0a9e15634e04cb652970e2b74"
+@c docstring begin (texi-doc-string "guile" "make-class-object")
 @deffn primitive make-class-object metaclass layout
-
 @end deffn
 
-@c docstring begin (c-doc-string "objects.c" "make-subclass-object")
-@c docstring md5 "33b0bc13201c5fb35dbb50e9530ec120"
+@c docstring begin (texi-doc-string "guile" "make-subclass-object")
 @deffn primitive make-subclass-object class layout
-
 @end deffn
 
 
@@ -7263,8 +6853,7 @@ hashes are also weak vectors.
 @node Guardians
 @chapter Guardians
 
-@c docstring begin (c-doc-string "guardians.c" "make-guardian")
-@c docstring md5 "f7554a368a7aa230dd7ea8ff47e79def"
+@c docstring begin (texi-doc-string "guile" "make-guardian")
 @deffn primitive make-guardian
 Create a new guardian.
 A guardian protects a set of objects from garbage collection,
@@ -7290,34 +6879,24 @@ and Implementation, June 1993.
 @node Emacs Lisp Support
 @chapter Emacs Lisp Support
 
-@c docstring begin (c-doc-string "lang.c" "nil-car")
-@c docstring md5 "f08e967ae611b6abc349bdcf602de6bb"
+@c docstring begin (texi-doc-string "guile" "nil-car")
 @deffn primitive nil-car x
-
 @end deffn
 
-@c docstring begin (c-doc-string "lang.c" "nil-cdr")
-@c docstring md5 "b8fb5d157185772760eb7886b65e20a1"
+@c docstring begin (texi-doc-string "guile" "nil-cdr")
 @deffn primitive nil-cdr x
-
 @end deffn
 
-@c docstring begin (c-doc-string "lang.c" "nil-cons")
-@c docstring md5 "70e95e2d843d3960ed3674b0742299c1"
+@c docstring begin (texi-doc-string "guile" "nil-cons")
 @deffn primitive nil-cons x y
-
 @end deffn
 
-@c docstring begin (c-doc-string "lang.c" "nil-eq")
-@c docstring md5 "9a200f946397d21fa530bcec6330e3ea"
+@c docstring begin (texi-doc-string "guile" "nil-eq")
 @deffn primitive nil-eq x y
-
 @end deffn
 
-@c docstring begin (c-doc-string "lang.c" "null")
-@c docstring md5 "97ab2113d5ac36592a3bce4cbe29bec5"
+@c docstring begin (texi-doc-string "guile" "null")
 @deffn primitive null x
-
 @end deffn
 
 
@@ -7325,21 +6904,17 @@ and Implementation, June 1993.
 @node Symbols and Variables
 @chapter Symbols and Variables
 
-@c docstring begin (c-doc-string "symbols.c" "builtin-bindings")
-@c docstring md5 "8a1709992ef99271fdbc658707bfaf2c"
+@c docstring begin (texi-doc-string "guile" "builtin-bindings")
 @deffn primitive builtin-bindings
 Create and return a copy of the global symbol table, removing all
 unbound symbols.
 @end deffn
 
-@c docstring begin (c-doc-string "symbols.c" "builtin-weak-bindings")
-@c docstring md5 "51fe6c6e787815da2e77d1a43cd97739"
+@c docstring begin (texi-doc-string "guile" "builtin-weak-bindings")
 @deffn primitive builtin-weak-bindings
-
 @end deffn
 
-@c docstring begin (c-doc-string "symbols.c" "gensym")
-@c docstring md5 "6ac7c070d8b6f845e75d71807596b613"
+@c docstring begin (texi-doc-string "guile" "gensym")
 @deffn primitive gensym [prefix]
 Create a new symbol with name constructed from a prefix and a counter value.
 The string PREFIX can be specified as an optional argument.
@@ -7347,16 +6922,24 @@ Default prefix is @code{g}.  The counter is increased by 1 at each call.
 There is no provision for resetting the counter.
 @end deffn
 
-@c docstring begin (c-doc-string "symbols.c" "intern-symbol")
-@c docstring md5 "2af3c5220d73c461a595912190fb6f59"
+@c docstring begin (texi-doc-string "guile" "gentemp")
+@deffn primitive gentemp [prefix [obarray]]
+Create a new symbol with a name unique in an obarray.
+The name is constructed from an optional string PREFIX and a counter
+value.  The default prefix is @var{t}.  The OBARRAY is specified as a
+second optional argument.  Default is the system obarray where all
+normal symbols are interned.  The counter is increased by 1 at each
+call.  There is no provision for resetting the counter.
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "intern-symbol")
 @deffn primitive intern-symbol o s
 Add a new symbol to @var{obarray} with name @var{string}, bound to an
 unspecified initial value.  The symbol table is not modified if a symbol
 with this name is already present.
 @end deffn
 
-@c docstring begin (c-doc-string "symbols.c" "string->obarray-symbol")
-@c docstring md5 "7685fc7e47376eac94e06b59b25ec224"
+@c docstring begin (texi-doc-string "guile" "string->obarray-symbol")
 @deffn primitive string->obarray-symbol o s [softp]
 Intern a new symbol in @var{obarray}, a symbol table, with name
 @var{string}.
@@ -7373,8 +6956,7 @@ new entries should not be added for symbols not already present in the
 table; instead, simply return @code{#f}.
 @end deffn
 
-@c docstring begin (c-doc-string "symbols.c" "string->symbol")
-@c docstring md5 "9fd8dc0f103e845668d09ee2394a8ca6"
+@c docstring begin (texi-doc-string "guile" "string->symbol")
 @deffn primitive string->symbol s
 Returns the symbol whose name is @var{string}.  This procedure can
 create symbols with names containing special characters or letters in
@@ -7386,27 +6968,26 @@ The following examples assume that the implementation's standard case is
 lower case:
 
 @format
-@t{(eq? 'mISSISSIppi 'mississippi)  
+@t{(eq? 'mISSISSIppi 'mississippi)
           ==>  #t
-(string->symbol "mISSISSIppi")  
+(string->symbol "mISSISSIppi")
           ==>
   @r{}the symbol with name "mISSISSIppi"
-(eq? 'bitBlt (string->symbol "bitBlt"))     
+(eq? 'bitBlt (string->symbol "bitBlt"))
           ==>  #f
 (eq? 'JollyWog
      (string->symbol
-       (symbol->string 'JollyWog)))  
+       (symbol->string 'JollyWog)))
           ==>  #t
 (string=? "K. Harper, M.D."
           (symbol->string
-            (string->symbol "K. Harper, M.D.")))  
+            (string->symbol "K. Harper, M.D.")))
           ==>  #t
 }
 @end format
 @end deffn
 
-@c docstring begin (c-doc-string "symbols.c" "symbol->string")
-@c docstring md5 "b5364a720bb6d4de773b650b448ae726"
+@c docstring begin (texi-doc-string "guile" "symbol->string")
 @deffn primitive symbol->string s
 Returns the name of @var{symbol} as a string.  If the symbol was part of
 an object returned as the value of a literal expression (section
@@ -7424,18 +7005,17 @@ The following examples assume that the implementation's standard case is
 lower case:
 
 @format
-@t{(symbol->string 'flying-fish)     
+@t{(symbol->string 'flying-fish)
                                 ==>  "flying-fish"
 (symbol->string 'Martin)               ==>  "martin"
 (symbol->string
-   (string->symbol "Malvina"))     
+   (string->symbol "Malvina"))
                            ==>  "Malvina"
 }
 @end format
 @end deffn
 
-@c docstring begin (c-doc-string "symbols.c" "symbol-binding")
-@c docstring md5 "1bac963d15a7fb2bab4fb8d0b8923536"
+@c docstring begin (texi-doc-string "guile" "symbol-binding")
 @deffn primitive symbol-binding o s
 Look up in @var{obarray} the symbol whose name is @var{string}, and
 return the value to which it is bound.  If @var{obarray} is @code{#f},
@@ -7443,8 +7023,7 @@ use the global symbol table.  If @var{string} is not interned in
 @var{obarray}, an error is signalled.
 @end deffn
 
-@c docstring begin (c-doc-string "symbols.c" "symbol-bound?")
-@c docstring md5 "7364a8dacf72876082091edad5dd76a1"
+@c docstring begin (texi-doc-string "guile" "symbol-bound?")
 @deffn primitive symbol-bound? o s
 Return @var{#t} if @var{obarray} contains a symbol with name
 @var{string} bound to a defined value.  This differs from
@@ -7453,126 +7032,104 @@ it to be interned; @code{symbol-bound?} determines whether a symbol has
 been given any meaningful value.
 @end deffn
 
-@c docstring begin (c-doc-string "symbols.c" "symbol-fref")
-@c docstring md5 "6866703f22f515dc3dc9b68164c50025"
+@c docstring begin (texi-doc-string "guile" "symbol-fref")
 @deffn primitive symbol-fref s
 Return the contents of @var{symbol}'s @dfn{function slot}.
 @end deffn
 
-@c docstring begin (c-doc-string "symbols.c" "symbol-fset!")
-@c docstring md5 "ea7fcb8a8a474030e181351bdfec85f4"
+@c docstring begin (texi-doc-string "guile" "symbol-fset!")
 @deffn primitive symbol-fset! s val
 Change the binding of @var{symbol}'s function slot.
 @end deffn
 
-@c docstring begin (c-doc-string "symbols.c" "symbol-hash")
-@c docstring md5 "97407eb455f85ab0b49523c8c0021041"
+@c docstring begin (texi-doc-string "guile" "symbol-hash")
 @deffn primitive symbol-hash symbol
 Return a hash value for @var{symbol}.
 @end deffn
 
-@c docstring begin (c-doc-string "symbols.c" "symbol-interned?")
-@c docstring md5 "8601bd4112b45c15fd955f7b6c6b9f99"
+@c docstring begin (texi-doc-string "guile" "symbol-interned?")
 @deffn primitive symbol-interned? o s
 Return @var{#t} if @var{obarray} contains a symbol with name
 @var{string}, and @var{#f} otherwise.
 @end deffn
 
-@c docstring begin (c-doc-string "symbols.c" "symbol-pref")
-@c docstring md5 "35c4765d77ebf0c79e79ade2abc2d4ca"
+@c docstring begin (texi-doc-string "guile" "symbol-pref")
 @deffn primitive symbol-pref s
 Return the @dfn{property list} currently associated with @var{symbol}.
 @end deffn
 
-@c docstring begin (c-doc-string "symbols.c" "symbol-pset!")
-@c docstring md5 "b5f811343fdeb1fa528fa900ab6b716c"
+@c docstring begin (texi-doc-string "guile" "symbol-pset!")
 @deffn primitive symbol-pset! s val
 Change the binding of @var{symbol}'s property slot.
 @end deffn
 
-@c docstring begin (c-doc-string "symbols.c" "symbol-set!")
-@c docstring md5 "117772fbfd3456db3f4118289d9e6f98"
+@c docstring begin (texi-doc-string "guile" "symbol-set!")
 @deffn primitive symbol-set! o s v
 Find the symbol in @var{obarray} whose name is @var{string}, and rebind
 it to @var{value}.  An error is signalled if @var{string} is not present
 in @var{obarray}.
 @end deffn
 
-@c docstring begin (c-doc-string "symbols.c" "symbol?")
-@c docstring md5 "e6f53c2f2edad0570619f0a4ea2d1236"
+@c docstring begin (texi-doc-string "guile" "symbol?")
 @deffn primitive symbol? obj
 Returns @t{#t} if @var{obj} is a symbol, otherwise returns @t{#f}. (r5rs)
 @end deffn
 
-@c docstring begin (c-doc-string "symbols.c" "unintern-symbol")
-@c docstring md5 "b516213c408f616f54dd52c2247e5c60"
+@c docstring begin (texi-doc-string "guile" "unintern-symbol")
 @deffn primitive unintern-symbol o s
 Remove the symbol with name @var{string} from @var{obarray}.  This
 function returns @code{#t} if the symbol was present and @code{#f}
 otherwise.
 @end deffn
 
-@c docstring begin (c-doc-string "variable.c" "builtin-variable")
-@c docstring md5 "ea24649749c765749dccd892972a5781"
+@c docstring begin (texi-doc-string "guile" "builtin-variable")
 @deffn primitive builtin-variable name
 Return the built-in variable with the name NAME.
 NAME must be a symbol (not a string).
 Then use `variable-ref' to access its value.
-
 @end deffn
 
-@c docstring begin (c-doc-string "variable.c" "make-undefined-variable")
-@c docstring md5 "27a8052787d72807b1b39347cf71a239"
+@c docstring begin (texi-doc-string "guile" "make-undefined-variable")
 @deffn primitive make-undefined-variable [name_hint]
 Return a variable object initialized to an undefined value.
 If given, uses NAME-HINT as its internal (debugging)
 name, otherwise just treat it as an anonymous variable.
 Remember, of course, that multiple bindings to the same
 variable may exist, so NAME-HINT is just that---a hint.
-
 @end deffn
 
-@c docstring begin (c-doc-string "variable.c" "make-variable")
-@c docstring md5 "9f1f7b3b5a075161eebf33e09d94dd12"
+@c docstring begin (texi-doc-string "guile" "make-variable")
 @deffn primitive make-variable init [name_hint]
 Return a variable object initialized to value INIT.
 If given, uses NAME-HINT as its internal (debugging)
 name, otherwise just treat it as an anonymous variable.
 Remember, of course, that multiple bindings to the same
 variable may exist, so NAME-HINT is just that---a hint.
-
 @end deffn
 
-@c docstring begin (c-doc-string "variable.c" "variable-bound?")
-@c docstring md5 "f5c74c992d0727e5d98a062d9bb4dd7b"
+@c docstring begin (texi-doc-string "guile" "variable-bound?")
 @deffn primitive variable-bound? var
 Return #t iff VAR is bound to a value.
 Throws an error if VAR is not a variable object.
-
 @end deffn
 
-@c docstring begin (c-doc-string "variable.c" "variable-ref")
-@c docstring md5 "4a70f1da7eb469b203b9363a43018fcf"
+@c docstring begin (texi-doc-string "guile" "variable-ref")
 @deffn primitive variable-ref var
 Dereference VAR and return its value.
 VAR must be a variable object;  see `make-variable' and
 `make-undefined-variable'
 @end deffn
 
-@c docstring begin (c-doc-string "variable.c" "variable-set!")
-@c docstring md5 "79f0ba026d4a35f37436f36eef4d4740"
+@c docstring begin (texi-doc-string "guile" "variable-set!")
 @deffn primitive variable-set! var val
 Set the value of the variable VAR to VAL.
 VAR must be a variable object, VAL can be any value.
 Returns an unspecified value.
-
 @end deffn
 
-@c docstring begin (c-doc-string "variable.c" "variable?")
-@c docstring md5 "249146390f269e1afb3c1e8ba287e567"
+@c docstring begin (texi-doc-string "guile" "variable?")
 @deffn primitive variable? obj
 Return #t iff OBJ is a variable object, else return #f
-
 @end deffn
 
 
@@ -7583,30 +7140,25 @@ Return #t iff OBJ is a variable object, else return #f
 [FIXME: this is pasted in from Tom Lord's original guile.texi and should
 be reviewed]
 
-@c docstring begin (c-doc-string "gc.c" "gc")
-@c docstring md5 "be9f224404a39a7f25771a22bbae50a4"
+@c docstring begin (texi-doc-string "guile" "gc")
 @deffn primitive gc
 Scans all of SCM objects and reclaims for further use those that are
 no longer accessible.
 @end deffn
 
-@c docstring begin (c-doc-string "gc.c" "gc-stats")
-@c docstring md5 "0bfa4baa08b196081a1e2e9f643c5b80"
+@c docstring begin (texi-doc-string "guile" "gc-stats")
 @deffn primitive gc-stats
-Returns an association list of statistics about Guile's current use of storage.  
+Returns an association list of statistics about Guile's current use of storage.
 @end deffn
 
-@c docstring begin (c-doc-string "gc.c" "object-address")
-@c docstring md5 "4d07671330d333dd45528ecfab84af0e"
+@c docstring begin (texi-doc-string "guile" "object-address")
 @deffn primitive object-address obj
 Return an integer that for the lifetime of @var{obj} is uniquely
 returned by this function for @var{obj}
 @end deffn
 
-@c docstring begin (c-doc-string "gc.c" "unhash-name")
-@c docstring md5 "40fae8826080151f71c3b5528fd24c3c"
+@c docstring begin (texi-doc-string "guile" "unhash-name")
 @deffn primitive unhash-name name
-
 @end deffn
 
 
@@ -7618,8 +7170,7 @@ It is often useful to have site-specific information about the current
 Guile installation.  This chapter describes how to find out about
 Guile's configuration at run time.
 
-@c docstring begin (c-doc-string "version.c" "version")
-@c docstring md5 "ac4f68fe80951fb8e023fe17291b5ccf"
+@c docstring begin (texi-doc-string "guile" "version")
 @deffn primitive version
 @deffnx primitive major-version
 @deffnx primitive minor-version
@@ -7641,38 +7192,31 @@ interpreter and the ice-9 runtime have grown out of date with one
 another.
 @end deffn
 
-@c docstring begin (c-doc-string "load.c" "%package-data-dir")
-@c docstring md5 "a05f1d6506b67a689d7e2190269de668"
+@c docstring begin (texi-doc-string "guile" "%package-data-dir")
 @deffn primitive %package-data-dir
 Return the name of the directory where Scheme packages, modules and
 libraries are kept.  On most Unix systems, this will be
 @samp{/usr/local/share/guile}.
 @end deffn
 
-@c docstring begin (c-doc-string "load.c" "%library-dir")
-@c docstring md5 "77cbdcc3cd57615bbfe5bf5c2d1cbb75"
+@c docstring begin (texi-doc-string "guile" "%library-dir")
 @deffn primitive %library-dir
 Return the directory where the Guile Scheme library files are installed.
 E.g., may return "/usr/share/guile/1.3.5".
 @end deffn
 
-@c docstring begin (c-doc-string "load.c" "%site-dir")
-@c docstring md5 "05f030014edd49353060ae15bf378e98"
+@c docstring begin (texi-doc-string "guile" "%site-dir")
 @deffn primitive %site-dir
 Return the directory where the Guile site files are installed.
 E.g., may return "/usr/share/guile/site".
 @end deffn
 
-@c docstring begin (c-doc-string "load.c" "parse-path")
-@c docstring md5 "ed21e355ea697539e74e8c27205f973f"
+@c docstring begin (texi-doc-string "guile" "parse-path")
 @deffn primitive parse-path path [tail]
-
 @end deffn
 
-@c docstring begin (c-doc-string "load.c" "search-path")
-@c docstring md5 "b4ed2f5b643c53a2f16ec3964f98c97f"
+@c docstring begin (texi-doc-string "guile" "search-path")
 @deffn primitive search-path path filename [extensions]
-
 @end deffn
 
 @defvar %load-path
@@ -7688,190 +7232,131 @@ modules and libraries.
     from the appendix describing the debugger UI.  The intro
     should have a pointer to the UI appendix.
 
-@c docstring begin (c-doc-string "backtrace.c" "display-error")
-@c docstring md5 "a3036873a9aee06b7924ee5d24e2f80d"
+@c docstring begin (texi-doc-string "guile" "display-error")
 @deffn primitive display-error stack port subr message args rest
-
 @end deffn
 
-@c docstring begin (c-doc-string "backtrace.c" "display-application")
-@c docstring md5 "da88d585e12ec83bdfe8aaa732fcfda4"
+@c docstring begin (texi-doc-string "guile" "display-application")
 @deffn primitive display-application frame [port [indent]]
-
 @end deffn
 
-@c docstring begin (c-doc-string "backtrace.c" "display-backtrace")
-@c docstring md5 "d56f09f684341734d397ca05fa66e8ad"
+@c docstring begin (texi-doc-string "guile" "display-backtrace")
 @deffn primitive display-backtrace stack port [first [depth]]
-
 @end deffn
 
-@c docstring begin (c-doc-string "backtrace.c" "backtrace")
-@c docstring md5 "812d0266a89bf7f8d48c2babbe60400e"
+@c docstring begin (texi-doc-string "guile" "backtrace")
 @deffn primitive backtrace
-
 @end deffn
 
-@c docstring begin (c-doc-string "debug-malloc.c" "malloc-stats")
-@c docstring md5 "f8db9cce4d1d42758ac18389871674ba"
+@c docstring begin (texi-doc-string "guile" "malloc-stats")
 @deffn primitive malloc-stats
 Return an alist ((WHAT . N) ...) describing number of malloced objects.
 WHAT is the second argument to scm_must_malloc, N is the number of objects
 of that type currently allocated.
 @end deffn
 
-@c docstring begin (c-doc-string "debug.c" "debug-options-interface")
-@c docstring md5 "bd502f9bf0d18ca692cc5d1037c78525"
+@c docstring begin (texi-doc-string "guile" "debug-options-interface")
 @deffn primitive debug-options-interface [setting]
-
 @end deffn
 
-@c docstring begin (c-doc-string "debug.c" "with-traps")
-@c docstring md5 "a1352488c9f5d22816d36535197b4acc"
+@c docstring begin (texi-doc-string "guile" "with-traps")
 @deffn primitive with-traps thunk
-
 @end deffn
 
-@c docstring begin (c-doc-string "debug.c" "memoized?")
-@c docstring md5 "f6f0510f72879010790afe9c34324644"
+@c docstring begin (texi-doc-string "guile" "memoized?")
 @deffn primitive memoized? obj
-
 @end deffn
 
-@c docstring begin (c-doc-string "debug.c" "unmemoize")
-@c docstring md5 "5949830c1bc5077c9e04c70523fa29e8"
+@c docstring begin (texi-doc-string "guile" "unmemoize")
 @deffn primitive unmemoize m
-
 @end deffn
 
-@c docstring begin (c-doc-string "debug.c" "memoized-environment")
-@c docstring md5 "bf388c2b928e3d55b94841cc91cfa072"
+@c docstring begin (texi-doc-string "guile" "memoized-environment")
 @deffn primitive memoized-environment m
-
 @end deffn
 
-@c docstring begin (c-doc-string "debug.c" "procedure-name")
-@c docstring md5 "f5bdf8c7aac7b84c06d9a1056b6face1"
+@c docstring begin (texi-doc-string "guile" "procedure-name")
 @deffn primitive procedure-name proc
-
 @end deffn
 
-@c docstring begin (c-doc-string "debug.c" "procedure-source")
-@c docstring md5 "53dea5c18780648ad3e4c00f4cc65465"
+@c docstring begin (texi-doc-string "guile" "procedure-source")
 @deffn primitive procedure-source proc
-
 @end deffn
 
-@c docstring begin (c-doc-string "debug.c" "procedure-environment")
-@c docstring md5 "397e11607bba4b4175a0edabf7820e7e"
+@c docstring begin (texi-doc-string "guile" "procedure-environment")
 @deffn primitive procedure-environment proc
-
 @end deffn
 
-@c docstring begin (c-doc-string "debug.c" "debug-object?")
-@c docstring md5 "ccdd28b85ff0d1149b83159202141add"
+@c docstring begin (texi-doc-string "guile" "debug-object?")
 @deffn primitive debug-object? obj
-
 @end deffn
 
-@c docstring begin (c-doc-string "stacks.c" "frame-arguments")
-@c docstring md5 "0e1d1da9800a7868d9b28ae648cbebb5"
+@c docstring begin (texi-doc-string "guile" "frame-arguments")
 @deffn primitive frame-arguments frame
-
 @end deffn
 
-@c docstring begin (c-doc-string "stacks.c" "frame-evaluating-args?")
-@c docstring md5 "69d29e30a00b7c245b71516d2995cf9a"
+@c docstring begin (texi-doc-string "guile" "frame-evaluating-args?")
 @deffn primitive frame-evaluating-args? frame
-
 @end deffn
 
-@c docstring begin (c-doc-string "stacks.c" "frame-next")
-@c docstring md5 "59fd4185c95528ad5ed90b8ed4315db8"
+@c docstring begin (texi-doc-string "guile" "frame-next")
 @deffn primitive frame-next frame
-
 @end deffn
 
-@c docstring begin (c-doc-string "stacks.c" "frame-number")
-@c docstring md5 "ca429cb78a9f0072ad415ce868b1ed8b"
+@c docstring begin (texi-doc-string "guile" "frame-number")
 @deffn primitive frame-number frame
-
 @end deffn
 
-@c docstring begin (c-doc-string "stacks.c" "frame-overflow?")
-@c docstring md5 "ee371fbee773071df8d29d39875f3ec4"
+@c docstring begin (texi-doc-string "guile" "frame-overflow?")
 @deffn primitive frame-overflow? frame
-
 @end deffn
 
-@c docstring begin (c-doc-string "stacks.c" "frame-previous")
-@c docstring md5 "972cd2b0de5777ac57272c07ea0efdbd"
+@c docstring begin (texi-doc-string "guile" "frame-previous")
 @deffn primitive frame-previous frame
-
 @end deffn
 
-@c docstring begin (c-doc-string "stacks.c" "frame-procedure")
-@c docstring md5 "0807ecc9cfde3d8612c683004ef7f2e9"
+@c docstring begin (texi-doc-string "guile" "frame-procedure")
 @deffn primitive frame-procedure frame
-
 @end deffn
 
-@c docstring begin (c-doc-string "stacks.c" "frame-procedure?")
-@c docstring md5 "4357341a9f96ec4ebdcfc946681b08bf"
+@c docstring begin (texi-doc-string "guile" "frame-procedure?")
 @deffn primitive frame-procedure? frame
-
 @end deffn
 
-@c docstring begin (c-doc-string "stacks.c" "frame-real?")
-@c docstring md5 "6ef354bf37e30d927c438c0480cb7f31"
+@c docstring begin (texi-doc-string "guile" "frame-real?")
 @deffn primitive frame-real? frame
-
 @end deffn
 
-@c docstring begin (c-doc-string "stacks.c" "frame-source")
-@c docstring md5 "32e6ea70754da59bc5cbbae9bde0bfc3"
+@c docstring begin (texi-doc-string "guile" "frame-source")
 @deffn primitive frame-source frame
-
 @end deffn
 
-@c docstring begin (c-doc-string "stacks.c" "frame?")
-@c docstring md5 "cf1b25c7d8f9b35150468335da74e091"
+@c docstring begin (texi-doc-string "guile" "frame?")
 @deffn primitive frame? obj
-
 @end deffn
 
-@c docstring begin (c-doc-string "stacks.c" "last-stack-frame")
-@c docstring md5 "4fe4dc74ec1cbcce557b9dab5f3d2ca9"
+@c docstring begin (texi-doc-string "guile" "last-stack-frame")
 @deffn primitive last-stack-frame obj
-
 @end deffn
 
-@c docstring begin (c-doc-string "stacks.c" "make-stack")
-@c docstring md5 "2bde281c4317494b0f3705af336d51b5"
+@c docstring begin (texi-doc-string "guile" "make-stack")
 @deffn primitive make-stack obj . args
-
 @end deffn
 
-@c docstring begin (c-doc-string "stacks.c" "stack-id")
-@c docstring md5 "ca763708b2d35b13cff3421efe361e81"
+@c docstring begin (texi-doc-string "guile" "stack-id")
 @deffn primitive stack-id stack
 Return the identifier given to @var{stack} by @code{start-stack}.
 @end deffn
 
-@c docstring begin (c-doc-string "stacks.c" "stack-length")
-@c docstring md5 "977273effa5d1a070514097dcf179162"
+@c docstring begin (texi-doc-string "guile" "stack-length")
 @deffn primitive stack-length stack
-
 @end deffn
 
-@c docstring begin (c-doc-string "stacks.c" "stack-ref")
-@c docstring md5 "aa2413be65039197778736baf3b20358"
+@c docstring begin (texi-doc-string "guile" "stack-ref")
 @deffn primitive stack-ref stack i
-
 @end deffn
 
-@c docstring begin (c-doc-string "stacks.c" "stack?")
-@c docstring md5 "e2ef84c92c9766418532de42c7d89ca1"
+@c docstring begin (texi-doc-string "guile" "stack?")
 @deffn primitive stack? obj
 Return @code{#t} if @var{obj} is a calling stack.
 @end deffn
@@ -7888,8 +7373,8 @@ expression must be executed:
 (use-modules (ice-9 slib))
 @end smalllisp
 
-@code{require} can then be used as described in 
-@ref{Top, , SLIB, slib, The SLIB Manual}. 
+@code{require} can then be used as described in
+@ref{Top, , SLIB, slib, The SLIB Manual}.
 
 For example:
 
@@ -7901,7 +7386,7 @@ guile> (probably-prime? 13)
 
 @menu
 * SLIB installation::
-* JACAL::                       
+* JACAL::
 @end menu
 
 @node SLIB installation

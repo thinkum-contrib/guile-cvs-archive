@@ -228,6 +228,7 @@ Part II: Guile Scheme
 * Hooks::                       User-customizable event lists.
 * Procedures::                  Procedure types and properties.
 * Property Lists::              Managing metainformation about Scheme objects.
+* Primitive Properties::        A modern low-level interface to object properties.
 * Ports::                       I/O in Scheme.
 * Reading and Writing::         Reading and writing.
 * Numbers::                     Numerical operations.
