@@ -45,7 +45,7 @@ that of the cell GC: two environment variables have been added,
   GUILE_MIN_YIELD_MALLOC
 
 that are analogous to those for the cells. This significantly speeds
-up the for example, the doc snarfing during a GUILE compile. (Note
+up for example, the doc snarfing during a GUILE compile. (Note
 that the old mechanism contained an unscaled parameter,
 SCM_MTRIGGER_HYSTERESIS). Also, setting the malloc limit from 100k to
 200k helps (after booting guile, there already is 100k malloced
