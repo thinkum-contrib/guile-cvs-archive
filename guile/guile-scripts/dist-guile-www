@@ -18,7 +18,7 @@ make dist
 version=`awk '/AM_INIT_AUTOMAKE/ {print $2}' configure.in | sed 's/,//g'`
 mkdir tmp
 cd tmp
-tar xzf../guile-www-${version}.tar.gz
+tar xzf ../guile-www-${version}.tar.gz
 cd guile-www-${version}
 ./configure --prefix=/tmp/a/b/c
 make
@@ -49,3 +49,5 @@ echo 'part2 moves the new tarball to . and removes ./tmp and /tmp/a/b/c)'
 }
 
 case x"$1" in xpart[12]) $1 ; exit $? ;; *) usage ; exit 1 ;; esac
+
+# dist-guile-www ends here
