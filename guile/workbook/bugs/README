@@ -34,11 +34,12 @@ except when noted.
 
     The developer who is working on a fix, and since when.
 
-  Fixed: mailbox, yyyy-mm-dd
+  Fixed: mailbox, yyyy-mm-dd [, module [, branch]]
 
-    The developer who fixed it, and when.
+    The developer who fixed it, when, and in what module and branch if
+    applicable.
 
-  Affects: version, version, ...
+  Affects: branch-or-version, ...
 
     A list of branch tags or version numbers of released tar balls
     that are affected by the bug.
