@@ -22,7 +22,7 @@ disassemble (FILE *stream, bfd_byte *start, bfd_byte *end)
   while (pc < info.end)
     {
       info.fprintf_func (info.stream, "%08x    ", pc);
-      pc += print_insn_i386_intel (pc, &info);
+      pc += print_insn_i386_att (pc, &info);
       info.fprintf_func (info.stream, "\n");
     }
 }
