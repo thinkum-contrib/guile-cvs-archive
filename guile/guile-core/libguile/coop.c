@@ -223,40 +223,6 @@ coop_init ()
 #endif
 }
 
-/* Return the next runnable thread. If no threads are currently runnable,
-   and there are sleeping threads - wait until one wakes up. Otherwise,
-   return NULL. */
-
-coop_t *
-coop_next_runnable_thread()
-{
-  int sleepers;
-  coop_t *t;
-  time_t now;
-
-  do {
-    sleepers = 0;
-    now = time(NULL);
-
-    /* Check the sleeping queue */
-    while ((t = coop_qget(&coop_global_sleepq)) != NULL)
-      {
-	sleepers++;
-	if (t->wakeup_time <= now)
-	  coop_qput(&coop_global_runq, t);
-	else
-	  coop_qput(&coop_tmp_queue, t);
-      }
-    while ((t = coop_qget(&coop_tmp_queue)) != NULL)
-      coop_qput(&coop_global_sleepq, t);
-    
-    t = coop_qget (&coop_global_runq);
-
-  } while ((t == NULL) && (sleepers > 0));
-
-  return t;
-}
-
 void
 coop_start()
 {
