@@ -78,6 +78,10 @@
 
 - Eventually
 
+  - in6addr_loopback made available as some sort of constant, like
+    INADDR_LOOPBACK for ipv4.
+  - in6addr_any made available as some sort of constant, like
+    INADDR_ANY for ipv4.  Describe this under "bind" in the manual.
   - document the operation of the garbage collector (what's scanned, etc.)
   - add support for srfi-25 (multi-dimensional arrays).
     - How do we handle guile's existing support? srfi module overrides?
