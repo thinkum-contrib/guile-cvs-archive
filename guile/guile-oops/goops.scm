@@ -767,7 +767,7 @@
 ;;;
 
 (define-method shallow-clone ((self <object>))
-  (let ((clone (%allocate-instance (class-of self)))
+  (let ((clone (%allocate-instance (class-of self) '()))
 	(slots (map slot-definition-name
 		    (class-slots (class-of self)))))
     (for-each (lambda (slot)
@@ -777,7 +777,7 @@
     clone))
 
 (define-method deep-clone  ((self <object>))
-  (let ((clone (%allocate-instance (class-of self)))
+  (let ((clone (%allocate-instance (class-of self) '()))
 	(slots (map slot-definition-name
 		    (class-slots (class-of self)))))
     (for-each (lambda (slot)
