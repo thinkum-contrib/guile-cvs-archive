@@ -22,9 +22,12 @@ AC_PROG_LN_S
 AM_PROG_LIBTOOL
 
 CFLAGS="$CFLAGS $GUILE_CFLAGS"
-LIBS="$LIBS $GUILE_LDFLAGS"
+LIBS="$LIBS `echo $GUILE_LDFLAGS | sed s/-lqthreads//`"
+LIBQTHREADS=`echo $GUILE_LDFLAGS | sed 's/.*\(-lqthreads\).*/\1/p;d'`
 
-AC_CHECK_FUNCS(scm_simple_format scm_shared_array_root)
+AC_SUBST(LIBQTHREADS)
+
+AC_CHECK_FUNCS(scm_simple_format, scm_shared_array_root)
 
 AC_CACHE_CHECK(for two argument scm_mutex_init,
 ac_cv_func_scm_mutex_init_two_args,
