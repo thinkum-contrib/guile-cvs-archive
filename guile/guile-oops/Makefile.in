@@ -97,6 +97,12 @@ subpkgdata_DATA = goops.scm
 goopsdatadir = $(datadir)/guile/oop/goops
 goopsdata_DATA = describe.scm internal.scm active-slot.scm composite-slot.scm
 
+info_TEXINFOS = goops.texi
+goops_TEXINFOS = goops.texi goops-tutorial.texi
+
+EXTRA_DIST = ANON-CVS COPYRIGHTS GOOPS-VERSION HACKING SNAPSHOTS TAGS TODO              hierarchy.eps hierarchy.txt mop.text
+
+
 SUFFIXES = .x
 SNARF = guile-snarf
 
@@ -122,14 +128,18 @@ COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CF
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
+TEXI2DVI = texi2dvi
+INFO_DEPS = goops.info
+DVIS = goops.dvi
+TEXINFOS = goops.texi
 DATA =  $(goopsdata_DATA) $(subpkgdata_DATA)
 
 HEADERS =  $(include_HEADERS)
 
-DIST_COMMON =  README AUTHORS COPYING ChangeLog INSTALL Makefile.am \
-Makefile.in NEWS THANKS TODO aclocal.m4 config.guess config.sub \
-configure configure.in install-sh ltconfig ltmain.sh mdate-sh missing \
-mkinstalldirs
+DIST_COMMON =  README $(goops_TEXINFOS) AUTHORS COPYING ChangeLog \
+INSTALL Makefile.am Makefile.in NEWS THANKS TODO aclocal.m4 \
+config.guess config.sub configure configure.in install-sh ltconfig \
+ltmain.sh mdate-sh missing mkinstalldirs texinfo.tex
 
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
@@ -142,7 +152,7 @@ OBJECTS = $(libgoopscore_la_OBJECTS) $(guile_oops_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
-.SUFFIXES: .S .c .lo .o .s .x
+.SUFFIXES: .S .c .dvi .info .lo .o .ps .s .texi .texinfo .txi .x
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
 	cd $(top_srcdir) && $(AUTOMAKE) --foreign Makefile
 
@@ -246,6 +256,123 @@ uninstall-binPROGRAMS:
 guile-oops: $(guile_oops_OBJECTS) $(guile_oops_DEPENDENCIES)
 	@rm -f guile-oops
 	$(LINK) $(guile_oops_LDFLAGS) $(guile_oops_OBJECTS) $(guile_oops_LDADD) $(LIBS)
+
+goops.info: goops.texi $(goops_TEXINFOS)
+goops.dvi: goops.texi $(goops_TEXINFOS)
+
+
+DVIPS = dvips
+
+.texi.info:
+	@cd $(srcdir) && rm -f $@ $@-[0-9] $@-[0-9][0-9]
+	cd $(srcdir) \
+	  && $(MAKEINFO) `echo $< | sed 's,.*/,,'`
+
+.texi.dvi:
+	TEXINPUTS=.:$$TEXINPUTS \
+	  MAKEINFO='$(MAKEINFO) -I $(srcdir)' $(TEXI2DVI) $<
+
+.texi:
+	@cd $(srcdir) && rm -f $@ $@-[0-9] $@-[0-9][0-9]
+	cd $(srcdir) \
+	  && $(MAKEINFO) `echo $< | sed 's,.*/,,'`
+
+.texinfo.info:
+	@cd $(srcdir) && rm -f $@ $@-[0-9] $@-[0-9][0-9]
+	cd $(srcdir) \
+	  && $(MAKEINFO) `echo $< | sed 's,.*/,,'`
+
+.texinfo:
+	@cd $(srcdir) && rm -f $@ $@-[0-9] $@-[0-9][0-9]
+	cd $(srcdir) \
+	  && $(MAKEINFO) `echo $< | sed 's,.*/,,'`
+
+.texinfo.dvi:
+	TEXINPUTS=.:$$TEXINPUTS \
+	  MAKEINFO='$(MAKEINFO) -I $(srcdir)' $(TEXI2DVI) $<
+
+.txi.info:
+	@cd $(srcdir) && rm -f $@ $@-[0-9] $@-[0-9][0-9]
+	cd $(srcdir) \
+	  && $(MAKEINFO) `echo $< | sed 's,.*/,,'`
+
+.txi.dvi:
+	TEXINPUTS=.:$$TEXINPUTS \
+	  MAKEINFO='$(MAKEINFO) -I $(srcdir)' $(TEXI2DVI) $<
+
+.txi:
+	@cd $(srcdir) && rm -f $@ $@-[0-9] $@-[0-9][0-9]
+	cd $(srcdir) \
+	  && $(MAKEINFO) `echo $< | sed 's,.*/,,'`
+.dvi.ps:
+	$(DVIPS) $< -o $@
+
+install-info-am: $(INFO_DEPS)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(infodir)
+	@list='$(INFO_DEPS)'; \
+	for file in $$list; do \
+	  d=$(srcdir); \
+	  for ifile in `cd $$d && echo $$file $$file-[0-9] $$file-[0-9][0-9]`; do \
+	    if test -f $$d/$$ifile; then \
+	      echo " $(INSTALL_DATA) $$d/$$ifile $(DESTDIR)$(infodir)/$$ifile"; \
+	      $(INSTALL_DATA) $$d/$$ifile $(DESTDIR)$(infodir)/$$ifile; \
+	    else : ; fi; \
+	  done; \
+	done
+	@$(POST_INSTALL)
+	@if $(SHELL) -c 'install-info --version | sed 1q | fgrep -s -v -i debian' >/dev/null 2>&1; then \
+	  list='$(INFO_DEPS)'; \
+	  for file in $$list; do \
+	    echo " install-info --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/$$file";\
+	    install-info --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/$$file || :;\
+	  done; \
+	else : ; fi
+
+uninstall-info:
+	$(PRE_UNINSTALL)
+	@if $(SHELL) -c 'install-info --version | sed 1q | fgrep -s -v -i debian' >/dev/null 2>&1; then \
+	  ii=yes; \
+	else ii=; fi; \
+	list='$(INFO_DEPS)'; \
+	for file in $$list; do \
+	  test -z "$ii" \
+	    || install-info --info-dir=$(DESTDIR)$(infodir) --remove $$file; \
+	done
+	@$(NORMAL_UNINSTALL)
+	list='$(INFO_DEPS)'; \
+	for file in $$list; do \
+	  (cd $(DESTDIR)$(infodir) && rm -f $$file $$file-[0-9] $$file-[0-9][0-9]); \
+	done
+
+dist-info: $(INFO_DEPS)
+	list='$(INFO_DEPS)'; \
+	for base in $$list; do \
+	  d=$(srcdir); \
+	  for file in `cd $$d && eval echo $$base*`; do \
+	    test -f $(distdir)/$$file \
+	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
+	    || cp -p $$d/$$file $(distdir)/$$file; \
+	  done; \
+	done
+
+mostlyclean-aminfo:
+	-rm -f goops.aux goops.cp goops.cps goops.dvi goops.fn goops.fns \
+	  goops.ky goops.kys goops.ps goops.log goops.pg goops.toc \
+	  goops.tp goops.tps goops.vr goops.vrs goops.op goops.tr \
+	  goops.cv goops.cn
+
+clean-aminfo:
+
+distclean-aminfo:
+
+maintainer-clean-aminfo:
+	cd $(srcdir) && for i in $(INFO_DEPS); do \
+	  rm -f $$i; \
+	  if test "`echo $$i-[0-9]*`" != "$$i-[0-9]*"; then \
+	    rm -f $$i-[0-9]*; \
+	  fi; \
+	done
 
 install-goopsdataDATA: $(goopsdata_DATA)
 	@$(NORMAL_INSTALL)
@@ -382,6 +509,7 @@ distdir: $(DISTFILES)
 	    || cp -p $$d/$$file $(distdir)/$$file || :; \
 	  fi; \
 	done
+	$(MAKE) $(AM_MAKEFLAGS) top_distdir="$(top_distdir)" distdir="$(distdir)" dist-info
 
 DEPS_MAGIC := $(shell mkdir .deps > /dev/null 2>&1 || :)
 
@@ -414,9 +542,9 @@ maintainer-clean-depend:
 	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
 	    >> .deps/$(*F).P; \
 	rm -f .deps/$(*F).pp
-info-am:
+info-am: $(INFO_DEPS)
 info: info-am
-dvi-am:
+dvi-am: $(DVIS)
 dvi: dvi-am
 check-am: all-am
 check: check-am
@@ -427,25 +555,26 @@ install-exec-am: install-libLTLIBRARIES install-binPROGRAMS
 	$(MAKE) $(AM_MAKEFLAGS) install-exec-hook
 install-exec: install-exec-am
 
-install-data-am: install-goopsdataDATA install-subpkgdataDATA \
-		install-includeHEADERS
+install-data-am: install-info-am install-goopsdataDATA \
+		install-subpkgdataDATA install-includeHEADERS
 install-data: install-data-am
 
 install-am: all-am
 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
 install: install-am
 uninstall-am: uninstall-libLTLIBRARIES uninstall-binPROGRAMS \
-		uninstall-goopsdataDATA uninstall-subpkgdataDATA \
-		uninstall-includeHEADERS
+		uninstall-info uninstall-goopsdataDATA \
+		uninstall-subpkgdataDATA uninstall-includeHEADERS
 uninstall: uninstall-am
-all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(DATA) $(HEADERS)
+all-am: Makefile $(INFO_DEPS) $(LTLIBRARIES) $(PROGRAMS) $(DATA) \
+		$(HEADERS)
 all-redirect: all-am
 install-strip:
 	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
 installdirs:
 	$(mkinstalldirs)  $(DESTDIR)$(libdir) $(DESTDIR)$(bindir) \
-		$(DESTDIR)$(goopsdatadir) $(DESTDIR)$(subpkgdatadir) \
-		$(DESTDIR)$(includedir)
+		$(DESTDIR)$(infodir) $(DESTDIR)$(goopsdatadir) \
+		$(DESTDIR)$(subpkgdatadir) $(DESTDIR)$(includedir)
 
 
 mostlyclean-generic:
@@ -460,19 +589,21 @@ maintainer-clean-generic:
 	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 mostlyclean-am:  mostlyclean-libLTLIBRARIES mostlyclean-compile \
 		mostlyclean-libtool mostlyclean-binPROGRAMS \
-		mostlyclean-tags mostlyclean-depend mostlyclean-generic
+		mostlyclean-aminfo mostlyclean-tags mostlyclean-depend \
+		mostlyclean-generic
 
 mostlyclean: mostlyclean-am
 
 clean-am:  clean-libLTLIBRARIES clean-compile clean-libtool \
-		clean-binPROGRAMS clean-tags clean-depend clean-generic \
-		mostlyclean-am
+		clean-binPROGRAMS clean-aminfo clean-tags clean-depend \
+		clean-generic mostlyclean-am
 
 clean: clean-am
 
 distclean-am:  distclean-libLTLIBRARIES distclean-compile \
-		distclean-libtool distclean-binPROGRAMS distclean-tags \
-		distclean-depend distclean-generic clean-am
+		distclean-libtool distclean-binPROGRAMS \
+		distclean-aminfo distclean-tags distclean-depend \
+		distclean-generic clean-am
 	-rm -f libtool
 
 distclean: distclean-am
@@ -480,9 +611,9 @@ distclean: distclean-am
 
 maintainer-clean-am:  maintainer-clean-libLTLIBRARIES \
 		maintainer-clean-compile maintainer-clean-libtool \
-		maintainer-clean-binPROGRAMS maintainer-clean-tags \
-		maintainer-clean-depend maintainer-clean-generic \
-		distclean-am
+		maintainer-clean-binPROGRAMS maintainer-clean-aminfo \
+		maintainer-clean-tags maintainer-clean-depend \
+		maintainer-clean-generic distclean-am
 	@echo "This command is intended for maintainers to use;"
 	@echo "it deletes files that may require special tools to rebuild."
 
@@ -496,11 +627,12 @@ distclean-compile clean-compile maintainer-clean-compile \
 mostlyclean-libtool distclean-libtool clean-libtool \
 maintainer-clean-libtool mostlyclean-binPROGRAMS distclean-binPROGRAMS \
 clean-binPROGRAMS maintainer-clean-binPROGRAMS uninstall-binPROGRAMS \
-install-binPROGRAMS uninstall-goopsdataDATA install-goopsdataDATA \
-uninstall-subpkgdataDATA install-subpkgdataDATA \
-uninstall-includeHEADERS install-includeHEADERS tags mostlyclean-tags \
-distclean-tags clean-tags maintainer-clean-tags distdir \
-mostlyclean-depend distclean-depend clean-depend \
+install-binPROGRAMS install-info-am uninstall-info mostlyclean-aminfo \
+distclean-aminfo clean-aminfo maintainer-clean-aminfo \
+uninstall-goopsdataDATA install-goopsdataDATA uninstall-subpkgdataDATA \
+install-subpkgdataDATA uninstall-includeHEADERS install-includeHEADERS \
+tags mostlyclean-tags distclean-tags clean-tags maintainer-clean-tags \
+distdir mostlyclean-depend distclean-depend clean-depend \
 maintainer-clean-depend info-am info dvi-am dvi check check-am \
 installcheck-am installcheck install-exec-am install-exec \
 install-data-am install-data install-am install uninstall-am uninstall \
