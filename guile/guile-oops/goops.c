@@ -107,7 +107,7 @@ static char initialized	     = 0;
 
 static SCM scm_goops_lookup_closure;
 static SCM Top, Object, Class, Generic, Method, Simple_method, Accessor, 
-  	   Procedure_class, Entity_class;
+  	   Procedure_class, Operator_class, Entity_class;
 static SCM Boolean, Char, Pair, Procedure, String, Symbol, Vector, Number, 
 	   Liste, Null, Real, Complex, Integer, Keyword, Unknown;
 #ifdef USE_TK
@@ -433,6 +433,8 @@ scm_basic_make_class (SCM classe, SCM name, SCM dsupers, SCM dslots)
   scm_sys_inherit_magic_x (z, dsupers);
   if (classe == Entity_class)
     SCM_SET_CLASS_FLAGS (z, SCM_CLASSF_OPERATOR | SCM_CLASSF_ENTITY);
+  else if (classe == Operator_class)
+    SCM_SET_CLASS_FLAGS (z, SCM_CLASSF_OPERATOR);
   return z;
 }
 
@@ -1091,8 +1093,10 @@ scm_sys_allocate_instance (SCM classe)
   if (SCM_CLASS_FLAGS (classe) & SCM_CLASSF_METACLASS)
     {
       i = 3;
-      if (classe == Entity_class)
+      if (SCM_SUBCLASSP (classe, Entity_class))
 	SCM_SET_CLASS_FLAGS (z, SCM_CLASSF_OPERATOR | SCM_CLASSF_ENTITY);
+      else if (SCM_SUBCLASSP (classe, Operator_class))
+	SCM_SET_CLASS_FLAGS (z, SCM_CLASSF_OPERATOR);
     }
   else
     i = 0;
@@ -1781,6 +1785,7 @@ make_standard_classes (void)
   /* Generic functions classes */
   make_stdcls(&Procedure_class, "<procedure-class>", Class, Class, 	     SCM_EOL);
   make_stdcls(&Entity_class,    "<entity-class>",    Class, Procedure_class, SCM_EOL);
+  make_stdcls(&Operator_class,  "<operator-class>",  Class, Procedure_class, SCM_EOL);
   make_stdcls(&Method,		"<method>",	     Class, Object,	     tmp1);
   make_stdcls(&Simple_method,	"<simple-method>",   Class, Method,	     SCM_EOL);
   make_stdcls(&Accessor,	"<accessor-method>", Class, Simple_method,   SCM_EOL);
