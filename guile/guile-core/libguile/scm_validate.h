@@ -138,6 +138,12 @@
   do { SCM_ASSERT(SCM_INUMP(k), k, pos, FUNC_NAME); \
        cvar = SCM_INUM(k); } while (0)
 
+#define SCM_VALIDATE_ULONG_COPY(pos,k,cvar) \
+  do { cvar = SCM_NUM2ULONG(pos,k); } while (0)
+
+#define SCM_VALIDATE_LONG_COPY(pos,k,cvar) \
+  do { cvar = SCM_NUM2LONG(pos,k); } while (0)
+
 #define SCM_VALIDATE_BIGINT(pos,k) SCM_MAKE_VALIDATE(pos,k,BIGP)
 
 #define SCM_VALIDATE_INUM_MIN(pos,k,min) \
