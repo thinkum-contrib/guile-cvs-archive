@@ -1,18 +1,37 @@
 ;;;; lib.scm --- utility functions for running benchmarks
-;;;; Jim Blandy <jimb@red-bean.com> --- April 1999
+;;;; Copyright (C) 1999  Jim Blandy <jimb@red-bean.com>
+;;;;
+;;;; This program is free software; you can redistribute it and/or modify
+;;;; it under the terms of the GNU General Public License as published by
+;;;; the Free Software Foundation; either version 2 of the License, or
+;;;; (at your option) any later version.
+;;;; 
+;;;; This program is distributed in the hope that it will be useful,
+;;;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;;;; GNU General Public License for more details.
+;;;; 
+;;;; You should have received a copy of the GNU General Public License
+;;;; along with this program; if not, write to the Free Software
+;;;; Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 (define-module (benchmarks lib)
-  #:use-module (ice-9 format))
+  #:use-module (ice-9 format)
+  #:use-module (benchmarks paths))
 (export start-log end-log
 	log-text log-data
+	data-file
 	benchmark-title
 	time-thunk-once time-thunk-repeated
 	time-accumulate time-pass)
 
 (define version 4)
 
+(or (file-is-directory? datadir)
+    (error "Benchmark data directory does not exist: " datadir))
+
 
-;;;; Primitive logging functions.
+;;;; Logging functions.
 
 ;;; The I/O port to which we write results.
 (define log-port #f)
@@ -24,6 +43,9 @@
   ;; Record the date and time.
   (let* ((time (current-time))
 	 (u (uname)))
+
+    ;; Clean up the uname a little bit.
+    (vector-set! u 3 "")
 
     (log-text "Opened log file, "
 	      (strftime "%a %e %b %H:%M:%S" (localtime time)))
@@ -64,6 +86,17 @@
 	(newline log-port))))
 
 
+;;;; Helping benchmarks find their files
+
+;;; Returns FILENAME, relative to the directory the benchmark data
+;;; files were installed in, and makes sure the file exists.
+(define (data-file filename)
+  (let ((f (in-vicinity datadir filename)))
+    (or (file-exists? f)
+	(error "Benchmark data file does not exists: " f))
+    f))
+
+
 ;;;; Functions for handling time reasonably.
 
 ;;; These functions manipulate an abstract data type called "times",
@@ -84,19 +117,23 @@
 ;;; This allows us to change the way we break down time, or even
 ;;; change the data we record, without having to tweak every
 ;;; benchmarking function.
+;;;
+;;; All the times are in the system's internal time units --- use
+;;; internal-time-units-per-second to convert.  
 
 ;;; Return the times consumed so far by this Guile process.
 (define (times:now)
-  (map (lambda (time) (/ time internal-time-units-per-second))
-       (cons (cdr (assq 'gc-time-taken (gc-stats)))
-	     (cdr (vector->list (times))))))
+  (cons (cdr (assq 'gc-time-taken (gc-stats)))
+	(cdr (vector->list (times)))))
 
 ;;; Format a time list into a string, nicely formatted for human
 ;;; readers.
 (define (times:format times)
-  (let ((gc (car times)))
-    (format "~,3Fs user   ~,3Fs gc   ~,3Fs sys"
-	    (- (cadr times) gc) gc (caddr times))))
+  (let ((times (map (lambda (time) (/ time internal-time-units-per-second))
+		    times)))
+    (let ((gc (car times)))
+      (format "~5,2Fs user   ~5,2Fs gc   ~5,2Fs sys"
+	      (- (cadr times) gc) gc (caddr times)))))
 
 ;;; Return the time elapsed between two time lists.
 (define (times:elapsed start end)
@@ -116,8 +153,7 @@
 ;;; Mark subsequent tests as coming from the benchmark named NAME,
 ;;; revision REVISION.
 (define (benchmark-title name revision)
-  (log-text "Benchmark: " name)
-  (log-text "Benchmark revision: " revision)
+  (log-text (format "Benchmark: ~A revision ~A" name revision))
   (log-data (list name revision)))
 
 ;;; Call THUNK once, and report the CPU time consumed.
@@ -127,8 +163,7 @@
     (thunk)
     (let* ((end (times:now))
 	   (e (times:elapsed start end)))
-      (log-text title)
-      (log-text (times:format e))
+      (log-text (format "~20A ~A" title (times:format e)))
       (log-data (list title e)))))
 
 
@@ -144,8 +179,7 @@
       (thunk))
     (let* ((end (times:now))
 	   (e (times:elapsed start end)))
-      (log-text title)
-      (log-text (format "~D passes  ~A" n (times:format e)))
+      (log-text (format "~20A ~4D passes  ~A" title n (times:format e)))
       (log-data (list title n e)))))
 
 ;;;; The following two functions, TIME-ACCUMULATE and TIME-PASS, help you
@@ -173,13 +207,12 @@
 ;;;;
 ;;;; This should probably report variance, too.
 
-;;; We don't need to export this.  :)
-
 ;;; Within the dynamic scope of a TIME-ACCUMULATE call, the value of
 ;;; this fluid is a vector of the form #(PASS-COUNT TIMES), where
 ;;; PASS-COUNT is the number of calls to TIME-PASS that we've seen so far,
 ;;; and TIMES is the accumulated times each TIME-PASS reported.
-
+;;;
+;;; We don't need to export this.  :)
 (define accumulator (make-fluid))
 
 ;;; Vectors are so clumsy.  Does this help?
@@ -193,8 +226,7 @@
     (let* ((totals (fluid-ref accumulator))
 	   (passes (vector-ref totals 0))
 	   (e (vector-ref totals 1)))
-      (log-text title)
-      (log-text (format "~D passes  ~A" passes (times:format e)))
+      (log-text (format "~20A ~4D passes  ~A" title passes (times:format e)))
       (log-data (list title passes e)))))
 
 (define (time-pass thunk)
