@@ -18,22 +18,50 @@
 - Guile 1.8.0
 
   - Fix srfi-1:  provide a list-copy function that can copy improper lists.
-  + Change the license to LGPL and add COPYING.LIB or appropriate.
   - Finish and test GMP support for bignums.  If it works out, add it.
   - consider (and likely use) pkg-config for guile.
   - add support for srfi-30 (multi-line-comments) - follow std *carefully*.
+
   - Implement scm replacements for all of GH
+
+    We used to have a second API, prefix gh_, that was meant to be
+    easier to use than the native scm_ API and also portable across
+    Scheme implementations.
+
+    We decided that it is better to concentrate on making scm_ easier
+    to use instead of having two APIs, which is confusing.
+
+    However, we still have gh_ functions that have no direkt scm_
+    counterpart.  We need to close that gap so that using the scm_ API
+    instead of the gh_ API is just as easy.
+
   - Allow the deprecation mechanism to be controlled via a preprocessor
     macro analogous to _GNU_SOURCE. [talk to mvo about this]
   - Properly integrate system asyncs and signals with threads. [mvo]
+
+  - Cleanup threading code and document it.  Especially the roles of
+    the different APIs (C low level, Scheme, Plugin) [mvo, mikael]
+
   - Handle thread-local data in a better way.  Currently, there are
     three kinds of thread local data: get/setspecific keyed,
     root state and fluids.  Instead use only fluids (except possibly
     in the GC or low-level thread system).  Introduce a copy-on-write
     mechanism.  Remember to reset thread local data in futures.c!
+
   - Make (ice-9 format) thread safe.  Other modules as well.
+
   - Gracefully cope with the situation that gc_os_dep.c doesn't compile.
   - Make 1.8 backwards compatible again with 1.6. [mvo]
+
+    This is some highly platform dependent code that regularily fails
+    to compile as new versions of operating systems or new
+    architectures appear.
+
+    However, the services provided by gc_os_dep.c are optional.  So it
+    would be good to just ignore it when it can't be compiled instead
+    of letting the whole Guile build fail.
+
+  - Investigate performance drop from Dec. 8, 2002 to Dec. 12, 2000.
 
 - Eventually
 
