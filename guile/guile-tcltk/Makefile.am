@@ -5,11 +5,19 @@ AUTOMAKE_OPTIONS = foreign
 lib_LTLIBRARIES = libgtcltk.la
 bin_PROGRAMS = guile-tcltk
 
-libgtcltk_la_SOURCES = guile-tcl.c guile-tk.c guile-tcl.h guile-tk.h \
-	gtcltk-module.c
-libgtcltk_la_LDFLAGS = -version-info 0:0 -rpath $(libdir)
+libgtcltk_la_SOURCES = \
+	guile-tcl.c guile-tk.c guile-tcl.h guile-tk.h gtcltk-module.c
+EXTRA_libgtcltk_la_SOURCES = tclInt.h tclUnixPort.h tclUnixNotfy.c
+libgtcltk_la_DEPENDENCIES = @LIBLOBJS@
+libgtcltk_la_LIBADD = @LIBLOBJS@
+libgtcltk_la_LDFLAGS = -version-info 0:0
 
 guile_tcltk_LDADD = libgtcltk.la
+
+subpkgdatadir = @TCLTKDIR@
+subpkgdata_DATA = tcltk.scm
+
+EXTRA_DIST = license.terms $(subpkgdata_DATA)
 
 SUFFIXES = .x
 ## We assume the user has already installed Guile.
@@ -20,4 +28,4 @@ SNARF=guile-snarf
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $(X_CFLAGS)
 
 ## Add -MG to make the .x magic work with auto-dep code.
-MKDEP = gcc -MM -MG $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $(X_CFLAGS)
+MKDEP = gcc -M -MG $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $(X_CFLAGS)

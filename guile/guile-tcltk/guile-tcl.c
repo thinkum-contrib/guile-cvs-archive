@@ -1,4 +1,4 @@
-/*	Copyright (C) 1995 Cygnus Support, Inc.
+/*	Copyright (C) 1998 Free Software Foundation, Inc.
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,29 +12,30 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this software; see the file COPYING.  If not, write to
- * the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+ * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
+ * Boston, MA 02111-1307 USA
  *
- * As a special exception, Cygnus Support gives permission
- * for additional uses of the text contained in its release of this library.
+ * As a special exception, the Free Software Foundation gives permission
+ * for additional uses of the text contained in its release of GUILE.
  *
- * The exception is that, if you link this library with other files
+ * The exception is that, if you link the GUILE library with other files
  * to produce an executable, this does not by itself cause the
  * resulting executable to be covered by the GNU General Public License.
  * Your use of that executable is in no way restricted on account of
- * linking this library code into it.
+ * linking the GUILE library code into it.
  *
  * This exception does not however invalidate any other reasons why
  * the executable file might be covered by the GNU General Public License.
  *
- * This exception applies only to the code released by Cygnus Support
- * as part of this library.  If you copy code from other releases
- * distributed under the terms of the GPL into a copy of this library,
- * as the General Public License permits, the exception does not apply
- * to the code that you add in this way.  To avoid misleading anyone
- * as to the status of such modified files, you must delete this
- * exception notice from such code.
+ * This exception applies only to the code released by the
+ * Free Software Foundation under the name GUILE.  If you copy
+ * code from other Free Software Foundation releases into a copy of
+ * GUILE, as the General Public License permits, the exception does
+ * not apply to the code that you add in this way.  To avoid misleading
+ * anyone as to the status of such modified files, you must delete
+ * this exception notice from them.
  *
- * If you write modifications of your own for this library, it is your choice
+ * If you write modifications of your own for GUILE, it is your choice
  * whether to permit this exception to apply to your modifications.
  * If you do not wish that, delete this exception notice.  */
 
@@ -47,6 +48,13 @@
 #include "guile-tcl.h"
 
 
+
+#ifdef USE_THREADS
+scm_mutex_t scm_tcl_mutex;
+scm_cond_t scm_tcl_condvar;
+int scm_tcl_handle_event_p;
+#endif
+
 static scm_sizet free_interp SCM_P ((SCM obj));
 static scm_sizet
 free_interp (obj)
@@ -102,6 +110,9 @@ scm_tcl_create_interp ()
   SCM answer;
   struct gtcltk_interp *gtcltk;
 
+#ifdef USE_THREADS
+  scm_mutex_lock (&scm_tcl_mutex);
+#endif
   SCM_DEFER_INTS;
   gtcltk = (struct gtcltk_interp *) malloc (sizeof (*gtcltk));
   if (! gtcltk)
@@ -115,6 +126,9 @@ scm_tcl_create_interp ()
   SCM_TERP (answer) = Tcl_CreateInterp ();
   SCM_PROPS (answer) = SCM_EOL;
   SCM_ALLOW_INTS;
+#ifdef USE_THREADS
+  scm_mutex_unlock (&scm_tcl_mutex);
+#endif
   return answer;
 }
 
@@ -136,10 +150,13 @@ scm_tcl_global_eval (tobj, script)
   if (SCM_SUBSTRP (script))
     script = scm_makfromstr (SCM_ROCHARS (script), SCM_ROLENGTH (script), 0);
 
+#ifdef USE_THREADS
+  scm_mutex_lock (&scm_tcl_mutex);
+#endif
   SCM_DEFER_INTS;
   status = Tcl_GlobalEval (SCM_TERP (tobj), SCM_ROCHARS (script));
   SCM_ALLOW_INTS;
-
+  
   {
     SCM answer;
     answer = scm_cons (SCM_MAKINUM (status),
@@ -147,6 +164,14 @@ scm_tcl_global_eval (tobj, script)
     SCM_DEFER_INTS;
     Tcl_FreeResult (SCM_TERP (tobj));
     SCM_ALLOW_INTS;
+#ifdef USE_THREADS
+    scm_mutex_unlock (&scm_tcl_mutex);
+    if (TclIdlePending ())
+      {
+	scm_tcl_handle_event_p = 1;
+	scm_cond_signal (&scm_tcl_condvar);
+      }
+#endif
     return answer;
   }
 }
@@ -208,7 +233,13 @@ invoke_tcl_command (data, interp, argc, argv)
   /* proc had better not longjmp past us -- see:
      with-tcl-error-handling in gtcltk/tcl.SCM */
   SCM_ALLOW_INTS;
+#ifdef USE_THREADS
+  scm_mutex_unlock (&scm_tcl_mutex);
+#endif
   result = scm_apply (proc, listify_strings (argc - 1, argv + 1), SCM_EOL);
+#ifdef USE_THREADS
+  scm_mutex_lock (&scm_tcl_mutex);
+#endif
   SCM_DEFER_INTS;
   scm_mask_ints = old_mask;
 
@@ -276,12 +307,18 @@ scm_tcl_create_command (tobj, name, proc)
   SCM_PROPS (tobj) = scm_acons (proc, tobj, SCM_PROPS (tobj));
   if (SCM_SUBSTRP (name))
     name = scm_makfromstr (SCM_ROCHARS (name), SCM_ROLENGTH (name), 0);
+#ifdef USE_THREADS
+  scm_mutex_lock (&scm_tcl_mutex);
+#endif
   SCM_DEFER_INTS;
   Tcl_CreateCommand (SCM_TERP (tobj), SCM_ROCHARS (name),
 		     invoke_tcl_command,
 		     (ClientData)SCM_CAR (SCM_PROPS (tobj)),
 		     delete_tcl_command);
   SCM_ALLOW_INTS;
+#ifdef USE_THREADS
+  scm_mutex_unlock (&scm_tcl_mutex);
+#endif
   return SCM_UNSPECIFIED;
 }
 
@@ -299,9 +336,15 @@ scm_tcl_delete_command (tobj, name)
 	      s_tcl_delete_command);
   if (SCM_SUBSTRP (name))
     name = scm_makfromstr (SCM_ROCHARS (name), SCM_ROLENGTH (name), 0);
+#ifdef USE_THREADS
+  scm_mutex_lock (&scm_tcl_mutex);
+#endif
   SCM_DEFER_INTS;
   Tcl_DeleteCommand (SCM_TERP (tobj), SCM_ROCHARS (name));
   SCM_ALLOW_INTS;
+#ifdef USE_THREADS
+  scm_mutex_unlock (&scm_tcl_mutex);
+#endif
   return SCM_UNSPECIFIED;
 }
 
@@ -325,10 +368,16 @@ scm_tcl_get_int (tobj, name)
   if (SCM_SUBSTRP (name))
     name = scm_makfromstr (SCM_ROCHARS (name), SCM_ROLENGTH (name), 0);
 
+#ifdef USE_THREADS
+  scm_mutex_lock (&scm_tcl_mutex);
+#endif
   SCM_DEFER_INTS;
   stat = Tcl_GetInt (SCM_TERP (tobj), SCM_ROCHARS (name), &c_answer);
   Tcl_FreeResult (SCM_TERP (tobj));
   SCM_ALLOW_INTS;
+#ifdef USE_THREADS
+  scm_mutex_unlock (&scm_tcl_mutex);
+#endif
   SCM_ASSERT (stat == TCL_OK, name, SCM_TERP (tobj)->result, s_tcl_get_int);
   return scm_long2num ((long)c_answer);
 }
@@ -349,10 +398,16 @@ scm_tcl_get_double (tobj, name)
 	  name, SCM_ARG2, s_tcl_get_double);
   if (SCM_SUBSTRP (name))
     name = scm_makfromstr (SCM_ROCHARS (name), SCM_ROLENGTH (name), 0);
+#ifdef USE_THREADS
+  scm_mutex_lock (&scm_tcl_mutex);
+#endif
   SCM_DEFER_INTS;
   stat = Tcl_GetDouble (SCM_TERP (tobj), SCM_ROCHARS (name), &c_answer);
   Tcl_FreeResult (SCM_TERP (tobj));
   SCM_ALLOW_INTS;
+#ifdef USE_THREADS
+  scm_mutex_unlock (&scm_tcl_mutex);
+#endif
   SCM_ASSERT (stat == TCL_OK, name, SCM_TERP (tobj)->result, s_tcl_get_double);
   return scm_makdbl (c_answer, 0.0);
 }
@@ -374,10 +429,16 @@ scm_tcl_get_boolean (tobj, name)
 	  name, SCM_ARG2, s_tcl_get_boolean);
   if (SCM_SUBSTRP (name))
     name = scm_makfromstr (SCM_ROCHARS (name), SCM_ROLENGTH (name), 0);
+#ifdef USE_THREADS
+  scm_mutex_lock (&scm_tcl_mutex);
+#endif
   SCM_DEFER_INTS;
   stat = Tcl_GetBoolean (SCM_TERP (tobj), SCM_ROCHARS (name), &c_answer);
   Tcl_FreeResult (SCM_TERP (tobj));
   SCM_ALLOW_INTS;
+#ifdef USE_THREADS
+  scm_mutex_unlock (&scm_tcl_mutex);
+#endif
   SCM_ASSERT (stat == TCL_OK, tobj, SCM_TERP (tobj)->result, 
 	      s_tcl_get_boolean);
   return (c_answer ? SCM_BOOL_T : SCM_BOOL_F);
@@ -400,9 +461,15 @@ scm_tcl_split_list (tobj, name)
   SCM_ASSERT (SCM_NIMP (name)
 	  && SCM_ROSTRINGP (name),
 	  name, SCM_ARG2, s_tcl_split_list);
+#ifdef USE_THREADS
+  scm_mutex_lock (&scm_tcl_mutex);
+#endif
   SCM_DEFER_INTS;
   tcl_result = (TCL_OK == Tcl_SplitList (SCM_TERP (tobj),
 					 SCM_ROCHARS (name), &argc, &argv));
+#ifdef USE_THREADS
+  scm_mutex_unlock (&scm_tcl_mutex);
+#endif
   if (!tcl_result)
     {
       SCM_ALLOW_INTS;
@@ -465,7 +532,13 @@ scm_tcl_merge (tobj, args)
   {
     char * c_answer;
     SCM answer;
+#ifdef USE_THREADS
+    scm_mutex_lock (&scm_tcl_mutex);
+#endif
     c_answer = Tcl_Merge (argc, argv);
+#ifdef USE_THREADS
+    scm_mutex_unlock (&scm_tcl_mutex);
+#endif
     answer = scm_makfrom0str (c_answer);
     free (c_answer);
     if (argv) free (argv);
@@ -710,10 +783,16 @@ scm_tcl_defined_p (tobj, name)
   int status;
 
   SCM_ASSERT (SCM_NIMP (tobj) && SCM_TERPP (tobj), tobj, SCM_ARG1, s_tcl_defined_p);
+#ifdef USE_THREADS
+  scm_mutex_lock (&scm_tcl_mutex);
+#endif
   SCM_DEFER_INTS;
   status = Tcl_GetCommandInfo (SCM_TERP (tobj), SCM_ROCHARS (name), &info);
   SCM_ALLOW_INTS;
-
+#ifdef USE_THREADS
+  scm_mutex_unlock (&scm_tcl_mutex);
+#endif
+  
   return status ? SCM_BOOL_T : SCM_BOOL_F;
 }
 
@@ -726,9 +805,15 @@ scm_tcl_do_one_event (flags)
 {
   int answer;
   SCM_ASSERT (SCM_INUMP (flags), flags, SCM_ARG1, s_tcl_do_one_event);
+#ifdef USE_THREADS
+  scm_mutex_lock (&scm_tcl_mutex);
+#endif
   SCM_DEFER_INTS;
   answer = (Tcl_DoOneEvent (SCM_INUM (flags)));
   SCM_ALLOW_INTS;
+#ifdef USE_THREADS
+  scm_mutex_unlock (&scm_tcl_mutex);
+#endif
   return SCM_MAKINUM (answer);
 }
 
@@ -741,5 +826,9 @@ void
 scm_init_gtcl ()
 {
   scm_tc16_tcl_interp = scm_newsmob (&tcl_interp_smob);
+#ifdef USE_THREADS
+  scm_mutex_init (&scm_tcl_mutex);
+  scm_cond_init (&scm_tcl_condvar, NULL);
+#endif
 #include "guile-tcl.x"
 }

@@ -1,4 +1,4 @@
-/*	Copyright (C) 1995 Cygnus Support, Inc.
+/*	Copyright (C) 1998 Free Software Foundation, Inc.
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,38 +12,39 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this software; see the file COPYING.  If not, write to
- * the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+ * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
+ * Boston, MA 02111-1307 USA
  *
- * As a special exception, Cygnus Support gives permission
- * for additional uses of the text contained in its release of this library.
+ * As a special exception, the Free Software Foundation gives permission
+ * for additional uses of the text contained in its release of GUILE.
  *
- * The exception is that, if you link this library with other files
+ * The exception is that, if you link the GUILE library with other files
  * to produce an executable, this does not by itself cause the
  * resulting executable to be covered by the GNU General Public License.
  * Your use of that executable is in no way restricted on account of
- * linking this library code into it.
+ * linking the GUILE library code into it.
  *
  * This exception does not however invalidate any other reasons why
  * the executable file might be covered by the GNU General Public License.
  *
- * This exception applies only to the code released by 
- * Cygnus Support as part of this library.  If you copy
- * code from other releases distributed under the terms of the GPL into a copy of
- * this library, as the General Public License permits, the exception does
+ * This exception applies only to the code released by the
+ * Free Software Foundation under the name GUILE.  If you copy
+ * code from other Free Software Foundation releases into a copy of
+ * GUILE, as the General Public License permits, the exception does
  * not apply to the code that you add in this way.  To avoid misleading
  * anyone as to the status of such modified files, you must delete
- * this exception notice from such code.
+ * this exception notice from them.
  *
- * If you write modifications of your own for this library, it is your choice
+ * If you write modifications of your own for GUILE, it is your choice
  * whether to permit this exception to apply to your modifications.
- * If you do not wish that, delete this exception notice.  
- */
+ * If you do not wish that, delete this exception notice.  */
 
 
 #include <stdio.h>
 #include <libguile.h>
 #include <tk.h>
 #include "guile-tcl.h"
+
 #include "guile-tk.h"
 
 
@@ -100,13 +101,111 @@ scm_main_loop ()
   return SCM_UNSPECIFIED;
 }
 
+#ifdef USE_THREADS
+
+static int in_guile_tk_loop_p = 0;
+
+static SCM
+main_loop (SCM loop_invocation)
+{
+  int events;
+  in_guile_tk_loop_p = 1;
+  while (Tk_GetNumMainWindows () > 0)
+    {
+      if (!scm_tcl_handle_event_p)
+	scm_cond_wait (&scm_tcl_condvar, &scm_tcl_mutex);
+      scm_tcl_handle_event_p = 0;
+      do
+	{
+	  SCM_DEFER_INTS;
+	  events = Tcl_DoOneEvent (TCL_ALL_EVENTS | TCL_DONT_WAIT);
+	  SCM_ALLOW_INTS; /* Here because of SCM_ASYNC_TICK. */
+	}
+      while (events);
+    }
+  scm_mutex_unlock (&scm_tcl_mutex);
+  SCM_SETCAR (loop_invocation, SCM_BOOL_F);
+  in_guile_tk_loop_p = 0;
+  return SCM_UNSPECIFIED;
+}
+
+static SCM
+main_loop_handler (SCM loop_invocation, SCM tag, SCM throw_args)
+{
+  scm_mutex_unlock (&scm_tcl_mutex);
+  SCM_SETCAR (loop_invocation, SCM_BOOL_F);
+  in_guile_tk_loop_p = 0;
+  scm_ithrow (tag, throw_args, 1);
+  return SCM_UNSPECIFIED;
+}
+
+extern void Tcl_GetCheckMasks (int*, SELECT_TYPE*);
+
+static SCM
+io_loop (SCM loop_invocation)
+{
+  int nfds;
+  SELECT_TYPE masks[3];
+  while (SCM_NFALSEP (SCM_CAR (loop_invocation))
+	 && Tk_GetNumMainWindows () > 0)
+    {
+      scm_mutex_lock (&scm_tcl_mutex);
+      SCM_DEFER_INTS;
+      Tcl_GetCheckMasks (&nfds, masks);
+      SCM_ALLOW_INTS;
+      scm_mutex_unlock (&scm_tcl_mutex);
+      scm_internal_select (nfds, &masks[0], &masks[1], &masks[2], 0);
+      scm_tcl_handle_event_p = 1;
+      scm_cond_signal (&scm_tcl_condvar);
+    }
+  return SCM_UNSPECIFIED;
+}
+
+static SCM
+io_loop_handler (void *dummy, SCM tag, SCM throw_args)
+{
+  scm_puts ("Internal error in io_loop_handler\n\
+Please send a bug-report to bug-guile@gnu.org\n", scm_cur_errp);
+  scm_handle_by_message (0, tag, throw_args);
+  return SCM_UNSPECIFIED;
+}
+
+SCM_PROC (s_guile_tk_main_loop, "guile-tk-main-loop", 0, 0, 0, scm_guile_tk_main_loop);
+SCM
+scm_guile_tk_main_loop ()
+{
+  SCM loop_invocation = scm_cons (SCM_BOOL_T, SCM_BOOL_F);
+  if (in_guile_tk_loop_p)
+    scm_misc_error (s_guile_tk_main_loop, "Loop already active", SCM_EOL);
+  if (Tk_GetNumMainWindows () == 0)
+    scm_misc_error (s_guile_tk_main_loop, "No main window active", SCM_EOL);
+  scm_spawn_thread ((scm_catch_body_t) io_loop, (void*) loop_invocation,
+		    (scm_catch_handler_t) io_loop_handler, NULL);
+  scm_tcl_handle_event_p = 1; /* Request an initial call to Tcl_DoOneEvent */
+  scm_internal_catch (SCM_BOOL_T,
+		      (scm_catch_body_t) main_loop,
+		      (void*) loop_invocation,
+		      (scm_catch_handler_t) main_loop_handler,
+		      (void*) loop_invocation);
+  return SCM_UNSPECIFIED;
+}
+
+#endif /* USE_THREADS */
 
 SCM_PROC(s_num_main_windows, "tk-num-main-windows", 0, 0, 0, scm_num_main_windows);
 SCM scm_num_main_windows SCM_P ((void));
 SCM
 scm_num_main_windows ()
 {
-  return SCM_MAKINUM (Tk_GetNumMainWindows ());
+  int n;
+#ifdef USE_THREADS
+  scm_mutex_lock (&scm_tcl_mutex);
+#endif
+  n = SCM_MAKINUM (Tk_GetNumMainWindows ());
+#ifdef USE_THREADS
+  scm_mutex_unlock (&scm_tcl_mutex);
+#endif
+  return n;
 }
 
 
