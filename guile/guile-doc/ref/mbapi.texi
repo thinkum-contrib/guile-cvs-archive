@@ -196,17 +196,17 @@ with Guile's encoding.
 Note that any operation marked here as a ``Libguile Macro'' might
 evaluate its argument multiple times.
 
-@deftp {Libguile Type} scm_mb_char_t
+@deftp {Libguile Type} scm_char_t
 This is a signed integral type large enough to hold any character in
 Guile's character set.  All character numbers are positive.
 @end deftp
 
-@deftypefn {Libguile Macro} scm_mb_char_t scm_mb_get (const unsigned char *@var{p})
+@deftypefn {Libguile Macro} scm_char_t scm_mb_get (const unsigned char *@var{p})
 Return the character whose encoding starts at @var{p}, or -1 if @var{p}
 does not point to a valid character encoding.
 @end deftypefn
 
-@deftypefn {Libguile Function} int scm_mb_put (scm_mb_char_t @var{c}, unsigned char *@var{p})
+@deftypefn {Libguile Function} int scm_mb_put (scm_char_t @var{c}, unsigned char *@var{p})
 Place the encoded form of the Guile character @var{c} at @var{p}, and
 return its length in bytes.  If @var{c} is not the number of a Guile
 character, return 0.
@@ -222,7 +222,7 @@ If @var{b} is the first byte of a character's encoding, return the full
 length of the character's encoding, in bytes.
 @end deftypefn
 
-@deftypefn {Libguile Macro} int scm_mb_len_char (scm_mb_char_t @var{c})
+@deftypefn {Libguile Macro} int scm_mb_len_char (scm_char_t @var{c})
 Return the length of the encoding of the character @var{c}, in bytes.
 @end deftypefn
 
@@ -285,7 +285,7 @@ an incomplete character encoding, signal a @code{text:bad-encoding}
 error.
 @end deftypefn
 
-@deftypefn {Libguile Function} scm_mb_char_t scm_mb_walk (const unsigned char **@var{pp})
+@deftypefn {Libguile Function} scm_char_t scm_mb_walk (const unsigned char **@var{pp})
 Return the character whose encoding starts at @code{*@var{pp}}, and
 advance @code{*@var{pp}} to the start of the next character.  Return -1
 if @code{*@var{pp}} does not point to a valid character encoding.
@@ -364,11 +364,11 @@ right in time proportional to the length of the string.
 @end deftypefn
 
 Guile also provides functions to convert between an encoded sequence of
-characters, and an array of @code{scm_mb_char_t} objects.
+characters, and an array of @code{scm_char_t} objects.
 
-@deftypefn {Libguile Function} scm_mb_char_t *scm_mb_multibyte_to_fixed (const unsigned char *@var{p}, int @var{len}, int *@var{result_len})
+@deftypefn {Libguile Function} scm_char_t *scm_mb_multibyte_to_fixed (const unsigned char *@var{p}, int @var{len}, int *@var{result_len})
 Convert the variable-width text in the @var{len} bytes at @var{p}
-to an array of @code{scm_mb_char_t} values.  Return a pointer to the array,
+to an array of @code{scm_char_t} values.  Return a pointer to the array,
 and set @code{*@var{result_len}} to the number of elements it contains.
 The returned array is allocated with @code{malloc}, and it is the
 caller's responsibility to free it.
@@ -378,8 +378,8 @@ function will signal a @code{text:bad-encoding} error.
 @end deftypefn
 
 @deftypefn {Libguile Function} unsigned char
-*scm_mb_fixed_to_multibyte (scm_mb_char_t *@var{fixed}, int @var{len}, int *@var{result_len})
-Convert the array of @code{scm_mb_char_t} values to a sequence of
+*scm_mb_fixed_to_multibyte (scm_char_t *@var{fixed}, int @var{len}, int *@var{result_len})
+Convert the array of @code{scm_char_t} values to a sequence of
 variable-width character encodings.  Return a pointer to the array of
 bytes, and set @code{*@var{result_len}} to its length, in bytes.  The
 returned byte sequence is allocated with @code{malloc}; it is the
@@ -586,7 +586,7 @@ conversions for use with @code{scm_mb_iconv}.  The interface here is
 borrowed from the GNOME Project's @file{libunicode} library.
 
 Guile's @code{scm_mb_iconv} function works by converting the input text
-to a stream of @code{scm_mb_char_t} characters, and then converting
+to a stream of @code{scm_char_t} characters, and then converting
 those characters to the desired output encoding.  This makes it easy
 for Guile to choose the appropriate conversion back ends for an
 arbitrary pair of input and output encodings, but it also means that the
@@ -597,13 +597,13 @@ to and from Guile's internal character set, this shouldn't be a problem.
 
 To add support for a particular encoding to Guile, you must provide one
 function (called the @dfn{read} function) which converts from your
-encoding to an array of @code{scm_mb_char_t}'s, and another function
+encoding to an array of @code{scm_char_t}'s, and another function
 (called the @dfn{write} function) to convert from an array of
-@code{scm_mb_char_t}'s back into your encoding.  To convert from some
+@code{scm_char_t}'s back into your encoding.  To convert from some
 encoding @var{a} to some other encoding @var{b}, Guile pairs up
 @var{a}'s read function with @var{b}'s write function.  Each call to
 @code{scm_mb_iconv} passes text in encoding @var{a} through the read
-function, to produce an array of @code{scm_mb_char_t}'s, and then passes
+function, to produce an array of @code{scm_char_t}'s, and then passes
 that array to the write function, to produce text in encoding @var{b}.
 
 For stateful encodings, a read or write function can hang its own data
@@ -668,7 +668,7 @@ to the cookie, as the @code{init} and @code{destroy} functions do.
 The @code{reset} member may be zero, indicating that this encoding
 doesn't use a shift state.
 
-@item enum scm_mb_read_result (*read) (void *@var{cookie}, const char **@var{inbuf},  size_t *@var{inbytesleft}, scm_mb_char_t **@var{outbuf}, size_t *@var{outcharsleft})
+@item enum scm_mb_read_result (*read) (void *@var{cookie}, const char **@var{inbuf},  size_t *@var{inbytesleft}, scm_char_t **@var{outbuf}, size_t *@var{outcharsleft})
 Read some bytes and convert into an array of Guile characters.  This is
 the encoding's read function.
 
@@ -687,7 +687,7 @@ Return one of the @code{enum scm_mb_read_result} values, described below.
 Note that @code{read} receives the cookie's value itself, not a pointer
 to the cookie, as the @code{init} and @code{destroy} functions do.
 
-@item enum scm_mb_write_result (*write) (void *@var{cookie}, scm_mb_char_t **@var{inbuf}, size_t *@var{incharsleft}, **@var{outbuf}, size_t *@var{outbytesleft})
+@item enum scm_mb_write_result (*write) (void *@var{cookie}, scm_char_t **@var{inbuf}, size_t *@var{incharsleft}, **@var{outbuf}, size_t *@var{outbytesleft})
 Convert an array of Guile characters to output bytes.  This is
 the encoding's write function.
 
