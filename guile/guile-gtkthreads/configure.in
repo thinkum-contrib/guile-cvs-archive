@@ -41,6 +41,16 @@ esac
 CFLAGS="`gtk-config --cflags` $CFLAGS"
 LIBS="$LIBS `gtk-config --libs gthread`"
 
+AC_CACHE_CHECK([for thread_create in GThreadFunctions],
+	       ac_cv_struct_thread_create,
+               [AC_TRY_COMPILE([#include <glib.h>],
+                               [GThreadFunctions g; g.thread_create;],
+			       ac_cv_struct_thread_create=yes,
+			       ac_cv_struct_thread_create=no)])
+if test $ac_cv_struct_thread_create = yes; then
+  AC_DEFINE(HAVE_THREAD_CREATE)
+fi
+
 AC_OUTPUT(Makefile)
 
 dnl Local Variables:
