@@ -22,7 +22,7 @@
 ;;;; 
 
 ;;;; TODO:
-;;;;   * support `user:password@' strings in URLs.
+;;;;   * support `user:password@' strings where appropriate in URLs.
 ;;;;   * make URL parsing smarter.  This is good for most TCP/IP-based
 ;;;;	 URL schemes, but parsing is actually specific to each URL scheme.
 ;;;;   * fill out url:encode, include facilities for URL-scheme-specific

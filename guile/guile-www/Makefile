@@ -10,7 +10,7 @@ SHELL = /bin/sh
 
 srcdir = .
 top_srcdir = .
-prefix = /usr/local
+prefix = /opt/gnu
 exec_prefix = ${prefix}
 
 bindir = ${exec_prefix}/bin
@@ -37,7 +37,7 @@ AUTOCONF = autoconf
 AUTOMAKE = automake
 AUTOHEADER = autoheader
 
-INSTALL = /usr/bin/install -c
+INSTALL = ./install-sh -c
 INSTALL_PROGRAM = ${INSTALL}
 INSTALL_DATA = ${INSTALL} -m 644
 INSTALL_SCRIPT = ${INSTALL_PROGRAM}

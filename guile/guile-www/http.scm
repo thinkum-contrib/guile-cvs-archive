@@ -2,8 +2,8 @@
 ;;;;
 
 (define-module (www http)
-  :use-module (ice-9 regex)
-  :use-module (www url))
+  :use-module (www url)
+  :use-module (ice-9 regex))
 
 ;;;; 	Copyright (C) 1997 Free Software Foundation, Inc.
 ;;;; 
@@ -25,7 +25,7 @@
 
 ;;; Variables that affect HTTP usage.
 
-(define-public http:version-string "HTTP/1.0")  ; bump up to 1.1 when ready
+(define-public http:version "HTTP/1.0")  ; bump up to 1.1 when ready
 (define-public http:user-agent "GuileHTTP 0.1")
 
 ;;; An HTTP message is represented by a vector:
@@ -107,6 +107,13 @@
 		       (string->list (match:prefix match)))))
 	  (match:suffix match))))
 
+(define (parse-status-line statline)
+  (let* ((first (string-index statline #\space))
+	 (second (string-index statline #\space (1+ first))))
+    (list (make-shared-substring statline 0 first)
+	  (make-shared-substring statline (1+ first) second)
+	  (make-shared-substring statline (1+ second)))))
+
 
 ;;; HTTP connection management functions.
 ;;;
@@ -131,7 +138,7 @@
 (define-public (http:get url)
   ;; FIXME: if http:open returns an old connection that has been
   ;; closed remotely, this will fail.
-  (http:request "get" url))
+  (http:request "GET" url))
 
 ;;; Connection-oriented functions:
 ;;;
@@ -174,7 +181,7 @@
 (define-public (http:request method url . args)
   (let ((host     (url:host url))
 	(tcp-port (or (url:port url) 80))
-	(path     (or (url:path url) "/")))
+	(path     (string-append "/" (or (url:path url) ""))))
     (let ((sock (http:open host tcp-port))
 	  (request (string-append method " " path " " http:version))
 	  (headers (if (pair? args) (car args) '()))
@@ -212,9 +219,7 @@
 							  (read-line sock 'trim))
 							 (cons (http:header-parse ln)
 							       hlist)))))
-	       (response-status-fields (separate-fields-discarding-char
-					#\space
-					response-status-line))
+	       (response-status-fields (parse-status-line response-status-line))
 	       (response-version (car response-status-fields))
 	       (response-code    (cadr response-status-fields))
 	       (response-text    (caddr response-status-fields)))
@@ -260,20 +265,10 @@
   (apply display line p)
   (apply display "\r\n" p))
 
-;;; (separate-fields-discarding-char CH STR)
 ;;; (sans-trailing-whitespace STR)
 ;;;	These are defined in module #/ice-9/string-fun, so this code
 ;;;	will prob.  be discarded when the module system and boot-9
 ;;;	settle down.
-
-(define (separate-fields-discarding-char ch str)
-  (let loop ((fields '())
-             (str str))
-    (let ((pos (string-rindex str ch)))
-      (if pos
-	  (loop (cons (make-shared-substring str (+ 1 pos)) fields)
-		(make-shared-substring str 0 pos))
-	  (cons str fields)))))
 
 (define (sans-trailing-whitespace s)
   (let ((st 0)

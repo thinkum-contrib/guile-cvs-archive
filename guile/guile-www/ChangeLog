@@ -1,3 +1,15 @@
+Tue Jun 17 17:27:04 1997  Tim Pierce  <twpierce@bio-5.bsd.uchicago.edu>
+
+	* http.scm: (http:request): Force "/" onto the beginning of the
+	"path" variable unconditionally.  We must do this because of a
+	stupid incompatibility between the URL RFC and HTTP RFC.
+
+	* http.scm: (parse-status-line): New function.
+	(http:request): Use parse-status-line instead of
+	separate-fields-discarding-char (which does not work when a status
+	line contains more than two spaces).
+	(separate-fields-discarding-char): Removed.
+
 Tue Jun 17 01:45:59 1997  Tim Pierce  <twp@twp.tezcat.com>
 
 	* http.scm (http:request): Change calling conventions to accept a
