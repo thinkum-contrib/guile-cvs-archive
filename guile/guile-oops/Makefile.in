@@ -65,6 +65,7 @@ DLLTOOL = @DLLTOOL@
 GOOPS_MAJOR_VERSION = @GOOPS_MAJOR_VERSION@
 GOOPS_MINOR_VERSION = @GOOPS_MINOR_VERSION@
 GOOPS_VERSION = @GOOPS_VERSION@
+GUILEVERSION = @GUILEVERSION@
 GUILE_CFLAGS = @GUILE_CFLAGS@
 GUILE_LDFLAGS = @GUILE_LDFLAGS@
 LIBGOOPSCORE_MAJOR_VERSION = @LIBGOOPSCORE_MAJOR_VERSION@
@@ -102,21 +103,25 @@ include_HEADERS = goops.h goops-snarf.h
 modincludedir = $(includedir)/goops
 modinclude_DATA = versiondat.h
 
-subpkgdatadir = $(datadir)/guile/oop
+subpkgdatadir = $(datadir)/guile/@GUILEVERSION@/oop
 subpkgdata_DATA = goops.scm
 
 goops_sources = dispatch.scm compile.scm util.scm stklos.scm 		describe.scm internal.scm active-slot.scm composite-slot.scm 		save.scm
 
 
-goopsdatadir = $(datadir)/guile/oop/goops
+goopsdatadir = $(datadir)/guile/@GUILEVERSION@/oop/goops
 goopsdata_DATA = $(goops_sources)
 
 info_TEXINFOS = goops.texi
 goops_TEXINFOS = goops-tutorial.texi hierarchy.eps hierarchy.txt
 
+man_MANS = guile-oops.1
+
 miscdocs = ANON-CVS COPYRIGHTS HACKING SNAPSHOTS TAGS TODO mop.text
 
-EXTRA_DIST = $(subpkgdata_DATA) $(goops_sources) $(miscdocs) GOOPS-VERSION
+EXTRA_DIST = $(subpkgdata_DATA) $(goops_sources) $(miscdocs) GOOPS-VERSION relpath
+
+RELPATH = guile -e main -s $(srcdir)/relpath
 
 SUFFIXES = .x
 SNARF = guile-snarf
@@ -149,6 +154,10 @@ TEXI2DVI = texi2dvi
 INFO_DEPS = goops.info
 DVIS = goops.dvi
 TEXINFOS = goops.texi
+man1dir = $(mandir)/man1
+MANS = $(man_MANS)
+
+NROFF = nroff
 DATA =  $(goopsdata_DATA) $(modinclude_DATA) $(subpkgdata_DATA)
 
 HEADERS =  $(include_HEADERS)
@@ -393,6 +402,45 @@ maintainer-clean-aminfo:
 	  fi; \
 	done
 
+install-man1:
+	$(mkinstalldirs) $(DESTDIR)$(man1dir)
+	@list='$(man1_MANS)'; \
+	l2='$(man_MANS)'; for i in $$l2; do \
+	  case "$$i" in \
+	    *.1*) list="$$list $$i" ;; \
+	  esac; \
+	done; \
+	for i in $$list; do \
+	  if test -f $(srcdir)/$$i; then file=$(srcdir)/$$i; \
+	  else file=$$i; fi; \
+	  ext=`echo $$i | sed -e 's/^.*\\.//'`; \
+	  inst=`echo $$i | sed -e 's/\\.[0-9a-z]*$$//'`; \
+	  inst=`echo $$inst | sed '$(transform)'`.$$ext; \
+	  echo " $(INSTALL_DATA) $$file $(DESTDIR)$(man1dir)/$$inst"; \
+	  $(INSTALL_DATA) $$file $(DESTDIR)$(man1dir)/$$inst; \
+	done
+
+uninstall-man1:
+	@list='$(man1_MANS)'; \
+	l2='$(man_MANS)'; for i in $$l2; do \
+	  case "$$i" in \
+	    *.1*) list="$$list $$i" ;; \
+	  esac; \
+	done; \
+	for i in $$list; do \
+	  ext=`echo $$i | sed -e 's/^.*\\.//'`; \
+	  inst=`echo $$i | sed -e 's/\\.[0-9a-z]*$$//'`; \
+	  inst=`echo $$inst | sed '$(transform)'`.$$ext; \
+	  echo " rm -f $(DESTDIR)$(man1dir)/$$inst"; \
+	  rm -f $(DESTDIR)$(man1dir)/$$inst; \
+	done
+install-man: $(MANS)
+	@$(NORMAL_INSTALL)
+	$(MAKE) $(AM_MAKEFLAGS) install-man1
+uninstall-man:
+	@$(NORMAL_UNINSTALL)
+	$(MAKE) $(AM_MAKEFLAGS) uninstall-man1
+
 install-goopsdataDATA: $(goopsdata_DATA)
 	@$(NORMAL_INSTALL)
 	$(mkinstalldirs) $(DESTDIR)$(goopsdatadir)
@@ -594,7 +642,7 @@ install-exec-am: install-libLTLIBRARIES install-binPROGRAMS
 	$(MAKE) $(AM_MAKEFLAGS) install-exec-hook
 install-exec: install-exec-am
 
-install-data-am: install-info-am install-goopsdataDATA \
+install-data-am: install-info-am install-man install-goopsdataDATA \
 		install-modincludeDATA install-subpkgdataDATA \
 		install-includeHEADERS
 install-data: install-data-am
@@ -603,20 +651,20 @@ install-am: all-am
 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
 install: install-am
 uninstall-am: uninstall-libLTLIBRARIES uninstall-binPROGRAMS \
-		uninstall-info uninstall-goopsdataDATA \
+		uninstall-info uninstall-man uninstall-goopsdataDATA \
 		uninstall-modincludeDATA uninstall-subpkgdataDATA \
 		uninstall-includeHEADERS
 uninstall: uninstall-am
-all-am: Makefile $(INFO_DEPS) $(LTLIBRARIES) $(PROGRAMS) $(DATA) \
+all-am: Makefile $(INFO_DEPS) $(LTLIBRARIES) $(PROGRAMS) $(MANS) $(DATA) \
 		$(HEADERS)
 all-redirect: all-am
 install-strip:
 	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
 installdirs:
 	$(mkinstalldirs)  $(DESTDIR)$(libdir) $(DESTDIR)$(bindir) \
-		$(DESTDIR)$(infodir) $(DESTDIR)$(goopsdatadir) \
-		$(DESTDIR)$(modincludedir) $(DESTDIR)$(subpkgdatadir) \
-		$(DESTDIR)$(includedir)
+		$(DESTDIR)$(infodir) $(DESTDIR)$(mandir)/man1 \
+		$(DESTDIR)$(goopsdatadir) $(DESTDIR)$(modincludedir) \
+		$(DESTDIR)$(subpkgdatadir) $(DESTDIR)$(includedir)
 
 
 mostlyclean-generic:
@@ -671,9 +719,10 @@ mostlyclean-libtool distclean-libtool clean-libtool \
 maintainer-clean-libtool mostlyclean-binPROGRAMS distclean-binPROGRAMS \
 clean-binPROGRAMS maintainer-clean-binPROGRAMS uninstall-binPROGRAMS \
 install-binPROGRAMS install-info-am uninstall-info mostlyclean-aminfo \
-distclean-aminfo clean-aminfo maintainer-clean-aminfo \
-uninstall-goopsdataDATA install-goopsdataDATA uninstall-modincludeDATA \
-install-modincludeDATA uninstall-subpkgdataDATA install-subpkgdataDATA \
+distclean-aminfo clean-aminfo maintainer-clean-aminfo install-man1 \
+uninstall-man1 install-man uninstall-man uninstall-goopsdataDATA \
+install-goopsdataDATA uninstall-modincludeDATA install-modincludeDATA \
+uninstall-subpkgdataDATA install-subpkgdataDATA \
 uninstall-includeHEADERS install-includeHEADERS tags mostlyclean-tags \
 distclean-tags clean-tags maintainer-clean-tags distdir \
 mostlyclean-depend distclean-depend clean-depend \
@@ -688,12 +737,13 @@ mostlyclean distclean maintainer-clean
 install-exec-hook:
 	$(mkinstalldirs) $(goopsdatadir)
 	(. ./libgoopscore.la; \
+	 relpath=`$(RELPATH) $(goopsdatadir) $(libdir)`; \
 	 test -z "$$dlname" \
 	 || test ! -r $(libdir)/$$dlname \
 	 || (cd $(goopsdatadir) \
 	     && rm -f libgoopscore.la $$dlname \
-	     && $(LN_S) $(libdir)/libgoopscore.la \
-	     && $(LN_S) $(libdir)/$$dlname))
+	     && $(LN_S) $$relpath/libgoopscore.la \
+	     && $(LN_S) $$relpath/$$dlname))
 
 dist-hook: goops.ps
 	cp -p $(top_builddir)/goops.ps $(distdir)

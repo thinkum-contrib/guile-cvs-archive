@@ -22,32 +22,37 @@ modincludedir = $(includedir)/goops
 ## and not a header -- headers are included in the distribution.
 modinclude_DATA = versiondat.h
 
-subpkgdatadir = $(datadir)/guile/oop
+subpkgdatadir = $(datadir)/guile/@GUILEVERSION@/oop
 subpkgdata_DATA = goops.scm
 
 goops_sources = dispatch.scm compile.scm util.scm stklos.scm \
 		describe.scm internal.scm active-slot.scm composite-slot.scm \
 		save.scm
 
-goopsdatadir = $(datadir)/guile/oop/goops
+goopsdatadir = $(datadir)/guile/@GUILEVERSION@/oop/goops
 goopsdata_DATA = $(goops_sources)
 
 info_TEXINFOS = goops.texi
 goops_TEXINFOS = goops-tutorial.texi hierarchy.eps hierarchy.txt
 
+man_MANS = guile-oops.1
+
 miscdocs = ANON-CVS COPYRIGHTS HACKING SNAPSHOTS TAGS TODO mop.text
 
-EXTRA_DIST = $(subpkgdata_DATA) $(goops_sources) $(miscdocs) GOOPS-VERSION
+EXTRA_DIST = $(subpkgdata_DATA) $(goops_sources) $(miscdocs) GOOPS-VERSION relpath
+
+RELPATH = guile -e main -s $(srcdir)/relpath
 
 install-exec-hook:
 	$(mkinstalldirs) $(goopsdatadir)
 	(. ./libgoopscore.la; \
+	 relpath=`$(RELPATH) $(goopsdatadir) $(libdir)`; \
 	 test -z "$$dlname" \
 	 || test ! -r $(libdir)/$$dlname \
 	 || (cd $(goopsdatadir) \
 	     && rm -f libgoopscore.la $$dlname \
-	     && $(LN_S) $(libdir)/libgoopscore.la \
-	     && $(LN_S) $(libdir)/$$dlname))
+	     && $(LN_S) $$relpath/libgoopscore.la \
+	     && $(LN_S) $$relpath/$$dlname))
 
 dist-hook: goops.ps
 	cp -p $(top_builddir)/goops.ps $(distdir)

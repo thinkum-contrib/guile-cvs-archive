@@ -1,3 +1,16 @@
+2001-03-05  Mikael Djurfeldt  <mdj@linnaeus.mit.edu>
+
+	* Makefile.am (man_MANS): Install manpage.
+
+	* guile-oops.1: Manpage from Guile distribution.
+
+	* relpath: New script.
+
+	* configure.in (GUILEVERSION): Set to version of Guile.
+
+	* Makefile.am: Use GUILEVERSION in installpaths.
+	Use relpath to install relative links for libgoopscore.
+
 2001-03-04  Mikael Djurfeldt  <mdj@linnaeus.mit.edu>
 
 	* GOOPS-VERSION

@@ -33,6 +33,10 @@ if test "$ac_cv_func_scm_init_goops" == "yes"; then
   AC_MSG_ERROR([Your Guile already has GOOPS built in.  You don't need this package.])
 fi
 
+GUILEVERSION=`guile -c '(display (version))'`
+
+AC_SUBST(GUILEVERSION)
+
 AC_CACHE_CHECK(for two argument scm_mutex_init,
 ac_cv_func_scm_mutex_init_two_args,
 AC_TRY_COMPILE([#include <libguile.h>],[scm_mutex_init (NULL, NULL);],
@@ -67,7 +71,7 @@ LIBLOBJS="`echo ${LIBOBJS} | sed 's/\.o/.lo/g'`"
 
 AC_SUBST(LIBLOBJS)
 
-AC_OUTPUT(Makefile versiondat.h)
+AC_OUTPUT(Makefile versiondat.h debian/libgoops5.links)
 
 dnl Local Variables:
 dnl comment-start: "dnl "

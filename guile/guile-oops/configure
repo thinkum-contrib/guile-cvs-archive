@@ -1583,20 +1583,24 @@ if test "$ac_cv_func_scm_init_goops" == "yes"; then
   { echo "configure: error: Your Guile already has GOOPS built in.  You don't need this package." 1>&2; exit 1; }
 fi
 
+GUILEVERSION=`guile -c '(display (version))'`
+
+
+
 echo $ac_n "checking for two argument scm_mutex_init""... $ac_c" 1>&6
-echo "configure:1588: checking for two argument scm_mutex_init" >&5
+echo "configure:1592: checking for two argument scm_mutex_init" >&5
 if eval "test \"`echo '$''{'ac_cv_func_scm_mutex_init_two_args'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 1593 "configure"
+#line 1597 "configure"
 #include "confdefs.h"
 #include <libguile.h>
 int main() {
 scm_mutex_init (NULL, NULL);
 ; return 0; }
 EOF
-if { (eval echo configure:1600: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+if { (eval echo configure:1604: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
   rm -rf conftest*
   ac_cv_func_scm_mutex_init_two_args=yes
 else
@@ -1753,7 +1757,7 @@ done
 ac_given_srcdir=$srcdir
 ac_given_INSTALL="$INSTALL"
 
-trap 'rm -fr `echo "Makefile versiondat.h" | sed "s/:[^ ]*//g"` conftest*; exit 1' 1 2 15
+trap 'rm -fr `echo "Makefile versiondat.h debian/libgoops5.links" | sed "s/:[^ ]*//g"` conftest*; exit 1' 1 2 15
 EOF
 cat >> $CONFIG_STATUS <<EOF
 
@@ -1816,6 +1820,7 @@ s%@build_os@%$build_os%g
 s%@RANLIB@%$RANLIB%g
 s%@LIBTOOL@%$LIBTOOL%g
 s%@LIBQTHREADS@%$LIBQTHREADS%g
+s%@GUILEVERSION@%$GUILEVERSION%g
 s%@GOOPS_MAJOR_VERSION@%$GOOPS_MAJOR_VERSION%g
 s%@GOOPS_MINOR_VERSION@%$GOOPS_MINOR_VERSION%g
 s%@GOOPS_VERSION@%$GOOPS_VERSION%g
@@ -1865,7 +1870,7 @@ EOF
 
 cat >> $CONFIG_STATUS <<EOF
 
-CONFIG_FILES=\${CONFIG_FILES-"Makefile versiondat.h"}
+CONFIG_FILES=\${CONFIG_FILES-"Makefile versiondat.h debian/libgoops5.links"}
 EOF
 cat >> $CONFIG_STATUS <<\EOF
 for ac_file in .. $CONFIG_FILES; do if test "x$ac_file" != x..; then
