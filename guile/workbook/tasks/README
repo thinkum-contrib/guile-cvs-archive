@@ -65,10 +65,12 @@ The TODO File
 
 How Bugs Fit In
 
-	Some tasks are related to fixing bugs.  At this time there is no
-	special convention for handling or indicating this in TODO.
-
-	[Probably after some discussion this section can be written.]
+	Some tasks are related to fixing bugs.  Each top-level has the
+	general task "fix bugs".  When there is a new bug, it should be
+	added under "fix bugs" under "Eventually".  A bug can move to
+	the corresponding "fix bugs" header under other top-levels when
+	it is deemed that the bug's non-resolution should block release.
+	That decision process is not documented here.
 
 
 Requesting Review
