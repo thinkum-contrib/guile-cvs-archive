@@ -1,3 +1,17 @@
+1999-01-21  Mikael Djurfeldt  <mdj@barbara.nada.kth.se>
+
+	* goops.c: Renamed class Xxx --> scm_class_xxx.
+
+	* goops.c, goops.h: Renamed and moved C globals containing basic
+	classes to libguile/objects.c; Substituted class flags for object
+	flags.
+	
+	* goops.c (scm_sys_inherit_magic_x): Mask flags with
+	SCM_CLASSF_INHERIT.
+
+	* goops.h (SCM_CLASSF_INHERIT): New constant: Selects which flags
+	to inherit.
+
 1998-12-20  Mikael Djurfeldt  <mdj@barbara.nada.kth.se>
 
 	* goops.h, goops.c: Renamed classe --> class everywhere.  (ANSI C
@@ -15,6 +29,11 @@
 	generic functions.
 	(scm_sys_prep_layout_x): No special treatment of entity classes
 	any longer.
+
+1998-12-21  Christian Lynbech  <chl@tbit.dk>
+
+	* goops/goops.scm (change-object-class): Only copy slot values if
+	slot has allocation instance.
 
 1998-12-08  Christian Lynbech  <chl@tbit.dk>
 
