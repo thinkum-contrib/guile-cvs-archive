@@ -356,12 +356,6 @@ scm_sys_prep_layout_x (SCM class)
 	}
       strncpy (s, "pruosrpwpopopopo", 16);
     }
-  else if (SCM_CLASS_FLAGS (class) & SCM_CLASSF_ENTITY)
-    {
-      if (n < 4)
-	goto exit_err;
-      strncpy (s, "popopopo", 8);
-    }
   SCM_SLOT (class, scm_si_layout) = SCM_CAR (scm_intern (s, n));
   scm_must_free (s);
   return SCM_UNSPECIFIED;
@@ -1786,11 +1780,7 @@ make_standard_classes (void)
   SCM tmp1 = SCM_LIST3 (Intern("generic-function"), 
 			Intern("specializers"), 
 			Intern("procedure"));
-  SCM tmp2 = SCM_LIST6 (Intern("procedure0"),
-			Intern("procedure1"),
-			Intern("procedure2"),
-			Intern("procedure3"),
-			Intern("name"),
+  SCM tmp2 = SCM_LIST2 (Intern("name"),
 			Intern("methods"));
 
   /* Generic functions classes */
