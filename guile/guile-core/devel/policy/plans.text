@@ -93,14 +93,38 @@ startup.
 
 ** Translators
 
-XXX - ???
+*** Framework
+
+Framework making it easy for application developers to add new
+translations.  This includes the engines from flex and bison + a
+way to add new grammars from Scheme.
 
 *** C-like syntax for Scheme
 *** elisp
 *** tcl
 *** python
+*** Java
 
 * The Guile wishlist
+
+** A byte compiler!
+
+New developments have made it possible to create very fast byte code
+interpreters.  We are willing to replace the current Guile evaluator
+when a suitable candidate byte code interpreters turns up.
+
+It should fulfill the following criteria:
+
+*** It should be or promise to become significantly faster than the
+    current evaluator.
+
+*** It should support or promise to support debugging and backtraces
+    not much less informative than the current ones.
+
+*** It should support conservative GC.
+
+*** It should be possible to integrate with large parts of the
+    existing Guile infrastructure.
 
 ** Revision and stabilization of interfaces
 
