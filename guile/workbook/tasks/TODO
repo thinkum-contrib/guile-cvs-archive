@@ -37,6 +37,7 @@
 
 
 - Eventually
+  - use autoconf vars abs_top_* vars (but not w/ autoconf 2.53)
   - write render-bugs, add to mscripts or guile-tools [evan:ttn]
   - scan mailing list archives for bugs and add them
     + subject: Guile fails tests on Tru64 4.0F [ttn]
