@@ -568,10 +568,10 @@ proc_keyword (char *keyword, char **args, int flags)
   /* And the arguments.  */
   fputs (" (", out);
   if (flags & kw_gsubr)
-    fprintf (out, "%s, %s, %s, %s, (SCM (*) (...)) %s",
+    fprintf (out, "%s, %s, %s, %s, (SCM (*) ()) %s",
 	     args[0], args[2], args[3], args[4], args[5]);
   else
-    fprintf (out, "%s, %s, (SCM (*) (...)) %s",
+    fprintf (out, "%s, %s, (SCM (*) ()) %s",
 	     args[0], args[2], args[3]);
 
   /* The generic versions have an extra argument at the end,
@@ -609,7 +609,7 @@ vcell_keyword (char *keyword, char **args, int flags)
 {
   check_arg_count (keyword, args, (flags & kw_init) ? 3 : 2);
 
-  fprintf (out, "  %s = scm_permanent_object (scm_intern0 (%s));\n",
+  fprintf (out, "  %s = scm_permanent_object (scm_intern0 (%s)); ",
 	   args[0], args[1]);
   fprintf (out, "  SCM_SETCDR (%s, ", args[0]);
 
@@ -685,12 +685,7 @@ is_keyword (char *name)
   if (keyword_hash[h])
     {
       if (strcmp (name, keyword_hash[h]->name))
-	{
-	  /* Just for testing.  */
-	  fprintf (stderr, "%s: keyword/user id hash collision: %s and %s\n",
-		   program_name, keyword_hash[h]->name, name);
-	  return 0;
-	}
+	return 0;
 
       return keyword_hash[h];
     }
