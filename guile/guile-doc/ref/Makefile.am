@@ -20,7 +20,7 @@ info_TEXINFOS = guile-ref.texi r4rs.texi
 #	contributors.texi	slib.texi		strings.texi \
 #	unix-other.texi		guile-scheme.texi
 
-dist_texis = guile-ref.texi intro.texi scheme.texi gh.texi \
+dist_texis = guile-ref.texi intro.texi scheme.texi posix.texi gh.texi \
 	scm.texi appendices.texi
 
 ## FIXME: for now we just omit ../guile-user/more-resources.texi from
