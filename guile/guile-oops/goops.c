@@ -120,6 +120,7 @@
 #define SCM_GOOPS_UNBOUNDP(x) ((x) == scm_goops_the_unbound_value)
 
 static int goops_loaded_p = 0;
+static scm_rstate *goops_rstate;
 
 static SCM scm_goops_the_unbound_value;
 static SCM scm_goops_lookup_closure;
@@ -476,6 +477,8 @@ scm_sys_prep_layout_x (SCM class)
   return SCM_UNSPECIFIED;
 }
 
+static void prep_hashsets (SCM);
+
 SCM_PROC (s_sys_inherit_magic_x, "%inherit-magic!", 2, 0, 0, scm_sys_inherit_magic_x);
 
 SCM
@@ -515,7 +518,20 @@ scm_sys_inherit_magic_x (SCM class, SCM dsupers)
 	}
     }
   SCM_SET_CLASS_FLAGS (class, flags);
+
+  prep_hashsets (class);
+  
   return SCM_UNSPECIFIED;
+}
+
+void
+prep_hashsets (SCM class)
+{
+  int i;
+
+  for (i = 0; i < 7; ++i)
+    SCM_SLOT (class, scm_si_hashsets + i)
+      = scm_c_uniform32 (goops_rstate);
 }
 
 /******************************************************************************/
@@ -2399,6 +2415,8 @@ scm_init_goops (void)
 
   scm_components = scm_permanent_object (scm_make_weak_key_hash_table
 					 (SCM_MAKINUM (37)));
+
+  goops_rstate = scm_c_make_rstate ("GOOPS", 5);
 
 #include "goops.x"
   
