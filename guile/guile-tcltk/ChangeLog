@@ -1,3 +1,8 @@
+Thu Jun 25 06:07:32 1998  Mikael Djurfeldt  <mdj@totoro.red-bean.com>
+
+	* configure.in: Move checks for X in front of check for tk.h so
+	that proper CPPFLAGS are used during the test.
+
 1998-06-01  Mikael Djurfeldt  <mdj@barbara.nada.kth.se>
 
 	* Makefile.am: Install headers under $(includedir)/guile-tcltk

@@ -61,14 +61,16 @@ if test -n "$with_tkdir"; then
   TK_LIBDIR="-L$with_tkdir/lib"
 fi
 
+AC_PATH_XTRA
+CFLAGS="$CFLAGS $X_CFLAGS"
+CPPFLAGS="$CPPFLAGS $X_CFLAGS"
+
 dnl Checks for libraries.
 CPPFLAGS="$TCLTK_INCLUDE $TK_INCLUDE $CPPFLAGS"
 CFLAGS="$TCLTK_LIBDIR $TK_LIBDIR $CFLAGS"
 AC_CHECK_HEADER(tcl.h,,[AC_MSG_ERROR(Can't find tcl.h)])
 AC_CHECK_HEADER(tk.h,,[AC_MSG_ERROR(Can't find tk.h)])
 
-AC_PATH_XTRA
-CFLAGS="$CFLAGS $X_CFLAGS"
 LIBS="$LIBS $X_LIBS"
 AC_CHECK_LIB(X11, main)
 
