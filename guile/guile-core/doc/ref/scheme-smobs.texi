@@ -165,9 +165,9 @@ Set the first (second, third) immediate word of the smob @var{obj} to
 @code{SCM_SMOB_SET_DATA} (etc.) instead.
 @end deftypefn
 
-@deftypefn {C Macro} SCM *SCM_SMOB_OBJECT_LOC (SCM obj)
-@deftypefnx {C Macro} SCM *SCM_SMOB_OBJECT_2_LOC (SCM obj)
-@deftypefnx {C Macro} SCM *SCM_SMOB_OBJECT_3_LOC (SCM obj)
+@deftypefn {C Macro} {SCM *} SCM_SMOB_OBJECT_LOC (SCM obj)
+@deftypefnx {C Macro} {SCM *} SCM_SMOB_OBJECT_2_LOC (SCM obj)
+@deftypefnx {C Macro} {SCM *} SCM_SMOB_OBJECT_3_LOC (SCM obj)
 Return a pointer to the first (second, third) immediate word of the
 smob @var{obj}.  Note that this is a pointer to @code{SCM}.  If you
 need to work with @code{scm_t_bits} values, use @code{SCM_PACK} and
