@@ -224,6 +224,7 @@ Part II: Guile Scheme
 * Equality::                    When are two values `the same'?
 * Strings::                     Special things about strings.
 * Characters::			New character names.
+* Hooks::                       User-customizable event lists.
 * Property Lists::              Managing metainformation about Scheme objects.
 * Ports::                       I/O in Scheme.
 * Bitwise Operations::          Logical AND, OR, NOT, and so on.
@@ -231,7 +232,6 @@ Part II: Guile Scheme
 * Dynamic Linking from Marius::
 * Dynamic Wind::
 * Threads and Dynamic Roots::
-* Reflection::
 * Weak References::
 * Garbage Collection::
 * Configuration Data::		Version info, library directories, etc.

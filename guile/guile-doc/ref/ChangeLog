@@ -1,7 +1,16 @@
 2000-08-18  Neil Jerram  <neil@ossau.uklinux.net>
 
+	* posix.texi (Ports and File Descriptors): Docstring for select
+	substantially changed by update from libguile source.
+
+	* scheme.texi, posix.texi: Lots more primitive docstrings added.
+
+	* guile.texi (Top): Removed empty Reflection chapter, added new
+	Hooks chapter.
+
 	* scheme.texi: Added docstrings for all Guile primitives from
 	libguile files from arbiters.c to error.c.
+	(Reflection): Empty chapter removed.
 
 	* guile.texi (Top): New chapters "Booleans" and "Equality"
 	(temporary - until we improve the overall organization).

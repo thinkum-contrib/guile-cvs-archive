@@ -8,6 +8,7 @@
 * File System::			stat, chown, chmod, etc.
 * User Information::		Retrieving a user's GECOS (/etc/passwd) entry.
 * Time::			gettimeofday, localtime, strftime, etc.
+* Runtime Environment::         Accessing and modifying Guile's environment.
 * Processes::			getuid, getpid, etc.
 * Signals::                     sigaction, kill, pause, alarm, etc.
 * Terminals and Ptys::		ttyname, tcsetpgrp, etc.
@@ -158,9 +159,11 @@ Sets the revealed count for a port to a given value.  The return value
 is unspecified.
 @end deffn
 
+@c docstring begin (c-doc-string "ioext.c" "fileno")
+@c docstring md5 "96b7af8fd2b539a34033de7db0bc414c"
 @deffn primitive fileno port
-Returns the integer file descriptor underlying @var{port} without
-changing its revealed count.
+Returns the integer file descriptor underlying @var{port}.
+Does not change its revealed count.
 @end deffn
 
 @deffn procedure port->fdes port
@@ -168,14 +171,18 @@ Returns the integer file descriptor underlying @var{port}.  As a
 side effect the revealed count of @var{port} is incremented.
 @end deffn
 
+@c docstring begin (c-doc-string "ioext.c" "fdopen")
+@c docstring md5 "71ccc066db901cf5d9a5758eb2cf15ab"
 @deffn primitive fdopen fdes modes
-Returns a new port based on the file descriptor @var{fdes} with
-modes given by the string @var{modes}.  The revealed count of the port
+Returns a new port based on the file descriptor @var{fdes}.
+Modes are given by the string @var{modes}.  The revealed count of the port
 is initialized to zero.  The modes string is the same as that accepted
 by @ref{File Ports, open-file}.
 @end deffn
 
-@deffn primitive fdes->ports fdes
+@c docstring begin (c-doc-string "ioext.c" "fdes->ports")
+@c docstring md5 "1b8dd9a8d7712545b06371a15ef9664a"
+@deffn primitive fdes->ports fd
 Returns a list of existing ports which have @var{fdes} as an
 underlying file descriptor, without changing their revealed counts.
 @end deffn
@@ -192,11 +199,12 @@ descriptor, if one exists, and increments its revealed count.
 Otherwise, returns a new output port with a revealed count of 1.
 @end deffn
 
-@deffn primitive primitive-move->fdes port fdes
+@c docstring begin (c-doc-string "ioext.c" "primitive-move->fdes")
+@c docstring md5 "d8ad943dd458d64daaa8b72f1e03c0f9"
+@deffn primitive primitive-move->fdes port fd
 Moves the underlying file descriptor for @var{port} to the integer
 value @var{fdes} without changing the revealed count of @var{port}.
-Any other ports
-already using this descriptor will be automatically
+Any other ports already using this descriptor will be automatically
 shifted to new descriptors and their revealed counts reset to zero.
 The return value is @code{#f} if the file descriptor already had the
 required value or @code{#t} if it was moved.
@@ -214,13 +222,17 @@ The return value is unspecified.
 Decrements the revealed count for a port.
 @end deffn
 
-@deffn primitive fsync port/fd
+@c docstring begin (c-doc-string "filesys.c" "fsync")
+@c docstring md5 "6978ec5715e3c25f0189963c4ec3bed0"
+@deffn primitive fsync object
 Copies any unwritten data for the specified output file descriptor to disk.
 If @var{port/fd} is a port, its buffer is flushed before the underlying
 file descriptor is fsync'd.
 The return value is unspecified.
 @end deffn
 
+@c docstring begin (c-doc-string "filesys.c" "open")
+@c docstring md5 "a85466a480dd4c11058d32f5dd5b211f"
 @deffn primitive open path flags [mode]
 Open the file named by @var{path} for reading and/or writing.
 @var{flags} is an integer specifying how the file should be opened.
@@ -251,12 +263,16 @@ See the Unix documentation of the @code{open} system call
 for additional flags.
 @end deffn
 
-@deffn primitive open-fdes path flags [modes]
+@c docstring begin (c-doc-string "filesys.c" "open-fdes")
+@c docstring md5 "90888c2d7883edc7ecc98055b058a6e3"
+@deffn primitive open-fdes path flags [mode]
 Similar to @code{open} but returns a file descriptor instead of a
 port.
 @end deffn
 
-@deffn primitive close port/fd
+@c docstring begin (c-doc-string "filesys.c" "close")
+@c docstring md5 "7efb0d041e4df8717bc3265908e10d19"
+@deffn primitive close fd_or_port
 Similar to close-port (@pxref{Generic Port Operations, close-port}),
 but also works on file descriptors.  A side
 effect of closing a file descriptor is that any ports using that file
@@ -298,7 +314,9 @@ All procedures also have the side effect when performing @code{dup2} that any
 ports using @var{newfd} are moved to a different file descriptor and have
 their revealed counts set to zero.
 
-@deffn primitive dup->fdes port/fd [newfd]
+@c docstring begin (c-doc-string "ioext.c" "dup->fdes")
+@c docstring md5 "e08bccef01e4894730c1769700b7bec4"
+@deffn primitive dup->fdes fd_or_port [fd]
 Returns an integer file descriptor.
 @end deffn
 
@@ -334,7 +352,9 @@ port.
 This procedure is equivalent to @code{(dup->port @var{port} @var{modes})}.
 @end deffn
 
-@deffn primitive redirect-port old-port new-port
+@c docstring begin (c-doc-string "ioext.c" "redirect-port")
+@c docstring md5 "22f3981d9fbf44f4167feb4bd623445c"
+@deffn primitive redirect-port old new
 This procedure takes two ports and duplicates the underlying file
 descriptor from @var{old-port} into @var{new-port}.  The
 current file descriptor in @var{new-port} will be closed.
@@ -377,7 +397,9 @@ If @var{size} is omitted, a default size will be used.
 @end table
 @end deffn
 
-@deffn primitive fcntl fd/port command [value]
+@c docstring begin (c-doc-string "filesys.c" "fcntl")
+@c docstring md5 "bcba351d5e557d889d805a4a159474f9"
+@deffn primitive fcntl object cmd [value]
 Apply @var{command} to the specified file descriptor or the underlying
 file descriptor of the specified port.  @var{value} is an optional
 integer argument.
@@ -405,29 +427,39 @@ The value used to indicate the "close on exec" flag with @code{F_GETFL} or
 @end table
 @end deffn
 
-@deffn primitive select reads writes excepts [secs] [usecs]
-@var{reads}, @var{writes} and @var{excepts} can be lists or vectors: it
-doesn't matter which, but the corresponding object returned will be
-of the same type.
-Each element is a port or file descriptor on which to wait for
-readability, writeability
-or exceptional conditions respectively.  @var{secs} and @var{usecs}
-optionally specify a timeout: @var{secs} can be specified alone, as
-either an integer or a real number, or both @var{secs} and @var{usecs}
-can be specified as integers, in which case @var{usecs} is an additional
-timeout expressed in microseconds.
+@c docstring begin (c-doc-string "filesys.c" "select")
+@c docstring md5 "3a9976b72e1ed744c099ec8cccd9091e"
+@deffn primitive select reads writes excepts [secs [usecs]]
+This procedure has a variety of uses: waiting for the ability
+to provide input, accept output, or the existance of
+exceptional conditions on a collection of ports or file
+descriptors, or waiting for a timeout to occur.
+It also returns if interrupted by a signal.
 
-Buffered input or output data is (currently, but this may change)
-ignored: select uses the underlying file descriptor of a port
-(@code{char-ready?} will check input buffers, output buffers are
-problematic).
+@var{reads}, @var{writes} and @var{excepts} can be lists or
+vectors, with each member a port or a file descriptor.
+The value returned is a list of three corresponding
+lists or vectors containing only the members which meet the
+specified requirement.  The ability of port buffers to
+provide input or accept output is taken into account.
+Ordering of the input lists or vectors is not preserved.
 
-The return value is a list of subsets of the input lists or vectors for
-which the requested condition has been met.
+The optional arguments @var{secs} and @var{usecs} specify the
+timeout.  Either @var{secs} can be specified alone, as
+either an integer or a real number, or both @var{secs} and
+@var{usecs} can be specified as integers, in which case
+@var{usecs} is an additional timeout expressed in
+microseconds.  If @var{secs} is omitted or is @code{#f} then
+select will wait for as long as it takes for one of the other
+conditions to be satisfied.
 
-It is not quite compatible with scsh's select: scsh checks port buffers,
-doesn't accept input lists or a microsecond timeout, returns multiple
-values instead of a list and has an additional select! interface.
+The scsh version of @code{select} differs as follows:
+Only vectors are accepted for the first three arguments.
+The @var{usecs} argument is not supported.
+Multiple values are returned instead of a list.
+Duplicates in the input vectors appear only once in output.
+An additional @code{select!} interface is provided.
+
 @end deffn
 
 @node File System
@@ -468,7 +500,9 @@ test for existence of the file.
 @end deffn
 
 @findex fstat
-@deffn primitive stat obj
+@c docstring begin (c-doc-string "filesys.c" "stat")
+@c docstring md5 "6258bdc5e2a1fdc5765d0b8ae45d6162"
+@deffn primitive stat object
 Returns an object containing various information
 about the file determined by @var{obj}.
 @var{obj} can be a string containing a file name or a port or integer file
@@ -525,12 +559,16 @@ An integer representing the access permission bits.
 @end table
 @end deffn
 
-@deffn primitive lstat path
+@c docstring begin (c-doc-string "filesys.c" "lstat")
+@c docstring md5 "d3bc46e5d4874ca97d101da839e9fa2c"
+@deffn primitive lstat str
 Similar to @code{stat}, but does not follow symbolic links, i.e.,
 it will return information about a symbolic link itself, not the 
 file it points to.  @var{path} must be a string.
 @end deffn
 
+@c docstring begin (c-doc-string "filesys.c" "readlink")
+@c docstring md5 "70c166689a39a0484ca8722dc9b6e3b9"
 @deffn primitive readlink path
 Returns the value of the symbolic link named by
 @var{path} (a string), i.e., the
@@ -539,15 +577,17 @@ file that the link points to.
 
 @findex fchown
 @findex lchown
-@deffn primitive chown obj owner group
-Change the ownership and group of the file referred to by @var{obj} to
-the integer userid values @var{owner} and @var{group}.  @var{obj} can be
-a string containing a file name or a port or integer file descriptor
-which is open on the file (in which case fchown is used as the underlying
-system call).  The return value
+@c docstring begin (c-doc-string "filesys.c" "chown")
+@c docstring md5 "ac17eac22a6c30da8c8c0a22e6bd44fd"
+@deffn primitive chown object owner group
+Change the ownership and group of the file referred to by @var{object} to
+the integer values @var{owner} and @var{group}.  @var{object} can be
+a string containing a file name or, if the platform
+supports fchown, a port or integer file descriptor
+which is open on the file.  The return value
 is unspecified.
 
-If @var{obj} is a symbolic link, either the
+If @var{object} is a symbolic link, either the
 ownership of the link or the ownership of the referenced file will be
 changed depending on the operating system (lchown is
 unsupported at present).  If @var{owner} or @var{group} is specified
@@ -555,7 +595,9 @@ as @code{-1}, then that ID is not changed.
 @end deffn
 
 @findex fchmod
-@deffn primitive chmod obj mode
+@c docstring begin (c-doc-string "filesys.c" "chmod")
+@c docstring md5 "0e1f7a11f4dc6e5da3d7d18568051261"
+@deffn primitive chmod object mode
 Changes the permissions of the file referred to by @var{obj}.
 @var{obj} can be a string containing a file name or a port or integer file
 descriptor which is open on a file (in which case @code{fchmod} is used
@@ -584,32 +626,44 @@ time to the current time.
 @end deffn
 
 @findex unlink
-@deffn primitive delete-file path
+@c docstring begin (c-doc-string "filesys.c" "delete-file")
+@c docstring md5 "17c3347fef1336332a4f969555bf219d"
+@deffn primitive delete-file str
 Deletes (or "unlinks") the file specified by @var{path}.
 @end deffn
 
-@deffn primitive copy-file path-from path-to
+@c docstring begin (c-doc-string "filesys.c" "copy-file")
+@c docstring md5 "137aa2aa9468d418b6a13e3813c47ae6"
+@deffn primitive copy-file oldfile newfile
 Copy the file specified by @var{path-from} to @var{path-to}.
 The return value is unspecified.
 @end deffn
 
 @findex rename
-@deffn primitive rename-file path-from path-to
+@c docstring begin (c-doc-string "filesys.c" "rename-file")
+@c docstring md5 "2227b92a3acae923dfd02ba05cc96f96"
+@deffn primitive rename-file oldname newname
 Renames the file specified by @var{path-from} to @var{path-to}.
 The return value is unspecified.
 @end deffn
 
-@deffn primitive link path-from path-to
+@c docstring begin (c-doc-string "filesys.c" "link")
+@c docstring md5 "9c6d02d42828001aa16a5fee686d0bea"
+@deffn primitive link oldpath newpath
 Creates a new name @var{path-to} in the file system for the file
 named by @var{path-from}.  If @var{path-from} is a symbolic link, the
 link may or may not be followed depending on the system.
 @end deffn
 
-@deffn primitive symlink path-from path-to
+@c docstring begin (c-doc-string "filesys.c" "symlink")
+@c docstring md5 "31fd2786fc026c9944eb29996d3e9b52"
+@deffn primitive symlink oldpath newpath
 Create a symbolic link named @var{path-to} with the value (i.e., pointing to)
 @var{path-from}.  The return value is unspecified.
 @end deffn
 
+@c docstring begin (c-doc-string "filesys.c" "mkdir")
+@c docstring md5 "e67a54a12f318c54aa999605f4f49d88"
 @deffn primitive mkdir path [mode]
 Create a new directory named by @var{path}.  If @var{mode} is omitted
 then the permissions of the directory file are set using the current
@@ -617,33 +671,45 @@ umask.  Otherwise they are set to the decimal value specified with
 @var{mode}.  The return value is unspecified.
 @end deffn
 
+@c docstring begin (c-doc-string "filesys.c" "rmdir")
+@c docstring md5 "e058b4b205337d0817fd5e7d27235c67"
 @deffn primitive rmdir path
 Remove the existing directory named by @var{path}.  The directory must
 be empty for this to succeed.  The return value is unspecified.
 @end deffn
 
-@deffn primitive opendir path
+@c docstring begin (c-doc-string "filesys.c" "opendir")
+@c docstring md5 "5915ceb721cbe59a4dd75673276f0a0e"
+@deffn primitive opendir dirname
 Open the directory specified by @var{path} and return a directory
 stream.
 @end deffn
 
-@deffn primitive directory-stream? object
+@c docstring begin (c-doc-string "filesys.c" "directory-stream?")
+@c docstring md5 "0c75fe0d0847c50736785514575e77c4"
+@deffn primitive directory-stream? obj
 Returns a boolean indicating whether @var{object} is a directory stream
 as returned by @code{opendir}.
 @end deffn
 
-@deffn primitive readdir stream
+@c docstring begin (c-doc-string "filesys.c" "readdir")
+@c docstring md5 "0e21ed21b970dcae94e724bf996eee8c"
+@deffn primitive readdir port
 Return (as a string) the next directory entry from the directory stream
 @var{stream}.  If there is no remaining entry to be read then the
 end of file object is returned.
 @end deffn
 
-@deffn primitive rewinddir stream
+@c docstring begin (c-doc-string "filesys.c" "rewinddir")
+@c docstring md5 "14f889dbb2edfc4ac8aed8c2ff3b5ae1"
+@deffn primitive rewinddir port
 Reset the directory port @var{stream} so that the next call to
 @code{readdir} will return the first directory entry.
 @end deffn
 
-@deffn primitive closedir stream
+@c docstring begin (c-doc-string "filesys.c" "closedir")
+@c docstring md5 "2122c53d261111a56719cd5791d00702"
+@deffn primitive closedir port
 Close the directory stream @var{stream}.
 The return value is unspecified.
 @end deffn
@@ -676,6 +742,19 @@ Create a new file in the file system with a unique name.  The return
 value is the name of the new file.  This function is implemented with
 the @code{tmpnam} function in the system libraries.
 @end deffn
+
+@c docstring begin (c-doc-string "filesys.c" "dirname")
+@c docstring md5 "c8dcb11b303d7bb6960a0ed4bfb161c9"
+@deffn primitive dirname filename
+
+@end deffn
+
+@c docstring begin (c-doc-string "filesys.c" "basename")
+@c docstring md5 "d7bfcd5fcff6d8e4de208ef039d997e2"
+@deffn primitive basename filename [suffix]
+
+@end deffn
+
 
 @node User Information
 @section User Information
@@ -926,20 +1005,88 @@ Both "system" and "user" time
 are included but subprocesses are not.
 @end deffn
 
+@node Runtime Environment
+@section Runtime Environment
+
+@c docstring begin (c-doc-string "feature.c" "program-arguments")
+@c docstring md5 "3770213cd3f1159249731d0ac2ce36e1"
+@deffn primitive program-arguments
+@deffnx procedure command-line
+Return the list of command line arguments passed to Guile, as a list of
+strings.  The list includes the invoked program name, which is usually
+@code{"guile"}, but excludes switches and parameters for command line
+options like @code{-e} and @code{-l}.
+@end deffn
+
+@c docstring begin (c-doc-string "simpos.c" "getenv")
+@c docstring md5 "30277e0b3c4bbd72385ae8681f22c3fc"
+@deffn primitive getenv nam
+Looks up the string @var{name} in the current environment.  The return
+value is @code{#f} unless a string of the form @code{NAME=VALUE} is
+found, in which case the string @code{VALUE} is returned.
+@end deffn
+
+@c begin (scm-doc-string "boot-9.scm" "setenv")
+@deffn procedure setenv name value
+Modifies the environment of the current process, which is
+also the default environment inherited by child processes.
+
+If @var{value} is @code{#f}, then @var{name} is removed from the
+environment.  Otherwise, the string @var{name}=@var{value} is added
+to the environment, replacing any existing string with name matching
+@var{name}.
+
+The return value is unspecified.
+@end deffn
+
+@c docstring begin (c-doc-string "posix.c" "environ")
+@c docstring md5 "ad213dbcc3273ac1e90199dfc466932e"
+@deffn primitive environ [env]
+If @var{env} is omitted, returns the current environment as a list of strings.
+Otherwise it sets the current environment, which is also the
+default environment for child processes, to the supplied list of strings.
+Each member of @var{env} should be of the form
+@code{NAME=VALUE} and values of @code{NAME} should not be duplicated.
+If @var{env} is supplied then the return value is unspecified.
+@end deffn
+
+@c docstring begin (c-doc-string "posix.c" "putenv")
+@c docstring md5 "3eeac174e2574ed521922f185e523fed"
+@deffn primitive putenv str
+Modifies the environment of the current process, which is
+also the default environment inherited by child processes.
+
+If @var{string} is of the form @code{NAME=VALUE} then it will be written
+directly into the environment, replacing any existing environment string
+with
+name matching @code{NAME}.  If @var{string} does not contain an equal
+sign, then any existing string with name matching @var{string} will
+be removed.
+
+The return value is unspecified.
+@end deffn
+
+
 @node Processes
 @section Processes
 
 @findex cd
-@deffn primitive chdir path
+@c docstring begin (c-doc-string "filesys.c" "chdir")
+@c docstring md5 "2685497e5e67430a9883dbe608a75510"
+@deffn primitive chdir str
 Change the current working directory to @var{path}.
 The return value is unspecified.
 @end deffn
 
 @findex pwd
+@c docstring begin (c-doc-string "filesys.c" "getcwd")
+@c docstring md5 "1484f4d06fb0bd01a2d643512ef56cfc"
 @deffn primitive getcwd
 Returns the name of the current working directory.
 @end deffn
 
+@c docstring begin (c-doc-string "filesys.c" "umask")
+@c docstring md5 "13d23b48788b85e19cf645d70e41b7c2"
 @deffn primitive umask [mode]
 If @var{mode} is omitted, retuns a decimal number representing the current
 file creation mask.  Otherwise the file creation mask is set to
@@ -1152,48 +1299,6 @@ This procedure has been renamed from @code{fork} to avoid a naming conflict
 with the scsh fork.
 @end deffn
 
-@deffn primitive getenv name
-Looks up the string @var{name} in the current environment.  The return
-value is @code{#f} unless a string of the form @code{NAME=VALUE} is
-found, in which case the string @code{VALUE} is
-returned.
-@end deffn
-
-@deffn primitive putenv string
-Modifies the environment of the current process, which is
-also the default environment inherited by child processes.
-
-If @var{string} is of the form @code{NAME=VALUE} then it will be written
-directly into the environment, replacing any existing environment string
-with
-name matching @code{NAME}.  If @var{string} does not contain an equal
-sign, then any existing string with name matching @var{string} will
-be removed.
-
-The return value is unspecified.
-@end deffn
-
-@deffn procedure setenv name value
-Modifies the environment of the current process, which is
-also the default environment inherited by child processes.
-
-If @var{value} is @code{#f}, then @var{name} is removed from the
-environment.  Otherwise, the string @var{name}=@var{value} is added
-to the environment, replacing any existing string with name matching
-@var{name}.
-
-The return value is unspecified.
-@end deffn
-
-@deffn primitive environ [env]
-If @var{env} is omitted, returns the current environment as a list of strings.
-Otherwise it sets the current environment, which is also the
-default environment for child processes, to the supplied list of strings.
-Each member of @var{env} should be of the form
-@code{NAME=VALUE} and values of @code{NAME} should not be duplicated.
-If @var{env} is supplied then the return value is unspecified.
-@end deffn
-
 @deffn primitive nice incr
 Increment the priority of the current process by @var{incr}.  A higher
 priority value means that the process runs less often.
@@ -1301,9 +1406,12 @@ arrives.  The return value is zero if the time elapses or the number
 of seconds remaining otherwise.
 @end deffn
 
+
 @node Terminals and Ptys
 @section Terminals and Ptys
 
+@c docstring begin (c-doc-string "ioext.c" "isatty?")
+@c docstring md5 "1b2ffca3673bfbb1d10eb7acb8370467"
 @deffn primitive isatty? port
 Returns @code{#t} if @var{port} is using a serial
 non-file device, otherwise @code{#f}.
@@ -1395,6 +1503,8 @@ the database routines since they are not reentrant.
 
 @subsubsection Address Conversion
 
+@c docstring begin (c-doc-string "net_db.c" "inet-aton")
+@c docstring md5 "a8f0bc778d0cf8be1c6935663e0095fc"
 @deffn primitive inet-aton address
 Converts a string containing an Internet host address in the traditional
 dotted decimal notation into an integer.
@@ -1405,15 +1515,18 @@ dotted decimal notation into an integer.
 @end smalllisp
 @end deffn
 
-@deffn primitive inet-ntoa number
+@c docstring begin (c-doc-string "net_db.c" "inet-ntoa")
+@c docstring md5 "4c53383e55ab10d2414b864d401c5727"
+@deffn primitive inet-ntoa inetid
 Converts an integer Internet host address into a string with the
 traditional dotted decimal representation.
 
 @smalllisp
-(inet-ntoa 2130706433) @result{} "127.0.0.1"
-@end smalllisp
+(inet-ntoa 2130706433) @result{} "127.0.0.1"@end smalllisp
 @end deffn
 
+@c docstring begin (c-doc-string "net_db.c" "inet-netof")
+@c docstring md5 "e581d05cbd37681c208c1dc725c24747"
 @deffn primitive inet-netof address
 Returns the network number part of the given integer Internet address.
 
@@ -1422,6 +1535,8 @@ Returns the network number part of the given integer Internet address.
 @end smalllisp
 @end deffn
 
+@c docstring begin (c-doc-string "net_db.c" "inet-lnaof")
+@c docstring md5 "6a95d1a178fdf8355e3db513bead6558"
 @deffn primitive inet-lnaof address
 Returns the local-address-with-network part of the given Internet
 address.
@@ -1431,6 +1546,8 @@ address.
 @end smalllisp
 @end deffn
 
+@c docstring begin (c-doc-string "net_db.c" "inet-makeaddr")
+@c docstring md5 "95472f652402e6b02cf659de5b80785f"
 @deffn primitive inet-makeaddr net lna
 Makes an Internet host address by combining the network number @var{net}
 with the local-address-within-network number @var{lna}.
@@ -1468,6 +1585,8 @@ The list of network addresses associated with @var{host}.
 
 The following procedures are used to search the host database:
 
+@c docstring begin (c-doc-string "net_db.c" "gethost")
+@c docstring md5 "a3404f167c6f690968b6fd6868d2c927"
 @deffn primitive gethost [host]
 @deffnx procedure gethostbyname hostname
 @deffnx procedure gethostbyaddr address
@@ -1504,6 +1623,8 @@ This procedure may not be used before @code{sethostent} has been called.
 Close the stream used by @code{gethostent}.  The return value is unspecified.
 @end deffn
 
+@c docstring begin (c-doc-string "net_db.c" "sethost")
+@c docstring md5 "fe5859cf2f433aa294dc21fb024758d5"
 @deffn primitive sethost [stayopen]
 If @var{stayopen} is omitted, this is equivalent to @code{endhostent}.
 Otherwise it is equivalent to @code{sethostent stayopen}.
@@ -1529,6 +1650,8 @@ The network number.
 
 The following procedures are used to search the network database:
 
+@c docstring begin (c-doc-string "net_db.c" "getnet")
+@c docstring md5 "90766cd966150d87361355dc54ea441a"
 @deffn primitive getnet [net]
 @deffnx procedure getnetbyname net-name
 @deffnx procedure getnetbyaddr net-number
@@ -1559,6 +1682,8 @@ Return the next entry from the network database.
 Close the stream used by @code{getnetent}.  The return value is unspecified.
 @end deffn
 
+@c docstring begin (c-doc-string "net_db.c" "setnet")
+@c docstring md5 "3c799404c874fdcf64dc90c6edf58475"
 @deffn primitive setnet [stayopen]
 If @var{stayopen} is omitted, this is equivalent to @code{endnetent}.
 Otherwise it is equivalent to @code{setnetent stayopen}.
@@ -1581,6 +1706,8 @@ The protocol number.
 
 The following procedures are used to search the protocol database:
 
+@c docstring begin (c-doc-string "net_db.c" "getproto")
+@c docstring md5 "fc2a312858c9fac717c4d3e7aeb3a8ae"
 @deffn primitive getproto [protocol]
 @deffnx procedure getprotobyname name
 @deffnx procedure getprotobynumber number
@@ -1610,6 +1737,8 @@ Return the next entry from the protocol database.
 Close the stream used by @code{getprotoent}.  The return value is unspecified.
 @end deffn
 
+@c docstring begin (c-doc-string "net_db.c" "setproto")
+@c docstring md5 "a6d4e36df0f2369cf600db462882c867"
 @deffn primitive setproto [stayopen]
 If @var{stayopen} is omitted, this is equivalent to @code{endprotoent}.
 Otherwise it is equivalent to @code{setprotoent stayopen}.
@@ -1636,7 +1765,9 @@ in the database under different protocol names.
 
 The following procedures are used to search the service database:
 
-@deffn primitive getserv [name protocol]
+@c docstring begin (c-doc-string "net_db.c" "getserv")
+@c docstring md5 "167798f1dcf2f83db97edea824eb9ff0"
+@deffn primitive getserv [name [protocol]]
 @deffnx procedure getservbyname name protocol
 @deffnx procedure getservbyport port protocol
 Look up a network service by name or by service number, and return a
@@ -1669,6 +1800,8 @@ Return the next entry from the services database.
 Close the stream used by @code{getservent}.  The return value is unspecified.
 @end deffn
 
+@c docstring begin (c-doc-string "net_db.c" "setserv")
+@c docstring md5 "e33108541670434d076307d3a3ad4345"
 @deffn primitive setserv [stayopen]
 If @var{stayopen} is omitted, this is equivalent to @code{endservent}.
 Otherwise it is equivalent to @code{setservent stayopen}.

@@ -706,6 +706,12 @@ space use, and demonstrate how one would do Python's "from Tkinter
 import *" versus "import Tkinter".  Must also add something about paths
 and standards for contributed modules.]
 
+@c docstring begin (c-doc-string "modules.c" "standard-eval-closure")
+@c docstring md5 "d75383d1d2288f7db01336d44a32f1cf"
+@deffn primitive standard-eval-closure module
+
+@end deffn
+
 Some modules are included in the Guile distribution; here are references
 to the entries in this manual which describe them in more detail:
 @table @strong
@@ -1001,6 +1007,13 @@ Return true if @var{obj} is a promise, i.e. a delayed computation
 (@pxref{Delayed evaluation,,,r4rs.info,The Revised^4 Report on Scheme}).
 @end deffn
 
+@c docstring begin (c-doc-string "eval.c" "force")
+@c docstring md5 "6d17d45e09a92e6f25e1a8719bfa9035"
+@deffn primitive force x
+If the promise X has not been computed yet, compute and return
+X, otherwise just return the previously computed value.
+@end deffn
+
 @c docstring begin (c-doc-string "eval.c" "copy-tree")
 @c docstring md5 "f38abb1b3506d0c1c8f7ace8046a8b05"
 @deffn primitive copy-tree obj
@@ -1009,6 +1022,12 @@ pointer to the new data structure.  @code{copy-tree} recurses down the
 contents of both pairs and vectors (since both cons cells and vector
 cells may point to arbitrary objects), and stops recursing when it hits
 any other object.
+@end deffn
+
+@c docstring begin (c-doc-string "eval.c" "cons-source")
+@c docstring md5 "4d37da7bf9d30dcb7bb546634de93874"
+@deffn primitive cons-source xorig x y
+
 @end deffn
 
 @c ARGFIXME environment/environment specifier
@@ -1045,6 +1064,12 @@ or forms, and return whatever value they produce.
 Evaluation takes place in (interaction-environment).
 @end deffn
 
+@c docstring begin (c-doc-string "eval.c" "apply:nconc2last")
+@c docstring md5 "de49b8c12eae402aa52cb31b6470c5b1"
+@deffn primitive apply:nconc2last lst
+
+@end deffn
+
 @c NJFIXME explain [env]
 @c docstring begin (c-doc-string "evalext.c" "defined?")
 @c docstring md5 "e292d80196883b1292b5638b6b13eedc"
@@ -1059,6 +1084,18 @@ Read a form from @var{port} (standard input by default), and evaluate it
 (memoizing it in the process) in the top-level environment.  If no data
 is left to be read from @var{port}, an @code{end-of-file} error is
 signalled.
+@end deffn
+
+@c docstring begin (c-doc-string "eval.c" "eval-options-interface")
+@c docstring md5 "4f9bd6cb2f73b5c4cb95ce0dbc08dcff"
+@deffn primitive eval-options-interface [setting]
+
+@end deffn
+
+@c docstring begin (c-doc-string "eval.c" "evaluator-traps-interface")
+@c docstring md5 "7de01bbbdf1f676c33c354925e8917a3"
+@deffn primitive evaluator-traps-interface [setting]
+
 @end deffn
 
 @c ARGFIXME file/filename
@@ -1121,8 +1158,58 @@ list @code{("" ".scm")}.
 @node Lists
 @chapter Lists
 
-This chapter describes Guile list functions not found in standard
-Scheme.
+@c docstring begin (c-doc-string "list.c" "list")
+@c docstring md5 "c006f2b74e3edc63fae792335a92ed7b"
+@deffn primitive list . objs
+Return a list containing OBJS, the arguments to `list'.
+@end deffn
+
+@c docstring begin (c-doc-string "list.c" "cons*")
+@c docstring md5 "2e1cbf777b41ca1b2808f6597306922b"
+@deffn primitive cons* arg . rest
+Like `list', but the last arg provides the tail of the constructed list,
+returning (cons ARG1 (cons ARG2 (cons ... ARGn))).
+Requires at least one argument.  If given one argument, that argument
+is returned as result.
+This function is called `list*' in some other Schemes and in Common LISP.
+@end deffn
+
+@c docstring begin (c-doc-string "list.c" "list?")
+@c docstring md5 "b78ddbadc3efbc2630fefe61aa118b27"
+@deffn primitive list? x
+Return #t iff X is a proper list, else #f.
+@end deffn
+
+@c docstring begin (c-doc-string "list.c" "null?")
+@c docstring md5 "2892108f8a596c9649739c6a5c3610e2"
+@deffn primitive null? x
+Return #t iff X is the empty list, else #f.
+@end deffn
+
+@c docstring begin (c-doc-string "list.c" "length")
+@c docstring md5 "77bf06d7a7a60002040ceff44e65f8a0"
+@deffn primitive length lst
+Return the number of elements in list LST.
+@end deffn
+
+@c docstring begin (c-doc-string "list.c" "append")
+@c docstring md5 "76e5d6633d1453a480a29b6e817e21a1"
+@deffn primitive append . args
+Returns a list consisting of the elements of the first LIST
+followed by the elements of the other LISTs.
+
+  (append '(x) '(y))          =>  (x y)
+  (append '(a) '(b c d))      =>  (a b c d)
+  (append '(a (b)) '((c)))    =>  (a (b) (c))
+
+The resulting list is always newly allocated, except that it shares
+structure with the last LIST argument.  The last argument may
+actually be any object; an improper list results if the last
+argument is not a proper list.
+  (append '(a b) '(c . d))    =>  (a b c . d)
+  (append '() 'a)             =>  a
+
+@end deffn
 
 @c ARGFIXME args ?
 @c docstring begin (c-doc-string "list.c" "append!")
@@ -1141,6 +1228,12 @@ Return a pointer to the last pair in @var{lst}, signalling an error if
 @var{lst} is circular.
 @end deffn
 
+@c docstring begin (c-doc-string "list.c" "reverse")
+@c docstring md5 "3bde5f0e4180e8e78c25e4218108e170"
+@deffn primitive reverse lst
+Return a new list that contains the elements of LST but in reverse order.
+@end deffn
+
 @c NJFIXME explain new_tail
 @c docstring begin (c-doc-string "list.c" "reverse!")
 @c docstring md5 "4e423ebc21373a93765b0ac45982b4c8"
@@ -1156,6 +1249,12 @@ the tail.  Therefore, the @var{lst} symbol to which the head of the
 original list was bound now points to the tail.  To ensure that the head
 of the modified list is not lost, it is wise to save the return value of
 @code{reverse!}
+@end deffn
+
+@c docstring begin (c-doc-string "list.c" "list-ref")
+@c docstring md5 "d0c1f657510159d6a16cd06aacbcc90a"
+@deffn primitive list-ref list k
+Return the Kth element from LIST.
 @end deffn
 
 @c docstring begin (c-doc-string "list.c" "list-set!")
@@ -1193,6 +1292,36 @@ return it.
 @c docstring md5 "215f62a5f0dec314262c1b794c4c4973"
 @deffn primitive list-copy lst
 Return a (newly-created) copy of @var{lst}.
+@end deffn
+
+@c docstring begin (c-doc-string "list.c" "memq")
+@c docstring md5 "87d9a80dbd5c09cb76bf99de8bb53320"
+@deffn primitive memq x lst
+Return the first sublist of LST whose car is `eq?' to X
+where the sublists of LST are the non-empty lists returned
+by `(list-tail LST K)' for K less than the length of LST.  If
+X does not occur in LST, then `#f' (not the empty list) is
+returned.
+@end deffn
+
+@c docstring begin (c-doc-string "list.c" "memv")
+@c docstring md5 "721a49fcdf0e9f285acd8550c97fbcaf"
+@deffn primitive memv x lst
+Return the first sublist of LST whose car is `eqv?' to X
+where the sublists of LST are the non-empty lists returned
+by `(list-tail LST K)' for K less than the length of LST.  If
+X does not occur in LST, then `#f' (not the empty list) is
+returned.
+@end deffn
+
+@c docstring begin (c-doc-string "list.c" "member")
+@c docstring md5 "e44cf3f8688f4930e549861d77b14a16"
+@deffn primitive member x lst
+Return the first sublist of LST whose car is `equal?' to X
+where the sublists of LST are the non-empty lists returned
+by `(list-tail LST K)' for K less than the length of LST.  If
+X does not occur in LST, then `#f' (not the empty list) is
+returned.
 @end deffn
 
 @c docstring begin (c-doc-string "list.c" "delq")
@@ -1235,6 +1364,27 @@ destructive list functions, these functions cannot modify the binding of
 @var{lst} destructively.
 @end deffn
 
+@c docstring begin (c-doc-string "list.c" "delq1!")
+@c docstring md5 "fb1f3cce4042ee6b9a69e002032240ae"
+@deffn primitive delq1! item lst
+Like `delq!', but only deletes the first occurrence of ITEM from LST.
+Tests for equality using `eq?'.  See also `delv1!' and `delete1!'.
+@end deffn
+
+@c docstring begin (c-doc-string "list.c" "delv1!")
+@c docstring md5 "377e67cf5ad155a750524f6ed5beb993"
+@deffn primitive delv1! item lst
+Like `delv!', but only deletes the first occurrence of ITEM from LST.
+Tests for equality using `eqv?'.  See also `delq1!' and `delete1!'.
+@end deffn
+
+@c docstring begin (c-doc-string "list.c" "delete1!")
+@c docstring md5 "c5a64173bf6da16d51b800e531c45ab9"
+@deffn primitive delete1! item lst
+Like `delete!', but only deletes the first occurrence of ITEM from LST.
+Tests for equality using `equal?'.  See also `delq1!' and `delv1!'.
+@end deffn
+
 [FIXME: is there any reason to have the `sloppy' functions available at
 high level at all?  Maybe these docs should be relegated to a "Guile
 Internals" node or something. -twp]
@@ -1262,6 +1412,16 @@ This procedure behaves like @code{member}, but does no type or error checking.
 Its use is recommended only in writing Guile internals,
 not for high-level Scheme programs.
 @end deffn
+
+@c begin (c-doc-string "eval.c" "map")
+@deffn primitive map proc arg1 . args
+@deffnx primitive map-in-order proc arg1 . args
+@end deffn
+
+@c begin (c-doc-string "eval.c" "for-each")
+@deffn primitive for-each proc arg1 . args
+@end deffn
+
 
 @page
 @node Data Structures
@@ -2850,6 +3010,20 @@ table size.  @code{assoc} must be an associator function, like
 @code{assoc}, @code{assq} or @code{assv}.
 @end deffn
 
+@c docstring begin (c-doc-string "hashtab.c" "hash-fold")
+@c docstring md5 "36a5b67e8f40912d109fb263b4ec525e"
+@deffn primitive hash-fold proc init table
+An iterator over hash-table elements.
+Accumulates and returns a result by applying PROC successively.
+The arguments to PROC are "(key value prior-result)" where key
+and value are successive pairs from the hash table TABLE, and
+prior-result is either INIT (for the first application of PROC)
+or the return value of the previous application of PROC.
+For example, @code{(hash-fold acons () tab)} will convert a hash
+table into an a-list of key-value pairs.
+
+@end deffn
+
 
 @page
 @node Booleans
@@ -3449,6 +3623,65 @@ Return the uppercase character version of @var{chr}.
 @c docstring md5 "62b73bf1358b40ff93fb3d39602649fd"
 @deffn primitive char-downcase chr
 Return the lowercase character version of @var{chr}.
+@end deffn
+
+
+@page
+@node Hooks
+@chapter Hooks
+
+@c docstring begin (c-doc-string "hooks.c" "make-hook-with-name")
+@c docstring md5 "4d39a736ed23d2650f32171ffce911e0"
+@deffn primitive make-hook-with-name name [n_args]
+
+@end deffn
+
+@c docstring begin (c-doc-string "hooks.c" "make-hook")
+@c docstring md5 "087b54fd9b4dce02c82f05e56b32118f"
+@deffn primitive make-hook [n_args]
+
+@end deffn
+
+@c docstring begin (c-doc-string "hooks.c" "hook?")
+@c docstring md5 "616427dc58e243402a1a3f2e826b2194"
+@deffn primitive hook? x
+
+@end deffn
+
+@c docstring begin (c-doc-string "hooks.c" "hook-empty?")
+@c docstring md5 "040ca85325a0b09fb21aa86aec51ee34"
+@deffn primitive hook-empty? hook
+
+@end deffn
+
+@c docstring begin (c-doc-string "hooks.c" "add-hook!")
+@c docstring md5 "ce17974a42304b212694678664336055"
+@deffn primitive add-hook! hook proc [append_p]
+
+@end deffn
+
+@c docstring begin (c-doc-string "hooks.c" "remove-hook!")
+@c docstring md5 "0b61fffdabd631b304a32c6dff157d36"
+@deffn primitive remove-hook! hook proc
+
+@end deffn
+
+@c docstring begin (c-doc-string "hooks.c" "reset-hook!")
+@c docstring md5 "5aa2fbe328edf1452527244b33d57ebc"
+@deffn primitive reset-hook! hook
+
+@end deffn
+
+@c docstring begin (c-doc-string "hooks.c" "run-hook")
+@c docstring md5 "45f8ab325bccefd0cc264b8cc7ae596c"
+@deffn primitive run-hook hook . args
+
+@end deffn
+
+@c docstring begin (c-doc-string "hooks.c" "hook->list")
+@c docstring md5 "82b38218f950fcaeb2a2d6980c09da36"
+@deffn primitive hook->list hook
+
 @end deffn
 
 
@@ -5377,7 +5610,9 @@ reviewed and largely reorganized.]
 * Asyncs::
 * Dynamic Roots::               
 * Threads::                     
+* Fluids::
 @end menu
+
 
 @node Arbiters
 @section Arbiters
@@ -5584,11 +5819,11 @@ written in scheme.
 When using Guile threads, keep in mind that each guile thread is
 executed in a new dynamic root.
 
-
 @menu
 * Low level thread primitives::  
 * Higher level thread procedures::  
 @end menu
+
 
 @node Low level thread primitives
 @subsection Low level thread primitives
@@ -5643,6 +5878,7 @@ in undefined behaviour. Once a mutex has been unlocked, one thread
 blocked on @var{mutex} is awakened and grabs the mutex lock. 
 @end deffn
 
+
 @node Higher level thread procedures
 @subsection Higher level thread procedures
 
@@ -5696,23 +5932,48 @@ blocked on @var{mutex} is awakened and grabs the mutex lock.
 @end deffn
 
 
-@page
-@node Reflection
-@chapter Reflection
+@node Fluids
+@section Fluids
 
-[FIXME: this is pasted in from Tom Lord's original guile.texi and should
-be reviewed]
+@c docstring begin (c-doc-string "fluids.c" "make-fluid")
+@c docstring md5 "96eebe29392700d94402d5645df24559"
+@deffn primitive make-fluid
+Return a newly created fluid.
+Fluids are objects of a certain type (a smob) that can hold one SCM
+value per dynamic root.  That is, modifications to this value are
+only visible to code that executes within the same dynamic root as
+the modifying code.  When a new dynamic root is constructed, it
+inherits the values from its parent.  Because each thread executes
+in its own dynamic root, you can use fluids for thread local storage.
+@end deffn
 
-@menu
-* eval::                        
-* Tag Values::                  
-@end menu
+@c docstring begin (c-doc-string "fluids.c" "fluid?")
+@c docstring md5 "69df02e8718c165fc436ee6c97d0dec4"
+@deffn primitive fluid? obj
+Return #t iff @var{obj} is a fluid; otherwise, return #f.
+@end deffn
 
-@node eval
-@section eval
+@c docstring begin (c-doc-string "fluids.c" "fluid-ref")
+@c docstring md5 "ca0dde7953a27e5ca7ffb4e870c725fc"
+@deffn primitive fluid-ref fluid
+Return the value associated with @var{fluid} in the current dynamic root.
+If @var{fluid} has not been set, then this returns #f.
+@end deffn
 
-@node Tag Values
-@section Tag Values
+@c docstring begin (c-doc-string "fluids.c" "fluid-set!")
+@c docstring md5 "0b793ba07aa5dc00929360faec2e4f63"
+@deffn primitive fluid-set! fluid value
+Set the value associated with @var{fluid} in the current dynamic root.
+@end deffn
+
+@c docstring begin (c-doc-string "fluids.c" "with-fluids*")
+@c docstring md5 "544241b2ad335ba3af801c821df581a4"
+@deffn primitive with-fluids* fluids values thunk
+Set @var{fluids} to @var{values} temporary, and call @var{thunk}.
+@var{fluids} must be a list of fluids and @var{values} must be the same
+number of their values to be applied.  Each substitution is done
+one after another.  @var{thunk} must be a procedure with no argument.
+@end deffn
 
 
 @page
@@ -5842,6 +6103,13 @@ Return an integer that for the lifetime of @var{obj} is uniquely
 returned by this function for @var{obj}
 @end deffn
 
+@c docstring begin (c-doc-string "gc.c" "unhash-name")
+@c docstring md5 "40fae8826080151f71c3b5528fd24c3c"
+@deffn primitive unhash-name name
+
+@end deffn
+
+
 @page
 @node Configuration Data
 @chapter Configuration Data
@@ -5879,6 +6147,32 @@ another.
 Return the name of the directory where Scheme packages, modules and
 libraries are kept.  On most Unix systems, this will be
 @samp{/usr/local/share/guile}.
+@end deffn
+
+@c docstring begin (c-doc-string "load.c" "%library-dir")
+@c docstring md5 "77cbdcc3cd57615bbfe5bf5c2d1cbb75"
+@deffn primitive %library-dir
+Return the directory where the Guile Scheme library files are installed.
+E.g., may return "/usr/share/guile/1.3.5".
+@end deffn
+
+@c docstring begin (c-doc-string "load.c" "%site-dir")
+@c docstring md5 "05f030014edd49353060ae15bf378e98"
+@deffn primitive %site-dir
+Return the directory where the Guile site files are installed.
+E.g., may return "/usr/share/guile/site".
+@end deffn
+
+@c docstring begin (c-doc-string "load.c" "parse-path")
+@c docstring md5 "ed21e355ea697539e74e8c27205f973f"
+@deffn primitive parse-path path [tail]
+
+@end deffn
+
+@c docstring begin (c-doc-string "load.c" "search-path")
+@c docstring md5 "b4ed2f5b643c53a2f16ec3964f98c97f"
+@deffn primitive search-path path filename [extensions]
+
 @end deffn
 
 @defvar %load-path
