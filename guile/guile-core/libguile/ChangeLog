@@ -1,8 +1,20 @@
 1999-09-06  James Blandy  <jimb@mule.m17n.org>
 
+	* mbbasic.c, mbbasic.h: New files.
+	* init.c: #include "mbbasic.h"
+	* Makefile.am (libguile_la_SOURCES, BUILT_SOURCES,
+	modinclude_HEADERS): Include the `mbbasic' files in the lists.
+	* Makefile.in: Regenerated.
+
+	* mbemacs.h: New file, containing macros for dealing with the
+	Emacs-Mule encoding.
+	* mb.c: Definitions removed from here, to mbemacs.h, and #include
+	mbemacs.h.
+
 	* mbconv.c: New file.
 	* init.c: #include "mbconv.h".
 	(scm_boot_guile_1): call scm_init_mbconv.
+
 	* mbconv.h: Add extern declaration for scm_init_mbconv.
 	* Makefile.am (libguile_la_SOURCES, BUILT_SOURCES,
 	modinclude_HEADERS): Include the `mbconv' files in the lists.
