@@ -1,5 +1,8 @@
 1999-03-21  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
+	* goops.c (make_struct_classes): New argument order in
+	scm_internal_hash_fold: Moved table argument last.
+
 	* goops.scm (define-class, class): Change in syntax: Removed the
 	redundant pair of parenthesis around the slot definitions.  (We
 	anyway need to go through the list of slots in both macros, so
