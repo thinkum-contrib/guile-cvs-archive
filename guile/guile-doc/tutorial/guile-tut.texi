@@ -821,7 +821,7 @@ that is done, and how that can be useful.
 
 @menu
 * Two world views::             
-* What is libguile -- high and low level::  
+* What is libguile::  
 * How to get started with libguile::  
 * More interesting programming with libguile::  
 * Further examples::            
@@ -878,8 +878,8 @@ through examples of libguile use, we will point out which is the master
 world in order to clarify these two approaches.
 
 
-@node What is libguile -- high and low level
-@section What is libguile -- high and low level
+@node What is libguile
+@section What is libguile
 @cindex libguile
 @cindex gh interface
 @cindex scm interface
