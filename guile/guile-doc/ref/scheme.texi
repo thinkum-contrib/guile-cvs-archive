@@ -2933,19 +2933,6 @@ Returns a new port using the new file descriptor.  @var{mode} supplies a
 mode string for the port (@pxref{File Ports, open-file}).
 @end deffn
 
-@deffn procedure primitive-dup port/fd
-Performs a dup system call on the file descriptor @var{fd}, or the file
-descriptor underlying @var{port} and returns a new integer file descriptor.
-@end deffn
-
-@deffn procedure primitive-dup2 port/fd newfd
-Performs a @code{dup2} system call on the file descriptor @var{fd}, or the file
-descriptor underlying @var{port}, using @var{newfd} (an integer) as the target
-file descriptor.  Any ports using @var{newfd} are moved to a different file
-descriptor and have their revealed counts set to zero.  The value
-returned is @var{newfd}.
-@end deffn
-
 @deffn procedure duplicate-port port modes
 Returns a new port which is opened on a duplicate of the file
 descriptor underlying @var{port}, with mode string @var{modes}
@@ -2988,6 +2975,27 @@ Close all open file ports used by the interpreter
 except for those supplied as arguments.  This procedure
 is intended to be used before an exec call to close file descriptors
 which are not needed in the new process.
+@end deffn
+
+@deffn procedure setvbuf port mode [size]
+Set the buffering mode for @var{port}.  @var{mode} can be:
+@table @code
+@item _IONBF
+non-buffered
+@item _IOLBF
+line buffered
+@item _IOFBF
+block buffered, using a newly allocated buffer of @var{size} bytes.
+However if @var{size} is zero or unspecified, the port will be made
+non-buffered.
+@end table
+
+This procedure should not be used after I/O has been performed with
+the port.
+
+Ports are usually block buffered by default, with a default buffer size.
+Procedures e.g., @ref{File Ports, open-file}, which accept a
+mode string allow @code{0} to be added to request an unbuffered port.
 @end deffn
 
 @deffn procedure freopen filename modes port

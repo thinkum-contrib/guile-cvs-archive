@@ -1,3 +1,7 @@
+Tue Jul 29 02:01:21 1997  Gary Houston  <ghouston@actrix.gen.nz>
+
+	* setvbuf added.  primitive-dup[2] removed.
+
 Sat Jul 26 04:25:40 1997  Gary Houston  <ghouston@actrix.gen.nz>
 
 	* various close and dup procedures added, plus setenv.
