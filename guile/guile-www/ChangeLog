@@ -1,3 +1,8 @@
+2003-10-09  Kevin Ryde  <user42@zip.com.au>
+
+	* http.scm (http:message-status-ok?): Use http:message-status-code,
+	not non-existant http:status-code.
+
 2003-08-31  Marius Vollmer  <mvo@zagadka.de>
 
 	* cgi.scm (cgi:make-cookie): Use '#:key' instead of the deprecated
