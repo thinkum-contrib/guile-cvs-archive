@@ -228,7 +228,7 @@ scm_makekey (char *s)
 }
 
 SCM
-scm_i_get_keyword (SCM key, SCM l, int len, SCM default_value, char *subr)
+scm_i_get_keyword (SCM key, SCM l, int len, SCM default_value, const char *subr)
 {
   int i;
   for (i = 0; i < len; i += 2)
