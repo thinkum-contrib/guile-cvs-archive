@@ -12,7 +12,17 @@
   6. with-slots: slot reference --> @slot-ref|set! | proc call
   7. with-accessord: accessor ref --> -- " --
 
+  The following would be necessary to remove overhead for matrix
+  setting in (math matrix):
+
+  8. (setter proc) --> proc
+  9. (proc exp1 ...) --> proc body if body uses formals once or
+exp1 ... are atomic
+
   NOTE: Use slot types if present.
+
+* scm_slot_SCM in C interfac (make sure that the right mark in the
+  layout is set)
 
 * Beware of the next-method dispatch problem!
 

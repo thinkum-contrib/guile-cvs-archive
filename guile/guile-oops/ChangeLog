@@ -1,3 +1,16 @@
+1999-09-15  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
+
+	* README, goops.texi (Introduction): Revised the presentation of
+	GOOPS in line with suggestion from Per Bothner.
+
+	* describe.scm (safe-class-name): New procedure: Checks that the
+	class has a name before calling class-name.  Use it throughout
+	instead of class-name.  (Thanks to Bernard Urban.)
+
+	* goops.scm, goops.c, goops.texi, README (write-object,
+	display-object): Removed.  Instead use the new primitive generics
+	`display' and `write'.
+
 1999-09-07  Mikael Djurfeldt  <mdj@mdj-pc.nada.kth.se>
 
 	* goops.scm (primitive-generic-generic): Exported.
