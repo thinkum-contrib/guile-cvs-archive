@@ -35,13 +35,16 @@ alist=guile-api.alist
 
 do_the_scan ()
 {
+# we can probably compute sofile from guile
 $scan pre-inst-guile \
-    libguile/.libs/libguile.so.[0-9]*.* \
-    $srcdir/doc/groupings.alist
+      libguile/.libs/libguile.so.[0-9]*.* \
+      $srcdir/doc/groupings.alist \
+      "$@"
 }
 
 if [ x"$1" = x-n ] ; then
-    do_the_scan
+    shift
+    do_the_scan "$@"
     exit $?
 fi
 
@@ -53,7 +56,7 @@ set -ex
 :
 : munge
 :
-  do_the_scan > $alistdir/$alist
+  do_the_scan "$@" > $alistdir/$alist
 :
 : commit
 :
