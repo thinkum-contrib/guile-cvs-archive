@@ -1,5 +1,5 @@
-@node Libguile -- a high level interface
-@chapter Libguile -- a high level interface
+@node A Portable C to Scheme Interface
+@chapter A Portable C to Scheme Interface
 @cindex libguile - gh
 @cindex gh
 @cindex gh - reference manual

@@ -145,7 +145,7 @@ Part I: Guile Scheme
 
 Part II: Using Scheme with C --- a Portable Interface
 
-* Libguile -- a high level interface::
+* A Portable C to Scheme Interface::
 * gh preliminaries::
 * Data types and constants defined by gh::
 * Starting and controlling the interpreter::

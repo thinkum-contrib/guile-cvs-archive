@@ -140,8 +140,7 @@ not.
 
 But even more fundamentally, Guile is meant to be an @emph{embeddable}
 Scheme interpreter.  This means that a lot of work has gone into
-packaging the interpreter as a C library (@pxref{Libguile -- a high
-level interface} and @pxref{Scheme data representation}).
+packaging the interpreter as a C library (@pxref{A Portable C to Scheme Interface} and @pxref{Scheme data representation}).
 
 This reference manual is mainly driven by the need to document all the
 features that go beyond standard Scheme.
