@@ -1,3 +1,8 @@
+Wed Oct  1 21:48:41 1997  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* ltconfig, ltmain.sh: Updated to libtool-1.0c.
+	(Thanks to Dave Love.)
+
 Sat Sep 27 16:19:37 1997  Jim Blandy  <jimb@totoro.red-bean.com>
 
 	* Makefile.in, aclocal.m4, config.guess, config.sub, configure:
