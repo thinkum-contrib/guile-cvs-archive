@@ -48,6 +48,10 @@ esac
 AC_SUBST(GOOPS_MAJOR_VERSION)
 AC_SUBST(GOOPS_MINOR_VERSION)
 AC_SUBST(GOOPS_VERSION)
+AC_SUBST(LIBGOOPSCORE_MAJOR_VERSION)
+AC_SUBST(LIBGOOPSCORE_MINOR_VERSION)
+AC_SUBST(LIBGOOPSCORE_REVISION_VERSION)
+AC_SUBST(LIBGOOPSCORE_VERSION)
 
 ## If we're creating a shared library (using libtool!), then we'll
 ## need to generate a list of .lo files corresponding to the .o files
