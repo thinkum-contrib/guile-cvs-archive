@@ -1,3 +1,9 @@
+1999-03-18  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* goops.scm (compute-std-cpl): Compute a CLOS-style cpl.
+	(define-class): Bugfix: Added `new' as alternative in the
+	redefinition condition.
+
 1999-03-16  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* goops.scm (define-class-pre-definition): Bugfix: Pass name to
