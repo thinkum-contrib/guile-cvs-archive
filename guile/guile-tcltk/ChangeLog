@@ -1,3 +1,19 @@
+1998-11-24  Mikael Djurfeldt  <mdj@barbara.nada.kth.se>
+
+	* configure.in: Check if we have guile-config or build-guile.
+
+	* Makefile.am: Added install-exec-hook which creates links to the
+	gtcltk library in the tcltk module directory.
+	(libgtcltk_la_LDFLAGS): Added -export-dynamic.
+
+	* gtcltk-module.c (scm_init_tcltk_gtcltk_module): Renamed from
+	scm_init_ice_9_gtcltk_module.
+
+	* guile-tcltk.c (inner_main): Call scm_init_tcltk_gtcltk_module
+	instead of scm_init_gtcl and scm_init_gtk.
+
+	* tcltk.scm: Use module (tcltk gtcltk).
+
 1998-10-29  Jim Blandy  <jimb@zwingli.cygnus.com>
 
 	* guile-tcl.c (mark_interp): Assume that the caller has set the
