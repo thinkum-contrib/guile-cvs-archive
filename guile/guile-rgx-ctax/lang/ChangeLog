@@ -1,3 +1,11 @@
+Tue Aug 20 07:39:24 1996  Mikael Djurfeldt  <mdj@woody.nada.kth.se>
+
+	* grammar.scm (grammar-cache): Renamed weak-hash-table -->
+	weak-key-hash-table.
+
+	* lr0.scm (item-closure): Renamed weak-hash-table -->
+	weak-key-hash-table.
+	
 Thu Aug  1 02:56:13 1996  Jim Blandy  <jimb@totoro.cyclic.com>
 
 	* Makefile.in (dist-dir): New target, for new dist system.
