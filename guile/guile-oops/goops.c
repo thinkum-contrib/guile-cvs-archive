@@ -1218,6 +1218,34 @@ test_slot_existence (SCM class, SCM obj, SCM slot_name)
 
 SCM_PROC1 (s_sys_logand, "%logand", scm_tc7_asubr, scm_sys_logand);
 
+static unsigned long
+scm_sloppy_num2ulong (SCM num, char *pos, const char *s_caller)
+{
+  unsigned long res;
+
+  if (SCM_INUMP (num))
+    {
+      if (SCM_INUM (num) < 0)
+	goto out_of_range;
+      res = SCM_INUM (num);
+      return res;
+    }
+  SCM_ASRTGO (SCM_NIMP (num), wrong_type_arg);
+  if (SCM_BIGP (num))
+    {
+      scm_sizet l;
+
+      res = 0;
+      for (l = SCM_NUMDIGS (num); l--;)
+	res = SCM_BIGUP (res) + SCM_BDIGITS (num)[l];
+      return res;
+    }
+ wrong_type_arg:
+  scm_wrong_type_arg (s_caller, (int) pos, num);
+ out_of_range:
+  scm_out_of_range (s_caller, num);
+}
+
 static SCM
 scm_sys_logand (SCM n1, SCM n2)
 {
@@ -1228,8 +1256,8 @@ scm_sys_logand (SCM n1, SCM n2)
       return n1;
     }
   {
-    unsigned long u1 = scm_num2ulong (n1, (char *) 1, s_sys_logand);
-    unsigned long u2 = scm_num2ulong (n2, (char *) 2, s_sys_logand);
+    unsigned long u1 = scm_sloppy_num2ulong (n1, (char *) 1, s_sys_logand);
+    unsigned long u2 = scm_sloppy_num2ulong (n2, (char *) 2, s_sys_logand);
     return scm_ulong2num (u1 & u2);
   }
 }
