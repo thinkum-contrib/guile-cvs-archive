@@ -1,8 +1,0 @@
-Makefile
-Makefile.in
-ltdl.c.diff
-ltdl.h.diff
-raw-ltdl.guilemod.c
-raw-ltdl.guilemod.c.tmp
-raw-ltdl.guilemod.h
-raw-ltdl.guilemod.h.tmp
