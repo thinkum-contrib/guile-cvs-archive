@@ -1,3 +1,19 @@
+1999-10-08  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	Bugfix: Given method M1 with specializers S1, ..., Sk and M2 with
+	specializers S1, ..., Sk, Sk+1, ... (specializers S1, ..., Sk same
+	as for M1), a call to M2 got a cache hit on M1 if M1 had been used
+	before.  This is fixed with the following changes:
+	
+	* dispatch.scm (method-cache-install!): Don't initialize
+	n-specialized here.
+
+	* goops.scm (internal-add-method!): Set n-specialized to the
+	number of specializers + 1 for rest arg specializers.
+
+	* goops.c (scm_sys_invalidate_method_cache_x): Initialize
+	n-specialized in the method cache here.
+
 1999-09-21  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
 	* dispatch.scm (memoize-method!): Bugfix: Handle no-applicable
