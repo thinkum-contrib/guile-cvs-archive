@@ -77,7 +77,7 @@
     (arity x)))
 
 ;;;
-;;; describe for STklos instances
+;;; describe for GOOPS instances
 ;;;
 (define-method describe ((x <object>))
   (format #t "~S is an instance of class ~A~%" x (class-name (class-of x)))
