@@ -16,4 +16,4 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 
 dnl Checks for library functions.
 AC_FUNC_ALLOCA
-AC_OUTPUT(Makefile PLUGIN/guile.config PLUGIN/guile.inits PLUGIN/guile.libs)
+AC_OUTPUT(Makefile PLUGIN/guile.config)

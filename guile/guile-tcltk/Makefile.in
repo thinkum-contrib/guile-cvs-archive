@@ -111,7 +111,7 @@ dist-dir:
 	  ln ${srcdir}/$$f ${DISTDIR}; \
 	done
 	mkdir ${DISTDIR}/PLUGIN
-	for f in REQ greet guile.config.in guile.inits.in guile.libs.in; do \
+	for f in .cvsignore REQ greet guile.config.in guile.inits guile.libs; do \
 	  ln ${srcdir}/PLUGIN/$$f ${DISTDIR}/PLUGIN; \
 	done
 
