@@ -4,8 +4,7 @@
 	accessor constructors.
 	(define-class): Skip options with non-symbolic arg, don't
 	terminate scan!
-	(compute-cpl): Compute precedence list with depth-first instead of
-	breadth first.
+	(compute-cpl): Made a generic.
 
 1999-03-15  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
