@@ -56,8 +56,7 @@ static void
 inner_main (void *closure, int argc, char **argv)
 {
   /* module initializations go here */
-  scm_init_gtcl ();
-  scm_init_gtk ();
+  scm_init_tcltk_gtcltk_module ();
   scm_shell (argc, argv);
 }
 
