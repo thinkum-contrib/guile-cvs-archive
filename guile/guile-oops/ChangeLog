@@ -3,6 +3,8 @@
 	* goops/goops.scm: Use module (goops core).
 	(initialize <class>): %inherit-magic! before initializing layout
 	slot.
+	(initialize <generic>): Let instances of subclasses of <generic>
+	use apply-generic.
 
 	* goops.c (CLASSP): Use the metaclass flag to determine if the
 	object is a class.  This is faster than looking in the supers
