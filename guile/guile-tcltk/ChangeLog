@@ -1,3 +1,10 @@
+Thu Apr 10 15:07:23 1997  Jim Blandy  <jimb@floss.cyclic.com>
+
+	* Makefile.am (MKDEP): Use -MM, not -M, so we don't get
+	dependencies for system header files.  We still get deps for the
+	stuff within the Guile dist, though.
+	* Makefile.in: Rebuilt.
+
 Wed Apr  9 17:57:44 1997  Jim Blandy  <jimb@floss.cyclic.com>
 
 	Changes to work with automake-1.1n, which has better libtool support.
