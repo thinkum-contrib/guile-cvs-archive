@@ -22,7 +22,8 @@
 ;  :no-backtrace
   )
 
-(export memoize-method! make-apply-generic)
+(export memoize-method!
+	make-apply-generic apply-0-arity-method make-method-cache)
 
 (define hashsets 8)
 (define hashset-index 10)
@@ -32,19 +33,27 @@
 
 ;;; Method cache
 
-;; (#@dispatch N-SPECIALIZED #((TYPE1 ... FORMALS ENV FORM1 ...) ...))
-;; (#@hash-dispatch N-SPECIALIZED HASHSET MASK
-;;                  #((TYPE1 ... FORMALS ENV FORM1 ...) ...))
+;; (#@dispatch args N-SPECIALIZED #((TYPE1 ... FORMALS ENV FORM1 ...) ...) GF)
+;; (#@hash-dispatch args N-SPECIALIZED HASHSET MASK
+;;                  #((TYPE1 ... FORMALS ENV FORM1 ...) ...)
+;;                  GF)
 
 ;;; Representation
 
 (define (method-cache-hashed? x)
-  (integer? (caddr x)))
+  (integer? (cadddr x)))
 
-(define method-cache-n-specialized cadr)
+(define method-cache-n-specialized caddr)
 (define (set-method-cache-n-specialized! exp n)
-  (set-car! (cdr exp) n))
-(define method-cache-entries caddr)
+  (set-car! (cddr exp) n))
+(define method-cache-entries cadddr)
+
+(define (make-method-cache gf)
+  `(@dispatch args 1 ,(make-vector initial-hash-size '(#f)) ,gf))
+
+(define (method-cache->hashed! exp)
+  (set-cdr! (cddr exp) (cons 0 (cons (- initial-hash-size 1) (cdddr exp))))
+  exp)
 
 (define (n-cache-methods entries)
   (let ((len (vector-length entries)))
@@ -75,16 +84,16 @@
   )
 
 (define (set-hashed-method-cache-hashset! exp hashset)
-  (set-car! (cddr exp) hashset))
+  (set-car! (cdddr exp) hashset))
 
 (define (set-hashed-method-cache-mask! exp mask)
-  (set-car! (cdddr exp) mask))
+  (set-car! (cddddr exp) mask))
 
 (define (hashed-method-cache-entries exp)
-  (list-ref exp 4))
+  (list-ref exp 5))
 
 (define (set-hashed-method-cache-entries! exp entries)
-  (set-car! (cddddr exp) entries))
+  (set-car! (list-cdr-ref exp 5) entries))
 
 (define (hashed-method-cache-insert! exp entry)
   (let* ((cache (hashed-method-cache-entries exp))
@@ -146,19 +155,6 @@
 		     (throw 'misses misses)))))
 	   (lambda (key misses)
 	     misses))))
-
-(define e (list (list <generic> <number> '(()))
-		(list <number> <real> <pair> '(()))
-		(list <integer> '(()))
-		(list <integer> <integer> '(()))))
-
-(define (make-method-cache)
-  `(@dispatch 0 ,(make-vector initial-hash-size '(#f))))
-
-(define (method-cache->hashed! exp)
-  (set-cdr! (cdr exp) (cons 0 (cons (- initial-hash-size 1) (cddr exp))))
-  (set-car! exp '@hash-dispatch)
-  exp)
 
 (define (method-cache-install! insert! exp args applicable)
   (let* ((specializers (method-specializers (car applicable)))
@@ -225,7 +221,7 @@
 (define (compile-method methods types)
   (let* ((proc (method-procedure (car methods)))
 	 (src (procedure-source proc))
-	 (formals (cdr (source-formals src)))
+	 (formals (source-formals src))
 	 (vcell (cons 'goops:make-next-method #f)))
     (set-cdr! vcell (make-make-next-method vcell (cdr methods) types))
     ;;*fixme*
@@ -257,21 +253,17 @@
 
 (define (apply-0-arity-method gf)
   ;;*fixme* Want to use generic cam.  How to avoid looping?
-  (let ((applicable (%compute-applicable-methods gf '())))
+  (let ((applicable (apply find-method gf '())))
     (if (not applicable)
 	(no-applicable-method gf '())
-	(let ((code (compile-method applicable '())))
-	  (set-object-procedure! gf (local-eval (code-code code)
-						(code-environment code)))
+	(let* ((code (compile-method applicable '()))
+	       (closure (cons 'lambda (cons '(gf) (code-code code)))))
+	  (set-object-procedure! gf
+				 (local-eval closure (code-environment code)))
 	  (gf)))))
 
-(define goops-env
-  (list (module-eval-closure (nested-ref the-root-module
-					 '(app modules oop goops)))))
-
-(define (make-apply-generic)
-  (let ((e goops-env))
-    (list apply-0-arity-method
-	  (local-eval `(lambda (gf a1) ,(make-method-cache)) e)
-	  (local-eval `(lambda (gf a1 a2) ,(make-method-cache)) e)
-	  (local-eval `(lambda (gf a1 a2 a3 . rest) ,(make-method-cache)) e))))
+(define (make-apply-generic gf)
+  (list apply-0-arity-method
+	(make-method-cache gf)
+	(make-method-cache gf)
+	(make-method-cache gf)))

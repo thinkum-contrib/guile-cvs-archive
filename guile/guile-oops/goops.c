@@ -408,7 +408,7 @@ scm_sys_initialize_object (SCM obj, SCM initargs)
 }
 
 
-SCM_KEYWORD (k_type, "type");
+SCM_KEYWORD (k_class, "class");
 
 SCM_PROC (s_sys_prep_layout_x, "%prep-layout!", 1, 0, 0, scm_sys_prep_layout_x);
 
@@ -444,7 +444,7 @@ scm_sys_prep_layout_x (SCM class)
 			"to few slot definitions",
 			SCM_EOL);
       len = scm_ilength (SCM_CDAR (slots));
-      type = scm_i_get_keyword (k_type, SCM_CDAR (slots), len, SCM_BOOL_F,
+      type = scm_i_get_keyword (k_class, SCM_CDAR (slots), len, SCM_BOOL_F,
 				s_sys_prep_layout_x);
       if (SCM_NIMP (type) && SCM_SUBCLASSP (type, scm_class_foreign_slot))
 	{
@@ -601,54 +601,54 @@ build_class_class_slots ()
 {
   return maplist (
          scm_cons (SCM_LIST3 (Intern ("layout"),
-			      k_type,
+			      k_class,
 			      scm_class_protected_read_only),
 	 scm_cons (SCM_LIST3 (Intern ("vcell"),
-			      k_type,
+			      k_class,
 			      scm_class_opaque),
 	 scm_cons (SCM_LIST3 (Intern ("vtable"),
-			      k_type,
+			      k_class,
 			      scm_class_self),
 	 scm_cons (Intern ("print"),
 	 scm_cons (SCM_LIST3 (Intern ("procedure0"),
-			      k_type,
+			      k_class,
 			      scm_class_protected_opaque),
 	 scm_cons (SCM_LIST3 (Intern ("procedure1"),
-			      k_type,
+			      k_class,
 			      scm_class_protected_opaque),
 	 scm_cons (SCM_LIST3 (Intern ("procedure2"),
-			      k_type,
+			      k_class,
 			      scm_class_protected_opaque),
 	 scm_cons (SCM_LIST3 (Intern ("procedure3"),
-			      k_type,
+			      k_class,
 			      scm_class_protected_opaque),
 	 scm_cons (SCM_LIST3 (Intern ("setter"),
-			      k_type,
+			      k_class,
 			      scm_class_protected_opaque),
 	 scm_cons (Intern ("redefined"),
 	 scm_cons (SCM_LIST3 (Intern ("h0"),
-			      k_type,
+			      k_class,
 			      scm_class_int),
 	 scm_cons (SCM_LIST3 (Intern ("h1"),
-			      k_type,
+			      k_class,
 			      scm_class_int),
 	 scm_cons (SCM_LIST3 (Intern ("h2"),
-			      k_type,
+			      k_class,
 			      scm_class_int),
 	 scm_cons (SCM_LIST3 (Intern ("h3"),
-			      k_type,
+			      k_class,
 			      scm_class_int),
 	 scm_cons (SCM_LIST3 (Intern ("h4"),
-			      k_type,
+			      k_class,
 			      scm_class_int),
 	 scm_cons (SCM_LIST3 (Intern ("h5"),
-			      k_type,
+			      k_class,
 			      scm_class_int),
 	 scm_cons (SCM_LIST3 (Intern ("h6"),
-			      k_type,
+			      k_class,
 			      scm_class_int),
 	 scm_cons (SCM_LIST3 (Intern ("h7"),
-			      k_type,
+			      k_class,
 			      scm_class_int),
 	 scm_cons (Intern ("name"),
 	 scm_cons (Intern ("direct-supers"),
@@ -1194,6 +1194,8 @@ scm_sys_allocate_instance (SCM class, SCM initargs)
     return scm_make_foreign_object (class, initargs);
   
   n = SCM_INUM (SCM_SLOT (class, scm_si_nfields));
+  /*fixme* Optimize: look at several flags simultaneously to filter
+           out the most common case immediately */
   if (SCM_CLASS_FLAGS (class) & SCM_CLASSF_METACLASS)
     {
       /* allocate class object */
@@ -1583,16 +1585,26 @@ SCM_SYNTAX (s_dispatch, "@dispatch", scm_makmmacro, scm_m_dispatch);
 SCM
 scm_m_dispatch (SCM xorig, SCM env)
 {
-  SCM n, v, x = SCM_CDR (xorig);
-  SCM_ASSYNT (scm_ilength (x) == 2, xorig, scm_s_expression, s_dispatch);
+  SCM args, n, v, gf, x = SCM_CDR (xorig);
+  SCM_ASSYNT (scm_ilength (x) == 4, xorig, scm_s_expression, s_dispatch);
+  args = SCM_CAR (x);
+  SCM_ASSYNT (SCM_NIMP (args) && (SCM_CONSP (args) || SCM_SYMBOLP (args)),
+	      args, SCM_ARG1, s_dispatch);
+  x = SCM_CDR (x);
   n = SCM_XEVALCAR (x, env);
-  SCM_ASSYNT (SCM_INUMP (n), n, SCM_ARG1, s_dispatch);
+  SCM_ASSYNT (SCM_INUMP (n), n, SCM_ARG2, s_dispatch);
+  SCM_ASSYNT (SCM_INUM (n) >= 1, n, SCM_OUTOFRANGE, s_dispatch);
   x = SCM_CDR (x);
   v = SCM_XEVALCAR (x, env);
-  SCM_ASSYNT (SCM_NIMP (v) && SCM_VECTORP (v), v, SCM_ARG2, s_dispatch);
-  return SCM_LIST3 (SCM_IM_DISPATCH, n, v);
+  SCM_ASSYNT (SCM_NIMP (v) && SCM_VECTORP (v), v, SCM_ARG3, s_dispatch);
+  x = SCM_CDR (x);
+  gf = SCM_XEVALCAR (x, env);
+  SCM_ASSYNT (SCM_NIMP (gf) && SCM_STRUCTP (gf) && SCM_PUREGENERICP (gf),
+	      gf, SCM_ARG4, s_dispatch);
+  return SCM_LIST5 (SCM_IM_DISPATCH, args, n, v, gf);
 }
 
+#if 0
 SCM_SYNTAX (s_hash_dispatch, "@hash-dispatch", scm_makmmacro, scm_m_hash_dispatch);
 
 SCM
@@ -1611,11 +1623,12 @@ scm_m_hash_dispatch (SCM xorig, SCM env)
   SCM_ASSYNT (SCM_NIMP (v) && SCM_VECTORP (v), v, SCM_ARG4, s_hash_dispatch);
   return SCM_LIST5 (SCM_IM_HASH_DISPATCH, n, hashset, mask, v);
 }
+#endif
 
 static void
-memoize_method (SCM x, SCM values)
+memoize_method (SCM x, SCM args)
 {
-  CALL_GF3 ("memoize-method!", SCM_CAR (values), SCM_CDR (values), x);
+  CALL_GF3 ("memoize-method!", SCM_CAR (scm_last_pair (x)), args, x);
 }
 
 /******************************************************************************
@@ -1657,10 +1670,7 @@ scm_make (SCM args)
 				    scm_get_keyword (k_name,
 						     args,
 						     SCM_BOOL_F));
-      scm_set_object_procedure_x
-	(z, scm_apply (GETVAR (Intern ("make-apply-generic")),
-		       SCM_EOL,
-		       SCM_EOL));
+      scm_set_object_procedure_x (z, CALL_GF1 ("make-apply-generic", z));
       if (class == scm_class_generic_with_setter)
 	{
 	  SCM setter = scm_get_keyword (k_setter, args, SCM_BOOL_F);
@@ -1843,10 +1853,10 @@ create_standard_classes (void)
   make_stdcls (&scm_class_foreign_class, "<foreign-class>",
 	       scm_class_class, scm_class_class,
 	       SCM_LIST2 (SCM_LIST3 (Intern ("constructor"),
-				     k_type,
+				     k_class,
 				     scm_class_opaque),
 			  SCM_LIST3 (Intern ("destructor"),
-				     k_type,
+				     k_class,
 				     scm_class_opaque)));
   make_stdcls (&scm_class_foreign_object,  "<foreign-object>",
 	       scm_class_foreign_class, scm_class_top,	   SCM_EOL);
@@ -2156,7 +2166,7 @@ scm_add_slot (SCM class, char *slot_name, SCM slot_class,
       SCM aname = SCM_CAR (scm_intern0 (accessor_name));
       SCM gf = scm_ensure_accessor (aname);
       SCM slot = SCM_LIST5 (name,
-			    k_type, slot_class,
+			    k_class, slot_class,
 			    setter ? k_accessor : k_getter,
 			    gf);
       SCM gns = SCM_LIST4 (name, SCM_BOOL_F, get, set);
@@ -2240,6 +2250,27 @@ scm_add_method (SCM gf, SCM m)
 	     scm_goops_lookup_closure);
 }
 
+#ifdef GUILE_DEBUG
+/*
+ * Debugging utilities
+ */
+
+SCM_PROC (s_pure_generic_p, "pure-generic?", 1, 0, 0, scm_pure_generic_p);
+
+SCM
+scm_pure_generic_p (SCM obj)
+{
+  return (SCM_NIMP (obj) && SCM_STRUCTP (obj) && SCM_PUREGENERICP (obj)
+	  ? SCM_BOOL_T
+	  : SCM_BOOL_F);
+}
+
+#endif /* GUILE_DEBUG */
+
+/*
+ * Initialization
+ */
+
 SCM_PROC (scm_sys_goops_loaded, "%goops-loaded", 0, 0, 0, sys_goops_loaded);
 
 static SCM
@@ -2256,6 +2287,8 @@ scm_init_goops (void)
   SCM goops_module = scm_make_module (scm_read_0str ("(oop goops)"));
   SCM old_module = scm_select_module (goops_module);
   scm_goops_lookup_closure = scm_module_lookup_closure (goops_module);
+  scm_apply_generic_env
+    = scm_permanent_object (SCM_LIST1 (scm_goops_lookup_closure));
 
   scm_components = scm_permanent_object (scm_make_weak_key_hash_table
 					 (SCM_MAKINUM (37)));

@@ -500,7 +500,7 @@
 	      (body (cddr exp)))
 	  `(make <method>
 		 #:specializers (list* ,@(specializers args))
-		 #:procedure (lambda ,(cons 'next-method (formals args))
+		 #:procedure (lambda ,(formals args)
 			       ,@(if (null? body)
 				     (list *unspecified*)
 				     body))))))))
@@ -539,7 +539,7 @@
 		methods)
 	      (loop (cdr l)))))))
 
-(define (internal-add-method! next-method gf m)
+(define (internal-add-method! gf m)
   (slot-set! m  'generic-function gf)
   (slot-set! gf 'methods (compute-new-list-of-methods gf m))
   (add-method-in-classes! m)
@@ -547,7 +547,7 @@
 
 (define-generic add-method!)
 
-(internal-add-method! #f add-method!
+(internal-add-method! add-method!
 		      (make <method>
 			#:specializers (list <generic> <method>)
 			#:procedure internal-add-method!))
@@ -911,25 +911,25 @@
 	      (add-method! getter-function
 			   (make <accessor-method>
 				 #:specializers (list class)
-				 #:procedure (lambda (nm o)
+				 #:procedure (lambda (o) ;*fixme*
 					       (slot-ref o name)))))
 	  (if setter-function
 	      (add-method! setter-function
 			   (make <accessor-method>
 				 #:specializers (list class <top>)
-				 #:procedure (lambda (nm o v)
+				 #:procedure (lambda (o v)
 					       (slot-set! o name v)))))
 	  (if accessor
 	      (begin
 		(add-method! accessor
 			     (make <accessor-method>
 				   #:specializers (list class)
-				   #:procedure (lambda (nm o)
+				   #:procedure (lambda (o)
 						 (slot-ref o name))))
 		(add-method! (setter accessor)
 			     (make <accessor-method>
 				   #:specializers (list class <top>)
-				   #:procedure (lambda (nm o v)
+				   #:procedure (lambda (o v)
 						 (slot-set! o name v))))))))
       slots))
 
@@ -1223,12 +1223,13 @@
 	(name (get-keyword #:name initargs #f)))
     ;; Primitive apply-generic-<n> for direct instances of <generic>
     (next-method generic (append initargs
-				 (list #:procedure (make-apply-generic))))
+				 (list #:procedure
+				       (make-apply-generic generic))))
     (slot-set! generic 'methods (if (is-a? previous-definition <procedure>)
 				    (list (make <method>
 						#:specializers <top>
 						#:procedure
-						(lambda (nm . l)
+						(lambda l
 						  (apply previous-definition 
 							 l))))
 				    '()))

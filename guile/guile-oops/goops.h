@@ -96,12 +96,14 @@ typedef struct scm_method_t {
 
 #define SCM_METHOD(obj) ((scm_method_t *) SCM_STRUCT_DATA (obj))
 
-#define SCM_CLASSF_PURE_GENERIC	   (0x004 << 20)
-#define SCM_CLASSF_SIMPLE_METHOD   (0x008 << 20)
-#define SCM_CLASSF_ACCESSOR_METHOD (0x010 << 20)
+#define SCM_CLASSF_SIMPLE_METHOD    (0x004 << 20)
+#define SCM_CLASSF_ACCESSOR_METHOD  (0x008 << 20)
 
-#define SCM_CLASSF_FOREIGN	 (0x020 << 20)
-#define SCM_CLASSF_METACLASS     (0x040 << 20)
+/* Defined in libguile/objects.c */
+/* #define SCM_CLASSF_PURE_GENERIC  (0x010 << 20) */
+
+#define SCM_CLASSF_FOREIGN	    (0x020 << 20)
+#define SCM_CLASSF_METACLASS        (0x040 << 20)
 
 /* Defined in libguile/objects.c */
 /* #define SCM_CLASSF_GOOPS_VALID   (0x080 << 20) */
