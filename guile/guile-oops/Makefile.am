@@ -17,20 +17,25 @@ EXTRA_guile_oops_SOURCES = fdi.c
 
 include_HEADERS = goops.h goops-snarf.h
 
-pkginclude_HEADERS = versiondat.h
+modincludedir = $(includedir)/goops
+## This file is generated at configure time.  That is why it is DATA
+## and not a header -- headers are included in the distribution.
+modinclude_DATA = versiondat.h
 
 subpkgdatadir = $(datadir)/guile/oop
 subpkgdata_DATA = goops.scm
 
+goops_sources = dispatch.scm compile.scm util.scm stklos.scm \
+		describe.scm internal.scm active-slot.scm composite-slot.scm
+
 goopsdatadir = $(datadir)/guile/oop/goops
-goopsdata_DATA = dispatch.scm compile.scm util.scm \
-		 describe.scm internal.scm active-slot.scm composite-slot.scm
+goopsdata_DATA = $(goops_sources)
 
 info_TEXINFOS = goops.texi
 goops_TEXINFOS = goops-tutorial.texi hierarchy.eps hierarchy.txt
 
 EXTRA_DIST = ANON-CVS COPYRIGHTS GOOPS-VERSION HACKING SNAPSHOTS TAGS TODO \
-             mop.text
+             goops.scm $(goops_sources) mop.text
 
 install-exec-hook:
 	$(mkinstalldirs) $(goopsdatadir)
