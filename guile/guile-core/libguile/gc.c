@@ -884,6 +884,8 @@ scm_storage_prehistory ()
   scm_c_hook_init (&scm_after_gc_c_hook, 0, SCM_C_HOOK_NORMAL);
 }
 
+scm_t_mutex scm_i_gc_admin_mutex;
+
 int
 scm_init_storage ()
 {
@@ -891,6 +893,8 @@ scm_init_storage ()
 
   /* Fixme: Should use mutexattr from the low-level API. */
   scm_rec_mutex_init (&scm_i_sweep_mutex, &scm_i_plugin_rec_mutex);
+
+  scm_i_plugin_mutex_init (&scm_i_gc_admin_mutex, &scm_i_plugin_mutex);
   
   j = SCM_NUM_PROTECTS;
   while (j)
