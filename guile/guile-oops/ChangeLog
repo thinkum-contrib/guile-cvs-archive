@@ -1,3 +1,7 @@
+2000-03-23  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* goops.c (wrap_init): Cast second arg to SETCDR to SCM.
+
 2000-03-14  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
 	* goops.c (create_smob_classes): Adaptations to reorganization of
