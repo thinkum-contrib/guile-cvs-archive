@@ -1,3 +1,12 @@
+2000-06-21  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
+
+	* Version 0.1.8 released.  (This is a quick release in order to
+	avoid lot's a bug-reports due to 0.1.6's incompatibility with
+	Guile-1.4.)
+
+	* goops-snarf.h (SCM_SLOT_SCM): scm_class_SCM --> scm_class_scm.
+	(Thanks to Maurizio Vitale.)
+	
 2000-06-04  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
 	* goops.scm (internal-add-method!): Bugfix: n-specialized must be
