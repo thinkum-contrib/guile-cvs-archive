@@ -2480,8 +2480,12 @@ create_smob_classes (void)
   for (i = 0; i < 255; ++i)
     scm_smob_class[i] = 0;
 
+#ifdef scm_tc16_big
+  scm_smob_class[SCM_TC2SMOBNUM (scm_tc16_big)] = scm_class_integer;
+#else
   scm_smob_class[SCM_TC2SMOBNUM (scm_tc16_bigpos)] = scm_class_integer;
   scm_smob_class[SCM_TC2SMOBNUM (scm_tc16_bigneg)] = scm_class_integer;
+#endif
   scm_smob_class[SCM_TC2SMOBNUM (scm_tc16_keyword)] = scm_class_keyword;
   
   for (i = 0; i < scm_numsmob; ++i)
