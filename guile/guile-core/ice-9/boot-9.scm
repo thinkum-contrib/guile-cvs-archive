@@ -1251,6 +1251,7 @@
 	   ((module-binder m) m v #t))
       (begin
 	(let ((answer (make-undefined-variable)))
+	  (variable-set-name-hint! answer v)
 	  (module-obarray-set! (module-obarray m) v answer)
 	  (module-modified m)
 	  answer))))
@@ -1406,7 +1407,9 @@
 	(begin
 	  (variable-set! variable value)
 	  (module-modified module))
-	(module-add! module name (make-variable value)))))
+	(let ((variable (make-variable value)))
+	  (variable-set-name-hint! variable name)
+	  (module-add! module name variable)))))
 
 ;; MODULE-DEFINED? -- exported
 ;;
