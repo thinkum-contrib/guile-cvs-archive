@@ -23,7 +23,8 @@ except when noted.
 
     A comma separated list of symbolic tag names (for example
     release-critical-1.6).  Tags can be used to collect bugs into
-    ad-hoc groups.
+    ad-hoc groups.  See the file TAGS for a list of active tags and
+    their meaning.
 
   Reported: mailbox, yyyy-mm-dd
     
