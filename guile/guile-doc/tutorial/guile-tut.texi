@@ -5,7 +5,7 @@
 
 @include version.texi
 
-@dircategory Guile -- GNU extension language
+@dircategory Scheme Programming
 @direntry
 * guile-tutorial: (guile-tut).                          Guile Tutorial
 @end direntry
@@ -27,12 +27,13 @@
 @subtitle For use with Guile @value{VERSION}
 @subtitle Last updated @value{UPDATED}
 @author Mark Galassi
+@author Cygnus Solutions and
 @author Los Alamos National Laboratory
 @author @email{rosalia@@nis.lanl.gov}
 
 @page
 @vskip 0pt plus 1filll
-Copyright @copyright{} 1997 Free Software Foundation
+Copyright @copyright{} 1997, 1998 Free Software Foundation
 
 Permission is granted to make and distribute verbatim copies of
 this manual provided the copyright notice and this permission notice
@@ -143,9 +144,9 @@ the prompt; the interpreter's response is preceded (in this manual) by
 <control-D>
 @end lisp
 
-In this last example we did some simple arithmetic @code{(+ 20 35)} and
-got the answer @code{55}.  Then we coded the classic (and rather
-wasteful) factorial algorithm, and got a glimpse of Scheme's nice
+In this example we did some simple arithmetic @code{(+ 20 35)} and got
+the answer @code{55}.  Then we coded the classic (and rather wasteful)
+factorial algorithm, and got a glimpse of Scheme's nice
 @emph{bignumbers} by asking for the factorial of 1000.  Then we quit
 with @code{(quit)}.
 @cindex bignumbers
@@ -204,11 +205,6 @@ not, is the ability to easily run an external program (or a pipeline of
 external programs) and use the returned values and output from that
 program in useful ways.
 
-@c Unfortunately, scripting languages have typically been not been designed
-@c for writing large programs.  Recently, with SCSH and Guile, a good
-@c programming language (Scheme) has been enhanced to work well for
-@c scripting.
-
 An @dfn{extension language} is a programming language interpreter
 offered by an application program, so that users can write macros or
 even full-fledged programs to extend the original application.
@@ -256,7 +252,8 @@ Brent Benson's libscheme.a, an embeddable Scheme interpreter.
 @cindex libscheme
 
 @item
-Guile, the GNU extension language, which is the subject of this manual.
+Guile, the GNU extension language, which is the subject of this
+tutorial.
 
 @end itemize
 
@@ -270,7 +267,7 @@ specific application.  They are general-purpose languages which a user
 can learn (even in college courses) and then use to customize the
 application program.
 
-This is a new and (in my opinion) very exciting direction in
+This is a recent and (in my opinion) very exciting direction in
 large-program software engineering: program designers can link in the
 Guile or Tcl library from the very beginning, and tell their users "You
 want to customize this program?  Just use Scheme (or Tcl, or whatever
@@ -821,7 +818,7 @@ that is done, and how that can be useful.
 
 @menu
 * Two world views::             
-* What is libguile::  
+* What is libguile::            
 * How to get started with libguile::  
 * More interesting programming with libguile::  
 * Further examples::            
