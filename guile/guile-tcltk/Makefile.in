@@ -51,10 +51,16 @@ PRE_UNINSTALL = true
 POST_UNINSTALL = true
 host_alias = @host_alias@
 host_triplet = @host@
+ACLOCAL = @ACLOCAL@
+AUTOCONF = @AUTOCONF@
+AUTOHEADER = @AUTOHEADER@
+AUTOMAKE = @AUTOMAKE@
 CC = @CC@
 CPP = @CPP@
+LD = @LD@
 LIBTOOL = @LIBTOOL@
 MAINT = @MAINT@
+MAKEINFO = @MAKEINFO@
 PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
 TCL_EXTRA_LIBS = @TCL_EXTRA_LIBS@
@@ -109,7 +115,7 @@ ltconfig ltmain.sh missing mkinstalldirs
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
-TAR = gtar
+TAR = tar
 GZIP = --best
 DEP_FILES =  .deps/gtcltk-module.P .deps/guile-tcl.P .deps/guile-tcltk.P \
 .deps/guile-tk.P
