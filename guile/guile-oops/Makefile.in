@@ -60,7 +60,6 @@ POST_UNINSTALL = :
 host_alias = @host_alias@
 host_triplet = @host@
 CC = @CC@
-CPP = @CPP@
 LD = @LD@
 LIBTOOL = @LIBTOOL@
 LN_S = @LN_S@
@@ -80,10 +79,13 @@ guile_oops_SOURCES = guile-oops.c
 guile_oops_LDADD = libgoops.la
 
 libgoops_la_SOURCES = goops.c
+libgoops_la_LDFLAGS = -version-info 0:0 -export-dynamic
 BUILT_SOURCES = goops.x
 
-subpkgdatadir = $(datadir)/site/goops
-subpkgdata_DATA = 
+subpkgdatadir = $(datadir)/guile
+subpkgdata_DATA = goops/goops.scm
+
+goopsdir = $(subpkgdatadir)/goops
 
 SUFFIXES = .x
 SNARF=guile-snarf
@@ -99,7 +101,6 @@ DEFS = @DEFS@ -I. -I$(srcdir)
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
-libgoops_la_LDFLAGS = 
 libgoops_la_LIBADD = 
 libgoops_la_OBJECTS =  goops.lo
 PROGRAMS =  $(bin_PROGRAMS)
@@ -357,6 +358,7 @@ check: all
 installcheck:
 install-exec: install-libLTLIBRARIES install-binPROGRAMS
 	@$(NORMAL_INSTALL)
+	$(MAKE) install-exec-hook
 
 install-data: install-subpkgdataDATA
 	@$(NORMAL_INSTALL)
@@ -425,6 +427,14 @@ install uninstall all installdirs mostlyclean-generic distclean-generic \
 clean-generic maintainer-clean-generic clean mostlyclean distclean \
 maintainer-clean
 
+
+install-exec-hook:
+	$(mkinstalldirs) $(goopsdir)
+	(test -e $(libdir)/libgoops.so.0 \
+	&& cd $(goopsdir) \
+	&& rm -f libgoops.la libgoops.so.0 \
+	&& $(LN_S) $(libdir)/libgoops.la \
+	&& $(LN_S) $(libdir)/libgoops.so.0)
 .c.x:
 	$(SNARF) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $< > $@
 
