@@ -68,12 +68,12 @@ mark_interp (obj)
   return SCM_PROPS (obj); 
 }
 
-static int print_interp SCM_P ((SCM exp, SCM port, int writing));
+static int print_interp SCM_P ((SCM exp, SCM port, scm_print_state *pstate));
 static int
-print_interp (exp, port, writing)
+print_interp (exp, port, pstate)
      SCM exp;
      SCM port;
-     int writing;
+     scm_print_state *pstate;
 {
   scm_gen_puts(scm_regular_string, "#<tcl-interpreter ", port);
   scm_intprint(exp, 16, port);
@@ -81,8 +81,13 @@ print_interp (exp, port, writing)
   return 1;
 }
 
-static scm_smobfuns tcl_interp_smob 
-= {mark_interp, free_interp, print_interp, 0};
+static scm_smobfuns tcl_interp_smob = {
+    mark_interp,
+    free_interp,
+    print_interp,
+    0
+};
+
 int scm_tc16_tcl_interp;
 
 
