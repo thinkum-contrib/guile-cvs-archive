@@ -1,3 +1,15 @@
+2002-01-19  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* Lib/images/Cancel.gif, Lib/images/Help.gif, Lib/images/Ok.gif,
+	Lib/images/STk-normal.gif, Lib/images/earth.gif,
+	Lib/images/earthris.gif, Lib/images/mickey.gif: Removed and
+	replaced by PNG equivalents.
+
+	* Lib/images/Cancel.png, Lib/images/Help.png, Lib/images/Ok.png,
+	Lib/images/STk-normal.png, Lib/images/earth.png,
+	Lib/images/earthris.png, Lib/images/mickey.png: New; replacements
+	for above.
+
 Sun Oct 12 15:07:31 1997  Mikael Djurfeldt  <mdj@kenneth>
 
 	* Tk/generic/tkBind.c: Free result of
