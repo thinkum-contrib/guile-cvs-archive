@@ -1,3 +1,21 @@
+1999-03-01  Mikael Djurfeldt  <mdj@barbara.nada.kth.se>
+
+	* guile-oops.c (inner_main): Renamed
+	scm_init_goops_goopscore_module () -->
+	scm_init_oop_goopscore_module ().
+
+	* config.guess, config.sub, install-sh, mdate-sh, missing,
+	mkinstalldirs: New versions from automake-1.4.
+
+	* goops/compat.scm, goops/describe.scm: Renamed goops --> oop.
+
+1999-02-20  Mikael Djurfeldt  <mdj@barbara.nada.kth.se>
+
+	* config.guess, config.sub, ltconfig, ltmain.sh: New versions from
+	libtool-1.2.
+
+	* goops.c, goops.h (scm_i_get_keyword): Added const.
+
 1999-01-30  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* goops/goops.scm: Don't use module (ice-9 setf).
