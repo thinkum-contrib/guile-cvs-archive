@@ -28,24 +28,77 @@
 ;;;;   * fill out url:encode, include facilities for URL-scheme-specific
 ;;;;     encoding methods (e.g. a url-scheme-reserved-char-alist)
 
-(define url-regexp (make-regexp "([^:]+):(//([^:/]+))?(:([0-9]+)?)?(/(.*))?"))
-
-(define-public (url:parse url)
-  (let ((url-match (regexp-exec url-regexp url)))
-    (let ((url-scheme (string->symbol (match:substring url-match 1)))
-	  (host (match:substring url-match 3))
-	  (port (cond ((match:substring url-match 5) => string->number)
-		      (else #f)))
-	  (path (match:substring url-match 7)))
-      (vector url-scheme host port path))))
-
 ;; `url:scheme' is an unfortunate term, but it is the technical
 ;; name for that portion of the URL according to RFC 1738. Sigh.
 
-(define-public (url:scheme url) (vector-ref url 0))
-(define-public (url:host url)   (vector-ref url 1))
-(define-public (url:port url)   (vector-ref url 2))
-(define-public (url:path url)   (vector-ref url 3))
+(define-public (url:scheme url)  (vector-ref url 0))
+(define-public (url:address url) (vector-ref url 1))
+(define-public (url:unknown url) (vector-ref url 1))
+(define-public (url:user url)    (vector-ref url 1))
+(define-public (url:host url)    (vector-ref url 2))
+(define-public (url:port url)    (vector-ref url 3))
+(define-public (url:path url)    (vector-ref url 4))
+
+(define-public (url:make scheme . args)
+  (apply vector scheme args))
+(define-public (url:make-http host port path)
+  (vector 'http #f host port path))
+(define-public (url:make-ftp user host port path)
+  (vector 'ftp user host port path))
+(define-public (url:make-mailto address)
+  (vector 'mailto address))
+
+(define http-regexp (make-regexp "^http://([^:/]+)(:([0-9]+))?(/(.*))?$"))
+(define ftp-regexp
+  (make-regexp "^ftp://(([^@:/]+)@)?([^:/]+)(:([0-9]+))?(/(.*))?$"))
+(define mailto-regexp (make-regexp "^mailto:(.*)$"))
+
+(define-public (url:parse url)
+  (cond
+   ((regexp-exec http-regexp url)
+    => (lambda (m)
+	 (url:make-http (match:substring m 1)
+			(cond ((match:substring m 3) => string->number)
+			      (else #f))
+			(match:substring m 5))))
+
+   ((regexp-exec ftp-regexp url)
+    => (lambda (m)
+	 (url:make-ftp (match:substring m 2)
+		       (match:substring m 3)
+		       (cond ((match:substring m 5) => string->number)
+			     (else #f))
+		       (match:substring m 7))))
+
+   ((regexp-exec mailto-regexp url)
+    => (lambda (m)
+	 (url:make-mailto (match:substring m 1))))
+
+   (else
+    (url:make 'unknown url))))
+
+
+(define-public (url:unparse url)
+  (define (pathy scheme username host port path)
+    (string-append (symbol->string scheme)
+		   "://" host
+		   (if port (string-append ":" (number->string port))
+		       "")
+		   (if path (string-append "/" path)
+		       "")))
+  (case (url:scheme url)
+    ((http) (pathy 'http #f
+		   (url:host url)
+		   (url:port url)
+		   (url:path url)))
+    ((ftp)  (pathy 'ftp
+		   (url:user url)
+		   (url:host url)
+		   (url:port url)
+		   (url:path url)))
+    ((mailto) (string-append "mailto:" (url:address url)))
+    ((unknown) (url:unknown url))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; (url-decode STR)
