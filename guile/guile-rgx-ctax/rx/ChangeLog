@@ -1,3 +1,7 @@
+Mon Dec  9 17:21:03 1996  Tom Tromey  <tromey@cygnus.com>
+
+	* Makefile.am (.c.x): Use guile-snarf.
+
 Sun Dec  1 00:00:25 1996  Tom Tromey  <tromey@cygnus.com>
 
 	* PLUGIN/greet: Removed.

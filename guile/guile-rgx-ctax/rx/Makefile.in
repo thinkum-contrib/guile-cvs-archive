@@ -1,4 +1,4 @@
-# Makefile.in generated automatically by automake 1.1k from Makefile.am
+# Makefile.in generated automatically by automake 1.1l from Makefile.am
 
 # Copyright (C) 1994, 1995, 1996 Free Software Foundation, Inc.
 # This Makefile.in is free software; the Free Software Foundation
@@ -38,6 +38,10 @@ INSTALL_DATA = @INSTALL_DATA@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 transform = @program_transform_name@
 RANLIB = @RANLIB@
+INSTALL_SCRIPT = @INSTALL_SCRIPT@
+PACKAGE = @PACKAGE@
+VERSION = @VERSION@
+module = @module@
 CC = @CC@
 
 AUTOMAKE_OPTIONS = foreign
@@ -87,9 +91,6 @@ DIST_COMMON =  COPYING.LIB ChangeLog Makefile.am Makefile.in aclocal.m4 \
 configure configure.in
 
 
-PACKAGE = @PACKAGE@
-VERSION = @VERSION@
-
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) \
 	$(TEXINFOS) $(MANS) $(EXTRA_DIST)
 
@@ -106,7 +107,7 @@ default: all
 
 .SUFFIXES:
 .SUFFIXES: .c .o .x
-$(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in 
+$(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL) 
 	cd $(top_srcdir) && automake --foreign Makefile
 
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status $(BUILT_SOURCES)
@@ -135,12 +136,14 @@ install-libLIBRARIES: $(lib_LIBRARIES)
 	$(mkinstalldirs) $(libdir)
 	list="$(lib_LIBRARIES)"; for p in $$list; do \
 	  if test -f $$p; then \
+	    echo "$(INSTALL_DATA) $$p $(libdir)/$$p"; \
 	    $(INSTALL_DATA) $$p $(libdir)/$$p; \
 	  else :; fi; \
 	done
 	$(POST_INSTALL)
-	list="$(lib_LIBRARIES)"; for p in $$list; do \
+	@list="$(lib_LIBRARIES)"; for p in $$list; do \
 	  if test -f $$p; then \
+	    echo "$(RANLIB) $(libdir)/$$p"; \
 	    $(RANLIB) $(libdir)/$$p; \
 	  else :; fi; \
 	done
@@ -342,8 +345,7 @@ maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 $(srcdir)/testcases.h: TESTS TESTS2C.sed
 	sed -f $(srcdir)/TESTS2C.sed $(srcdir)/TESTS > $(srcdir)/testcases.h
 .c.x:
-	$(CPP) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) \
-	   -DSCM_MAGIC_SNARFER $< | grep "^%%%" | sed -e "s/^%%%//" > $@
+	../libguile/guile-snarf $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $< > $@
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
