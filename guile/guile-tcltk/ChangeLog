@@ -1,3 +1,11 @@
+Tue May 13 17:08:29 1997  Jim Blandy  <jimb@floss.cyclic.com>
+
+	* Makefile.in, aclocal.m4, configure: Rebuilt using automake 1.1p.
+
+Mon May 12 12:59:03 1997  Jim Blandy  <jimb@totoro.cyclic.com>
+
+	* README, INSTALL: New files.
+
 Tue May  6 20:36:09 1997  Jim Blandy  <jimb@floss.cyclic.com>
 
 	* configure.in: Check for -lm, -ldl, -lsocket, -lnsl before
