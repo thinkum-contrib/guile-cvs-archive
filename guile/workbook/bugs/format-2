@@ -1,0 +1,36 @@
+summary: format with ######F
+reported: Bill Schottstaedt <bil@ccrma.Stanford.EDU>, 2003-06-17
+affects: HEAD branch_release-1-6
+
+Another oddity in ice-9/format.scm:
+
+guile> (use-modules (ice-9 format))
+guile> (format #f "~,######F" 123.123)
+"1231.2"
+
+ACL has a similar bug:
+
+USER(1): (format nil "~,######F" 123.123)
+"123.1"
+
+but CMU-CL and Clisp flag it as an error.
+
+
+
+By the way, "Common Lisp the Language" says (page 581):
+"it is not an error if one or more arguments remain
+unprocessed by the directive", but:
+
+guile> (format #f "~A" 1 2)
+
+FORMAT: error with call: (format #f "~A<===" 1 ===>2 )
+        1 superfluous argument
+
+
+
+And not really a bug, I guess, but this strikes me as
+weird:
+
+guile> (format #f "~,,,,,,,F" 123.123)
+"123.123"
+
