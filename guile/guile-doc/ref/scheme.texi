@@ -83,7 +83,7 @@ Standard Scheme is case insensitive.  To ease translation of other Lisp
 dialects, notably Emacs Lisp, into Guile, one can select if Guile should
 ignore case or not.
 
-@defun read-options-interface [
+@defun read-options-interface SOME-ARG
 With no arguments, @code{read-options-interface} returns the list with
 the options for reading, including the ``case-insensitive'' option.
 [FIXME: Need to figure out how option setting can be done at runtime, if
