@@ -153,8 +153,8 @@ Remove any value associated with @var{prop} and @var{obj}.
 @cindex sorting vectors
 
 Sorting is very important in computer programs.  Therefore, Guile comes
-with several sorting procedures built--in.  As always, procedures with
-names ending in @code{!} are side--effecting, that means that they may
+with several sorting procedures built-in.  As always, procedures with
+names ending in @code{!} are side-effecting, that means that they may
 modify their parameters in order to produce their results.
 
 The first group of procedures can be used to merge two lists (which must
@@ -271,7 +271,7 @@ any other object.
 
 @c FIXME::martin: Review me!
 
-When debugging Scheme programs, but also for providing a human--friendly
+When debugging Scheme programs, but also for providing a human-friendly
 interface, a procedure for converting any Scheme object into string
 format is very useful.  Conversion from/to strings can of course be done
 with specialized procedures when the data type of the object to convert
