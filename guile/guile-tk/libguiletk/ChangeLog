@@ -1,5 +1,0 @@
-Sat Aug  9 22:03:37 1997  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
-
-	* foo.c, foo.h: Temporary files used for demonstration.  (Remove
-	before release.)
-
