@@ -1,5 +1,5 @@
-@node A Portable C to Scheme Interface
-@chapter A Portable C to Scheme Interface
+@node GH
+@chapter GH: A Portable C to Scheme Interface
 @cindex libguile - gh
 @cindex gh
 @cindex gh - reference manual
@@ -54,7 +54,7 @@ developed.
 
 @page
 @node gh preliminaries
-@chapter gh preliminaries
+@section gh preliminaries
 
 To use gh, you must have the following toward the beginning of your C
 source:
@@ -71,7 +71,7 @@ interpreter, you will have to add more libraries.
 
 @page
 @node Data types and constants defined by gh
-@chapter Data types and constants defined by gh
+@section Data types and constants defined by gh
 @cindex libguile - data types
 
 The following C constants and data types are defined in gh:
@@ -105,7 +105,7 @@ of arguments, such as @code{gh_list()}.
 
 @page
 @node Starting and controlling the interpreter
-@chapter Starting and controlling the interpreter
+@section Starting and controlling the interpreter
 @cindex libguile - start interpreter
 
 In almost every case, your first @code{gh_} call will be:
@@ -217,7 +217,7 @@ procedures @code{gsl-ran-random}, @code{gsl-ran-gaussian} and so forth.
 
 @page
 @node Error messages
-@chapter Error messages
+@section Error messages
 @cindex libguile - error messages
 @cindex error messages in libguile
 
@@ -226,7 +226,7 @@ procedures @code{gsl-ran-random}, @code{gsl-ran-gaussian} and so forth.
 
 @page
 @node Executing Scheme code
-@chapter Executing Scheme code
+@section Executing Scheme code
 @cindex libguile - executing Scheme
 @cindex executing Scheme
 
@@ -259,7 +259,7 @@ closely.
 
 @page
 @node Defining new Scheme procedures in C
-@chapter Defining new Scheme procedures in C
+@section Defining new Scheme procedures in C
 @cindex libguile - new procedures
 @cindex new procedures
 @cindex procedures, new
@@ -331,7 +331,7 @@ These macros disable and reenable Scheme's flow control.  They
 
 @page
 @node Converting data between C and Scheme
-@chapter Converting data between C and Scheme
+@section Converting data between C and Scheme
 @cindex libguile - converting data
 @cindex data conversion
 @cindex converting data
@@ -347,7 +347,7 @@ of type @code{SCM}) and return values of type @code{SCM}.
 @end menu
 
 @node C to Scheme
-@section C to Scheme
+@subsection C to Scheme
 
 @deftypefun SCM gh_bool2scm (int @var{x})
 Returns @code{#f} if @var{x} is zero, @code{#t} otherwise.
@@ -403,7 +403,7 @@ longs, unsigned longs, floats or doubles at memory location @var{dptr}.
 
 
 @node Scheme to C
-@section Scheme to C
+@subsection Scheme to C
 
 @deftypefun int gh_scm2bool (SCM @var{obj})
 @deftypefunx {unsigned long} gh_scm2ulong (SCM @var{obj})
@@ -470,7 +470,7 @@ that is, data will be copied as if the destination array was unsigned.
 
 @page
 @node Type predicates
-@chapter Type predicates
+@section Type predicates
 
 These C functions mirror Scheme's type predicate procedures with one
 important difference.  The C routines return C boolean values (0 and 1)
@@ -520,7 +520,7 @@ Returns 1 if @var{val} is an exact number, 0 otherwise.
 
 @page
 @node Equality predicates
-@chapter Equality predicates
+@section Equality predicates
 
 These C functions mirror Scheme's equality predicate procedures with one
 important difference.  The C routines return C boolean values (0 and 1)
@@ -557,7 +557,7 @@ Returns 1 if @var{l} is an empty list or pair; 0 otherwise.
 
 @page
 @node Memory allocation and garbage collection
-@chapter Memory allocation and garbage collection
+@section Memory allocation and garbage collection
 
 @c [FIXME: flesh this out with some description of garbage collection in
 @c scm/guile]
@@ -570,7 +570,7 @@ Returns 1 if @var{l} is an empty list or pair; 0 otherwise.
 
 @page
 @node Calling Scheme procedures from C
-@chapter Calling Scheme procedures from C
+@section Calling Scheme procedures from C
 
 Many of the Scheme primitives are available in the @code{gh_}
 interface; they take and return objects of type SCM, and one could
@@ -812,4 +812,4 @@ here.
 
 @page
 @node Mixing gh and scm APIs
-@chapter Mixing gh and scm APIs
+@section Mixing gh and scm APIs

@@ -119,7 +119,8 @@
 Guile Reference Manual
 Copyright (C) 1996 Free Software Foundation @*
 Copyright (C) 1997 Free Software Foundation @*
-Copyright (C) 2000 Free Software Foundation
+Copyright (C) 2000 Free Software Foundation @*
+Copyright (C) 2001 Free Software Foundation
 
 Permission is granted to make and distribute verbatim copies of
 this manual provided the copyright notice and this permission notice
@@ -247,7 +248,7 @@ Part II: Guile Scheme
 Part III: Guile Modules
 
 * SLIB::                        Using the SLIB Scheme library.
-* POSIX::                       POSIX System Calls and Networking.
+* POSIX::                       POSIX system calls and networking.
 * Expect::			Controlling interactive programs with Guile.
 * The Scheme shell (scsh)::
 	The SCSH compatibility module has been made an
@@ -260,29 +261,14 @@ Part IV: Guile Scripting
 
 * Guile Scripting::             How to write Guile scripts.
 
-Part V: Using Scheme with C --- A Portable Interface
+Part V: Extending Applications Using Guile
 
-* A Portable C to Scheme Interface::
-* gh preliminaries::
-* Data types and constants defined by gh::
-* Starting and controlling the interpreter::
-* Error messages::
-* Executing Scheme code::
-* Defining new Scheme procedures in C::
-* Converting data between C and Scheme::
-* Type predicates::
-* Equality predicates::
-* Memory allocation and garbage collection::
-* Calling Scheme procedures from C::
-* Mixing gh and scm APIs::
-
-Part VI: Using Scheme with C --- Guile's Interface
-
-* Scheme data representation::
-* Relationship between Scheme and C functions::
-* I/O internals::
-* libguile error handling::
-* snarfing::
+* Libguile Intro::              Using Guile as an extension language.
+* GH::                          GH: a portable C to Scheme interface.
+* Data Representation::         Data representation in Guile.
+* Scheme Primitives::           Writing Scheme primitives in C.
+* I/O Extensions::              Using and extending ports in C.
+* Handling Errors::             How to handle errors in C code.
 
 Appendices
 
@@ -357,16 +343,12 @@ Indices
 @c Guile as an extension language
 @iftex
 @page
-@unnumbered{Part V: Using Scheme with C --- A Portable Interface}
+@unnumbered{Part V: Extending Applications Using Guile}
 @end iftex
 
+@include extend.texi
 @include gh.texi
-
-@iftex
-@page
-@unnumbered{Part VI: Using Scheme with C --- Guile's Interface}
-@end iftex
-
+@include data-rep.texi
 @include scm.texi
 
 @c Appendices

@@ -74,7 +74,7 @@ do not wish that, delete this exception notice.
 @chapter Layout of this Manual
 @end ifnottex
 
-This manual is divided into six parts.
+This manual is divided into five parts.
 
 @strong{Part I: Introduction to Guile} provides an overview of what
 Guile is and how you can use it.  A whirlwind tour shows how Guile can
@@ -108,23 +108,18 @@ available for use in Guile.
 @strong{Part IV: Guile Scripting} documents the use of Guile as a script
 interpreter, and illustrates this with a series of examples.
 
-@strong{Part V: Using Scheme with C --- A Portable Interface} shows how
-to call Guile from your application's C code, and how to add new Scheme
-level procedures to Guile whose behaviour is specified by application
-specific code written in C.  The Guile interface functions documented in
-this part of the manual make up a high level, portable interface which
-(we hope) will also someday work with other Scheme interpreters,
-allowing you to write C code which will work with any of several Scheme
-systems.
-
-The portable interface is rich enough to support simple use of Guile as
-an application extension language, but is limited by its own portability
-where a deeper integration is desired between Guile and your
-application's code.  @strong{Part VI: Using Scheme with C --- Guile's
-Interface} documents a second, more extensive set of interface functions
-that allows you to use more of Guile's C level features, and to extend
-your application in more complex ways than is possible with the portable
-interface.
+@strong{Part V: Extending Applications Using Guile} explains the options
+available for using Guile as a application extension language.  At the
+simpler end of the scale, an application might use Guile to define some
+application-specific primitives in C and then load an application Scheme
+file.  In this case most of the application code is written on the
+Scheme level, and uses the application-specific primitives as an
+extension to standard Scheme.  At the other end of the scale, an
+application might be predominantly written in C --- with its main
+control loop implemented in C --- but make occasional forays into Scheme
+to, say, read configuration data or run user-defined customization code.
+This part of the manual covers the complete range of application
+extension options.
 
 Finally, the appendices explain how to obtain the latest version of
 Guile, how to install it, where to find modules to work with Guile, and

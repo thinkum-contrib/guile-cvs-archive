@@ -1,5 +1,30 @@
 2001-01-26  Neil Jerram  <neil@ossau.uklinux.net>
 
+	* scm.texi (Handling Errors): Improved markup.
+	(snarfing): Deleted.
+
+	* data-rep.texi: File copied here from sources directory and
+	integrated into the reference manual structure.
+	
+	* extend.texi (Libguile Intro): New file, new node, to introduce
+	new Part.
+
+	* guile.texi: Merged Parts V and VI into a single Part: "Extending
+	Applications Using Guile".  Improved some top level node names and
+	descriptions.  Include extend.texi and data-rep.texi.
+
+	* preface.texi (Manual Layout): Updated according to merge of
+	Parts V and VI.
+	
+	* gh.texi: Restructured into a single chapter.
+
+	* scm.texi (C Port Interface, Port Implementation): Moved here
+	from scheme-io.texi.
+
+	* scheme-io.texi (Default Ports): Renamed from `Port
+	Environment'.
+	(Port Internals): Contents moved to scm.texi.
+
 	* r5rs.texi: Changes to allow building of r5rs.dvi from r5rs.texi.
 	Aubrey Jaffer's view - which I agree with - is that, given that
 	people have the option of building r5rs.dvi from the original

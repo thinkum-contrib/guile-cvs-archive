@@ -1,5 +1,9 @@
 2001-01-26  Neil Jerram  <neil@ossau.uklinux.net>
 
+	* configure.in: Only check for `texi2html' program if HTML is
+	enabled, and explain where to get `texi2html' from if the check
+	fails.
+	
 	* configure.in, Makefile.am, ref/Makefile.am,
 	tutorial/Makefile.am: Clean up Makefile.am's and support
 	(configurable) building of HTML documentation in addition to
