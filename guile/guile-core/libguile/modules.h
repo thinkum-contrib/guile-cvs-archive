@@ -108,11 +108,15 @@ extern SCM scm_get_pre_modules_obarray (void);
 extern SCM scm_lookup_closure_module (SCM proc);
 extern SCM scm_env_module (SCM env);
 
-extern SCM scm_lookup (const char *name);
-extern SCM scm_define (const char *name, SCM val);
+extern SCM scm_c_lookup (const char *name);
+extern SCM scm_c_define (const char *name, SCM val);
+extern SCM scm_lookup (SCM symbol);
+extern SCM scm_define (SCM symbol, SCM val);
 
-extern SCM scm_module_lookup (SCM module, const char *name);
-extern SCM scm_module_define (SCM module, const char *name, SCM val);
+extern SCM scm_c_module_lookup (SCM module, const char *name);
+extern SCM scm_c_module_define (SCM module, const char *name, SCM val);
+extern SCM scm_module_lookup (SCM module, SCM symbol);
+extern SCM scm_module_define (SCM module, SCM symbol, SCM val);
 extern SCM scm_module_reverse_lookup (SCM module, SCM variable);
 
 extern SCM scm_sym2var (SCM sym, SCM thunk, SCM definep);

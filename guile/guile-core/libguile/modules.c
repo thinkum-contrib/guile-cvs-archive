@@ -366,8 +366,7 @@ SCM_DEFINE (scm_standard_interface_eval_closure,
 /* scm_sym2var
  *
  * looks up the variable bound to SYM according to PROC.  PROC should be
- * a `eval closure' of some module.  SYM does not strictly need to be
- * a symbol.  It is up to PROC how it deals with this.
+ * a `eval closure' of some module.
  *
  * When no binding exists, and DEFINEP is true, create a new binding
  * with a initial value of SCM_UNDEFINED.  Return `#f' when DEFINEP as
@@ -409,6 +408,9 @@ scm_sym2var (SCM sym, SCM proc, SCM definep)
 	  if (var == SCM_BOOL_F)
 	    {
 	      var = scm_make_variable (SCM_UNDEFINED);
+#if SCM_ENABLE_VCELLS
+	      scm_variable_set_name_hint (var, sym);
+#endif
 	      SCM_SETCDR (handle, var);
 	    }
 	}
@@ -422,13 +424,18 @@ scm_sym2var (SCM sym, SCM proc, SCM definep)
 #undef FUNC_NAME
 
 SCM
-scm_module_lookup (SCM module, const char *name)
+scm_c_module_lookup (SCM module, const char *name)
+{
+  return scm_module_lookup (module, scm_str2symbol (name));
+}
+
+SCM
+scm_module_lookup (SCM module, SCM sym)
 #define FUNC_NAME "module-lookup"
 {
-  SCM sym, var;
+  SCM var;
   SCM_VALIDATE_MODULE (1, module);
 
-  sym = scm_str2symbol (name);
   var = scm_sym2var (sym, scm_module_lookup_closure (module), SCM_BOOL_F);
   if (SCM_FALSEP (var))
     SCM_MISC_ERROR ("unbound variable: ~S", SCM_LIST1 (sym));
@@ -437,9 +444,14 @@ scm_module_lookup (SCM module, const char *name)
 #undef FUNC_NAME
 
 SCM
-scm_lookup (const char *name)
+scm_c_lookup (const char *name)
 {
-  SCM sym = scm_str2symbol (name);
+  return scm_lookup (scm_str2symbol (name));
+}
+
+SCM
+scm_lookup (SCM sym)
+{
   SCM var = 
     scm_sym2var (sym, scm_current_module_lookup_closure (), SCM_BOOL_F);
   if (SCM_FALSEP (var))
@@ -448,14 +460,18 @@ scm_lookup (const char *name)
 }
 
 SCM
-scm_module_define (SCM module, const char *name, SCM value)
+scm_c_module_define (SCM module, const char *name, SCM value)
+{
+  return scm_module_define (module, scm_str2symbol (name), value);
+}
+
+SCM
+scm_module_define (SCM module, SCM sym, SCM value)
 #define FUNC_NAME "module-define"
 {
-  SCM sym, var;
-
+  SCM var;
   SCM_VALIDATE_MODULE (1, module);
 
-  sym = scm_str2symbol (name);
   var = scm_sym2var (sym, scm_module_lookup_closure (module), SCM_BOOL_T);
   SCM_VARIABLE_SET (var, value);
   return var;
@@ -463,9 +479,14 @@ scm_module_define (SCM module, const char *name, SCM value)
 #undef FUNC_NAME
 
 SCM
-scm_define (const char *name, SCM value)
+scm_c_define (const char *name, SCM value)
 {
-  SCM sym = scm_str2symbol (name);
+  return scm_define (scm_str2symbol (name), value);
+}
+
+SCM
+scm_define (SCM sym, SCM value)
+{
   SCM var =
     scm_sym2var (sym, scm_current_module_lookup_closure (), SCM_BOOL_T);
   SCM_VARIABLE_SET (var, value);
@@ -544,7 +565,7 @@ scm_init_modules ()
 #ifndef SCM_MAGIC_SNARFER
 #include "libguile/modules.x"
 #endif
-  module_make_local_var_x_var = scm_define ("module-make-local-var!",
+  module_make_local_var_x_var = scm_c_define ("module-make-local-var!",
 					    SCM_UNDEFINED);
   scm_tc16_eval_closure = scm_make_smob_type ("eval-closure", 0);
   scm_set_smob_mark (scm_tc16_eval_closure, scm_markcdr);
@@ -558,16 +579,16 @@ scm_post_boot_init_modules ()
 {
 #define PERM(x) scm_permanent_object(x)
 
-  SCM module_type = SCM_VARIABLE_REF (scm_lookup ("module-type"));
+  SCM module_type = SCM_VARIABLE_REF (scm_c_lookup ("module-type"));
   scm_module_tag = (SCM_CELL_WORD_1 (module_type) + scm_tc3_cons_gloc);
   module_prefix = PERM (SCM_LIST2 (scm_sym_app, scm_sym_modules));
-  make_modules_in_var = PERM (scm_lookup ("make-modules-in"));
-  beautify_user_module_x_var = PERM (scm_lookup ("beautify-user-module!"));
-  the_root_module_var = PERM (scm_lookup ("the-root-module"));
+  make_modules_in_var = PERM (scm_c_lookup ("make-modules-in"));
+  beautify_user_module_x_var = PERM (scm_c_lookup ("beautify-user-module!"));
+  the_root_module_var = PERM (scm_c_lookup ("the-root-module"));
   root_module_lookup_closure =
     PERM (scm_module_lookup_closure (SCM_VARIABLE_REF (the_root_module_var)));
-  resolve_module_var = PERM (scm_lookup ("resolve-module"));
-  try_module_autoload_var = PERM (scm_lookup ("try-module-autoload"));
+  resolve_module_var = PERM (scm_c_lookup ("resolve-module"));
+  try_module_autoload_var = PERM (scm_c_lookup ("try-module-autoload"));
   scm_module_system_booted_p = 1;
 }
 
