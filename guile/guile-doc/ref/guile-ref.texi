@@ -295,25 +295,6 @@ Appendices and Indices
 
 @end menu
 
-@quotation
-OK, enough is enough.  I can see that I'm not going to be able to fool
-you guys.  I confess everything.  You're right.  It all @emph{was} an
-evil conspiracy.  There really isn't a shred of merit in Tcl, or C++, or
-Perl, or C; there is not a single reason on earth why anyone should use
-any of these languages for any programming task.  Scheme truly is the
-perfect language that solves every problem and combines the virtues of
-every other language.  For years we've been plotting to trick
-programmers into using bad languages.  Yes, I mean ``we''.  Many many
-people have participated in this sinister plot, including Larry Wall,
-Dennis Ritchie, Bill Gates, the Bureau of ATF, most of the LAPD, and
-Mark Fuhrman (sorry you guys, but the truth has overwhelmed me so I've
-been forced to expose you).  I feel just terrible at how I have set the
-programming world back, and I promise to be a good boy from now on.
-@end quotation
-@flushright
---- John Ousterhout
-@end flushright
-
 
 @c preliminary
 @iftex
