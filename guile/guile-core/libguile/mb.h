@@ -63,6 +63,13 @@
 typedef int scm_char_t;
 
 
+/* Error symbols.  */
+
+extern SCM scm_text_not_char_boundary;
+extern SCM scm_text_bad_encoding;
+extern SCM scm_text_not_guile_char;
+
+
 /* Retrieve the character whose encoding is at P.  */
 #define scm_mb_get(p) \
   (*(p) < 128 ? *(p) : scm_mb_get_func (p))
