@@ -71,13 +71,13 @@ everybody else to systematically review their code.
       [ Note: this function will not consider the memory block to be
         under GC control. ]
 
-      Function: void *scm_realloc (void *mem, size_t newsize);
+      Function: void *scm_realloc (void *mem, size_t new_size);
 
         Change the size of the memory block at MEM to NEWSIZE.  A new
         pointer is returned.  When NEWSIZE is 0 this is the same as
-        calling scm_free on MEM and NULL is returned.  When MEM is
-        NULL, this function behaves like scm_malloc and allocates a
-        new block of size SIZE.
+        calling free on MEM and NULL is returned.  When MEM is NULL,
+        this function behaves like scm_malloc and allocates a new
+        block of size SIZE.
 
 	When not enough memory is available, signal an error.  This
         function runs the GC to free up some memory when it deems it
@@ -114,10 +114,11 @@ everybody else to systematically review their code.
         on and run much less efficiently than it could.
 
       Function: void *scm_gc_malloc (size_t size, const char *what);
-      Function: void *scm_gc_realloc (void *mem, size_t size,
-                                      const char *what);
+      Function: void *scm_gc_realloc (void *mem, size_t old_size,
+                                      size_t new_size, const char *what);
 
-        Like scm_malloc, but also call scm_gc_register_collectable_memory.
+        Like scm_malloc or scm_realloc, but also call
+        scm_gc_register_collectable_memory.
 
       Function: void scm_gc_free (void *mem, size_t size, const char *what);
 
