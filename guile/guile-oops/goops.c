@@ -1929,7 +1929,7 @@ make_struct_class (void *closure, SCM key, SCM data, SCM prev)
 static void
 make_struct_classes (void)
 {
-  scm_internal_hash_fold (scm_struct_table, make_struct_class, 0, SCM_BOOL_F);
+  scm_internal_hash_fold (make_struct_class, 0, SCM_BOOL_F, scm_struct_table);
 }
 
 void
