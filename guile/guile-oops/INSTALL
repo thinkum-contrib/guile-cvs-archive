@@ -1,8 +1,13 @@
 Brief Installation Instructions ===========================================
 
-To build guile-oops on unix, there are two basic steps:
+To build GOOPS on unix, there are two (three) basic steps:
+
+	0. If you don't have Guile version 1.3.2 or higher installed
+	   on your system, you need to do that first.  (See README
+	   under "Obtaining GOOPS").
 
 	1. Type "./configure", to configure the package for your system.
+
 	2. Type "make", to build the package.
 
 Generic instructions for configuring and compiling GNU distributions
@@ -11,11 +16,17 @@ are included below.
 
 What You Get ==============================================================
 
-The `configure' script examines your system, and adapts guile-oops to
+The `configure' script examines your system, and adapts GOOPS to
 compile and run on it.
 
-To install guile-oops, type `make install'.  This installs the executable
-and libraries mentioned above, as well as guile-oops's header files and
+The `make' command builds several things:
+- An executable file `guile-oops' which is the basic Guile interpreter
+  linked with GOOPS.
+- An object library `.libs/libgoopscore.a', containing the low-level
+  part of GOOPS, ready to be linked into your programs.
+
+To install GOOPS, type `make install'.  This installs the executable
+and libraries mentioned above, as well as GOOPS's header files and
 Scheme libraries.
 
 Make also builds shared libraries, on systems that support them.
@@ -28,7 +39,7 @@ Flags Accepted by Configure ===============================================
 
 If you run the configure script with no arguments, it should examine
 your system and set things up appropriately.  However, there are a few
-switches specific to guile-oops you may find useful in some circumstances.
+switches specific to GOOPS you may find useful in some circumstances.
 
 --enable-maintainer-mode --- If you have automake, autoconf, and
 libtool installed on your system, this switch causes configure to
@@ -40,8 +51,13 @@ The README file says which versions of those tools you will need.
 will build shared libraries if your system supports them.  Guile
 always builds static libraries.
 
+--enable-fdi-example --- Compile and link the file fdi.c into
+guile-oops.  This is a demonstration of a primitive foreign data
+interface which makes it possible to treat application specific data
+structures as GOOPS objects.
 
-Building a Statically Linked guile-oops ===================================
+
+Building a Statically Linked GOOPS ===================================
 
 Sometimes it's useful to build a statically-linked version of the
 guile-oops executable.  It's helpful in debugging, and for producing

@@ -1,36 +1,28 @@
-* Version information (also from Scheme level).
+* Method compilation:
 
-* Check guile version in configure.in
+  0. expand macros!
+  1. accessors --> @slot-ref|set! | proc call
+  2. gf --> code-entry | dispatcher
+  3. apply gf --> code-entry | dispatcher
+  4. next-method call --> code
+  5. next-method reference --> add next-method let
 
-* Update mop.text
+  6. with-slots: slot reference --> @slot-ref|set! | proc call
+  7. with-accessord: accessor ref --> -- " --
 
-* Test method cache.
+  NOTE: Use slot types if present.
 
-* Read and correct documentation.
-
-* Remove assumption of single-symbol slot definitions from goops.c.
-
-* Fix some *fixme*'s
-
-* Make sure that all of Guile's primitive types are represented in the
-  class hierarchy
-
-* README-file with "How to get started"
-
-** Warn that current generic methods aren't tail recursive!
-
-* Introduction to Goops
-
-* Make sure that Makefile.am mentions all files which should go into
-  the distribution
-
-* Test that `make dist' yields a nice distribution
-
-* Beta-release Goops 0.9!
+* Beware of the next-method dispatch problem!
 
 * with-slots, with-accessors
 
+* Update mop.text
+
+* Read and correct documentation.
+
 * Optimizations
+
+** Remove assumptions of single-symbol slot definitions from goops.c.
 
 ** Implement top-sort and compute-std-cpl in C, use this during
    bootstrapping and remove Scheme version of compute-std-cpl in
@@ -38,17 +30,10 @@
 
 ** Don't call intern repeatedly in goops.c (see e.g. CALL_GF).
 
-** Free-list of next-methods (c.f. print-states in print.c)
-
-** Start using method caches for GF dispatch
-Self-mutating form which cache type --> method mappings.
-
-This will also make generic methods tail-recursive.
-
 *** Don't forget to invalidate generic function caches
 when classes are redefined
 
-** Faster slot access
+MDJ 990821 <djurfeldt@nada.kth.se> Why should we do this?
 
 ** Strategy for optimization of the MOP
 
@@ -101,10 +86,8 @@ It is also necessary to pay attention to the positions of slots so
 that instances of "pure" classes have slots on the positions where the
 optimized protocols expect to find them.
 
-** Design a new MOP for generic method application
-
-** Implement ditto and optimize!
-
 * MOP
+
+** Clean up the MOP with respect to recent changes
 
 ** Make no-applicable-method CLOS-like (args)

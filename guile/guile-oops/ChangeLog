@@ -1,3 +1,21 @@
+1999-08-22  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
+
+	* stklos.scm: New file: STKlos compatibility module.
+	
+	* Makefile.am (goopsdata_DATA): Added stklos.scm.
+
+	* compile.scm (next-method?): Temporary predicate to check if
+	the method might be using next-methods.
+	(compile-method): Use next-method?.
+
+	* goops.scm (slot-unbound, slot-missing, no-next-method): Mark as
+	system procedures so that they won't turn up in backtraces;
+	Moved some utilities over to util.scm;
+	Better error checking in class macro.
+
+	* composite-slot.scm (compute-propagated-get-n-set): Removed some
+	remnant code.
+
 1999-08-21  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
 	* dispatch.scm (method-cache-insert!): Grow cache in multiples of
@@ -8,9 +26,6 @@
 	SCM_INITIAL_HASH_SIZE and set to 1.
 
 	* goops.scm (class-slot-ref, class-slot-set!): New public procedures.
-	(make-get, make-set): Temporary hack until we get real method
-	compilation: Mark standard accessors so that the compiler doesn't
-	need to create the next-method.
 
 	* goops.c (scm_goops_version): Version information.
 

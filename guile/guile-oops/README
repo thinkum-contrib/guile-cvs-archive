@@ -1,61 +1,109 @@
-This is release 0.9 of GOOPS, Project GNU's extension language
-library.  Guile is an interpreter for Scheme, packaged as a library
-that you can link into your applications to give them their own
-scripting language.  Guile will eventually support other languages as
-well, giving users of Guile-based applications a choice of languages.
+This is BETA release 0.1 of GOOPS, or
+Guile Object Oriented Programming System.
 
 Please send bug reports to bug-guile@gnu.org.
 
-About This Distribution ==============================================
+Getting started ======================================================
 
-Building and installing this distribution gives you:
-guile --- a stand-alone interpreter for Guile, usually installed in
-	/usr/local/bin.  With no arguments, this is a simple
-	interactive Scheme interpreter.  It can also be used as an
-	interpreter for script files; see the NEWS file for details.
-guile-config --- a Guile script which provides the information necessary
-	to link your programs against the Guile library.
-guile-snarf --- a script to parse declarations in your C code for 
-	Scheme-visible C functions, Scheme objects to be used by C code, etc.
-libguile.a --- an object library containing the Guile interpreter,
-	usually installed in /usr/local/lib.  You can use Guile in
-	your own programs by linking against this.
-libqthreads.a --- an object library containing the QuickThreads
-	primitives.  If you enabled thread support when you configured
-	Guile, you will need to link your code against this too.
-<libguile.h>, <guile/gh.h>, <libguile/*.h> --- header files for
-	libguile.a, usually installed in /usr/local/include.
-ice-9, ice-9/*.scm --- run-time support for Guile: the module
-	system, read-eval-print loop, some R4RS code and other
-	infrastructure.  Usually installed in
-	/usr/local/share/guile/<version>.
-data-rep.info --- An essay on how to write C code that works with
-	Guile Scheme values.
+1. Make sure that you have a version of Guile later than or equal to
+   1.3.2 installed on your system.  (You can type
 
-Interesting files include:
-- INSTALL, which contains instructions on building and installing Guile.
-- NEWS, which describes user-visible changes since the last release of Guile.
-- COPYING, which describes the terms under which you may redistribute
-  Guile, and explains that there is no warranty.
+     guile -c '(write-line (version))'
 
-The Guile source tree is laid out as follows:
+   in your terminal window to check which version of Guile you have.)
+   If not, see under "Obtaining GOOPS" how to get it.
 
-libguile:
-	The Guile Scheme interpreter --- both the object library
-	for you to link with your programs, and the executable you can run.
-ice-9:  Guile's module system, initialization code, and other infrastructure.
-guile-config:
-	Source for the guile-config script.
-qt: 	A cooperative threads package from the University of Washington,
-	which Guile can use.  If you configure Guile with the
-        --with-threads flag, you will need to link against the -lqt
-        library, found in this directory.  Qt is under a separate
-        copyright; see `qt/README' for more details.
-doc:	Some preliminary documentation for Guile.  The real Guile
-	manual is incomplete, and is currently being revised.
-doc/example-smob: Sample code, discussed in the preliminary
-	documentation above, for a program that extends Guile with a
-	new data type, and functions that operate on it.
+2. Make sure that you stand in the `guile-oops' directory and type
+
+     ./configure
+
+   This will configure GOOPS for your system.
+
+3. Type
+
+     make install
+
+   to build and install GOOPS.
+
+If everything wen't well we're ready to enter the interpreter:
+
+4. Type
+
+     guile-oops
+
+   You should now be at the Guile prompt ("guile> ").
+
+5. Type
+
+     (use-modules (oop goops))
+
+   to load GOOPS.  (If your system supports dynamic loading, you
+   should be able to do this not only from `guile-oops' but from an
+   arbitrary Guile interpreter.)
+
+We're now ready to try some basic GOOPS functionality.
+
+Generic functions
+
+  (define-method + ((x <string>) (y <string>))
+    (string-append x y))
+
+  (+ 1 2) --> 3
+  (+ "abc" "de") --> "abcde"
+
+User-defined types
+
+  (define-class <2D-vector> ()
+    (x #:init-value 0 #:accessor x-component #:init-keyword #:x)
+    (y #:init-value 0 #:accessor y-component #:init-keyword #:y))
+
+  (use-modules (ice-9 format))
+
+  (define-method write-object ((obj <2D-vector>) port)
+    (display (format #f "<~S, ~S>" (x-component obj) (y-component obj))
+	     port))
+
+  (define v (make <2D-vector> #:x 3 #:y 4))
+  v --> <3, 4>
+
+  (define-method + ((x <2D-vector>) (y <2D-vector>))
+    (make <2D-vector>
+          #:x (+ (x-component x) (x-component y))
+          #:y (+ (y-component x) (y-component y))))
+
+  (+ v v) --> <6, 8>
+
+Asking for the type of an object
+
+  (class-of v) --> #<<class> <2D-vector> 40241ac0>
+  <2D-vector>  --> #<<class> <2D-vector> 40241ac0>
+  (class-of 1) --> #<<class> <integer> 401b2a98>
+  <integer>    --> #<<class> <integer> 401b2a98>
+
+  (is-a? v <2D-vector>) --> #t
+
+See further in the GOOPS tutorial available in this distribution in
+info (goops.info) and texinfo format.
+
+
+Some words of caution ================================================
+
+This is the first beta release of GOOPS.  While the basic
+functionality won't change much in the future, the MOP, more advanced
+features, and the internal representation will continue to move.
+
+The generic function application protocol is based upon an idea from
+PCL: We only compute the applicable methods for a certain type
+combination once, and then cache it.
+
+Currently, only the cache lookup mechanism is purely implemented in C.
+Most other parts have been prototyped in Scheme.  This means that
+while GOOPS is extremely efficient when executing code many times, the
+first pass through the code is slow.
+
+We're very interested in comments about how GOOPS performs in larger
+projects.  If you have any, please feel welcome to write to
+Mikael Djurfeldt <djurfeldt@nada.kth.se>.
 
 
 Anonymous CVS Access and FTP snapshots ===============================
@@ -65,98 +113,30 @@ CVS, and by nightly snapshots, accessible via FTP.  See the files
 `ANON-CVS' and `SNAPSHOTS' for details.
 
 If you would like to receive mail when people commit changes to the
-Guile CVS repository, you can subscribe to guile-cvs@egcs.cygnus.com
-by sending a message to guile-cvs-subscribe@egcs.cygnus.com.  Even
+Guile CVS repository, you can subscribe to guile-cvs@sourceware.cygnus.com
+by sending a message to guile-cvs-subscribe@sourceware.cygnus.com.  Even
 better, you can get daily digests of these commit messages by sending
-a message to guile-cvs-digest-subscribe@egcs.cygnus.com.
+a message to guile-cvs-digest-subscribe@sourceware.cygnus.com.
 
 If you want to subscribe an e-mail address other than the one that
 appears in your From: header, say foo@bar.com, send a mail note to
-guile-cvs-subscribe-foo=bar.com@egcs.cygnus.com.
-
-
-Hacking It Yourself ==================================================
-
-As distributed, Guile needs only an ANSI C compiler and a Unix system
-to compile.  However, Guile's makefiles, configuration scripts, and a
-few other files are automatically generated, not written by hand.  If
-you want to make changes to the system (which we encourage!) you will
-find it helpful to have the tools we use to develop Guile.  They
-are the following:
-
-Autoconf 2.13 --- a system for automatically generating `configure'
-	scripts from templates which list the non-portable features a
-	program would like to use.  Available in
-	"ftp://ftp.gnu.org/pub/gnu/autoconf".
-
-Automake 1.4 --- a system for automatically generating Makefiles that
-	conform to the (rather Byzantine) GNU coding standards.  The
-	nice thing is that it takes care of hairy targets like 'make
-	dist' and 'make distclean', and automatically generates
-	Makefile dependencies.  Automake is available in
-	"ftp://ftp.gnu.org/pub/gnu/automake".
-
-	Before using automake, you may need to copy `threads.m4' and
-	`guile.m4' from the top directory of the Guile core disty to
-	`/usr/local/share/aclocal.
-
-libtool 1.3.3 --- a system for managing the zillion hairy options needed
-	on various systems to produce shared libraries.  Available in
-	"ftp://ftp.gnu.org/pub/gnu/libtool".
-
-You are lost in a little maze of automatically generated files, all
-different.
-> 
+guile-cvs-subscribe-foo=bar.com@sourceware.cygnus.com.
 
 
 Obtaining GOOPS ======================================================
 
 The latest official GOOPS release is available via anonymous FTP from
-prep.ai.mit.edu, as /pub/gnu/goops-0.9.tar.gz.
+ftp.gnu.org, as /pub/gnu/guile/guile-oops-0.1.tar.gz.
 
-Via the web, that's:  ftp://prep.ai.mit.edu/pub/gnu/goops-0.9.tar.gz
-For getit, that's:    prep.ai.mit.edu:/pub/gnu/goops-0.9.tar.gz
+Via the web, that's:  ftp://ftp.gnu.org/pub/gnu/guile/guile-oops-0.1.tar.gz
+For getit, that's:    ftp.gnu.org:/pub/gnu/guile/guile-oops-0.1.tar.gz
 
-The mailing list `guile@cygnus.com' carries discussions, questions,
-and often answers, about Guile.  To subscribe, send mail to
-guile-request@cygnus.com.  Of course, please send bug reports (and
-fixes!) to bug-guile@gnu.org.  Note that one address is @cygnus.com,
-and the other is at @gnu.org.
+If you don't already have Guile 1.3.2 installed on your system, you
+also need to download and install
+ftp://ftp.gnu.org/pub/gnu/guile/guile-core-1.3.2.tar.gz
 
-
-Authors And Contributors =============================================
-
-Many people have generously contributed to Guile.  However, any errors
-are the responsibility of the primary Guile maintainer, Jim Blandy.
-
-Mikael Djurfeldt designed and implemented:
-* the source-level debugging support (although the debugger's user
-  interface is not yet complete)
-* stack overflow detection,
-* the GDB patches to support debugging mixed Scheme/C code,
-* the original implementation of weak hash tables,
-* enhancements to the `threads' interface (based on Anthony Green's
-  work), and
-* detection of circular references during printing.
-
-Mark Galassi contributed the Guile high-level functions (gh_*), and
-wrote the guile-programmer and guile-user manuals.  (These are in the
-process of revision.)
-
-Anthony Green wrote the original version of `threads', the interface
-between Guile and qt.
-
-Gary Houston wrote much of the Unix system call support, including the
-socket support, and did a lot of work on the error handling code.
-
-Tom Lord librarified SCM, yielding Guile.  He wrote Guile's operating
-system, Ice-9, and connected Guile to Tcl/Tk and the `rx' regular
-expression matcher.
-
-Aubrey Jaffer is the author of SCM upon which Guile is based.  Guile
-started from SCM version 4e1 in November -94 and is still largely
-composed of the original SCM code.
-
-George Carrette wrote SIOD, a stand-alone scheme interpreter.
-Although most of this code as been rewritten or replaced over time,
-the garbage collector from SIOD is still an important part of Guile.
+The mailing list `guile@sourceware.cygnus.com' carries discussions,
+questions, and often answers, about Guile.  To subscribe, send mail to
+guile-subscribe@sourceware.cygnus.com.  Of course, please send bug
+reports (and fixes!) to bug-guile@gnu.org.  Note that one address is
+@sourceware.cygnus.com, and the other is at @gnu.org.
