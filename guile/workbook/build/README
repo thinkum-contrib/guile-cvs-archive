@@ -1,1 +1,3 @@
 directory for building / releasing / managing / processing
+
+subdir "dist-files" has other files we distribute via "dist-hook".
