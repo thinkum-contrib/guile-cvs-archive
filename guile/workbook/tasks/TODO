@@ -4,7 +4,7 @@
   + write guile-core/am/maintainer-dirs [ttn]
   +R merge HEAD and branch_release-1-6 TODO files into this one [ttn]
   + write dist-hook to include TODO snapshot [ttn]
-  - delete HEAD and branch_release-1-6 TODO files [ttn]
+  + delete HEAD and branch_release-1-6 TODO files [ttn]
   - convert bug tracking/summarization process
     +R define bugs db format (see bugs/README) [mvo]
     + import current BUGS [mvo]
@@ -24,12 +24,12 @@
     - write dist-hook to call render-bugs to create BUGS
     - delete HEAD and branch_release-1-6 BUGS files
   - factor guile-core/ administration files
-    - determine list of files
+    - determine list of files [ttn]
     - generally, for each file:
       - add it somewhere under workbook/
       - add dist-hook action to appropriate Makefile.am
       - delete file in guile-core/
-  - write bugs/TRIAGE
+  - write build/bugs-triage.text
   - complete build/stability.text
   - make sure all bugs have required headers
 
