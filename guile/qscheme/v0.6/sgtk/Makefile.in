@@ -1,0 +1,184 @@
+#
+# Header
+#
+SHELL = @SHELL@
+
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
+
+DESTDIR =
+
+pkgdatadir = $(datadir)/@PACKAGE@
+pkglibdir = $(libdir)/@PACKAGE@
+pkgincludedir = $(includedir)/@PACKAGE@
+
+top_builddir = .
+
+ACLOCAL = @ACLOCAL@
+AUTOCONF = @AUTOCONF@
+AUTOMAKE = @AUTOMAKE@
+AUTOHEADER = @AUTOHEADER@
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@ $(AM_INSTALL_PROGRAM_FLAGS)
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_SCRIPT = @INSTALL_SCRIPT@
+transform = @program_transform_name@
+
+NORMAL_INSTALL = :
+PRE_INSTALL = :
+POST_INSTALL = :
+NORMAL_UNINSTALL = :
+PRE_UNINSTALL = :
+POST_UNINSTALL = :
+AVCALL_DIR = @AVCALL_DIR@
+AVCALL_INC = @AVCALL_INC@
+AVCALL_LIB = @AVCALL_LIB@
+CC = @CC@
+GMP_DIR = @GMP_DIR@
+GMP_INC = @GMP_INC@
+GMP_LIB = @GMP_LIB@
+LN_S = @LN_S@
+MAKEINFO = @MAKEINFO@
+PACKAGE = @PACKAGE@
+PCRE_DIR = @PCRE_DIR@
+PCRE_INC = @PCRE_INC@
+PCRE_LIB = @PCRE_LIB@
+PERL = @PERL@
+RANLIB = @RANLIB@
+VERSION = @VERSION@
+
+CFLAGS = @CFLAGS@
+
+COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
+DATA =  $(scmobj_DATA)
+
+# Import configure variables
+libavcall = @AVCALL_LIB@
+libpcre = @PCRE_LIB@
+libgmp = @GMP_LIB@
+
+mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+
+#
+# start of my makefile
+#
+#QS_DIR=$(shell cd ..;pwd)
+#QS_LIB=$(QS_DIR)/libqs.so
+QS_LIB=$(top_srcdir)/libqs.a
+
+LIBGTK=`gtk-config --libs`
+LIBGLADE=`libglade-config --libs`
+
+CFLAGS :=  $(CFLAGS) -I$(srcdir) -I$(top_srcdir) `gtk-config --cflags` `glib-config --cflags`
+GTKSRC=/usr/local/src/gtk+-1.2.8
+
+sgtk_src = sgtk_main.c sgtk.c sgtk-typep.c sgtk-typep.i
+sgtk_obj = sgtk_main.o sgtk.o
+
+distfiles = Makefile.in $(sgtk_src) sgtk.h make-wrapper sglade.[ch] \
+			g[dt]kdefs.c *.scm *.glade make-gtk-proto
+
+all: sgtk gtkdefs.so gdkdefs.so
+	echo "done"
+
+sgtk: $(sgtk_obj) $(QS_LIB) sgtk.so
+	$(CC) -o $@ $(CFLAGS) sgtk_main.o sgtk.so `gtk-config --libs` $(LIBGLADE) \
+	$(QS_LIB) $(libgmp) $(libavcall)
+
+sgtk.so : $(srcdir)/sgtk.c
+	$(CC) -o $@ $(CFLAGS) -shared -fPIC $< `gtk-config --libs`
+
+gdkdefs.scm: $(srcdir)/make-gtk-proto $(srcdir)/gtk.defs
+	@echo "Generating $@"
+	@perl make-gtk-proto $(GTKSRC)/gdk/gdk*.c > $@
+
+gtkdefs.scm: $(srcdir)/make-gtk-proto $(srcdir)/gtk.defs
+	@echo "Generating $@"
+	@perl make-gtk-proto $(GTKSRC)/gtk/gtk*.c > $@
+
+gtkdefs.so: $(srcdir)/gtkdefs.c
+	$(CC) -o $@ -shared -fPIC $(CFLAGS) $< `gtk-config --libs`
+
+$(srcdir)/gtkdefs.c: $(srcdir)/make-gtk-proto $(srcdir)/gtk.defs
+	@echo "Generating $@"
+	@perl $(srcdir)/make-gtk-proto --lang=c --dump-incomplete \
+		--modname=gtkdefs $(GTKSRC)/gtk/gtk*.c > $@
+
+gdkdefs.so: $(srcdir)/gdkdefs.c
+	$(CC) -o $@ -shared -fPIC $(CFLAGS) $< `gtk-config --libs`
+
+$(srcdir)/gdkdefs.c: $(srcdir)/make-gtk-proto $(srcdir)/gtk.defs
+	@echo "Generating $@"
+	@perl $(srcdir)/make-gtk-proto --lang=c --dump-incomplete \
+		--modname=gdkdefs $(GTKSRC)/gdk/gdk*.c > $@
+
+sglade.so: $(srcdir)/sglade.c
+	$(CC) -o $@ -shared -fPIC $(CFLAGS) $< $(LIBGLADE) `gtk-config --libs`
+
+gtk.defs: 
+	(cd $(GTKSRC)/gtk && \
+	 perl makeenums.pl defs *.h ../gdk/gdktypes.h ../gdk/gdkrgb.h ) > gtk.defs
+
+$(srcdir)/sgtk.c: $(srcdir)/sgtk-typep.i
+
+$(srcdir)/sgtk-typep.c: $(srcdir)/make-wrapper
+$(srcdir)/sgtk-typep.i: $(srcdir)/make-wrapper
+	$(PERL) -w $(srcdir)/make-wrapper $(GTKSRC)/gtk/gtk*.h
+
+$(srcdir)/sgtk.defs: ../h2scm
+	@echo "Generating sgtk.defs"
+	@echo '(define *lib* "")' > sgtk.defs
+	@../h2scm /usr/local/include/gtk/gtk.h 2>/dev/null | \
+	grep -v va_end >> sgtk.defs
+
+helloworld: $(srcdir)/helloworld.c 
+	$(CC) `gtk-config --cflags`  $(CFLAGS) -o $@ $< `gtk-config --libs`
+
+clean: 
+	rm -f *.o *.so sgtk ggtk helloworld
+
+distdir: 
+	for file in $(distfiles) ; do \
+	  cp $(srcdir)/$$file $(distdir) ; \
+	done
+
+shlibdir=$(DESTDIR)$(pkgdatadir)/$(VERSION)
+
+install:
+	$(mkinstalldirs) $(shlibdir)
+	$(INSTALL_PROGRAM) sgtk $(bindir)
+	$(INSTALL_PROGRAM) gtkdefs.so gdkdefs.so $(shlibdir)
+
+uninstall:
+	rm $(bindir)/sgtk
+	rm $(shlibdir)/g[dt]kdefs.so
+
+dvi:
+	@echo "Nothing to build"
+
+check:
+	@echo "Nothing to check"
+
+installcheck:
+	@echo "Nothing to installcheck"
+
+distclean: clean
