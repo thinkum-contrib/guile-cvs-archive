@@ -68,6 +68,11 @@ libtool --- a system for managing the zillion hairy options needed
 	on various systems to produce shared libraries.  Available in
 	"ftp://ftp.gnu.org/pub/gnu/libtool"
 
+gettext --- a system for rigging a program so that it can output its
+        messages in the local tongue.  Guile presently only exports
+        the gettext functionality to Scheme, it does not use it
+        itself.
+
 flex --- a scanner generator.  It's probably not essential to have the
         latest version.
 
@@ -85,6 +90,9 @@ have been known to cause problems, and a short description of the problem.
 
 - libtool 1.4 uses acconfig.h, which is deprecated by newest autoconf
   (which constructs the equivalent through 3rd arg of AC_DEFINE forms).
+
+- autoreconf from autoconf prior to 2.59 will run gettextize, which
+  will mess up the Guile tree.
 
 - (add here.)
 
