@@ -41,7 +41,6 @@
 @c   feature.c: program-arguments
 @c   fluids.c: make-fluid, fluid?, fluid-ref, fluid-set, with-fluids*
 @c   gc.c: map-free-list, unhash-name
-@c   ioext.c: %read-delimited!, %read-line
 @c   kw.c: make-keyword-from-dash-symbol
 @c   load.c: primitive-load, %package-data-dir, %search-load-path,
 @c      primitive-load-path, read-and-eval!
