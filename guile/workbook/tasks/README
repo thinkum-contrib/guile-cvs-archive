@@ -23,15 +23,21 @@ The TODO File
 
 	Items are grouped by target release version, most imminent
 	first.  The last group is "Eventually", which is not associated
-	w/ any particular version.  Items should be initially added to
-	this group, and then later moved up under a version upon either
-	ownership or sponsorship.
+	w/ any particular version.  A todo items should be initially
+	added to this group, and then later moved up under a version if
+	its related to that version.
 
         NOTE: Do not add or remove items from a release specific
-        section without authorization if that release has been
-        branched in CVS -- see ../build/release.txt for details.
+              section without authorization if that release has been
+              branched in CVS -- see ../build/release.txt for details.
 
 	Maintainers (w/ write privs) indicate ownership by `[USERNAME]'.
+	This step is important; it makes the TODO file accountable w/o
+	requiring a "cvs annotate" invocation (which may not even be
+	accurate).  In a similar vein, when you checkin changes to TODO,
+	it's a good idea to include a brief log message so that reading
+	guile-cvs is sufficient to understand the change.
+
 	Use `[ACTUAL-OWNER:MAINTAINER]' to indicate sponsorship, where
 	both elements are usernames.  Actually, sponsorship is a form of
 	review so MAINTAINER could be the start of a list of REVIEWERs,
