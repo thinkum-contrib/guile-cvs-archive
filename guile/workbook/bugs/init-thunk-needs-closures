@@ -1,5 +1,6 @@
 summary: primitive thunk as goops #:init-thunk causes segv
 reported: "Neil W. Van Dyke" <nwv@neilvandyke.org>, 2002-03-12
+affects: HEAD branch_release-1-6 branch_release-1-4
 
 Hi.  When using Goops from the latest 1.5.6 CVS, specifying a primitive
 thunk for the #:init-thunk slot property of a class causes a
