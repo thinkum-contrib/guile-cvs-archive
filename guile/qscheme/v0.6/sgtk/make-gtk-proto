@@ -1,0 +1,705 @@
+#!/usr/bin/perl
+#
+#
+%emap = ();						# enum map
+%fmap = ();						# flags map
+
+
+%enummap =
+	(
+	  ### GDK enums	(extracted from gtk.defs)
+	  'GdkWindowType'			=>	'int',
+	  'GdkWindowClass'			=>	'int',
+	  'GdkImageType'			=>	'int',
+	  'GdkVisualType'			=>	'int',
+	  'GdkFontType'				=>	'int',
+	  'GdkFunction'				=>	'int',
+	  'GdkFill'					=>	'int',
+	  'GdkFillRule'				=>	'int',
+	  'GdkLineStyle'			=>	'int',
+	  'GdkCapStyle'				=>	'int',
+	  'GdkJoinStyle'			=>	'int',
+	  'GdkCursorType'			=>	'int',
+	  'GdkFilterReturn'			=>	'int',
+	  'GdkVisibilityState'		=>	'int',
+	  'GdkEventType'			=>	'int',
+	  'GdkNotifyType'			=>	'int',
+	  'GdkCrossingMode'			=>	'int',
+	  'GdkSubwindowMode'		=>	'int',
+	  'GdkStatus'				=>	'int',
+	  'GdkByteOrder'			=>	'int',
+	  'GdkSelection'			=>	'int',
+	  'GdkPropertyState'		=>	'int',
+	  'GdkPropMode'				=>	'int',
+	  'GdkInputSource'			=>	'int',
+	  'GdkInputMode'			=>	'int',
+	  'GdkAxisUse'				=>	'int',
+	  'GdkTarget'				=>	'int',
+	  'GdkSelectionType'		=>	'int',
+	  'GdkExtensionMode'		=>	'int',
+	  'GdkColorContextMode'		=>	'int',
+	  'GdkOverlapType'			=>	'int',
+	  'GdkDragProtocol'			=>	'int',
+	  'GdkRgbDither'			=>	'int',
+
+	  ### GDK enums (hand made)
+	  'GdkModifierType'			=> 	'int',
+	  'GdkWindowHints'			=> 	'int',
+	  'GdkDragAction'			=> 	'int',
+	  'GdkInputCondition'		=> 	'int',
+
+	  ### GTK enums (all those defined in the gtk.defs)
+	  'GtkAccelFlags'			=>	'int',
+	  'GtkCellType'				=>	'int',
+	  'GtkCListDragPos'			=>	'int',
+	  'GtkCTreePos'				=>	'int',
+	  'GtkCTreeLineStyle'		=>	'int',
+	  'GtkCTreeExpanderStyle'	=>	'int',
+	  'GtkCTreeExpansionType'	=>	'int',
+	  'GtkArrowType'			=>	'int',
+	  'GtkButtonBoxStyle'		=>	'int',
+	  'GtkCurveType'			=>	'int',
+	  'GtkDirectionType'		=>	'int',
+	  'GtkJustification'		=>	'int',
+	  'GtkMatchType'			=>	'int',
+	  'GtkMenuDirectionType'	=>	'int',
+	  'GtkMenuFactoryType'		=>	'int',
+	  'GtkMetricType'			=>	'int',
+	  'GtkOrientation'			=>	'int',
+	  'GtkCornerType'			=>	'int',
+	  'GtkPackType'				=>	'int',
+	  'GtkPathPriorityType'		=>	'int',
+	  'GtkPathType'				=>	'int',
+	  'GtkPolicyType'			=>	'int',
+	  'GtkPositionType'			=>	'int',
+	  'GtkPreviewType'			=>	'int',
+	  'GtkReliefStyle'			=>	'int',
+	  'GtkResizeMode'			=>	'int',
+	  'GtkSignalRunType'		=>	'int',
+	  'GtkScrollType'			=>	'int',
+	  'GtkSelectionMode'		=>	'int',
+	  'GtkShadowType'			=>	'int',
+	  'GtkStateType'			=>	'int',
+	  'GtkSubmenuDirection'		=>	'int',
+	  'GtkSubmenuPlacement'		=>	'int',
+	  'GtkToolbarStyle'			=>	'int',
+	  'GtkTroughType'			=>	'int',
+	  'GtkUpdateType'			=>	'int',
+	  'GtkVisibility'			=>	'int',
+	  'GtkWindowPosition'		=>	'int',
+	  'GtkWindowType'			=>	'int',
+	  'GtkSortType'				=>	'int',
+	  'GtkFontMetricType'		=>	'int',
+	  'GtkFontFilterType'		=>	'int',
+	  'GtkSideType'				=>	'int',
+	  'GtkAnchorType'			=>	'int',
+	  'GtkProgressBarStyle'			=>	'int',
+	  'GtkProgressBarOrientation'	=>	'int',
+	  'GtkRcTokenType'				=>	'int',
+	  'GtkSpinButtonUpdatePolicy'	=>	'int',
+	  'GtkSpinType'				=>	'int',
+	  'GtkToolbarChildType'		=>	'int',
+	  'GtkToolbarSpaceStyle'	=>	'int',
+	  'GtkTreeViewMode'			=>	'int',
+	  'GtkFundamentalType'		=>	'int',
+
+	  ### GTK enums (hand made)
+	  'GtkAttachOptions'		=> 	'int',
+	  'GtkCalendarDisplayOptions'	=> 	'int',
+	  'GtkDestDefaults'			=> 	'int',
+	  'GtkFontType'				=> 	'int',
+	  'GtkPackType'				=>	'int',
+	  'GtkPackerOptions'		=> 	'int',
+	  'GtkPathPriorityType'		=> 	'int',
+	  'GtkStateType'			=> 	'int',
+	  
+	 );
+
+%typemap = 
+	( 
+	  'guint8' => 'int', 'guint16' => 'int', 'guint32' => 'int',
+	  'gint8' => 'int',  'gint16' => 'int',  'gint32' => 'int',
+	  'gboolean' => 'boolean',
+	  'gchar*' => 'string', 'guchar*' => 'string', 'char*'  => 'string',
+	  'gchar' => 'int', 'gshort' => 'int', 'gint' => 'int', 'glong' => 'int',
+	  'guchar'=> 'int', 'gushort'=> 'int', 'guint'=> 'int', 'gulong'=> 'int',
+
+	  'gfloat'					=> 'double',
+	  'gpointer'				=> 'pointer',
+	  'gconstpointer'			=> 'pointer',
+	  
+	  
+	  # native types
+	  'short'					=> 'int',
+	  'int'						=> 'int',
+	  'long'					=> 'int',
+	  'double'					=> 'double',
+	  'float'					=> 'float',
+	  'void'					=> 'void',
+
+	  # special
+#	  '...'						=> 'any',
+
+	  ### GDK defs
+	  'GdkAtom'					=> 'GdkAtom',
+	  'GdkWindow*'				=> 'GdkWindow',
+	  'GdkDrawable*'			=> 'GdkWindow',
+	  'GdkPixmap*'				=> 'GdkWindow',
+	  'GdkBitmap*'				=> 'GdkWindow',
+	  'GdkColor*'				=> 'GdkColor',
+	  'GdkColormap*'			=> 'GdkColormap',
+	  'GdkCursor*'				=> 'GdkCursor',
+	  'GdkDragContext*'			=> 'GdkDragContext',
+	  'GdkEvent*'				=> 'GdkEvent',
+	  'GdkFont*'				=> 'GdkFont',
+	  'GdkGC*'					=> 'GdkGC',
+	  'GdkVisual*'				=> 'GdkVisual',
+
+	  ### GTK Widget hierarchy
+	  'GtkType'					=> 'int',
+	  'GtkObject*'				=> 'GtkObject',
+	  'GtkWidget*'				=> 'GtkObject',
+	  'GtkContainer*'			=> 'GtkObject',
+	  'GtkStyle*'				=> 'GtkStyle',
+	  'GtkMisc*'				=> 'GtkObject',
+	  'GtkColorSelection*'		=> 'GtkObject',
+	  'GtkFileSelection*'		=> 'GtkObject',
+	  'GtkFontSelectionDialog*'	=> 'GtkObject',
+	  'GtkFontSelection*'		=> 'GtkObject',
+	  'GtkPlug*' 				=> 'GtkObject',
+	  'GtkToggleButton*' 		=> 'GtkObject',
+	  'GtkRadioButton*'			=> 'GtkObject',
+	  'GtkOptionMenu*' 			=> 'GtkObject',
+	  'GtkAlignment*'  			=> 'GtkObject',
+	  'GtkFrame*'				=> 'GtkObject',
+	  'GtkAspectFrame*'			=> 'GtkObject',
+	  'GtkItem*' 				=> 'GtkObject',
+	  'GtkMenuItem*'			=> 'GtkObject',
+	  'GtkCheckMenuItem*'		=> 'GtkObject',
+	  'GtkRadioMenuItem*'		=> 'GtkObject',
+	  'GtkListItem*'			=> 'GtkObject',
+	  'GtkTreeItem*'			=> 'GtkObject',
+	  'GtkHandleBox*'			=> 'GtkObject',
+	  'GtkScrolledWindow*'		=> 'GtkObject',
+	  'GtkViewport*' 			=> 'GtkObject',
+	  'GtkBox*'					=> 'GtkObject',
+	  'GtkCombo*'				=> 'GtkObject',
+	  'GtkStatusbar*'			=> 'GtkObject',
+	  'GtkButtonBox*'			=> 'GtkObject',
+	  'GtkLayout*'				=> 'GtkObject',
+	  'GtkCList*' 				=> 'GtkObject',
+	  'GtkCTree*'				=> 'GtkObject',
+	  'GtkCTreeNode*'			=> 'GtkCTreeNode',
+	  'GtkCTreeRow*'			=> 'GtkObject',
+
+	  ### GtkWidget (hand made)
+	  'GtkAccelLabel*'			=> 'GtkObject',
+	  'GtkCalendar*'			=> 'GtkObject',
+	  'GtkCurve*'				=> 'GtkObject',
+	  'GtkDrawingArea*'			=> 'GtkObject',
+	  'GtkEditable*'			=> 'GtkObject',
+	  'GtkEntry*'				=> 'GtkObject',
+	  'GtkImage*'				=> 'GtkObject',
+	  'GtkItemFactory*'			=> 'GtkObject',
+	  'GtkLabel*'				=> 'GtkObject',
+	  'GtkList*'				=> 'GtkObject',
+	  'GtkMenu*'				=> 'GtkObject',
+	  'GtkMenuBar*'				=> 'GtkObject',
+	  'GtkMenuShell*'			=> 'GtkObject',
+	  'GtkNotebook*'			=> 'GtkObject',
+	  'GtkPacker*'				=> 'GtkObject',
+	  'GtkPaned*'				=> 'GtkObject',
+	  'GtkPixmap*'				=> 'GtkObject',
+	  'GtkPreview*'				=> 'GtkObject',
+	  'GtkProgress*'			=> 'GtkObject',
+	  'GtkProgressBar*'			=> 'GtkObject',
+	  'GtkRange*'				=> 'GtkObject',
+	  'GtkRuler*'				=> 'GtkObject',
+	  'GtkScale*'				=> 'GtkObject',
+	  'GtkSocket*'				=> 'GtkObject',
+	  'GtkSpinButton*'			=> 'GtkObject',
+	  'GtkTable*'				=> 'GtkObject',
+	  'GtkText*'				=> 'GtkObject',
+	  'GtkTipsQuery*'			=> 'GtkObject',
+	  'GtkToolbar*'				=> 'GtkObject',
+	  'GtkTooltips*'			=> 'GtkObject',
+	  'GtkTree*'				=> 'GtkObject',
+	  'GtkArrow*'				=> 'GtkObject',
+	  'GtkFixed*'				=> 'GtkObject',
+	  
+####
+	  'GtkAccelGroup*'			=> 'GtkAccelGroup',
+	  'GtkAdjustment*'			=> 'GtkObject',
+	  'GtkButton*'				=> 'GtkObject',
+	  'GtkWindow*'				=> 'GtkObject',
+	  );
+
+### convert from GTK to scm
+%type_conv =
+	(
+	 "string"					=> "scm_getstr",
+	 "int"						=> "SCM_INUM",
+	 "double"					=> "SCM_FNUM",
+	 "boolean"					=> "SCM_TRUEP",
+	 "pointer"					=> "SCM_POINTER",
+
+	 "GdkFont"					=> "SGDK_FONT",
+	 "GdkColor"					=> "SGDK_COLOR",
+	 "GdkEvent"					=> "SGDK_EVENT",
+	 "GdkWindow"				=> "SGDK_WINDOW",
+	 "GdkBitmap"				=> "SGDK_WINDOW",
+	 "GdkPixmap"				=> "SGDK_WINDOW",
+	 "GdkDrawable"				=> "SGDK_WINDOW",
+	 "GdkGC"					=> "SGDK_GC",
+	 "GdkVisual"				=> "SGDK_VISUAL",
+	 "GdkColormap"				=> "SGDK_COLORMAP",
+	 "GdkDragContext"			=> "SGDK_DRAGCONTEXT",
+	 "GdkAtom"					=> "SGDK_ATOM_ATOM",
+	 "GdkCursor"				=> "SGDK_CURSOR",
+
+	 "GtkObject"				=> "SGTK_OBJECT",
+	 "GtkAccelGroup"			=> "SGTK_ACCELGROUP",
+	 "GtkStyle"					=> "SGTK_STYLE",
+	 "GtkSelectionData"			=> "SGTK_SELECTIONDATA",
+	 "GtkCTreeNode"				=> "SGTK_CTREE_NODE",
+	 );
+
+### check for scm type
+%type_check =
+	(
+	 "string"					=> "scm_anystrp",
+	 "int"						=> "SCM_INUMP",
+	 "double"					=> "SCM_FNUMP",
+	 "boolean"					=> "SCM_BOOLEANP",
+	 "pointer"					=> "SCM_POINTERP",
+
+	 "GdkFont"					=> "SGDK_FONTP",
+	 "GdkColor"					=> "SGDK_COLORP",
+	 "GdkEvent"					=> "SGDK_EVENTP",
+	 "GdkWindow"				=> "SGDK_WINDOWP",
+	 "GdkBitmap"				=> "SGDK_WINDOWP",
+	 "GdkPixmap"				=> "SGDK_WINDOWP",
+	 "GdkDrawable"				=> "SGDK_WINDOWP",
+	 "GdkGC"					=> "SGDK_GCP",
+	 "GdkVisual"				=> "SGDK_VISUALP",
+	 "GdkColormap"				=> "SGDK_COLORMAPP",
+	 "GdkDragContext"			=> "SGDK_DRAGCONTEXTP",
+	 "GdkAtom"					=> "SGDK_ATOMP",
+	 "GdkCursor"				=> "SGDK_CURSORP",
+
+	 "GtkObject"				=> "SGTK_OBJECTP",
+	 "GtkAccelGroup"			=> "SGTK_ACCELGROUPP",
+	 "GtkStyle"					=> "SGTK_STYLEP",
+	 "GtkSelectionData"			=> "SGTK_SELECTIONDATAP",
+	 "GtkCTreeNode"				=> "SGTK_CTREE_NODEP",
+	 );
+
+%type_get =
+	(
+	 "string"				=> 'scm_getstr(@)',
+	 "int"					=> 'scm_number2long(@)',
+	 "double"				=> 'scm_number2double(@)',
+	 "boolean"				=> '(@ != scm_false)',
+	 "GdkFont"				=> 'sgdk_get_Font(@)',
+	 "GdkColor"				=> 'sgdk_get_Color(@)',
+	 "GdkEvent"				=> 'sgdk_get_Event(@)',
+	 "GdkWindow"			=> 'sgdk_get_Window(@)',
+	 "GdkBitmap",			=> 'sgdk_get_Window(@)',
+	 "GdkPixmap"			=> 'sgdk_get_Window(@)',
+	 "GdkDrawable",			=> 'sgdk_get_Window(@)',
+	 "GdkGC"				=> 'sgdk_get_GC(@)',
+	 "GdkVisual"			=> 'sgdk_get_Visual(@)',
+	 "GdkColormap",			=> 'sgdk_get_Colormap(@)',
+	 "GdkDragContext",		=> 'sgdk_get_DragContext(@)',
+	 "GdkAtom",				=> 'sgdk_get_Atom(@)',
+	 "GdkCursor",			=> 'sgdk_get_Cursor(@)',
+
+	 "GtkObject"			=> 'sgtk_get_Object(@)',
+	 "GtkAccelGroup"		=> 'sgtk_get_AccelGroup(@)',
+	 "GtkStyle"				=> 'sgtk_get_Style(@)',
+	 "GtkSelectionData"		=> 'sgtk_get_SelectionData(@)',
+	 "GtkCTreeNode"			=> 'sgtk_get_CTreeNode(@)',
+	 );
+
+
+### convert from scm to GTK
+%type_ret =
+	(
+	 "int"						=> "SCM_MKINUM",
+	 "guint"					=> "SCM_MKINUM",
+	 "guint32"					=> "scm_int2num",
+	 "gulong"					=> "scm_int2num",
+	 "gint"						=> "SCM_MKINUM",
+	 "guchar"					=> "SCM_MKINUM",
+	 "gfloat"					=> "scm_mkfnum",
+
+	 "string"					=> "scm_mkstring",
+	 "gchar*"					=> "scm_mkstring",
+	 "char*"					=> "scm_mkstring",
+
+	 "gboolean"					=> "SCM_MKBOOL",
+	 "gpointer"					=> "scm_mkpointer",
+
+	 "GtkType"					=> "SCM_MKINUM",
+
+	 "GdkFont*"					=> "sgdk_Font_new",
+	 "GdkColor*"				=> "sgdk_Color_new",
+	 "GdkPixmap*"				=> "sgdk_Window_new",
+	 "GdkBitmap*"				=> "sgdk_Window_new",
+	 "GdkWindow*"				=> "sgdk_Window_new",
+	 "GdkDrawable*"				=> "sgdk_Window_new",
+	 "GdkGC*"					=> "sgdk_GC_new",
+	 "GdkVisual*"				=> "sgdk_Visual_new",
+	 "GdkColormap*"				=> "sgdk_Colormap_new",
+	 "GdkDragContext*"			=> "sgdk_DragContext_new",
+	 "GdkAtom"					=> "sgdk_Atom_new",
+	 "GdkCursor*"				=> "sgdk_Cursor_new",
+	 "GdkEvent*"				=> "sgdk_Event_new",
+
+	 "GtkObject*"				=> "sgtk_object_new",
+	 "GtkWidget*"				=> "sgtk_object_new",
+	 "GtkAccelGroup*"			=> "sgtk_object_new",
+	 "GtkItemFactory*"			=> "sgtk_object_new",
+	 "GtkAdjustment*"			=> "sgtk_object_new",
+	 "GtkTooltips*"				=> "sgtk_object_new",
+	 "GtkStyle*"				=> "sgtk_Style_new",
+	 "GtkSelectioData*"			=> "sgtk_SelectionData_new",
+	 "GtkSelectionData*"		=> "sgtk_SelectionData_new",
+	 "GtkCTreeNode*"			=> "sgtk_CTreeNode_new",
+	 );
+
+
+
+### global variables 
+
+@ignore=("_real_", "gdk_im_");
+
+%unknow=();
+@missing = ();
+@def = ();
+@decl = ();
+
+$lang="scm";
+$dumpincomplete=0;
+
+
+sub type_convert
+{
+	my $str = shift;
+	
+	$str =~ s/^\s*//;
+	$str =~ s/\s*$//;
+	$str =~ s/\s+\*/*/g;
+
+	if (defined($typemap{$str})) {
+		return $typemap{$str};
+	}
+	$unknow{$str}++;
+	return(undef);
+}
+			 
+sub toscm
+{
+	my ($ret_type, $func_name, $arg_list) = @_;
+	my ($str, $rt, $fn, $al);
+	my ($incomplete);
+
+	$incomplete=0;
+	$rt = type_convert($ret_type);
+	if (!defined($rt)) {
+		if (!defined($rt = $emap{$ret_type}) &&
+			!defined($rt = $fmap{$ret_type})) {
+			$rt = "?$ret_type?";
+			$incomplete = 1;
+		}
+	}
+
+	$al = "";
+	if ($arg_list =~ /^\s*void\s*$/) {
+		$al = "";
+	} else {
+		for $str (split(/\s*,\s*/, $arg_list)) {
+			$str =~ s/const\s+//;
+			$str =~ s/\s*\w+\s*$//g;
+			$arg = type_convert($str);
+			if (!defined($arg)) {
+				if (!defined($arg = $emap{$str}) &&
+					!defined($arg = $fmap{$str})) {
+					$arg = "?$str?";
+					$incomplete = 1;
+				}
+			}
+			$arg = $str if (!defined($arg));
+			$al .= ":$arg ";
+		}
+	}
+	$al =~ s|\s*$||;
+	$str = ":$rt $func_name $al";
+
+	for $str (@ignore) {
+		if ($func_name =~ m|$str|) { $incomplete = 1;  next; }
+	}
+
+	if ($incomplete) {
+		push(@missing, $str);
+	} else {
+		push(@def, $str);
+	}
+}
+
+sub toc
+{
+	my ($ret_type, $func_name, $arg_list) = @_;
+	my ($str, $rt, $fn, $al);
+	my ($incomplete);
+	my (@arg_t, @arg_l);
+
+	@def = ();
+	$al = "";
+	@arg_n = ();
+	@arg_t = ();
+
+	for $str (@ignore) {
+		if ($func_name =~ m|$str|) {
+			print "$cp +++ ignoring $func_name $cs\n\n";
+			return;
+		}
+	}
+
+	$incomplete=0;
+	$rt = type_convert($ret_type);
+	if (!defined($rt)) {
+		if (!defined($rt = $emap{$ret_type}) &&
+			!defined($rt = $fmap{$ret_type})) {
+			push(@def, "  $cp +++ return type $ret_type not defined $cs");
+			$incomplete = 1;
+		}
+	}
+	if ($arg_list !~ /^\s*void\s*$/) {
+		for $str (split(/\s*,\s*/, $arg_list)) {
+			$str =~ s/const\s+//;
+			if ($str =~ m|\s*(\w+)\s*$|) {
+				push(@arg_n, $1);
+				push(@arg_t, $`);
+			} else {
+				print "***Bad argument name in $str\n";
+				$incomplete = 1;
+			}
+		}
+	}
+	$str = "SOBJ s$func_name (";
+	for ($i = 0; $i <= $#arg_n; $i++) {	# func args
+		$str .="SOBJ o_$arg_n[$i]";
+		$str .= ($i < $#arg_n) ? ", ": "";
+	}
+	$str .= ")";
+	push(@def, $str);
+	push(@def, "{");
+
+	for ($i = 0; $i <= $#arg_n; $i++) {	# local vars
+		push(@def, "  $arg_t[$i] $arg_n[$i];");
+	}
+	push(@def, "  $ret_type __retval__;") if ($ret_type ne "void");
+	push(@def, "");
+	
+	for ($i = 0; $i <= $#arg_n; $i++) {	# convert to local var
+		$arg = type_convert($arg_t[$i]);
+		if (!defined($arg)) {
+			if (defined($emap{$arg_t[$i]})) {
+				push(@def, "  $arg_n[$i] = sgtk_enumget(\"".$arg_t[$i]."\", o_$arg_n[$i]);");
+			} elsif (defined($fmap{$arg_t[$i]})) {
+				push(@def, "  $arg_n[$i] = sgtk_flagsget(\"".$arg_t[$i]."\", o_$arg_n[$i]);");
+			} else {
+				push(@def, "  $cp +++ undefined $arg_t[$i] $cs");
+				$incomplete = 1;
+			}
+		} else {
+			$get = $type_get{$arg};
+			if (defined($get)) {
+				$get =~ s|@|o_$arg_n[$i]|g;
+				push(@def, "  $arg_n[$i] = $get;");
+			} else {
+				push(@def, "  $cp +++ get $arg_t[$i] -> $arg failed $cs");
+				$incomplete = 1;
+			}
+
+#  			$conv = $type_conv{$arg};
+#  			if (!defined($conv)) {
+#  				push(@def, "  $cp +++ conversion from $arg_t[$i] -> $arg failed $cs");
+#  				$incomplete = 1;
+#  			}
+#  			$check= $type_check{$arg};
+#  			if (!defined($check)) {
+#  				push(@def, "  $cp +++ check of $arg failed $cs");
+#  				$incomplete = 1;
+#  			}
+#  			if ($check =~ /^SGDK/) { # assume null is valid */
+#  				$the_test = "o_$arg_n[$i] && !$check(o_$arg_n[$i])";
+#  			} else {
+#  				$the_test = "!$check(o_$arg_n[$i])";
+#  			}
+#  			push(@def, "  if ($the_test) err(\"bad $arg\", o_$arg_n[$i]);");
+#  			push(@def, "  $arg_n[$i] = ($arg_t[$i]) $conv(o_$arg_n[$i]);");
+		}
+	}
+
+	if ($ret_type eq "void") {
+		push(@def, "  $func_name(".join(", ",@arg_n).");");
+		push(@def, "  return(scm_undefined);");
+	} else {					#  non void return
+		push(@def, "  __retval__ = $func_name(".join(", ",@arg_n).");");
+		$retconv = $type_ret{$ret_type};
+			
+		if (defined($retconv)) {
+			if ($retconv eq "sgtk_object_new") {
+				push(@def, "  return(".$retconv."((void*)__retval__));");
+			} else {
+				push(@def, "  return(".$retconv."(__retval__));");
+			}
+		} elsif (defined($emap{$ret_type}) || defined($fmap{$ret_type})) {
+			push(@def, "  return(SCM_MKINUM(__retval__));");
+		} else {
+			push(@def, "  $cp +++ don't know how to generate $ret_type $cs");
+			push(@def, "  return(scm_undefined);");
+			$incomplete=1;
+		}
+	}
+	push(@def, "}");
+
+	if (!$incomplete) {
+		for (@def) {
+			print "$_\n";
+		}
+		print "\n";
+		push(@decl, "$func_name ".($#arg_n + 1));
+	} else {
+		if ($dumpincomplete) {
+			
+			print "#ifdef INCOMPLETE\n";
+			for (@def) {
+				print "$_\n";
+			}
+			print "#endif /* INCOMPLETE */\n";
+			print "\n";
+		}
+	}
+	return;
+}
+
+sub usage()
+{
+	print "Usage: $0 [--lang=[c|scm]] [--dump-incomplete] [--modname=NAME]\n";
+	exit(0);
+}
+
+MAIN: {
+	while(@ARGV && $ARGV[0] =~ /^-/) {
+		$_ = shift(@ARGV);
+		if (/--lang=(\w+)/) {  $lang=$1;  next; }
+		if (/--dump-incomplete/) { $dumpincomplete++;  next; }
+		if (/--modname=(\w+)/) { $modname = $1;  next; }
+		usage();
+	}
+
+	# load defs from gtk.defs.
+	# gtk.defs is generated by running the makeenums.pl in the gtk sources:
+	# perl makeenums.pl defs *.h ../gdk/gdktypes.h ../gdk/gdkrgb.h > gtk.defs
+	
+	open(F,"<gtk.defs") || die "Cannot locate gtk.defs here";
+	while(<F>) {
+		if (m|^\(define-(\w+)\s(\w*)|) {
+			if ($1 eq "flags") {
+				$fmap{$2} = "int";
+			} elsif($1 eq "enum") {
+				$emap{$2} = "int";
+			} else {
+#				print "UNKN: $1\n";
+			}
+		}
+	}
+	close(F);
+
+	if ($lang eq "c") {
+		$cp="/*";
+		$cs="*/";
+	} elsif ($lang eq "scm") {
+		$cp=";;";
+		$cs="";
+	} else {
+		usage();
+	}
+	chop($date = `date`);
+	print "$cp This file was automatically generated by make-gtk-proto $cs\n";
+	print "$cp $date $cs\n";
+	print "$cp enums=",join(",",keys %emap),"$cs\n";
+	print "$cp flags=",join(",",keys %fmap),"$cs\n";
+
+	if ($lang eq "c") {
+	   print "#include \"s.h\"\n";
+	   print "#include \"sgtk.h\"\n";
+	}	   
+	
+	while(@ARGV) {
+		@missing = ();
+		@def = ();
+		undef $/;
+		$file = shift(@ARGV);
+
+		open(F, $file) || die "cannot open $file\n";
+		$f = <F>;
+		close(F);
+		$_ = $f;
+		s|/\*(.*?)\*/||sg;
+		s|\s+\*|*|sg;
+		s|\*(\w)|* $1|sg;
+#		print $_;
+
+		while( /^(\w+\**)\s+(\w+)\s*\(([\w\s*,]*)?\)\s*\{/gm ) {
+			next if ($1 eq "typedef" || $1 eq "static");
+			$rettype = $1;
+			$funcname= $2;
+			$args=$3;
+			$args =~ s|\s+| |g;
+			
+#			print "$rettype $funcname ($args)\n";
+
+			if ($lang eq "scm") {
+				toscm($rettype, $funcname, $args);
+			} else {
+				toc($rettype, $funcname, $args);
+			}
+		}
+		if ($lang eq "scm") {
+			($str=$file) =~ s|.*/||;
+			print "$cp $cs\n$cp From file $str $cs\n$cp $cs\n";
+			
+			for $str (@def) {
+				print "(define-extern $str)\n";
+			}
+			for $str (@missing) {
+				print ";; (define-extern $str)\n";
+			}
+		}
+	}
+
+	if ($lang eq "scm") {
+		print ";;\n;; Unconverted types:\n;;\n\n";
+		foreach $str (sort keys %unknow) {
+			print ";;  '$str'\t\t=> '',\n";
+		}
+	}
+
+	if ($lang eq "c") {
+		print "\n\nvoid scm_init_$modname()\n{\n";
+		for $str (@decl) {
+			($fn, $nargs) = split(/ /, $str);
+			$sfn = $fn;
+			$sfn =~ s/_/-/g;
+			print "  scm_add_cprim(\"$sfn\", s$fn, $nargs);\n";
+		}
+		print "  scm_puts(\"; $modname loaded...\\n\");\n";
+		print "}\n";
+	}
+
+	exit (0);
+}
