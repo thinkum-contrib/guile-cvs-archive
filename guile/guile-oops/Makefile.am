@@ -7,7 +7,7 @@ bin_PROGRAMS = guile-oops
 
 guile_oops_SOURCES = guile-oops.c
 guile_oops_DEPENDENCIES = @LIBLOBJS@
-guile_oops_LDADD = @LIBLOBJS@ libgoopscore.la
+guile_oops_LDADD = @LIBLOBJS@ libgoopscore.la @LIBQTHREADS@
 
 libgoopscore_la_SOURCES = goops.c
 libgoopscore_la_LDFLAGS = -version-info @LIBGOOPSCORE_MAJOR_VERSION@:@LIBGOOPSCORE_MINOR_VERSION@:@LIBGOOPSCORE_REVISION_VERSION@ -export-dynamic
