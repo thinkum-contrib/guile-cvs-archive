@@ -1,4 +1,4 @@
-/*	Copyright (C) 1998 Free Software Foundation, Inc.
+/*	Copyright (C) 1998, 2000 Free Software Foundation, Inc.
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -62,7 +62,8 @@ free_interp (obj)
 {
   SCM_PROPS (obj) = SCM_EOL;
   Tcl_DeleteInterp (SCM_TERP (obj));
-  return 0;
+  free (SCM_GTCLTK (obj));
+  return sizeof (struct gtcltk_interp);
 }
 
 static SCM mark_interp (SCM obj);
@@ -72,26 +73,6 @@ mark_interp (obj)
 {
   return SCM_PROPS (obj); 
 }
-
-static int print_interp (SCM exp, SCM port, scm_print_state *pstate);
-static int
-print_interp (exp, port, pstate)
-     SCM exp;
-     SCM port;
-     scm_print_state *pstate;
-{
-  scm_puts("#<tcl-interpreter ", port);
-  scm_intprint(exp, 16, port);
-  scm_putc('>', port);
-  return 1;
-}
-
-static scm_smobfuns tcl_interp_smob = {
-    mark_interp,
-    free_interp,
-    print_interp,
-    0
-};
 
 int scm_tc16_tcl_interp;
 
@@ -114,7 +95,7 @@ scm_tcl_create_interp ()
   if (! gtcltk)
     {
       SCM_ALLOW_INTS;
-      SCM_ASSERT (0, SCM_BOOL_F, SCM_NALLOC, s_tcl_create_interp);
+      scm_memory_error (s_tcl_create_interp);
     }
   SCM_NEWCELL (answer);
   SCM_SETCAR (answer, scm_tc16_tcl_interp);
@@ -240,7 +221,7 @@ masked_apply (SCM proc, SCM args)
   return scm_internal_dynamic_wind (mask_signals,
 				    inner_masked_apply,
 				    revert_signals,
-				    scm_cons (proc, args),
+				    (void *) scm_cons (proc, args),
 				    &old_mask);
 }
 
@@ -531,7 +512,7 @@ scm_tcl_merge (tobj, args)
       if (!argv)
 	{
 	  SCM_ALLOW_INTS;
-	  SCM_ASSERT (0, SCM_BOOL_F, SCM_NALLOC, s_tcl_merge);
+	  scm_memory_error (s_tcl_merge);
 	}
       for (i = 0; i < argc; ++i)
 	{
@@ -834,7 +815,9 @@ void scm_init_gtcl (void);
 void
 scm_init_gtcl ()
 {
-  scm_tc16_tcl_interp = scm_newsmob (&tcl_interp_smob);
+  scm_tc16_tcl_interp = scm_make_smob_type ("tcl-interpreter", 0);
+  scm_set_smob_mark (scm_tc16_tcl_interp, mark_interp);
+  scm_set_smob_free (scm_tc16_tcl_interp, free_interp);
 #ifdef USE_THREADS
 #ifdef SCM_MUTEX_INIT_TWO_ARGS
   scm_mutex_init (&scm_tcl_mutex, NULL);
