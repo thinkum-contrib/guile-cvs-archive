@@ -1,9 +1,6 @@
 - Eventually
-  - factor guile-core/ administration files
-    - merge HEAD and branch_release-1-6 TODO files into this one
-    - make/implement policy: include TODO snapshot on release
-    - delete HEAD and branch_release-1-6 TODO files
-    - determine additional list of files
+  - factor guile-core/ "administration" files
+    - determine list of files
     - generally, for each file:
       - add it somewhere under workbook/
       - add dist-hook action to appropriate Makefile.am
@@ -24,6 +21,9 @@
 - Guile 1.6
   + write workbook/build/maintainer-dirs.text [ttn]
   + write guile-core/am/maintainer-dirs [ttn]
+  - merge HEAD and branch_release-1-6 TODO files into this one [ttn]
+    - include TODO snapshot on release
+    - delete HEAD and branch_release-1-6 TODO files
   - convert bug tracking/summarization process [ttn]
     +R define bugs db format (see bugs/README) [mvo]
     + import current BUGS [mvo]
@@ -32,7 +32,7 @@
       + subject: failed backtrace [ttn]
       - starting from the oldest [ttn]
       - starting form the newest
-    - write render-bugs, add to devel scripts/ [evan:ttn]
+    - write render-bugs, add to mscripts/ [evan:ttn]
     - use render-bugs in dist-hook to create BUGS from db
     - delete HEAD and branch_release-1-6 BUGS files
 
