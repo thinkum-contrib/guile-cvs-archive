@@ -594,11 +594,8 @@ SCM_DEFINE (scm_gentemp, "gentemp", 0, 2, 0,
 
   if (SCM_UNBNDP (obarray))
     return scm_gensym (prefix);
-  else
-    SCM_ASSERT ((SCM_VECTORP (obarray) || SCM_WVECTP (obarray)),
-		obarray,
-		SCM_ARG2,
-		FUNC_NAME);
+
+  SCM_VALIDATE_VECTOR (2, obarray);
   do
     n_digits = scm_iint2str (gentemp_counter++, 10, &name[len]);
   while (!SCM_FALSEP (scm_intern_obarray_soft (name,
