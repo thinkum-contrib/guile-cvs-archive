@@ -1,5 +1,7 @@
 2000-04-08  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
+	* GTKTHREADS-VERSION: Release of 0.1.4.
+
 	* gthread-guile.c (g_guile_thread_functions_for_glib): Filled in
 	entries for create, yield, join and exit.
 	(g_thread_self_guile_impl): Set the thread pointer to a pointer to
