@@ -1,3 +1,10 @@
+Sat Aug 23 19:05:08 1997  Gary Houston  <ghouston@actrix.gen.nz>
+
+	* guile-ref.texi (Top): corresponding changes.
+	* scheme.texi (Exception Handling): add scm-error, strerror.
+	(Exceptions): renamed from Exception Handling.
+	(Exceptions): deleted empty section.
+
 Mon Aug 18 16:11:43 1997  Jim Blandy  <jimb@totoro.red-bean.com>
 
 	* texinfo.tex: Installed from texinfo release 3.11.

@@ -119,9 +119,8 @@ Part I: Guile Scheme
 * Block comments and interpreter triggers::
 * Symbol case::
 * Keywords::
-* Exceptions::
 * Modules::
-* Exception Handling::
+* Exceptions::
 * Dynamic Wind::
 * Records::
 * Structures::

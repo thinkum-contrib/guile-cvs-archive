@@ -107,11 +107,6 @@ the block comment syntax when writing a shell script in Guile;
 
 [FIXME: in state of flux right now]
 
-
-@page
-@node Exceptions
-@chapter Exceptions
-
 @page
 @node Modules
 @chapter Modules
@@ -209,12 +204,10 @@ import *" versus "import Tkinter"]
 
 
 @page
-@node Exception Handling
-@chapter Exception Handling
-@cindex Exceptions
+@node Exceptions
+@chapter Exceptions
 @cindex Error Handling
-
-[FIXME: pasted in from Cygnus Guile docs; should be reviewed]
+@cindex Exception Handling
 
 @defun catch key thunk handler
 Invoke @var{thunk} in the dynamic context of @var{handler} for
@@ -253,10 +246,28 @@ symbol or of #t.
 If there is no handler at all, an error is signaled.
 @end defun
 
-@defun error msg args ...
+@deffn procedure error msg args ...
 Raise an error with key @code{misc-error} and a message constructed by
 displaying @var{msg} and writing @var{args}.
-@end defun
+@end deffn
+
+@deffn procedure scm-error key subr message args data
+Raise an error with key @var{key}.  @var{subr} can be a string naming
+the procedure associated with the error, or @code{#f}.  @var{message}
+is the error message string, possibly containing @code{%S} and @code{%s}
+escapes.  When an error is reported, these are replaced by formating the
+corresponding members of @var{args}: @code{%s} formats using @code{display}
+and @code{%S} formats using @code{write}.  @var{data} is a
+list or @code{#f} depending on @var{key}: if @var{key} is
+@code{system-error} then it should be a list
+containing the Unix @code{errno} value;  If @var{key} is @code{signal} then
+it should be a list containing the Unix signal number; otherwise it
+will usually be @code{#f}.
+@end deffn
+
+@deffn procedure strerror errno
+Returns the Unix error message corresponding to @var{errno}, an integer.
+@end deffn
 
 @defmac false-if-exception expr
 Returns the result of evaluating its argument; however
@@ -2844,24 +2855,24 @@ is initialized to zero.  The modes string is the same as that accepted
 by @ref{File Ports, open-file}.
 @end deffn
 
-@defun fdes->ports fdes
+@deffn procedure fdes->ports fdes
 Returns a list of existing ports which have @var{fdes} as an
 underlying file descriptor, without changing their revealed counts.
-@end defun
+@end deffn
 
-@defun fdes->inport fdes
+@deffn procedure fdes->inport fdes
 Returns an existing input port which has @var{fdes} as its underlying file
 descriptor, if one exists, and increments its revealed count.
 Otherwise, returns a new input port with a revealed count of 1.
-@end defun
+@end deffn
 
-@defun fdes->outport fdes
+@deffn procedure fdes->outport fdes
 Returns an existing output port which has @var{fdes} as its underlying file
 descriptor, if one exists, and increments its revealed count.
 Otherwise, returns a new output port with a revealed count of 1.
-@end defun
+@end deffn
 
-@defun primitive-move->fdes port fdes
+@deffn procedure primitive-move->fdes port fdes
 Moves the underlying file descriptor for @var{port} to the integer
 value @var{fdes} without changing the revealed count of @var{port}.
 Any other ports
@@ -2869,7 +2880,7 @@ already using this descriptor will be automatically
 shifted to new descriptors and their revealed counts reset to zero.
 The return value is zero if the file descriptor does not need to be
 moved or one if it does.
-@end defun
+@end deffn
 
 @deffn procedure move->fdes port fd
 Moves the underlying file descriptor for @var{port} to the integer
@@ -2930,10 +2941,10 @@ See the Unix documentation of the @code{open} system call
 for additional flags.
 @end defun
 
-@defun open-fdes path flags [modes]
+@deffn procedure open-fdes path flags [modes]
 Similar to @code{open} but returns a file descriptor instead of a
 port.
-@end defun
+@end deffn
 
 @deffn procedure close port/fd
 Similar to close-port (@pxref{Closing Ports, close-port}),
