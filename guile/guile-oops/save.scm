@@ -456,7 +456,7 @@
   (or (immediate? o)
       (excluded? o env)
       (let ((info (object-info o env)))
-	(or (not (eq? (visiting info) #:defined))
+	(or (eq? (visiting info) #:pass-2)
 	    (literal? info)))))
 
 ;;;
@@ -623,6 +623,7 @@
     (display #\space file)
     (if (literal? info)
 	(display #\' file))
+    (set! (visiting info) #:defining)
     (write-readably o file env)
     (set! (visiting info) #:defined)
     (display #\) file)))
