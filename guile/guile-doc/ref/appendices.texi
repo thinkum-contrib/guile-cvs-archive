@@ -132,9 +132,9 @@ Scheme programs than the interpreter which evaluates them.
 and explain why they can't be used to debug interpreted Scheme or Lisp?]
  
 @menu
-* Single-Step::                 Execute a program or function one step at a time.
-* Trace::                       Print a report each time a given function is called.
-* Backtrace::                   See a list of the statements that caused an error.
+* Single-Step::         Execute a program or function one step at a time.
+* Trace::               Print a report each time a given function is called.
+* Backtrace::           See a list of the statements that caused an error.
 @end menu
  
 @node Single-Step
