@@ -1,3 +1,19 @@
+1999-07-25  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
+
+	* goops.c, goops.h (scm_class_port, scm_class_input_port,
+	scm_class_output_port, scm_class_input_output_port): Added.
+
+	* goops.c (make_standard_classes): Initialize new classes.
+	(make_class_from_template): Added.
+	(make_extended_class): Use make_class_from_template.
+	(local_make_port_classes): Added. Plugs into
+	objects.c:scm_make_port_classes.
+	(make_port_classes): Make port classes corresponding to all
+	existing port types.
+	(scm_init_goops): Call make_port_classes.
+
+	* describe.scm: Use Guile's format instead of slib's.
+
 1999-06-24  Mikael Djurfeldt  <mdj@mdj-pc.nada.kth.se>
 
 	* goops.scm (define-method): Made possible to define setter methods.
