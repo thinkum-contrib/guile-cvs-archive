@@ -1,3 +1,16 @@
+1999-12-12  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* goops.c (set_slot_value_if_unbound): Removed.
+	(slot_definition_using_name): New function.
+	(get_slot_value, set_slot_value): Now takes a slot definition
+	instead of name as third (fourth) arg.
+	(get_slot_value_using_name, set_slot_value_using_name): Same
+	signature as old versions of get/set_slot_value.
+	(scm_sys_initialize_object): Use get/set_slot_value directly and
+	using the slot definition so that initialization becomes
+	O(n_slots) instead of O(n_slots^2).  Initialization also becomes
+	independent of slot naming.
+
 1999-12-08  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* goops.scm (compute-slots): New generic function in the MOP.
