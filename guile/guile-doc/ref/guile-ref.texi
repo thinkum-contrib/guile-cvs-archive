@@ -114,7 +114,10 @@ by Free Software Foundation.
 Preliminary
 
 * Introduction::
-* Using Guile::
+* Running Guile Interactively::
+* Guile Scripts::
+* Linking Programs With Guile::
+* Writing Guile Modules::
 
 Part I: Guile Scheme
 
@@ -163,7 +166,6 @@ Part II: Using Scheme with C --- a Portable Interface
 
 Part III: Using Scheme with C --- Guile's Interface
 
-* Linking Guile with your code::
 * Scheme data representation::
 * Relationship between Scheme and C functions::
 * I/O internals::
@@ -173,7 +175,6 @@ Part III: Using Scheme with C --- Guile's Interface
 Appendices and Indices
 
 * Obtaining and Installing Guile::
-* Invoking Guile::
 * debugger user interface::
 * Indices::
 
