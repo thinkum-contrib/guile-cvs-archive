@@ -88,7 +88,7 @@
 #define SCM_MUST_MALLOC(size) (scm_must_malloc((size), FUNC_NAME))
 
 #define SCM_MAKE_VALIDATE(pos,var,pred) \
-  do { SCM_ASSERT (SCM_ ## pred(var), var, pos, FUNC_NAME); } while (0)
+  do { SCM_ASSERT_TYPE (SCM_ ## pred(var), var, pos, FUNC_NAME, #pred); } while (0)
 
 
 
