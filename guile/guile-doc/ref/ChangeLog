@@ -1,3 +1,9 @@
+2001-02-27  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* guile.texi, scheme-data.texi, scheme-ideas.texi: Remove the code
+	that set paragraph indent to zero, then add @noindent to several
+	places that need not to be indented.
+
 2001-02-24  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* posix.texi (File System, Time), scheme-control.texi

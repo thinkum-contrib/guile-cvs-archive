@@ -293,6 +293,7 @@ expected to be strings, that it is given.  So the expression
 (string-append "/home" "/" "andrew")
 @end lisp
 
+@noindent
 is a procedure invocation whose result is the string value
 @code{"/home/andrew"}.
 
@@ -303,6 +304,7 @@ returns the length of a single string argument, so
 (string-length "abc")
 @end lisp
 
+@noindent
 is a procedure invocation whose result is the numeric value 3.
 
 Each of the parameters in a procedure invocation can itself be any
@@ -313,6 +315,7 @@ expression, we can put these two examples together to get
 (string-length (string-append "/home" "/" "andrew"))
 @end lisp
 
+@noindent
 --- a procedure invocation whose result is the numeric value 12.
 
 (You may be wondering what happens if the two examples are combined the
@@ -323,7 +326,8 @@ expression that is @emph{syntactically} correct:
 (string-append "/home" (string-length "abc"))
 @end lisp
 
-But when this expression is executed, it will cause an error, because
+@noindent
+but when this expression is executed, it will cause an error, because
 the result of @code{(string-length "abc")} is a numeric value, and
 @code{string-append} is not designed to accept a numeric value as one of
 its arguments.)
@@ -346,6 +350,7 @@ For example, the value of the following Scheme expression
 (lambda (name address) @var{expression} @dots{})
 @end lisp
 
+@noindent
 is a newly created procedure that takes two arguments:
 @code{name} and @code{address}.  The behaviour of the
 new procedure is determined by the sequence of @var{expression}s in the
@@ -378,6 +383,7 @@ this:
  "Cambridge") 
 @end lisp
 
+@noindent
 This is a valid procedure invocation expression, whose result is the
 string @code{"Name=FSF:Address=Cambridge"}.
 
@@ -389,12 +395,14 @@ It it more common, though, to store the procedure value in a variable ---
     (string-append "Name=" name ":Address=" address)))
 @end lisp
 
+@noindent
 --- and then to use the variable name in the procedure invocation:
 
 @lisp
 (make-combined-string "FSF" "Cambridge") 
 @end lisp
 
+@noindent
 Which has exactly the same result.
 
 It's important to note that procedures created using @code{lambda} have
@@ -417,6 +425,7 @@ A @code{define} expression of the form
   @var{expression} @dots{})
 @end lisp
 
+@noindent
 is exactly equivalent to the longer form
 
 @lisp
@@ -444,6 +453,7 @@ accept a variable number of arguments:
 (lambda @var{args} @var{expression} @dots{})
 @end lisp
 
+@noindent
 The corresponding forms of the alternative @code{define} syntax are:
 
 @lisp
@@ -452,6 +462,7 @@ The corresponding forms of the alternative @code{define} syntax are:
 (define (@var{name} . @var{args}) @var{expression} @dots{})
 @end lisp
 
+@noindent
 For details on how these forms work, see @xref{Lambda}.
 
 (It could be argued that the alternative @code{define} forms are rather
@@ -476,7 +487,8 @@ example the value of the procedure invocation expression:
 (string-append "/home" "/" "andrew")
 @end lisp
 
-But we haven't yet been precise about what causes an expression like
+@noindent
+but we haven't yet been precise about what causes an expression like
 this procedure invocation to be reduced to its ``value'', or how the
 processing of such expressions relates to the execution of a Scheme
 program as a whole.
@@ -526,6 +538,7 @@ Scheme program by specifying how Scheme executes a program as a whole,
 and then by describing the value and side effects of evaluation for each
 type of expression individually.
 
+@noindent
 So, some@footnote{These definitions are approximate.  For the whole and
 detailed truth, see @xref{Formal syntax and semantics,R5RS
 syntax,,r5rs}.} definitions@dots{}
@@ -555,6 +568,7 @@ one of Scheme's special syntactic expressions.
 @end itemize
 @end itemize
 
+@noindent
 The following subsections describe how each of these types of expression
 is evaluated.
 
@@ -572,6 +586,7 @@ When a literal data expression is evaluated, the value of the expression
 is simply the value that the expression describes.  The evaluation of a
 literal data expression has no side effects.
 
+@noindent
 So, for example, 
 
 @itemize @bullet
@@ -613,6 +628,7 @@ So, after
 (define key "Paul Evans")
 @end lisp
 
+@noindent
 the value of the expression @code{key} is the string value @code{"Paul
 Evans"}.  If @var{key} is then modified by
 
@@ -620,6 +636,7 @@ Evans"}.  If @var{key} is then modified by
 (set! key 3.74)
 @end lisp
 
+@noindent
 the value of the expression @code{key} is the numeric value 3.74.
 
 If there is no variable with the specified name, evaluation of the
@@ -636,6 +653,7 @@ a procedure invocation expression has the form
 (@var{procedure} [@var{arg1} [@var{arg2} @dots{}]])
 @end lisp
 
+@noindent
 where @var{procedure} must be an expression whose value, when evaluated,
 is a procedure.
 
@@ -784,6 +802,7 @@ to''.  Wherever you see an example of the form
 @var{result}
 @end lisp
 
+@noindent
 feel free to try it out yourself by typing @var{expression} into the
 REPL and checking that it gives the expected @var{result}.
 
@@ -1151,6 +1170,7 @@ Consider a @code{let} expression that doesn't contain any
   (sqrt (* s (- s a) (- s b) (- s c))))
 @end lisp
 
+@noindent
 When the Scheme interpreter evaluates this, it
 
 @itemize @bullet

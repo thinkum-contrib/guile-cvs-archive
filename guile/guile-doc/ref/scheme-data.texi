@@ -2600,6 +2600,7 @@ implement keyword-supporting procedures like this:
     ...))
 @end lisp
 
+@noindent
 Or, even more economically, like this:
 
 @lisp
@@ -2620,7 +2621,7 @@ Arguments}.
 @node Keyword Read Syntax
 @subsection Keyword Read Syntax
 
-Guile, by default, only recognizes the keyword syntax specified by R4RS.
+Guile, by default, only recognizes the keyword syntax specified by R5RS.
 A token of the form @code{#:NAME}, where @code{NAME} has the same syntax
 as a Scheme symbol, is the external representation of the keyword named
 @code{NAME}.  Keyword objects print using this syntax as well, so values
@@ -3941,6 +3942,7 @@ ASSOCIATION LIST ::=  '( (KEY1 . VALUE1)
                        )
 @end example
 
+@noindent
 Association lists are also known, for short, as @dfn{alists}.
 
 The structure of an association list is just one example of the infinite
@@ -3970,7 +3972,6 @@ list is the same as the key that the procedure call uses to identify the
 required entry.
 
 @itemize @bullet
-
 @item
 Procedures with @dfn{assq} in their name use @code{eq?} to determine key
 equality.
@@ -3982,7 +3983,6 @@ key equality.
 @item
 Procedures with @dfn{assoc} in their name use @code{equal?} to
 determine key equality.
-
 @end itemize
 
 @code{acons} is an exception because it is used to build association
@@ -4287,6 +4287,7 @@ ABORT: (wrong-type-arg)
 #f
 @end example
 
+@noindent
 Secondly, if one of the entries in the specified alist is not a pair:
 
 @example

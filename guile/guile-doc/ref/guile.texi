@@ -110,10 +110,6 @@
 @end direntry
 
 @setchapternewpage off
-@paragraphindent 0
-@c I find that parindent 0 looks much better when the
-@c documentation consists of relatively short paragraphs interspersed
-@c with example. - NJ 2000-8-11
 
 @ifinfo
 Guile Reference Manual
