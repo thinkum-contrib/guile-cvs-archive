@@ -132,7 +132,7 @@
   (let ((times (map (lambda (time) (/ time internal-time-units-per-second))
 		    times)))
     (let ((gc (car times)))
-      (format "~5,2Fs user   ~5,2Fs gc   ~5,2Fs sys"
+      (format "~7,2Fs user ~7,2Fs gc ~7,2Fs sys"
 	      (- (cadr times) gc) gc (caddr times)))))
 
 ;;; Return the time elapsed between two time lists.
@@ -179,7 +179,7 @@
       (thunk))
     (let* ((end (times:now))
 	   (e (times:elapsed start end)))
-      (log-text (format "~20A ~4D passes  ~A" title n (times:format e)))
+      (log-text (format "~20A ~4D passes ~A" title n (times:format e)))
       (log-data (list title n e)))))
 
 ;;;; The following two functions, TIME-ACCUMULATE and TIME-PASS, help you
@@ -226,7 +226,7 @@
     (let* ((totals (fluid-ref accumulator))
 	   (passes (vector-ref totals 0))
 	   (e (vector-ref totals 1)))
-      (log-text (format "~20A ~4D passes  ~A" title passes (times:format e)))
+      (log-text (format "~20A ~4D passes ~A" title passes (times:format e)))
       (log-data (list title passes e)))))
 
 (define (time-pass thunk)
