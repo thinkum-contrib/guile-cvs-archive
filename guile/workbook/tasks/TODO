@@ -1,10 +1,79 @@
-- Eventually
-  - factor guile-core/ "administration" files
+- Guile 1.6
+  - document libtool conventions [rlb]
+  + write workbook/build/maintainer-dirs.text [ttn]
+  + write guile-core/am/maintainer-dirs [ttn]
+  + merge HEAD and branch_release-1-6 TODO files into this one [ttn]
+  - write dist-hook to include TODO snapshot
+  - delete HEAD and branch_release-1-6 TODO files
+  - convert bug tracking/summarization process [ttn]
+    +R define bugs db format (see bugs/README) [mvo]
+    + import current BUGS [mvo]
+    - scan mailing list archives for bugs and add them
+      + subject: Guile fails tests on Tru64 4.0F [ttn]
+      + subject: failed backtrace [ttn]
+      - starting from the oldest [ttn]
+      - starting form the newest
+    - write render-bugs, add to mscripts or guile-tools [evan:ttn]
+    - write dist-hook to call render-bugs to create BUGS
+    - delete HEAD and branch_release-1-6 BUGS files
+  - factor guile-core/ administration files
     - determine list of files
     - generally, for each file:
       - add it somewhere under workbook/
       - add dist-hook action to appropriate Makefile.am
       - delete file in guile-core/
+  - write bugs/TRIAGE
+  - complete build/stability.text
+  - make sure all bugs have required headers
+
+
+- Eventually
+  - determine/document policy on how/why/when of removing things
+  - extend render-bugs to harvest (and run?) test cases
+  - fix signal-handling + threading
+    - remove GUILE_OLD_ASYNC_CLICK and friends
+  - implement and integrate generational garbage collection
+  - add POSIX thread support
+  - factor thread support out of libguile
+  - protect common resources using mutecis from the new interface
+  - remove the dynamic roots
+  - revise the fluid implementation
+  - implement the GC thread synchronization (all threads: go to sleep!)
+  - implementing the libguileposix threads glue library
+  - write Orbit CORBA interface
+  - use environments to implement low-level module obarray
+  - specify role of shared object libraries in module system
+  - move sort.c, random.c, etc out of libguile
+  - include malloc debugging code in an optional file in libguile
+  - fix looking up procedure names in environment in backtraces
+  - implement srcprops using double cells
+  - use "real" procprops
+  - add facilities for easily debugging Scheme programs from Emacs
+  - write good interface to Tk
+  - write translators for additional languages
+  - make GDB work with Guile
+  - use the SCM trick of tagging environments with immediates (see m_letrec1)
+    to convert source correctly in unmemocopy
+  - eliminate argument checking for closures
+  - Implement a thread-safe alternative to SCM's environment caches
+  - develop better representation for GOOPS objects
+  - rewrite GOOPS method cache management in C
+  - rewrite GOOPS macros (define-class et al) in C
+  - define GOOPS C API
+  - make all syscalls block only the current thread, using scm_internal_select.
+  - unify SRFI-4 and the existing uniform array code
+  - rename ice-9 to something more obvious
+  - implement implicitly shared substrings (thread-safe, copy on write).  In
+    this context, the concept of read-only-strings might be re-introduced to
+    implement the symbol->string semantics of R5RS.
+  - implement internationalized strings
+  - revise the uniform vector implementation
+  - make the set of error signalling functions more consistent
+  - Fix bug reported by Sven.Hartrumpf@fernuni-hagen.de 2001-08-31:
+    (debug-disable 'debug) has no effect if it is the first form in ~/.guile.
+  - provide a non-extended implementation of 'define' for the R5RS module.
+  - write instructions on how to build Guile for distributors
+  - publish (automated) build status matrix
   - write tests for each bug
   - test elisp translator against rfc822.el
   - provide doc snarfing
@@ -16,25 +85,24 @@
     - oop
     + srfi [ttn]
     - lang
-
-
-- Guile 1.6
-  + write workbook/build/maintainer-dirs.text [ttn]
-  + write guile-core/am/maintainer-dirs [ttn]
-  - merge HEAD and branch_release-1-6 TODO files into this one [ttn]
-    - include TODO snapshot on release
-    - delete HEAD and branch_release-1-6 TODO files
-  - convert bug tracking/summarization process [ttn]
-    +R define bugs db format (see bugs/README) [mvo]
-    + import current BUGS [mvo]
-    - scan mailing list archives for bugs and add them
-      + subject: Guile fails tests on Tru64 4.0F [ttn]
-      + subject: failed backtrace [ttn]
-      - starting from the oldest [ttn]
-      - starting form the newest
-    - write render-bugs, add to mscripts/ [evan:ttn]
-    - use render-bugs in dist-hook to create BUGS from db
-    - delete HEAD and branch_release-1-6 BUGS files
+  - add DLL support [ela]
+  - write emacs/patch.el [ttn]
+    + outgoing
+    - incoming
+  - Compile with --enable-error-on-warning without failure.  Requires a
+    number of fixes, including num2integral.i.c and on some platforms
+    gc_os_dep.c.  Also SCM_FIXABLE etc. will produce unavoidable
+    warnings on some platforms with some vars as written now.  i.e. on
+    alphas, SCM_FIXABLE(some_int) is always true.  We need more
+    conditional compilation or similar.
+  - remove deprecated function "feature?".
+  - remove deprecated macros SCM_NEWCELL and SCM_NEWCELL2 together with
+    their support staffing scm_deprecated_newcell,
+    scm_deprecated_newcell2, scm_tc16_allocated, mark_allocated.
+  - remove deprecated functions scm_must_malloc,
+    scm_must_realloc, scm_must_free, scm_done_malloc, scm_done_free,
+    scm_must_strndup, scm_must_strdup.
+  - change return types of smob and port free functions to void
 
 
 
