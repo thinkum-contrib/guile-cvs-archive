@@ -1,4 +1,0 @@
-This copy of data-rep.texi has been retired.
-
-Please update the copy in guile-doc/ref/data-rep.texi instead,
-which is now integrated into the Guile reference manual.
