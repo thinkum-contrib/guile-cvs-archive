@@ -50,6 +50,7 @@
     slot-init-function class-slot-definition
     method-source
     compute-cpl compute-std-cpl compute-get-n-set compute-slots
+    compute-getter-method compute-setter-method
     allocate-instance initialize make-instance make
     no-next-method  no-applicable-method no-method
     change-class update-instance-for-different-class
@@ -722,7 +723,10 @@
     g-n-s))
 
 (define (class-slot-ref class slot)
-  ((car (class-slot-g-n-s class slot)) #f))
+  (let ((x ((car (class-slot-g-n-s class slot)) #f)))
+    (if (unbound? x)
+	(slot-unbound class slot)
+	x)))
 
 (define (class-slot-set! class slot value)
   ((cadr (class-slot-g-n-s class slot)) #f value))
@@ -903,45 +907,53 @@
 	(let ((name            (slot-definition-name     s))
 	      (getter-function (slot-definition-getter   s))
 	      (setter-function (slot-definition-setter   s))
-	      (accessor        (slot-definition-accessor s))
-	      (init-thunk      (cadr g-n-s))
-	      (g-n-s           (cddr g-n-s)))
+	      (accessor        (slot-definition-accessor s)))
 	  (if getter-function
 	      (add-method! getter-function
-			   (make <accessor-method>
-				 #:specializers (list class)
-				 #:procedure (cond ((pair? g-n-s)
-						    (car g-n-s))
-						   (init-thunk
-						    (standard-get g-n-s))
-						   (else
-						    (bound-check-get g-n-s))))
-			   ))
+			   (compute-getter-method class g-n-s)))
 	  (if setter-function
 	      (add-method! setter-function
-			   (make <accessor-method>
-				 #:specializers (list class <top>)
-				 #:procedure (if (pair? g-n-s)
-						 (cadr g-n-s)
-						 (standard-set g-n-s)))))
+			   (compute-setter-method class g-n-s)))
 	  (if accessor
 	      (begin
 		(add-method! accessor
-			     (make <accessor-method>
-				   #:specializers (list class)
-				   #:procedure (cond ((pair? g-n-s)
-						    (car g-n-s))
-						   (init-thunk
-						    (standard-get g-n-s))
-						   (else
-						    (bound-check-get g-n-s)))))
+			     (compute-getter-method class g-n-s))
 		(add-method! (setter accessor)
-			     (make <accessor-method>
-				   #:specializers (list class <top>)
-				   #:procedure (if (pair? g-n-s)
-						 (cadr g-n-s)
-						 (standard-set g-n-s))))))))
+			     (compute-setter-method class g-n-s))))))
       slots (slot-ref class 'getters-n-setters)))
+
+(define-method compute-getter-method ((class <class>) slotdef)
+  (let ((init-thunk (cadr slotdef))
+	(g-n-s (cddr slotdef)))
+    (make <accessor-method>
+          #:specializers (list class)
+	  #:procedure (cond ((pair? g-n-s)
+			     (if init-thunk
+				 (car g-n-s)
+				 (make-generic-bound-check-getter (car g-n-s))
+				 ))
+			    (init-thunk
+			     (standard-get g-n-s))
+			    (else
+			     (bound-check-get g-n-s))))))
+
+(define-method compute-setter-method ((class <class>) slotdef)
+  (let ((g-n-s (cddr slotdef)))
+    (make <accessor-method>
+          #:specializers (list class <top>)
+	  #:procedure (if (pair? g-n-s)
+			  (cadr g-n-s)
+			  (standard-set g-n-s)))))
+
+(define (make-generic-bound-check-getter proc)
+  (let ((source (and (closure? proc) (procedure-source proc))))
+    (if (and source (null? (cdddr source)))
+	(let ((obj (caadr source)))
+	  ;; smart closure compilation
+	  (local-eval
+	   `(lambda (,obj) (assert-bound ,(caddr source) ,obj))
+	   (procedure-environment proc)))
+	(lambda (o) (assert-bound (proc o) o)))))
 
 (define n-standard-accessor-methods 10)
 
@@ -1147,7 +1159,7 @@
      (let ((name (slot-definition-name s)))
        (if (memq name (map slot-definition-name (class-direct-slots class)))
 	   ;; This slot is direct; create a new shared variable
-	   (make-closure-variable class s)
+	   (make-closure-variable class)
 	   ;; Slot is inherited. Find its definition in superclass
 	   (let loop ((l (cdr (class-precedence-list class))))
 	     (let ((r (assoc name (slot-ref (car l) 'getters-n-setters))))
@@ -1157,7 +1169,7 @@
 
     ((#:each-subclass) ;; slot shared by instances of direct subclass.
      ;; (Thomas Buerger, April 1998)
-     (make-closure-variable class s))
+     (make-closure-variable class))
 
     ((#:virtual) ;; No allocation
      ;; slot-ref and slot-set! function must be given by the user
@@ -1170,15 +1182,9 @@
        (list get set)))
     (else    (next-method))))
 
-(define (make-closure-variable class s)
+(define (make-closure-variable class)
   (let ((shared-variable (make-unbound)))
-    (list (if (or (unbound? (slot-definition-init-value s))
-		  (unbound? (slot-definition-init-form s))
-		  (slot-definition-init-thunk s)
-		  )
-	      ;; safe not to check boundness
-	      (lambda (o) shared-variable)
-	      (lambda (o) (assert-bound shared-variable o)))
+    (list (lambda (o) shared-variable)
 	  (lambda (o v) (set! shared-variable v)))))
 
 (define-method compute-get-n-set ((o <object>) s)

@@ -2,12 +2,11 @@
 
 	* Version 0.1.6 released.  (Sigh...)
 
-	* goops.scm (make-closure-variable): Bugfix: Use
-	slot-definition-init-value and slot-definition-init-thunk to check
-	for init form.
+	* goops.scm (make-closure-variable): Makes the primitive getter,
+	which shouldn't have boundness checking.
 	(slot-definition-init-form): New procedure; exported.
-
-	* goops.scm (class-slot-ref): No need to check for unbound here.
+	(compute-getter-method, compute-setter-method): New generic
+	functions.
 
 	* Version 0.1.4 released.
 
