@@ -36,16 +36,12 @@
 @c   dynl.c: c-registered-modules, c-clear-registered-modules,
 @c      dynamic-link, dynamic-object?, dynamic-unlink, dynamic-func,
 @c      dynamic-call, dynamic-args-call
-@c   error.c: scm-error
 @c   eval.c: procedure->syntax, procedure->macro, procedure->memoizing-macro,
 @c      macro-name, macro-transformer
 @c   fluids.c: make-fluid, fluid?, fluid-ref, fluid-set, with-fluids*
 @c   gc.c: map-free-list, unhash-name
 @c   kw.c: make-keyword-from-dash-symbol
 @c   net_db.c: sethost, setnet, setproto, setserv
-@c   numbers.c: $asinh, $acosh, $atanh, $sqrt, $abs, $exp, $log, $sin,
-@c      $cos, $tan, $asin, $acos, $atan, $sinh, $cosh, $tanh, $expt,
-@c      $atan2
 @c   print.c: current-pstate
 @c   procs.c: make-cclo, closure?, thunk?
 @c   read.c: read-hash-extend
@@ -83,6 +79,10 @@
 @c   * should be documented in a section on debugging or Guile internals:
 @c       ports.c: pt-size, pt-member
 @c       eval.c: apply:nconc2last
+@c   * trivial underlying implementations of R4RS functions:
+@c       numbers.c: $asinh, $acosh, $atanh, $sqrt, $abs, $exp, $log, $sin,
+@c              $cos, $tan, $asin, $acos, $atan, $sinh, $cosh, $tanh, $expt,
+@c              $atan2
 @c
 @c Thanks. -twp
 

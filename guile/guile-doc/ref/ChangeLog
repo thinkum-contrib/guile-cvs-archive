@@ -1,3 +1,7 @@
+1998-01-03  Tim Pierce  <twp@skepsis.com>
+
+	* scheme.texi (Evaluation): Several corrections supplied by MDJ.
+
 Sat Dec 27 19:02:36 1997  Tim Pierce  <twp@skepsis.com>
 
 	* appendices.texi (Internals, Symbols): New nodes.
