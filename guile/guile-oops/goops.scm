@@ -28,7 +28,7 @@
 
 (define-module (oop goops)
   :use-module (oop goopscore)
-  ;:no-backtrace
+  :no-backtrace
   )
 
 (export			  ; Define the exported symbols of this file
