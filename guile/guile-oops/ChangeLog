@@ -1,5 +1,8 @@
 1998-11-24  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
+	* goops/goops.scm (ensure-class): Handle supers passed as
+	meta-objects.
+
 	* goops.c (set_slot_value_if_unbound): Apply init closure to an
 	empty list, not a list containing an empty list.
 
