@@ -181,7 +181,7 @@ by Free Software Foundation.
 @c Where to find Guile examples.
 @set example-dir doc/examples
 
-@ifinfo
+@ifnottex
 @node Top, Guile License, (dir), (dir)
 @top The Guile Reference Manual
 
@@ -191,7 +191,7 @@ and interesting ways.
 
 This Info file contains edition @value{MANUAL_EDITION} of the reference
 manual, corresponding to Guile version @value{VERSION}.
-@end ifinfo
+@end ifnottex
 
 @menu
 Preface
