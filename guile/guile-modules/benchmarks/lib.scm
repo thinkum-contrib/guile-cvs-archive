@@ -19,11 +19,14 @@
   #:use-module (ice-9 format)
   #:use-module (benchmarks paths))
 (export start-log end-log
-	log-text log-data
+	log-text log-data last-data
 	data-file
 	benchmark-title
 	time-thunk-once time-thunk-repeated
-	time-accumulate time-pass)
+	time-thunk-median time-thunk-median:times
+	time-accumulate time-pass
+	times:user times:gc times:user+gc times:sys times:tot
+	optarg1)
 
 (define version 4)
 
@@ -35,6 +38,8 @@
 
 ;;; The I/O port to which we write results.
 (define log-port #f)
+
+(define last-logged #f)
 
 (define (start-log filename)
   (end-log)
@@ -83,7 +88,11 @@
   (if (output-port? log-port)
       (begin
 	(write object log-port)
-	(newline log-port))))
+	(newline log-port)))
+  (set! last-logged object))
+
+(define (last-data)
+  last-logged)
 
 
 ;;;; Helping benchmarks find their files
@@ -121,6 +130,16 @@
 ;;; All the times are in the system's internal time units --- use
 ;;; internal-time-units-per-second to convert.  
 
+;;; Selectors
+
+(define (times:user times)
+  (- (cadr times) (car times)))
+(define times:gc car)
+(define times:user+gc cadr)
+(define times:system caddr)
+(define (times:total times)
+  (+ (cadr times) (caddr times)))
+
 ;;; Return the times consumed so far by this Guile process.
 (define (times:now)
   (cons (cdr (assq 'gc-time-taken (gc-stats)))
@@ -131,9 +150,11 @@
 (define (times:format times)
   (let ((times (map (lambda (time) (/ time internal-time-units-per-second))
 		    times)))
-    (let ((gc (car times)))
-      (format "~7,2Fs user ~7,2Fs gc ~7,2Fs sys"
-	      (- (cadr times) gc) gc (caddr times)))))
+    (format "~6,2Fs user ~6,2Fs gc ~6,2Fs sys ~6,2Fs tot"
+	    (times:user times)
+	    (times:gc times)
+	    (times:system times)
+	    (times:total times))))
 
 ;;; Return the time elapsed between two time lists.
 (define (times:elapsed start end)
@@ -150,6 +171,45 @@
 
 ;;;; Running benchmarks.
 
+;;; (save-options OPTIONS . BODY)
+;;; OPTIONS ::= eval | debug | read | print
+(define save-options
+  (procedure->memoizing-macro
+    (lambda (exp env)
+      (let ((interface (symbol-append (cadr exp) '-options-interface))
+	    (body (cddr exp)))
+	`(let ((%options #f))
+	   (dynamic-wind
+	       (lambda () (set! %options (,interface)))
+	       (lambda () ,@body)
+	       (lambda () (,interface %options))))))))
+
+;;; (time-in-evaluator EVALUATOR . BODY)
+;;; EVALUATOR ::= normal | debug
+(define time-in-evaluator
+  (procedure->memoizing-macro
+    (lambda (exp env)
+      (let ((evaluator (cadr exp))
+	    (body (cddr exp)))
+	`(save-options debug
+	  (if (eq? ,evaluator 'debug)
+	      (debug-enable 'debug)
+	      (debug-disable 'debug))
+	  ;; Need to start running the selected evaluator
+	  (local-eval '(let ((%start (times:now)))
+			 ,@body
+			 (times:elapsed %start (times:now)))
+		      (the-environment)))))))
+
+(define optarg1
+  (procedure->memoizing-macro
+    (lambda (exp env)
+      (let ((rest (cadr exp))
+	    (default (caddr exp)))
+	`(if (null? ,rest)
+	     ,default
+	     (car ,rest))))))
+
 ;;; Mark subsequent tests as coming from the benchmark named NAME,
 ;;; revision REVISION.
 (define (benchmark-title name revision)
@@ -158,29 +218,48 @@
 
 ;;; Call THUNK once, and report the CPU time consumed.
 ;;; TITLE is the list of objects to use to label the result.
-(define (time-thunk-once title thunk)
-  (let ((start (times:now)))
-    (thunk)
-    (let* ((end (times:now))
-	   (e (times:elapsed start end)))
-      (log-text (format "~20A ~A" title (times:format e)))
-      (log-data (list title e)))))
+(define (time-thunk-once title thunk . evaluator)
+  (let ((e (time-in-evaluator (optarg1 evaluator 'normal) (thunk))))
+    (log-text (format "~20A ~A" title (times:format e)))
+    (log-data (list title e))))
 
+;;; Call THUNK five times, logging the result of each run.
+;;; Finally, select the median using the times selector TIMES:GET.
+;;; TITLE is the list of objects to use to label the result.
+(define (time-thunk-median title times:get thunk . evaluator)
+  (let* ((trials (map (lambda (trial)
+			(let ((t (time-in-evaluator (optarg1 evaluator 'normal)
+						    (thunk))))
+			  (log-text (format "~20A ~D ~A"
+					    title
+					    (1+ trial)
+					    (times:format t)))
+			  (cons (1+ trial) t)))
+		      (iota 5)))
+	 (median (list-ref (stable-sort trials
+					(lambda (x y)
+					  (< (times:get (cdr x))
+					     (times:get (cdr y)))))
+			   2)))
+    (log-text (format "\n===> ~D                 ~A\n"
+		      (car median)
+		      (times:format (cdr median))))
+    (log-data (list title (cdr median)))))
+
+(define time-thunk-median:times cadr)
 
 ;;; Call THUNK N times, and report the total CPU time consumed.
 ;;; TITLE is the list of objects to use to label the result.
 ;;;
 ;;; This should really provide some measure of variance, too.
 ;;; Standard deviation?
-(define (time-thunk-repeated title n thunk)
-  (let ((start (times:now)))
-    (do ((i 0 (+ i 1)))
-	((>= i n))
-      (thunk))
-    (let* ((end (times:now))
-	   (e (times:elapsed start end)))
-      (log-text (format "~20A ~4D passes ~A" title n (times:format e)))
-      (log-data (list title n e)))))
+(define (time-thunk-repeated title n thunk . evaluator)
+  (let ((e (time-in-evaluator (optarg1 evaluator 'normal)
+	     (do ((i 0 (+ i 1)))
+		 ((>= i n))
+	       (thunk)))))
+    (log-text (format "~18A ~4D passes ~A" title n (times:format e)))
+    (log-data (list title n e))))
 
 ;;;; The following two functions, TIME-ACCUMULATE and TIME-PASS, help you
 ;;;; write a benchmark whose total time is the sum of times of several
@@ -214,28 +293,27 @@
 ;;;
 ;;; We don't need to export this.  :)
 (define accumulator (make-fluid))
+(define evaluator (make-fluid))
 
 ;;; Vectors are so clumsy.  Does this help?
 (define (vector-update vector index func . args)
   (vector-set! vector index
 	       (apply func (vector-ref vector index) args)))
 
-(define (time-accumulate title thunk)
+(define (time-accumulate title thunk . eval)
+  (fluid-set! evaluator (optarg1 eval 'normal))
   (with-fluids ((accumulator (vector 0 (times:zero))))
     (thunk)
     (let* ((totals (fluid-ref accumulator))
 	   (passes (vector-ref totals 0))
 	   (e (vector-ref totals 1)))
-      (log-text (format "~20A ~4D passes ~A" title passes (times:format e)))
+      (log-text (format "~18A ~4D passes ~A" title passes (times:format e)))
       (log-data (list title passes e)))))
 
 (define (time-pass thunk)
   (let ((acc (fluid-ref accumulator)))
     (or (vector? acc)
 	(error "time-pass: no enclosing TIME-ACCUMULATE call"))
-    (let ((start (times:now)))
-      (thunk)
-      (let* ((end (times:now))
-	     (elapsed (times:elapsed start end)))
-	(vector-update acc 0 + 1)
-	(vector-update acc 1 times:add elapsed)))))
+    (let ((elapsed (time-in-evaluator (fluid-ref evaluator) (thunk))))
+      (vector-update acc 0 + 1)
+      (vector-update acc 1 times:add elapsed))))
