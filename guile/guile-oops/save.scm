@@ -125,40 +125,43 @@
 ;;;
 
 (define-method enumerate! ((o <vector>) env)
-  (let ((literal? #t))
-    (array-for-each (lambda (o)
-		      (if (not (enumerate-component! o env))
-			  (set! literal? #f)))
-		    o)
-    literal?))
+  (or (uniform-vector? o)
+      (let ((literal? #t))
+	(array-for-each (lambda (o)
+			  (if (not (enumerate-component! o env))
+			      (set! literal? #f)))
+			o)
+	literal?)))
 
 (define-method write-readably ((o <vector>) file env)
-  (let ((n (vector-length o)))
-    (if (zero? n)
-	(display "#()" file)
-	(begin
-	  (display (if (literal? o env)
-		       "#("
-		       "(vector ")
-		   file)
-	  (or (write-component (vector-ref o 0) file env)
-	      (write-circref o
-			     (vector-ref o 0)
-			     (lambda (cont comp)
-			       `(vector-set! ,cont 0 ,comp))
-			     file
-			     env))
-	  (do ((i 1 (+ 1 i)))
-	      ((= i n))
-	    (display #\space file)
-	    (or (write-component (vector-ref o i) file env)
-		(write-circref o
-			       (vector-ref o i)
-			       (lambda (cont comp)
-				 `(vector-set! ,cont ,i ,comp))
-			       file
-			       env)))
-	  (display #\) file)))))
+  (if (uniform-vector? o)
+      (write o file)
+      (let ((n (vector-length o)))
+	(if (zero? n)
+	    (display "#()" file)
+	    (begin
+	      (display (if (literal? o env)
+			   "#("
+			   "(vector ")
+		       file)
+	      (or (write-component (vector-ref o 0) file env)
+		  (write-circref o
+				 (vector-ref o 0)
+				 (lambda (cont comp)
+				   `(vector-set! ,cont 0 ,comp))
+				 file
+				 env))
+	      (do ((i 1 (+ 1 i)))
+		  ((= i n))
+		(display #\space file)
+		(or (write-component (vector-ref o i) file env)
+		    (write-circref o
+				   (vector-ref o i)
+				   (lambda (cont comp)
+				     `(vector-set! ,cont ,i ,comp))
+				   file
+				   env)))
+	      (display #\) file))))))
 
 ;;;
 ;;; Pairs

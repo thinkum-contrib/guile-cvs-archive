@@ -1,3 +1,7 @@
+2000-04-13  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
+
+	* save.scm (enumerate!, write-readably): Handle uniform vectors.
+
 2000-04-12  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* save.scm (enumerate!): Bugfix: Make sure that enumeration of the
