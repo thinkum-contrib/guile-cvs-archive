@@ -126,15 +126,13 @@
    ((null? v) "{}")
    ((list? v)
     (apply string-append
-	   (reverse (cons "}"
-			  (let loop ((ls (cdr v))
-				     (res (list (->tcl-arg-string (car v))
-						"{")))
-			    (if (null? ls)
-				res
-				(loop (cdr ls)
-				      (cons (->tcl-arg-string (car ls))
-					    (cons " " res)))))))))
+	   (reverse (let loop ((ls (cdr v))
+			       (res (list (->tcl-arg-string (car v)))))
+		      (if (null? ls)
+			  res
+			  (loop (cdr ls)
+				(cons (->tcl-arg-string (car ls))
+				      (cons " " res))))))))
    (else "")))
 
 (define (tcl-args args)
