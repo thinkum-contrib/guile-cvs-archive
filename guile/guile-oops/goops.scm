@@ -61,6 +61,7 @@
     method-more-specific? sort-applicable-methods
     class-subclasses class-methods
     goops-error
+    min-fixnum max-fixnum
 )
 
 ;;; *fixme* Should go into goops.c
@@ -80,6 +81,10 @@
     %logand)
 
 
+(define min-fixnum (- (expt 2 29)))
+
+(define max-fixnum (- (expt 2 29) 1))
+
 ;;
 ;; goops-error
 ;;
