@@ -436,7 +436,8 @@
 	     #:init-value #f)
   (binding   #:accessor binding
 	     #:init-value #f)
-  (literal?  #:accessor literal?)
+  (literal?  #:accessor literal?
+	     #:init-value #f)
   )
 
 (define visiting? visiting)
@@ -456,8 +457,8 @@
   (or (immediate? o)
       (excluded? o env)
       (let ((info (object-info o env)))
-	(or (eq? (visiting info) #:pass-2)
-	    (literal? info)))))
+	(or (literal? info)
+	    (eq? (visiting info) #:pass-2)))))
 
 ;;;
 ;;; Enumeration
