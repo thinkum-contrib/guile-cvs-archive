@@ -427,4 +427,11 @@ My guess is that something about the trap+error scenario has left data
 or the stack in a state which exposes a bug in the GC.
 
 
+bug 15 -- (expt 0 0) -> 0
+reported-by: rlb / 2001-03-21
+fixed: not-yet
+
+According to R5RS (expt 0 0) -> 1
+
+
 [BUGS ends here]
