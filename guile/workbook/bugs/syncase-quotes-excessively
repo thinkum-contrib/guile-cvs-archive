@@ -1,0 +1,13 @@
+summary: syncase quotes hashes and empty applications
+reported: Lynn Winebarger <owinebar@free-expression.org>, 2002-03-30
+
+(use-modules (ice-9 syncase))
+(define-syntax define-ez-class
+  (syntax-rules ()
+    ((_ name (parent ...) (slot ...) rest ...)
+     (define-class name (parent ...) 
+                                     (slot #:accessor slot #:init-keyword slot) ... 
+                                     rest ...))))
+
+seems straightforward enough, but syntax-rules quotes the parent list
+and the #: keywords.
