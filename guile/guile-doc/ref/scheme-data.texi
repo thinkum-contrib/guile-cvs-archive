@@ -27,7 +27,6 @@ data structures not found in standard Scheme.
 @end menu
 
 
-@page
 @node Booleans
 @section Booleans
 
@@ -42,7 +41,6 @@ Return @code{#t} iff @var{obj} is either @code{#t} or @code{#f}.
 @end deffn
 
 
-@page
 @node Numbers
 @section Numbers
 
@@ -323,7 +321,6 @@ Returns an exact number that is numerically closest to Z.
 @end deffn
 
 
-@page
 @node Bitwise Operations
 @section Bitwise Operations
 
@@ -484,7 +481,6 @@ Example:
 @end deffn
 
 
-@page
 @node Random
 @section Random
 
@@ -559,7 +555,6 @@ Return a new random state using SEED.
 @end deffn
 
 
-@page
 @node Characters
 @section Characters
 
@@ -748,7 +743,6 @@ Return the lowercase character version of @var{chr}.
 @end deffn
 
 
-@page
 @node Strings
 @section Strings
 
@@ -1248,7 +1242,6 @@ Shared substrings, discussed in the previous chapter, also happen to be
 read-only strings.
 
 
-@page
 @node Regular Expressions
 @section Regular Expressions
 
@@ -1716,7 +1709,6 @@ Test whether obj is a compiled regular expression.
 @end deffn
 
 
-@page
 @node Symbols and Variables
 @section Symbols and Variables
 
@@ -2161,7 +2153,6 @@ This is the inverse of @code{make-keyword-from-dash-symbol}.
 @end deffn
 
 
-@page
 @node Pairs
 @section Pairs
 
@@ -2190,7 +2181,6 @@ by @code{set-cdr!} is unspecified.
 @end deffn
 
 
-@page
 @node Lists
 @section Lists
 
@@ -2528,7 +2518,6 @@ created the type represented by @var{rtd}.@refill
 @end deffn
 
 
-@page
 @node Structures
 @section Structures
 
@@ -2854,7 +2843,6 @@ ball @result{} #<a green ball owned by Nisse>
 @end deffn
 
 
-@page
 @node Arrays
 @section Arrays
 
@@ -4105,7 +4093,6 @@ Returns @t{#t} if @var{obj} is a vector, otherwise returns @t{#f}. (r5rs)
 @end deffn
 
 
-@page
 @node Hooks
 @section Hooks
 

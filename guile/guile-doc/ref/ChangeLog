@@ -1,5 +1,7 @@
 2000-12-01  Neil Jerram  <neil@ossau.uklinux.net>
 
+	* scheme-data.texi: Remove @page breaks (following demotion).
+
 	* guile.texi (Top), scheme-ideas.texi: Demote everything one level
 	so that previous chapters About Data, About Procedures, About
 	Expressions and About Closure are now combined into a single
