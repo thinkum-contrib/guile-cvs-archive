@@ -13,17 +13,18 @@ plug (simple, standard, widespread) is typically the goal.
 This file is a collection of plug-in architectures that we've encountered,
 and some notes about them, organized around these attributes:
 
- 00 -- namespace-translation-is-2-phase
- 01 -- namespace-translation-is-3-phase
- 02 -- has-hook
- 03 -- is-hooks-based
- 04 -- depends-on-env-vars
- 05 -- passes-through-env-vars-prefixing
- 06 -- passes-through-env-vars-modifying-in-some-weird-way
+ 00 -- namespace translation is 2 phase
+ 01 -- namespace translation is 3 phase
+ 02 -- has hook
+ 03 -- is hooks based
+ 04 -- depends on env vars
+ 05 -- passes through env vars prefixing
+ 06 -- passes through env vars modifying in some weird way
  07 -- unloadable
- 08 -- part-of-ABSTRACTION-PROGRAM-feature-list
- 09 -- build-plugin-program-available
- 0A -- requires-filesystem-direct-mapping
+ 08 -- part of PROGRAM feature list
+ 09 -- build plugin program available
+ 0A -- requires filesystem direct mapping
+ 0B -- uses libltdl
        [your attributes here]
 
 See last page for WWW links.
