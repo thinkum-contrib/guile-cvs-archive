@@ -51,7 +51,7 @@
 ;;; Variables that affect HTTP usage.
 
 (define-public http:version "HTTP/1.0")  ; bump up to 1.1 when ready
-(define-public http:user-agent "GuileHTTP 0.1")
+(define-public http:user-agent "GuileHTTP/0.1")
 
 ;; An HTTP message is represented by a vector:
 ;;	#(VERSION STATUS-CODE STATUS-TEXT HEADERS BODY)
