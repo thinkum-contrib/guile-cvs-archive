@@ -54,9 +54,6 @@
 #define SCM_SYSERROR_MSG(str, args, val) \
   do { scm_syserror_msg (FUNC_NAME, (str), (args), (val)); } while (0)
 
-#define SCM_COERCE_ROSTRING(pos, scm) \
-  do { scm = scm_coerce_rostring (scm, FUNC_NAME, pos); } while (0)
-
 #define SCM_WTA(pos, scm) \
   do { scm_wta (scm, (char *) pos, FUNC_NAME); } while (0)
 
