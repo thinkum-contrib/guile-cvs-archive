@@ -150,17 +150,18 @@ iso8859_read (void *priv,
 	      scm_char_t **outbuf, size_t *outcharsleft)
 {
   unsigned char charset = * (unsigned char *) priv;
-  const char *in = *inbuf;
-  const char *in_end = in + *inbytesleft;
+  const unsigned char *in = *inbuf;
+  const unsigned char *in_end = in + *inbytesleft;
   scm_char_t *out = *outbuf;
   scm_char_t *out_end = out + *outcharsleft;
 
   while (in < in_end && out < out_end)
     {
-      if (IS_ASCII_CHAR (*in))
+      if (*in < 0x80)
 	*out++ = *in;
-      else
+      else if (*in >= 0xA0)
 	*out++ = BUILD_CHAR1 (charset, (*in | 0x80));
+      /* We just drop characters in the range 0x80 .. 0xA0.  */
     }
 
   *inbuf = in;
@@ -259,6 +260,75 @@ static struct scm_mb_encoding iso8859_encodings[] =
 };
 
 
+/* The US-ASCII encoding.  */
+
+static struct scm_mb_encoding us_ascii_encoding;
+
+static enum scm_mb_read_result
+us_ascii_read (void *priv,
+	       const char **inbuf,  size_t *inbytesleft,
+	       scm_char_t **outbuf, size_t *outcharsleft)
+{
+  const unsigned char *in = *inbuf;
+  const unsigned char *in_end = in + *inbytesleft;
+  scm_char_t *out = *outbuf;
+  scm_char_t *out_end = out + *outcharsleft;
+
+  while (in < in_end && out < out_end)
+    {
+      if (*in < 0x80)
+	*out++ = *in;
+      /* We just drop characters outside the range 0 .. 0x7F.  */
+    }
+
+  *inbuf = in;
+  *inbytesleft = in_end - in;
+  *outbuf = out;
+  *outcharsleft = out_end - out;
+
+  return scm_mb_read_ok;
+}
+
+
+static enum scm_mb_write_result
+us_ascii_write (void *priv,
+		const scm_char_t **inbuf,  size_t *incharsleft,
+		char             **outbuf, size_t *outbytesleft)
+{
+  const scm_char_t *in = *inbuf;
+  const scm_char_t *in_end = in + *incharsleft;
+  char *out = *outbuf;
+  char *out_end = out + *outbytesleft;
+  
+  while (in < in_end)
+    {
+      scm_char_t c;
+
+      if (out >= out_end)
+	{
+	  *inbuf = in;
+	  *incharsleft = in_end - in;
+	  *outbuf = out;
+	  *outbytesleft = out_end - out;
+
+	  return scm_mb_write_more_room;
+	}
+      
+      c = *in++;
+      if (IS_ASCII_CHAR (c))
+	*out++ = c;
+      /* We just eat non-ASCII characters.  */
+    }
+
+  *inbuf = in;
+  *incharsleft = in_end - in;
+  *outbuf = out;
+  *outbytesleft = out_end - out;
+
+  return scm_mb_write_ok;
+}
+
+
 /* Initialization.  */
 
 void
@@ -285,5 +355,17 @@ scm_init_mbbasic ()
 	 i < (sizeof (iso8859_encodings) / sizeof (iso8859_encodings[0]));
 	 i++)
       scm_mb_register_encoding (&iso8859_encodings[i]);
+  }
+
+  /* The US-ASCII encoding.  */
+  {
+    static char *names[] = { "US-ASCII", "ASCII", 0 };
+
+    memset (&us_ascii_encoding, 0, sizeof (us_ascii_encoding));
+    us_ascii_encoding.names = names;
+    us_ascii_encoding.read = us_ascii_read;
+    us_ascii_encoding.write = us_ascii_write;
+
+    scm_mb_register_encoding (&us_ascii_encoding);
   }
 }
