@@ -82,7 +82,8 @@ exec ${GUILE-guile} -l $0 -c "(apply $main (cdr (command-line)))" "$@"
                   (add-hook! hook
                              (if grok
                                  (make-grok-hook name (cadr grok))
-                                 (make-members-hook name members)))))
+                                 (make-members-hook name members))
+                             #t)))      ; append
               groupings)
     (for-each (lambda (x)
                 (run-hook hook x))
