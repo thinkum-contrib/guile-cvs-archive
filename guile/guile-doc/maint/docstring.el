@@ -111,8 +111,8 @@
 	(let ((manual-beg (point)))
 
 	  ;; Find the end of the manual doc string.
-	  (re-search-forward "^@c docstring end$")
-	  (beginning-of-line)
+	  (re-search-forward "^@end deffn$")
+	  (forward-line 1)
 	  (let* ((manual-end (point))
 		 (manual-doc (buffer-substring manual-beg manual-end))
 		 (manual-doc-parts (split-manual-doc-parts manual-doc))
@@ -396,7 +396,7 @@
       (set-buffer buf)
       (goto-char (car region))
       (delete-region (car region) (cdr region))
-      (while (string-match "^\\([^\n]*\\)\n" new-canonical)
+      (while (string-match "^\\([^\n]*\\)\n+" new-canonical)
         (prin1 (substring new-canonical
                           (match-beginning 1)
                           (match-end 1))
@@ -404,7 +404,10 @@
         (setq new-canonical
               (substring new-canonical (match-end 0)))
         (forward-char -1)
-        (insert "\\n")
+	(let ((num-newlines (- (match-end 0) (match-end 1))))
+	  (while (> num-newlines 0)
+	    (insert "\\n")
+	    (setq num-newlines (1- num-newlines))))
         (forward-char 1)
         (insert "\n")
         (c-indent-command))

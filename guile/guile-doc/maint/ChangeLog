@@ -1,3 +1,11 @@
+2000-08-12  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* docstring.el (c-doc-string-replace): Where a docstring contains
+	blank lines, compress the C source representation by combining
+	adjacent newline characters.
+	(query-sync-next-doc-string): Use "@end deffn" to find end of
+	docstring rather than superfluous "@c docstring end".
+
 2000-08-11  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* docstring.el: New file - Emacs Lisp code for synchronizing
