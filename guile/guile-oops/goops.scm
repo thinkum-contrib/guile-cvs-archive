@@ -223,7 +223,7 @@
 			      definitions))
 			 definitions)))
 		  ((or (not (pair? slots))
-		       (not (keyword? (car slots))))
+		       (keyword? (car slots)))
 		   (reverse definitions)))))
 	   
 	   ;; Syntax
