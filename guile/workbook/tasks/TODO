@@ -14,11 +14,10 @@
     - rationalize / integrate various scripts
     - document
     - re-enable install of constituent programs
-  - make sure all *.scm have some commentary
-    - emacs / guile-readline / test-suite / examples
+  - make sure all *.scm have some commentary (including manual ref)
     - ice-9
     - oop
-    - srfi [ttn]
+    + srfi [ttn]
     - lang
 
 
