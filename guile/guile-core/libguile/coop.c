@@ -50,8 +50,8 @@
 
 #include <errno.h>
 
-#include <qt.h>
-#include "eval.h"
+#include "qt/qt.h"
+#include "libguile/eval.h"
 
 /* #define COOP_STKSIZE (0x10000) */
 #define COOP_STKSIZE (scm_eval_stack)
