@@ -1,3 +1,8 @@
+Thu Oct  3 00:37:59 1996  Jim Blandy  <jimb@totoro.cyclic.com>
+
+	* rgx.c (print_regex_t, print_dfa_t): Change 'writing' argument to
+	be a general print state, in accordance with new smob interface.
+
 Sat Sep 28 04:51:33 1996  Gary Houston  <ghouston@actrix.gen.nz>
 
 	* rgx.c: define scm_regex_error_key.
