@@ -1,5 +1,7 @@
 2001-03-09  Mikael Djurfeldt  <mdj@linnaeus.mit.edu>
 
+	* GOOPS-VERSION (GOOPS_MINOR_VERSION): Bumped to 0.3.
+
 	* Version 1.0.2 released.
 
 	* GOOPS-VERSION (GOOPS_MINOR_VERSION): Bumped to 0.2.
