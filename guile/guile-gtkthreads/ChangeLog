@@ -1,5 +1,7 @@
 2000-03-29  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
+	* configure.in: Check that Guile is recent enough.
+	
 	* configure.in, Makefile.am: handle GTKTHREADS-VERSION.
 
 	* GTKTHREADS-VERSION: New file.

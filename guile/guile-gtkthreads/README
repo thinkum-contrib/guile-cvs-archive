@@ -47,7 +47,7 @@ yourself to call gtk to process any new events originating in new gtk
 command calls.
 
 
-Bugs reports
-------------
+Bug reports
+-----------
 
 Send bug reports to bug-guile@gnu.org.
