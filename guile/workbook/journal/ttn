@@ -1,53 +1,55 @@
--*- outline -*-
+					-*- mode:outline; fill-prefix:"  " -*-
 
 * 2002/03/23 15:10:37
 
-setting up this directory to encourage published personal expression.
-everyone has their own style, so maybe this will be a lonely place.
+  setting up this directory to encourage published personal expression.
+  everyone has their own style, so maybe this will be a lonely place.
 
 * 2002/03/27 14:11:09
 
-libguile doc snarfing currently uses cpp and requires a C language tokenizer,
-the latter implemented via flex.  it's probably ok to install the tokenizer in
-$libexec and write scripts/read-c-source to DTRT.  read-c-source needs to be
-extensible to support snarfing from comments (popular technique used in other
-projects).
+  libguile doc snarfing currently uses cpp and requires a C language
+  tokenizer, the latter implemented via flex.  it's probably ok to install the
+  tokenizer in $libexec and write scripts/read-c-source to DTRT.
+  read-c-source needs to be extensible to support snarfing from comments
+  (popular technique used in other projects).
 
-snarfing to produce guile-procedures.txt is another question.
+  snarfing to produce guile-procedures.txt is another question.
 
-the tokenizer might be useful to a C translator.
+  the tokenizer might be useful to a C translator.
 
 * 2002/04/27 18:55:48
 
-do i want to work *with* others?  yes, but only given a framework that shows
-me that others know how to work w/ others (so that i may learn).  simulated
-annealing is certainly acceptable but then where does the fire come from?
-lines of code folded into daggers of misunderstanding, happens every time.
+  do i want to work *with* others?  yes, but only given a framework that shows
+  me that others know how to work w/ others (so that i may learn).  simulated
+  annealing is certainly acceptable but then where does the fire come from?
+  lines of code folded into daggers of misunderstanding, happens every time.
 
-in my mind i see the circus act w/ 3 motorcycles speeding around a 3m diameter
-cage (on the inside!) and observe the changing patterns of their motion.  the
-riders move gravity and inertia in between their thoughts.  fundamental forces
-are traded for concentrated control of the universe.
+  in my mind i see the circus act w/ 3 motorcycles speeding around a 3m
+  diameter cage (on the inside!) and observe the changing patterns of their
+  motion.  the riders move gravity and inertia in between their thoughts.
+  fundamental forces are traded for concentrated control of the universe.
 
-society teaches kids to kill their keepers (who happen to be each other),
-these days.  an old tree is allergic to its outermost ring, whose pores let
-through the rest of the world but not unwaveringly.  as the pores close, the
-tree loses touch w/ reality and steeps in its poisons.  it is a great sadness.
+  society teaches kids to kill their keepers (who happen to be each other),
+  these days.  an old tree is allergic to its outermost ring, whose pores let
+  through the rest of the world but not unwaveringly.  as the pores close, the
+  tree loses touch w/ reality and steeps in its poisons.  it is a great
+  sadness.
 
 * 2002/05/15 05:55:34
 
-going to concentrate on 1.4.x, let experimentation continue elsewhere w/o
-further comment -- back-port the good bits ignore the rest.
+  going to concentrate on 1.4.x, let experimentation continue elsewhere w/o
+  further comment -- back-port the good bits ignore the rest.
 
-maybe THUD can live again.
+  maybe THUD can live again.
 
 * 2002/05/17 02:59:56
 
-user-visible additions in ttn.notes are "maybe" depending on whether or not
-guile-1.6 adopts the proposed plug-in design.  basically, if yes, we have some
-slack to fix mistakes going forward and back-porting is less important than
-writing the compatibility header.  if no, the "temporary" library naming
-kludge is effectively guile-2.x no matter what certain committee members think
-(in which case, fixing that kludge in HEAD by adopting the plug-in design (or
-some refinement) implies that release is guile-3.x and in the end people will
-say "avoid guile-2.x" instead of the current "avoid guile").
+  user-visible additions in ttn.notes are "maybe" depending on whether or not
+  guile-1.6 adopts the proposed plug-in design.  basically, if yes, we have
+  some slack to fix mistakes going forward and back-porting is less important
+  than writing the compatibility header.  if no, the "temporary" library
+  naming kludge is effectively guile-2.x no matter what certain committee
+  members think (in which case, fixing that kludge in HEAD by adopting the
+  plug-in design (or some refinement) implies that release is guile-3.x and in
+  the end people will say "avoid guile-2.x" instead of the current "avoid
+  guile").
