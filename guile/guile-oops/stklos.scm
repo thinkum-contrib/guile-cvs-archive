@@ -74,7 +74,7 @@
 		 (null? (cddr name)))
 	    (let ((name (cadr name)))
 	      (cond ((not (symbol? name))
-		     (goops-error "bad method name: %S" name))
+		     (goops-error "bad method name: ~S" name))
 		    ((defined? name env)
 		     `(begin
 			(if (not (is-a? ,name <generic-with-setter>))
@@ -85,7 +85,7 @@
 			(define-accessor ,name)
 			(add-method! (setter ,name) (method ,@(cddr exp)))))))
 	    (cond ((not (symbol? name))
-		   (goops-error "bad method name: %S" name))
+		   (goops-error "bad method name: ~S" name))
 		  ((defined? name env)
 		   `(begin
 		      (if (not (or (is-a? ,name <generic>)

@@ -60,9 +60,9 @@
 	(s-name   	(slot-definition-name s)))
     
     (if (not prop)
-	(goops-error "Propagation not specified for slot %s" s-name))
+	(goops-error "Propagation not specified for slot ~S" s-name))
     (if (not (pair? prop))
-	(goops-error "Bad propagation list for slot ~s" s-name))
+	(goops-error "Bad propagation list for slot ~S" s-name))
 
     (let ((objects (map (lambda (p) (if (pair? p) (car p) p)) prop))
 	  (slots (map (lambda (p) (if (pair? p) (cadr p) s-name)) prop)))
