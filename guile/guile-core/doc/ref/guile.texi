@@ -87,9 +87,11 @@ section entitled ``GNU Free Documentation License''.
 
 @c  @cross{} is a \times symbol in tex, or an "x" in info.  In tex it works
 @c  inside or outside $ $.
+@macro cross
 @tex
 \gdef\cross{\ifmmode\times\else$\times$\fi}
 @end tex
+@end macro
 @ifnottex
 @macro cross
 x
