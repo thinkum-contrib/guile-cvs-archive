@@ -29,9 +29,7 @@
 (define-module (oop goops describe)
   :use-module (oop goops)
   :use-module (ice-9 session)
-  :use-module (ice-9 slib))
-
-(require 'format)
+  :use-module (ice-9 format))
 
 (export describe)			; Export the describe generic function
 
