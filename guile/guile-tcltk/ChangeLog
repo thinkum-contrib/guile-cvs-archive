@@ -1,3 +1,9 @@
+Fri Dec  6 20:41:05 1996  Mark Galassi  <rosalia@nis.lanl.gov>
+
+	* configure.in: added -ldl in the tcl7.5 check, although you would
+	think it would have been there because of the previous -ldl
+	check, but it was not working.
+
 Sat Nov 30 23:49:43 1996  Tom Tromey  <tromey@cygnus.com>
 
 	* PLUGIN/Makefile.am: New file.

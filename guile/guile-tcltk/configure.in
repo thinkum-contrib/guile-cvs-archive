@@ -19,7 +19,7 @@ AC_CHECK_LIB(dl, dlopen, DL_LIBS='-ldl', DL_LIBS='')
 ### Use gtcltk-lib only if we seem to have Tcl installed on the
 ### system.  We really should check for Tk as well, but that involves
 ### finding all the X libraries that we need to do a complete link.
-AC_CHECK_LIB(tcl7.5, Tcl_CreateInterp, GTCLTK=libgtcltk.a, GTCLTK=, -lm)
+AC_CHECK_LIB(tcl7.5, Tcl_CreateInterp, GTCLTK=libgtcltk.a, GTCLTK=, -lm -ldl)
 AC_SUBST(GTCLTK)
 
 dnl Checks for library functions.
