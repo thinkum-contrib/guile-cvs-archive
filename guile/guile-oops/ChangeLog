@@ -1,3 +1,11 @@
+2000-01-03  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
+
+	* Makefile.am: Added variable `miscdocs' and removed a couple of
+	left-over lines.
+
+	* COPYRIGHTS, goops-tutorial.texi: Technically, GOOPS is now
+	derived from STk-4.0.1, so we use the STk-4.0.1 copyright.
+
 1999-12-24  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
 	* goops.scm (shallow-clone, deep-clone): Added new arg in
