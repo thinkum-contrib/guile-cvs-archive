@@ -45,6 +45,9 @@ install-exec-hook:
 	     && $(LN_S) $(libdir)/libgoopscore.la \
 	     && $(LN_S) $(libdir)/libgoopscore.so.0))
 
+dist-hook: goops.ps
+	cp -p $(top_builddir)/goops.ps $(distdir)
+
 SUFFIXES = .x
 ## We assume the user has already installed Guile.
 SNARF=guile-snarf

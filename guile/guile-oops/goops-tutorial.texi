@@ -20,26 +20,28 @@
 
 @c Adapted for use in Guile with the authors permission
 
-@macro goops                    @c was {\stklos}
-GOOPS
-@end macro
+@c @macro goops                    @c was {\stklos}
+@c GOOPS
+@c @end macro
 
-@macro guile                    @c was {\stk}
-Guile
-@end macro
+@c @macro guile                    @c was {\stk}
+@c Guile
+@c @end macro
 
 This is chapter was originally written by Erick Gallesio as an appendix
 for the STk reference manual, and subsequently adapted to @goops{}.
 
 @menu
 * Copyright::
-* Introduction::                
+* Intro::                
 * Class definition and instantiation::  
 * Inheritance::                 
 * Generic functions::           
 @end menu
 
-@node Copyright, Introduction, Tutorial, Tutorial
+@node Copyright, Intro, Tutorial, Tutorial
+@section Copyright
+
 Original attribution:
 
 STk Reference manual (Appendix: An Introdution to STklos)
@@ -60,20 +62,21 @@ Last file update: 22-Apr-1998 11:04
 
 Adapted for use in Guile with the authors permission
 
-@node Introduction, Class definition and instantiation, Copyright, Tutorial
+@node Intro, Class definition and instantiation, Copyright, Tutorial
 @section Introduction
 
-@goops{} is the object oriented layer of @guile{}. Its implementation is
-derived from version 1.3 of the Gregor Kickzales Tiny Clos package@
-@cite{Tiny-Clos}.  However, it has been extended with ideas from CLOS,
-the Common Lisp Object System (@cite{CLtL2}) and Dylan or SOS.
+@goops{} is the object oriented extention to @guile{}. Its
+implementation is derived from STk-3.99.3 by Erick Gallesio and version
+1.3 of the Gregor Kickzales Tiny Clos package@ @cite{Tiny-Clos}.
+However, it has been extended with ideas from CLOS, the Common Lisp
+Object System (@cite{CLtL2}) and Dylan or SOS.
 @c @cite{Dylan}  @cite{SOS}
 
 Briefly stated, the @goops{} extension gives the user a full object
-oriented system with meta-classes, multiple inheritance, generic
-functions and multi-methods.  Furthermore, the whole implementation
-relies on a true meta object protocol, in the spirit of the one defined
-for CLOS (@cite{Gregor Kiczales: A Metaobject Protocol}).
+oriented system with multiple inheritance and generic functions with
+multi-method dispatch.  Furthermore, the whole implementation relies on
+a true meta object protocol, in the spirit of the one defined for CLOS
+(@cite{Gregor Kiczales: A Metaobject Protocol}).
 
 The purpose of this tutorial is to introduce briefly the @goops{}
 package and in no case will it replace the @goops{} reference manual
@@ -82,6 +85,7 @@ package and in no case will it replace the @goops{} reference manual
 Note that the operations described in this tutorial resides in modules
 that may need to be imported before being available.  The main module is
 imported by evaluating:
+
 @lisp
 (use-modules (oop goops))
 @end lisp
@@ -90,7 +94,7 @@ imported by evaluating:
 @cindex loading
 @cindex preparing
 
-@node Class definition and instantiation, Inheritance, Introduction, Tutorial
+@node Class definition and instantiation, Inheritance, Intro, Tutorial
 @section Class definition and instantiation
 
 @menu
@@ -103,41 +107,49 @@ imported by evaluating:
 A new class is defined with the @code{define-class}@footnote{Don't
 forget to import the @code{(oop goops)} module} macro. The syntax of
 @code{define-class} is close to CLOS @code{defclass}:
+
 @findex define-class
 @cindex class
 @lisp
-(define-class @var{class} (@var{superclass} @var{superclass}@dots{})
-   @var{slot-description} @var{slot-description}@dots{}
-   @var{metaclass-option})
+(define-class @var{class} (@var{superclass} @dots{})
+   @var{slot-description} @dots{}
+   @var{class-option} @dots{})
 @end lisp
 
-The @var{metaclass-option} will not be discussed in this tutorial.  The
-@var{superclass}es list specifies the super classes of @var{class} (see
-@ref{Inheritance} for more details).  A @var{slot-description} gives the
-name of a slot and, eventually, some ``properties'' of this slot (such
-as its initial value, the function which permit to access its value,
-@dots{}). Slot descriptions will be discussed in @ref{Slot description}.
+Class options will not be discussed in this tutorial.  The list of
+@var{superclass}es specifies which classes to inherit properties from
+@var{class} (see @ref{Inheritance} for more details).  A
+@var{slot-description} gives the name of a slot and, eventually, some
+``properties'' of this slot (such as its initial value, the function
+which permit to access its value, @dots{}). Slot descriptions will be
+discussed in @ref{Slot description}.
 @cindex slot
 
-As an example, consider now that we have to define a complex
-number. This can be done with the following class definition:
+As an example, let us define a type for representation of complex
+numbers in terms of real numbers. This can be done with the following
+class definition:
+
 @lisp
 (define-class  <complex> (<number>)
    r i)
 @end lisp
 
-This binds the symbol @code{<complex>} to a new class whose instances
-contain two slots. These slots are called @code{r} an @code{i} and we
-suppose here that they contain respectively the real part and the
-imaginary part of a complex number. Note that this class inherits from
-@code{<number>} which is a pre-defined class (@code{<number>} is the
-super class of the @code{<real>} and @code{<integer>} pre-defined
-classes)@footnote{With this definition, a @code{<real>} is not a
-@code{<complex>} since @code{<real>} inherits from @code{ <number>}
-rather than @code{<complex>}. In practice, inheritance could be modified
-@emph{a posteriori}, if needed. However, this necessitates some
-knowledge of the meta object protocol and it will not be shown in this
-document}.
+This binds the variable @code{<complex>}@footnote{@code{<complex>} is in
+fact a builtin class in GOOPS.  Because of this, GOOPS will create a new
+class.  The old class will still serve as the type for Guile's native
+complex numbers.} to a new class whose instances contain two
+slots. These slots are called @code{r} an @code{i} and we suppose here
+that they contain respectively the real part and the imaginary part of a
+complex number. Note that this class inherits from @code{<number>} which
+is a pre-defined class.  (@code{<number>} is the direct super class of
+the pre-defined class @code{<complex>} which, in turn, is the super
+class of @code{<real>} which is the super of
+@code{<integer>}.)@footnote{With the new definition of @code{<complex>},
+a @code{<real>} is not a @code{<complex>} since @code{<real>} inherits
+from @code{ <number>} rather than @code{<complex>}. In practice,
+inheritance could be modified @emph{a posteriori}, if needed. However,
+this necessitates some knowledge of the meta object protocol and it will
+not be shown in this document}.
 
 @node Inheritance, Generic functions, Class definition and instantiation, Tutorial
 @section Inheritance
@@ -155,6 +167,7 @@ document}.
 Inheritance is specified upon class definition. As said in the
 introduction, @goops{} supports multiple inheritance.  Here are some
 class definitions:
+
 @lisp
 (define-class A () a)
 (define-class B () b)
@@ -173,18 +186,25 @@ Those class definitions define a hierarchy which is shown in Figure@ 1.
 In this figure, the class @code{<top>} is also shown; this class is the
 super class of all Scheme objects. In particular, @code{<top>} is the
 super class of all standard Scheme types.
+
 @example
 @group
 @image{hierarchy}
 @center @emph{Fig 1: A class hierarchy}
+@iftex
+@emph{(@code{<complex>} which is the direct subclass of @code{<number>}
+and the direct superclass of @code{<real>} has been omitted in this
+figure.)}
+@end iftex
 @end group
 @end example
 
-The set of slots of a given class is calculated by ``unioning'' the
+The set of slots of a given class is calculated by taking the union of the
 slots of all its super class. For instance, each instance of the class
 D, defined before will have three slots (@code{a}, @code{b} and
 @code{d}). The slots of a class can be obtained by the @code{class-slots}
 primitive.  For instance,
+
 @lisp
 (class-slots A) @result{} ((a))
 (class-slots E) @result{} ((a) (e) (c))
@@ -203,11 +223,13 @@ procedure takes one mandatory parameter which is the class of the
 instance which must be created and a list of optional
 arguments. Optional arguments are generally used to initialize some
 slots of the newly created instance. For instance, the following form
+
 @findex make
 @cindex instance
 @lisp
 (define c (make <complex>))
 @end lisp
+
 will create a new @code{<complex>} object and will bind it to the @code{c}
 Scheme variable.
 
@@ -215,24 +237,36 @@ Accessing the slots of the new complex number can be done with the
 @code{slot-ref} and the @code{slot-set!}  primitives. @code{Slot-set!}
 primitive permits to set the value of an object slot and @code{slot-ref}
 permits to get its value.
+
 @findex slot-set!
 @findex slot-ref
 @lisp
+@group
 (slot-set! c 'r 10)
 (slot-set! c 'i 3)
 (slot-ref c 'r) @result{} 10
 (slot-ref c 'i) @result{} 3
+@end group
 @end lisp
-Using the @code{describe}@footnote{You need to evaluate
-@code{(use-modules (oop goops describe))} in order to import the
-describe function. Note also that the describe module depends on slib,
-which you must have installed.} function is a simple way to see all the
+
+Using the @code{describe} function is a simple way to see all the
 slots of an object at one time: this function prints all the slots of an
-object on the standard output. For instance, the expression 
+object on the standard output.
+
+First load the module @code{(oop goops describe)}:
+
+@example
+@code{(use-modules (oop goops describe))}
+@end example
+
+The expression
+
 @smalllisp
 (describe c)
 @end smalllisp
-will print the following informations on the standard output:
+
+will now print the following information on the standard output:
+
 @lisp
 #<<complex> 401d8638> is an instance of class <complex>
 Slots are: 
@@ -247,12 +281,13 @@ Slots are:
 When specifying a slot, a set of options can be given to the
 system. Each option is specified with a keyword. The list of authorised
 keywords is given below:
+
 @cindex keyword
 @itemize @bullet
 @item
 @code{#:init-value} permits to supply a default value for the slot. This
 default value is obtained by evaluating the form given after the
-@code{#:initform} in the global environment, at class definition time.
+@code{#:init-form} in the global environment, at class definition time.
 @cindex default slot value
 @findex #:init-value
 @cindex top level environment
@@ -271,21 +306,21 @@ thunk a instance creation time.
 slot. The init-keyword may be provided during instance creation (i.e. in
 the @code{make} optional parameter list). Specifying such a keyword
 during instance initialization will supersede the default slot
-initialization possibly given with @code{#:initform}.
+initialization possibly given with @code{#:init-form}.
 @findex #:init-keyword
 
 @item
 @code{#:getter} permits to supply the name for the 
-slot getter. The name binding is done in the global 
-environment.
+slot getter. The name binding is done in the
+environment of the @code{define-class} macro.
 @findex #:getter
 @cindex top level environment
 @cindex getter
 
 @item
 @code{#:setter} permits to supply the name for the 
-slot setter. The name binding is done in the global 
-environment.
+slot setter. The name binding is done in the
+environment of the @code{define-class} macro.
 @findex #:setter
 @cindex top level environment
 @cindex setter
@@ -305,6 +340,7 @@ version of @code{set!}.
 @code{#:allocation} permits to specify how storage for
 the slot is allocated. Three kinds of allocation are provided. 
 They are described below:
+
 @itemize @minus
 @item
 @code{#:instance} indicates that each instance gets its own storage for
@@ -336,17 +372,20 @@ and @code{#:slot-set!} options. See the example below.
 
 To illustrate slot description, we shall redefine the @code{<complex>} class 
 seen before. A definition could be:
+
 @lisp
 (define-class <complex> (<number>) 
    (r #:init-value 0 #:getter get-r #:setter set-r! #:init-keyword #:r)
    (i #:init-value 0 #:getter get-i #:setter set-i! #:init-keyword #:i))
 @end lisp
+
 With this definition, the @code{r} and @code{i} slot are set to 0 by
 default.  Value of a slot can also be specified by calling @code{make}
 with the @code{#:r} and @code{#:i} keywords. Furthermore, the generic
 functions @code{get-r} and @code{set-r!} (resp. @code{get-i} and
 @code{set-i!}) are automatically defined by the system to read and write
 the @code{r} (resp. @code{i}) slot.
+
 @lisp
 (define c1 (make <complex> #:r 1 #:i 2))
 (get-r c1) @result{} 1
@@ -362,6 +401,7 @@ slot.  Writing a slot is done with an extended form of @code{set!}
 which is close to the Common Lisp @code{setf} macro. So, another
 definition of the previous @code{<complex>} class, using the
 @code{#:accessor} option, could be:
+
 @findex set!
 @lisp
 (define-class <complex> (<number>) 
@@ -387,6 +427,7 @@ representation and some conversion functions to pass from one
 representation to the other.  A better solution uses virtual slots. A
 complete definition of the @code{<complex>} class using virtual slots is
 given in Figure@ 2.
+
 @example
 @group
 @lisp
@@ -426,13 +467,16 @@ application of the function defined in the @code{#:slot-ref}
 option. Writing such a slot leads to the application of the function
 defined in the @code{#:slot-set!} option.  For instance, the following
 expression
+
 @findex #:slot-set!
 @findex #:slot-ref
 @lisp
 (slot-set! c 'a 3)
-@end lisp 
+@end lisp
+
 permits to set the angle of the @code{c} complex number. This expression
 conducts, in fact, to the evaluation of the following expression
+
 @lisp
 ((lambda o m)
     (let ((m (slot-ref o 'm)))
@@ -440,7 +484,9 @@ conducts, in fact, to the evaluation of the following expression
        (slot-set! o 'i (* m (sin a))))
   c 3)
 @end lisp
+
 A more complete example is given below:
+
 @example
 @group
 @lisp
@@ -463,6 +509,7 @@ A more complete example is given below:
 Since initialization keywords have been defined for the four slots, we
 can now define the @code{make-rectangular} and @code{make-polar} standard
 Scheme primitives.
+
 @lisp
 (define make-rectangular 
    (lambda (x y) (make <complex> #:r x #:i y)))
@@ -487,6 +534,7 @@ Rule 1: Each class is more specific than its superclasses.@c was \bf
 @end display
 
 With multiple inheritance, ordering is harder. Suppose we have
+
 @lisp
 (define-class X ()
    (x #:init-value 1))
@@ -504,6 +552,7 @@ specified in @code{X} and @code{Y} leads to a problem: which one
 overrides the other?  The rule in @goops{}, as in CLOS, is that the
 superclasses listed earlier are more specific than those listed later.
 So:
+
 @display
 @cartouche
 Rule 2: For a given class, superclasses listed earlier are more
@@ -518,17 +567,17 @@ rules, we can claim that the initial form for the @code{x} slot of
 previous example is 1 since the class @code{X} is placed before @code{Y}
 in class precedence list of @code{Z}.
 
-This two rules are not always enough to determine a unique order,
-however, but they give an idea of how things work. The @goops{}
-algorithm for calculating the precedence list is a little simpler than
-the CLOS one described in @cite{Gregor Kiczales: A Metaobject Protocol}
-for breaking ties. Consequently the calculated class precedence list
-could be different. Taking the @code{F} class shown in Figure@ 1, the
-@goops{} calculated class precedence list is
+These two rules are not always enough to determine a unique order,
+however, but they give an idea of how things work.  Taking the @code{F}
+class shown in Figure@ 1, the @goops{} calculated class precedence list
+is
+
 @example
 (f d e a b c <object> <top>)
 @end example
+
 whereas it would be the following list with a CLOS-like algorithm:
+
 @example
 (f d e a c b <object> <top>)
 @end example
@@ -539,14 +588,17 @@ it can be expressed directly in the class definition.
 
 The precedence list of a class can be obtained by the function 
 @code{class-precedence-list}. This function returns a ordered 
-list whose first element is the most specific class. For instance, 
+list whose first element is the most specific class. For instance,
+
 @lisp
 (class-precedence-list B) @result{} (#<<class> B 401b97c8> 
                                      #<<class> <object> 401e4a10> 
                                      #<<class> <top> 4026a9d8>)
 @end lisp
+
 However, this result is not too much readable; using the function
 @code{class-name} yields a clearer result:
+
 @lisp
 (map class-name (class-precedence-list B)) @result{} (B <object> <top>) 
 @end lisp
@@ -573,6 +625,7 @@ the most specific among them will be applied. We say that a method
 @var{M} is @emph{more specific} than a method @var{M'} if the class of
 its parameters are more specific than the @var{M'} ones.  To be more
 precise, when a generic funtion must be ``called'' the system will:
+
 @cindex generic function
 @enumerate
 @item
@@ -593,56 +646,61 @@ not be used.
 @findex define-generic
 @findex define-method
 Consider the following definitions:
+
 @lisp
-(define-generic M)
-(define-method  M ((a <integer>) b) 'integer)
-(define-method  M ((a <real>) b) 'real)
-(define-method  M (a b) 'top)
+(define-generic G)
+(define-method  G ((a <integer>) b) 'integer)
+(define-method  G ((a <real>) b) 'real)
+(define-method  G (a b) 'top)
 @end lisp
 
-The @code{define-generic} call defines @var{M} as a generic
+The @code{define-generic} call defines @var{G} as a generic
 function. Note that the signature of the generic function is not given
 upon definition, contrarily to CLOS. This will permit methods with
 different signatures for a given generic function, as we shall see
-later. The three next lines define methods for the @var{M} generic
+later. The three next lines define methods for the @var{G} generic
 function. Each method uses a sequence of @dfn{parameter specializers}
 that specify when the given method is applicable. A specializer permits
 to indicate the class a parameter must belong to (directly or
 indirectly) to be applicable. If no specializer is given, the system
 defaults it to @code{<top>}. Thus, the first method definition is
 equivalent to
+
 @cindex parameter specializers
 @lisp
-(define-method M ((a <integer>) (b <top>)) 'integer)
+(define-method G ((a <integer>) (b <top>)) 'integer)
 @end lisp
 
-Now, let us look at some possible calls to generic function @var{M}:
+Now, let us look at some possible calls to generic function @var{G}:
+
 @lisp
-(M 2 3)    @result{} integer
-(M 2 #t)   @result{} integer
-(M 1.2 'a) @result{} real
-@c (M #3 'a) @result{} real       @c was {\sharpsign}
-(M #t #f)  @result{} top
-(M 1 2 3)  @result{} error (since no method exists for 3 parameters)
+(G 2 3)    @result{} integer
+(G 2 #t)   @result{} integer
+(G 1.2 'a) @result{} real
+@c (G #3 'a) @result{} real       @c was {\sharpsign}
+(G #t #f)  @result{} top
+(G 1 2 3)  @result{} error (since no method exists for 3 parameters)
 @end lisp
 
 The preceding methods use only one specializer per parameter list. Of
 course, each parameter can use a specializer. In this case, the
 parameter list is scanned from left to right to determine the
 applicability of a method. Suppose we declare now
+
 @lisp
-(define-method M ((a <integer>) (b <number>))  'integer-number)
-(define-method M ((a <integer>) (b <real>))    'integer-real)
-(define-method M ((a <integer>) (b <integer>)) 'integer-integer)
-(define-method M (a (b <number>))              'top-number)
+(define-method G ((a <integer>) (b <number>))  'integer-number)
+(define-method G ((a <integer>) (b <real>))    'integer-real)
+(define-method G ((a <integer>) (b <integer>)) 'integer-integer)
+(define-method G (a (b <number>))              'top-number)
 @end lisp
 
-In this case, 
+In this case,
+
 @lisp
-(M 1 2)   @result{} integer-integer
-(M 1 1.0) @result{} integer-real
-(M 1 #t)  @result{} integer
-(M 'a 1)  @result{} 'top-number
+(G 1 2)   @result{} integer-integer
+(G 1 1.0) @result{} integer-real
+(G 1 #t)  @result{} integer
+(G 'a 1)  @result{} top-number
 @end lisp
 
 @node Next-method, Example, Generic functions and methods, Generic functions
@@ -653,6 +711,7 @@ built. As mentioned before, the most specific method of this list is
 applied (see@ @ref{Generic functions and methods}). This method may call
 the next method in the list of applicable methods. This is done by using
 the special form @code{next-method}. Consider the following definitions
+
 @lisp
 (define-method Test ((a <integer>)) (cons 'integer (next-method)))
 (define-method Test ((a <number>))  (cons 'number  (next-method)))
@@ -660,6 +719,7 @@ the special form @code{next-method}. Consider the following definitions
 @end lisp
 
 With those definitions,
+
 @lisp
 (Test 1)   @result{} (integer number top)
 (Test 1.0) @result{} (number top)
@@ -673,6 +733,7 @@ In this section we shall continue to define operations on the @code{<complex>}
 class defined in Figure@ 2. Suppose that we want to use it to implement 
 complex numbers completely. For instance a definition for the addition of 
 two complexes could be
+
 @lisp
 (define-method new-+ ((a <complex>) (b <complex>))
   (make-rectangular (+ (real-part a) (real-part b))
@@ -681,6 +742,7 @@ two complexes could be
 
 To be sure that the @code{+} used in the method @code{new-+} is the standard
 addition we can do:
+
 @lisp
 (define-generic new-+)
 
@@ -747,6 +809,7 @@ extended addition.
 @sp 3
 To terminate our implementation (integration?) of  complex numbers, we can 
 redefine standard Scheme predicates in the following manner:
+
 @lisp
 (define-method complex? (c <complex>) #t)
 (define-method complex? (c)           #f)

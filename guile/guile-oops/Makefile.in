@@ -542,6 +542,7 @@ distdir: $(DISTFILES)
 	  fi; \
 	done
 	$(MAKE) $(AM_MAKEFLAGS) top_distdir="$(top_distdir)" distdir="$(distdir)" dist-info
+	$(MAKE) $(AM_MAKEFLAGS) top_distdir="$(top_distdir)" distdir="$(distdir)" dist-hook
 
 DEPS_MAGIC := $(shell mkdir .deps > /dev/null 2>&1 || :)
 
@@ -684,6 +685,9 @@ install-exec-hook:
 	     && rm -f libgoopscore.la libgoopscore.so.0 \
 	     && $(LN_S) $(libdir)/libgoopscore.la \
 	     && $(LN_S) $(libdir)/libgoopscore.so.0))
+
+dist-hook: goops.ps
+	cp -p $(top_builddir)/goops.ps $(distdir)
 .c.x:
 	$(SNARF) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $< > $@
 

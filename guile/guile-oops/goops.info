@@ -14,20 +14,144 @@ manual provided the copyright notice and this permission notice are
 preserved on all copies.
 
 
-File: goops.info,  Node: Top,  Next: Getting Started,  Prev: (dir),  Up: (dir)
+File: goops.info,  Node: Top,  Next: Introduction,  Prev: (dir),  Up: (dir)
 
 * Menu:
 
+[When the manual is completed, this will be a flat index in the style of
+ the Emacs manual.  More nodes will turn up under parts I-III.]
+
+Part I: Preliminaries
+
+* Introduction::
 * Getting Started::
+
+Part II: Reference Manual
+
 * Reference Manual::
+
+Part III: GOOPS Meta Object Protocol
+
 * MOP specification::
+
+The GOOPS tutorial
+
 * Tutorial::
+
 * Index::
 * Concept Index::
 * Function and Variable Index::
 
 
-File: goops.info,  Node: Getting Started,  Next: Reference Manual,  Prev: Top,  Up: Top
+File: goops.info,  Node: Introduction,  Next: Getting Started,  Prev: Top,  Up: Top
+
+Introduction
+============
+
+GOOPS is the object oriented extention to Guile. Its implementation is
+derived from STk-3.99.3 by Erick Gallesio and version 1.3 of the Gregor
+Kickzales Tiny Clos package `Tiny-Clos'.  However, it has been extended
+with ideas from CLOS, the Common Lisp Object System (`CLtL2') and Dylan
+or SOS.
+
+Briefly stated, the GOOPS extension gives the user a full object
+oriented system with multiple inheritance and generic functions with
+multi-method dispatch.  Furthermore, the whole implementation relies on
+a true meta object protocol, in the spirit of the one defined for CLOS
+(`Gregor Kiczales: A Metaobject Protocol').
+
+
+File: goops.info,  Node: Getting Started,  Next: Reference Manual,  Prev: Introduction,  Up: Top
+
+Getting Started
+===============
+
+* Menu:
+
+* Running GOOPS::
+
+Examples of some basic GOOPS functionality.
+
+* Methods::
+* User-defined types::
+* Asking for the type of an object::
+
+See further in the GOOPS tutorial available in this distribution in
+info (goops.info) and texinfo format.
+
+
+File: goops.info,  Node: Running GOOPS,  Next: Methods,  Prev: Getting Started,  Up: Getting Started
+
+Running GOOPS
+-------------
+
+  1. Type
+
+          guile-oops
+
+     You should now be at the Guile prompt ("guile> ").
+
+  2. Type
+
+          (use-modules (oop goops))
+
+     to load GOOPS.  (If your system supports dynamic loading, you
+     should be able to do this not only from `guile-oops' but from an
+     arbitrary Guile interpreter.)
+
+We're now ready to try some basic GOOPS functionality.
+
+
+File: goops.info,  Node: Methods,  Next: User-defined types,  Prev: Running GOOPS,  Up: Getting Started
+
+Methods
+-------
+
+     (define-method + ((x <string>) (y <string>))
+       (string-append x y))
+     
+     (+ 1 2) --> 3
+     (+ "abc" "de") --> "abcde"
+
+
+File: goops.info,  Node: User-defined types,  Next: Asking for the type of an object,  Prev: Methods,  Up: Getting Started
+
+User-defined types
+------------------
+
+     (define-class <2D-vector> ()
+       (x #:init-value 0 #:accessor x-component #:init-keyword #:x)
+       (y #:init-value 0 #:accessor y-component #:init-keyword #:y))
+     
+     (use-modules (ice-9 format))
+     
+     (define-method write-object ((obj <2D-vector>) port)
+       (display (format #f "<~S, ~S>" (x-component obj) (y-component obj))
+                port))
+     
+     (define v (make <2D-vector> #:x 3 #:y 4))
+     
+     v --> <3, 4>
+     
+     (define-method + ((x <2D-vector>) (y <2D-vector>))
+       (make <2D-vector>
+             #:x (+ (x-component x) (x-component y))
+             #:y (+ (y-component x) (y-component y))))
+     
+     (+ v v) --> <6, 8>
+
+
+File: goops.info,  Node: Asking for the type of an object,  Prev: User-defined types,  Up: Getting Started
+
+Types
+-----
+
+     (class-of v) --> #<<class> <2D-vector> 40241ac0>
+     <2D-vector>  --> #<<class> <2D-vector> 40241ac0>
+     (class-of 1) --> #<<class> <integer> 401b2a98>
+     <integer>    --> #<<class> <integer> 401b2a98>
+     
+     (is-a? v <2D-vector>) --> #t
 
 
 File: goops.info,  Node: Reference Manual,  Next: MOP specification,  Prev: Getting Started,  Up: Top
@@ -57,13 +181,16 @@ for the STk reference manual, and subsequently adapted to GOOPS.
 * Menu:
 
 * Copyright::
-* Introduction::
+* Intro::
 * Class definition and instantiation::
 * Inheritance::
 * Generic functions::
 
 
-File: goops.info,  Node: Copyright,  Next: Introduction,  Prev: Tutorial,  Up: Tutorial
+File: goops.info,  Node: Copyright,  Next: Intro,  Prev: Tutorial,  Up: Tutorial
+
+Copyright
+=========
 
 Original attribution:
 
@@ -86,21 +213,22 @@ Last file update: 22-Apr-1998 11:04
 Adapted for use in Guile with the authors permission
 
 
-File: goops.info,  Node: Introduction,  Next: Class definition and instantiation,  Prev: Copyright,  Up: Tutorial
+File: goops.info,  Node: Intro,  Next: Class definition and instantiation,  Prev: Copyright,  Up: Tutorial
 
 Introduction
 ============
 
-GOOPS is the object oriented layer of Guile. Its implementation is
-derived from version 1.3 of the Gregor Kickzales Tiny Clos package
-`Tiny-Clos'.  However, it has been extended with ideas from CLOS, the
-Common Lisp Object System (`CLtL2') and Dylan or SOS.
+GOOPS is the object oriented extention to Guile. Its implementation is
+derived from STk-3.99.3 by Erick Gallesio and version 1.3 of the Gregor
+Kickzales Tiny Clos package `Tiny-Clos'.  However, it has been extended
+with ideas from CLOS, the Common Lisp Object System (`CLtL2') and Dylan
+or SOS.
 
 Briefly stated, the GOOPS extension gives the user a full object
-oriented system with meta-classes, multiple inheritance, generic
-functions and multi-methods.  Furthermore, the whole implementation
-relies on a true meta object protocol, in the spirit of the one defined
-for CLOS (`Gregor Kiczales: A Metaobject Protocol').
+oriented system with multiple inheritance and generic functions with
+multi-method dispatch.  Furthermore, the whole implementation relies on
+a true meta object protocol, in the spirit of the one defined for CLOS
+(`Gregor Kiczales: A Metaobject Protocol').
 
 The purpose of this tutorial is to introduce briefly the GOOPS package
 and in no case will it replace the GOOPS reference manual (which needs
@@ -109,10 +237,11 @@ to be urgently written now ...).
 Note that the operations described in this tutorial resides in modules
 that may need to be imported before being available.  The main module is
 imported by evaluating:
+
      (use-modules (oop goops))
 
 
-File: goops.info,  Node: Class definition and instantiation,  Next: Inheritance,  Prev: Introduction,  Up: Tutorial
+File: goops.info,  Node: Class definition and instantiation,  Next: Inheritance,  Prev: Intro,  Up: Tutorial
 
 Class definition and instantiation
 ==================================
@@ -129,38 +258,47 @@ Class definition
 
 A new class is defined with the `define-class'(1) macro. The syntax of
 `define-class' is close to CLOS `defclass':
-     (define-class CLASS (SUPERCLASS SUPERCLASS...)
-        SLOT-DESCRIPTION SLOT-DESCRIPTION...
-        METACLASS-OPTION)
 
-The METACLASS-OPTION will not be discussed in this tutorial.  The
-SUPERCLASSes list specifies the super classes of CLASS (see *Note
-Inheritance:: for more details).  A SLOT-DESCRIPTION gives the name of
-a slot and, eventually, some "properties" of this slot (such as its
-initial value, the function which permit to access its value, ...).
-Slot descriptions will be discussed in *Note Slot description::.
+     (define-class CLASS (SUPERCLASS ...)
+        SLOT-DESCRIPTION ...
+        CLASS-OPTION ...)
 
-As an example, consider now that we have to define a complex number.
-This can be done with the following class definition:
+Class options will not be discussed in this tutorial.  The list of
+SUPERCLASSes specifies which classes to inherit properties from CLASS
+(see *Note Inheritance:: for more details).  A SLOT-DESCRIPTION gives
+the name of a slot and, eventually, some "properties" of this slot
+(such as its initial value, the function which permit to access its
+value, ...). Slot descriptions will be discussed in *Note Slot
+description::.
+
+As an example, let us define a type for representation of complex
+numbers in terms of real numbers. This can be done with the following
+class definition:
+
      (define-class  <complex> (<number>)
         r i)
 
-This binds the symbol `<complex>' to a new class whose instances
-contain two slots. These slots are called `r' an `i' and we suppose
-here that they contain respectively the real part and the imaginary
-part of a complex number. Note that this class inherits from `<number>'
-which is a pre-defined class (`<number>' is the super class of the
-`<real>' and `<integer>' pre-defined classes)(2).
+This binds the variable `<complex>'(2) to a new class whose instances
+contain two slots. These slots are called `r' an `i' and we suppose here
+that they contain respectively the real part and the imaginary part of a
+complex number. Note that this class inherits from `<number>' which is
+a pre-defined class.  (`<number>' is the direct super class of the
+pre-defined class `<complex>' which, in turn, is the super class of
+`<real>' which is the super of `<integer>'.)(3).
 
 ---------- Footnotes ----------
 
 (1) Don't forget to import the `(oop goops)' module
 
-(2) With this definition, a `<real>' is not a `<complex>' since
-`<real>' inherits from ` <number>' rather than `<complex>'. In
-practice, inheritance could be modified _a posteriori_, if needed.
-However, this necessitates some knowledge of the meta object protocol
-and it will not be shown in this document
+(2) `<complex>' is in fact a builtin class in GOOPS.  Because of this,
+GOOPS will create a new class.  The old class will still serve as the
+type for Guile's native complex numbers.
+
+(3) With the new definition of `<complex>', a `<real>' is not a
+`<complex>' since `<real>' inherits from ` <number>' rather than
+`<complex>'. In practice, inheritance could be modified _a posteriori_,
+if needed. However, this necessitates some knowledge of the meta object
+protocol and it will not be shown in this document
 
 
 File: goops.info,  Node: Inheritance,  Next: Generic functions,  Prev: Class definition and instantiation,  Up: Tutorial
@@ -184,6 +322,7 @@ Class hierarchy and inheritance of slots
 Inheritance is specified upon class definition. As said in the
 introduction, GOOPS supports multiple inheritance.  Here are some class
 definitions:
+
      (define-class A () a)
      (define-class B () b)
      (define-class C () c)
@@ -199,15 +338,31 @@ classes.  Those class definitions define a hierarchy which is shown in
 Figure 1.  In this figure, the class `<top>' is also shown; this class
 is the super class of all Scheme objects. In particular, `<top>' is the
 super class of all standard Scheme types.
-     <class hierarchy example>
+
+               <top>
+               / \\\_____________________
+              /   \\___________          \
+             /     \           \          \
+         <object>  <pair>  <procedure>  <number>
+         /  |  \                           |
+        /   |   \                          |
+       A    B    C                      <complex>
+       |\__/__   |                         |
+        \ /   \ /                          |
+         D     E                         <real>
+          \   /                            |
+            F                              |
+                                        <integer>
 
                          _Fig 1: A class hierarchy_
 
 
-The set of slots of a given class is calculated by "unioning" the slots
-of all its super class. For instance, each instance of the class D,
-defined before will have three slots (`a', `b' and `d'). The slots of a
-class can be obtained by the `class-slots' primitive.  For instance,
+The set of slots of a given class is calculated by taking the union of
+the slots of all its super class. For instance, each instance of the
+class D, defined before will have three slots (`a', `b' and `d'). The
+slots of a class can be obtained by the `class-slots' primitive.  For
+instance,
+
      (class-slots A) => ((a))
      (class-slots E) => ((a) (e) (c))
      (class-slots F) => ((e) (c) (b) (d) (a) (f))
@@ -226,7 +381,9 @@ which is the class of the instance which must be created and a list of
 optional arguments. Optional arguments are generally used to initialize
 some slots of the newly created instance. For instance, the following
 form
+
      (define c (make <complex>))
+
 will create a new `<complex>' object and will bind it to the `c' Scheme
 variable.
 
@@ -234,25 +391,30 @@ Accessing the slots of the new complex number can be done with the
 `slot-ref' and the `slot-set!'  primitives. `Slot-set!' primitive
 permits to set the value of an object slot and `slot-ref' permits to
 get its value.
+
      (slot-set! c 'r 10)
      (slot-set! c 'i 3)
      (slot-ref c 'r) => 10
      (slot-ref c 'i) => 3
-Using the `describe'(1) function is a simple way to see all the slots
-of an object at one time: this function prints all the slots of an
-object on the standard output. For instance, the expression
+
+Using the `describe' function is a simple way to see all the slots of
+an object at one time: this function prints all the slots of an object
+on the standard output.
+
+First load the module `(oop goops describe)':
+
+     `(use-modules (oop goops describe))'
+
+The expression
+
      (describe c)
-will print the following informations on the standard output:
+
+will now print the following information on the standard output:
+
      #<<complex> 401d8638> is an instance of class <complex>
      Slots are:
           r = 10
           i = 3
-
----------- Footnotes ----------
-
-(1) You need to evaluate `(use-modules (oop goops describe))' in order
-to import the describe function. Note also that the describe module
-depends on slib, which you must have installed.
 
 
 File: goops.info,  Node: Slot description,  Next: Class precedence list,  Prev: Instance creation and slot access,  Up: Inheritance
@@ -263,9 +425,10 @@ Slot description
 When specifying a slot, a set of options can be given to the system.
 Each option is specified with a keyword. The list of authorised
 keywords is given below:
+
    * `#:init-value' permits to supply a default value for the slot. This
      default value is obtained by evaluating the form given after the
-     `#:initform' in the global environment, at class definition time.
+     `#:init-form' in the global environment, at class definition time.
 
    * `#:init-thunk' permits to supply a thunk that will provide a
      default value for the slot. The value is obtained by evaluating the
@@ -275,13 +438,15 @@ keywords is given below:
      slot. The init-keyword may be provided during instance creation
      (i.e. in the `make' optional parameter list). Specifying such a
      keyword during instance initialization will supersede the default
-     slot initialization possibly given with `#:initform'.
+     slot initialization possibly given with `#:init-form'.
 
    * `#:getter' permits to supply the name for the slot getter. The
-     name binding is done in the global environment.
+     name binding is done in the environment of the `define-class'
+     macro.
 
    * `#:setter' permits to supply the name for the slot setter. The
-     name binding is done in the global environment.
+     name binding is done in the environment of the `define-class'
+     macro.
 
    * `#:accessor' permits to supply the name for the slot accessor. The
      name binding is done in the global environment. An accessor
@@ -291,6 +456,7 @@ keywords is given below:
    * `#:allocation' permits to specify how storage for the slot is
      allocated. Three kinds of allocation are provided.  They are
      described below:
+
         - `#:instance' indicates that each instance gets its own
           storage for the slot. This is the default.
 
@@ -313,14 +479,17 @@ keywords is given below:
 
 To illustrate slot description, we shall redefine the `<complex>' class
 seen before. A definition could be:
+
      (define-class <complex> (<number>)
         (r #:init-value 0 #:getter get-r #:setter set-r! #:init-keyword #:r)
         (i #:init-value 0 #:getter get-i #:setter set-i! #:init-keyword #:i))
+
 With this definition, the `r' and `i' slot are set to 0 by default.
 Value of a slot can also be specified by calling `make' with the `#:r'
 and `#:i' keywords. Furthermore, the generic functions `get-r' and
 `set-r!' (resp. `get-i' and `set-i!') are automatically defined by the
 system to read and write the `r' (resp. `i') slot.
+
      (define c1 (make <complex> #:r 1 #:i 2))
      (get-r c1) => 1
      (set-r! c1 12)
@@ -333,6 +502,7 @@ Accessors provide an uniform access for reading and writing an object
 slot.  Writing a slot is done with an extended form of `set!' which is
 close to the Common Lisp `setf' macro. So, another definition of the
 previous `<complex>' class, using the `#:accessor' option, could be:
+
      (define-class <complex> (<number>)
         (r #:init-value 0 #:accessor real-part #:init-keyword #:r)
         (i #:init-value 0 #:accessor imag-part #:init-keyword #:i))
@@ -351,6 +521,7 @@ representation and some conversion functions to pass from one
 representation to the other.  A better solution uses virtual slots. A
 complete definition of the `<complex>' class using virtual slots is
 given in Figure 2.
+
           (define-class <complex> (<number>)
              ;; True slots use rectangular coordinates
              (r #:init-value 0 #:accessor real-part #:init-keyword #:r)
@@ -386,15 +557,20 @@ Reading a virtual slot leads to the application of the function defined
 in the `#:slot-ref' option. Writing such a slot leads to the
 application of the function defined in the `#:slot-set!' option.  For
 instance, the following expression
+
      (slot-set! c 'a 3)
+
 permits to set the angle of the `c' complex number. This expression
 conducts, in fact, to the evaluation of the following expression
+
      ((lambda o m)
          (let ((m (slot-ref o 'm)))
             (slot-set! o 'r (* m (cos a)))
             (slot-set! o 'i (* m (sin a))))
        c 3)
+
 A more complete example is given below:
+
           (define c (make <complex> #:r 12 #:i 20))
           (real-part c) => 12
           (angle c) => 1.03037682652431
@@ -411,6 +587,7 @@ A more complete example is given below:
 Since initialization keywords have been defined for the four slots, we
 can now define the `make-rectangular' and `make-polar' standard Scheme
 primitives.
+
      (define make-rectangular
         (lambda (x y) (make <complex> #:r x #:i y)))
      
@@ -430,6 +607,7 @@ least specific. This is the rule:
      Rule 1: Each class is more specific than its superclasses.
 
 With multiple inheritance, ordering is harder. Suppose we have
+
      (define-class X ()
         (x #:init-value 1))
      
@@ -444,6 +622,7 @@ for instances of `Z'. However, the `#:init-value' specified in `X' and
 `Y' leads to a problem: which one overrides the other?  The rule in
 GOOPS, as in CLOS, is that the superclasses listed earlier are more
 specific than those listed later.  So:
+
      Rule 2: For a given class, superclasses listed earlier are more
              specific than those listed later.
 
@@ -454,15 +633,14 @@ we can claim that the initial form for the `x' slot of previous example
 is 1 since the class `X' is placed before `Y' in class precedence list
 of `Z'.
 
-This two rules are not always enough to determine a unique order,
-however, but they give an idea of how things work. The GOOPS algorithm
-for calculating the precedence list is a little simpler than the CLOS
-one described in `Gregor Kiczales: A Metaobject Protocol' for breaking
-ties. Consequently the calculated class precedence list could be
-different. Taking the `F' class shown in Figure 1, the GOOPS calculated
-class precedence list is
+These two rules are not always enough to determine a unique order,
+however, but they give an idea of how things work.  Taking the `F'
+class shown in Figure 1, the GOOPS calculated class precedence list is
+
      (f d e a b c <object> <top>)
+
 whereas it would be the following list with a CLOS-like algorithm:
+
      (f d e a c b <object> <top>)
 
 However, it is usually considered a bad idea for programmers to rely on
@@ -472,11 +650,14 @@ important, it can be expressed directly in the class definition.
 The precedence list of a class can be obtained by the function
 `class-precedence-list'. This function returns a ordered list whose
 first element is the most specific class. For instance,
+
      (class-precedence-list B) => (#<<class> B 401b97c8>
                                           #<<class> <object> 401e4a10>
                                           #<<class> <top> 4026a9d8>)
+
 However, this result is not too much readable; using the function
 `class-name' yields a clearer result:
+
      (map class-name (class-precedence-list B)) => (B <object> <top>)
 
 ---------- Footnotes ----------
@@ -511,6 +692,7 @@ among them will be applied. We say that a method M is _more specific_
 than a method M' if the class of its parameters are more specific than
 the M' ones.  To be more precise, when a generic funtion must be
 "called" the system will:
+
   1. search among all the generic function those which are applicable
 
   2. sort the list of applicable methods in the "most specific" order
@@ -524,44 +706,49 @@ macro.  Note that `define-method' automatically defines the generic
 function if it has not been defined before. Consequently, most of the
 time, the `define-generic' needs not be used.  Consider the following
 definitions:
-     (define-generic M)
-     (define-method  M ((a <integer>) b) 'integer)
-     (define-method  M ((a <real>) b) 'real)
-     (define-method  M (a b) 'top)
 
-The `define-generic' call defines M as a generic function. Note that
+     (define-generic G)
+     (define-method  G ((a <integer>) b) 'integer)
+     (define-method  G ((a <real>) b) 'real)
+     (define-method  G (a b) 'top)
+
+The `define-generic' call defines G as a generic function. Note that
 the signature of the generic function is not given upon definition,
 contrarily to CLOS. This will permit methods with different signatures
 for a given generic function, as we shall see later. The three next
-lines define methods for the M generic function. Each method uses a
+lines define methods for the G generic function. Each method uses a
 sequence of "parameter specializers" that specify when the given method
 is applicable. A specializer permits to indicate the class a parameter
 must belong to (directly or indirectly) to be applicable. If no
 specializer is given, the system defaults it to `<top>'. Thus, the
 first method definition is equivalent to
-     (define-method M ((a <integer>) (b <top>)) 'integer)
 
-Now, let us look at some possible calls to generic function M:
-     (M 2 3)    => integer
-     (M 2 #t)   => integer
-     (M 1.2 'a) => real
-     (M #t #f)  => top
-     (M 1 2 3)  => error (since no method exists for 3 parameters)
+     (define-method G ((a <integer>) (b <top>)) 'integer)
+
+Now, let us look at some possible calls to generic function G:
+
+     (G 2 3)    => integer
+     (G 2 #t)   => integer
+     (G 1.2 'a) => real
+     (G #t #f)  => top
+     (G 1 2 3)  => error (since no method exists for 3 parameters)
 
 The preceding methods use only one specializer per parameter list. Of
 course, each parameter can use a specializer. In this case, the
 parameter list is scanned from left to right to determine the
 applicability of a method. Suppose we declare now
-     (define-method M ((a <integer>) (b <number>))  'integer-number)
-     (define-method M ((a <integer>) (b <real>))    'integer-real)
-     (define-method M ((a <integer>) (b <integer>)) 'integer-integer)
-     (define-method M (a (b <number>))              'top-number)
+
+     (define-method G ((a <integer>) (b <number>))  'integer-number)
+     (define-method G ((a <integer>) (b <real>))    'integer-real)
+     (define-method G ((a <integer>) (b <integer>)) 'integer-integer)
+     (define-method G (a (b <number>))              'top-number)
 
 In this case,
-     (M 1 2)   => integer-integer
-     (M 1 1.0) => integer-real
-     (M 1 #t)  => integer
-     (M 'a 1)  => 'top-number
+
+     (G 1 2)   => integer-integer
+     (G 1 1.0) => integer-real
+     (G 1 #t)  => integer
+     (G 'a 1)  => top-number
 
 
 File: goops.info,  Node: Next-method,  Next: Example,  Prev: Generic functions and methods,  Up: Generic functions
@@ -574,11 +761,13 @@ built. As mentioned before, the most specific method of this list is
 applied (see *Note Generic functions and methods::). This method may
 call the next method in the list of applicable methods. This is done by
 using the special form `next-method'. Consider the following definitions
+
      (define-method Test ((a <integer>)) (cons 'integer (next-method)))
      (define-method Test ((a <number>))  (cons 'number  (next-method)))
      (define-method Test (a)             (list 'top))
 
 With those definitions,
+
      (Test 1)   => (integer number top)
      (Test 1.0) => (number top)
      (Test #t)  => (top)
@@ -593,12 +782,14 @@ In this section we shall continue to define operations on the
 `<complex>' class defined in Figure 2. Suppose that we want to use it
 to implement complex numbers completely. For instance a definition for
 the addition of two complexes could be
+
      (define-method new-+ ((a <complex>) (b <complex>))
        (make-rectangular (+ (real-part a) (real-part b))
                          (+ (imag-part a) (imag-part b))))
 
 To be sure that the `+' used in the method `new-+' is the standard
 addition we can do:
+
      (define-generic new-+)
      
      (let ((+ +))
@@ -657,6 +848,7 @@ permits to redefine the `+' symbol to our extended addition.
 
 To terminate our implementation (integration?) of  complex numbers, we
 can redefine standard Scheme predicates in the following manner:
+
      (define-method complex? (c <complex>) #t)
      (define-method complex? (c)           #f)
      
@@ -696,10 +888,10 @@ Concept Index
 * getter:                                Slot description.
 * instance:                              Instance creation and slot access.
 * keyword:                               Slot description.
-* loading:                               Introduction.
-* main module:                           Introduction.
+* loading:                               Intro.
+* main module:                           Intro.
 * parameter specializers:                Generic functions and methods.
-* preparing:                             Introduction.
+* preparing:                             Intro.
 * setter:                                Slot description.
 * slot:                                  Class definition.
 * top level environment:                 Slot description.
@@ -725,7 +917,7 @@ Function and Variable Index
 * #:slot-ref:                            Slot description.
 * #:slot-set!:                           Slot description.
 * #:virtual:                             Slot description.
-* (oop goops):                           Introduction.
+* (oop goops):                           Intro.
 * default slot value:                    Slot description.
 * define-class:                          Class definition.
 * define-generic:                        Generic functions and methods.
@@ -739,30 +931,35 @@ Function and Variable Index
 
 Tag Table:
 Node: Top481
-Node: Getting Started709
-Node: Reference Manual800
-Node: MOP specification957
-Node: Tutorial1109
-Node: Copyright1471
-Node: Introduction2340
-Node: Class definition and instantiation3443
-Node: Class definition3664
-Ref: Class definition-Footnote-15074
-Ref: Class definition-Footnote-25127
-Node: Inheritance5434
-Node: Class hierarchy and inheritance of slots5723
-Node: Instance creation and slot access7347
-Ref: Instance creation and slot access-Footnote-18782
-Node: Slot description8970
-Node: Class precedence list16477
-Ref: Class precedence list-Footnote-119246
-Node: Generic functions19347
-Node: Generic functions and methods19537
-Node: Next-method22678
-Node: Example23494
-Ref: Example-Footnote-126688
-Node: Index26910
-Node: Concept Index27006
-Node: Function and Variable Index28004
+Node: Introduction973
+Node: Getting Started1705
+Node: Running GOOPS2091
+Node: Methods2591
+Node: User-defined types2851
+Node: Asking for the type of an object3692
+Node: Reference Manual4068
+Node: MOP specification4225
+Node: Tutorial4377
+Node: Copyright4732
+Node: Intro5615
+Node: Class definition and instantiation6747
+Node: Class definition6961
+Ref: Class definition-Footnote-18475
+Ref: Class definition-Footnote-28528
+Ref: Class definition-Footnote-38711
+Node: Inheritance9036
+Node: Class hierarchy and inheritance of slots9325
+Node: Instance creation and slot access11547
+Node: Slot description13033
+Node: Class precedence list20607
+Ref: Class precedence list-Footnote-123149
+Node: Generic functions23250
+Node: Generic functions and methods23440
+Node: Next-method26586
+Node: Example27404
+Ref: Example-Footnote-130601
+Node: Index30823
+Node: Concept Index30919
+Node: Function and Variable Index31896
 
 End Tag Table
