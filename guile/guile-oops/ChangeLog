@@ -1,5 +1,9 @@
 2001-03-09  Mikael Djurfeldt  <mdj@linnaeus.mit.edu>
 
+	* Version 1.0.2 released.
+
+	* GOOPS-VERSION (GOOPS_MINOR_VERSION): Bumped to 0.2.
+
 	* goops.scm (define-method): Only accept new syntax.
 
 	* Makefile.am (goops_sources): Added old-define-method.scm.
