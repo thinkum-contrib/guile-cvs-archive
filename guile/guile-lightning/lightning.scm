@@ -1,6 +1,7 @@
 (define-module (lightning))
 
-(export assemble disassemble register-asm-macro define-asm-macro)
+(export assemble disassemble make-closure
+	register-asm-macro define-asm-macro)
 
 (dynamic-call "scm_init_lightning" (dynamic-link "libguile-lightning"))
 

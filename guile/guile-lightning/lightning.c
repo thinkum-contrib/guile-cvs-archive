@@ -40,34 +40,81 @@
  * If you do not wish that, delete this exception notice.  */
 
 #include <libguile.h>
+#include <libguile/values.h>
 #include <lightning.h>
 #include <dlfcn.h>
 
 #include "disassemble.h"
 
-static SCM scm_tc16_code;
+static SCM scm_tc16_codevector;
 
-struct code {
+struct codevector {
   size_t size;
-  SCM proc;
+  SCM protects;
+  jit_insn *start;
   jit_insn *end;
   jit_insn buf[0];
 };
 
-#define CODE_P(x)       (SCM_NIMP(x) && SCM_CAR(x) == tc16_code)
-#define CODE_CODE(x)    ((struct code *)SCM_CDR(x))
+#define CODEVECTOR_P(x)    (SCM_NIMP(x) && SCM_CAR(x) == scm_tc16_codevector)
+#define CODEVECTOR_DATA(x) ((struct codevector *)SCM_CDR(x))
+
+static SCM
+codevector_mark (SCM obj)
+{
+  return CODEVECTOR_DATA(obj)->protects;
+}
+
+static int
+codevector_print (SCM obj, SCM port, scm_print_state *pstate)
+{
+  scm_puts ("#<codevector ", port);
+  scm_intprint ((long)CODEVECTOR_DATA(obj)->start, 16, port);
+  scm_puts (">", port);
+  return 1;
+}
+
+static scm_sizet
+codevector_free (SCM obj)
+{
+  struct codevector *c = CODEVECTOR_DATA(obj);
+  size_t sz = c->size;
+  scm_must_free (c);
+  return sz;
+}
+
+static SCM
+make_codevector (struct codevector *c)
+{
+  SCM z;
+
+  SCM_DEFER_INTS;
+  SCM_NEWCELL (z);
+  SCM_SETCAR (z, scm_tc16_codevector);
+  SCM_SETCDR (z, (SCM) c);
+  SCM_ALLOW_INTS;
+
+  return z;
+}
+
+static SCM scm_tc16_code;
+
+#define CODE_P(x)    (SCM_NIMP(x) && SCM_CELL_WORD_0(x) == scm_tc16_code)
+#define CODE_VEC(x)  (SCM_CELL_OBJECT_1(x))
+#define CODE_ENV(x)  (SCM_CELL_OBJECT_2(x))
 
 static SCM
 code_mark (SCM obj)
 {
-  return CODE_CODE(obj)->proc;
+  scm_gc_mark (CODE_VEC(obj));
+  return CODE_ENV(obj);
 }
 
 static int
 code_print (SCM obj, SCM port, scm_print_state *pstate)
 {
-  scm_puts ("#<code ", port);
-  scm_intprint ((long)CODE_CODE(obj), 16, port);
+  scm_puts ("#<compiled-procedure ", port);
+  scm_intprint ((long)obj, 16, port);
   scm_puts (">", port);
   return 1;
 }
@@ -75,31 +122,99 @@ code_print (SCM obj, SCM port, scm_print_state *pstate)
 static scm_sizet
 code_free (SCM obj)
 {
-  struct code *c = CODE_CODE(obj);
-  size_t sz = c->size;
-  scm_must_free (c);
-  return sz;
+  return 0;
 }
 
 static SCM
-make_code (struct code *c)
+make_code (SCM codevector, SCM env)
 {
   SCM z;
 
   SCM_DEFER_INTS;
-  SCM_NEWCELL (z);
-  SCM_SETCAR (z, scm_tc16_code);
-  SCM_SETCDR (z, (SCM) c);
+  SCM_NEWCELL2 (z);
+  SCM_SET_CELL_WORD_0 (z, scm_tc16_code);
+  SCM_SET_CELL_OBJECT_1 (z, codevector);
+  SCM_SET_CELL_OBJECT_2 (z, env);
+  SCM_SET_CELL_OBJECT_3 (z, SCM_BOOL_F);
   SCM_ALLOW_INTS;
 
   return z;
 }
 
+// args has already been validated to be a proper list
+static SCM (*call_tc) (jit_insn *proc, SCM args, SCM env);
+
+#ifndef offsetof
+#define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
+#endif
+
+static void
+create_call_tc ()
+{
+  jit_insn *buf = scm_must_malloc (sizeof(jit_insn)*500, "call_tc");
+  int arg_proc, arg_args, arg_env;
+
+  jit_insn *l0, *ref0, *ref1, *l2, *ref2, *ref3, *ref4;
+
+  call_tc = (SCM (*)()) jit_set_ip(buf).ptr;
+  jit_prolog (2);
+  arg_proc = jit_arg_l ();
+  arg_args = jit_arg_l ();
+  arg_env = jit_arg_l ();
+  jit_movi_l (JIT_R1, 0);
+  jit_getarg_l (JIT_R0, arg_args);
+ l0 = jit_get_label ();
+  ref0 = jit_beqi_l (jit_forward (), JIT_R0, SCM_EOL);
+  jit_ldxi_l (JIT_R2, JIT_R0, offsetof (scm_cell, word_0));
+  jit_pushr_l (JIT_R2);
+  jit_addi_l (JIT_R1, JIT_R1, sizeof(SCM));
+  jit_ldxi_l (JIT_R0, JIT_R0, offsetof (scm_cell, word_1));
+  jit_jmpi (l0);
+ jit_patch (ref0);
+  jit_getarg_l (JIT_R0, arg_env);
+  jit_getarg_l (JIT_R2, arg_proc);
+  jit_callr (JIT_R2);
+  ref1 = jit_bnei_l (jit_forward (), JIT_R1, sizeof(SCM));
+  jit_movr_l (JIT_RET, JIT_R0);
+  jit_ret ();
+ jit_patch (ref1);
+  jit_movi_l (JIT_V0, SCM_EOL);
+  jit_movr_l (JIT_V1, JIT_SP);
+  jit_movr_l (JIT_V2, JIT_SP);
+  ref2 = jit_beqi_l (jit_forward (), JIT_R1, 0);
+  jit_subr_l (JIT_SP, JIT_SP, JIT_R1);
+  jit_str_l (JIT_SP, JIT_R0);
+ l2 = jit_get_label ();
+  ref3 = jit_bler_l (jit_forward (), JIT_V1, JIT_SP);
+  jit_prepare (2);
+  jit_pusharg_l (JIT_V0);
+  jit_ldxi_l (JIT_R0, JIT_V1, -sizeof(SCM));
+  jit_pusharg_l (JIT_R0);
+  jit_finish (scm_cons);
+  jit_retval (JIT_V0);
+  jit_subi_l (JIT_V1, JIT_V1, sizeof(SCM));
+  jit_jmpi (l2);
+ jit_patch (ref2);
+ jit_patch (ref3);
+  jit_prepare (1);
+  jit_pusharg_l (JIT_V0);
+  jit_finish (scm_values);
+  jit_retval (JIT_RET);
+  jit_movr_l (JIT_SP, JIT_V2);
+  jit_ret ();
+
+  jit_flush_code (buf, jit_get_ip().ptr);
+}
+  
 static SCM
 code_apply (SCM smob, SCM args)
 {
-  struct code *c = CODE_CODE (smob);
-  return scm_apply (c->proc, args, SCM_EOL);
+#define FUNC_NAME "code_apply"
+  struct codevector *c;
+  SCM_VALIDATE_LIST (SCM_ARG1, args);
+  c = CODEVECTOR_DATA (CODE_VEC (smob));
+  return call_tc (c->start, scm_reverse_x (args, SCM_EOL), CODE_ENV (smob));
+#undef FUNC_NAME
 }
 
 static void
@@ -110,7 +225,7 @@ do_label_def (SCM label_hash, SCM label)
   if (cell == SCM_BOOL_F)
     {
       /* Label has not been seen yet.  Define it. */
-      SCM loc = scm_ulong2num ((unsigned long)jit_get_ip().ptr);
+      SCM loc = scm_ulong2num ((unsigned long)jit_get_label());
       cell = scm_cons (loc, SCM_EOL);
       scm_hashq_set_x (label_hash, label, cell);
     }
@@ -199,14 +314,20 @@ get_arg (SCM arg_hash, SCM sym)
 SCM_SYMBOL (sym_scm, "scm");
 SCM_SYMBOL (sym_subr, "subr");
 SCM_SYMBOL (sym_label, "label");
+SCM_SYMBOL (sym_proc, "proc");
 
 static unsigned long
-imm2int (SCM imm, SCM label_hash)
+imm2int (SCM imm, SCM label_hash, struct codevector *c)
 {
   if (scm_ilength (imm) == 2)
     {
       if (SCM_CAR (imm) == sym_scm)
-	return SCM_CADR (imm);
+	{
+	  SCM x = SCM_CADR (imm);
+	  if (SCM_NIMP (x))
+	    c->protects = scm_cons (x, c->protects);
+	  return x;
+	}
       else if (SCM_CAR (imm) == sym_subr && SCM_STRINGP (SCM_CADR (imm)))
 	{
 	  void *addr;
@@ -222,6 +343,15 @@ imm2int (SCM imm, SCM label_hash)
 	    scm_misc_error ("assemble", "undefined label: ~S",
 			    SCM_LIST1 (imm));
 	  return (unsigned long)lab;
+	}
+      else if (SCM_CAR (imm) == sym_proc)
+	{
+	  #define FUNC_NAME "assemble"
+	  SCM x = SCM_CADR (imm);
+	  SCM_VALIDATE_SMOB (SCM_ARG1, x, code);
+	  c->protects = scm_cons (x, c->protects);
+	  return (unsigned long)CODEVECTOR_DATA(x)->start;
+	  #undef FUNC_NAME
 	}
     }
   else if (SCM_NUMBERP (imm))
@@ -262,8 +392,18 @@ sym2reg (SCM sym)
 /* Assemble one instruction.  The guts is generated by `rod.scm'
 */
 
+/* XXX - sort this out. */
+#define jit_pop_l jit_popr_l
+#define jit_pop_i jit_popr_i
+#define jit_pop_ul jit_popr_ul
+#define jit_pop_ui jit_popr_ui
+#define jit_push_l jit_pushr_l
+#define jit_push_i jit_pushr_i
+#define jit_push_ul jit_pushr_ul
+#define jit_push_ui jit_pushr_ui
+
 static void
-assemble1 (SCM insn, SCM label_hash, SCM arg_hash)
+assemble1 (SCM insn, SCM label_hash, SCM arg_hash, struct codevector *c)
 {
   if (SCM_SYMBOLP (insn))
     do_label_def (label_hash, insn);
@@ -298,7 +438,7 @@ assemble1 (SCM insn, SCM label_hash, SCM arg_hash)
                                        "in ~S, not a symbol: ~S", \
                                        SCM_LIST2 (insn, s));
 
-#define AS_INT(x)     (imm2int ((x), label_hash))
+#define AS_INT(x)     (imm2int ((x), label_hash, c))
 #define AS_REG(x)     (sym2reg ((x)))
 #define IS_REG(x)     (SCM_SYMBOLP ((x)))
 
@@ -316,21 +456,16 @@ assemble1 (SCM insn, SCM label_hash, SCM arg_hash)
 #define JIT_MAX_INSNS 10              // the longest possible jit opcode
 
 static int
-try_assemble (SCM asm_code, struct code *c)
+try_assemble (SCM asm_code, struct codevector *c)
 {
   SCM label_hash = scm_c_make_hash_table (63);
   SCM arg_hash = scm_c_make_hash_table (13);
 
-  jit_insn *start_pc;
-
-  void *scm_sum_ptr;
-  int arg1, arg2;
-  
-  start_pc = jit_set_ip(c->buf).ptr;
+  c->start = jit_set_ip(c->buf).ptr;
 
   while (SCM_CONSP (asm_code))
     {
-      assemble1 (SCM_CAR (asm_code), label_hash, arg_hash);
+      assemble1 (SCM_CAR (asm_code), label_hash, arg_hash, c);
       asm_code = SCM_CDR (asm_code);
 
       if (((jit_insn *)jit_get_ip().ptr) >= c->buf+c->size-JIT_MAX_INSNS)
@@ -340,7 +475,7 @@ try_assemble (SCM asm_code, struct code *c)
   c->end = (jit_insn *)jit_get_ip().ptr;
   jit_flush_code (c->buf, c->end);
 
-  c->proc = scm_make_gsubr ("", 1, 0, 0, (SCM (*)())start_pc);
+  // c->proc = scm_make_gsubr ("", 1, 0, 0, (SCM (*)())c->start);
 
   return ((jit_insn *)jit_get_ip().ptr) - c->buf;
 }
@@ -351,18 +486,18 @@ SCM_DEFINE(scm_assemble, "assemble", 1, 0, 0,
 #define FUNC_NAME s_scm_assemble
 {
   size_t sz;
-  struct code *c;
+  struct codevector *c;
   SCM z;
   int asm_len;
 
   SCM_VALIDATE_LIST_COPYLEN (SCM_ARG1, asm_code, asm_len);
 
-  sz = sizeof(struct code) + sizeof(jit_insn)*JIT_MAX_INSNS*asm_len;
+  sz = sizeof(struct codevector) + sizeof(jit_insn)*JIT_MAX_INSNS*asm_len;
   c  = scm_must_malloc (sz, "code");
   c->size = sz;
-  c->proc = SCM_BOOL_F;
+  c->protects = SCM_EOL;
 
-  z = make_code (c);
+  z = make_codevector (c);
 
   if (try_assemble (asm_code, c) < 0)
     scm_misc_error (FUNC_NAME, "machine code too long", SCM_EOL);
@@ -372,27 +507,46 @@ SCM_DEFINE(scm_assemble, "assemble", 1, 0, 0,
 #undef FUNC_NAME
 
 SCM_DEFINE(scm_disassemble, "disassemble", 1, 0, 0,
-	   (SCM code),
-	   "Disassembles a code vector.")
+	   (SCM codevector),
+	   "Disassembles a codevector.")
 #define FUNC_NAME s_scm_disassemble
 {
-  struct code *c;
+  struct codevector *c;
 
-  SCM_VALIDATE_SMOB (SCM_ARG1, code, code);
-  c = CODE_CODE (code);
+  SCM_VALIDATE_SMOB (SCM_ARG1, codevector, codevector);
+  c = CODEVECTOR_DATA (codevector);
 
-  disassemble (stderr, (bfd_byte *)c->buf, (bfd_byte *)c->end);
+  disassemble (stderr, (bfd_byte *)c->start, (bfd_byte *)c->end);
   
   return SCM_UNSPECIFIED;
 }
+#undef FUNC_NAME
+
+SCM_DEFINE(scm_make_closure, "make-closure", 2, 0, 0,
+	   (SCM codevector, SCM env),
+	   "Create a clsoure from a codevector and an environment.")
+#define FUNC_NAME s_scm_make_closure
+{
+  SCM_VALIDATE_SMOB (SCM_ARG1, codevector, codevector);
+  return make_code (codevector, env);
+}
+#undef FUNC_NAME
 
 void
 scm_init_lightning ()
 {
+  create_call_tc ();
+  scm_tc16_codevector = scm_make_smob_type ("codevector", 0);
+  scm_set_smob_mark (scm_tc16_codevector, codevector_mark);
+  scm_set_smob_free (scm_tc16_codevector, codevector_free);
+  scm_set_smob_print (scm_tc16_codevector, codevector_print);
+
   scm_tc16_code = scm_make_smob_type ("code", 0);
+  scm_set_smob_mark (scm_tc16_code, code_mark);
   scm_set_smob_free (scm_tc16_code, code_free);
   scm_set_smob_print (scm_tc16_code, code_print);
   scm_set_smob_apply (scm_tc16_code, code_apply, 0, 0, 1);
+
 #ifndef SCM_MAGIC_SNARFER
 #ifndef MKDEP
 #include "lightning.x"
