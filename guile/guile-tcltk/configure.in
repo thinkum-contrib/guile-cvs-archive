@@ -12,6 +12,11 @@ AM_MAINTAINER_MODE
 AC_ARG_WITH(tcltk,
 [  --with-tcltk=DIR        Use DIR/include and DIR/lib for tk and tcl])
 
+AC_ARG_WITH(tkdir,
+[  --with-tkdir=TKDIR      Use DIR/include and DIR/lib for tcl and
+			  TKDIR/include and TKDIR/lib for tk where
+			  DIR is specified with --with-tcltk])
+
 AC_ARG_WITH(tcl,
 changequote(<, >)dnl
 <  --with-tcl=LIBNAME      Name of tcl library to use [LIBNAME=tcl7.5]>,
@@ -42,6 +47,11 @@ else
   TCLTK_LIBDIR="-L$with_tcltk/lib"
 fi
 
+if test -n "$with_tkdir"; then
+  TK_INCLUDE="-I$with_tkdir/include"
+  TK_LIBDIR="-L$with_tkdir/lib"
+fi
+
 if test -n "$with_tcl"; then
   TCLNAME=$with_tcl
 else
@@ -55,7 +65,7 @@ else
 fi
 
 dnl Checks for libraries.
-CFLAGS="$TCLTK_INCLUDE $TCLTK_LIBDIR $CFLAGS"
+CFLAGS="$TCLTK_INCLUDE $TK_INCLUDE $TCLTK_LIBDIR $TK_LIBDIR $CFLAGS"
 
 AC_PATH_XTRA
 CFLAGS="$CFLAGS $X_CFLAGS"

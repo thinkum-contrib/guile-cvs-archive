@@ -47,6 +47,10 @@ circumstances.
 --with-tcltk=DIR --- look for the Tcl/Tk header files and libraries in 
 DIR/include and DIR/lib.
 
+--with-tkdir=DIR --- look for the Tk header files and libraries in
+DIR/include and DIR/lib.  --with-tcltk still specifies the Tcl ditto.
+Use this option if your system keeps Tcl and Tk in different places.
+
 --with-tcl=LIBNAME --- look for the Tcl library under the name
 LIBNAME.  By default, Guile looks for "-ltcl7.5".
 

@@ -1,3 +1,11 @@
+Wed Jul 23 18:51:34 1997  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+*	* configure.in: Added new configuration option --with-tkdir which
+	can be optionally used on systems where Tcl and Tk reside in
+	different directories.  (This is a common situation.)
+	INSTALL: Updated to reflect the above change.
+	Makefile.in, aclocal.m4, configure: Updated.
+
 Tue May 13 17:08:29 1997  Jim Blandy  <jimb@floss.cyclic.com>
 
 	* Makefile.in, aclocal.m4, configure: Rebuilt using automake 1.1p.
