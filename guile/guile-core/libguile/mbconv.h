@@ -43,6 +43,7 @@
  * If you do not wish that, delete this exception notice.  */
 
 #include "libguile/__scm.h"
+#include "mb.h"
 
 /* Here are functions for converting between various textual
    encodings.  These are all documented in ref/mbapi.texi, which is
@@ -65,7 +66,7 @@ extern struct scm_mb_iconv *scm_mb_iconv_open (const char *tocode,
 					       const char *fromcode);
 
 /* Error return values for scm_mb_iconv.  */
-enum scm_mb_iconv {
+enum scm_mb_iconv_result {
   scm_mb_iconv_more_room = -1,
   scm_mb_iconv_bad_encoding = -2,
   scm_mb_iconv_incomplete_encoding = -3
@@ -163,14 +164,24 @@ struct scm_mb_encoding
      Return one of the scm_mb_write_ values.  */
   enum scm_mb_write_result
     (*write) (void *priv,
-              scm_char_t **inbuf,  size_t *incharsleft,
-              char       **outbuf, size_t *outbytesleft);
+              const scm_char_t **inbuf,  size_t *incharsleft,
+              char             **outbuf, size_t *outbytesleft);
 
   /* Link.  */
   struct scm_mb_encoding *next;
 };
 
+/* Register a new encoding.  */
+extern void scm_mb_register_encoding (struct scm_mb_encoding *encoding);
 
+
+
+/* Conversion ports.  */
+
+extern SCM scm_convert_input_port (SCM port, SCM encoding);
+extern SCM scm_convert_output_port (SCM port, SCM encoding);
+
+
 extern void scm_init_mbconv (void);
 
 #endif  /* SCM_MBCONV_H */
