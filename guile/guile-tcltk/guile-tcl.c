@@ -425,6 +425,8 @@ scm_tcl_merge (tobj, args)
   SCM_ASSERT (SCM_NIMP (tobj) && SCM_TERPP (tobj), tobj, SCM_ARG1,
 	      s_tcl_merge);
   argc = scm_ilength (args);
+  SCM_ASSERT (argc >= 0, args, SCM_ARG2, s_tcl_merge);
+
   if (argc == 0)
     argv = 0;
   else
@@ -460,6 +462,7 @@ scm_tcl_merge (tobj, args)
     c_answer = Tcl_Merge (argc, argv);
     answer = scm_makfrom0str (c_answer);
     free (c_answer);
+    if (argv) free (argv);
     SCM_ALLOW_INTS;
     return scm_return_first (answer, orig_args);
   }
