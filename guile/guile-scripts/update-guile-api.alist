@@ -61,7 +61,7 @@ set -ex
 :
 : commit
 :
-  ( cd $alistdir ; cvs ci -m 'Update.' $alist )
+  ( cd $alistdir ; cvs ci -m 'Update.' $alist ) || echo "WARNING: can't commit"
 :
 : done
 :
