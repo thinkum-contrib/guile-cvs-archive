@@ -45,30 +45,6 @@
 	    '((height . 24) (width . 80) (unsplittable . t)))
       ))
 
-;;; Do things to support lisp-hacking better
-(if (equal (substring emacs-version 0 2) "19")
-    ;; Emacs version 19 specific initializations
-    (progn
-      (copy-face 'default 'paren)
-      (condition-case err
-	  (make-face-bold 'paren)
-	(error))
-      (setq show-paren-face 'paren)
-      (require 'paren)
-      ;; The old parenthesis matcher has the advantage of displaying
-      ;; non-visible matching parenthesis in the minibuffer.
-      ;; Since paren.el adds (setq blink-paren-function nil) to the
-      ;; window-setup-hook it's necessary to put this setq there
-      ;; also.
-      (add-hook 'window-setup-hook (function restore-blink-paren) t)
-      (setq blink-matching-delay 0.5)
-      ))
-
-(defun restore-blink-paren ()
-  (interactive)
-  (setq blink-matching-paren-on-screen t)
-  (set-face-underline-p 'paren t))
-
 ;;; Menus
 ;;;
 

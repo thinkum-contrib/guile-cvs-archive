@@ -1,4 +1,10 @@
+2003-08-31  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* sexp-track.el: New file.
+
 2003-08-21  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* guileint.el (restore-blink-paren): Drop Emacs 19 code.
 
 	* xscheme.el.diff: Removed (because no diffs left).
 
