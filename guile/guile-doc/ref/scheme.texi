@@ -1705,6 +1705,10 @@ ports} are two interesting and powerful examples of this technique.
 @node File Ports
 @section File Ports
 
+The following procedures can be used to open a file port.  
+See also @ref{ports vs file descriptors, open}, for an interface
+to the Unix @code{open} system call.
+
 @defun open-file string modes
 Open the file whose name is @var{string}, and return a port
 representing that file.  Whether an input or output port is
@@ -1915,13 +1919,15 @@ value returned by @code{(current-output-port)}; equivalent to:
 @end smalllisp
 @end deffn
 
-@deffn procedure ftell port
-Returns an integer representing the current position of @var{port},
-measured from the beginning.
+@deffn procedure ftell fd/port
+Returns an integer representing the current position of @var{fd/port},
+measured from the beginning.  If @var{fd/port} is a file descriptor,
+the underlying system call is @code{lseek}.
 @end deffn
 
-@deffn procedure fseek port offset whence
-Sets the current position of @var{port} to the integer @var{offset},
+@findex lseek
+@deffn procedure fseek fd/port offset whence
+Sets the current position of @var{fd/port} to the integer @var{offset},
 which is interpreted according to the value of @var{whence}.
 
 One of the following variables should be supplied
@@ -1935,6 +1941,10 @@ Seek from the current position.
 @defvar SEEK_END
 Seek from the end of the file.
 @end defvar
+
+If @var{fd/port} is a file descriptor the underlying system call is
+@code{lseek}.
+The return value is unspecified.
 @end deffn
 
 
@@ -2883,6 +2893,48 @@ is omitted.  The return value is unspecified.
 Flush all open output ports.  The return value is unspecified.
 @end deffn
 
+@deffn procedure fsync port/fd
+Copies any unwritten data for the specified output file descriptor to disk.
+If @var{port/fd} is a port, its buffer is flushed before the underlying
+file descriptor is fsync'd.
+The return value is unspecified.
+@end deffn
+
+@defun open path flags [mode]
+Open the file named by @var{path} for reading and/or writing.
+@var{flags} is an integer specifying how the file should be opened.
+@var{mode} is an integer specifying the permission bits of the file, if
+it needs to be created, before the umask is applied.  The default is 666
+(Unix itself has no default).
+
+@var{flags} can be constructed by combining variables using @code{logior}.
+Basic flags are:
+
+@defvar O_RDONLY
+Open the file read-only.
+@end defvar
+@defvar O_WRONLY
+Open the file write-only. 
+@end defvar
+@defvar O_RDWR
+Open the file read/write.
+@end defvar
+@defvar O_APPEND
+Append to the file instead of truncating.
+@end defvar
+@defvar O_CREAT
+Create the file if it does not already exist.
+@end defvar
+
+See the Unix documentation of the @code{open} system call
+for additional flags.
+@end defun
+
+@defun open-fdes path flags [modes]
+Similar to @code{open} but returns a file descriptor instead of a
+port.
+@end defun
+
 @deffn procedure close port/fd
 Similar to close-port (@pxref{Closing Ports, close-port}),
 but also works on file descriptors.  A side
@@ -3003,9 +3055,10 @@ Reopen @var{port} on the specified @var{filename}
 with mode string @var{modes} as for @ref{File Ports, open-file}.
 @end deffn
 
-@deffn procedure fcntl port command value
-Apply @var{command} to @var{port}'s file descriptor, with
-@var{value} as an argument.
+@deffn procedure fcntl fd/port command [value]
+Apply @var{command} to the specified file descriptor or the underlying
+file descriptor of the specified port.  @var{value} is an optional
+integer argument.
 
 Values for @var{command} are:
 
@@ -3164,13 +3217,19 @@ file that the link points to.
 
 @findex fchown
 @findex lchown
-@deffn procedure chown path owner group
-Change the ownership and group of the file specified by @var{path} to
-the integer userid values @var{owner} and @var{group}.  The return value
-is unspecified.  If @var{path} is a symbolic link, either the
+@deffn procedure chown obj owner group
+Change the ownership and group of the file referred to by @var{obj} to
+the integer userid values @var{owner} and @var{group}.  @var{obj} can be
+a string containing a file name or a port or integer file descriptor
+which is open on the file (in which case fchown is used as the underlying
+system call).  The return value
+is unspecified.
+
+If @var{obj} is a symbolic link, either the
 ownership of the link or the ownership of the referenced file will be
-changed depending on the system (fchown and lchown are
-unsupported at present).
+changed depending on the operating system (lchown is
+unsupported at present).  If @var{owner} or @var{group} is specified
+as @code{-1}, then that ID is not changed.
 @end deffn
 
 @findex fchmod
@@ -3212,8 +3271,20 @@ Copy the file specified by @var{path-from} to @var{path-to}.
 The return value is unspecified.
 @end deffn
 
+@findex rename
 @deffn procedure rename-file path-from path-to
 Renames the file specified by @var{path-from} to @var{path-to}.
+The return value is unspecified.
+@end deffn
+
+@findex truncate
+@findex ftruncate
+@deffn procedure truncate-file obj size
+Truncates the file referred to by @var{obj} to at most @var{size} bytes.
+@var{obj} can be a string containing a file name or an integer file
+descriptor or port open for output on the file.  The underlying system
+calls are @code{truncate} and @code{ftruncate}.
+
 The return value is unspecified.
 @end deffn
 
@@ -3484,6 +3555,33 @@ The CDR reports the number of characters from @var{string} which
 were used for the conversion.
 @end deffn
 
+@defvar internal-time-units-per-second
+The value of this variable is the number of time units per second
+reported by the following procedures.
+@end defvar
+
+@deffn procedure times
+Returns an object with information about real and processor time.
+The following procedures accept such an object as an argument and
+return a selected component:
+
+@table @code
+@item tms:clock
+The current real time, expressed as time units relative to an
+arbitrary base.
+@item tms:utime
+The CPU time units used by the calling process.
+@item tms:stime
+The CPU time units used by the system on behalf of the calling process.
+@item tms:cutime
+The CPU time units used by terminated child processes of the calling
+process, whose status has been collected (e.g., using @code{waitpid}).
+@item tms:cstime
+Similarly, the CPU times units used by the system on behalf of 
+terminated child processes.
+@end table
+@end deffn
+
 @deffn procedure get-internal-real-time
 Returns the number of time units since the interpreter was started.
 @end deffn
@@ -3493,11 +3591,6 @@ Returns the number of time units of processor time used by the interpreter.
 Both "system" and "user" time
 are included but subprocesses are not.
 @end deffn
-
-@defvar internal-time-units-per-second
-The number of time units per second reported by @code{get-internal-real-time}
-and @code{get-internal-run-time}.
-@end defvar
 
 @node processes
 @section processes
@@ -3687,11 +3780,23 @@ This procedure is currently implemented using the @code{execv} system
 call, but we call it @code{execl} because of its Scheme calling interface.
 @end deffn
 
-@deffn procedure execlp filename [arg] ...
-Similar to @code{execl}, except that if
+@deffn procedure execlp path [arg] ...
+Similar to @code{execl}, however if
 @var{filename} does not contain a slash
-it will be sought for in the
+then the file to execute will be located by searching the
 directories listed in the @code{PATH} environment variable.
+
+This procedure is currently implemented using the @code{execlv} system
+call, but we call it @code{execlp} because of its Scheme calling interface.
+@end deffn
+
+@deffn procedure execle path env [arg] ...
+Similar to @code{execl}, but the environment of the new process is
+specified by @var{env}, which must be a list of strings as returned by the
+@code{environ} procedure.
+
+This procedure is currently implemented using the @code{execve} system
+call, but we call it @code{execle} because of its Scheme calling interface.
 @end deffn
 
 @deffn procedure primitive-fork
