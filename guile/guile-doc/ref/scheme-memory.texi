@@ -161,7 +161,7 @@ hashes are also weak vectors.
 @section Guardians
 
 @c docstring begin (texi-doc-string "guile" "make-guardian")
-@deffn primitive make-guardian
+@deffn primitive make-guardian [greedy?]
 Create a new guardian.
 A guardian protects a set of objects from garbage collection,
 allowing a program to apply cleanup or other actions.
@@ -175,10 +175,18 @@ collection or @code{#f} if no such object is available.
 Objects which are returned in this way are removed from
 the guardian.
 
+make-guardian takes one optional argument that says whether the
+new guardian should be greedy or sharing.  if there is any chance
+that any object protected by the guardian may be resurrected,
+then you should make the guardian greedy (this is the default).
+
 See R. Kent Dybvig, Carl Bruggeman, and David Eby (1993)
 "Guardians in a Generation-Based Garbage Collector".
 ACM SIGPLAN Conference on Programming Language Design
 and Implementation, June 1993.
+
+(the semantics are slightly different at this point, but the
+paper still (mostly) accurately describes the interface).
 @end deffn
 
 

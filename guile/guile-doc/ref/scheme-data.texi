@@ -1505,7 +1505,7 @@ otherwise.
 
 @c ARGFIXME v/str
 @c docstring begin (texi-doc-string "guile" "string-upcase!")
-@deffn primitive string-upcase! v
+@deffn primitive string-upcase! str
 Destructively upcase every character in @code{str}.
 
 (qdocs:) Converts each element in @var{str} to upper case.
@@ -1526,7 +1526,7 @@ Upcase every character in @code{str}.
 
 @c ARGFIXME v/str
 @c docstring begin (texi-doc-string "guile" "string-downcase!")
-@deffn primitive string-downcase! v
+@deffn primitive string-downcase! str
 Destructively downcase every character in @code{str}.
 
 (qdocs:) Converts each element in @var{str} to lower case.
@@ -2363,7 +2363,7 @@ use the global symbol table.  If @var{string} is not interned in
 @deffn primitive symbol-bound? obarray string
 Return @var{#t} if @var{obarray} contains a symbol with name
 @var{string} bound to a defined value.  This differs from
-@var{symbol-bound?} in that the mere mention of a symbol usually causes
+@var{symbol-interned?} in that the mere mention of a symbol usually causes
 it to be interned; @code{symbol-bound?} determines whether a symbol has
 been given any meaningful value.
 @end deffn
@@ -3365,14 +3365,17 @@ ball @result{} #<a green ball owned by Nisse>
 
 @c docstring begin (texi-doc-string "guile" "struct-vtable-name")
 @deffn primitive struct-vtable-name vtable
+Return the name of the vtable @var{vtable}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "set-struct-vtable-name!")
 @deffn primitive set-struct-vtable-name! vtable name
+Set the name of the vtable @var{vtable} to @var{name}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "struct-vtable-tag")
 @deffn primitive struct-vtable-tag handle
+Return the vtable tag of the structure @var{handle}.
 @end deffn
 
 

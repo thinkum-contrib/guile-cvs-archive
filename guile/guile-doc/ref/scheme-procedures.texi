@@ -65,18 +65,26 @@ documentation for that procedure.
 
 @c docstring begin (texi-doc-string "guile" "set-source-properties!")
 @deffn primitive set-source-properties! obj plist
+Install the association list @var{plist} as the source property
+list for @var{obj}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "set-source-property!")
 @deffn primitive set-source-property! obj key datum
+Set the source property of object @var{obj}, which is specified by
+@var{key} to @var{datum}.  Normally, the key will be a symbol.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "source-properties")
 @deffn primitive source-properties obj
+Return the source property association list of @var{obj}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "source-property")
+
 @deffn primitive source-property obj key
+Return the source property specified by @var{key} from
+@var{obj}'s source property list.
 @end deffn
 
 
@@ -168,10 +176,12 @@ or a memoizing macro, respectively.  If @var{obj} is not a macro,
 
 @c docstring begin (texi-doc-string "guile" "macro-name")
 @deffn primitive macro-name m
+Return the name of the macro @var{m}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "macro-transformer")
 @deffn primitive macro-transformer m
+Return the transformer of the macro @var{m}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "cons-source")

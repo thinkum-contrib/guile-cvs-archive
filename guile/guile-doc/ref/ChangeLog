@@ -1,3 +1,12 @@
+2001-02-23  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* scheme-utility.texi (Sorting), scheme-procedures.texi (Procedure
+	Properties), scheme-memory.texi (Guardians), scheme-io.texi
+	(Line/Delimited), scheme-data.texi (String Fun, Symbols and
+	Variables, Vtables), posix.texi (Ports and File Descriptors, File
+	System, Network Sockets and Communication): Automatic docstring
+	updates.
+
 2001-02-15  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* data-rep.texi: Preserve, in comments beginning `@c essay',

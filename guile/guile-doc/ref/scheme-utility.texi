@@ -126,6 +126,13 @@ Remove any value associated with @var{prop} and @var{obj}.
 
 @c docstring begin (texi-doc-string "guile" "merge!")
 @deffn primitive merge! alist blist less
+Takes two lists @var{alist} and @var{blist} such that
+@code{(sorted? alist less?)} and @code{(sorted? blist less?)} and
+returns a new list in which the elements of @var{alist} and
+@var{blist} have been stably interleaved so that
+ @code{(sorted? (merge alist blist less?) less?)}.
+This is the destructive variant of @code{merge}
+Note:  this does _not_ accept vectors.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "merge")
@@ -134,34 +141,63 @@ Remove any value associated with @var{prop} and @var{obj}.
 
 @c docstring begin (texi-doc-string "guile" "restricted-vector-sort!")
 @deffn primitive restricted-vector-sort! vec less startpos endpos
+Sort the vector @var{vec}, using @var{less} for comparing
+the vector elements.  @var{startpos} and @var{endpos} delimit
+the range of the vector which gets sorted.  The return value
+is not specified.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "sort!")
 @deffn primitive sort! items less
+Sort the sequence @var{items}, which may be a list or a
+vector.  @var{less} is used for comparing the sequence
+elements.  The sorting is destructive, that means that the
+input sequence is modified to produce the sorted result.
+This is not a stable sort.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "sort")
 @deffn primitive sort items less
+Sort the sequence @var{items}, which may be a list or a
+vector.  @var{less} is used for comparing the sequence
+elements.  This is not a stable sort.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "sort-list!")
 @deffn primitive sort-list! items less
+Sort the list @var{items}, using @var{less} for comparing the
+list elements. The sorting is destructive, that means that the
+input list is modified to produce the sorted result.
+This is a stable sort.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "sort-list")
 @deffn primitive sort-list items less
+Sort the list @var{items}, using @var{less} for comparing the
+list elements. This is a stable sort.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "sorted?")
 @deffn primitive sorted? items less
+Return @code{#t} iff @var{items} is a list or a vector such that
+for all 1 <= i <= m, the predicate @var{less} returns true when
+applied to all elements i - 1 and i
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "stable-sort!")
 @deffn primitive stable-sort! items less
+Sort the sequence @var{items}, which may be a list or a
+vector. @var{less} is used for comparing the sequence elements.
+The sorting is destructive, that means that the input sequence
+is modified to produce the sorted result.
+This is a stable sort.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "stable-sort")
 @deffn primitive stable-sort items less
+Sort the sequence @var{items}, which may be a list or a
+vector. @var{less} is used for comparing the sequence elements.
+This is a stable sort.
 @end deffn
 
 

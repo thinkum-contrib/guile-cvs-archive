@@ -412,7 +412,11 @@ Use port-for-each instead.
 @c docstring begin (texi-doc-string "guile" "port-for-each")
 @deffn primitive port-for-each proc
 Apply @var{proc} to each port in the Guile port table
-in turn.  The return value is unspecified.
+in turn.  The return value is unspecified.  More specifically,
+@var{proc} is applied exactly once to every port that exists
+in the system at the time @var{port-for-each} is invoked.
+Changes to the port table while @var{port-for-each} is running
+have no effect as far as @var{port-for-each} is concerned.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "setvbuf")
@@ -666,15 +670,16 @@ The return value is unspecified.
 @findex rename
 @c docstring begin (texi-doc-string "guile" "rename-file")
 @deffn primitive rename-file oldname newname
-Renames the file specified by @var{path-from} to @var{path-to}.
+Renames the file specified by @var{oldname} to @var{newname}.
 The return value is unspecified.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "link")
 @deffn primitive link oldpath newpath
-Creates a new name @var{path-to} in the file system for the file
-named by @var{path-from}.  If @var{path-from} is a symbolic link, the
-link may or may not be followed depending on the system.
+Creates a new name @var{newpath} in the file system for the
+file named by @var{oldpath}.  If @var{oldpath} is a symbolic
+link, the link may or may not be followed depending on the
+system.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "symlink")
@@ -2092,12 +2097,12 @@ any unflushed buffered port data is ignored.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "recvfrom!")
-@deffn primitive recvfrom! sock buf [flags [start [end]]]
+@deffn primitive recvfrom! sock str [flags [start [end]]]
 Returns data from the socket port @var{socket} and also information about
 where the data was received from.  @var{socket} must already
 be bound to the address from which data is to be received.
-@code{buf}, is a string into which
-the data will be written.  The size of @var{buf} limits the amount of
+@code{str}, is a string into which
+the data will be written.  The size of @var{str} limits the amount of
 data which can be received: in the case of packet
 protocols, if a packet larger than this limit is encountered then some data
 will be irrevocably lost.
@@ -2109,7 +2114,7 @@ The value returned is a pair: the CAR is the number of bytes read from
 the socket and the CDR an address object in the same form as returned by
 @code{accept}.
 
-The @var{start} and @var{end} arguments specify a substring of @var{buf}
+The @var{start} and @var{end} arguments specify a substring of @var{str}
 to which the data should be written.
 
 Note that the data is read directly from the socket file descriptor:
