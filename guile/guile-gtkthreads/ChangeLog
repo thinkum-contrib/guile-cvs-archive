@@ -1,3 +1,12 @@
+2000-04-08  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
+
+	* gthread-guile.c (g_guile_thread_functions_for_glib): Filled in
+	entries for create, yield, join and exit.
+	(g_thread_self_guile_impl): Set the thread pointer to a pointer to
+	the running thread.
+	(g_thread_create_guile_impl, g_thread_join_guile_impl): New
+	functions.
+
 2000-04-06  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* configure.in: Test if thread_create is present in
