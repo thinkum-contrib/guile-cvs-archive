@@ -1,5 +1,7 @@
 1999-09-02  James Blandy  <jimb@mule.m17n.org>
 
+	* mbconv.h: New file.
+
 	* Makefile.am (check_PROGRAMS): add check_mb.
 	(check_mb_SOURCES, check_mb_LDADD): New variables.
 	(check-local): Run check_mb.
