@@ -1,3 +1,11 @@
+1999-09-20  Mikael Djurfeldt  <mdj@mdj-pc.nada.kth.se>
+
+	* goops.c, goops.h (scm_generic_capability_p): New procedure.
+
+	* goops.scm (add-method!): Use `generic-capability?' to generate
+	nice error message in case we try to add a method to a procedure
+	which can't be upgraded to a primitive-generic.
+
 1999-09-19  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
 	* goops.scm (define-method): Don't automatically pick up a
