@@ -1398,10 +1398,72 @@ scm_sys_invalidate_class (SCM class)
   return SCM_UNSPECIFIED;
 }
 
-static void
-change_object_class (obj, old_class, new_class)
+/* When instances change class, they finally get a new body, but
+ * before that, they go through purgatory in hell.  Odd as it may
+ * seem, this data structure saves us from eternal suffering in
+ * infinite recursions.
+ */
+
+static SCM **hell;
+static int n_hell = 1;		/* one place for the evil one himself */
+static int hell_size = 4;
+#ifdef USE_THREADS
+static scm_mutex_t hell_mutex;
+#endif
+
+static int
+burnin (SCM o)
 {
-  CALL_GF3 ("change-object-class", obj, old_class, new_class);
+  int i;
+  for (i = 1; i < n_hell; ++i)
+    if (SCM_INST (o) == hell[i])
+      return i;
+  return 0;
+}
+
+static void
+go_to_hell (void *o)
+{
+#ifdef USE_THREADS
+  scm_mutex_lock (&hell_mutex);
+#endif
+  if (n_hell == hell_size)
+    {
+      int new_size = 2 * hell_size;
+      hell = scm_must_realloc (hell, hell_size, new_size, "hell");
+      hell_size = new_size;
+    }
+  hell[n_hell++] = SCM_INST (o);
+#ifdef USE_THREADS
+  scm_mutex_unlock (&hell_mutex);
+#endif
+}
+
+static void
+go_to_heaven (void *o)
+{
+#ifdef USE_THREADS
+  scm_mutex_lock (&hell_mutex);
+#endif
+  hell[burnin ((SCM) o)] = hell[--n_hell];
+#ifdef USE_THREADS
+  scm_mutex_unlock (&hell_mutex);
+#endif
+}
+
+static SCM
+purgatory (void *args)
+{
+  return scm_apply (GETVAR (Intern ("change-class")), (SCM) args, SCM_EOL);
+}
+
+static void
+change_class (obj, old_class, new_class)
+{
+  if (!burnin (obj))
+    scm_internal_dynamic_wind (go_to_hell, purgatory, go_to_heaven,
+			       (void *) SCM_LIST2 (obj, new_class),
+			       (void *) obj);
 }
 
 /******************************************************************************
@@ -2520,9 +2582,14 @@ scm_init_goops (void)
 
   list_of_no_method = scm_permanent_object (SCM_LIST1 (sym_no_method));
 
+  hell = scm_must_malloc (hell_size, "hell");
+#ifdef USE_THREADS
+  scm_mutex_init (&hell_mutex, NULL);
+#endif
+
   scm_make_extended_class = make_extended_class;
   scm_make_port_classes = make_port_classes;
-  scm_change_object_class = change_object_class;
+  scm_change_object_class = change_class;
   scm_memoize_method = memoize_method;
 
   create_basic_classes ();

@@ -1,3 +1,11 @@
+1999-12-15  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* goops.c (change_class): Renamed from change_object_class.
+	Change-class protocol now fixed: Keep objects in hell before they
+	receive their new bodies.
+	(hell): New data structure.
+	(burnin, go_to_hell, go_to_heaven, purgatory): New functions.
+
 1999-12-14  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* goops.c (SCM_GOOPS_UNBOUND): Define as SCM_UNBOUND if existent.
