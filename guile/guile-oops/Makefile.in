@@ -83,7 +83,7 @@ libgoops_la_LDFLAGS = -version-info 0:0 -export-dynamic
 BUILT_SOURCES = goops.x
 
 subpkgdatadir = $(datadir)/guile
-subpkgdata_DATA = goops/goops.scm goops/compat.scm
+subpkgdata_DATA = goops/goops.scm goops/compat.scm goops/describe.scm
 
 goopsdir = $(subpkgdatadir)/goops
 
@@ -115,8 +115,8 @@ LINK = $(LIBTOOL) --mode=link $(CC) $(CFLAGS) $(LDFLAGS) -o $@
 DATA =  $(subpkgdata_DATA)
 
 DIST_COMMON =  README AUTHORS COPYING ChangeLog INSTALL Makefile.am \
-Makefile.in NEWS THANKS aclocal.m4 config.guess config.sub configure \
-configure.in install-sh ltconfig ltmain.sh mdate-sh missing \
+Makefile.in NEWS THANKS TODO aclocal.m4 config.guess config.sub \
+configure configure.in install-sh ltconfig ltmain.sh mdate-sh missing \
 mkinstalldirs
 
 
