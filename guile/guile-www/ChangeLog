@@ -1,5 +1,10 @@
 2002-04-26  Thien-Thi Nguyen  <ttn@giblet.glug.org>
 
+	* configure.in: Update copyright.
+	Bump version to 1.1.1 for release.
+
+2002-04-26  Thien-Thi Nguyen  <ttn@giblet.glug.org>
+
 	* cgi.scm: Update copyright.
 	Also use modules (ice-9 regex) and (ice-9 optargs).
 
