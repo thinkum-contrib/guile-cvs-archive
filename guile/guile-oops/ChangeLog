@@ -1,3 +1,16 @@
+2000-01-12  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* goops.scm (goops-error): Use `oldfmt'.
+
+	* goops.c, goops.h (scm_oldfmt): New procedure.
+	(scm_c_oldfmt, scm_c_oldfmt0): New functions.
+	Inserted SCM_OLDFMT around all format strings with ~S.
+
+	* configure.in: Added test for scm_simple_format.
+
+	* goops.c, goops.scm, composite-slot.scm, stklos.scm: Replace %S
+	with ~S everywhere.
+
 2000-01-11  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
 	* goops.texi: Updated reference manual with Neil's work.
