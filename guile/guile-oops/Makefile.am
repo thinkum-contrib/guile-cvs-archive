@@ -23,6 +23,12 @@ subpkgdata_DATA = goops.scm
 goopsdatadir = $(datadir)/guile/oop/goops
 goopsdata_DATA = describe.scm internal.scm active-slot.scm composite-slot.scm
 
+info_TEXINFOS = goops.texi
+goops_TEXINFOS = goops.texi goops-tutorial.texi
+
+EXTRA_DIST = ANON-CVS COPYRIGHTS GOOPS-VERSION HACKING SNAPSHOTS TAGS TODO \
+             hierarchy.eps hierarchy.txt mop.text
+
 install-exec-hook:
 	$(mkinstalldirs) $(goopsdatadir)
 	(test ! -r $(libdir)/libgoopscore.so.0 \

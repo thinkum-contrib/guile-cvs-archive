@@ -10,13 +10,19 @@
 
 % Adapted for use in Guile with the authors permission
 
-\input texinfo   @c -*-texinfo-*-
+\input texinfo
+@c -*-texinfo-*-
 @c %**start of header
 @paragraphindent 0pt
 @setfilename goops.info
 @settitle Goops Manual
 @setchapternewpage odd
 @c %**end of header
+
+@dircategory Scheme Programming
+@direntry
+* goops: (goops).        The GOOPS reference manual.
+@end direntry
 
 @ifinfo
 This file documents goops, an Object Oriented extension for Guile.

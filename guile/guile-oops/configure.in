@@ -1,6 +1,7 @@
 dnl Process this file with autoconf to produce configure.
 AC_INIT(goops.c)
-AM_INIT_AUTOMAKE(PACKAGE, VERSION, no-define)
+. $srcdir/GOOPS-VERSION
+AM_INIT_AUTOMAKE($PACKAGE, $VERSION, no-define)
 AM_MAINTAINER_MODE
 
 AC_ARG_ENABLE(fdi-example,

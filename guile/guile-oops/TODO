@@ -1,3 +1,15 @@
+* New CPL computation code.
+
+* Version information (also from Scheme level).
+
+* Check guile version in configure.in
+
+* Update mop.text
+
+* Test method cache.
+
+* Read and correct documentation.
+
 * Invalidate generic function caches when classes are redefined
 
 * Remove assumption of single-symbol slot definitions from goops.c.

@@ -16,10 +16,10 @@ patch's original sources will be closer to what we're working with.
 And it allows us to start testing features earlier.
 
 Nightly snapshots of the Guile development sources are available via
-anonymous FTP from ftp.red-bean.com, as /pub/guile/guile-core-snap.tar.gz.
+anonymous FTP from ftp.red-bean.com, as /pub/guile/guile-oops-snap.tar.gz.
 
-Via the web, that's:  ftp://ftp.red-bean.com/pub/guile/guile-core-snap.tar.gz
-For getit, that's:    ftp.red-bean.com:/pub/guile/guile-core-snap.tar.gz
+Via the web, that's:  ftp://ftp.red-bean.com/pub/guile/guile-oops-snap.tar.gz
+For getit, that's:    ftp.red-bean.com:/pub/guile/guile-oops-snap.tar.gz
 
 The snapshot FTP site is mirrored at the following locations:
   Austria:              ftp://ftp.aec.at/pub/guile
