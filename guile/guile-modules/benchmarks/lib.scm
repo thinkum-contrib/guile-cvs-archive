@@ -5,12 +5,12 @@
 ;;;; it under the terms of the GNU General Public License as published by
 ;;;; the Free Software Foundation; either version 2 of the License, or
 ;;;; (at your option) any later version.
-;;;; 
+;;;;
 ;;;; This program is distributed in the hope that it will be useful,
 ;;;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;;;; GNU General Public License for more details.
-;;;; 
+;;;;
 ;;;; You should have received a copy of the GNU General Public License
 ;;;; along with this program; if not, write to the Free Software
 ;;;; Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -26,12 +26,16 @@
 	time-thunk-median time-thunk-median:times
 	time-accumulate time-pass
 	times:user times:gc times:user+gc times:sys times:tot
+        times:gc-mark times:gc-sweep times:cells-marked times:cells-swept
+        *benchmark-obscure-gc-stuff*
 	optarg1)
 
 (define version 4)
 
 (or (file-is-directory? datadir)
     (error "Benchmark data directory does not exist: " datadir))
+
+(define *benchmark-obscure-gc-stuff* #f)
 
 
 ;;;; Logging functions.
@@ -128,45 +132,89 @@
 ;;; benchmarking function.
 ;;;
 ;;; All the times are in the system's internal time units --- use
-;;; internal-time-units-per-second to convert.  
+;;; internal-time-units-per-second to convert.
 
 ;;; Selectors
 
 (define (times:user times)
-  (- (cadr times) (car times)))
-(define times:gc car)
-(define times:user+gc cadr)
-(define times:system caddr)
+  (- (times:user+gc times) (times:gc times)))
+(define (times:gc times)
+  (assq-ref times 'gc))
+(define (times:user+gc times)
+  (assq-ref times 'user+gc))
+(define (times:system times)
+  (assq-ref times 'system))
 (define (times:total times)
-  (+ (cadr times) (caddr times)))
+  (+ (times:user+gc times) (times:system times)))
+(define (times:gc-mark times)
+  (assq-ref times 'gc-mark))
+(define (times:gc-sweep times)
+  (assq-ref times 'gc-sweep))
+(define (times:cells-marked times)
+  (assq-ref times 'cells-marked))
+(define (times:cells-swept times)
+  (assq-ref times 'cells-swept))
 
 ;;; Return the times consumed so far by this Guile process.
 (define (times:now)
-  (cons (cdr (assq 'gc-time-taken (gc-stats)))
-	(cdr (vector->list (times)))))
+  (let ((gcs (gc-stats)))
+    `((gc . ,(assq-ref gcs 'gc-time-taken))
+      ,@(apply (lambda (user system child-user child-system)
+                 `((user+gc . ,user)
+                   (system . ,system)
+                   (child-user . ,child-user)
+                   (child-system . ,child-system)))
+               (cdr (vector->list (times))))
+      (gc-mark . ,(assq-ref gcs 'gc-mark-time-taken))
+      (gc-sweep . ,(assq-ref gcs 'gc-sweep-time-taken))
+      (cells-marked . ,(assq-ref gcs 'cells-marked))
+      (cells-swept . ,(assq-ref gcs 'cells-swept))
+      )))
 
 ;;; Format a time list into a string, nicely formatted for human
 ;;; readers.
 (define (times:format times)
-  (let ((times (map (lambda (time) (/ time internal-time-units-per-second))
-		    times)))
-    (format "~6,2Fs user ~6,2Fs gc ~6,2Fs sys ~6,2Fs tot"
-	    (times:user times)
-	    (times:gc times)
-	    (times:system times)
-	    (times:total times))))
+
+  (define (convert time)
+    (/ time internal-time-units-per-second))
+
+  (define (scale-gc-time t)
+    (* 10000 t))
+
+  (if *benchmark-obscure-gc-stuff*
+      (format "~6,2Fs user ~6,2Fs gc (~7,3F wm) ~6,2Fs sys ~6,2Fs tot"
+              (convert (times:user times))
+              (convert (times:gc times))
+              (if (= 0 (times:cells-marked times)) 0
+                  (/ (scale-gc-time (times:gc-mark times))
+                     (times:cells-marked times)))
+              (convert (times:system times))
+              (convert (times:total times))
+              )
+      (format "~6,2Fs user ~6,2Fs gc ~6,2Fs sys ~6,2Fs tot"
+              (convert (times:user times))
+              (convert (times:gc times))
+              (convert (times:system times))
+              (convert (times:total times))
+              )))
 
 ;;; Return the time elapsed between two time lists.
+(define (map-cdrs f x y)
+  (map (lambda (p0 p1)
+         (cons (car p0)
+               (f (cdr p0) (cdr p1))))
+       x y))
+
 (define (times:elapsed start end)
-  (map - end start))
+  (map-cdrs - end start))
 
 ;;; Add two lists of elapsed times.
 (define (times:add start end)
-  (map + start end))
+  (map-cdrs + start end))
 
 ;;; Return the additive identity for times.
 (define (times:zero)
-  (list 0 0 0 0 0))
+  (list 0 0 0 0 0 0))
 
 
 ;;;; Running benchmarks.
@@ -264,7 +312,7 @@
 ;;;; The following two functions, TIME-ACCUMULATE and TIME-PASS, help you
 ;;;; write a benchmark whose total time is the sum of times of several
 ;;;; separate passes.  Use them like this:
-;;;; 
+;;;;
 ;;;; (time-accumulate TITLE
 ;;;;   (lambda ()
 ;;;;     (do ((i 0 (+ i 1)))
@@ -272,7 +320,7 @@
 ;;;;       (prepare-for-one-pass)
 ;;;;       (time-pass (lambda ()
 ;;;;                    (do-something))))))
-;;;; 
+;;;;
 ;;;; That code will report the total CPU time consumed by the calls to
 ;;;; DO-SOMETHING, but will not include the CPU time consumed by calls
 ;;;; to PREPARE-FOR-ONE-PASS.
