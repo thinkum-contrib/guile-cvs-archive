@@ -1,0 +1,42 @@
+From: Bill Schottstaedt <bil@ccrma.Stanford.EDU>
+Subject: Re: "byte compilers, was [d.love@dl.ac.uk: dynamic loading of native
+	code modules]
+Date: Mon, 15 Apr 2002 06:27:44 -0700
+To: guile-user@gnu.org
+
+With great hesitation and diffidence, on the subject of Guile
+compilation, I can offer a simple "accelerator". For context,
+in Snd (a sound editor), operations are on hundreds of millions,
+occasionally billions of samples; the users are mostly impatient
+musicians who view a sound editor as nothing but a necessary
+evil; they are not the type that will wait on a multiply. In
+95% of the cases in this context, a simple code walker can
+ascertain in advance that a given operation (lambda form)
+deals with simple data (i.e. floats or ints, not complex or
+bignum), and has simple control structures.  So, I wrote a
+little "byte compiler" of sorts that turns those expressions
+into a list of function calls with all the variable/data
+addresses precomputed and so on; the evaluator then gets
+a pointer to that "parse tree", the current incoming arguments,
+and does:
+
+  while (!ALL_DONE)
+    {
+      curfunc = prog->program[PC++];
+      (*(curfunc->function))(curfunc->args, ints, dbls);
+    }
+
+The code runs from 8 to 20 times faster than the Guile evaluator,
+still 2 to 3 times slower than the equivalent compiled C code,
+but better than 30 times slower!  The current version (4 days
+work, so still very raw and incomplete) is snd-run.c in the
+Snd tarball: ftp://ccrma-ftp.stanford.edu/pub/Lisp/snd-5.tar.gz,
+but I'm not really trying to push that code -- more something
+along the lines that even a partial acceleration like this
+is a real improvement, and easy to write.
+
+_______________________________________________
+Guile-user mailing list
+Guile-user@gnu.org
+http://mail.gnu.org/mailman/listinfo/guile-user
+
