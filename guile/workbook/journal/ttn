@@ -37,6 +37,17 @@ tree loses touch w/ reality and steeps in its poisons.  it is a great sadness.
 * 2002/05/15 05:55:34
 
 going to concentrate on 1.4.x, let experimentation continue elsewhere w/o
-furthre comment -- back-port the good bits ignore the rest.
+further comment -- back-port the good bits ignore the rest.
 
 maybe THUD can live again.
+
+* 2002/05/17 02:59:56
+
+user-visible additions in ttn.notes are "maybe" depending on whether or not
+guile-1.6 adopts the proposed plug-in design.  basically, if yes, we have some
+slack to fix mistakes going forward and back-porting is less important than
+writing the compatibility header.  if no, the "temporary" library naming
+kludge is effectively guile-2.x no matter what certain committee members think
+(in which case, fixing that kludge in HEAD by adopting the plug-in design (or
+some refinement) implies that release is guile-3.x and in the end people will
+say "avoid guile-2.x" instead of the current "avoid guile").
