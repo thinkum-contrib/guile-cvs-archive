@@ -1,9 +1,15 @@
 - Guile 1.4.2
   - abstract access to libguilereadline, libqthreads
+    - write $w/modules/arch-survey.text [ttn]
+    - write $w/modules/compiled-modules.text
   - integrate docs into distribution
   - write 1.4-1.6 compatibility header
   - determine/document policy on how/why/when of removing things
   - back port :select and :renamer interface
+  - back port scripts/ and guile-tools
+  - add user-hooks to module-system interface resolution
+  - incorporate guile-rgx-ctax
+  - support guile-doc-snarf
   - fix bugs
 
 
@@ -38,7 +44,6 @@
   - move ideas web page data into workbook/ and generate the page
   + write ice-9/gap-buffer.scm [ttn]
   + write scripts/read-rfc822.scm [ttn]
-  - write modules/arch-survey.text [ttn]
   - use autoconf vars abs_top_* vars (but not w/ autoconf 2.53)
   - write render-bugs, add to mscripts or guile-tools
   - scan mailing list archives for bugs and add them
