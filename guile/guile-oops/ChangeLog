@@ -1,0 +1,6 @@
+1998-11-22  Mikael Djurfeldt  <mdj@barbara.nada.kth.se>
+
+	* goops.h, goops.c: New files.  Port of stklos from STk-3.99.3
+
+	* goops: New directory: Contains the scheme part of stklos.
+	
