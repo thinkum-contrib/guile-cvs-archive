@@ -1,3 +1,9 @@
+guile-oops (1.0.0-1) unstable; urgency=high
+
+  * New upstream version.
+
+ --
+
 guile-oops (0.1.6-5) frozen unstable; urgency=high
 
   * configure.in, Makefile.am: Added kludge to prevent libgoopscore.so to
