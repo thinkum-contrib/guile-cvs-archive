@@ -226,6 +226,8 @@
 	  (else
 	   (method-cache-install! method-cache-insert! exp args applicable)))))
 
+(set-procedure-property! memoize-method! 'system-procedure #t)
+
 (define method-cache-install!
   (letrec ((first-n
 	    (lambda (ls n)
