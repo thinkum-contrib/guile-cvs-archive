@@ -5,7 +5,7 @@
 
 @dircategory The Algorithmic Language Scheme
 @direntry
-* R4RS: (r4rs).         The Revised(4) Report on Scheme
+* R4RS: (r4rs).                 The Revised(4) Report on Scheme.
 @end direntry
 
 @setchapternewpage on

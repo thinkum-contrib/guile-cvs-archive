@@ -1,3 +1,23 @@
+2001-01-26  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* r5rs.texi: Changes to allow building of r5rs.dvi from r5rs.texi.
+	Aubrey Jaffer's view - which I agree with - is that, given that
+	people have the option of building r5rs.dvi from the original
+	LaTeX distribution for R5RS, it is not worth fixing his master
+	copy of r5rs.texi and the tool which autogenerates it.  On the
+	other hand, it is a marginal convenience for people to be able to
+	build hardcopy from r5rs.texi, even if the results are less good
+	than with the original LaTeX.  Hence the following fixes.
+	(lines 714, 725, 728, 1614, 2258): Remove invalid parentheses from
+	@deffn statements.
+	(line 2316): Change @deffnx to @deffn, and insert `@end deffn' to
+	terminate preceding @deffn.
+	(line 7320): Insert `@c ' at beginning of lines that are intended
+	to be @ignore'd.
+
+	* guile.texi, r4rs.texi, r5rs.texi: Align @direntry descriptions
+	to start in column 32.
+
 2001-01-24  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* intro.texi: Licensing and Layout material moved to

@@ -7,7 +7,7 @@
 
 @dircategory The Algorithmic Language Scheme
 @direntry
-* guile-tutorial: (guile-tut).  Guile Tutorial
+* Guile Tutorial: (guile-tut).  The Guile tutorial.
 @end direntry
 
 @setchapternewpage off

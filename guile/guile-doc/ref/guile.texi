@@ -106,7 +106,7 @@
 
 @dircategory The Algorithmic Language Scheme
 @direntry
-* Guile: (guile).               The Guile Reference Manual.
+* Guile Reference: (guile).     The Guile reference manual.
 @end direntry
 
 @setchapternewpage off

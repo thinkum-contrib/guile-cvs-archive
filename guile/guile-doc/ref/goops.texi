@@ -9,9 +9,9 @@
 
 @set VERSION 0.2
 
-@dircategory Scheme Programming
+@dircategory The Algorithmic Language Scheme
 @direntry
-* goops: (goops).          The GOOPS reference manual.
+* GOOPS: (goops).               The GOOPS reference manual.
 @end direntry
 
 @macro goops
