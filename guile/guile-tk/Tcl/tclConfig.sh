@@ -17,30 +17,30 @@ TCL_MAJOR_VERSION='7'
 TCL_MINOR_VERSION='5'
 
 # C compiler to use for compilation.
-TCL_CC='gcc'
+TCL_CC='cc'
 
 # -D flags for use with the C compiler.
-TCL_DEFS=' -DHAVE_UNISTD_H=1 -DHAVE_SYS_TIME_H=1 -DTIME_WITH_SYS_TIME=1 -DHAVE_TZNAME=1 -DHAVE_TIMEZONE_VAR=1 -DSTDC_HEADERS=1 -Dvfork=fork '
+TCL_DEFS=' -DHAVE_UNISTD_H=1 -DHAVE_SYS_TIME_H=1 -DTIME_WITH_SYS_TIME=1 -DHAVE_TZNAME=1 -DHAVE_TIMEZONE_VAR=1 -Dstrtod=fixstrtod -DSTDC_HEADERS=1 -DNO_UNION_WAIT=1 -DNEED_MATHERR=1 -Dvfork=fork '
 
 # The name of the Tcl library (may be either a .a file or a shared library):
 TCL_LIB_FILE=libtcl7.5.a
 
 # Additional libraries to use when linking Tcl.
-TCL_LIBS='-ldl  -lieee -lm'
+TCL_LIBS='-ldl  -lsocket -lnsl -lm'
 
 # Top-level directory in which Tcl's platform-independent files are
 # installed.
-TCL_PREFIX='/usr/local'
+TCL_PREFIX='/afs/nada.kth.se/home/sans/mdj'
 
 # Top-level directory in which Tcl's platform-specific files (e.g.
 # executables) are installed.
-TCL_EXEC_PREFIX='/usr/local'
+TCL_EXEC_PREFIX='/afs/nada.kth.se/home/sans/mdj'
 
 # Flags to pass to cc when compiling the components of a shared library:
-TCL_SHLIB_CFLAGS='-fPIC'
+TCL_SHLIB_CFLAGS='-K PIC'
 
 # Base command to use for combining object files into a shared library:
-TCL_SHLIB_LD='gcc -shared'
+TCL_SHLIB_LD='/usr/ccs/bin/ld -G -z text'
 
 # Either '$LIBS' (if dependent libraries should be included when linking
 # shared libraries) or an empty string.  See Tcl's configure.in for more
@@ -56,7 +56,7 @@ TCL_DL_LIBS='-ldl'
 
 # Flags to pass to the compiler when linking object files into
 # an executable tclsh or tcltest binary.
-TCL_LD_FLAGS='-rdynamic'
+TCL_LD_FLAGS=''
 
 # Flags to pass to ld, such as "-R /usr/local/tcl/lib", that tell the
 # run-time dynamic linker where to look for shared libraries such as
@@ -66,14 +66,14 @@ TCL_LD_SEARCH_FLAGS=''
 
 # Additional object files linked with Tcl to provide compatibility
 # with standard facilities from ANSI C or POSIX.
-TCL_COMPAT_OBJS=''
+TCL_COMPAT_OBJS=' fixstrtod.o'
 
 # Name of the ranlib program to use.
 TCL_RANLIB='ranlib'
 
 # String to pass to linker to pick up the Tcl library from its
 # build directory.
-TCL_LIB_SPEC='-L/usr/local/lib -ltcl7.5'
+TCL_LIB_SPEC='-L/afs/nada.kth.se/home/sans/mdj/lib -ltcl7.5'
 
 # Indicates whether a version numbers should be used in -l switches
 # (if 1, use switches like -ltcl7.5;  if 0, use switches like -ltcl).

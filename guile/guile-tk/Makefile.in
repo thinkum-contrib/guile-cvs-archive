@@ -67,7 +67,7 @@ RANLIB = @RANLIB@
 TCL_EXTRA_LIBS = @TCL_EXTRA_LIBS@
 VERSION = @VERSION@
 
-SUBDIRS = libgtk
+SUBDIRS = Tcl Tk libgtk
 
 EXTRA_DIST = ltconfig ltmain.sh
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
