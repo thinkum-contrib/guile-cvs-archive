@@ -151,7 +151,30 @@ iteration.  Using @code{trace} here helps us see why this is so.
             to look for functions under their Scheme names as well as
             their C names.
 
-@include ci.texi
-@include pi.texi
-@include vi.texi
-@include ti.texi
+@node Concept Index
+@unnumbered Concept Index
+@printindex cp
+
+
+@node Procedure Index
+@unnumbered Procedure Index
+This is an alphabetical list of all the procedures and macros in Guile.
+@printindex fn
+
+
+@node Variable Index
+@unnumbered Variable Index
+This is an alphabetical list of all the important variables and
+constants in Guile.
+@printindex vr
+
+
+@c Spell out this node fully, because it is the last real node
+@c in the top-level menu.  Leaving off the pointers here causes
+@c spurious makeinfo errors.
+@node Type Index
+@unnumbered Type Index
+This is an alphabetical list of all the important data types defined in
+the Guile Programmers Manual.
+@printindex tp
+
