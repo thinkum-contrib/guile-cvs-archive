@@ -45,21 +45,10 @@
 
 #include "__scm.h"
 
-#ifdef __STDC__
-extern SCM scm_init_main_window (SCM tobj, SCM display, SCM name, SCM class);
-extern SCM scm_do_one_event (SCM flags);
-extern SCM scm_main_loop (void);
-extern SCM scm_num_main_windows (void);
 
-#else /* STDC */
-extern SCM scm_init_main_window ();
-extern SCM scm_do_one_event ();
-extern SCM scm_main_loop ();
-extern SCM scm_num_main_windows ();
-
-#endif /* STDC */
-
-
-
+extern SCM scm_init_main_window SCM_P ((SCM tobj, SCM display, SCM name, SCM class));
+extern SCM scm_do_one_event SCM_P ((SCM flags));
+extern SCM scm_main_loop SCM_P ((void));
+extern SCM scm_num_main_windows SCM_P ((void));
 
 #endif  /* GUILE_TKH */
