@@ -76,58 +76,14 @@
     generic-function-methods method-generic-function method-specializers
     method-procedure slot-exists? make find-method get-keyword)
 
-;; We don't want the following procedure to turn up in backtraces:
-;;(for-each (lambda (proc)
-;;	    (set-procedure-property! proc 'system-procedure #t))
-;;	  (list apply-next-method
-;;		apply-generic-0
-;;		apply-generic-1
-;;		apply-generic-2
-;;		apply-generic-3))
-
-;;;
-;;; {Utilities}
-;;;
-
+
+;;
+;; goops-error
+;;
 (define (goops-error format-string . args)
   (save-stack)
   (scm-error 'goops-error #f format-string args '()))
 
-(define (mapappend func . args)
-  (if (memv '()  args)
-      '()
-      (append (apply func (map car args))
-	      (apply mapappend func (map cdr args)))))
-
-(define (find-duplicate l)	; find a duplicate in a list; #f otherwise
-  (cond 
-    ((null? l)			#f)
-    ((memv (car l) (cdr l))	(car l))
-    (else 			(find-duplicate (cdr l)))))
-
-(define (top-level-env)
-  (if *top-level-lookup-closure*
-      (list *top-level-lookup-closure*)
-      '()))
-
-(define (top-level-env? env)
-  (or (null? env)
-      (procedure? (car env))))
-
-(define (map* fn . l) 		; A map which accepts dotted lists (arg lists  
-  (cond 			; must be "isomorph"
-   ((null? (car l)) '())
-   ((pair? (car l)) (cons (apply fn      (map car l))
-			  (apply map* fn (map cdr l))))
-   (else            (apply fn l))))
-
-(define (for-each* fn . l) 	; A for-each which accepts dotted lists (arg lists  
-  (cond 			; must be "isomorph"
-   ((null? (car l)) '())
-   ((pair? (car l)) (apply fn (map car l)) (apply for-each* fn (map cdr l)))
-   (else            (apply fn l))))
-
-
 ;;
 ;; is-a?
 ;;
@@ -263,6 +219,8 @@
 			 `(define ,name
 			    (class ,@(cddr exp) #:name ',name)))))))))))
 
+(define standard-define-class define-class)
+
 ;;; (class (SUPER ...) SLOT-DEFINITION ... OPTION ...)
 ;;;
 ;;;   SLOT-DEFINITION ::= SLOT-NAME | (SLOT-NAME OPTION ...)
@@ -275,23 +233,28 @@
 	    (lambda (options)
 	      (let loop ((options options)
 			 (res '()))
-		(if (null? options)
-		    (reverse res)
-		    (case (slot-option-keyword options)
-		      ((#:init-form)
-		       (loop (cddr options)
-			     (append (list `(lambda ()
-					      ,(slot-option-value options))
-					   #:init-thunk
-					   (list 'quote
-						 (slot-option-value options))
-					   #:init-form)
-				     res)))
+		(cond ((null? options)
+		       (reverse res))
+		      ((null? (cdr options))
+		       (goops-error "malformed slot option list"))
+		      ((not (keyword? (slot-option-keyword options)))
+		       (goops-error "malformed slot option list"))
 		      (else
-		       (loop (cddr options)
-			     (cons (cadr options)
-				   (cons (car options)
-					 res))))))))))
+		       (case (slot-option-keyword options)
+			 ((#:init-form)
+			  (loop (cddr options)
+				(append (list `(lambda ()
+						 ,(slot-option-value options))
+					      #:init-thunk
+					      (list 'quote
+						    (slot-option-value options))
+					      #:init-form)
+					res)))
+			 (else
+			  (loop (cddr options)
+				(cons (cadr options)
+				      (cons (car options)
+					    res)))))))))))
     
     (procedure->memoizing-macro
       (let ((supers cadr)
@@ -982,16 +945,10 @@
 		  m)))))
 
 (define (make-get index)
-  (let ((src `(@slot-ref o ,index)))
-    ;; *fixme* temporary solution until we get proper method compilation
-    ;; Then there's no need to distinguish accessors from ordinary methods
-    (set-source-property! src 'standard-accessor-method #t)
-    (local-eval `(lambda (o) ,src) (the-environment))))
+  (local-eval `(lambda (o) (@slot-ref o ,index)) (the-environment)))
 
 (define (make-set index)
-  (let ((src `(@slot-set! o ,index v)))
-    (set-source-property! src 'standard-accessor-method #t)
-    (local-eval `(lambda (o v) ,src) (the-environment))))
+  (local-eval `(lambda (o v) (@slot-set! o ,index v)) (the-environment)))
 
 (define standard-get (standard-accessor-method make-get standard-get-methods))
 (define standard-set (standard-accessor-method make-set standard-set-methods))
@@ -1411,6 +1368,16 @@
 			   (no-next-method gf a)
 			   (apply-method gf procs next a)))))))
     (apply-method gf l next args)))
+
+;; We don't want the following procedure to turn up in backtraces:
+(for-each (lambda (proc)
+	    (set-procedure-property! proc 'system-procedure #t))
+	  (list slot-unbound
+		slot-missing
+		no-next-method
+		no-applicable-method
+		no-method
+		))
 
 ;;;
 ;;; {<composite-metaclass> and <active-metaclass>}

@@ -18,13 +18,50 @@
 
 
 (define-module (oop goops util)
-;  :no-backtrace
+  :no-backtrace
   )
 
-(export length* first-n improper->proper
+(export mapappend find-duplicate top-level-env top-level-env?
+	map* for-each* length* improper->proper
  )
 
-;;; Utilities
+;;;
+;;; {Utilities}
+;;;
+
+(define (mapappend func . args)
+  (if (memv '()  args)
+      '()
+      (append (apply func (map car args))
+	      (apply mapappend func (map cdr args)))))
+
+(define (find-duplicate l)	; find a duplicate in a list; #f otherwise
+  (cond 
+    ((null? l)			#f)
+    ((memv (car l) (cdr l))	(car l))
+    (else 			(find-duplicate (cdr l)))))
+
+(define (top-level-env)
+  (if *top-level-lookup-closure*
+      (list *top-level-lookup-closure*)
+      '()))
+
+(define (top-level-env? env)
+  (or (null? env)
+      (procedure? (car env))))
+
+(define (map* fn . l) 		; A map which accepts dotted lists (arg lists  
+  (cond 			; must be "isomorph"
+   ((null? (car l)) '())
+   ((pair? (car l)) (cons (apply fn      (map car l))
+			  (apply map* fn (map cdr l))))
+   (else            (apply fn l))))
+
+(define (for-each* fn . l) 	; A for-each which accepts dotted lists (arg lists  
+  (cond 			; must be "isomorph"
+   ((null? (car l)) '())
+   ((pair? (car l)) (apply fn (map car l)) (apply for-each* fn (map cdr l)))
+   (else            (apply fn l))))
 
 (define (length* ls)
   (do ((n 0 (+ 1 n))
