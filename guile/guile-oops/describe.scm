@@ -89,7 +89,7 @@
 		(format #t "     ~S = ~A~%" name
 					    (if (slot-bound? x name) 
 						(format #f "~S" (slot-ref x name))
-						"#[unbound]"))))
+						"#<unbound>"))))
        (class-slots (class-of x)))
   *unspecified*)
 
