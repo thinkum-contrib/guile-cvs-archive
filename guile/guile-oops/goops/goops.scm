@@ -74,8 +74,8 @@
 ;
 ;=============================================================================
 
-(define (goops-error format-string args)
-  (scm-error 'goops-error format-string args))
+(define (goops-error format-string . args)
+  (scm-error 'goops-error #f format-string args '()))
 
 (define (mapappend func . args)
   (if (memv '()  args)
