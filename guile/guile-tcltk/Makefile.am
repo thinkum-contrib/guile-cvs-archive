@@ -2,8 +2,6 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-SUBDIRS = PLUGIN
-
 INCLUDES = -I$(srcdir)/../libguile -I$(srcdir)/.. -I../
 
 lib_PROGRAMS = @GTCLTK@

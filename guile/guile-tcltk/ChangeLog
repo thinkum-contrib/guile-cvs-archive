@@ -1,3 +1,16 @@
+Mon Mar 17 01:27:37 1997  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+*	* configure.in: Added configuration options --with-tcltk for
+ 	supplying parent directory of the Tk include and lib directories;
+ 	Added configuration options --with-tcl and --with-tk for supplying
+ 	names of the tcl and tk libraries; Added generation of PLUGIN
+ 	files.
+
+	* Makefile.am: Removed SUBDIRS = PLUGIN.
+
+	* PLUGIN/Makefile.am, PLUGIN/Makefile.in, PLUGIN/guile.config.in:
+ 	Removed.
+
 Mon Feb 24 21:45:53 1997  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* configure.in: Added AM_MAINTAINER_MODE
