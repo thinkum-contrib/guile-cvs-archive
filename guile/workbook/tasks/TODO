@@ -5,7 +5,7 @@
 
 - Guile 1.4.1
   - back port ice-9/and-let*.scm naming fix [ttn]
-  +R write TODO summarizer [ttn]
+  + write TODO summarizer [ttn]
   - include group membership attributes in guile-api.alist
     - add filter hook to (mscripts) scan-api
     - write grouping attributes filter
