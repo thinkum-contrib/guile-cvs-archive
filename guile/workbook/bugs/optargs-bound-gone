@@ -1,7 +1,7 @@
 summary: 'bound?' from (ice-9 optargs) has been removed but is useful.
 reported: Steve Tell <tell@telltronics.org>, 2002-03-29
 affects: HEAD branch_release-1-6
-fixed: Marius Vollmer <mvo@zagadka.de>, 2002-02-22
+proposed-fixed: Marius Vollmer <mvo@zagadka.de>, 2002-02-22
 
 mvo sez:
 
@@ -47,3 +47,10 @@ mvo sez:
 > as something you shouldn't expect to stick around, and now it's going
 > away.  IMO, after we make sure we have an appropriate NEWS eulogy, we
 > can forget about it.
+
+2002-05-01 ttn sez:
+
+> i'm changing "fixed" header to "proposed-fixed" since it's not clear to me
+> that the bug is fixed at this time.  probably we can find a way to provide
+> `bound?' and yet not use SCM_UNDEFINED.  that would maintain continuation
+> and honor the spirit of the change that introduced the bug (encapsulation).
