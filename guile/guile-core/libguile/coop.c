@@ -45,8 +45,10 @@
 /* Cooperative thread library, based on QuickThreads */
 
 #include <qt.h>
+#include "eval.h"
 
-#define COOP_STKSIZE (0x10000)
+/* #define COOP_STKSIZE (0x10000) */
+#define COOP_STKSIZE (SCM_EVAL_STACK)
 
 /* `alignment' must be a power of 2. */
 #define COOP_STKALIGN(sp, alignment) \
