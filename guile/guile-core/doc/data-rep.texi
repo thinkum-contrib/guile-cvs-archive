@@ -1077,11 +1077,6 @@ naming the function.  Usually, Guile catches these errors before ever
 invoking the subr, so we don't run into these problems.
 @end deftypefn
 
-@deftypefn Macro int SCM_OUTOFRANGE
-Signal an error complaining that @var{obj} is ``out of range'' for
-@var{subr}.
-@end deftypefn
-
 
 @node Defining New Types (Smobs),  , How Guile does it, Top
 @section Defining New Types (Smobs)
