@@ -1,3 +1,8 @@
+2000-05-14  Marius Vollmer  <mvo@zagadka.ping.de>
+
+	* posix.texi (Conventions): Added example on how to retrieve errno
+	value from a system-exception.  Thanks to Eric Hanchrow!
+
 2000-05-04  Marius Vollmer  <mvo@zagadka.ping.de>
 
 	* intro.texi: Added chapter about Guile's license.
