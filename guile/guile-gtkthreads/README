@@ -21,6 +21,14 @@ Getting started
   (begin-thread (gtk-main)) ; this becomes the handler thread
 
 
+Notes
+-----
+
+* guile-gtkthreads plugs in COOP-threads into glib.  So, the GNOME
+  libraries will use COOP for threads administration instead of
+  pthreads.
+
+
 Known problems
 --------------
 
