@@ -1,5 +1,6 @@
 (use-modules (ice-9 time))
-(use-modules (lightning))
+(use-modules (lightning assembler)
+	     (lightning compiler))
 
 (define (fib n)
   (if (< n 2)
@@ -85,7 +86,7 @@
       (finish (subr "scm_error_num_args_subr"))
     argsok))
 
-(define invoke
+(define invoke-code
   (assemble `(  (bms l0 r0 6)
 		(ld r2 r0)
 		(bne l0 r2 (codetag))
@@ -94,9 +95,12 @@
 		(jmp r2)
 	      l0
 	        (push r1)
-	        (push r0)
-		(call (subr "scm_invoke"))
-		(pop r1)
+		(prepare 3)
+		(add r2 sp 8)
+	        (push r2)
+		(push r1)
+		(push r0)
+		(finish (subr "scm_invoke"))
 		(pop r1)
 		(pop r2)
 		(add sp sp r1)
@@ -110,7 +114,7 @@
 
 (define-asm-macro (invoke sym)
   `((ld r0 ,(var sym))
-    (call (code ,invoke))))
+    (call (code ,invoke-code))))
 
 ;; When proc is known to be one of our code smobs.
 
@@ -203,3 +207,63 @@
  		(jmp r2))))
 
 (set! asm-fib2 (make-closure asm-fibvector2 #f))
+
+; (compile-show '(lambda-template (n)
+; 	         (invoke (global +) (quote 1) (local n))))
+
+; (define y #f)
+; (compile-show '(lambda-template (n)
+; 	         (if (invoke (global <) (local n) (quote 2))
+; 		     (quote 1)
+; 		     (invoke (global +)
+; 			     (invoke (global y) 
+; 				     (invoke (global +)
+; 					     (local n) (quote -2)))
+; 			     (invoke (global y)
+; 				     (invoke (global +) 
+; 					     (local n) (quote -1)))))))
+
+(define code '(lambda-template (n)
+		(labels ((loop (i sum)
+			       (invoke (global simple-format)
+				       (quote #t)
+				       (quote "~A\n")
+				       (local sum))
+			       (if (invoke (global <=)
+					   (local i) (local n))
+				   (goto loop 
+					 (invoke (global +)
+						 (local i) (local sum))
+					 (invoke (global +)
+						 (local i) (local sum)))
+				   (goto return (local sum))))
+			 (return (x)
+				 (labels ((dummy (a b)
+						 (goto return2
+						       (local x) (quote a))))
+					 (goto dummy (quote 1) (quote 2))))
+			 (return2 (x dummy)
+				  (local x)))
+			(goto loop (quote 1) (quote 0)))))
+
+(compile-show code)
+
+(define x (compile code))
+
+(define (y n) 
+  (let loop ((i 1)
+	     (sum 0))
+    (if (<= i n)
+	(loop (+ i sum) (+ i sum))
+	sum)))
+
+(compile-show '(lambda-template ()
+	         (labels ((l1 (a)
+			      (goto l2 (quote 1)))
+			  (l2 (b)
+			      (labels ((l3 (c)
+					   (goto l4 (local b))))
+				      (goto l3 (quote 1))))
+			  (l4 (d)
+			      (local d)))
+			 (goto l1 (quote 0)))))
