@@ -24,8 +24,6 @@
 ;;;
 ;;;
 
-(require 'guile-init)
-
 ;;; Customizations of the scheme modes
 
 (defun inda-scheme-mode-initializations ()
