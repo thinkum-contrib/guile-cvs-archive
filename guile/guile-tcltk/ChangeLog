@@ -17,6 +17,10 @@
 
         * compat.h: New file.
 	
+2001-10-05  Mikael Djurfeldt  <mdj@linnaeus>
+
+	* tcltk.scm (tk-stack-mark): Removed.
+
 2000-06-29  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
 	* guile-tcl.c (free_interp): Bugfix: Memory leak: Free the
