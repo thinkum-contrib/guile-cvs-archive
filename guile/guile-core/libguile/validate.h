@@ -183,6 +183,14 @@
       }						\
   } while (0)
 
+#define SCM_VALIDATE_NUMBER_DEF_COPY(pos, number, def, cvar)	\
+  do {								\
+    if (SCM_UNBNDP (number))					\
+      cvar = def;						\
+    else							\
+      SCM_VALIDATE_NUMBER_COPY(pos, number, cvar);		\
+  } while (0)
+
 #define SCM_VALIDATE_INUM(pos, k) SCM_MAKE_VALIDATE (pos, k, INUMP)
 
 #define SCM_VALIDATE_INUM_COPY(pos, k, cvar) \
