@@ -73,7 +73,7 @@
 
 #define SCM_NUM2LONG(pos,arg) (scm_num2long(arg, (char *) pos, FUNC_NAME))
 
-#define SCM_NUM2LONG_DEF(pos,arg,def) (SCM_UNBNDP(arg)?SCM_MAKINUM(def):(scm_num2long(arg, (char *) pos, FUNC_NAME)))
+#define SCM_NUM2LONG_DEF(pos,arg,def) (SCM_UNBNDP(arg)?def:(scm_num2long(arg, (char *) pos, FUNC_NAME)))
 
 #define SCM_NUM2LONG_LONG(pos,arg) (scm_num2long_long(arg, (char *) pos, FUNC_NAME))
 
