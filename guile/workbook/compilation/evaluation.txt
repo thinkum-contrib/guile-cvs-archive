@@ -305,6 +305,42 @@ do formulate the decisions as I assume that we will agree about.
 4. Incremental changes for improving the evaluator
 ==================================================
 
+* split the functionality of scm_lookupcar into the following subtasks:
+  a) a function to transform a symbol into its memoized form:
+     static SCM symbol2memoized_symbol (SCM symbol, SCM environment);
+     The function searches the environment for the symbol and returns either a
+     variable or an iloc (later, a macro object may also be returned).  If the
+     search was not successfull, SCM_UNDEFINED is returned.  This function
+     only delivers the memoized object that could replace the symbol, but it
+     does not actually change any code.  The idea is, that this function will
+     be used during memoization, but won't have to deal with actual values any
+     more.
+  b) a function, that looks up a symbol and automatically memoizes it:
+     static SCM memoize_symbol_in_car (SCM pair, SCM environment);
+     The symbol to be looked up is found in the car of the pair.  The function
+     makes use of the function a) to look up the symbol.  If the result from
+     a) is not SCM_UNDEFINED, the car of the pair is overwritten, otherwise it
+     remains unchanged.  The function returns the result that was received
+     from a).
+  c) a function that for a variable or an iloc returns a SCM* pointing to the
+     location of the corresponding value:
+     static SCM* memoized_symbol2location (SCM obj, SCM environment);
+  d) a function that for a variable or an iloc returns the value:
+     static SCM memoized_symbol2value (SCM obj, SCM environment);
+  e) a function, similar to scm_lookup_car:
+     static SCM lookup_and_memoize_symbol_in_car (SCM pair, SCM environment);
+     The functionality is similar to scm_lookupcar, but instead of returning a
+     pointer to a value, the value itself is returned.
+  Using these functions, scm_lookupcar can be easily re-implemented.  Further,
+  a lot of code that uses scm_lookupcar can be replaced using these functions.
+
+  A negative impact of this change is, that it will slow down memoization a
+  little bit, since in case of an iloc the environment is scanned twice to
+  actually obtain the result for scm_lookupcar:  First, in function
+  symbol2memoized_symbol the environment is scanned to obtain the iloc,
+  second, in function memoized_symbol2location the environment is scanned
+  according to the iloc data.
+
 * revoke macro transformers from being stored in variables.  I.e.
     (define-macro (foo ...) ...)
     (define bar foo)
