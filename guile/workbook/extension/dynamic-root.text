@@ -167,3 +167,11 @@ To do
 
 libguile usage and threads, error handling and reporting, convenience
 of use, Scheme-level interface.
+
+References
+==========
+
+Thread on guile mailing list discussing dynamic roots, March 2000
+    -- http://sources.redhat.com/ml/guile/2000-03/msg00461.html
+Jim Blandy suggested looking at a few articles, but these appear to
+propose more fundamental changes to the concept of call/cc.
