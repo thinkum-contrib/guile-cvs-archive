@@ -335,8 +335,8 @@ Makefiles to rebuild on the command line.  Running the command
 
 - Make sure your changes compile and work, at least on your own
 machine, before checking them into the main branch of the Guile
-repository.  If you really need to check in untested changes, make a
-branch.
+repository.  A good way for testing this is to run "make distcheck".
+If you really need to check in untested changes, make a branch.
 
 - Include each log entry in both the ChangeLog and in the CVS logs.
 If you're using Emacs, the pcl-cvs interface to CVS has features to
