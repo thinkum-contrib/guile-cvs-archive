@@ -1,0 +1,29 @@
+-*-text-*-
+
+This package really only contains one relevant file, ice-9/statprof
+which defines the (ice-9 statprof) module.  In order to use the
+statistical profiler, you need to first make sure you have a Guile
+available that supports the itimer functions that statprof needs.
+This means something greater than or equal to the Guile 1.5 unstable
+CVS tree as of 2001-07-19.
+
+You can check to make sure that everything is OK by running "make
+check" from this directory.  If that succeeds, then you just need to
+make sure that ./ice-9 is somewhere the Guile you're running can find
+it.  You can do this by either:
+
+  1) copying or symlinking it into a directory somewhere in your
+     Guile's load path (type %load-path from any Guile prompt to see
+     which directories your copy of Guile searches).
+
+  2) adding this directory to your Guile's load path.  This can be
+     done by either modifying %load-path like so:
+
+       (set! %load-path (cons "this-source-dir" %load-path))
+
+     or by setting the environment variable GUILE_LOAD_PATH
+     appropriately.  i.e. in bash:
+
+       export GUILE_LOAD_PATH=this-source-dir
+
+See the README for brief documentation.
