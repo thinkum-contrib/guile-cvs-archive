@@ -218,7 +218,7 @@ SCM
 scm_readline (SCM text, SCM inp, SCM outp, SCM read_hook)
 {
   SCM ans;
-  
+  int inp_fd, out_fd;
   reentry_barrier ();
   
   before_read = SCM_BOOL_F;
@@ -265,8 +265,24 @@ scm_readline (SCM text, SCM inp, SCM outp, SCM read_hook)
     }
 
   input_port = inp;
-  rl_instream = (FILE *) SCM_STREAM (inp);
-  rl_outstream = (FILE *) SCM_STREAM (outp);
+  inp_fd = SCM_FPORT_FDES(inp);
+  if(rl_instream) {
+    if(fileno(rl_instream) != inp_fd) {
+      fclose(rl_instream);
+      rl_instream = fdopen(inp_fd, "r");
+    }
+  } else {
+    rl_instream =  fdopen(inp_fd, "r");
+  }
+  out_fd = SCM_FPORT_FDES(outp);
+  if(rl_outstream) {
+    if(fileno(rl_outstream) != out_fd) {
+      fclose(rl_outstream);
+      rl_outstream = fdopen(out_fd, "w");
+    }
+  } else {
+    rl_outstream = fdopen(out_fd, "w");
+  }
 
   ans = scm_internal_catch (SCM_BOOL_T,
 			    (scm_catch_body_t) internal_readline,
@@ -465,6 +481,7 @@ scm_init_readline ()
   rl_redisplay_function = redisplay;
   rl_completion_entry_function = (Function*) completion_function;
   rl_basic_word_break_characters = "\t\n\"'`;()";
+  rl_readline_name = "Guile";
 #ifdef USE_THREADS
   scm_mutex_init (&reentry_barrier_mutex);
 #endif
