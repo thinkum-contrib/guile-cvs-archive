@@ -59,13 +59,13 @@ struct scm_metaclass_goops {
   SCM vcell;
   SCM vtable;
   SCM print;
-  SCM direct_supers;
-  SCM direct_slots;
   SCM proc0;
   SCM proc1;
   SCM proc2;
   SCM proc3;
   SCM name;
+  SCM direct_supers;
+  SCM direct_slots;
   SCM direct_subclasses;
   SCM direct_methods;
   SCM cpl;
@@ -85,7 +85,7 @@ typedef struct scm_method_t {
 #define SCM_METHOD(obj) ((scm_method_t *) SCM_STRUCT_DATA (obj))
 
 #define SCM_OBJF_INSTANCE      (0x00 << 24)
-#define SCM_OBJF_GENERIC       (0x01 << 24)
+#define SCM_OBJF_PURE_GENERIC  (0x01 << 24)
 #define SCM_OBJF_SIMPLE_METHOD (0x02 << 24)
 #define SCM_OBJF_ACCESSOR      (0x04 << 24)
 
@@ -93,9 +93,11 @@ typedef struct scm_method_t {
 
 #define SCM_OBJF_GOOPS         (0x10 << 24)
 
+#define SCM_OBJ_FLAGS(x)       SCM_CLASS_FLAGS (x)
+#define SCM_SET_OBJ_FLAGS(x,f) SCM_SET_CLASS_FLAGS (x, f)
 
 #define SCM_INST(x)	       SCM_STRUCT_DATA (x)
-#define SCM_INST_TYPE(x)       SCM_OBJ_CLASS_FLAGS (x)
+#define SCM_INST_TYPE(x)       SCM_OBJ_FLAGS (x)
 #define SCM_CLASS_OF(x)        SCM_STRUCT_VTABLE (x)
 #define SCM_ACCESSORS_OF(x)    (SCM_STRUCT_VTABLE_DATA (x)[scm_si_getters_n_setters])
 #define SCM_NUMBER_OF_SLOTS(x) (SCM_STRUCT_DATA (x)[scm_struct_i_n_words] \
@@ -104,7 +106,7 @@ typedef struct scm_method_t {
 #define SCM_INSTANCEP(x)       (SCM_STRUCTP (x) \
 			       && (SCM_INST_TYPE (x) & SCM_OBJF_GOOPS))
 
-#define SCM_PUREGENERICP(x)    (SCM_INST_TYPE(x) & SCM_OBJF_GENERIC)
+#define SCM_PUREGENERICP(x)    (SCM_INST_TYPE(x) & SCM_OBJF_PURE_GENERIC)
 #define SCM_SIMPLEMETHODP(x)   (SCM_INST_TYPE(x) & SCM_OBJF_SIMPLE_METHOD)
 #define SCM_ACCESSORP(x)       (SCM_INST_TYPE(x) & SCM_OBJF_ACCESSOR)
 #define SCM_FASTMETHODP(x)     (SCM_INST_TYPE(x) & (SCM_OBJF_ACCESSOR|SCM_OBJF_SIMPLE_METHOD))
@@ -113,15 +115,16 @@ typedef struct scm_method_t {
 #define SCM_SUBCLASSP(c1, c2)  SCM_NNULLP (scm_sloppy_memq (c2, SCM_SLOT (c1, scm_si_cpl)))
 
 
-#define scm_si_name 		 10 	/* a symbol */
-#define scm_si_direct_supers 	  4 	/* (class ...) */
-#define scm_si_direct_slots	  5 	/* ((name . options) ...) */
+#define scm_si_layout		  0	/* the struct layout */
+#define scm_si_print		  3	/* the struct print closure */
+#define scm_si_name 		  8 	/* a symbol */
+#define scm_si_direct_supers 	  9 	/* (class ...) */
+#define scm_si_direct_slots	 10 	/* ((name . options) ...) */
 #define scm_si_direct_subclasses 11	/* (class ...) */
 #define scm_si_direct_methods	 12	/* (methods ...) */
 #define scm_si_cpl		 13 	/* (class ...) */
 #define scm_si_slots		 14	/* ((name . options) ...) */
 #define scm_si_nfields		 15	/* an integer */
-#define scm_si_layout		  0	/* the struct layout */
 #define scm_si_getters_n_setters 16	/* ((slot getter setter) ...) */
 #define scm_si_redefined	 17	/* the class to which class was redefined */
 #define scm_si_environment	 18	/* The environme in which class is built  */
@@ -146,6 +149,6 @@ SCM scm_class_of (SCM obj);
 
 SCM scm_compute_applicable_methods (SCM gf, SCM args, int len, int scm_find_method);
 SCM scm_apply_next_method(SCM args);
-extern void scm_init_goops_goops_module (void);
+extern void scm_init_goops_core_module (void);
 
 #endif /* GOOPSH */
