@@ -2,7 +2,7 @@
 
 #ifndef GUILE_TCLH
 #define GUILE_TCLH
-/*	Copyright (C) 1998, 2001 Free Software Foundation, Inc.
+/*	Copyright (C) 1998, 2001, 2002 Free Software Foundation, Inc.
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,6 +44,8 @@
  * If you do not wish that, delete this exception notice.  */
 
 
+#include <tcl.h>
+
 /* We represent an interpreter using SCM's "smob" representation.  The
    interpreter value points to a pair whose car is
    scm_tc16_tcl_interp, and whose cdr is a pointer to a struct
@@ -65,6 +67,9 @@ struct gtcltk_interp {
 #define SCM_GTCLTK(OBJ) ((struct gtcltk_interp *) SCM_CDR (OBJ))
 #define SCM_TERP(OBJ) (SCM_GTCLTK(OBJ)->interp)
 #define SCM_PROPS(OBJ) (SCM_GTCLTK(OBJ)->props)
+
+#define SCM_ENTER_TCL
+#define SCM_LEAVE_TCL
 
 extern int scm_tc16_tcl_interp;
 

@@ -2,7 +2,7 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-INCLUDES = $(GUILE_CFLAGS)
+INCLUDES = -I . $(GUILE_CFLAGS)
 
 ACLOCAL = ./guile-tcltk-aclocal.sh
 

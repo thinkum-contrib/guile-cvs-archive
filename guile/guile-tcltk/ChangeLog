@@ -1,3 +1,10 @@
+2002-12-10  Mikael Djurfeldt  <djurfeldt@nada.kth.se>
+
+	* guile-tcl.h (SCM_ENTER_TCL, SCM_LEAVE_TCL): New macros
+	(currently they do nothing).
+	guile-tcl.c, guile-tk.c, tclUnixNotfy.c: Replaced most
+	SCM_DEFER_INTS/SCM_ALLOW_INTS with SCM_ENTER_TCL/SCM_LEAVE_TCL.
+
 2002-11-17  Mikael Djurfeldt  <mdj@linnaeus>
 
 	* Makefile.am, guile-tcltk-aclocal.sh: Run aclocal in a sane way.

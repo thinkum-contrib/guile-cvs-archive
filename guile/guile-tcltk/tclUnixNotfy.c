@@ -57,6 +57,7 @@
 
 #if 1 /* GUILE */
 #include <libguile.h>
+#include "guile-tcl.h"
 #endif
 #include "tclInt.h"
 #if 1 /* GUILE */
@@ -288,11 +289,11 @@ Tcl_WaitForEvent(timePtr)
 	timeout.tv_usec = timePtr->usec;
     }
 #if 1 /* GUILE */
-    SCM_ALLOW_INTS;
+    SCM_LEAVE_TCL;
     numFound = scm_internal_select (numFdBits, (SELECT_MASK *) &readyMasks[0],
 	    (SELECT_MASK *) &readyMasks[MASK_SIZE],
 	    (SELECT_MASK *) &readyMasks[2*MASK_SIZE], timeoutPtr);
-    SCM_DEFER_INTS;
+    SCM_ENTER_TCL;
 #endif
 
     /*
@@ -348,11 +349,11 @@ Tcl_WaitForEvent2(timePtr)
 	timeout.tv_sec = timePtr->sec;
 	timeout.tv_usec = timePtr->usec;
     }
-    SCM_ALLOW_INTS;
+    SCM_LEAVE_TCL;
     numFound = scm_internal_select (numFdBits, (SELECT_MASK *) &readyMasks[0],
 	    (SELECT_MASK *) &readyMasks[MASK_SIZE],
 	    (SELECT_MASK *) &readyMasks[2*MASK_SIZE], timeoutPtr);
-    SCM_DEFER_INTS;
+    SCM_ENTER_TCL;
 
     /*
      * Some systems don't clear the masks after an error, so
@@ -451,10 +452,10 @@ Tcl_Sleep(ms)
 		|| ((delay.tv_usec == 0) && (delay.tv_sec == 0))) {
 	    break;
 	}
-	SCM_ALLOW_INTS;
+	SCM_LEAVE_TCL;
 	(void) scm_internal_select (0, (SELECT_MASK *) 0, (SELECT_MASK *) 0,
 		(SELECT_MASK *) 0, &delay);
-	SCM_DEFER_INTS;
+	SCM_ENTER_TCL;
 	TclpGetTime(&before);
     }
 }

@@ -70,22 +70,22 @@ scm_tk_init_main_window (tobj, display, name, class)
   SCM_ASSERT (SCM_NIMP (class) && SCM_STRINGP (class), class, SCM_ARG4,
 	      s_tk_init_main_window);
 
-  SCM_DEFER_INTS;
+  SCM_ENTER_TCL;
   status = Tcl_Init(SCM_TERP (tobj));
-  SCM_ALLOW_INTS;
+  SCM_LEAVE_TCL;
 
   if (status == TCL_ERROR)
     return scm_makfrom0str (SCM_TERP (tobj)->result);
 
-  SCM_DEFER_INTS;
+  SCM_ENTER_TCL;
   status = Tk_Init(SCM_TERP (tobj));
-  SCM_ALLOW_INTS;
+  SCM_LEAVE_TCL;
   if (status == TCL_ERROR)
     return scm_makfrom0str (SCM_TERP (tobj)->result);
 
-  SCM_DEFER_INTS;
+  SCM_ENTER_TCL;
   Tcl_SetVar (SCM_TERP (tobj), "tcl_interactive", "0", TCL_GLOBAL_ONLY);
-  SCM_ALLOW_INTS;
+  SCM_LEAVE_TCL;
 
   return SCM_BOOL_T;
 }
@@ -114,11 +114,11 @@ main_loop (SCM loop_invocation)
       scm_tcl_handle_event_p = 0;
       do
 	{
-	  SCM_DEFER_INTS;
+	  SCM_ENTER_TCL;
 	  scm_mask_ints = 1;
 	  events = Tcl_DoOneEvent (TCL_ALL_EVENTS | TCL_DONT_WAIT);
 	  scm_mask_ints = 0;
-	  SCM_ALLOW_INTS;
+	  SCM_LEAVE_TCL;
 	  SCM_ASYNC_TICK;
 	}
       while (events);
@@ -151,9 +151,9 @@ io_loop (SCM loop_invocation)
 	 && Tk_GetNumMainWindows () > 0)
     {
       scm_mutex_lock (&scm_tcl_mutex);
-      SCM_DEFER_INTS;
+      SCM_ENTER_TCL;
       Tcl_GetCheckMasks (&nfds, masks);
-      SCM_ALLOW_INTS;
+      SCM_LEAVE_TCL;
       SCM_ASYNC_TICK;
       scm_mutex_unlock (&scm_tcl_mutex);
       scm_internal_select (nfds, &masks[0], &masks[1], &masks[2], 0);
@@ -195,11 +195,11 @@ scm_tk_main_loop ()
 		      (scm_t_catch_handler) main_loop_handler,
 		      (void*) loop_invocation);
 #else
-  SCM_DEFER_INTS;
+  SCM_ENTER_TCL;
   in_tk_loop_p = 1;
   Tk_MainLoop ();
   in_tk_loop_p = 0;
-  SCM_ALLOW_INTS;
+  SCM_LEAVE_TCL;
 #endif
   return SCM_UNSPECIFIED;
 }

@@ -130,17 +130,17 @@ scm_tcl_global_eval (tobj, script)
 #ifdef USE_THREADS
   scm_mutex_lock (&scm_tcl_mutex);
 #endif
-  SCM_DEFER_INTS;
+  SCM_ENTER_TCL;
   status = Tcl_GlobalEval (SCM_TERP (tobj), SCM_ROCHARS (script));
-  SCM_ALLOW_INTS;
+  SCM_LEAVE_TCL;
   
   {
     SCM answer;
     answer = scm_cons (SCM_MAKINUM (status),
 		       scm_makfrom0str (SCM_TERP (tobj)->result));
-    SCM_DEFER_INTS;
+    SCM_ENTER_TCL;
     Tcl_FreeResult (SCM_TERP (tobj));
-    SCM_ALLOW_INTS;
+    SCM_LEAVE_TCL;
 #ifdef USE_THREADS
     scm_mutex_unlock (&scm_tcl_mutex);
     if (TclIdlePending ())
@@ -240,7 +240,7 @@ invoke_tcl_command (data, interp, argc, argv)
 
   /* proc had better not longjmp past us -- see:
      with-tcl-error-handling in gtcltk/tcl.SCM */
-  SCM_ALLOW_INTS;
+  SCM_LEAVE_TCL;
 #ifdef USE_THREADS
   scm_mutex_unlock (&scm_tcl_mutex);
 #endif
@@ -248,7 +248,7 @@ invoke_tcl_command (data, interp, argc, argv)
 #ifdef USE_THREADS
   scm_mutex_lock (&scm_tcl_mutex);
 #endif
-  SCM_DEFER_INTS;
+  SCM_ENTER_TCL;
 
   if (SCM_NIMP (result) && SCM_ROSTRINGP (result))
     {
@@ -316,12 +316,12 @@ scm_tcl_create_command (tobj, name, proc)
 #ifdef USE_THREADS
   scm_mutex_lock (&scm_tcl_mutex);
 #endif
-  SCM_DEFER_INTS;
+  SCM_ENTER_TCL;
   Tcl_CreateCommand (SCM_TERP (tobj), SCM_ROCHARS (name),
 		     invoke_tcl_command,
 		     (ClientData)SCM_CAR (SCM_PROPS (tobj)),
 		     delete_tcl_command);
-  SCM_ALLOW_INTS;
+  SCM_LEAVE_TCL;
 #ifdef USE_THREADS
   scm_mutex_unlock (&scm_tcl_mutex);
 #endif
@@ -344,9 +344,9 @@ scm_tcl_delete_command (tobj, name)
 #ifdef USE_THREADS
   scm_mutex_lock (&scm_tcl_mutex);
 #endif
-  SCM_DEFER_INTS;
+  SCM_ENTER_TCL;
   Tcl_DeleteCommand (SCM_TERP (tobj), SCM_ROCHARS (name));
-  SCM_ALLOW_INTS;
+  SCM_LEAVE_TCL;
 #ifdef USE_THREADS
   scm_mutex_unlock (&scm_tcl_mutex);
 #endif
@@ -375,10 +375,10 @@ scm_tcl_get_int (tobj, name)
 #ifdef USE_THREADS
   scm_mutex_lock (&scm_tcl_mutex);
 #endif
-  SCM_DEFER_INTS;
+  SCM_ENTER_TCL;
   stat = Tcl_GetInt (SCM_TERP (tobj), SCM_ROCHARS (name), &c_answer);
   Tcl_FreeResult (SCM_TERP (tobj));
-  SCM_ALLOW_INTS;
+  SCM_LEAVE_TCL;
 #ifdef USE_THREADS
   scm_mutex_unlock (&scm_tcl_mutex);
 #endif
@@ -404,10 +404,10 @@ scm_tcl_get_double (tobj, name)
 #ifdef USE_THREADS
   scm_mutex_lock (&scm_tcl_mutex);
 #endif
-  SCM_DEFER_INTS;
+  SCM_ENTER_TCL;
   stat = Tcl_GetDouble (SCM_TERP (tobj), SCM_ROCHARS (name), &c_answer);
   Tcl_FreeResult (SCM_TERP (tobj));
-  SCM_ALLOW_INTS;
+  SCM_LEAVE_TCL;
 #ifdef USE_THREADS
   scm_mutex_unlock (&scm_tcl_mutex);
 #endif
@@ -434,10 +434,10 @@ scm_tcl_get_boolean (tobj, name)
 #ifdef USE_THREADS
   scm_mutex_lock (&scm_tcl_mutex);
 #endif
-  SCM_DEFER_INTS;
+  SCM_ENTER_TCL;
   stat = Tcl_GetBoolean (SCM_TERP (tobj), SCM_ROCHARS (name), &c_answer);
   Tcl_FreeResult (SCM_TERP (tobj));
-  SCM_ALLOW_INTS;
+  SCM_LEAVE_TCL;
 #ifdef USE_THREADS
   scm_mutex_unlock (&scm_tcl_mutex);
 #endif
@@ -466,7 +466,7 @@ scm_tcl_split_list (tobj, name)
 #ifdef USE_THREADS
   scm_mutex_lock (&scm_tcl_mutex);
 #endif
-  SCM_DEFER_INTS;
+  SCM_ENTER_TCL;
   tcl_result = (TCL_OK == Tcl_SplitList (SCM_TERP (tobj),
 					 SCM_ROCHARS (name), &argc, &argv));
 #ifdef USE_THREADS
@@ -474,14 +474,14 @@ scm_tcl_split_list (tobj, name)
 #endif
   if (!tcl_result)
     {
-      SCM_ALLOW_INTS;
+      SCM_LEAVE_TCL;
       SCM_ASSERT (tcl_result, name, SCM_TERP (tobj)->result, s_tcl_split_list);
     }
   {
     SCM answer;
     answer = listify_strings (argc, argv);
     free (argv);
-    SCM_ALLOW_INTS;
+    SCM_LEAVE_TCL;
     return answer;
   }
 }
@@ -507,19 +507,19 @@ scm_tcl_merge (tobj, args)
   else
     {
       int i;
-      SCM_DEFER_INTS;
+      SCM_ENTER_TCL;
       orig_args = args;
       argv = (char **)malloc (sizeof (char *) * argc);
       if (!argv)
 	{
-	  SCM_ALLOW_INTS;
+	  SCM_LEAVE_TCL;
 	  scm_memory_error (s_tcl_merge);
 	}
       for (i = 0; i < argc; ++i)
 	{
 	  if (!(SCM_NIMP (SCM_CAR (args)) && SCM_ROSTRINGP (SCM_CAR (args))))
 	    {
-	      SCM_ALLOW_INTS;
+	      SCM_LEAVE_TCL;
 	      SCM_ASSERT (0, SCM_CAR (args), "all arguments must be strings",
 			  s_tcl_merge);
 	    }
@@ -543,7 +543,7 @@ scm_tcl_merge (tobj, args)
     answer = scm_makfrom0str (c_answer);
     free (c_answer);
     if (argv) free (argv);
-    SCM_ALLOW_INTS;
+    SCM_LEAVE_TCL;
     return scm_return_first (answer, orig_args);
   }
 }
@@ -566,14 +566,14 @@ trace_variable (data, interp, name, name2, flags)
   SCM result;
 
   proc = (SCM)SCM_CAR (data);
-  SCM_ALLOW_INTS;
+  SCM_LEAVE_TCL;
   result = masked_apply (proc,
 			 scm_listify (SCM_SELF_INTERP (interp),
 				      scm_makfrom0str (name),
 				      scm_makfrom0str_opt (name2),
 				      SCM_MAKINUM (flags),
 				      SCM_UNDEFINED));
-  SCM_DEFER_INTS;
+  SCM_ENTER_TCL;
   return ((result == SCM_BOOL_F)
 	  ? "Error from Scheme variable trace."
 	  : 0);
@@ -607,7 +607,7 @@ scm_tcl_trace_var2 (tobj, name, index, flags, thunk)
   SCM_ASSERT (SCM_INUMP (flags), flags, SCM_ARG4, s_tcl_trace_var2);
   SCM_ASSERT (scm_procedure_p (thunk), thunk, SCM_ARG5, s_tcl_trace_var2);
   SCM_PROPS (tobj) = scm_acons (thunk, SCM_EOL, SCM_PROPS (tobj));
-  SCM_DEFER_INTS;
+  SCM_ENTER_TCL;
   stat = Tcl_TraceVar2 (SCM_TERP (tobj),
 			SCM_ROCHARS (name),
 			((index == SCM_BOOL_F)
@@ -624,7 +624,7 @@ scm_tcl_trace_var2 (tobj, name, index, flags, thunk)
   else
     result = SCM_BOOL_T;
   Tcl_FreeResult (SCM_TERP (tobj));
-  SCM_ALLOW_INTS;
+  SCM_LEAVE_TCL;
   return result;
 }
 
@@ -663,7 +663,7 @@ scm_tcl_untrace_var2 (tobj, name, index, flags, thunk)
 	if (SCM_CAR (SCM_CAR (pos)) == thunk)
 	  {
 	    int got_it;
-	    SCM_DEFER_INTS;
+	    SCM_ENTER_TCL;
 	    got_it = Tcl_UntraceVar2 (SCM_TERP (tobj),
 				      SCM_ROCHARS (name),
 				      ((SCM_BOOL_F == index)
@@ -677,10 +677,10 @@ scm_tcl_untrace_var2 (tobj, name, index, flags, thunk)
 		SCM_PROPS (tobj) = scm_delq_x (SCM_CAR (pos),
 					       SCM_PROPS (tobj));
 		Tcl_FreeResult (SCM_TERP (tobj));
-		SCM_ALLOW_INTS;
+		SCM_LEAVE_TCL;
 		return SCM_BOOL_T;
 	      }
-	    SCM_ALLOW_INTS;
+	    SCM_LEAVE_TCL;
 	  }
 	pos = SCM_CDR (pos);
       }
@@ -718,13 +718,13 @@ scm_tcl_set_var2 (tobj, name, index, value, flags)
   SCM_STRING_COERCE_0TERMINATION_X (value);
   SCM_ASSERT (SCM_INUMP (flags), flags, SCM_ARG5, s_tcl_set_var2);
 
-  SCM_DEFER_INTS;
+  SCM_ENTER_TCL;
   c_answer = Tcl_SetVar2 (SCM_TERP (tobj),
 			  SCM_ROCHARS (name),
 			  ((index == SCM_BOOL_F) ? 0 : SCM_ROCHARS (index)),
 			  SCM_ROCHARS (value),
 			  SCM_INUM (flags));
-  SCM_ALLOW_INTS;
+  SCM_LEAVE_TCL;
   return scm_makfrom0str_opt (c_answer);
 }
 
@@ -752,12 +752,12 @@ scm_tcl_get_var2 (tobj, name, index, flags)
     SCM_STRING_COERCE_0TERMINATION_X (index);
   SCM_ASSERT (SCM_INUMP (flags), flags, SCM_ARG4, s_tcl_get_var2);
 
-  SCM_DEFER_INTS;
+  SCM_ENTER_TCL;
   c_answer = Tcl_GetVar2 (SCM_TERP (tobj),
 			  SCM_ROCHARS (name),
 			  ((index == SCM_BOOL_F) ? 0 : SCM_ROCHARS (index)),
 			  SCM_INUM (flags));
-  SCM_ALLOW_INTS;
+  SCM_LEAVE_TCL;
   return scm_makfrom0str_opt (c_answer);
 }
 
@@ -776,9 +776,9 @@ scm_tcl_defined_p (tobj, name)
 #ifdef USE_THREADS
   scm_mutex_lock (&scm_tcl_mutex);
 #endif
-  SCM_DEFER_INTS;
+  SCM_ENTER_TCL;
   status = Tcl_GetCommandInfo (SCM_TERP (tobj), SCM_ROCHARS (name), &info);
-  SCM_ALLOW_INTS;
+  SCM_LEAVE_TCL;
 #ifdef USE_THREADS
   scm_mutex_unlock (&scm_tcl_mutex);
 #endif
@@ -798,9 +798,9 @@ scm_tcl_do_one_event (flags)
 #ifdef USE_THREADS
   scm_mutex_lock (&scm_tcl_mutex);
 #endif
-  SCM_DEFER_INTS;
+  SCM_ENTER_TCL;
   answer = (Tcl_DoOneEvent (SCM_INUM (flags)));
-  SCM_ALLOW_INTS;
+  SCM_LEAVE_TCL;
 #ifdef USE_THREADS
   scm_mutex_unlock (&scm_tcl_mutex);
 #endif
