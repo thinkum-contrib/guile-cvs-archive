@@ -2,6 +2,7 @@ Source: guile-oops
 Section: interpreters
 Priority: optional
 Maintainer: Mikael Djurfeldt <djurfeldt@nada.kth.se>
+Build-Depends: libguile-dev
 Standards-Version: 3.0.1
 
 Package: libgoops5
