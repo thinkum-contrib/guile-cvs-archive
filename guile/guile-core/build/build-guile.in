@@ -4,6 +4,12 @@
 ;;;; build-guile --- utility for linking programs with Guile
 ;;;; Jim Blandy <jim@red-bean.com> --- September 1997
 
+;;; TODO:
+;;; * Add some plausible structure for returning the right exit status,
+;;;   just something that encourages people to do the correct thing.
+;;; * Implement the static library support.  This requires that
+;;;   some portion of the module system be done.
+
 (use-modules (ice-9 regex)
 	     (ice-9 string-fun))
 
@@ -15,14 +21,17 @@
   (set-program-name! (car args))
   (let ((args (cdr args)))
     (cond
-     ((null? args) (show-help '()))
+     ((null? args) (show-help '())
+		   (quit 1))
      ((assoc (car args) command-table)
       => (lambda (row)
+	   (set! subcommand-name (car args))
 	   ((cadr row) (cdr args))))
-     (else
-      (show-help '())))))
+     (else (show-help '())
+	   (quit 1)))))
 
 (define program-name #f)
+(define subcommand-name #f)
 (define program-version "@-GUILE_VERSION-@")
 
 ;;; Given an executable path PATH, set program-name to something
@@ -109,12 +118,6 @@
     (dle "Guile library, and any other libraries it requires.")))
 
 
-
-(define (get-build-info name)
-  (let ((val (assq name %guile-build-info)))
-    (or val (error "get-build-info: no such build info: " name))
-    (cdr val)))
-   
 
 ;;;; The "main" subcommand
 
@@ -123,7 +126,8 @@
 ;;; libraries.  When we do implement this, remember to fix the message
 ;;; in show-help-overview.
 (define (build-main args)
-  (display-line-error program-name ": `main' subcommand not yet implemented"))
+  (display-line-error program-name ": `main' subcommand not yet implemented")
+  (quit 2))
 
 (define (help-main)
   (let ((dle display-line-error))
@@ -137,8 +141,8 @@
   (cond
    ((null? args) (show-all-vars))
    ((null? (cdr args)) (show-var (car args)))
-   (else
-    (display-line-error "Usage: " program-name " info [VAR]"))))
+   (else (display-line-error "Usage: " program-name " info [VAR]")
+	 (quit 2))))
 
 (define (show-all-vars)
   (for-each (lambda (binding)
@@ -160,6 +164,15 @@
 
 
 ;;;; trivial utilities
+
+(define (get-build-info name)
+  (let ((val (assq name %guile-build-info)))
+    (if (not (pair? val))
+	(begin
+	  (display-line-error
+	   program-name " " subcommand-name ": no such build-info: " name)
+	  (quit 2)))
+    (cdr val)))
 
 (define (display-line . args)
   (apply display-line-port (current-output-port) args))
