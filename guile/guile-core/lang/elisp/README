@@ -1,0 +1,221 @@
+                                                    -*- outline -*-
+
+This directory holds the Scheme side of a translator for Emacs Lisp.
+
+* Status
+
+Please note that this is work in progress; the translator is
+incomplete and not yet widely tested.
+
+* Design
+
+When thinking about how to implement an Elisp translator for Guile, it
+is important to realize that the great power of Emacs does not arise
+from Elisp (seen as a language in syntactic terms) alone, but from the
+combination of this language with the collection of primitives
+provided by the Emacs C source code.  Therefore, to be of practical
+use, an Elisp translator needs to be more than just a transformer that
+translates sexps to Scheme expressions.
+
+The finished translator should consist of several parts...
+
+** Syntax transformation
+
+Although syntax transformation isn't all we need, we do still need it!
+
+This part is implemented by the (lang elisp transform) module; it is
+close to complete and seems to work pretty reliably.
+
+Note that transformed expressions use the `@fop' and `@bind' macros
+provided by...
+
+** C support for transformed expressions
+
+For performance and historical reasons (and perhaps necessity - I
+haven't thought about it enough yet), some of the transformation
+support is written in C.
+
+*** @fop
+
+The `@fop' macro is used to dispatch Elisp applications.  Its first
+argument is a symbol, and this symbol's function slot is examined to
+find a procedure or macro to apply to the remaining arguments.  `@fop'
+also handles aliasing (`defalias'): in this case the function slot
+contains another symbol.
+
+Once `@fop' has found the appropriate procedure or macro to apply, it
+returns an application expression in which that procedure or macro
+replaces the `@fop' and the original symbol.  Hence no Elisp-specific
+evaluator support is required to perform the application.
+
+*** @bind
+
+Currently, Elisp variables are the same as Scheme variables, so
+variable references are effectively untransformed.
+
+The `@bind' macro does Elisp-style dynamic variable binding.
+Basically, it locates the named top level variables, `set!'s them to
+new values, evaluates its body, and then uses `set!' again to restore
+the original values.
+
+Because of the body evaluation, `@bind' requires evaluator support.
+In fact, the `@bind' macro code does little more than replace itself
+with the memoized SCM_IM_BIND.  Most of the work is done by the
+evaluator when it hits SCM_IM_BIND.
+
+One theoretical problem with `@bind' is that any local Scheme variable
+in the same scope and with the same name as an Elisp variable will
+shadow the Elisp variable.  But in practice it's difficult to set up
+such a situation; an exception is the translator code itself, so there
+we mangle the relevant Scheme variable names a bit to avoid the
+problem.
+
+Other possible problems with this approach are that it might not be
+possible to implement buffer local variables properly, and that
+`@bind' might become too inefficient when we implement full support
+for undefining Scheme variables.  So we might in future have to
+transform Elisp variable references after all.
+
+*** Truth value stuff
+
+Lots of stuff to do with providing the special self-evaluating `nil'
+and `t' symbols, and macros that convert between Scheme and Elisp
+truth values, and so on.
+
+I'm hoping that most of this will go away, but I need to show that
+it's feasible first.
+
+** Emacs editing primitives
+
+Buffers, keymaps, text properties, windows, frames etc. etc.
+
+Basically, everything that is implemented as a primitive in the Emacs
+C code needs to be implemented either in Scheme or in C for Guile.
+
+The Scheme files in this directory other than transform.scm and
+emacs.scm implement some of these primitives in Scheme.  Not because
+that is the right decision, but because this is a proof of concept and
+it's quicker to write badly performing code in Scheme.
+
+Ultimately, most of these primitive definitions should really come
+from the Emacs C code itself, translated or preprocessed in a way that
+makes it compile with Guile.  I think this is pretty close to the work
+that Ken Raeburn has been doing on the Emacs codebase.
+
+** Reading and printing support
+
+Elisp is close enough to Scheme that it's convenient to coopt the
+existing Guile reader rather than to write a new one from scratch, but
+there are a few syntactic differences that will require adding Elisp
+support to the reader.
+
+- Character syntax is `?a' rather than `#\a'.
+
+- `nil' and `t' should be read (I think) as #f and #t.
+
+- Vector syntax is `[1 2 3]' rather than `#(1 2 3)'.
+
+Correspondingly, when printing, #f and '() should be written as `nil'.
+
+** The Emacs module
+
+Fundamentally, Guile's module system can't be used to package Elisp
+code in the same way it is used for Scheme code, because Elisp
+function definitions are stored as symbol properties (in the symbol's
+"function slot") and so are global.  On the other hand, it is useful
+(necessary?) to associate some particular module with Elisp evaluation
+because
+
+- Elisp variables are currently implemented as Scheme variables and so
+  need to live in some module
+
+- a syntax transformer is a property of a module.
+
+Therefore we have the (lang elisp emacs) module, which acts as the
+repository for all Elisp variables and the site of all Elisp
+evaluation.
+
+In theory, the environment provided by this module should be identical
+to that provided by a fully loaded Emacs.  (lang elisp emacs)
+currently tries to create such an environment by
+
+- importing Scheme definitions for some Emacs primitives from the
+  other files in this directory
+
+- switching into Elisp syntax
+
+- evaluating `(load "loadup.el")', just as an undumped Emacs would do.
+
+This `load' loads so much Elisp code that it's an excellent way to
+test the translator.  In current practice, it runs for a while and
+then fails when it gets to an undefined primitive or a bug in the
+translator.  Eventually, it should go all the way.  (And then we can
+worry about adding unexec support to Guile!)
+
+** Something more modular?
+
+It seems like it ought to be useful to provide bits of Emacs
+functionality without loading up the whole shebang.  For example, the
+Emacs buffer, with its associated primitives, is a data type that can
+be hugely useful without bothering with keymaps, command loops,
+redisplay and so on.
+
+I currently have no idea how this will work out in practice.  Do
+buffers require Elisp?  Does Elisp require the whole of Emacs?
+Something along these lines will probably happen some day, though.
+
+* nil, #f and '()
+
+For Jim Blandy's notes on this, see the reference at the bottom of
+this file.  Currently I'm investigating a different approach, which is
+better IMO than Jim's proposal because it avoids requiring multiple
+false values in the Scheme world.
+
+According to my approach...
+
+- `nil' and `t' are read (when in Elisp mode) as #f and #t.
+
+- `(if x ...)', `(while x ...)' etc. are translated to something
+  like `(if (and x (not (null? x))) ...)'.
+
+- Functions which interpret an argument as a list --
+  `cons', `setcdr', `memq', etc. -- either convert #f to '(), or
+  handle the #f case specially.
+
+- `eq' treats #f and '() as the same.
+
+- Optionally, functions which produce '() values -- i.e. the reader
+  and `cdr' -- could convert those immediately to #f.  This shouldn't
+  affect the validity of any Elisp code, but it alters the balance of
+  #f and '() values swimming around in that code and so affects what
+  happens if two such values are returned to the Scheme world and then
+  compared.  However, since you can never completely solve this
+  problem (unless you are prepared to convert arbitrarily deep
+  structures on entry to the Elisp world, which would kill performance),
+  I'm inclined not to try to solve it at all.
+
+* Usage
+
+Nothing is really usable yet.  All I do, for testing purposes, is
+
+(use-modules (lang elisp emacs))
+
+This tries to load up an Emacs environment as described above.  If you
+want to type and evaluate something in Elisp, do
+
+(define-module (lang elisp emacs))
+
+and you have Elisp syntax.  `define-module' is available in this
+module, so you can do
+
+(define-module (guile-user))
+
+to switch back to Scheme.
+
+* Resources
+
+Ken Raeburn's Guile Emacs page: ???
+
+Keisuke Nishida's Gemacs project: http://gemacs.sourceforge.net.
+
+Jim Blandy's nil/#f/() notes: ???
