@@ -1,5 +1,12 @@
 1999-08-21  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
+	* dispatch.scm (method-cache-insert!): Grow cache in multiples of
+	2 starting with 1.
+	(hash-threshold): Decreased to 3.
+
+	* goops.c, goops.h (SCM_INITIAL_MCACHE_SIZE): Renamed from
+	SCM_INITIAL_HASH_SIZE and set to 1.
+
 	* goops.scm (class-slot-ref, class-slot-set!): New public procedures.
 	(make-get, make-set): Temporary hack until we get real method
 	compilation: Mark standard accessors so that the compiler doesn't
