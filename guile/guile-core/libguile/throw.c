@@ -33,9 +33,9 @@
 #include "libguile/fluids.h"
 #include "libguile/ports.h"
 #include "libguile/lang.h"
-
 #include "libguile/validate.h"
 #include "libguile/throw.h"
+#include "libguile/init.h"
 
 
 /* the jump buffer data structure */
@@ -145,9 +145,9 @@ scm_internal_catch (SCM tag, scm_t_catch_body body, void *body_data, scm_t_catch
 
   jmpbuf = make_jmpbuf ();
   answer = SCM_EOL;
-  scm_dynwinds = scm_acons (tag, jmpbuf, scm_dynwinds);
+  scm_i_set_dynwinds (scm_acons (tag, jmpbuf, scm_i_dynwinds ()));
   SETJBJMPBUF(jmpbuf, &jbr.buf);
-  SCM_SETJBDFRAME(jmpbuf, scm_last_debug_frame);
+  SCM_SETJBDFRAME(jmpbuf, scm_i_last_debug_frame ());
   if (setjmp (jbr.buf))
     {
       SCM throw_tag;
@@ -158,7 +158,7 @@ scm_internal_catch (SCM tag, scm_t_catch_body body, void *body_data, scm_t_catch
 #endif
       SCM_REDEFER_INTS;
       DEACTIVATEJB (jmpbuf);
-      scm_dynwinds = SCM_CDR (scm_dynwinds);
+      scm_i_set_dynwinds (SCM_CDR (scm_i_dynwinds ()));
       SCM_REALLOW_INTS;
       throw_args = jbr.retval;
       throw_tag = jbr.throw_tag;
@@ -172,7 +172,7 @@ scm_internal_catch (SCM tag, scm_t_catch_body body, void *body_data, scm_t_catch
       answer = body (body_data);
       SCM_REDEFER_INTS;
       DEACTIVATEJB (jmpbuf);
-      scm_dynwinds = SCM_CDR (scm_dynwinds);
+      scm_i_set_dynwinds (SCM_CDR (scm_i_dynwinds ()));
       SCM_REALLOW_INTS;
     }
   return answer;
@@ -242,13 +242,13 @@ scm_internal_lazy_catch (SCM tag, scm_t_catch_body body, void *body_data, scm_t_
   lazy_catch = make_lazy_catch (&c);
 
   SCM_REDEFER_INTS;
-  scm_dynwinds = scm_acons (tag, lazy_catch, scm_dynwinds);
+  scm_i_set_dynwinds (scm_acons (tag, lazy_catch, scm_i_dynwinds ()));
   SCM_REALLOW_INTS;
 
   answer = (*body) (body_data);
 
   SCM_REDEFER_INTS;
-  scm_dynwinds = SCM_CDR (scm_dynwinds);
+  scm_i_set_dynwinds (SCM_CDR (scm_i_dynwinds ()));
   SCM_REALLOW_INTS;
 
   return answer;
@@ -455,9 +455,7 @@ SCM
 scm_handle_by_message (void *handler_data, SCM tag, SCM args)
 {
   if (scm_is_true (scm_eq_p (tag, scm_from_locale_symbol ("quit"))))
-    {
-      exit (scm_exit_status (args));
-    }
+    exit (scm_exit_status (args));
 
   handler_message (handler_data, tag, args);
   pthread_exit (NULL);
@@ -471,6 +469,9 @@ scm_handle_by_message (void *handler_data, SCM tag, SCM args)
 SCM
 scm_handle_by_message_noexit (void *handler_data, SCM tag, SCM args)
 {
+  if (scm_is_true (scm_eq_p (tag, scm_from_locale_symbol ("quit"))))
+    exit (scm_exit_status (args));
+
   handler_message (handler_data, tag, args);
 
   return SCM_BOOL_F;
@@ -587,7 +588,7 @@ scm_ithrow (SCM key, SCM args, int noreturn SCM_UNUSED)
 
   /* Search the wind list for an appropriate catch.
      "Waiter, please bring us the wind list." */
-  for (winds = scm_dynwinds; scm_is_pair (winds); winds = SCM_CDR (winds))
+  for (winds = scm_i_dynwinds (); scm_is_pair (winds); winds = SCM_CDR (winds))
     {
       dynpair = SCM_CAR (winds);
       if (scm_is_pair (dynpair))
@@ -614,7 +615,7 @@ scm_ithrow (SCM key, SCM args, int noreturn SCM_UNUSED)
       
   jmpbuf = SCM_CDR (dynpair);
   
-  for (wind_goal = scm_dynwinds;
+  for (wind_goal = scm_i_dynwinds ();
        !scm_is_eq (SCM_CDAR (wind_goal), jmpbuf);
        wind_goal = SCM_CDR (wind_goal))
     ;
@@ -625,11 +626,11 @@ scm_ithrow (SCM key, SCM args, int noreturn SCM_UNUSED)
     {
       struct lazy_catch *c = (struct lazy_catch *) SCM_CELL_WORD_1 (jmpbuf);
       SCM handle, answer;
-      scm_dowinds (wind_goal, (scm_ilength (scm_dynwinds)
+      scm_dowinds (wind_goal, (scm_ilength (scm_i_dynwinds ())
 			       - scm_ilength (wind_goal)));
       SCM_REDEFER_INTS;
-      handle = scm_dynwinds;
-      scm_dynwinds = SCM_CDR (scm_dynwinds);
+      handle = scm_i_dynwinds ();
+      scm_i_set_dynwinds (SCM_CDR (handle));
       SCM_REALLOW_INTS;
       answer = (c->handler) (c->handler_data, key, args);
       scm_misc_error ("throw", "lazy-catch handler did return.", SCM_EOL);
@@ -639,12 +640,12 @@ scm_ithrow (SCM key, SCM args, int noreturn SCM_UNUSED)
   else if (SCM_JMPBUFP (jmpbuf))
     {
       struct jmp_buf_and_retval * jbr;
-      scm_dowinds (wind_goal, (scm_ilength (scm_dynwinds)
+      scm_dowinds (wind_goal, (scm_ilength (scm_i_dynwinds ())
 			       - scm_ilength (wind_goal)));
       jbr = (struct jmp_buf_and_retval *)JBJMPBUF (jmpbuf);
       jbr->throw_tag = key;
       jbr->retval = args;
-      scm_last_debug_frame = SCM_JBDFRAME (jmpbuf);
+      scm_i_set_last_debug_frame (SCM_JBDFRAME (jmpbuf));
       longjmp (*JBJMPBUF (jmpbuf), 1);
     }
 

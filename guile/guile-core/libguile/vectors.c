@@ -17,6 +17,7 @@
 
 
 
+#include <stdio.h>
 
 #include "libguile/_scm.h"
 #include "libguile/eq.h"
@@ -308,6 +309,8 @@ scm_c_make_vector (size_t k, SCM fill)
 
   v = scm_cell ((k << 8) | scm_tc7_vector, (scm_t_bits) base);
   scm_remember_upto_here_1 (fill);
+  
+  //fprintf (stderr, "new vector %p %p\n", v, base);
 
   return v;
 }
@@ -337,6 +340,7 @@ SCM_DEFINE (scm_vector_copy, "vector-copy", 1, 0, 0,
 void
 scm_i_vector_free (SCM vec)
 {
+  //fprintf (stderr, "free vector %p %p\n", vec, SCM_I_VECTOR_WELTS (vec));
   scm_gc_free (SCM_I_VECTOR_WELTS (vec),
 	       SCM_I_VECTOR_LENGTH (vec) * sizeof(SCM),
 	       "vector");

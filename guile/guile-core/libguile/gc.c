@@ -502,7 +502,14 @@ scm_t_c_hook scm_after_gc_c_hook;
 void
 scm_igc (const char *what)
 {
+  if (scm_block_gc)
+    return;
+
   scm_pthread_mutex_lock (&scm_i_sweep_mutex);
+
+  /* During the critical section, only the current thread may run. */
+  scm_i_thread_put_to_sleep ();
+
   ++scm_gc_running_p;
   scm_c_hook_run (&scm_before_gc_c_hook, 0);
 
@@ -514,15 +521,6 @@ scm_igc (const char *what)
 	   ? "*"
 	   : (scm_is_null (*SCM_FREELIST_LOC (scm_i_freelist2)) ? "o" : "m"));
 #endif
-
-  /* During the critical section, only the current thread may run. */
-  scm_i_thread_put_to_sleep ();
-
-  if (!scm_root || !scm_stack_base || scm_block_gc)
-    {
-      --scm_gc_running_p;
-      return;
-    }
 
   gc_start_stats (what);
 
@@ -599,14 +597,14 @@ scm_igc (const char *what)
   scm_c_hook_run (&scm_after_sweep_c_hook, 0);
   gc_end_stats ();
 
+  --scm_gc_running_p;
   scm_i_thread_wake_up ();
 
   /*
     See above.
    */
-  --scm_gc_running_p;
-  scm_c_hook_run (&scm_after_gc_c_hook, 0);
   pthread_mutex_unlock (&scm_i_sweep_mutex);
+  scm_c_hook_run (&scm_after_gc_c_hook, 0);
 
   /*
     For debugging purposes, you could do
@@ -988,6 +986,7 @@ mark_gc_async (void * hook_data SCM_UNUSED,
    * collection hooks and the execution count of the scheme level
    * after-gc-hook.
    */
+
 #if (SCM_DEBUG_CELL_ACCESSES == 1)
   if (scm_debug_cells_gc_interval == 0)
     scm_system_async_mark (gc_async);

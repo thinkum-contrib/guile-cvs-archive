@@ -40,23 +40,61 @@ SCM_API scm_t_bits scm_tc16_condvar;
 typedef struct scm_thread {
   struct scm_thread *next_thread;
 
-  /* For general blocking.
-   */
+  SCM handle;
+  pthread_t pthread;
+  
+  SCM join_queue;
+  SCM result;
+  int exited;
+
+  SCM sleep_object;
+  pthread_mutex_t *sleep_mutex;
   pthread_cond_t sleep_cond;
+  int sleep_fd, sleep_pipe[2];
 
   /* This mutex represents this threads right to access the heap.
      That right can temporarily be taken away by the GC.  
   */
   pthread_mutex_t heap_mutex;
+
+  /* The freelists of this thread.  Each thread has its own lists so
+     that they can all allocate concurrently.
+  */
   SCM freelist, freelist2;
   int clear_freelists_p; /* set if GC was done while thread was asleep */
-  
-  SCM root;
 
-  SCM handle;
-  pthread_t pthread;
-  SCM result;
-  int exited;
+  /* Other thread local things.
+   */
+  SCM dynamic_state;
+  scm_t_debug_frame *last_debug_frame;
+  SCM dynwinds;
+
+  /* For system asyncs.
+   */
+  SCM active_asyncs;            /* The thunks to be run at the next
+                                   safe point */
+  SCM signal_asyncs;            /* The pre-queued cells for signal handlers.
+                                 */
+  unsigned int block_asyncs;    /* Non-zero means that asyncs should 
+                                   not be run. */
+  unsigned int pending_asyncs;  /* Non-zero means that asyncs might be pending.
+				 */
+
+  /* The current continuation root and the stack base for it.
+
+     The continuation root is an arbitrary but unique object that
+     identifies a dynamic extent.  Continuations created during that
+     extent can also only be invoked during it.
+
+     We use pairs where the car is the thread handle and the cdr links
+     to the previous pair.  This is used for better error messages but
+     is not essential for identifying continuation roots.
+
+     The continuation base is the far end of the stack upto which it
+     needs to be copied.
+  */
+  SCM continuation_root;
+  SCM_STACKITEM *continuation_base;
 
   /* For keeping track of the stack and registers. */
   SCM_STACKITEM *base;
@@ -69,10 +107,10 @@ typedef struct scm_thread {
 #define SCM_THREAD_DATA(x)    ((scm_thread *) SCM_SMOB_DATA (x))
 
 #define SCM_MUTEXP(x)         SCM_SMOB_PREDICATE (scm_tc16_mutex, x)
-#define SCM_MUTEX_DATA(x)     ((void *) SCM_SMOB_DATA (x))
+#define SCM_MUTEX_DATA(x)     ((fat_mutex *) SCM_SMOB_DATA (x))
 
 #define SCM_CONDVARP(x)       SCM_SMOB_PREDICATE (scm_tc16_condvar, x)
-#define SCM_CONDVAR_DATA(x)   ((void *) SCM_SMOB_DATA (x))
+#define SCM_CONDVAR_DATA(x)   ((fat_cond *) SCM_SMOB_DATA (x))
 
 #define SCM_VALIDATE_THREAD(pos, a) \
  SCM_MAKE_VALIDATE_MSG (pos, a, THREADP, "thread")
@@ -88,15 +126,12 @@ typedef struct scm_thread {
 SCM_API SCM scm_spawn_thread (scm_t_catch_body body, void *body_data,
 			      scm_t_catch_handler handler, void *handler_data);
 
-/* The application must scm_leave_guile() before entering any piece of
-   code which can block.
- */
-
-SCM_API void scm_enter_guile (void);
-SCM_API void scm_leave_guile (void);
+typedef void *scm_t_guile_ticket;
+SCM_API void scm_enter_guile (scm_t_guile_ticket ticket);
+SCM_API scm_t_guile_ticket scm_leave_guile (void);
+SCM_API void *scm_without_guile (void *(*func)(void *), void *data);
 
 SCM_API void *scm_with_guile (void *(*func)(void *), void *data);
-SCM_API void *scm_without_guile (void *(*func)(void *), void *data);
 SCM_API void *scm_i_with_guile_and_parent (void *(*func)(void *), void *data,
 					   SCM parent);
 
@@ -117,12 +152,15 @@ void scm_i_thread_put_to_sleep (void);
 void scm_i_thread_wake_up (void);
 void scm_i_thread_invalidate_freelists (void);
 void scm_i_thread_sleep_for_gc (void);
+SCM_API void scm_frame_single_threaded (void);
+
 void scm_threads_prehistory (SCM_STACKITEM *);
 void scm_threads_init_first_thread (void);
 SCM_API void scm_threads_mark_stacks (void);
 SCM_API void scm_init_threads (void);
 SCM_API void scm_init_thread_procs (void);
-SCM_API void scm_init_threads_root_root (void);
+SCM_API void scm_init_threads_default_dynamic_state (void);
+
 
 #define SCM_THREAD_SWITCHING_CODE \
 do { \
@@ -156,11 +194,15 @@ SCM_API SCM scm_all_threads (void);
 SCM_API int scm_c_thread_exited_p (SCM thread);
 SCM_API SCM scm_thread_exited_p (SCM thread);
 
-SCM_API scm_root_state *scm_i_thread_root (SCM thread);
-
 #define SCM_CURRENT_THREAD \
   ((scm_thread *) pthread_getspecific (scm_i_thread_key))
 SCM_API pthread_key_t scm_i_thread_key;
+
+#define scm_i_dynwinds()         (SCM_CURRENT_THREAD->dynwinds)
+#define scm_i_set_dynwinds(w)    (SCM_CURRENT_THREAD->dynwinds = (w))
+#define scm_i_last_debug_frame() (SCM_CURRENT_THREAD->last_debug_frame)
+#define scm_i_set_last_debug_frame(f) \
+                                 (SCM_CURRENT_THREAD->last_debug_frame = (f))
 
 SCM_API pthread_mutex_t scm_i_misc_mutex;
 

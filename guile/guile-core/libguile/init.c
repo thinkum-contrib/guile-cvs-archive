@@ -368,7 +368,7 @@ invoke_main_func (void *body_data)
   /* If the caller doesn't want this, they should exit from main_func
      themselves.
   */
-  pthread_exit (NULL);
+  exit (0);
 
   /* never reached */
   return NULL;
@@ -384,6 +384,22 @@ scm_init_guile ()
 
 pthread_mutex_t scm_i_init_mutex = PTHREAD_MUTEX_INITIALIZER;
 int scm_initialized_p = 0;
+
+static void *
+really_cleanup_for_exit (void *unused)
+{
+  scm_flush_all_ports ();
+  return NULL;
+}
+
+static void
+cleanup_for_exit ()
+{
+  /* This function might be called in non-guile mode, so we need to
+     enter it temporarily. 
+  */
+  scm_with_guile (really_cleanup_for_exit, NULL);
+}
 
 void
 scm_i_init_guile (SCM_STACKITEM *base)
@@ -410,6 +426,7 @@ scm_i_init_guile (SCM_STACKITEM *base)
   scm_threads_prehistory (base);
   scm_ports_prehistory ();
   scm_smob_prehistory ();
+  scm_fluids_prehistory ();
   scm_hashtab_prehistory ();	/* requires storage_prehistory */
 #ifdef GUILE_DEBUG_MALLOC
   scm_debug_malloc_prehistory ();
@@ -428,12 +445,11 @@ scm_i_init_guile (SCM_STACKITEM *base)
   scm_init_variable ();           /* all bindings need variables */
   scm_init_continuations ();
   scm_init_root ();		  /* requires continuations */
-  scm_init_threads ();
+  scm_init_threads ();            /* requires fluids */
   scm_init_gsubr ();
   scm_init_thread_procs ();       /* requires gsubrs */
   scm_init_procprop ();
   scm_init_environments ();
-  scm_init_feature ();
   scm_init_alist ();
   scm_init_arbiters ();
   scm_init_async ();
@@ -445,8 +461,9 @@ scm_i_init_guile (SCM_STACKITEM *base)
   scm_init_dynwind ();
   scm_init_eq ();
   scm_init_error ();
-  scm_init_fluids ();
   scm_init_futures ();
+  scm_init_fluids ();
+  scm_init_feature ();          /* Requires fluids */
   scm_init_backtrace ();	/* Requires fluids */
   scm_init_fports ();
   scm_init_strports ();
@@ -530,7 +547,7 @@ scm_i_init_guile (SCM_STACKITEM *base)
   scm_i_init_deprecated ();
 #endif
 
-  scm_init_threads_root_root ();
+  scm_init_threads_default_dynamic_state ();
 
   scm_initialized_p = 1;
 
@@ -545,9 +562,9 @@ scm_i_init_guile (SCM_STACKITEM *base)
   scm_init_rw ();
   scm_init_extensions ();
 
+  atexit (cleanup_for_exit);
   scm_load_startup_files ();
 }
-
 
 /*
   Local Variables:

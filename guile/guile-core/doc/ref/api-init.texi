@@ -8,8 +8,8 @@
 @node Initialization
 @section Initializing Guile
 
-Each thread that wants to use function from the Guile API needs to put
-itself into guile mode with either @code{scm_with_guile} or
+Each thread that wants to use functions from the Guile API needs to
+put itself into guile mode with either @code{scm_with_guile} or
 @code{scm_init_guile}.  The global state of Guile is initialized
 automatically when the first thread enters guile mode.
 
@@ -39,13 +39,9 @@ all.
 When this is the first thread that enters guile mode, the global state
 of Guile is initialized before calling @code{func}.
 
-When a throw happens while @var{func} runs (such as a signalled error)
-that is not caught, a short message is printed to the current error port
-and @code{scm_with_guile} returns @code{NULL}.  When a continuation is
-invoked that would make the control flow cross this call to
-@code{scm_with_guile}, an error will be signalled at the point of
-continuation invokation.  Thus, @code{scm_with_guile} guaranteed to
-return exactly once.
+The function @var{func} is called via
+@code{scm_with_continuation_barrier}; thus, @code{scm_with_guile}
+returns exactly once.
 
 When @code{scm_with_guile} returns, the thread is no longer in guile
 mode (except when @code{scm_with_guile} was called from guile mode, see
@@ -60,11 +56,11 @@ It will then simply temporarily enter guile mode again.
 @end deftypefn
 
 @deftypefn {C Function} void scm_init_guile ()
-Arrange things so as if all of the code of the current thread would be
-executed from within a call to @code{scm_with_guile}.  That is, all
-functions called by the current thread can assume that @code{SCM} values
-on their stack frames are protected from the garbage collector (except
-when the thread has explicitely left guile mode, of course).
+Arrange things so that all of the code in the current thread executes as
+if from within a call to @code{scm_with_guile}.  That is, all functions
+called by the current thread can assume that @code{SCM} values on their
+stack frames are protected from the garbage collector (except when the
+thread has explicitely left guile mode, of course).
 
 When @code{scm_init_guile} is called from a thread that already has been
 in guile mode once, nothing happens.  This behavior matters when you
@@ -80,8 +76,8 @@ current error port and the thread is exited via @code{scm_pthread_exit
 
 The function @code{scm_init_guile} might not be available on all
 platforms since it requires some stack-bounds-finding magic that might
-not have been to all platforms that Guile runs on.  Thus, if you can, it
-is better to use @code{scm_with_guile} or its variation
+not have been ported to all platforms that Guile runs on.  Thus, if you
+can, it is better to use @code{scm_with_guile} or its variation
 @code{scm_boot_guile} instead of this function.
 @end deftypefn
 

@@ -23,6 +23,7 @@
 #endif
 
 #include <signal.h>
+#include <stdio.h>
 #include <errno.h>
 
 #include "libguile/_scm.h"
@@ -94,26 +95,77 @@ static struct sigaction orig_handlers[NSIG];
 static SIGRETTYPE (*orig_handlers[NSIG])(int);
 #endif
 
+static int signal_pipe[2];
 
 static SIGRETTYPE
 take_signal (int signum)
 {
+  char sigbyte = signum;
+  write (signal_pipe[1], &sigbyte, 1);
+
+#if 0
   if (signum >= 0 && signum < NSIG)
     {
       SCM cell = SCM_SIMPLE_VECTOR_REF (signal_handler_cells, signum);
       SCM handler = SCM_SIMPLE_VECTOR_REF (signal_cell_handlers, signum);
       SCM thread = SCM_SIMPLE_VECTOR_REF (signal_handler_threads, signum);
-      scm_root_state *root = scm_i_thread_root (thread);
+      scm_thread *t = SCM_THREAD_DATA (thread);
       if (scm_is_pair (cell))
 	{
 	  SCM_SETCAR (cell, handler);
-	  root->pending_asyncs = 1;
+	  t->pending_asyncs = 1;
 	}
     }
+#endif
   
 #ifndef HAVE_SIGACTION
   signal (signum, take_signal);
 #endif
+}
+
+static SCM
+signal_delivery_thread (void *data)
+{
+  sigset_t all_sigs;
+  scm_t_guile_ticket ticket;
+  int n, sig;
+  char sigbyte;
+
+  sigfillset (&all_sigs);
+  pthread_sigmask (SIG_SETMASK, &all_sigs, NULL);
+
+  while (1)
+    {
+      ticket = scm_leave_guile ();
+      n = read (signal_pipe[0], &sigbyte, 1);
+      sig = sigbyte;
+      scm_enter_guile (ticket);
+      if (n == 1 && sig >= 0 && sig < NSIG)
+	{
+	  SCM h = SCM_SIMPLE_VECTOR_REF (signal_cell_handlers, sig);
+	  SCM t = SCM_SIMPLE_VECTOR_REF (signal_handler_threads, sig);
+	  if (scm_is_true (h))
+	    scm_system_async_mark_for_thread (h, t);
+	}
+      else if (n < 0 && errno != EINTR)
+	perror ("got error");
+    }
+}
+
+static void
+start_signal_delivery_thread (void)
+{
+  if (pipe (signal_pipe) != 0)
+    scm_syserror (NULL);
+  scm_spawn_thread (signal_delivery_thread, NULL,
+		    scm_handle_by_message, "signal delivery thread");
+}
+
+static void
+ensure_signal_delivery_thread ()
+{
+  static pthread_once_t once = PTHREAD_ONCE_INIT;
+  pthread_once (&once, start_signal_delivery_thread);
 }
 
 SCM
@@ -194,21 +246,21 @@ really_install_handler (void *data)
   old_thread = SCM_SIMPLE_VECTOR_REF (signal_handler_threads, signum);
   if (!scm_is_eq (thread, old_thread))
     {
-      scm_root_state *r;
+      scm_thread *t;
       if (scm_is_true (old_thread))
 	{
-	  r = scm_i_thread_root (old_thread);
-	  r->signal_asyncs = scm_delq_spine_x (cell, r->signal_asyncs);
+	  t = SCM_THREAD_DATA (old_thread);
+	  t->signal_asyncs = scm_delq_spine_x (cell, t->signal_asyncs);
 	}
       if (scm_is_true (thread))
 	{
-	  r = scm_i_thread_root (thread);
-	  SCM_SETCDR (cell, r->signal_asyncs);
-	  r->signal_asyncs = cell;
+	  t = SCM_THREAD_DATA (thread);
+	  SCM_SETCDR (cell, t->signal_asyncs);
+	  t->signal_asyncs = cell;
 	  /* Set pending_asyncs just in case.  A signal that is
 	     delivered while we modify the data structures here might set
 	     pending_asyncs of old_thread. */
-	  r->pending_asyncs = 1; 
+	  t->pending_asyncs = 1; 
 	}
       SCM_SIMPLE_VECTOR_SET (signal_handler_threads, signum, thread); 
     }
@@ -322,6 +374,8 @@ SCM_DEFINE (scm_sigaction_for_thread, "sigaction", 1, 3, 0,
       if (scm_c_thread_exited_p (thread))
 	SCM_MISC_ERROR ("thread has already exited", SCM_EOL);
     }
+
+  ensure_signal_delivery_thread ();
 
   SCM_DEFER_INTS;
   old_handler = SCM_SIMPLE_VECTOR_REF (*signal_handlers, csig);

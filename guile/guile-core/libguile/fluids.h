@@ -39,31 +39,29 @@
    Each fluid is identified by a small integer.  This integer is used
    to index a vector that holds the values of all fluids.  A dynamic
    state consists of this vector, wrapped in a smob so that the vector
-   can be grown.
+   can grow.
  */
 
-SCM_API scm_t_bits scm_tc16_fluid;
-
-#define SCM_FLUIDP(x)    (SCM_SMOB_PREDICATE (scm_tc16_fluid, (x)))
-#define SCM_FLUID_NUM(x) (SCM_CELL_WORD_1 (x))
-
 /* The fastest way to acces/modify the value of a fluid.  These macros
-   do no error checking at all.  You should only use them when you
-   know that the relevant fluid already exists in the current dynamic
-   state.  The easiest way to ensure this is to execute a
-   'scm_fluid_set_x' in the topmost dynamic state, for example right
-   after 'scm_make_fluid' in your 'scm_init_mumble' routine that gets
-   called from 'scm_boot_guile'.  The first argument is the index
+   do no error checking at all.  The first argument is the index
    number of the fluid, obtained via SCM_FLUID_NUM, not the fluid
-   itself. */
+   itself.  You must make sure that the fluid remains protected as
+   long you use its number since numbers of unused fluids are reused
+   eventually.
+*/
 
-#define SCM_FAST_FLUID_REF(n) (SCM_VELTS(scm_root->fluids)[n])
-#define SCM_FAST_FLUID_SET_X(n, val) (SCM_VELTS(scm_root->fluids)[n] = val)
+#define SCM_FLUID_NUM(x)             scm_i_fluid_num (x)
+#define SCM_FAST_FLUID_REF(n)        scm_i_fast_fluid_ref (n)
+#define SCM_FAST_FLUID_SET_X(n, val) scm_i_fast_fluid_set_x ((n),(val))
 
 SCM_API SCM scm_make_fluid (void);
+SCM_API int scm_is_fluid (SCM obj);
 SCM_API SCM scm_fluid_p (SCM fl);
 SCM_API SCM scm_fluid_ref (SCM fluid);
 SCM_API SCM scm_fluid_set_x (SCM fluid, SCM value);
+SCM_API size_t scm_i_fluid_num (SCM fl);
+SCM_API SCM scm_i_fast_fluid_ref (size_t n);
+SCM_API void scm_i_fast_fluid_set_x (size_t n, SCM val);
 
 SCM_API SCM scm_c_with_fluids (SCM fluids, SCM vals,
 			       SCM (*cproc)(void *), void *cdata);
@@ -74,9 +72,19 @@ SCM_API SCM scm_with_fluid (SCM fluid, SCM val, SCM thunk);
 
 SCM_API void scm_frame_fluid (SCM fluid, SCM value);
 
-SCM_API SCM scm_i_make_initial_fluids (void);
-SCM_API void scm_i_copy_fluids (scm_root_state *);
+SCM_API SCM scm_make_dynamic_state (SCM parent);
+SCM_API SCM scm_dynamic_state_p (SCM obj);
+SCM_API int scm_is_dynamic_state (SCM obj);
+SCM_API SCM scm_current_dynamic_state (void);
+SCM_API SCM scm_set_current_dynamic_state (SCM state);
+SCM_API void scm_frame_current_dynamic_state (SCM state);
+SCM_API void *scm_c_with_dynamic_state (SCM state, 
+					void *(*func)(void *), void *data);
+SCM_API SCM scm_with_dynamic_state (SCM state, SCM proc);
 
+SCM_API SCM scm_i_make_initial_dynamic_state (void);
+
+SCM_API void scm_fluids_prehistory (void);
 SCM_API void scm_init_fluids (void);
 
 #endif  /* SCM_FLUIDS_H */

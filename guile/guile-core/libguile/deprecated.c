@@ -43,6 +43,7 @@
 #include "libguile/smob.h"
 #include "libguile/alist.h"
 #include "libguile/keywords.h"
+#include "libguile/feature.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -1387,6 +1388,46 @@ scm_i_cur_loadp (void)
   scm_c_issue_deprecation_warning
     ("scm_cur_loadp is deprecated.  Use scm_current_load_port instead.");
   return scm_current_load_port ();
+}
+
+SCM
+scm_i_progargs (void)
+{
+  scm_c_issue_deprecation_warning
+    ("scm_progargs is deprecated.  Use scm_program_arguments instead.");
+  return scm_program_arguments ();
+}
+
+SCM
+scm_i_deprecated_dynwinds (void)
+{
+  scm_c_issue_deprecation_warning
+    ("scm_dynwinds is deprecated.  Do not use it.");
+  return scm_i_dynwinds ();
+}
+
+scm_t_debug_frame *
+scm_i_deprecated_last_debug_frame (void)
+{
+  scm_c_issue_deprecation_warning
+    ("scm_last_debug_frame is deprecated.  Do not use it.");
+  return scm_i_last_debug_frame ();
+}
+
+SCM_STACKITEM *
+scm_i_stack_base (void)
+{
+  scm_c_issue_deprecation_warning
+    ("scm_stack_base is deprecated.  Do not use it.");
+  return SCM_CURRENT_THREAD->base;
+}
+
+int
+scm_i_fluidp (SCM x)
+{
+  scm_c_issue_deprecation_warning
+    ("SCM_FLUIDP is deprecated.  Use scm_is_fluid instead.");
+  return scm_is_fluid (x);
 }
 
 void
