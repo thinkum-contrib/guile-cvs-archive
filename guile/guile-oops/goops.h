@@ -58,37 +58,34 @@
  * scm_class_class
  */
 
-#define SCM_CLASS_CLASS_LAYOUT "pruosrpwpopopopopopwururururururururpwpwpwpwpwpwpwpwpwpwpwpw"
+#define SCM_CLASS_CLASS_LAYOUT "pruosrpwpopopwururururururururpwpwpwpwpwpwpwpwpwpwpwpw"
 
 #define scm_si_layout		  0 /* the struct layout */
 #define scm_si_vcell		  1 
 #define scm_si_vtable		  2 
 #define scm_si_print		  3 /* the struct print closure */
-#define scm_si_procedure0	  4 
-#define scm_si_procedure1	  5 
-#define scm_si_procedure2	  6 
-#define scm_si_procedure3	  7 
-#define scm_si_setter		  8 
+#define scm_si_proc		  4
+#define scm_si_setter		  5 
 
-#define scm_si_goops_fields	  9
+#define scm_si_goops_fields	  6
 
 /* Defined in libguile/objects.c:
-#define scm_si_redefined	  9    The class to which class was redefined.
-#define scm_si_hashsets	 	 10
+#define scm_si_redefined	  6    The class to which class was redefined.
+#define scm_si_hashsets	 	  7
 */
-#define scm_si_name 		 18 /* a symbol */
-#define scm_si_direct_supers 	 19 /* (class ...) */
-#define scm_si_direct_slots	 20 /* ((name . options) ...) */
-#define scm_si_direct_subclasses 21 /* (class ...) */
-#define scm_si_direct_methods	 22 /* (methods ...) */
-#define scm_si_cpl		 23 /* (class ...) */
-#define scm_si_slotdef_class	 24 
-#define scm_si_slots		 25 /* ((name . options) ...) */
-#define scm_si_name_access	 26 
-#define scm_si_keyword_access	 27 
-#define scm_si_nfields		 28 /* an integer */
-#define scm_si_environment	 29 /* The environment in which class is built  */
-#define SCM_N_CLASS_SLOTS	 30
+#define scm_si_name 		 15 /* a symbol */
+#define scm_si_direct_supers 	 16 /* (class ...) */
+#define scm_si_direct_slots	 17 /* ((name . options) ...) */
+#define scm_si_direct_subclasses 18 /* (class ...) */
+#define scm_si_direct_methods	 19 /* (methods ...) */
+#define scm_si_cpl		 20 /* (class ...) */
+#define scm_si_slotdef_class	 21 
+#define scm_si_slots		 22 /* ((name . options) ...) */
+#define scm_si_name_access	 23 
+#define scm_si_keyword_access	 24 
+#define scm_si_nfields		 25 /* an integer */
+#define scm_si_environment	 26 /* The environment in which class is built  */
+#define SCM_N_CLASS_SLOTS	 27
 
 typedef struct scm_method_t {
   SCM generic_function;
@@ -207,8 +204,7 @@ SCM scm_compute_applicable_methods (SCM gf, SCM args, int len, int scm_find_meth
 SCM scm_sys_compute_applicable_methods (SCM gf, SCM args);
 SCM scm_m_atslot_ref (SCM xorig, SCM env);
 SCM scm_m_atslot_set_x (SCM xorig, SCM env);
-SCM scm_m_dispatch (SCM xorig, SCM env);
-SCM scm_m_hash_dispatch (SCM xorig, SCM env);
+SCM scm_m_atdispatch (SCM xorig, SCM env);
 #ifdef GUILE_DEBUG
 SCM scm_pure_generic_p (SCM obj);
 #endif
@@ -247,10 +243,8 @@ SCM scm_sys_modify_class (SCM old, SCM new);
 SCM scm_sys_invalidate_class (SCM class);
 SCM scm_make_method_cache (SCM gf);
 SCM scm_sys_invalidate_method_cache_x (SCM gf);
-#ifdef HAVE_SCM_APPLY_GENERIC
 SCM scm_enable_primitive_generic_x (SCM subrs);
 SCM scm_primitive_generic_generic (SCM subr);
-#endif
 SCM stklos_version (void); 
 SCM scm_make (SCM args); 
 SCM scm_find_method (SCM args); 
