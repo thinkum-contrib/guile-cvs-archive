@@ -1,4 +1,4 @@
-;;;; 	Copyright (C) 1995, 1996, 1997 Free Software Foundation, Inc.
+;;;; 	Copyright (C) 1995, 1996, 1997, 2000 Free Software Foundation, Inc.
 ;;;; 
 ;;;; This program is free software; you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License as published by
@@ -66,7 +66,7 @@
 
 (define (make-print-table) (make-vector 59 '()))
 (define (print-table-ref table obj) (hashq-ref table obj))
-(define (print-table-add! table obj) (hashq-set! table obj (gensym 'ref)))
+(define (print-table-add! table obj) (hashq-set! table obj (gensym "ref")))
 
 (define (print-obj obj port depth length style table) (write obj port))
 
