@@ -4,11 +4,8 @@ Releasing Guile
 * Index
   * Introduction
   * Policy
-  * Names
   * Process
-    * Deciding to release
-    * Producing the release (the building and testing cycle)
-    * Announcing the release
+  * Library versioning considerations
   * Volunteer Testers
 
 * Introduction
@@ -18,37 +15,55 @@ Releasing Guile
   make sure that we have quality releases, and that we get them out
   the door in a reasonable amount of time, the release manager has to
   have *some* authority with respect to a few issues.  As with all
-  policy, it is likely true that "the *less* process we can have, the
-  better" -- to paraphrase a famous quote -- "as simple as possible,
-  but no simpler".
+  policy, it is likely true that "the less process we can have, the
+  better".
 
   Accordingly the Guile release policy will start small and be
   reworked as needed based on our experiences.  No one is going to be
   able to dream up the perfect system for this a-priori.
 
+  In general, there are three types of releases, unstable development
+  releases, releases involving the start of a new stable series, say
+  the transition from the 1.5 developent series to the first 1.6.0
+  release, and releases that are just incremental stable releases of
+  an existing stable series, say the release of 1.6.1 or 1.6.4.
+
+  Unstable to stable transitions are handled with the most caution;
+  incremental releases of an existing stable series are handled with
+  less fanfare, both because we try to be very careful about what
+  kinds of changes are allowed in to a stable series and because it's
+  relatively easy to follow up a problematic stable release with a
+  quick repair.  Unstable development releases are handled with the
+  least caution.
+
 * Policy
 
   - The release manager will provide input to help decide when it
-    might be time to branch for a release.  (Now that we have a more
-    sophisticated bug tagging system, we won't normally branch until
-    until all currently known release-critical issues have been
-    resolved.  This should help limit the time between branch and
-    release, which is in general a good idea.)
+    might be time to branch the unstable development tree for a
+    release.  Normally, a stable branch should not be created until
+    all currently known release-critical issues have been resolved.
+    This should help limit the time between branch and release, which
+    is in general a good idea.
 
   - The release manager will handle creating the stable branch when
     finally deemed appropriate.
 
-  - Once a release branch has been made, no one other than the release
+  - Once a stable branch has been made, no one other than the release
     manager or a member of the Guile maintainer committee should check
     in changes to that branch without approval from the release
     manager, unless those fixes are for release critical bugs that
     they're supposed to be fixing -- where "supposed to be fixing"
-    means that the release manager already knows about what they're
+    just means that the release manager knows about what they're
     doing, and "approval" doesn't have to be all that formal.  For
     example, popping up on irc, talking to the release manager and
-    then posting to guile-devel that you're fixing "XZY" in the stable
-    branch after consultation on IRC with the release manager, is just
+    then posting to guile-devel that you're "fixing XZY in the stable
+    branch after consultation on IRC with the release manager" is just
     fine.
+
+  - In general, changes like bug fixes and documentation improvements
+    are acceptable for the stable branch, but changes to the API are
+    not.  Although there may be some exceptions made in cases where
+    the changes don't affect backward compatibility.
 
   - No one should modify entries in the workbook/tasks/TODO section
     for a branched stable release target, nor add/delete the
@@ -58,83 +73,77 @@ Releasing Guile
     a big issue.
 
   - workbook/tasks/TODO and a scan of workbook/bugs/* for the relevant
-    release-critical tags should always provide a *complete* picture
-    of what's holding up a release.  For those that don't have direct
-    CVS access, please make sure you ask someone who does to edit TODO
-    or bugs/* accordingly when appropriate.  (Eventually we will
-    probably have a script that will automatically generate a list of
-    the items holding up a release.)
+    release-critical tags should always provide a complete picture of
+    what's holding up a release.  For those who don't have direct CVS
+    access, please make sure to ask someone who does to edit TODO or
+    bugs/* when appropriate.  (Eventually we will probably have a
+    script that will automatically generate a list of the items
+    holding up a release.)
 
-  - whenever all the currently listed release TODO items and release
-    critical bugs have been resolved (by whatever means), the release
-    manager will build, upload and announce a pre-release beta.
+  - For unstable to stable transition releases, whenever all the
+    currently listed release TODO items and release critical bugs have
+    been resolved (by whatever means), the release manager will build,
+    upload and announce a pre-release beta.
 
-  - If after a pre-release beta has been out for two weeks and no new
-    agreed-upon release-critical issues arise, the release manager
-    will build, upload, and announce the stable release.  If
-    release-critical issues do arise, then at the release manager's
-    discretion, fixing them may or may not require another beta
-    pre-release (i.e. an endian fix might, but a minor documentation
-    fix probably wouldn't).
+  - During an unstable to stable transition, after a given release
+    candidate has been made public, if no new agreed-upon
+    release-critical issues arise, the release manager will make the
+    final release.  If release-critical issues do arise, then at the
+    release manager's discretion, fixing them may or may not require
+    another beta pre-release (i.e. an endian fix might, but a minor
+    documentation fix probably wouldn't).
 
-  - The release manager will build, upload, and announce the stable
-    release and manage future stable point releases.
-
-* Names
-
-  Maybe we should name Guile releases after entertaining poisons:
-  absinthe, etc.  However, the first release containing the module
-  system should be called Godot: "This is the one you've been waiting
-  for."
+  - The release manager will also release and manage future point
+    releases of the stable branch.
 
 * Process
 
   * Deciding to release
 
-    As mentioned in Policy (above), one thing that should gate a
-    release is whether or not all the release critical bugs and TODO
-    items have been resolved.  A stable branch will not normally be
-    made until then.
+    As mentioned in Policy (above), one thing that should gate any
+    stable release is whether or not all the release critical bugs and
+    TODO items have been resolved.  A stable branch, or stable point
+    release, will not normally be made until then.  Unstable releases
+    may be made at any time.
 
-    However, there should be other criteria involved in deciding when
-    to release, though sometimes it may be something as simple as a
-    large number of accumulated bugfixes.
+    It is important not to create a stable branch too early.  Ideally
+    a new stable branch should only be created once it appears that
+    all of the work intended to go into the first stable release has
+    been fininshed.  This helps limit the amount of parallel
+    development (and divergence).
 
-    Other possible reasons:
+    There are many factors that might affect the decision to create a
+    stable release.  They include
 
       - impending major changes to the development tree.
       - new and improved documentation.
       - major new features finished.
+      - a large number of accumulated bugfixes.
 
-    In general, the TODO will be our record of what's planned for the
-    next release (what must be done before then), and should be
-    debated and updated accordingly after every major release.
+    In general, the TODO will be the record of what must be done
+    before the next stable release.
 
-
-  * Producing the release (the building and testing cycle)
+  * Producing a release
 
     * Overview
 
-      There are basically three phases to doing a release:
+      There are two major release-related tasks:
 
-      - "BRANCHING": Creating a stable development branch in CVS.
+      - Creating a stable CVS branch for a stable release series.
+        This is only done during an unstable to stable transition, for
+        example, when preparing to release 1.6.0 after the 1.5
+        development series.
 
-      - "SPIFFING": Updating NEWS, README, INSTALL.  Running tests.
-        Getting people to try builds on various machines.  Getting
-        everything straightened up.
+      - Making releases.  This includes both stable and unstable
+        releases.  Unstable releases are development releases intended
+        primarily for developers or people wanting to try out the
+        current development tree.
 
-      - "PUNTING": Updating the version numbers.  Tagging the sources.
-        Asking the FSF to put the disty on ftp.gnu.org.  Posting
-        announcements.
+    * Creating a stable branch
 
-      The "Spiffing" phase you might go through several times as you
-      discover problems.  The "Branching" and "Punting" phases you do
-      only once.
-
-    * Branching
-
-      Once it's been determined that it is time for a release (see
-      "Deciding to release" above), here's what to do:
+      Once it's been determined that it is time for a new stable
+      branch (see "Deciding to release" above) from the development
+      tree, here's what to do:
 
         - Announce when you're about to make the branch so that you
           have a greater chance of people holding off on edits during
@@ -142,132 +151,180 @@ Releasing Guile
 
         - Make sure you're on the main trunk (see HACKING), and then
           create the branch-root tag.  i.e. -r
-          branch-root_release-1-6.  (Add the exact command here next
-          time I do it.)
+          branch-root_release-1-6.  (FIXME: Add the exact command here
+          next time.)
 
         - Now create the branch with the branch tag. i.e. -r
-          branch_release-1-6.  (Add exact command here next time I do
-          it.)
+          branch_release-1-6.  (FIXME: Add exact command here next
+          time.)
 
         - Add a release specific section to workbook/tasks/TODO,
           if there's not one already, i.e. for Guile 1.6, we would
           have:
 
-    Guile 1.6 (branched: only modify items according to ../build/release.txt)
+            Guile 1.6 (stable: modify items according to ../build/release.txt)
 
-          if the section already exists, just add the "(branched:
-          ...)" notice.
+          If the section already exists, just add the "(stable: ...)" notice.
 
         - Change the version numbers in GUILE-VERSION and README on
           the main branch to reflect the new unstable version
-          i.e. 1.7.0, if you're currently creating the 1.6.X branch.
+          i.e. change it to 1.7.0, if you're currently creating the
+          1.6.X branch.
 
-    * Spiffing (i.e. beta testing)
+        - Update the NEWS sections in the stable and unstable branches
+          as appropriate.
 
-      NOTE: Unless you're *SURE* you know what you're doing, please
-      perform the following actions in order.  The ordering is
-      important in places.
+        - Increment the library sonames (all of them) in the new
+          stable branch.  Guile has a policy of changing all the
+          sonames with each release.  This avoids having to worry
+          about compatibility, which could be very hard to determine
+          since Guile passes arbitrary SCM values around between its
+          libraries and through its public APIs.
 
+          (If we decide to change this policy, and want to try more
+           "independent lib versioning", then the issues discussed
+           below in "Library Versioning" will be relevant, and the
+           release procedure will need to be altered appropriately.)
+
+        - Increment the library sonames (all of them) in the main
+          branch to be one more than the ones just set in the new
+          stable branch.  This ensures that the stable branch and the
+          unstable branch can't conflict, even if installed together.
+
+    * Making a release
+
+      The exact process depends in part on what kind of release is in
+      progress.  Unstable releases require much less care, and will
+      probably never require "release candidates" (see below).  On the
+      other hand, the first stable release of any given stable series
+      requires at least one pre-release, followed by an evaluation
+      period.  Subsequent stable releases may or may not require
+      pre-releases, depending on the particular release.
+
+      Since most of the process is the same for all releases, we will
+      just provide one set of steps, but we'll note wherever the
+      actions should vary for a particular type of release.  Also, for
+      unstable releases, it may not be crucial to follow each step to
+      the letter.
+
+      In order to produce a release:
+
+      * Decide if you actually need to build a new release.
+
+        - If the previous release was a pre-release candidate, and no
+          agreed upon release critical problems surfaced during the
+          evaluation period, then just rename the pre-release
+          candidate archive from guile-X.Y.Z-rcN.tar.gz to
+          guile-X.Y.Z.tar.gz and proceed to "Tag CVS and release"
+          below.
+
+          Note that for the first release in a stable series, the
+          X.Y.0 release, the minimum evaluation period for the rc0
+          release candidate should be two weeks.  For other release
+          candidates, it's a judgement call.
+
+      * Decide if this release is going to be a pre-release candidate.
+
+        - If this release will be leading up to the first release in a
+          stable series, and no previous pre-release candidates have
+          been made, then the answer is YES.  (In other words, you
+          *must* have at least one stable pre-release before any X.Y.0
+          release.)
+
+        - If this is any subsequent stable release, then the answer
+          may well be no.  In general the changes incorporated in
+          subsequent releases should be controlled enough that
+          problems with the release will be unlikely, and even if
+          problems do arise, they can easily be addressed by
+          additional stable releases.  That said, there may be cases
+          where pre-releases are warranted for stable releases other
+          than the first.
+
+        - If this is an unstable release, the answer is NO.
+           
       * Update the source.
 
-        - Make sure you're working on the stable branch (see HACKING for
-          details).  Note that after following the branch checklist
-          above, you won't necessarily be.
+        - Make sure you're working on the correct branch (see HACKING
+          for details).  Note that after following the branch
+          checklist above, you won't necessarily be.
 
-        - Make sure you've got the latest files "cvs -qz3 update -Pd".
+        - Make sure you have the latest files "cvs -qz3 update -Pd".
 
         - Check for files that have changed a lot, but do not have up-to-date
           copyright notices.  This can be as simple as doing:
-            grep 'Copyright' * | grep -v 1999
+            grep 'Copyright' * | grep -v CURRENT-YEAR
           and looking for files you know you've worked on a lot.
 
-        - Also, check the copyright years in "guile --version".
+        - Check the copyright years in "guile --version".
 
-        - Make sure NEWS, INSTALL, AUTHORS and THANKS and the docs are
+        - Make sure NEWS, INSTALL, AUTHORS, THANKS, and the docs are
           up to date:
-            - Scan the ChangeLogs for user-visible changes, marked with
-              an asterisk at the left margin.
+
             - Update NEWS and the Texinfo documentation as appropriate.
-            - Check for any [[incomplete]] sections of NEWS.
+            - Check for any incomplete sections of NEWS.
             - Fact-check INSTALL.
             - Make sure AUTHORS and THANKS are up-to-date (see also TODO).
-            - Remove finished items from TODO (those marked w/ "+").
+            - Check workbook/tasks/TODO and update if necessary.
 
-        - Make sure to edit NEWS so that you indicate the "breakpoint"
-          for the new release -- i.e. add a "Changes since" line with
-          content relevant to the version about to be released.
+        - Make sure the version is correct for the pending release.
+          Stable pre-releases should have the version of the release
+          they're leading up to.
 
-        - Make sure the downloading addresses and filenames in README
-          are current.  (But don't bump the version number yet.  We do
-          that below.)
+          Check the contents of GUILE-VERSION, README, etc., and see
+          HACKING for more information on how the version numbers are
+          to be chosen.
+
+        - Make sure the downloading addresses, version, and filenames
+          in README are current.
 
         - Check that the versions of aclocal, automake, autoconf, and
-          autoheader in your PATH match those given in HACKING.  Note
-          that the `make dist' process always invokes these tools,
-          even when all the generated files are up to date.  Make sure
-          that the files in libltdl are generated using the same tools
-          as the rest.
+          autoheader in your PATH are suitably new.  Current practice
+          has been to use whatever's current in Debian unstable.
 
-        - Check the library version numbers
+          Note that that the `make dist' process always invokes these
+          tools, even when all the generated files are up to date.
+          Also make sure that the files in libltdl are generated using
+          the same tools as the rest.
 
-          - Make sure the shared library libtool versioning numbers
-            are correct, but first make sure you understand "Libtool's
-            versioning system" in the libtool info pages.  Guile is
-            going to be versioning it's shared libraries
-            independently, so follow the libtool rules for choosing
-            version numbers, but make sure to keep in mind that not
-            everyone is as good about this as they should be.  In any
-            case, note that if your library passes through data
-            structures that were produced by some sub-library, and
-            that sub-libraries data has changed in a publically
-            incompatible way, then this may mean that *your* library's
-            API has changed in a publically incompatible way.
+        - Consider updating the relevant libguile-ltdl files to the
+          latest upstream if appropriate.
 
-          - In general, there will be a number of libraries in guile
-            that will have to be versioned, and it would be best if
-            the people who know the most about the individual libs
-            decide what the apropriate CURRENT, REVISION, and AGE
-            numbers for each one are.  In general, though, you have to
-            be conservative.  If no one is sure that the libs are
-            still compatible, then you *must* make the appropriate
-            changes under the assumption that they're not.  Getting
-            this wrong is very BAD(TM).
+        - Add an appropriate entry to the top level ChangeLog.
+          For an unstable release, add "Guile beta X.Y.Z released.".
+          For a stable pre-release, add "Guile X.Y.0 release candidate N.".
+          For a final stable release, add "Guile X.Y.Z released.".
 
-      * Build the beta test distribution
+      * Commit changes and build the distribution.
 
-        NOTE: during this section, don't commit any of your changes to
-        CVS until the instructions tell you to below.  This is
-        important so that someone doesn't check out CVS and think that
-        they have a finished copy of a particular release when they
-        actually don't.
+        If any problems below require you to modify the source, return
+        here and start again.
 
-        - Run "make clean".
-
-        - update GUILE-VERSION to reflect the current test
-          distribution, but don't commit this change to CVS yet (see
-          below).  For example, just before the 1.6.0 release, we went
-          through some number of 1.5.X test releases.
+        - Commit all of your changes to CVS.
 
         - Run ./autogen.sh to rebuild all generated files in the source tree.
 
-        - configure the source tree for build in the same tree with
-          these configuration options: --enable-maintainer-mode \
-          --enable-debug-malloc --with-threads \
-          --enable-error-on-warning \
-          --prefix=/wherever/you/want
+        - configure with these configuration options:
+            --enable-maintainer-mode \
+            --with-threads \
+            --enable-error-on-warning \
+            --prefix=/wherever/you/want
 
-        - Build the tree.  (If the above two steps are not done first,
-          the dependencies won't be properly included in the generated
-          Makefile.in files.)
+        - (If the above two steps are not done first, the dependencies
+          won't be properly included in the generated Makefile.in
+          files.)
 
         - Run "make" and "make check".
 
         - Check that the version numbers mentioned in the manual and
           in the output of "guile --version" are the right ones.
 
-        - Run "make distcheck".
+        - Run "make distcheck" to produce the distribution archive.
 
-      * Test the beta release candidate tarfile.
+      * Test the distribution locally.
+
+        If any problems below require you to modify the source, return
+        to the start of "Commit changes and build the distribution"
+        above.
 
         - Unset GUILE_LOAD_PATH.
 
@@ -289,15 +346,23 @@ Releasing Guile
             ln /tmp/stub/do-nothing /tmp/stub/autoconf	# etc
             PATH=/tmp/stub:$PATH
 
+        - Unpack the distribution archive somewhere.
+
         - Configure, "make", "make check", and "make install".  Make
           sure to remove your previous install tree before the "make
-          install".
+          install".  Also, you should omit --enable-maintainer-mode
+          from the ./configure arguments.
 
         - Make sure LD_LIBRARY_PATH doesn't include anything
           unnecessary -- though at the moment it (or
           LTDL_LIBRARY_PATH) will need to include guile's lib
           directory if that directory is not already in the normal
           places libltdl looks.
+
+        - Consider moving or removing your build tree, i.e. "mv
+          guile-1.6 guile-1.6 tmp".  This can help make sure you don't
+          have any accidental dependencies on source paths in the
+          final install.
 
         - Run the test suite on the installed version.
             ./check-guile -i [INSTALL_PATH]/bin/guile
@@ -307,76 +372,101 @@ Releasing Guile
 
         - Make sure readline works.
 
-        - You might try the example code in the doc directory.
+        - You might also try the example code in the doc directory, or
+          any other guile-based programs, benchmarks, or test code you
+          have.
 
-      * Update CVS and tag the beta release.
+      * Tag CVS and release.
 
-        When you get a tarfile that checks out OK.
+        Once you have a tarfile that checks out OK, it's time to
+        tag CVS and release
 
-        - Add a "Guile beta N.M
-          released." entry to the top-level ChangeLog.
+        - Tag the release.
 
-        - Now commit all your changes to CVS (this will also commit
-          the new GUILE-VERSION).
+          If this release is a stable release representing a renamed
+          release candidate (see "Decide if you actually need to build
+          a new release" above), then just use rtag to copy the rcN
+          tag:
 
-        - Tag the release "cvs tag release_1-5-2".
+            cvs rtag -r release_1-8-0-rc4 release_1-8-0
 
-        - Run 'make distcheck' again to get the official tarfile.
+          Otherwise use "cvs tag TAG" where 
+            for an unstable release TAG should be release_X-oddnumber-Z
+            for a stable pre-release TAG should be release_X-evennumber-Z-rcN
+            for an unstable release TAG should be release_X-evennumber-Z
 
-        - Upload the tarfile.
+          Examples: release_1-5-2, release_1-6-1-rc1, release_1-6-1
 
-        - Update the News on www.guile.org.
+        - If this is a stable pre-release candidate, then rename the
+          distribution archive from guile-X.Y.Z.tar.gz to
+          guile-X.Y.Z-rcN.tar.gz, where N is the release candidate
+          number.
 
-        - Announce the beta release in the places appropriate for a
-          beta test (fixme: elaborate -- i.e. guile-user, guile-devel,
-          etc., and put a sample beta release msg somewhere).  The
-          testers should follow the same instructions under "Test the
-          beta release candidate tarfile" above.
+        - Upload the distribution archive (tarfile)
+            to ftp.gnu.org for a stable release.
+            to alpha.gnu.org for a stable pre-release.
+            to alpha.gnu.org for a development release.
 
-      * Decide if we're ready for the final release
+        - Update the news on www.guile.org.
+          - cd template
+          - edit news.html
+          - make singlefile=news.html one-no-commit
+          - check ../news.html with your favorite browser.
+          - commit changes from ../
 
-        If after two weeks, no new agreed upon release critical issues
-        have surfaced, proceed to "Punting" below, otherwise fix the
-        issues, and return to "Spiffing" above.
+        - Announce the release.  See the list archives for
+          announcement examples.
 
-    * Punting (the final stable release)
+          - If this is an unstable release to announce it to at least
+            guile-devel.
 
-      - Make the final update to the version numbers in GUILE-VERSION
-        and README.  (There are many places in README that need
-        updating!).  See HACKING for more information on how the
-        version numbers are to be chosen.
+          - If this is a stable pre-release candidate, announce it to
+            guile-devel and guile-user, and suggest that testers
+            follow the same instructions in the section "Test the
+            distribution locally" above.
 
-      - Add a "Guile X.Y.Z released." entry to the top-level
-        ChangeLog.
+          - If this is a stable release, announce it to guile-user,
+            guile-devel, and gnu-announce@gnu.org.
 
-      - Now commit all your changes to CVS.
+        - Change the topic on irc.freenode.net #guile.
+            /msg chanserv op #guile
+            /topic FOO
+            /deop NICK
 
-      - Tag the entire source tree with a tag of the form "release_X-Y-Z",
-        i.e for release 1.6.1, use release_1-6-1
+* Library versioning considerations
 
-      - Do a 'make distcheck' to get the final tarfile.
+  These are some considerations that are only relevant if Guile is
+  considering changing to a policy that doesn't involve bumping all
+  the sonames with each release (which will probably be tricky to get
+  right for some definitions of "getting it right").
 
-      - Upload the tarfile to gnudist.gnu.org:~ftp/pub/gnu/guile and
-        check the permissions.
+  - It's critical to make sure the library versions are "right" for a
+    given release.  This means making sure the shared library libtool
+    versioning numbers are correct, but first you must make sure you
+    understand "Libtool's versioning system" in the libtool info
+    pages.  Also note that if your library passes through data
+    structures that were produced by some sub-library, and that
+    sub-library's data has changed in any publically incompatible way,
+    then this may mean that *your* library's API has changed in a
+    publically incompatible way.  This is not the kind of thing that
+    the traditional shared library model is designed to handle very
+    well unless you have control over what specific versions of
+    sub-libraries your library will be linked against.  Also note that
+    compatibility considerations apply to any SCM values your library
+    might return as well.  For example, if your library previously
+    returned (cons x y) but now returns (list x y), then your library
+    has changed in a publically incompatible way, even if your C
+    prototypes haven't.
 
-  * Announcing the release
-
-    - Send an announcement message to gnu-announce@gnu.org,
-      guile-user@gnu.org, and guile-devel@gnu.org.  See the list
-      archives for announcement examples.
-
-    - Update the news on www.guile.org.
-
-        - cd template
-        - edit news.html
-        - make singlefile=news.html one-no-commit
-        - check ../news.html with your favorite browser.
-        - commit changes from ../
-
-    - Change the topic on irc.freenode.net #guile.
-        /msg chanserv op #guile
-        /topic FOO
-        /deop NICK
+  - In general, if you're going to try to decide independently when
+    each library has broken backward compatibility (rather than the
+    current policy of just bumping all the sonames with each release)
+    then it'll probably be best if the people who know the most about
+    a given lib decide what the apropriate CURRENT, REVISION, and AGE
+    numbers should be.  In general, though, you have to be
+    conservative.  If no one is sure that the libs are still
+    compatible, then you *must* make the appropriate changes under the
+    assumption that they're not.  Getting this wrong is very BAD(TM).
 
 * Volunteer Testers
 
