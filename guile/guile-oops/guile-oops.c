@@ -54,11 +54,18 @@
 #include <libguile/gdb_interface.h>
 GDB_INTERFACE;
 
+#ifdef GOOPS_INCLUDE_FDI_EXAMPLE
+extern void scm_init_fdi ();
+#endif
+
 static void
 inner_main (void *closure, int argc, char **argv)
 {
   /* module initializations go here */
   scm_init_oop_goops_goopscore_module ();
+#ifdef GOOPS_INCLUDE_FDI_EXAMPLE
+  scm_init_fdi ();
+#endif
   scm_shell (argc, argv);
 }
 
