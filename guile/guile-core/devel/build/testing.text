@@ -7,3 +7,7 @@ runs "test-suite/guile-test") does not fail on UNRESOLVED tests.
 Maintainers who want to be more strict should use:
 
   ./check-guile --flag-unresolved
+
+To enable more verbose output, try:
+
+  ./check-guile --debug
