@@ -6,7 +6,8 @@
 	    fref/error-if-void
 	    elisp-apply
 	    interactive-specification
-	    not-subr?))
+	    not-subr?
+	    elisp-export-module))
 
 (define the-variables-module (resolve-module '(lang elisp variables)))
 
@@ -14,13 +15,19 @@
 ;; sure they stay reachable!
 (define syms '())
 
+;; elisp-export-module, if non-#f, holds a module to which definitions
+;; should be exported under their normal symbol names.  This is used
+;; when importing Elisp definitions into Scheme.
+(define elisp-export-module (make-fluid))
+
 ;; Store the procedure, macro or alias symbol PROC in SYM's function
 ;; slot.
 (define (fset sym proc)
   (or (memq sym syms)
       (set! syms (cons sym syms)))
   (let ((vcell (symbol-fref sym))
-	(vsym #f))
+	(vsym #f)
+	(export-module (fluid-ref elisp-export-module)))
     ;; Playing around with variables and name properties...  For the
     ;; reasoning behind this, see the commentary in (lang elisp
     ;; variables).
@@ -50,11 +57,19 @@
     ;; This is the important bit!
     (if (variable? vcell)
 	(variable-set! vcell proc)
-	(let ((vcell (make-variable proc)))
+	(begin
+	  (set! vcell (make-variable proc))
 	  (symbol-fset! sym vcell)
 	  ;; Playing with names and variables again - see above.
 	  (module-add! the-variables-module vsym vcell)
-	  (module-export! the-variables-module (list vsym))))))
+	  (module-export! the-variables-module (list vsym))))
+    ;; Export variable to the export module, if non-#f.
+    (if (and export-module
+	     (or (procedure? proc)
+		 (macro? proc)))
+	(begin
+	  (module-add! export-module sym vcell)
+	  (module-export! export-module (list sym))))))
 
 ;; Retrieve the procedure or macro stored in SYM's function slot.
 ;; Note the asymmetry w.r.t. fset: if fref finds an alias symbol, it

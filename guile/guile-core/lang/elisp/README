@@ -2,6 +2,47 @@
 
 This directory holds the Scheme side of a translator for Emacs Lisp.
 
+* Usage
+
+To load up the base Elisp environment:
+
+    (use-modules (lang elisp base))
+
+Then you can switch into this module
+
+    (define-module (lang elisp base))
+
+and start typing away in Elisp, or evaluate an individual Elisp
+expression from Scheme:
+
+    (eval EXP (resolve-module '(lang elisp base)))
+
+A more convenient, higher-level interface is provided by (lang elisp
+interface):
+
+    (use-modules (lang elisp interface))
+
+With this interface, you can evaluate an Elisp expression
+
+    (eval-elisp EXP)
+
+load an Elisp file with no effect on the Scheme world
+
+    (load-elisp-file "/home/neil/Guile/cvs/guile-core/lang/elisp/example.el")
+
+load an Elisp file, automatically importing top level definitions into
+Scheme
+
+    (use-elisp-file "/home/neil/Guile/cvs/guile-core/lang/elisp/example.el")
+
+export Scheme objects to Elisp
+
+    (export-to-elisp + - * my-func 'my-var)
+
+and try to bootstrap a complete Emacs environment:
+
+    (load-emacs)
+
 * Status
 
 Please note that this is work in progress; the translator is
@@ -9,10 +50,12 @@ incomplete and not yet widely tested.
 
 ** Trying to load a complete Emacs environment.
 
-To try this, type `(use-modules (lang elisp emacs))'.  The following
-output shows how far I get when I try this.
+To try this, type `(use-modules (lang elisp interface))' and then
+`(load-emacs)'.  The following output shows how far I get when I try
+this.
 
-guile> (use-modules (lang elisp emacs))
+guile> (use-modules (lang elisp interface))
+guile> (load-emacs)
 Calling loadup.el to clothe the bare Emacs...
 Loading /usr/share/emacs/20.7/lisp/loadup.el...
 Using load-path ("/usr/share/emacs/20.7/lisp/" "/usr/share/emacs/20.7/lisp/emacs-lisp/")
@@ -134,10 +177,10 @@ Buffers, keymaps, text properties, windows, frames etc. etc.
 Basically, everything that is implemented as a primitive in the Emacs
 C code needs to be implemented either in Scheme or in C for Guile.
 
-The Scheme files in this directory other than transform.scm and
-emacs.scm implement some of these primitives in Scheme.  Not because
-that is the right decision, but because this is a proof of concept and
-it's quicker to write badly performing code in Scheme.
+The Scheme files in the primitives subdirectory implement some of
+these primitives in Scheme.  Not because that is the right decision,
+but because this is a proof of concept and it's quicker to write badly
+performing code in Scheme.
 
 Ultimately, most of these primitive definitions should really come
 from the Emacs C code itself, translated or preprocessed in a way that
@@ -151,15 +194,24 @@ existing Guile reader rather than to write a new one from scratch, but
 there are a few syntactic differences that will require adding Elisp
 support to the reader.
 
-- Character syntax is `?a' rather than `#\a'.
+- Character syntax is `?a' rather than `#\a'.  (Not done.  More
+  precisely, `?a' in Elisp isn't character syntax but an alternative
+  integer syntax.  Note that we could support most of the `?a' syntax
+  simply by doing 
 
-- `nil' and `t' should be read (I think) as #f and #t.
+      (define ?a (char->integer #\a)
+      (define ?b (char->integer #\b)
 
-- Vector syntax is `[1 2 3]' rather than `#(1 2 3)'.
+  and so on.)
 
-Correspondingly, when printing, #f and '() should be written as `nil'.
+- `nil' and `t' should be read (I think) as #f and #t.  (Done.)
 
-** The Emacs module
+- Vector syntax is `[1 2 3]' rather than `#(1 2 3)'.  (Not done.)
+
+Correspondingly, when printing, #f and '() should be written as
+`nil'.  (Not done.)
+
+** The Elisp evaluation module (lang elisp base)
 
 Fundamentally, Guile's module system can't be used to package Elisp
 code in the same way it is used for Scheme code, because Elisp
@@ -173,38 +225,52 @@ because
 
 - a syntax transformer is a property of a module.
 
-Therefore we have the (lang elisp emacs) module, which acts as the
+Therefore we have the (lang elisp base) module, which acts as the
 repository for all Elisp variables and the site of all Elisp
 evaluation.
 
-In theory, the environment provided by this module should be identical
-to that provided by a fully loaded Emacs.  (lang elisp emacs)
-currently tries to create such an environment by
+The initial environment provided by this module is intended to be a
+non-Emacs-dependent subset of Elisp.  To get the idea, imagine someone
+who wants to write an extension function for, say Gnucash, and simply
+prefers to write in Elisp rather than in Scheme.  He/she therefore
+doesn't buffers, keymaps and so on, just the basic language syntax and
+core data functions like +, *, concat, length etc., plus specific
+functions made available by Gnucash.
+
+(lang elisp base) achieves this by
 
 - importing Scheme definitions for some Emacs primitives from the
-  other files in this directory
+  files in the primitives subdirectory
 
-- switching into Elisp syntax
+- then switching into Elisp syntax.
 
-- evaluating `(load "loadup.el")', just as an undumped Emacs would do.
+After this point, `(eval XXX (resolve-module '(lang elisp base)))'
+will evaluate XXX as an Elisp expression in the (lang elisp base)
+module.  (`eval-elisp' in (lang elisp interface) is a more convenient
+wrapper for this.)
 
-This `load' loads so much Elisp code that it's an excellent way to
+** Full Emacs environment
+
+The difference between the initial (lang elisp base) environment and a
+fully loaded Emacs equivalent is
+
+- more primitives: buffers, char-tables and many others
+
+- the bootstrap Elisp code that an undumped Emacs loads during
+  installation by calling `(load "loadup.el")'.
+
+We don't have all the missing primitives, but we can already get
+through some of loadup.el.  The Elisp function `load-emacs' (defined
+in (lang elisp base) initiates the loading of loadup.el; (lang elisp
+interface) exports `load-emacs' to Scheme.
+
+`load-emacs' loads so much Elisp code that it's an excellent way to
 test the translator.  In current practice, it runs for a while and
 then fails when it gets to an undefined primitive or a bug in the
 translator.  Eventually, it should go all the way.  (And then we can
-worry about adding unexec support to Guile!)
-
-** Something more modular?
-
-It seems like it ought to be useful to provide bits of Emacs
-functionality without loading up the whole shebang.  For example, the
-Emacs buffer, with its associated primitives, is a data type that can
-be hugely useful without bothering with keymaps, command loops,
-redisplay and so on.
-
-I currently have no idea how this will work out in practice.  Do
-buffers require Elisp?  Does Elisp require the whole of Emacs?
-Something along these lines will probably happen some day, though.
+worry about adding unexec support to Guile!)  For the output that
+currently results from calling `(load-emacs)', see above in the Status
+section.
 
 * nil, #f and '()
 
@@ -235,24 +301,6 @@ According to my approach...
   problem (unless you are prepared to convert arbitrarily deep
   structures on entry to the Elisp world, which would kill performance),
   I'm inclined not to try to solve it at all.
-
-* Usage
-
-Nothing is really usable yet.  All I do, for testing purposes, is
-
-(use-modules (lang elisp emacs))
-
-This tries to load up an Emacs environment as described above.  If you
-want to type and evaluate something in Elisp, do
-
-(define-module (lang elisp emacs))
-
-and you have Elisp syntax.  `define-module' is available in this
-module, so you can do
-
-(define-module (guile-user))
-
-to switch back to Scheme.
 
 * Resources
 

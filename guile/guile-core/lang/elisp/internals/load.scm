@@ -11,7 +11,9 @@
 
 (define* (load file #:optional noerror nomessage nosuffix must-suffix)
   (define (load1 filename)
-    (let ((pathname (let loop ((dirs load-path))
+    (let ((pathname (let loop ((dirs (if (char=? (string-ref filename 0) #\/)
+					 '("")
+					 load-path)))
 		      (cond ((null? dirs) #f)
 			    ((file-exists? (string-append (car dirs)
 							  filename))

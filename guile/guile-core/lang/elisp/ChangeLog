@@ -1,3 +1,36 @@
+2001-11-02  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* Makefile.am (elisp_sources): Added base.scm, example.el,
+	interface.scm; removed emacs.scm.
+
+	* README: Updated accordingly.
+
+	* internals/load.scm (load): Avoid using `load-path' if the
+	supplied file name begins with a slash.
+	
+	* internals/fset.scm: Support export of defuns, defmacros and
+	defvars to a module specified by the fluid `elisp-export-module'.
+	This allows us to automate the importing of Elisp definitions into
+	Scheme.
+	
+	* example.el: New file: example code for `load-elisp-file'.
+
+	* interface.scm: New file - mechanisms to exchange definitions
+	between Scheme and Elisp.
+
+	Following changes try to make the Elisp evaluation module less
+	Emacs-dependent; in other words, so that it isn't necessary to try
+	to load the whole Emacs environment before evaluating basic
+	non-Emacs-specific Elisp code.
+	
+	* variables.scm, internals/evaluation.scm: Changed (lang elisp
+	emacs) to (lang elisp base).
+	
+	* emacs.scm (lang): Removed.
+
+	* base.scm (lang): New file (non-emacs-specific replacement for
+	emacs.scm).
+
 2001-10-28  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* primitives/symprop.scm (symbol-name): New primitive.

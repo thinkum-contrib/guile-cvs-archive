@@ -15,7 +15,7 @@
 ;;;
 ;;; Normally we don't want to bind Elisp function definition variables
 ;;; to symbols that are visible from the Elisp evaluation module (lang
-;;; elisp emacs), because they would pollute the namespace available
+;;; elisp base), because they would pollute the namespace available
 ;;; to Elisp variables.  On the other hand, if we are trying to debug
 ;;; something, and looking at unmemoized source code, it's far more
 ;;; informative if that code has symbols that indicate the Elisp
@@ -28,13 +28,13 @@
 ;;; 1. We bind Elisp function definition variables to symbols in this
 ;;; module (lang elisp variables).
 ;;;
-;;; 2. By default, the Elisp evaluation module (lang elisp emacs) does
+;;; 2. By default, the Elisp evaluation module (lang elisp base) does
 ;;; not use (lang elisp variables), so the Elisp variable namespace
 ;;; stays clean.
 ;;;
-;;; 3. When debugging, a simple (named-module-use! '(lang elisp emacs)
+;;; 3. When debugging, a simple (named-module-use! '(lang elisp base)
 ;;; '(lang elisp variables)) makes the function definition symbols
-;;; visible in (lang elisp emacs) so that the unmemoizer can find
+;;; visible in (lang elisp base) so that the unmemoizer can find
 ;;; them, which makes the unmemoized source code much easier to read.
 ;;;
 ;;; 4. To reduce the effects of namespace pollution even after step 3,

@@ -26,7 +26,9 @@ SUBDIRS = internals primitives
 # These should be installed and distributed.
 
 elisp_sources = \
-	emacs.scm \
+	base.scm \
+	example.el \
+	interface.scm \
 	transform.scm \
 	variables.scm
 
