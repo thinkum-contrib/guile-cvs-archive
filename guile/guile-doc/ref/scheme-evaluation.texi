@@ -79,6 +79,15 @@ Evaluate @var{exp}, a list representing a Scheme expression, in the
 environment given by @var{environment specifier}.
 @end deffn
 
+@c docstring begin (texi-doc-string "guile" "interaction-environment")
+@deffn primitive interaction-environment
+This procedure returns a specifier for the environment that contains
+implementation-defined bindings, typically a superset of those listed in
+the report.  The intent is that this procedure will return the
+environment in which the implementation would evaluate expressions
+dynamically typed by the user.
+@end deffn
+
 @c docstring begin (texi-doc-string "guile" "eval-string")
 @deffn primitive eval-string string
 Evaluate @var{string} as the text representation of a Scheme form

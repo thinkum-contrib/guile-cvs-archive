@@ -216,6 +216,7 @@ Part I: An Introductory Tour
 * Linking Programs With Guile::
 * Writing Guile Modules::
 * Layout of this Manual::
+* Reporting Bugs::
 
 Part II: Guile Scheme
 
@@ -228,20 +229,22 @@ Part II: Guile Scheme
 * Control Mechanisms::          Controlling the flow of program execution.
 * Input and Output::            Ports, reading and writing.
 * Read/Load/Eval::              Reading and evaluating Scheme code.
-* Garbage Collection::
-* Weak References::
+* Memory Management::           Memory management and garbage collection.
 * Objects::                     Low level object orientation support.
-* Guardians::                   Guardians.
 * Modules::                     Designing reusable code libraries.
-* Dynamic Linking from Marius::
-* Threads and Dynamic Roots::
-* Options::                     How to query and set Guile's runtime options.
-* Configuration Data::		Version info, library directories, etc.
-* Emacs Lisp Support::          Helper primitives for translating Emacs Lisp.
-* Internal Debugging Interface::
-* SLIB::                        Using the SLIB Scheme library.
-* POSIX System Calls and Networking::
+* Scheduling::                  Threads, mutexes, asyncs and dynamic roots.
+* Options and Config::          Runtime options and configuration.
+* Translation::                 Support for translating other languages.
+* Debugging::                   Internal debugging interface.
 * Deprecated::                  Features that are planned to disappear.
+* Further Reading::             Where to find out more about Scheme programming.
+* R5RS Index::
+* Guile Extensions Index::
+
+Part III: Guile Modules
+
+* SLIB::                        Using the SLIB Scheme library.
+* POSIX::                       POSIX System Calls and Networking.
 * Expect::			Controlling interactive programs with Guile.
 * The Scheme shell (scsh)::
 	The SCSH compatibility module has been made an
@@ -249,15 +252,12 @@ Part II: Guile Scheme
 	(though it is nice to have a link from here to the
 	Guile-scsh manual, if one exists).
 * Tcl/Tk Interface::
-* Further Reading::             Where to find out more about Scheme programming.
-* R5RS Index::
-* Guile Extensions Index::
 
-Part III: Guile Scripting
+Part IV: Guile Scripting
 
 * Guile Scripting::             How to write Guile scripts.
 
-Part IV: Using Scheme with C --- A Portable Interface
+Part V: Using Scheme with C --- A Portable Interface
 
 * A Portable C to Scheme Interface::
 * gh preliminaries::
@@ -273,7 +273,7 @@ Part IV: Using Scheme with C --- A Portable Interface
 * Calling Scheme procedures from C::
 * Mixing gh and scm APIs::
 
-Part V: Using Scheme with C --- Guile's Interface
+Part VI: Using Scheme with C --- Guile's Interface
 
 * Scheme data representation::
 * Relationship between Scheme and C functions::
@@ -284,8 +284,6 @@ Part V: Using Scheme with C --- Guile's Interface
 Appendices
 
 * Obtaining and Installing Guile::
-* Reporting Bugs::
-* Internals::
 * Debugger User Interface::
 
 Indices
@@ -328,26 +326,26 @@ Indices
 @include scheme-options.texi
 @include scheme-translation.texi
 @include scheme-debug.texi
-@include slib.texi
+@include deprecated.texi
+@include scheme-reading.texi
+@include scheme-indices.texi
 
 @c Unix system interface
 @iftex
 @page
-@unnumbered{Part III: Unix Programming}
+@unnumbered{Part III: Guile Modules}
 @end iftex
 
+@include slib.texi
 @include posix.texi
-@include deprecated.texi
 @include expect.texi
 @include scsh.texi
 @include tcltk.texi
-@include scheme-reading.texi
-@include scheme-indices.texi
 
 @c Guile as an scripting language
 @iftex
 @page
-@unnumbered{Part III: Guile Scripting}
+@unnumbered{Part IV: Guile Scripting}
 @end iftex
 
 @include scripts.texi
@@ -355,14 +353,14 @@ Indices
 @c Guile as an extension language
 @iftex
 @page
-@unnumbered{Part IV: Using Scheme with C --- A Portable Interface}
+@unnumbered{Part V: Using Scheme with C --- A Portable Interface}
 @end iftex
 
 @include gh.texi
 
 @iftex
 @page
-@unnumbered{Part V: Using Scheme with C --- Guile's Interface}
+@unnumbered{Part VI: Using Scheme with C --- Guile's Interface}
 @end iftex
 
 @include scm.texi

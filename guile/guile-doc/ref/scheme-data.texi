@@ -47,7 +47,7 @@ sections of this manual that cover them.
 * Characters::                  New character names.
 * Strings::                     Special things about strings.
 * Regular Expressions::         Pattern matching and substitution.
-* Symbols and Variables::       Symbols and variables.
+* Symbols and Variables::       Manipulating the Scheme symbol table.
 * Keywords::                    Self-quoting, customizable display keywords.
 * Pairs::                       Scheme's basic building block.
 * Lists::                       Special list functions supported by Guile.
@@ -2237,6 +2237,13 @@ Test whether obj is a compiled regular expression.
 @node Symbols and Variables
 @section Symbols and Variables
 
+Guile symbol tables are hash tables.  Each hash table, also called an
+@dfn{obarray} (for `object array'), is a vector of association lists.
+Each entry in the alists is a pair (@var{SYMBOL} . @var{VALUE}).  To
+@dfn{intern} a symbol in a symbol table means to return its
+(@var{SYMBOL} . @var{VALUE}) pair, adding a new entry to the symbol
+table (with an undefined value) if none is yet present.
+
 @c docstring begin (texi-doc-string "guile" "builtin-bindings")
 @deffn primitive builtin-bindings
 Create and return a copy of the global symbol table, removing all
@@ -2262,14 +2269,14 @@ call.  There is no provision for resetting the counter.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "intern-symbol")
-@deffn primitive intern-symbol o s
+@deffn primitive intern-symbol obarray string
 Add a new symbol to @var{obarray} with name @var{string}, bound to an
 unspecified initial value.  The symbol table is not modified if a symbol
 with this name is already present.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "string->obarray-symbol")
-@deffn primitive string->obarray-symbol o s [softp]
+@deffn primitive string->obarray-symbol obarray string [soft?]
 Intern a new symbol in @var{obarray}, a symbol table, with name
 @var{string}.
 
@@ -2286,7 +2293,7 @@ table; instead, simply return @code{#f}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "string->symbol")
-@deffn primitive string->symbol s
+@deffn primitive string->symbol string
 Returns the symbol whose name is @var{string}.  This procedure can
 create symbols with names containing special characters or letters in
 the non-standard case, but it is usually a bad idea to create such
@@ -2317,7 +2324,7 @@ lower case:
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "symbol->string")
-@deffn primitive symbol->string s
+@deffn primitive symbol->string symbol
 Returns the name of @var{symbol} as a string.  If the symbol was part of
 an object returned as the value of a literal expression (section
 @pxref{Literal expressions,,,r4rs, The Revised^4 Report on Scheme}) or
@@ -2345,7 +2352,7 @@ lower case:
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "symbol-binding")
-@deffn primitive symbol-binding o s
+@deffn primitive symbol-binding obarray string
 Look up in @var{obarray} the symbol whose name is @var{string}, and
 return the value to which it is bound.  If @var{obarray} is @code{#f},
 use the global symbol table.  If @var{string} is not interned in
@@ -2353,7 +2360,7 @@ use the global symbol table.  If @var{string} is not interned in
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "symbol-bound?")
-@deffn primitive symbol-bound? o s
+@deffn primitive symbol-bound? obarray string
 Return @var{#t} if @var{obarray} contains a symbol with name
 @var{string} bound to a defined value.  This differs from
 @var{symbol-bound?} in that the mere mention of a symbol usually causes
@@ -2362,12 +2369,12 @@ been given any meaningful value.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "symbol-fref")
-@deffn primitive symbol-fref s
+@deffn primitive symbol-fref symbol
 Return the contents of @var{symbol}'s @dfn{function slot}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "symbol-fset!")
-@deffn primitive symbol-fset! s val
+@deffn primitive symbol-fset! symbol value
 Change the binding of @var{symbol}'s function slot.
 @end deffn
 
@@ -2377,23 +2384,23 @@ Return a hash value for @var{symbol}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "symbol-interned?")
-@deffn primitive symbol-interned? o s
+@deffn primitive symbol-interned? obarray string
 Return @var{#t} if @var{obarray} contains a symbol with name
 @var{string}, and @var{#f} otherwise.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "symbol-pref")
-@deffn primitive symbol-pref s
+@deffn primitive symbol-pref symbol
 Return the @dfn{property list} currently associated with @var{symbol}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "symbol-pset!")
-@deffn primitive symbol-pset! s val
+@deffn primitive symbol-pset! symbol value
 Change the binding of @var{symbol}'s property slot.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "symbol-set!")
-@deffn primitive symbol-set! o s v
+@deffn primitive symbol-set! obarray string value
 Find the symbol in @var{obarray} whose name is @var{string}, and rebind
 it to @var{value}.  An error is signalled if @var{string} is not present
 in @var{obarray}.
@@ -2405,7 +2412,7 @@ Returns @t{#t} if @var{obj} is a symbol, otherwise returns @t{#f}. (r5rs)
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "unintern-symbol")
-@deffn primitive unintern-symbol o s
+@deffn primitive unintern-symbol obarray string
 Remove the symbol with name @var{string} from @var{obarray}.  This
 function returns @code{#t} if the symbol was present and @code{#f}
 otherwise.
@@ -2419,7 +2426,7 @@ Then use `variable-ref' to access its value.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "make-undefined-variable")
-@deffn primitive make-undefined-variable [name_hint]
+@deffn primitive make-undefined-variable [name-hint]
 Return a variable object initialized to an undefined value.
 If given, uses NAME-HINT as its internal (debugging)
 name, otherwise just treat it as an anonymous variable.
@@ -2428,7 +2435,7 @@ variable may exist, so NAME-HINT is just that---a hint.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "make-variable")
-@deffn primitive make-variable init [name_hint]
+@deffn primitive make-variable init [name-hint]
 Return a variable object initialized to value INIT.
 If given, uses NAME-HINT as its internal (debugging)
 name, otherwise just treat it as an anonymous variable.
@@ -2438,27 +2445,27 @@ variable may exist, so NAME-HINT is just that---a hint.
 
 @c docstring begin (texi-doc-string "guile" "variable-bound?")
 @deffn primitive variable-bound? var
-Return #t iff VAR is bound to a value.
-Throws an error if VAR is not a variable object.
+Return @code{#t} iff @var{var} is bound to a value.
+Throws an error if @var{var} is not a variable object.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "variable-ref")
 @deffn primitive variable-ref var
-Dereference VAR and return its value.
-VAR must be a variable object;  see `make-variable' and
-`make-undefined-variable'
+Dereference @var{var} and return its value.  @var{var} must be a
+variable object; see @code{make-variable} and
+@code{make-undefined-variable}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "variable-set!")
 @deffn primitive variable-set! var val
-Set the value of the variable VAR to VAL.
-VAR must be a variable object, VAL can be any value.
+Set the value of the variable @var{var} to @var{val}.
+@var{var} must be a variable object, @var{val} can be any value.
 Returns an unspecified value.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "variable?")
 @deffn primitive variable? obj
-Return #t iff OBJ is a variable object, else return #f
+Return @code{#t} iff OBJ is a variable object, else return @code{#f}.
 @end deffn
 
 

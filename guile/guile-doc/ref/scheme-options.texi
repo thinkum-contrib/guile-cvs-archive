@@ -1,6 +1,6 @@
 @page
-@node Options
-@chapter Options
+@node Options and Config
+@chapter Runtime Options and Configuration
 
 Guile's behaviour can be modified by setting options.  For example, is
 the language that Guile accepts case sensitive, or should the debugger
@@ -21,6 +21,7 @@ configure @emph{reading}, @emph{printing}, @emph{debugging} or
 * Debugger options::
 * Evaluator options::
 * Examples of option use::
+* Install Config::              Installation and configuration data.
 @end menu
 
 @node General option interface
@@ -256,9 +257,8 @@ guile>
 @end smalllisp
 
 
-@page
-@node Configuration Data
-@chapter Configuration Data
+@node Install Config
+@section Installation and Configuration Data
 
 It is often useful to have site-specific information about the current
 Guile installation.  This chapter describes how to find out about

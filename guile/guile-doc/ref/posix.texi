@@ -1,4 +1,4 @@
-@node POSIX System Calls and Networking
+@node POSIX
 @chapter POSIX System Calls and Networking
 
 @menu

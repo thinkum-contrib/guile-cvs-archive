@@ -621,6 +621,17 @@ Finally, the appendices explain how to obtain the latest version of
 Guile, how to install it, where to find modules to work with Guile, and
 how to use the Guile debugger.
 
+
+@node Reporting Bugs
+@chapter Reporting Bugs
+
+Any problems with the installation should be reported to
+@email{bug-guile@@gnu.org}
+
+[[how about an explanation of what makes a good bug report?]]
+[[don't complain to us about problems with contributed modules?]]
+
+
 @c Local Variables:
 @c TeX-master: "guile.texi"
 @c End:

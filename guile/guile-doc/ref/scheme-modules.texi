@@ -38,8 +38,10 @@ clutter the global name space.
 @menu
 * Scheme and modules::
 * The Guile module system::
-* Module Internals::
+* Dynamic Libraries::		Loading libraries of compiled code at run time.
+* Dynamic Linking from Marius::
 @end menu
+
 
 @node Scheme and modules
 @section Scheme and modules
@@ -64,6 +66,7 @@ and they would magically become available, @emph{but still have the same
 names!}  So this method is nice, but not as good as a full-featured
 module system.
 
+
 @node The Guile module system
 @section The Guile module system
 
@@ -72,7 +75,7 @@ which allows loading Scheme source files into a private name space.
 
 This module system is regarded as being rather idiosyncratic, and will
 probably change to something more like the ML module system, so for now
-I will simply descrive how it works for a couple of simple cases.
+I will simply describe how it works for a couple of simple cases.
 
 First of all, the Guile module system sets up a hierarchical name space,
 and that name space can be represented like Unix pathnames preceded by a
@@ -133,15 +136,6 @@ and standards for contributed modules.]
 @deffn primitive standard-eval-closure module
 @end deffn
 
-@c docstring begin (texi-doc-string "guile" "interaction-environment")
-@deffn primitive interaction-environment
-This procedure returns a specifier for the environment that contains
-implementation-defined bindings, typically a superset of those listed in
-the report.  The intent is that this procedure will return the
-environment in which the implementation would evaluate expressions
-dynamically typed by the user.
-@end deffn
-
 Some modules are included in the Guile distribution; here are references
 to the entries in this manual which describe them in more detail:
 @table @strong
@@ -152,8 +146,7 @@ Guile starts up.
 Mikael Djurfeldt's source-level debugging support for Guile
 (@pxref{Debugger User Interface}).
 @item (ice-9 threads)
-Guile's support for multi threaded execution (@pxref{Threads and Dynamic
-Roots}).
+Guile's support for multi threaded execution (@pxref{Scheduling}).
 @item (ice-9 slib)
 This module contains hooks for using Aubrey Jaffer's portable Scheme
 library SLIB from Guile (@pxref{SLIB}).
@@ -163,24 +156,8 @@ packge Jacal from Guile (@pxref{JACAL}).
 @end table
 
 
-@page
-@node Module Internals
-@section Module Internals
-
-@menu
-* First-class Variables::
-* First-class Modules::
-* Dynamic Libraries::		Loading libraries of compiled code at run time.
-@end menu
-
-@node First-class Variables
-@subsection First-class Variables
-
-@node First-class Modules
-@subsection First-class Modules
-
 @node Dynamic Libraries
-@subsection Dynamic Libraries
+@section Dynamic Libraries
 
 Often you will want to extend Guile by linking it with some existing
 system library.  For example, linking Guile with a @code{curses} or
@@ -317,9 +294,8 @@ object code module, and using dynamic-link and dynamic-call to load the
 module.]
 
 
-@page
 @node Dynamic Linking from Marius
-@chapter Dynamic Linking from Marius
+@section Dynamic Linking from Marius
 
 @c NJFIXME primitive documentation here duplicates (and is generally
 @c better than) documentation for the same primitives earlier on.
@@ -365,7 +341,7 @@ integrates dynamically linked libraries into the module system.
 @end menu
 
 @node Low level dynamic linking
-@section Low level dynamic linking
+@subsection Low level dynamic linking
 
 When using the low level procedures to do your dynamic linking, you have
 complete control over which library is loaded when and what get's done
@@ -491,7 +467,7 @@ can extend the Spartan functionality of @code{dynamic-call} and
 the Guile contrib archive to make @file{libffi} accessible from Guile.
 
 @node Compiled Code Modules
-@section Putting Compiled Code into Modules
+@subsection Putting Compiled Code into Modules
 
 The new primitives that you add to Guile with @code{gh_new_procedure} or
 with any of the other mechanisms are normally placed into the same
@@ -553,7 +529,7 @@ it knows how to create this module and will call the initialization
 function at the right time in the right context.
 
 @node Dynamic Linking and Compiled Code Modules
-@section Dynamic Linking and Compiled Code Modules
+@subsection Dynamic Linking and Compiled Code Modules
 
 The most interesting application of dynamically linked libraries is
 probably to use them for providing @emph{compiled code modules} to

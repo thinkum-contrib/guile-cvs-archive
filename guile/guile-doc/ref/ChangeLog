@@ -1,3 +1,44 @@
+2001-01-07  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* appendices.texi (Internals): Content merged into Symbols and
+	Variables node of scheme-data.texi.
+	(Reporting Bugs): Moved to manual Part I.
+	
+	* guile.texi: Inserted new Part for `Guile Modules' as distinct
+	from core Guile Scheme language/features.  Other parts renumbered
+	correspondingly.  Module chapters moved into new part.
+	
+	* intro.texi (Reporting Bugs): Node moved here from
+	appendices.texi.
+	
+	* posix.texi (POSIX): Node name changed from `POSIX System Calls
+	and Networking'.
+	
+	* scheme-data.texi (Symbols and Variables): Added texinfo markup
+	to docstrings that didn't have it.  Expanded snarfed argument
+	names like `o' and `s' to `obarray' and `string'.
+	
+	* scheme-debug.texi (Debugging): Node name changed from `Internal
+	Debugging Interface'.
+
+	* scheme-evaluation.texi (Fly Evaluation): Moved doc for
+	`interaction-environment' here (previously under module doc).
+
+	* scheme-memory.texi: Structure reorganization.
+	
+	* scheme-modules.texi: Structure reorganization.  Removed empty
+	subsections `First-class Variables' and `First-class Modules'.
+	
+	* scheme-options.texi (Options and Config): Node name changed from
+	`Options'.
+	(Install Config) Node name changed from `Configuration Data'.
+
+	* scheme-scheduling.texi (Scheduling): Node name changed from
+	`Threads and Dynamic Roots'.
+
+	* scheme-translation.texi (Translation): New top level node for
+	translation documentation.
+
 2001-01-05  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* scheme-exceptions.texi: Removed.

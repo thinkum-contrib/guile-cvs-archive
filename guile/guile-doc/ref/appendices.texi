@@ -101,127 +101,6 @@ The relevant section (@pxref{JACAL}) has details on how to use Jacal.
 
 
 @page
-@node Reporting Bugs
-@appendix Reporting Bugs
-
-Any problems with the installation should be reported to
-@email{bug-guile@@gnu.ai.mit.edu}
-
-[[how about an explanation of what makes a good bug report?]]
-[[don't complain to us about problems with contributed modules?]]
-
-@page
-@node Internals
-@appendix Internals
-
-This appendix describes many functions that may be used to inspect and
-modify Guile's internal structure.  These will mainly be of interest to
-people interested in extending, modifying or debugging Guile.
-
-@menu
-* Symbols::		Manipulating the Scheme symbol table.
-@end menu
-
-@node Symbols
-@appendixsec Symbols
-
-Guile symbol tables are hash tables.  Each hash table, also called an
-@dfn{obarray} (for `object array'), is a vector of association lists.
-Each entry in the alists is a pair (@var{SYMBOL} . @var{VALUE}).  To
-@dfn{intern} a symbol in a symbol table means to return its
-(@var{SYMBOL} . @var{VALUE}) pair, adding a new entry to the symbol
-table (with an undefined value) if none is yet present.
-
-@deffn primitive string->obarray-symbol obarray string [soft?]
-Intern a new symbol in @var{obarray}, a symbol table, with name
-@var{string}.
-
-If @var{obarray} is @code{#f}, use the default system symbol table.  If
-@var{obarray} is @code{#t}, the symbol should not be interned in any
-symbol table; merely return the pair (@var{symbol}
-. @var{#<undefined>}).
-
-The @var{soft?} argument determines whether new symbol table entries
-should be created when the specified symbol is not already present in
-@var{obarray}.  If @var{soft?} is specified and is a true value, then
-new entries should not be added for symbols not already present in the
-table; instead, simply return @code{#f}.
-@end deffn
-
-@deffn primitive intern-symbol obarray string
-Add a new symbol to @var{obarray} with name @var{string}, bound to an
-unspecified initial value.  The symbol table is not modified if a symbol
-with this name is already present.
-@end deffn
-
-@deffn primitive unintern-symbol obarray string
-Remove the symbol with name @var{string} from @var{obarray}.  This
-function returns @code{#t} if the symbol was present and @code{#f}
-otherwise.
-@end deffn
-
-@deffn primitive symbol-binding obarray string
-Look up in @var{obarray} the symbol whose name is @var{string}, and
-return the value to which it is bound.  If @var{obarray} is @code{#f},
-use the global symbol table.  If @var{string} is not interned in
-@var{obarray}, an error is signalled.
-@end deffn
-
-@deffn primitive symbol-interned? obarray string
-Return @var{#t} if @var{obarray} contains a symbol with name
-@var{string}, and @var{#f} otherwise.
-@end deffn
-
-@deffn primitive symbol-bound? obarray string
-Return @var{#t} if @var{obarray} contains a symbol with name
-@var{string} bound to a defined value.  This differs from
-@var{symbol-bound?} in that the mere mention of a symbol usually causes
-it to be interned; @code{symbol-bound?} determines whether a symbol has
-been given any meaningful value.
-@end deffn
-
-@deffn primitive symbol-set! obarray string value
-Find the symbol in @var{obarray} whose name is @var{string}, and rebind
-it to @var{value}.  An error is signalled if @var{string} is not present
-in @var{obarray}.
-@end deffn
-
-@deffn primitive symbol-fref symbol
-Return the contents of @var{symbol}'s @dfn{function slot}.
-@end deffn
-
-@deffn primitive symbol-pref symbol
-Return the @dfn{property list} currently associated with @var{symbol}.
-@end deffn
-
-@deffn primitive symbol-fset! symbol
-Change the binding of @var{symbol}'s function slot.
-@end deffn
-
-@deffn primitive symbol-pset! symbol
-Change the binding of @var{symbol}'s property slot.
-@end deffn
-
-@deffn primitive symbol-hash symbol
-Return the hash value derived from @var{symbol}'s name, i.e. the integer
-index into @var{symbol}'s obarray at which it is stored.
-@end deffn
-
-@deffn primitive builtin-bindings
-Create and return a copy of the global symbol table, removing all
-unbound symbols.
-@end deffn
-
-@deffn primitive builtin-weak-bindings
-@end deffn
-
-@deffn primitive gensym [name [obarray]]
-Create a new, unique symbol in @var{obarray}, using the global symbol
-table by default.  If @var{name} is specified, it should be used as a
-prefix for the new symbol's name.  The default prefix is @code{%%gensym}.
-@end deffn
-
-@page
 @node Debugger User Interface
 @appendix Debugger User Interface
  
@@ -234,10 +113,10 @@ the program's internal status while it runs: the values of internal
 variables, the choices made in @code{if} and @code{cond} statements, and
 so forth.  Guile Scheme provides a debugging interface that programmers
 can use to single-step through Scheme functions and examine symbol
-bindings.  This is different from the @ref{Internal Debugging
-Interface}, which permits programmers to debug the Guile interpreter
-itself.  Most programmers will be more interested in debugging their own
-Scheme programs than the interpreter which evaluates them.
+bindings.  This is different from the @ref{Debugging}, which permits
+programmers to debug the Guile interpreter itself.  Most programmers
+will be more interested in debugging their own Scheme programs than the
+interpreter which evaluates them.
  
 [FIXME: should we include examples of traditional debuggers
 and explain why they can't be used to debug interpreted Scheme or Lisp?]

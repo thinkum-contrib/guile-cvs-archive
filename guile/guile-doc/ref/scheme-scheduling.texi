@@ -1,11 +1,10 @@
 @page
-@node Threads and Dynamic Roots
-@chapter Threads and Dynamic Roots
+@node Scheduling
+@chapter Threads, Mutexes, Asyncs and Dynamic Roots
 
 [FIXME: This is pasted in from Tom Lord's original guile.texi chapter
 plus the Cygnus programmer's manual; it should be *very* carefully
 reviewed and largely reorganized.]
-
 
 @menu
 * Arbiters::

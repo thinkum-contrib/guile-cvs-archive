@@ -1,5 +1,5 @@
 @page
-@node Internal Debugging Interface
+@node Debugging
 @chapter Internal Debugging Interface
 
 --- The name of this chapter needs to clearly distinguish it
