@@ -359,6 +359,9 @@
 #define SCM_VALIDATE_OPOUTPORT(pos, port) \
   SCM_MAKE_VALIDATE (pos, port, OPOUTPORTP)
 
+#define SCM_VALIDATE_OPOUTSTRPORT(pos, port) \
+  SCM_MAKE_VALIDATE (pos, port, OPOUTSTRPORTP)
+
 #define SCM_VALIDATE_FLUID(pos, fluid) SCM_MAKE_VALIDATE (pos, fluid, FLUIDP)
 
 #define SCM_VALIDATE_KEYWORD(pos, v) SCM_MAKE_VALIDATE (pos, v, KEYWORDP)
