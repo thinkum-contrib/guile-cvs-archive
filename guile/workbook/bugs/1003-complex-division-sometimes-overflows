@@ -1,9 +1,11 @@
 summary: complex division sometimes overflows
 reported: John W. Eaton <jwe@bevo.che.wisc.edu>, 2002-03-05
-affects: branch_release-1-6
+affects: branch_release-1-6, HEAD
 see-also-dir: 1003.stuff
 patch: denominator-special-casing.diff
 test-case: complex-divs.scm
+fixed: mvo@zagadka.de, 2002-03-11, guile-core, branch_release-1-6
+fixed: mvo@zagadka.de, 2002-03-11, guile-core, HEAD
 
 John W. Eaton sez:
 > The textbook formula for complex division
