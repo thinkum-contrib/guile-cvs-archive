@@ -71,7 +71,6 @@ AC_CHECK_LIB(dl, dlopen)
 AC_CHECK_LIB(socket, main)
 AC_CHECK_LIB(nsl, main)
 
-### MDJ
 AC_HAVE_HEADERS(unistd.h)
 
 ### Make sure Guile is installed.
@@ -111,6 +110,12 @@ case "$LIBS" in
     exit 2
   ;;
 esac
+
+AC_TRY_COMPILE([#include "tcl.h"],[Tcl_File x;],,[
+  echo "Tcl/Tk seems to be of a too old or too new version."
+  echo "Please use 7.6/4.2 or 7.5/4.1"
+  exit 2
+])
 
 ### Add the Guile libraries to the link command.
 LIBS="$LIBS `build-guile link`"
