@@ -212,10 +212,19 @@ of a compound data structure.
 @node About Procedures
 @chapter The Representation and Use of Procedures
 
+This chapter introduces the basics of using and creating Scheme
+procedures.  It discusses the representation of procedures as just
+another kind of Scheme value, and shows how procedure invocation
+expressions are constructed.  We then explain how @code{lambda} is used
+to create new procedures, and conclude by presenting the various
+shorthand forms of @code{define} that can be used instead of writing an
+explicit @code{lambda} expression.
+
 @menu
 * Procedures as Values::        Procedures are values just like everything else.
 * Simple Invocation::           How to write a straightforward procedure invocation.
 * Creating a Procedure::        How to create your own procedures.
+* Lambda Alternatives::         Other ways of writing procedure definitions.
 @end menu
 
 
@@ -287,7 +296,7 @@ invocations, as explained in the following sections.
 A procedure invocation in Scheme is written like this:
 
 @lisp
-(@var{procedure} [@var{param1} [@var{param2} @dots{}]])
+(@var{procedure} [@var{arg1} [@var{arg2} @dots{}]])
 @end lisp
 
 In this expression, @var{procedure} can be any Scheme expression whose
@@ -352,7 +361,7 @@ this, you can use the famous @code{lambda} syntax.
 The value of the following Scheme expression ---
 
 @lisp
-(lambda (name address) @var{expression}@dots{})
+(lambda (name address) @var{expression} @dots{})
 @end lisp
 
 --- is a newly created procedure that takes two arguments:
@@ -409,6 +418,67 @@ It's important to note that procedures created using @code{lambda} have
 exactly the same status as the standard built in Scheme procedures, and
 can be invoked, passed around, and stored in variables in exactly the
 same ways.
+
+
+@node Lambda Alternatives
+@section Lambda Alternatives
+
+Since it is so common in Scheme programs to want to create a procedure
+and then store it in a variable, there is an alternative form of the
+@code{define} syntax that allows you to do just that.
+
+A @code{define} expression of the form
+
+@lisp
+(define (@var{name} [@var{arg1} [@var{arg2} @dots{}]])
+  @var{expression} @dots{})
+@end lisp
+
+is exactly equivalent to the longer form
+
+@lisp
+(define @var{name}
+  (lambda ([@var{arg1} [@var{arg2} @dots{}]])
+    @var{expression} @dots{}))
+@end lisp
+
+So, for example, the definition of @code{make-combined-string} in the
+previous section could equally be written:
+
+@lisp
+(define (make-combined-string name address)
+  (string-append "Name=" name ":Address=" address))
+@end lisp
+
+This kind of procedure definition creates a procedure that requires
+exactly the expected number of arguments.  There are two further forms
+of the @code{lambda} expression, which create a procedure that can
+accept a variable number of arguments:
+
+@lisp
+(lambda (@var{arg1} @dots{} . @var{args}) @var{expression} @dots{})
+
+(lambda @var{args} @var{expression} @dots{})
+@end lisp
+
+The corresponding forms of the alternative @code{define} syntax are:
+
+@lisp
+(define (@var{name} @var{arg1} @dots{} . @var{args}) @var{expression} @dots{})
+
+(define (@var{name} . @var{args}) @var{expression} @dots{})
+@end lisp
+
+For details on how these forms work, see @xref{Procedures}.
+
+(It could be argued that the alternative @code{define} forms are rather
+confusing, especially for newcomers to the Scheme language, as they hide
+both the role of @code{lambda} and the fact that procedures are values
+that are stored in variables in the some way as any other kind of value.
+On the other hand, they are very convenient, and they are also a good
+example of another of Scheme's powerful features: the ability to specify
+arbitrary syntactic transformations at run time, which can be applied to
+subsequently read input.)
 
 
 @page
