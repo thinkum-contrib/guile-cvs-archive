@@ -38,10 +38,19 @@ AM_PROG_LIBTOOL
 if test -z "$with_tcltk" || test "$with_tcltk" = yes; then
 ### Some compilers don't check /usr/local/include and /usr/local/lib
 ### by default.  However, that's where Tcl and Tk are usually installed.
-test "$GCC" = yes || {
-  test -d /usr/local/include && TCLTK_INCLUDE="-I/usr/local/include"
+  if test -f /usr/local/include/tcl.h; then
+    TCLTK_INCLUDE="-I/usr/local/include"
+  else
+    # Some systems (Debian 1.2, for instance) may have headers in a `tcl' subdirectory.
+    if test -f /usr/local/include/tcl/tcl.h; then
+      TCLTK_INCLUDE="-I/usr/local/include/tcl"
+    else
+      if test -f /usr/include/tcl/tcl.h; then
+        TCLTK_INCLUDE="-I/usr/include/tcl"
+      fi
+    fi
+  fi
   test -d /usr/local/lib     && TCLTK_LIBDIR="-L/usr/local/lib"
-}
 else
   TCLTK_INCLUDE="-I$with_tcltk/include"
   TCLTK_LIBDIR="-L$with_tcltk/lib"
@@ -53,7 +62,10 @@ if test -n "$with_tkdir"; then
 fi
 
 dnl Checks for libraries.
-CFLAGS="$TCLTK_INCLUDE $TK_INCLUDE $TCLTK_LIBDIR $TK_LIBDIR $CFLAGS"
+CPPFLAGS="$TCLTK_INCLUDE $TK_INCLUDE $CPPFLAGS"
+CFLAGS="$TCLTK_LIBDIR $TK_LIBDIR $CFLAGS"
+AC_CHECK_HEADER(tcl.h,,[AC_MSG_ERROR(Can't find tcl.h)])
+AC_CHECK_HEADER(tk.h,,[AC_MSG_ERROR(Can't find tk.h)])
 
 AC_PATH_XTRA
 CFLAGS="$CFLAGS $X_CFLAGS"

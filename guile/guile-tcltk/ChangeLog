@@ -1,3 +1,10 @@
+1998-05-09  Dave Love  <d.love@dl.ac.uk>
+
+        * configure.in (TCLTK_INCLUDE): Look for headers in a `tcl'
+        subdirectory and set variable appropriately if found.
+        (CPPFLAGS): Add TCLTK_INCLUDE, TK_INCLUDE here.
+        (CFLAGS): Remove them from here.
+
 1998-04-21  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* hand.scm: New demo.
