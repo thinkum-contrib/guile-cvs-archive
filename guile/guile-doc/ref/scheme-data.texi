@@ -43,7 +43,7 @@ sections of this manual that cover them.
 
 @menu
 * Booleans::                    True/false values.
-* Numbers::                     Numerical operations.
+* Numbers::                     Numerical data types.
 * Characters::                  New character names.
 * Strings::                     Special things about strings.
 * Regular Expressions::         Pattern matching and substitution.
@@ -135,7 +135,7 @@ Return @code{#t} iff @var{obj} is either @code{#t} or @code{#f}.
 
 
 @node Numbers
-@section Numbers
+@section Numerical data types
 
 The Scheme standard supports a rich ``tower'' of numerical types ---
 integer, rational, real, complex and number --- and also the orthogonal
@@ -167,8 +167,12 @@ will only convert the latter value to the former when forced to do so by
 an invocation of the @code{inexact->exact} procedure.
 
 @menu
-* Number Types::                Predicates for testing number type.
-* Exactness::                   Checking and modifying exactness.
+* Numerical Tower::             Scheme's numerical ``tower''.
+* Integers::                    Whole numbers.
+* Reals and Rationals::         Real and rational numbers.
+* Complex Numbers::             Complex numbers.
+* Exactness::                   Exactness and inexactness.
+* Number Syntax::		Read syntax for numerical data.
 * Integer Operations::          Operations on integer values.
 * Comparison::                  Comparison predicates.
 * Conversion::                  Converting numbers to and from strings.
@@ -181,8 +185,8 @@ an invocation of the @code{inexact->exact} procedure.
 @end menu
 
 
-@node Number Types
-@subsection Predicates for Testing Number Type
+@node Numerical Tower
+@subsection Scheme's Numerical ``Tower''
 
 Scheme's numerical ``tower'' consists of the following categories of
 numbers:
@@ -209,8 +213,48 @@ follows it, in the sense that every integer is also a rational, every
 rational is also real, and every real number is also a complex number
 (but with zero imaginary part).
 
-Of these, Guile implements integers, reals and complex numbers.
-Integers can be arbitrarily big, as in the following example.
+Of these, Guile implements integers, reals and complex numbers as
+distinct types.  Rationals are implemented as regards the read syntax
+for rational numbers that is specified by R5RS, but are immediately
+converted by Guile to the corresponding real number.
+
+The @code{number?} predicate may be applied to any Scheme value to
+discover whether the value is any of the supported numerical types.
+
+@c docstring begin (texi-doc-string "guile" "number?")
+@deffn primitive number? obj
+Return @code{#t} if @var{obj} is any kind of number, @code{#f} else.
+@end deffn
+
+For example:
+
+@lisp
+(number? 3)
+@result{}
+#t
+
+(number? "hello there!")
+@result{}
+#f
+
+(define pi 3.141592654)
+(number? pi)
+@result{}
+#t
+@end lisp
+
+The next few subsections document each of Guile's numerical data types
+in detail.
+
+
+@node Integers
+@subsection Integers
+
+Integers are whole numbers, that is numbers with no fractional part,
+such as 2, 83 and -3789.
+
+Integers in Guile can be arbitrarily big, as shown by the following
+example.
 
 @lisp
 (define (factorial n)
@@ -232,49 +276,101 @@ Integers can be arbitrarily big, as in the following example.
 -119622220865480194561963161495657715064383733760000000000
 @end lisp
 
-Real numbers have limited precision similar to the precision of the
-@code{double} type in C.  A consequence of the limited precision is that
-all real numbers in Guile are also rational, since any number R with a
-limited number of decimal places, say N, can be made into an integer by
-multiplying by 10^N.
+Readers whose background is in programming languages where integers are
+limited by the need to fit into just 4 or 8 bytes of memory may find
+this surprising, or suspect that Guile's representation of integers is
+inefficient.  In fact, Guile achieves a near optimal balance of
+convenience and efficiency by using the host computer's native
+representation of integers where possible, and a more general
+representation where the required number does not fit in the native
+form.  Conversion between these two representations is automatic and
+completely invisible to the Scheme level programmer.
 
-@c docstring begin (texi-doc-string "guile" "number?")
-@deffn primitive number? x
-Return #t if X is any kind of number, #f else.
+@c REFFIXME Maybe point here to discussion of handling immediates/bignums
+@c on the C level, where the conversion is not so automatic - NJ
+
+@c docstring begin (texi-doc-string "guile" "integer?")
+@deffn primitive integer? obj
+Return @code{#t} if @var{obj} is an integer number, @code{#f} else.
+
+@lisp
+(integer? 487)
+@result{}
+#t
+
+(integer? -3.4)
+@result{}
+#f
+@end lisp
 @end deffn
 
-@c docstring begin (texi-doc-string "guile" "complex?")
-@deffn primitive complex? x
-Return #t if X is a complex number, #f else.  Note that the
-sets of real, rational and integer values form subsets of the
-set of complex numbers, i. e. the predicate will also be
-fulfilled if X is a real, rational or integer number.
-@end deffn
+
+@node Reals and Rationals
+@subsection Real and Rational Numbers
+
+Mathematically, the real numbers are the set of numbers that describe
+all possible points along a continuous, infinite, one-dimensional line.
+The rational numbers are the set of all numbers that can be written as
+fractions P/Q, where P and Q are integers.  All rational numbers are
+also real, but there are real numbers that are not rational, for example
+the square root of 2, and pi.
+
+Guile represents both real and rational numbers approximately using a
+floating point encoding with limited precision.  Even though the actual
+encoding is in binary, it may be helpful to think of it as a decimal
+number with a limited number of significant figures and a decimal point
+somewhere, since this corresponds to the standard notation for non-whole
+numbers.  For example:
+
+@lisp
+0.34
+-0.00000142857931198
+-5648394822220000000000.0
+4.0
+@end lisp
+
+The limited precision of Guile's encoding means that any ``real'' number
+in Guile can be written in a rational form, by multiplying and then dividing
+by sufficient powers of 10 (or in fact, 2).  For example,
+@code{-0.00000142857931198} is the same as @code{142857931198} divided by
+@code{100000000000000000}.  In Guile's current incarnation, therefore,
+the @code{rational?} and @code{real?} predicates are equivalent.
+
+Another aspect of this equivalence is that Guile currently does not
+preserve the exactness that is possible with rational arithmetic.
+If such exactness is needed, it is of course possible to implement
+exact rational arithmetic at the Scheme level using Guile's arbitrary
+size integers.
+
+A planned future revision of Guile's numerical tower will make it
+possible to implement exact representations and arithmetic for both
+rational numbers and real irrational numbers such as square roots,
+and in such a way that the new kinds of number integrate seamlessly
+with those that are already implemented.
 
 @c docstring begin (texi-doc-string "guile" "real?")
-@deffn primitive real? x
-Return #t if X is a real number, #f else.  Note that the
-sets of integer and rational values form subsets of the set of real
-numbers, i.e. the predicate will also be fulfilled if X is an
-integer number or a rational number.
+@deffn primitive real? obj
+Return @code{#t} if @var{obj} is a real number, @code{#f} else.
+Note that the sets of integer and rational values form subsets
+of the set of real numbers, so the predicate will also be fulfilled
+if @var{obj} is an integer number or a rational number.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "rational?")
-@deffn primitive rational? x
-Return #t if X is a rational number, #f else.  Note that the
-set of integer values forms a subset of the set of rational
-numbers, i. e. the predicate will also be fulfilled if X is an
-integer number.
+@deffn primitive rational? obj
+Return @code{#t} if @var{obj} is a rational number, @code{#f} else.
+Note that the set of integer values forms a subset of the set of
+rational numbers, so the predicate will also be fulfilled if @var{obj}
+is an integer number.
 @end deffn
 
-@c docstring begin (texi-doc-string "guile" "integer?")
-@deffn primitive integer? x
-Return #t if X is an integer number, #f else.
-@end deffn
+
+@node Complex Numbers
+@subsection Complex Numbers
 
 
 @node Exactness
-@subsection Checking and Modifying Exactness
+@subsection Exact and Inexact Numbers
 
 @c docstring begin (texi-doc-string "guile" "exact?")
 @deffn primitive exact? x
@@ -293,6 +389,81 @@ Returns an exact number that is numerically closest to Z.
 
 @c begin (texi-doc-string "guile" "exact->inexact")
 @deffn primitive exact->inexact
+@end deffn
+
+
+@node Number Syntax
+@subsection Read Syntax for Numerical Data
+
+The read syntax for integers is a string of digits, optionally
+preceded by a minus or plus character, a code indicating the
+base in which the integer is encoded, and a code indicating whether
+the number is exact or inexact.  The supported base codes are:
+
+@itemize @bullet
+@item
+@code{#b}, @code{#B} --- the integer is written in binary (base 2)
+
+@item
+@code{#o}, @code{#O} --- the integer is written in octal (base 8)
+
+@item
+@code{#d}, @code{#D} --- the integer is written in decimal (base 10)
+
+@item
+@code{#x}, @code{#X} --- the integer is written in hexadecimal (base 16).
+@end itemize
+
+If the base code is omitted, the integer is assumed to be decimal.  The
+following examples show how these base codes are used.
+
+@lisp
+-13
+@result{}
+-13
+
+#d-13
+@result{}
+-13
+
+#x-13
+@result{}
+-19
+
+#b+1101
+@result{}
+13
+
+#o377
+@result{}
+255
+@end lisp
+
+The codes for indicating exactness (which can, incidentally, be applied
+to all numerical values) are:
+
+@itemize @bullet
+@item
+@code{#e}, @code{#E} --- the number is exact
+
+@item
+@code{#i}, @code{#I} --- the number is inexact.
+@end itemize
+
+If the exactness indicator is omitted, the integer is assumed to be exact,
+since Guile's internal representation for integers is always exact.
+Real numbers have limited precision similar to the precision of the
+@code{double} type in C.  A consequence of the limited precision is that
+all real numbers in Guile are also rational, since any number R with a
+limited number of decimal places, say N, can be made into an integer by
+multiplying by 10^N.
+
+@c docstring begin (texi-doc-string "guile" "complex?")
+@deffn primitive complex? x
+Return #t if X is a complex number, #f else.  Note that the
+sets of real, rational and integer values form subsets of the
+set of complex numbers, i. e. the predicate will also be
+fulfilled if X is a real, rational or integer number.
 @end deffn
 
 
@@ -1105,6 +1276,7 @@ eventually, and it will be helpful to know how they work.
 @subsection String Fun
 
 @c docstring begin (texi-doc-string "guile" "string")
+@c docstring begin (texi-doc-string "guile" "list->string")
 @deffn primitive string . chrs
 @deffnx primitive list->string chrs
 Returns a newly allocated string composed of the arguments, CHRS.
@@ -1203,6 +1375,8 @@ the entire string.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "substring-move!")
+@c docstring begin (texi-doc-string "guile" "substring-move-left!")
+@c docstring begin (texi-doc-string "guile" "substring-move-right!")
 @deffn primitive substring-move! str1 start1 end1 str2 start2
 @deffnx primitive substring-move-left! str1 start1 end1 str2 start2
 @deffnx primitive substring-move-right! str1 start1 end1 str2 start2
@@ -2058,10 +2232,6 @@ Create and return a copy of the global symbol table, removing all
 unbound symbols.
 @end deffn
 
-@c docstring begin (texi-doc-string "guile" "builtin-weak-bindings")
-@deffn primitive builtin-weak-bindings
-@end deffn
-
 @c docstring begin (texi-doc-string "guile" "gensym")
 @deffn primitive gensym [prefix]
 Create a new symbol with name constructed from a prefix and a counter value.
@@ -2622,6 +2792,7 @@ Set the @var{k}th element of @var{list} to @var{val}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "list-tail")
+@c docstring begin (texi-doc-string "guile" "list-cdr-ref")
 @deffn primitive list-tail lst k
 @deffnx primitive list-cdr-ref lst k
 Return the "tail" of @var{lst} beginning with its @var{k}th element.
@@ -2700,6 +2871,8 @@ This procedure mirrors @code{member}:
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "delq!")
+@c docstring begin (texi-doc-string "guile" "delv!")
+@c docstring begin (texi-doc-string "guile" "delete!")
 @deffn primitive delq! item lst
 @deffnx primitive delv! item lst
 @deffnx primitive delete! item lst
@@ -2755,6 +2928,7 @@ not for high-level Scheme programs.
 @end deffn
 
 @c begin (texi-doc-string "guile" "map")
+@c docstring begin (texi-doc-string "guile" "map-in-order")
 @deffn primitive map proc arg1 . args
 @deffnx primitive map-in-order proc arg1 . args
 @end deffn
@@ -3069,6 +3243,7 @@ Return #t iff @var{obj} is a structure object, else #f.
 
 
 @c docstring begin (texi-doc-string "guile" "struct-ref")
+@c docstring begin (texi-doc-string "guile" "struct-set!")
 @deffn primitive struct-ref handle pos
 @deffnx primitive struct-set! struct n value
 Access (or modify) the @var{n}th field of @var{struct}.
@@ -3253,6 +3428,7 @@ Creates and returns an array that has as many dimensions as there are
 @c going on in array.c, too.  Let's call it a primitive. -twp
 
 @c docstring begin (texi-doc-string "guile" "uniform-vector-ref")
+@c docstring begin (texi-doc-string "guile" "array-ref")
 @deffn primitive uniform-vector-ref v args
 @deffnx primitive array-ref v . args
 Returns the element at the @code{(index1, index2)} element in @var{array}.
@@ -3264,6 +3440,7 @@ Returns @code{#t} if its arguments would be acceptable to array-ref.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "array-set!")
+@c docstring begin (texi-doc-string "guile" "uniform-array-set1!")
 @deffn primitive array-set! v obj . args
 @deffnx primitive uniform-array-set1! v obj args
 Sets the element at the @code{(index1, index2)} element in @var{array} to
@@ -3380,6 +3557,7 @@ Returns a list consisting of all the elements, in order, of @var{array}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "array-copy!")
+@c docstring begin (texi-doc-string "guile" "array-copy-in-order!")
 @deffn primitive array-copy! src dst
 @deffnx primitive array-copy-in-order! src dst
 Copies every element from vector or array @var{source} to the
@@ -3422,6 +3600,7 @@ memory.
 @subsection Array Mapping
 
 @c docstring begin (texi-doc-string "guile" "array-map!")
+@c docstring begin (texi-doc-string "guile" "array-map-in-order!")
 @deffn primitive array-map! ra0 proc . lra
 @deffnx primitive array-map-in-order! ra0 proc . lra
 @var{array1}, @dots{} must have the same number of dimensions as
@@ -3894,6 +4073,8 @@ function is @emph{not} destructive; @var{alist} is not modified.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "assq-set!")
+@c docstring begin (texi-doc-string "guile" "assv-set!")
+@c docstring begin (texi-doc-string "guile" "assoc-set!")
 @deffn primitive assq-set! alist key val
 @deffnx primitive assv-set! alist key value
 @deffnx primitive assoc-set! alist key value
@@ -3929,6 +4110,8 @@ where an entry exists, these procedures return the complete entry, that
 is @code{(KEY . VALUE)}, not just the value.
 
 @c docstring begin (texi-doc-string "guile" "assq")
+@c docstring begin (texi-doc-string "guile" "assv")
+@c docstring begin (texi-doc-string "guile" "assoc")
 @deffn primitive assq key alist
 @deffnx primitive assv key alist
 @deffnx primitive assoc key alist
@@ -3954,6 +4137,8 @@ is known that an entry exists, or where the ambiguity doesn't matter
 for some other reason.
 
 @c docstring begin (texi-doc-string "guile" "assq-ref")
+@c docstring begin (texi-doc-string "guile" "assv-ref")
+@c docstring begin (texi-doc-string "guile" "assoc-ref")
 @deffn primitive assq-ref alist key
 @deffnx primitive assv-ref alist key
 @deffnx primitive assoc-ref alist key
@@ -4031,6 +4216,8 @@ after removing the first matching entry that it finds, and so one of the
 "mary" entries is left in place.
 
 @c docstring begin (texi-doc-string "guile" "assq-remove!")
+@c docstring begin (texi-doc-string "guile" "assv-remove!")
+@c docstring begin (texi-doc-string "guile" "assoc-remove!")
 @deffn primitive assq-remove! alist key
 @deffnx primitive assv-remove! alist key
 @deffnx primitive assoc-remove! alist key
@@ -4397,6 +4584,7 @@ Otherwise the initial contents of each element is unspecified. (r5rs)
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "vector")
+@c docstring begin (texi-doc-string "guile" "list->vector")
 @deffn primitive vector . l
 @deffnx primitive list->vector l
 Returns a newly allocated vector whose elements contain the given

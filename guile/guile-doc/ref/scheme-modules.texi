@@ -232,15 +232,11 @@ called on @var{dynobj}, its content is no longer accessible.
 
 @c ARGFIXME symb/func/function dobj/lib/dynobj
 @c docstring begin (texi-doc-string "guile" "dynamic-func")
-@deffn primitive dynamic-func symb dobj
-Import the symbol @var{func} from @var{lib} (a dynamic library handle).
-A @dfn{function handle} representing the imported function is returned.
-GJB:FIXME:DOC: 2nd version below
-Search the C function indicated by @var{function} (a string or symbol)
-in @var{dynobj} and return some Scheme object that can later be used
-with @code{dynamic-call} to actually call this function.  Right now,
-these Scheme objects are formed by casting the address of the function
-to @code{long} and converting this number to its Scheme representation.
+@deffn primitive dynamic-func name dobj
+Search the dynamic object @var{dobj} for the C function
+indicated by the string @var{name} and return some Scheme
+handle that can later be used with @code{dynamic-call} to
+actually call the function.
 
 Regardless whether your C compiler prepends an underscore @samp{_} to
 the global names in a program, you should @strong{not} include this

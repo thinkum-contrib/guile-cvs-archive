@@ -265,6 +265,8 @@ Guile installation.  This chapter describes how to find out about
 Guile's configuration at run time.
 
 @c docstring begin (texi-doc-string "guile" "version")
+@c docstring begin (texi-doc-string "guile" "major-version")
+@c docstring begin (texi-doc-string "guile" "minor-version")
 @deffn primitive version
 @deffnx primitive major-version
 @deffnx primitive minor-version

@@ -500,6 +500,7 @@ The return value is unspecified.
 
 @c ARGFIXME port/input-port
 @c docstring begin (texi-doc-string "guile" "port-column")
+@c docstring begin (texi-doc-string "guile" "port-line")
 @deffn primitive port-column port
 @deffnx primitive port-line [input-port]
 Return the current column number or line number of @var{input-port},
@@ -514,6 +515,7 @@ what non-programmers will find most natural.)
 
 @c ARGFIXME port/input-port
 @c docstring begin (texi-doc-string "guile" "set-port-column!")
+@c docstring begin (texi-doc-string "guile" "set-port-line!")
 @deffn primitive set-port-column! port column
 @deffnx primitive set-port-line! port line
 Set the current column or line number of @var{port}, using the

@@ -1,3 +1,17 @@
+2001-01-05  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* scheme-data.texi, scheme-io.texi, scheme-memory.texi,
+	scheme-options.texi: Where a single docstring documents more than
+	one primitive, add a docstring comment for each additionally
+	documented primitive.
+
+	* scheme-modules.texi: Update docstring for dynamic-func.
+	
+	* scheme-data.texi (Numbers, Numerical Tower, Integers, Reals and
+	Rationals, Number Syntax): New material.
+
+	* deprecated.texi (Deprecated): Remove obsolete MD5 comment line.
+
 2000-12-12  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* scheme-data.texi (Numbers): Documentation added for scientific
