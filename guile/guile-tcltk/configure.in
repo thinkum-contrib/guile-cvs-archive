@@ -135,7 +135,7 @@ AC_SUBST(TCL_EXTRA_LIBS)
   > tmpinit
   if test -n "$GTCLTK"; then
     echo "xtra_cflags=\"$TCLTK_INCLUDE $TCLTK_LIBDIR $X_CFLAGS \$xtra_cflags\"" >> tmpinit
-    echo "xtra_libs=\"$X_PRE_LIBS $X_LIBS $LIBS $X_EXTRA_LIBS $TCL_EXTRA_LIBS \$xtra_libs\"" >> tmpinit
+    echo "xtra_libs=\"$X_PRE_LIBS $X_LIBS -lX11 $X_EXTRA_LIBS $TCL_EXTRA_LIBS \$xtra_libs\"" >> tmpinit
     echo 'xtra_dependencies="../gtcltk-lib/libgtcltk.la $xtra_dependencies"' >> tmpinit
     echo 'libtool_libs="-lgtcltk $libtool_libs"' >> tmpinit
   fi
