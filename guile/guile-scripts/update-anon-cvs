@@ -53,12 +53,12 @@ ssh ${server} true || {
 
 
 #### Transfer over the script for the public side.
-scp update-anon-cvs-public "${server}:${public}/public" || exit $?
+scp -p update-anon-cvs-public "${server}:${public}/public" || exit $?
 
 #### Tar up the source directories and send them across.
 (
   cd ${private}
-  tar cvf - ${PUBLISHED_SUBDIRS} \
+  tar cf - ${PUBLISHED_SUBDIRS} \
   | gzip --best
 ) \
 | ssh -o 'Compression yes' -o 'CompressionLevel 6' ${server} \

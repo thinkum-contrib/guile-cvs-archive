@@ -44,7 +44,7 @@ new="snapshot-$(date +%s)-$$"
 mkdir $new
 (
   cd $new
-  gunzip | tar xvf - || exit $?
+  gunzip | tar xf - || exit $?
 ) || exit $?
 
 ## Set the permissions on the new directories properly.
