@@ -1,3 +1,8 @@
+2000-08-08  Mikael Djurfeldt  <mdj@linnaeus.mit.edu>
+
+	* goops.c (sort_applicable_methods): Changed SCM_CAR (X) = Y to
+	SCM_SETCAR (X, Y) + code layout.
+
 2000-07-02  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
 	* dispatch.scm (memoize-method!): Reimplemented the previous
