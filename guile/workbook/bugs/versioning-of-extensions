@@ -1,5 +1,6 @@
 summary: dynamic-link can not request a specific interface number
 reported: Rob Browning <rlb@defaultvalue.org>, 2001
+Assigned: Rob Browning <rlb@defaultvalue.org>, 2002-03-25
 tags: release-critical-1.6
 
 When loading a shared library with dynamic-link (or indirectly via
