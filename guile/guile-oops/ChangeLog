@@ -1,3 +1,66 @@
+1999-06-23  Mikael Djurfeldt  <mdj@mdj-pc.nada.kth.se>
+
+	* configure.in, Makefile.am: Added a configure option
+	--enable-fdi-example which causes fdi.c to be compiled and linked
+	into guile-oops.
+
+	A "foreign data interface" which is supposed to make it easy to
+	interface to application data structures has been added.  This is
+	very experimental and perhaps not very nice.  I hope that people
+	will get better ideas.  :)
+
+	* goops.c (scm_load_goops, scm_make_foreign_object,
+	scm_free_foreign_object, scm_make_class, scm_add_slot,
+	scm_wrap_object, scm_wrap_component, scm_ensure_accessor,
+	scm_add_method): New functions.
+
+	(scm_sys_allocat_instance): Now takes a second arg (just as the
+	corresponding method in the MOP).  It is used by
+	scm_make_foreign_object.
+
+	(map, filter_cpl, compute_cpl): Better initial approximation to
+	cpl computation (we use multiple inheritance already during
+	bootstrap).
+	(scm_class_foreign_class): New class: The foreign object meta
+	class.
+	(scm_class_foreign_object): New class: The foreign object class.
+	(scm_class_self, scm_class_protected, scm_class_opaque,
+	scm_class_read_only, scm_class_protected_opaque,
+	scm_class_protected_read_only, scm_class_scm, scm_class_int,
+	scm_class_float, scm_class_double): Slot classes.
+	
+	(scm_sys_prep_layout_x): Largely rewritten: Now uses slot types
+	to build the layout.
+
+	(scm_makekey): Removed. (Replaced by scm_c_make_keyword in
+	libguile.)
+
+	(scm_basic_basic_make_class): Guts of old scm_basic_make_class
+	which has been split in order to be more useful.
+	(scm_build_class_class_slots): Build slot definitions for class
+	class.  (Torn out of create_basic_classes.)
+
+	* goops.h (SCM_METACLASS_GOOPS_LAYOUT): Noe includes the required
+	fields.
+	(SCM_CLASSF_FOREIGN): New class flag: Indicates that the instance
+	is a foreign object.
+	(SCM_IS_A_P): New macro.  Corresponds to the scheme predicate.
+	(scm_si_constructor, scm_si_destructor): New slots of foreign
+	classes.
+
+	* fdi.c: New file: Foreign data interface example.
+
+	* guile-oops.c: Conditionally use scm_init_fdi.
+
+	* goops-snarf.h: Snarf macros for the foreign data interface.
+
+	* goops.scm (initialize, write-object): New methods for
+	<foreign-object>:s.
+
+1999-06-18  Mikael Djurfeldt  <mdj@mdj-pc.nada.kth.se>
+
+	* goops.h (STKLOS_VERSION, scm_stklos_version): Removed.
+
 1999-06-17  Mikael Djurfeldt  <mdj@mdj-pc.nada.kth.se>
 
 	* goops.scm (add-method!): Made generic => added to the MOP.
