@@ -7,8 +7,8 @@
     + make scan-api output express Scheme/C as a priori groups [ttn]
     + add filter hook to update-guile-api.alist [ttn]
     + write grouping attributes filter [ttn]
-    - add doc/Makefile.am MAINTAINER_MODE rule for guile-api.alist
-  - update (gscripts) api-diff to be group-aware [ttn]
+    - add doc/Makefile.am MAINTAINER_MODE rule for guile-api.alist [ttn]
+  +R update (gscripts) api-diff to be group-aware [ttn]
   + back port auto* tools versioning requirement fixes [ttn]
   + back port auto* tools usage [ttn]
   + write maintainer script dist-guile [ttn]
