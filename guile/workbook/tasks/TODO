@@ -1,8 +1,6 @@
 - Guile 1.4.1
   - back port ice-9/and-let*.scm naming fix
-  - write TODO summarizer
-    +R write (scripts read-text-outline) [ttn]
-    - write (scripts summarize-guile-TODO) [ttn]
+  +R write TODO summarizer [ttn]
 
 
 - Guile 1.6
