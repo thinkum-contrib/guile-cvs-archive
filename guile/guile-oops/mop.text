@@ -35,6 +35,7 @@ method (S)
 
 initialize (class) (M)
   compute-cpl (P)
+  compute-slots (G)
   compute-getters-n-setters (P)
     compute-slot-init-function (L)
     compute-get-n-set (G)
