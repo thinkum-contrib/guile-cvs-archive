@@ -117,8 +117,8 @@
 #define SCM_VALIDATE_STRING(pos,str) SCM_MAKE_VALIDATE(pos,str,STRINGP)
 
 #define SCM_VALIDATE_STRINGORSUBSTR(pos,str) \
-  do { SCM_ASSERT(SCM_NIMP (str) && \
-       (SCM_SLOPPY_STRINGP (str) || SCM_SLOPPY_SUBSTRP(str)), str, pos, FUNC_NAME); } while (0)
+  do { SCM_ASSERT(SCM_SLOPPY_STRINGP (str) || \
+                  SCM_SLOPPY_SUBSTRP(str), str, pos, FUNC_NAME); } while (0)
 
 #define SCM_VALIDATE_STRING_COPY(pos,str,cvar) \
   do { SCM_ASSERT(SCM_STRINGP (str), str, pos, FUNC_NAME); \
