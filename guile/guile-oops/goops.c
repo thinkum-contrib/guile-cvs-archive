@@ -941,9 +941,7 @@ static SCM
 scm_assert_bound (SCM value, SCM object)
 {
   if (SCM_GOOPS_UNBOUNDP (value))
-    scm_misc_error (NULL,
-		    "Unbound slot in object %S",
-		    SCM_LIST1 (object));
+    return CALL_GF1 ("slot-unbound", object);
   return value;
 }
 
@@ -2601,7 +2599,11 @@ scm_init_goops (void)
 
   hell = scm_must_malloc (hell_size, "hell");
 #ifdef USE_THREADS
+#ifdef SCM_MUTEX_INIT_TWO_ARGS
+  scm_mutex_init (&hell_mutex, NULL);
+#else
   scm_mutex_init (&hell_mutex);
+#endif
 #endif
 
   scm_make_extended_class = make_extended_class;
