@@ -1,3 +1,9 @@
+1998-11-01  Mark Galassi  <rosalia@cygnus.com>
+
+	* scheme.texi (Weak References): incorporated David Lutterkort's
+	chapter on Weak References, which is based on Mikael's email
+	message exchange with with Michael Livshin.
+
 1998-10-29  Jim Blandy  <jimb@zwingli.cygnus.com>
 
 	* scheme.texi: Corrected shell commands in example.  (Thanks to

@@ -4000,6 +4000,81 @@ be reviewed]
 @node Weak References
 @chapter Weak References
 
+[FIXME: This chapter is based on Mikael Djurfeldt's answer to a question
+by Michael Livshin. Any mistakes are not theirs, of course. ]
+
+Weak references let you attach bookkeeping information to data so that
+the additional information automatically disappears when the original
+data is no longer in use and gets garbage collected. In a weak key hash,
+the hash entry for that key disappears as soon as the key is no longer
+referneced from anywhere else. For weak value hashes, the same happens
+as soon as the value is no longer in use. Entries in a doubly weak hash
+disappear when either the key or the value are not used anywhere else
+anymore. 
+
+Property lists offer the same kind of functionality as weak key hashes
+in many situations. (@pxref{Property Lists})
+
+Here's an example (a little bit strained perhaps, but one of the
+examples is actually used in Guile):
+
+Assume that you're implementing a debugging system where you want to
+associate information about filename and position of source code
+expressions with the expressions themselves.
+
+Hashtables can be used for that, but if you use ordinary hash tables
+it will be impossible for the scheme interpreter to "forget" old
+source when, for example, a file is reloaded.
+
+To implement the mapping from source code expressions to positional
+information it is necessary to use weak-key tables since we don't want
+the expressions to be remembered just because they are in our table.
+
+To implement a mapping from source file line numbers to source code
+expressions you would use a weak-value table.
+
+To implement a mapping from source code expressions to the procedures
+they constitute a doubly-weak table has to be used.
+
+@section Weak key hashes
+@deffn primitive make-weak-key-hash-table size
+@deffnx primitive make-weak-value-hash-table size
+@deffnx primitive make-doubly-weak-hash-table size
+Return a weak hash table with @var{size} buckets. As with any hash
+table, choosing a good size for the table requires some caution.
+
+You can modify weak hash tables in exactly the same way you would modify
+regular hash tables. (@pxref{Hash Tables})
+@end deffn
+@deffn primitive weak-key-hash-table? obj
+@deffnx primitive weak-value-hash-table? obj
+@deffnx primitive doubly-weak-hash-table? obj
+Return @var{#t} if @var{obj} is the specified weak hash table. Note
+that a doubly weak hash table is neither a weak key nor a weak value
+hash table.
+@end deffn
+
+@section Weak vectors
+Weak vectors are mainly useful in Guile's implementation of weak hash
+tables. 
+@deffn primitive make-weak-vector size [fill]
+Return a weak vector with @var{size} elements. If the optional
+argument @var{fill} is given, all entries in the vector will be set to
+@var{fill}. The default value for @var{fill} is the empty list.
+@end deffn
+
+@deffn primitive weak-vector . rest
+@deffnx primitive list->weak-vector l
+Construct a weak vector from a list: @code{weak-vector} uses the list of
+its arguments while @code{list->weak-vector} uses its only argument
+@var{l} (a list) to construct a weak vector the same way
+@code{vector->list} would.
+@end deffn
+@deffn primitive weak-vector? obj
+Return @var{#t} if @var{obj} is a weak vector. Note that all weak
+hashes are also weak vectors.
+@end deffn
+
 
 @page
 @node Garbage Collection
