@@ -33,11 +33,21 @@
 /* Threads 
 */
 #define scm_i_pthread_t                     pthread_t
+#define scm_i_pthread_self                  pthread_self
 #define scm_i_pthread_create                pthread_create
+#define scm_i_pthread_detach                pthread_detach
+#define scm_i_pthread_exit                  pthread_exit
+#define scm_i_sched_yield                   sched_yield
+
+/* Signals
+ */
+#define scm_i_pthread_sigmask               pthread_sigmask
 
 /* Mutexes
  */
 #define SCM_I_PTHREAD_MUTEX_INITIALIZER     PTHREAD_MUTEX_INITIALIZER
+#define SCM_I_PTHREAD_RECURSIVE_MUTEX_INITIALIZER \
+                                       PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
 #define scm_i_pthread_mutex_t               pthread_mutex_t
 #define scm_i_pthread_mutex_init            pthread_mutex_init
 #define scm_i_pthread_mutex_destroy         pthread_mutex_destroy
@@ -55,6 +65,12 @@
 #define scm_i_pthread_cond_broadcast        pthread_cond_broadcast
 #define scm_i_pthread_cond_wait             pthread_cond_wait
 #define scm_i_pthread_cond_timedwait        pthread_cond_timedwait
+
+/* Onces
+ */
+#define scm_i_pthread_once_t                pthread_once_t
+#define SCM_I_PTHREAD_ONCE_INIT             PTHREAD_ONCE_INIT
+#define scm_i_pthread_once                  pthread_once
 
 /* Thread specific storage
  */

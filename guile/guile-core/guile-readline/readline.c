@@ -519,7 +519,7 @@ match_paren (int x, int k)
 	{
 	  rl_redisplay ();
 #ifndef __MINGW32__
-	  scm_internal_select (fno + 1, &readset, NULL, NULL, &timeout);
+	  scm_std_select (fno + 1, &readset, NULL, NULL, &timeout);
 #else
 	  WaitForSingleObject (GetStdHandle(STD_INPUT_HANDLE),
 			       SCM_READLINE_BOUNCE_PARENS); 

@@ -443,10 +443,14 @@ scm_i_init_thread_for_guile (SCM_STACKITEM *base, SCM parent)
     }
 }
 
-#ifdef HAVE_PTHREAD_ATTR_GETSTACK
 #ifdef HAVE_LIBC_STACK_END
 
 extern void *__libc_stack_end;
+
+#if SCM_USE_PTHREAD_THREADS
+#ifdef HAVE_PTHREAD_ATTR_GETSTACK
+
+#define HAVE_GET_THREAD_STACK_BASE
 
 static SCM_STACKITEM *
 get_thread_stack_base ()
@@ -476,6 +480,23 @@ get_thread_stack_base ()
     }
 }
 
+#endif /* HAVE_PTHREAD_ATTR_GETSTACK */
+
+#else /* !SCM_USE_PTHREAD_THREADS */
+
+#define HAVE_GET_THREAD_STACK_BASE
+
+static SCM_STACKITEM *
+get_thread_stack_base ()
+{
+  return __libc_stack_end;
+}
+
+#endif /* !SCM_USE_PTHREAD_THREADS */
+#endif /* HAVE_LIBC_STACK_END */
+
+#ifdef HAVE_GET_THREAD_STACK_BASE
+
 void
 scm_init_guile ()
 {
@@ -483,7 +504,6 @@ scm_init_guile ()
 			       scm_i_default_dynamic_state);
 }
 
-#endif
 #endif
 
 void *
@@ -560,7 +580,7 @@ launch_thread (void *d)
   return NULL;
 }
 
-SCM_DEFINE (scm_call_with_new_thread, "call-with-new-thread", 2, 0, 0,
+SCM_DEFINE (scm_call_with_new_thread, "call-with-new-thread", 1, 1, 0,
 	    (SCM thunk, SCM handler),
 	    "Call @code{thunk} in a new thread and with a new dynamic state,\n"
 	    "returning a new thread object representing the thread.  The procedure\n"
@@ -576,6 +596,7 @@ SCM_DEFINE (scm_call_with_new_thread, "call-with-new-thread", 2, 0, 0,
 {
   launch_data data;
   scm_i_pthread_t id;
+  int err;
 
   SCM_ASSERT (scm_is_true (scm_thunk_p (thunk)), thunk, SCM_ARG1, FUNC_NAME);
   SCM_ASSERT (SCM_UNBNDP (handler) || scm_is_true (scm_procedure_p (handler)),
@@ -589,10 +610,12 @@ SCM_DEFINE (scm_call_with_new_thread, "call-with-new-thread", 2, 0, 0,
   scm_i_pthread_cond_init (&data.cond, NULL);
 
   scm_i_scm_pthread_mutex_lock (&data.mutex);
-  if (scm_i_pthread_create (&id, NULL, launch_thread, &data))
+  err = scm_i_pthread_create (&id, NULL, launch_thread, &data);
+  if (err)
     {
       scm_i_pthread_mutex_unlock (&data.mutex);
-      SCM_SYSERROR;
+      errno = err;
+      scm_syserror (NULL);
     }
   scm_i_scm_pthread_cond_wait (&data.cond, &data.mutex);
   scm_i_pthread_mutex_unlock (&data.mutex);
@@ -652,6 +675,7 @@ scm_spawn_thread (scm_t_catch_body body, void *body_data,
 {
   spawn_data data;
   scm_i_pthread_t id;
+  int err;
 
   data.parent = scm_current_dynamic_state ();
   data.body = body;
@@ -663,9 +687,11 @@ scm_spawn_thread (scm_t_catch_body body, void *body_data,
   scm_i_pthread_cond_init (&data.cond, NULL);
 
   scm_i_scm_pthread_mutex_lock (&data.mutex);
-  if (scm_i_pthread_create (&id, NULL, spawn_thread, &data))
+  err = scm_i_pthread_create (&id, NULL, spawn_thread, &data);
+  if (err)
     {
       scm_i_pthread_mutex_unlock (&data.mutex);
+      errno = err;
       scm_syserror (NULL);
     }
   scm_i_scm_pthread_cond_wait (&data.cond, &data.mutex);

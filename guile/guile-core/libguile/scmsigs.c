@@ -73,14 +73,18 @@
    handler is set.  When a signal arrives, take_signal will write a
    byte into the 'signal pipe'.  The 'signal delivery thread' will
    read this pipe and queue the appropriate asyncs.
+
+   When Guile is built without threads, the signal handler will
+   install the async directly.
 */
 
 
 /* Scheme vectors with information about a signal.  signal_handlers
    contains the handler procedure or #f, signal_handler_asyncs
-   contains the thunk to be marked as an async when the signal
-   arrives, and signal_handler_threads points to the thread that a
-   signal should be delivered to.
+   contains the thunk to be marked as an async when the signal arrives
+   (or the cell with the thunk in a singlethreaded Guile), and
+   signal_handler_threads points to the thread that a signal should be
+   delivered to.
 */
 static SCM *signal_handlers;
 static SCM signal_handler_asyncs;
@@ -94,6 +98,15 @@ static struct sigaction orig_handlers[NSIG];
 static SIGRETTYPE (*orig_handlers[NSIG])(int);
 #endif
 
+static SCM
+close_1 (SCM proc, SCM arg)
+{
+  return scm_primitive_eval_x (scm_list_3 (scm_sym_lambda, SCM_EOL,
+					   scm_list_2 (proc, arg)));
+}
+
+#if SCM_USE_PTHREAD_THREADS
+
 static int signal_pipe[2];
 
 static SIGRETTYPE
@@ -101,7 +114,7 @@ take_signal (int signum)
 {
   char sigbyte = signum;
   write (signal_pipe[1], &sigbyte, 1);
-  
+
 #ifndef HAVE_SIGACTION
   signal (signum, take_signal);
 #endif
@@ -154,18 +167,33 @@ ensure_signal_delivery_thread ()
   scm_i_pthread_once (&once, start_signal_delivery_thread);
 }
 
-SCM
-scm_sigaction (SCM signum, SCM handler, SCM flags)
+#else /* !SCM_USE_PTHREAD_THREADS */
+
+static SIGRETTYPE
+take_signal (int signum)
 {
-  return scm_sigaction_for_thread (signum, handler, flags, SCM_UNDEFINED);
+  SCM cell = SCM_SIMPLE_VECTOR_REF (signal_handler_asyncs, signum);
+  scm_i_thread *t = SCM_I_CURRENT_THREAD;
+
+  if (scm_is_false (SCM_CDR (cell)))
+    {
+      SCM_SETCDR (cell, t->active_asyncs);
+      t->active_asyncs = cell;
+      t->pending_asyncs = 1;
+    }
+
+#ifndef HAVE_SIGACTION
+  signal (signum, take_signal);
+#endif
 }
 
-static SCM
-close_1 (SCM proc, SCM arg)
+static void
+ensure_signal_delivery_thread ()
 {
-  return scm_primitive_eval_x (scm_list_3 (scm_sym_lambda, SCM_EOL,
-					   scm_list_2 (proc, arg)));
+  return;
 }
+
+#endif /* !SCM_USE_PTHREAD_THREADS */
 
 static void
 install_handler (int signum, SCM thread, SCM handler)
@@ -177,12 +205,21 @@ install_handler (int signum, SCM thread, SCM handler)
     }
   else
     {
+      SCM async = close_1 (handler, scm_from_int (signum));
+#if !SCM_USE_PTHREAD_THREADS
+      async = scm_cons (async, SCM_BOOL_F);
+#endif
       SCM_SIMPLE_VECTOR_SET (*signal_handlers, signum, handler);
-      SCM_SIMPLE_VECTOR_SET (signal_handler_asyncs, signum,
-			     close_1 (handler, scm_from_int (signum)));
+      SCM_SIMPLE_VECTOR_SET (signal_handler_asyncs, signum, async);
     }
 
   SCM_SIMPLE_VECTOR_SET (signal_handler_threads, signum, thread);
+}
+
+SCM
+scm_sigaction (SCM signum, SCM handler, SCM flags)
+{
+  return scm_sigaction_for_thread (signum, handler, flags, SCM_UNDEFINED);
 }
 
 /* user interface for installation of signal handlers.  */

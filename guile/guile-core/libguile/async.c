@@ -165,8 +165,10 @@ scm_async_click ()
 
   while (scm_is_pair (asyncs))
     {
+      SCM next = SCM_CDR (asyncs);
+      SCM_SETCDR (asyncs, SCM_BOOL_F);
       scm_call_0 (SCM_CAR (asyncs));
-      asyncs = SCM_CDR (asyncs);
+      asyncs = next;
     }
 }
 
