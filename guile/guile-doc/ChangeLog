@@ -1,3 +1,8 @@
+2000-10-14  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* sources/data-rep.texi: Merged a lot of changes from
+	guile-core/doc/data-rep.texi.
+
 2000-08-07  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* configure.in, configure: Advance version number to 1.4.
