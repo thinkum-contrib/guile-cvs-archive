@@ -1,3 +1,8 @@
+1999-01-25  Mark Galassi  <rosalia@cygnus.com>
+
+	* scheme.texi (General option interface): applied a typo fix.
+	Thanks to Eric Hanchrow (offby1@blarg.net).
+
 1998-11-01  Mark Galassi  <rosalia@cygnus.com>
 
 	* scheme.texi (Weak References): incorporated David Lutterkort's

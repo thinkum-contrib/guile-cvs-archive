@@ -159,10 +159,10 @@ group.  They only work if the option is boolean, and throw an error
 otherwise.
 @end deffn
 
-@deffn procedure <group>-disble option-symbol
-@deffnx procedure read-disble option-symbol
-@deffnx procedure print-disble option-symbol
-@deffnx procedure debug-disble option-symbol
+@deffn procedure <group>-disable option-symbol
+@deffnx procedure read-disable option-symbol
+@deffnx procedure print-disable option-symbol
+@deffnx procedure debug-disable option-symbol
 @deffnx procedure trap-disable option-symbol
 These functions turn off the specified @var{option-symbol} in their
 options group.  They only work if the option is boolean, and throw an
