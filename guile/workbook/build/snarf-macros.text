@@ -1,0 +1,135 @@
+Snarf Macros						-*- outline -*-
+Updated: 2000-05-25
+Contributed by: Keisuke Nishida <kxn30@po.cwru.edu>
+
+* Concept
+
+A snarf macro defines a Scheme object, providing a convenient way to
+do so, and concealing internal details.  Instead of using low level
+functions like
+
+  static const char *s_scm_foo = "foo";
+  scm_make_subr (s_scm_foo, scm_tc7_rpsubr, scm_foo);
+
+one can use a single snarf macro:
+
+  SCM_DEFINE_RELATION (scm_foo, "foo", ...)
+
+* Policy
+
+** Naming
+
+Low level macros have a prefix `SCM_SNARF_'.
+
+User level macros have a prefix `SCM_DEFINE_'.
+
+User level macros that define C variables have a prefix `SCM_DEFINE_C_'.
+
+Those macros that define static versions have an infix `STATIC_'.
+
+Internal macros have a prefix `SCM_I_'.
+
+** Organization
+
+One macro for each concept.  We should provide SCM_DEFINE_HOOK and
+SCM_DEFINE_FLUID as well as SCM_DEFINE_PROCEDURE.  A snarf macro should
+conceal internal details as much as possible.  Instead of SCM_PROC1,
+we should provide SCM_DEFINE_RELATION, SCM_DEFINE_ACCUMULATION, etc.
+
+However, we don't need to provide SCM_DEFINE_INTEGER because it's too
+specific.  Instead, we provide a general macro SCM_DEFINE_VARIABLE.
+
+** Docstring
+
+All `SCM_DEFINE_' macros should define docstrings.
+`SCM_DEFINE_C_' macros do not necessarily define docstrings.
+
+* Low level macros
+
+SCM_SNARF_DECL - Define the declaration part of a snarf macro.
+SCM_SNARF_INIT - Define the initialization part of a snarf macro.
+SCM_SNARF_DOCS - Define the docstring part of a snarf macro.
+SCM_SNARF_CAST - Cast a C function.
+
+** Snarf macro definition
+
+A snarf macro is defined like this:
+
+  #define SCM_SET(NAME, VALUE, DOCS)      \
+    SCM_SNARF_DECL(int NAME)              \
+    SCM_SNARF_INIT(NAME = VALUE;)         \
+    SCM_SNARF_DOCS("integer", NAME, DOCS)
+
+This macro declares a C variable NAME, initializes it by VALUE, and
+associates a docstring DOCS with it.  This macro can be used as follows:
+
+  SCM_SET (foo, 1, "The default value is 1.");
+
+** SCM_SNARF_DECL
+** SCM_SNARF_INIT
+** SCM_SNARF_DOCS
+** SCM_SNARF_CAST
+
+[ should be documented later ]
+
+* User level macros
+
+These macros define Scheme procedures with docstrings:
+
+SCM_DEFINE_PROCEDURE            -> scm_make_gsubr
+SCM_DEFINE_PROCEDURE_ALIAS      -> scm_make_gsubr (no function body)
+SCM_DEFINE_RELATION             -> scm_make_subr w/ scm_tc7_rpsubr
+SCM_DEFINE_ACCUMULATION         -> scm_make_subr w/ scm_tc7_asubr
+SCM_DEFINE_GENERIC_PROCEDURE    -> scm_make_gsubr_with_generic
+SCM_DEFINE_GENERIC_RELATION     -> scm_make_subr_with_generic w/ scm_tc7_rpsubr
+SCM_DEFINE_GENERIC_ACCUMULATION -> scm_make_subr_with_generic w/ scm_tc7_asubr
+SCM_DEFINE_GENERIC_ARITHMETIC   -> scm_make_subr_with_generic w/ scm_tc7_cxr
+
+These macros define Scheme macros with docstrings:
+
+SCM_DEFINE_SYNTAX               -> scm_make_synt w/ scm_makacro
+SCM_DEFINE_MACRO                -> scm_make_synt w/ scm_makmacro
+SCM_DEFINE_MEMOIZING_MACRO      -> scm_make_synt w/ scm_makmmacro
+
+These macros define Scheme variables of general/specific type with docstrings:
+
+SCM_DEFINE_VARIABLE             -> scm_intern0
+SCM_DEFINE_HOOK                 -> scm_create_hook
+SCM_DEFINE_FLUID                -> scm_make_fluid + @
+
+[ do we need STATIC_ version? ]
+
+These macros merely create Scheme objects (without docstrings):
+
+SCM_DEFINE_SYMBOL               -> SCM_CAR (scm_intern0 (...))
+SCM_DEFINE_STATIC_SYMBOL
+SCM_DEFINE_KEYWORD              -> SCM_CAR (scm_c_make_keyword (...))
+SCM_DEFINE_STATIC_KEYWORD
+
+[ these could be SCM_DEFINE_C_* ? ]
+
+These macros define C level Scheme objects (without docstrings):
+
+SCM_DEFINE_C_VARIABLE
+SCM_DEFINE_C_STATIC_VARIABLE
+SCM_DEFINE_C_HOOK
+SCM_DEFINE_C_STATIC_HOOK
+
+* TODO
+
+** Macros for GOOPS objects
+
+SCM_DEFINE_CLASS
+SCM_DEFINE_SLOT_*
+SCM_DEFINE_GENERIC
+SCM_DEFINE_METHOD
+...
+
+** Docstrings for C functions/macros
+
+Macro style or comment style?
+
+** Macros for cross references
+
+** Macros for manual organization (which section? etc.)
+

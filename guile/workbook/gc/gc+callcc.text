@@ -1,0 +1,156 @@
+From: Tom Lord <lord@regexps.com>
+Subject: gc and call/cc design space notes (DRAFT)
+Date: Sat, 6 Oct 2001 12:53:30 -0700 (PDT)
+To: guile-devel@gnu.org
+
+
+
+I wanted to contribute something back to Guile, so I thought it would
+help to sum up some of the discussions in a design space map.
+
+This is a first-draft of the first map.  Did I miss anything?
+If anyone recommends changes or additions, please try to be
+concise and follow the format used so far.
+
+
+* gc and call/cc
+
+There are two problems with the Guile execution model: one is that
+conservative GC isn't robust; another is that call/cc is slow.
+
+The GC robustness problem is particularly worrisome for long-running
+applications, such as Guile-emacs.  It also creates some unique
+security problems in applications where that matters.
+
+The call/cc problem impedes the use of continuation-based threads
+in Guile applications.
+
+How can these problems be solved?
+
+
+** gc
+
+Some ideas have been put forward for fixing this, which I'll sum up
+here:
+
+
+	* write a pre-processor that inserts code sufficient to
+	  implement conservative GC.
+
+	  advantages: Portable and compiler independent.
+
+	  disadvantages: Similar in complexity to writing a compiler
+	  		 front end.  Can interact oddly with compiler
+	  		 error messages (both line numbers and errors
+	  		 reported in the generated code).  Slows down
+	  		 compilation.
+
+	  possible disadvantages: might impose too much cost at run-time
+
+	  tactical notes: the C parser and CPP in GCC can be factored
+	  		out of GCC without huge amounts of work.
+
+
+
+
+
+	* modify GCC to insert code code sufficient to implement
+	  conservative GC
+
+	  There are at least two ways to do this:  insert GCPRO-style
+	  code; or insert code that provides a static map of the stack
+	  at run-time.
+
+	  advantages: Probably not too terribly difficult to
+		      do the GCPRO approach in the C and C++ front
+		      ends -- once you get into reading GCC code.
+		      (Start in the bison grammer and use TAGS a lot.
+		       Skim a good compiler text first if you are
+		       unfamiliar with such things.)
+
+		       Either approach, if well designed, would be
+		       useful in other projects.
+
+	  disadvantages: Compiler specific solution.  The stack-map
+		      solution would likely be quite hard to do well
+		      (but I'm not a GCC expert).
+
+	  possible disadvantages: might impose too much cost at run-time
+
+	  special difficulties: Requires acceptance of patches by
+	  		the GCC maintainers.
+
+
+
+
+
+	* use something like GCPRO in Emacs -- i.e. add precise
+	  GC support by hand.  Provide a lint-like tool to check
+	  that GCPRO is used correctly.
+
+	  advantages: Portable and compiler independent.  Doesn't
+		      have to slow down compilation.  Doesn't
+		      mess up compiler error messages.  The lint
+		      tool might be much appreciated by Emacs
+		      maintainers, too.
+
+	  disadvantages: Still have to write or adapt a C parser
+	              for this purpose.  Still have to insert all
+		      those GCPRO calls by-hand.
+
+	  possible disadvantages: might impose too much cost at run-time
+
+	  tactical notes: the C parser and CPP in GCC can be factored
+	  		out of GCC without huge amounts of work.
+
+			In the past, there was a C parser running in
+			Systas Scheme, based on the grammar from GCC,
+			used to build an extensible lint-like tool.
+			That code has since rotted away -- but it
+			didn't take very many lines of code to
+			implement.  Rx might be handy for writing the
+			lexer -- or, once again, code from GCC.
+
+
+
+
+* call/cc
+
+	* wait for Tom (or someone) to write a new run-time system and
+          Scheme engine; port Guile to that.  Support the current
+	  Guile API as a compatability front-end (still sacrificing
+	  fast call/cc.)
+
+	  advantages: I'll make a really nice run-time system and
+		      Scheme engine.  Portable and compiler
+		      independent.
+
+	  disadvantages: Haven't thought of any yet.
+
+	  tactical notes: Not an overnight project.
+
+
+
+
+
+	* modify GCC to let programs define how stacks are allocated;
+	  use something like "phantom stacks" (I think there's a
+	  HACKMEM on the subject of phantom stacks.)
+
+	  advantages: Same friendly C API.  Probably has other uses,
+	  	too.
+
+	  disadvantages: Difficult.
+
+	  special difficulties: Requires acceptance of patches by
+	  		the GCC maintainers.
+
+
+
+-t
+
+_______________________________________________
+Guile-devel mailing list
+Guile-devel@gnu.org
+http://mail.gnu.org/mailman/listinfo/guile-devel
+

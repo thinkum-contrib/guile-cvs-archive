@@ -1,0 +1,37 @@
+- bugs
+  + give input on "render-bugs" to Evan Prodromou
+  - add "render-bugs" to guile-tools
+  - add bugs
+    - subject: Guile fails tests on Tru64 4.0F
+    - subject: failed backtrace
+    - [more: archive diving required]
+  - write tests for each bug
+  - encourage specification: criticality, etc.
+  - test elisp translator against rfc822.el
+
+- testing framework
+  - shell scripts (already done?)
+  - C programs
+  - new areas
+    - aliveness / cross-release
+    - bugs (see above) / regression
+    - performance
+    - translators (already done?)
+    
+- doc snarfing
+  - rationalize / integrate various scripts
+  - document
+  - re-enable install
+
+- website
+  - move {ideas, news, faq} under workbook / write renderer
+  - add documentation (mark as work-in-progress)
+
+- write
+  - scripts/find
+  - scripts/alist-db
+  - scripts/group
+
+- guile-1.4
+  - release 1.4.1
+  - experiment: backport enough of 1.6.1 to get 1.4.2+ to be "LTDL compatible"

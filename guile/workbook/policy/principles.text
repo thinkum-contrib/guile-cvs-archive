@@ -1,0 +1,56 @@
+This file states the principles for Guile development.
+
+Guile is not alone in trying to provide the features outlined in
+`goals.text'.  Which of the different systems to use depends on the
+quality of their implementation and other things but also on the
+`culture' behind the design decisions that shaped the way that the
+features are offered.
+
+Here are some musings that might help you to understand the `culture
+of Guile'.
+
+** Fundamental rule of thumb
+
+From R5RS:
+
+"Programming languages should be designed not by piling feature on top
+of feature, but by removing the weaknesses and restrictions that make
+additional features appear necessary."
+
+Our intension is to keep the core language mechanisms at a minimum,
+and primarily build Guile by adding modules.
+
+** More Useful than Cool
+
+Scheme offers language researchers an unusually attractive starting
+point for experimentation, so there will always be weird Schemes out
+there with interesting approaches --- Kali and Kawa come to mind.
+MzScheme aspires to be a complete systems programming language, and
+replace the kernel.
+
+Against this backdrop, "coolest" is really hard to define.  But, being
+vague, "useful" is higher on our list of priorities than "cool".  Our
+territory is closer to that staked out by Perl and Tcl than Chez or
+SML.
+
+** Beautiful
+
+As Beautiful as possible, but being Useful is more important than
+being Beautiful.
+
+It is good that Guile people talk a lot about how things should be.
+The discussions are usually of a very high quality.  Just because you
+can't find a final decision in each of our threads doesn't mean the
+project is lost.
+
+** Efficient
+
+Maximal performance is not our focus.  We certainly like the concepts
+of Hobbit, and if someone whipped up an incremental, portable native
+code generator, why, we'd be tickled pink.
+
+But mostly, we want to have the fastest maintainable, readable,
+portable, and featureful interpreter possible.
+
+Efficiency wise, Guile is already in the ballbark of the top Scheme
+interpreters, and we will be very careful not to spoil this.

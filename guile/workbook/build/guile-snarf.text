@@ -1,0 +1,20 @@
+When you need to use guile-snarf (for init snarfing only at this time),
+add to Makefile.am:
+
+include $(top_srcdir)/am/guile-snarf
+
+This defines the variable `snarfcppopts' and provides
+the `.c.x' rule (which calls $(top_srcdir)/libguile/guile-snarf).
+
+Known usage:
+	guile-readline/Makefile.am
+	libguile/Makefile.am
+	srfi/Makefile.am
+
+
+Currently libguile/ also does doc snarfing.  It may be that we integrate
+this into a future version of guile-snarf (controlled by --doc, e.g.),
+in which case $(top_srcdir)/am/guile-snarf should also include .c.doc.
+
+There are various other snarfing programs (some in Scheme), too.  The
+future of snarfing looks rich.

@@ -1,0 +1,66 @@
+@c devel/modules/signatures.texi
+
+@node    Module Signatures
+@section Module Signatures
+
+Guile 1.6 supports selection and renaming on module import.  These two
+facilities along w/ the @code{process-use-modules} procedure are sufficient
+to support "signatures", a generalization of the "export list" concept.
+This article explains how to do this.
+
+A signature in this context is a list of symbols whose bindings are defined in
+the source (providing) module.  The export list is one such signature; it is
+built using either @code{export} or @code{define-public} special forms.
+
+On import, the client (dependent) module can specify which symbols from
+the providing module are to be visible, and additionally, can run a
+procedure to manipulate those symbols (typically to systematically
+rename them in order to preclude name clashes, hence the "renamer").
+
+If we realize that a list of symbols can itself be bound to a symbol,
+and that the renaming procedure can run arbitrary scheme code, we can
+define a convention whereby the providing module exports only one
+symbol, which is bound to an alist of signatures, and the client module
+uses a cooperating renamer to effect binding import.  Because of its
+role, we call the cooperating renamer procedure the "importer".
+
+The name of the symbol that the providing module must bind to the alist
+of signatures is actually irrelevant, since the importer (explained
+below) is passed this name, anyway.  It is only important that it be the
+only exported binding and that its value is a proper alist of signatures
+with each element of the form:
+
+@example
+	(SIGNATURE-NAME SYM-1 SYM-2 ...)
+@end example
+
+Regardless of its other duties, the importer is, first and foremost, a
+renamer procedure, and so it must fulfill that role: it must accept a
+symbol and return another one.  The symbol it accepts is the name of the
+signatures alist, but the one it returns is unimportant.  With the
+signature list, it chooses one (specified on closure creation), and
+arranges for the import of the bindings specified by that signature's
+symbols.
+
+Some Questions:
+
+@itemize
+
+@item Are signatures "out of style"?
+
+@item Do signatures map onto "module use == instance"?  (See Ior.)
+
+@item How to deduce signatures from non strictly-compliant modules?
+
+@end itemize
+
+See Also:
+
+@itemize
+
+@item signatures.scm in this directory
+@item @xref{Top,Module Internals,,module-snippets}
+
+@end itemize
+
+@c devel/modules/signatures.texi ends here

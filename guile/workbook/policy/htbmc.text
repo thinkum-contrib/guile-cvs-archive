@@ -1,0 +1,508 @@
+From: Tom Lord <lord@regexps.com>
+Subject: how to be more careful
+Date: Sat, 6 Oct 2001 23:49:55 -0700 (PDT)
+To: guile-devel@gnu.org
+
+
+
+It seems to me that the process by which some open source projects are
+developed has a serious bug -- Guile is a fine example of this bug in
+action.
+
+The bug works this way:  
+
+1) Some important design decision needs to be made.
+
+then
+
+2a) The maintainer(s) just make the decision by fiat, without
+    explanation.
+
+-or-
+
+2b) Some discussion takes place in email.
+
+then
+
+2b.1) whoever volunteers to write code gets to pick a solution 
+-or-
+2b.2) the maintainer gets to pick a solution
+
+After the decision is made, perhaps after the code has been 
+started or even finished:
+
+3) A new maintainer or contributor reverses the decision, without
+   explanation.
+
+
+
+Why is that a bug?  Several reasons:
+
+- Users have no reliable and easy way to evaluate the design of a
+  complex program, or anticipate how that design is evolving.
+
+
+- New volunteers have trouble catching up to the state of a complex
+  project.
+
+
+- Nothing prevents a maintainer or contributors from making bad
+  choices, either accidentally or on purpose.
+
+
+- People eventually forget when and why a specific decision was
+  made.  Short of reading hundreds of archived mail messages (if
+  they are even available), there is no way to consider whether or
+  not a past decision was made for good reasons.
+
+
+- Email discussions don't lead to good decisions, in and of
+  themselves.  In email, peoples emotions flare.  People get tired.
+  Some people write "louder" than others and good ideas get
+  shouted down.  Email goes by so fast that people don't 
+  get a chance to make thoughtful comparisons of competing ideas.
+
+
+
+How can the bug be fixed?
+
+Here is a first step:
+
+Before entering any change into the TODO agenda, the reasons for
+making the change and the alternatives to the change should be:
+
+	1) Written down in an organized way
+
+	2) Analyzed and compared by everyone involved, and 
+	   in hard cases, by external reviewers.  This analysis
+	   should be added to the write up too.
+
+These logs should follow a standard format and be permanently recorded
+in the source code.  They'll form a useful history of the code and a
+useful tool for thinking about how to change the code.
+
+When things go wrong, these logs will provide a way to do a
+post-mortem analysis.
+
+When a maintainer receives patches, and the review process for those
+patches begins, these logs will provide a way for the reviewers to
+understand what the patch is supposed to accomplish and why.
+
+These logs will make it harder for maintainers and contributors to 
+get away with making foolish or malicious changes.
+
+These logs will help projects achieve long term focus and coherence.
+They'll help contributors write better code and make fewer mistakes.
+
+If there is a TODO log, each entry should refer to a specific design
+log.  If there is a ChangeLog, each entry should refer to a specific
+design log.  If patches are separately archived, each entry should
+refer to a specific design log.  If patches are made via a revision
+control system, such as CVS, each check-in should refer to a specific
+design log.
+
+
+How should logs be formatted?
+
+I suggest using the format of Emacs "outline" mode.
+
+I suggest giving each design issue a one-word name.  For example, I've
+given the design issue relating to how the C stack is used in Guile
+the name "EXECMODEL".  The short name gives the design log a name, and
+can be used in email to refer to the design issue.
+
+I suggest giving each different proposal for a design issue its own
+name, derived from the name of the design issue.  For example,
+there are several proposals in EXECMODEL.  Some of them are:
+
+	EXECMODEL/new-calling-conventions
+	EXECMODEL/fix-at-the-Scheme-level
+	EXECMODEL/gcc-modifications
+	
+
+Within a given proposal, there might be sub-proposals.  Under the
+general proposal for making changes to GCC:
+
+	EXECMODEL/gcc-modifications
+
+there are sub-proposals
+
+	EXECMODEL/gcc-modifications/gcpro
+	EXECMODEL/gcc-modifications/stack-map
+
+
+The general form of a design document should be:
+
+-------------------- cut here --------------------
+;-*-outline-*-
+
+* <SHORTNAME> -- long name
+
+<brief introduction>
+
+
+* revision
+
+** author(s)
+
+<information identifying the authors of the document>
+
+** revision dates and history
+
+*** <YYYY-MM-DD>
+
+<description of most recent revision>
+
+*** <YYYY-MM-DD>
+
+<description of previous revision>
+
+(etc.)
+
+
+* general notes
+
+<long introduction -- 
+   what design decision needs to be made?
+   why?
+   what general considerations are there?>
+
+
+<proposals>
+
+
+The section "<proposals>" is also an outline.  Within that outline, a
+specific proposal has the following format (though the outline level
+may differ, and not every proposal needs every subtree listed here):
+
+* <PROPOSAL NAME>
+
+<the proposed solution>
+
+** <PROPOSAL NAME> advantages
+
+<an outline subtree listing the known advantages of this solution>
+
+** <PROPOSAL NAME> disadvantages
+
+<an outline subtree listing the known disadvantages of this solution>
+
+** <PROPOSAL NAME> special considerations
+
+<for example -- does this effect other projects?>
+
+** <PROPOSAL NAME> tactical notes
+
+<Notes on how to implement this solution.>
+
+** <PROPOSAL NAME> unknowns
+
+<open questions about the proposal>
+
+-------------------- end here --------------------
+
+Below is an example, for the GC and call/cc issues related to the C
+stack in Guile.
+
+
+
+Peace and Flowers,
+-t
+
+
+
+
+
+
+-*-outline-*-
+
+* EXECMODEL -- enhancing the Guile execution model 
+
+There are two problems with the Guile execution model: one is that
+conservative GC isn't robust; another is that call/cc is slow.
+
+The GC robustness problem is particularly worrisome for long-running
+applications, such as Guile-emacs.
+
+The call/cc problem impedes the use of continuation-based threads
+in Guile applications.
+
+How can these problems be solved?
+
+
+
+
+* revision
+
+** author(s)
+
+Tom Lord, based on discussions with numerous others, some of which
+took place on guile-devel.
+
+** revision dates and history
+
+*** 2001-10-06
+
+First revision.
+
+
+
+* general notes
+
+The execution model at the time of the first revsion of EXECMODEL uses
+the C stack to hold the current continuation, using ordinary C
+function calls and returns to implement calls to built-in procedures,
+and ordinary C variables of type SCM to hold Scheme values.
+
+
+** the call-with-current-continuation issue
+
+Under the current execution model, call-with-current-continuation is
+slow.  This precludes many uses of continuations, such as fast
+backtracking and fast, uniprocessor, threads implemented in Scheme.
+
+
+** GC issues: conservative vs. precise
+
+Some SCM values are stored in local variables and function parameters.
+During GC, these are discovered and treated as GC roots by a
+conservative scan of the C stack.
+
+Conservative scans (nearly) preclude the relocation of objects and,
+more seriously, create a "false root" problem.  "false roots" cause
+leaks, both small and large, any of which can have bad consequences,
+ranging from mild to fatal. 
+
+On the other hand, some argue that conservative scans simplify
+programming built-in functions.  Typically, a comparison is made to
+Emacs GCPRO -- which is allegedly hard to use and error prone, while
+the supposedly "no effort" conservative scan is easy and reliable.
+
+In fact, there is little difference between the two interfaces.  In
+_both_ interfaces, a serious programmer must review all code and compute the 
+range of code over which a variable holding a Scheme object is live.
+In _both_ cases, the programmer must be prepared to insert extra code
+to ensure that the variable is properly seen by the GC.  The _only_
+difference is that with GCPRO -- the liveness of _every_ variable must
+be explicitly marked; while with a conservative scan -- the liveness
+of only _some_ variables must be marked.
+
+Without that careful code review and code injection, _both_ kinds of
+GC can suffer from fatal bugs caused by lost GC roots.  Careless
+programmers can write a lot of code using a conservative scanner and
+_get_away_with_ bugs that are only triggered by certain optimizations;
+or _get_away_with_ the happy coincidence of not introducing any
+variables whose liveness has to be explicitly marked -- but relying on
+that kind of luck is bad engineering.
+
+On the other hand, _only_ the conservative GC approach is capable of
+generating irreperable false root bugs.  While false root bugs can
+occur with precise GC, when they occur, they can be fixed.
+
+To be fair, for short running programs, or programs where robustness
+is not absolutely critical, conservative GC has proven success.  But
+it is worth noting that because Guile is intended to be a widely
+adopted extension language, robustness in arbitrarily long-running
+programs is an important requirement.
+
+Therefore, precise GC is really the only acceptable choice, in the
+long run.  
+
+
+
+** How can Guile's GC implementation be made precise?
+
+Here are the various proposals.
+
+*** EXECMODEL/gc-preprocessor
+
+Write a pre-processor that inserts code sufficient to implement
+precise GC.
+
+**** EXECMODEL/gc-preprocessor advantages
+***** portable
+***** compiler independent
+
+
+**** EXECMODEL/gc-preprocessor disadvantags
+***** difficult
+
+To work reliably, the preprocessor will have to parse and analyze
+arbitrary C code.  It will have to emit pre-processed C code,
+preserving line number information from the original source.
+
+***** new compilation pass
+
+The preprocessor will add a new pass to compilation, making
+compilation slower.  It will be impossible to compile Guile without
+first compiling the pre-processor.
+
+
+**** EXECMODEL/gc-preprocessor unknowns
+
+The run-time cost of GCPRO-style code injected into Guile is unknown
+at this time.
+
+
+**** EXECMODEL/gc-preprocessor tactical notes
+***** code-reuse from GCC is possible
+
+The GCC lexer, CPP, and C grammar are easily reusable for this approach.
+
+
+*** EXECMODEL/gcc-modifications
+
+GCC can be modified to add support for using local variables and
+function parameters as roots for precise GC.  There is more
+than one way to do this.
+
+**** EXECMODEL/gcc-modifications/gcpro
+
+Modify GCC to automatically install GCPRO-style calls.  As a guess,
+this can probably be done fairly easily on syntax trees, after each
+function is parsed.  GCC undoubtedly already has some kind of liveness
+analysis between tree generation and RTL generation -- that's another
+candidate location to implement this.
+
+***** EXECMODEL/gcc-modifications/gcpro advantages
+****** easier of the two GCC options (this is a guess)
+
+***** EXECMODEL/gcc-modifications/gcpro disadvantages
+****** more expensive at run-time of the two GCC options (guess)
+
+**** EXECMODEL/gcc-modifications/stack-map
+
+Modify GCC to build a static map of the stack and registersq (mapping a
+PC address to a particular stack image for the function containing
+that address).  This map can be used at run-time to perform a precise
+scan.
+
+***** EXECMODEL/gcc-modifications/stack-map advantages
+****** less expensive at run-time of the two GCC options (guess)
+
+
+***** EXECMODEL/gcc-modifications/stack-map disadvantages
+****** much more difficult of the two GCC options (this is a guess)
+
+
+**** EXECMODEL/gcc-modifications advantages
+***** these approaches are likely to be useful to other projects
+
+
+**** EXECMODEL/gcc-modifications disadvantages
+***** these solutions are compiler-specific
+
+**** EXECMODEL/gcc-modifications special considerations
+***** requires acceptance of patches by the GCC maintainers
+
+
+**** EXECMODEL/gcc-modifications unknowns
+***** run-time and compile-time costs are unknown
+
+
+*** EXECMODEL/gcpro+lint
+
+Use an interface for precise GC like GCPRO in Emacs -- explicit code
+to enable precise GC.  Provide a lint-like tool to check that GCPRO is
+used correctly.
+
+
+**** EXECMODEL/gcpro+lint advantages
+
+***** portable solution
+***** compiler independent
+***** doesn't impose a mandatory, new compiler pass
+***** might be useful for other projects (especially Emacs)
+
+
+**** EXECMODEL/gcpro+lint disadvantages
+***** difficult
+
+To work reliably, the preprocessor will have to parse and analyze
+arbitrary C code.  It will have to report errors with accurate line
+number information.
+
+***** requires inserting GCPRO calls "by hand"
+
+However, the lint-like tool can help with this:  it can report errors 
+that say where calls to GCPRO are needed.  That error output can be 
+used with specialized Emacs commands to insert and maintain GCPRO
+calls almost automatically.
+
+
+**** EXECMODEL/gcpro+lint unknowns
+***** run-time cost of GCPRO approach
+
+**** EXECMODEL/gcpro+lint tactical notes
+**** GCC contains a re-usable CPP, lexer, and parser
+***** a C program could do the entire analysis
+***** a C program (or library)  could parse C and write (or build) S-expressions
+
+Then Scheme could be used to implement an _extensible_ lint-like tool.
+There was, at one time, interest in such a tool among the Linux kernel
+developers.  A prototype of such a tool was once written, without much
+difficulty -- it was fairly small and simple.
+
+
+
+** How can Guile's call/cc implementation be made fast?
+
+*** EXECMODEL/phantom-stacks
+
+An exotic solution is to modify GCC to allow programs to control how
+stack frame allocation is handled.
+
+
+*** EXECMODEL/phantom-stacks advantages
+**** No (or little) change to the C API for Guile
+**** maybe useful in other projects
+
+
+*** EXECMODEL/phantom-stacks disadvantages
+**** very difficult to implement (guess)
+**** compiler specific solution
+
+
+*** EXECMODEL/phantom-stacks special considerations
+**** requires acceptance of patches by the GCC maintainers
+
+
+
+
+*** EXECMODEL/new-calling-conventions
+
+This is a radical approach: change the calling conventions 
+for built-in functions, perhaps supporting the current conventions
+as a limited-capability compatability mode.
+
+*** EXECMODEL/fix-at-the-Scheme-level
+
+By performing CPS conversion, and only using built-ins in whose scope
+call/cc can never be called, faster (not "fast", just "faster")
+call/cc can be implemented entirely in Scheme.
+
+**** EXECMODEL/fix-at-the-Scheme-level advantages
+***** no impact on the C API
+***** comparatively easy to implement (guess)
+
+**** EXECMODEL/fix-at-the-Scheme-level disadvantages
+***** partial solution -- not all built-ins can be used
+***** partial solution -- no more calling call/cc from interrupt handlers
+
+This limitation is fairly serious when it comes time to implement
+threads.  One might be able to create a second type of interrupt
+handler to solve this -- but at some cost in complexity.
+
+***** probably not especially fast (guess)
+
+Will it really be faster than the built-in call/cc in most cases?
+
+
+
+
+
+_______________________________________________
+Guile-devel mailing list
+Guile-devel@gnu.org
+http://mail.gnu.org/mailman/listinfo/guile-devel
+
