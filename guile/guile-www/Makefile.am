@@ -24,9 +24,9 @@ AUTOMAKE_OPTIONS = gnu
 SUBDIRS = doc
 
 gwwwdir = $(datadir)/guile/www
-gwww_DATA = cgi.scm http.scm main.scm url.scm wwwcat
+gwww_DATA = cgi.scm http.scm main.scm url.scm
 
-EXTRA_DIST = $(gwww_DATA) contrib
+EXTRA_DIST = $(gwww_DATA) contrib examples
 
 dist-hook:
 	rm -rf `find $(distdir)/contrib -name CVS`
