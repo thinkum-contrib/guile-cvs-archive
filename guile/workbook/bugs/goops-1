@@ -1,5 +1,6 @@
 summary: strangeness with classes defined from C
 reported: Andreas Rottmann <a.rottmann@gmx.at>, 2002-04-17
+affects: HEAD branch_release-1-6 branch_release-1-4
 
 As my C++ <-> Guile bindings (ucxx.sf.net) are approaching
 completeness, I have run into another strange problem. I have managed

@@ -1,5 +1,6 @@
 summary: possible goops class redefinition bug
 reported: "Neil W. Van Dyke" <nwv@neilvandyke.org>, 2002-03-15
+affects: HEAD branch_release-1-6 branch_release-1-4
 
 Unless I'm making a stupid late-night error, there appears to be a bug
 related to Goops class redefinition in Guile 1.5.6 from CVS...
