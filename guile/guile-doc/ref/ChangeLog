@@ -1,3 +1,10 @@
+1998-01-15  Mark Galassi  <rosalia@nis.lanl.gov>
+
+	* gh.texi (Calling Scheme procedures from C): removed
+	gh_make_subr() since Mikael pointed out that it is gone from
+	Guile.  I don't remember its history any more, but I don't think
+	anyone is missing it.
+
 1998-01-03  Tim Pierce  <twp@skepsis.com>
 
 	* scheme.texi (Evaluation): Several corrections supplied by MDJ.

@@ -690,35 +690,35 @@ C @code{unsigned long} instead of an SCM object.
 
 @heading Procedures
 
-@deftypefun SCM gh_make_subr (SCM (*@var{fn})(), int @var{req}, int @var{opt}, int @var{restp}, char *@var{sym})
-Make the C function @var{fn} available to Scheme programs.  The function
-will be bound to the symbol @var{sym}.  The arguments @var{req},
-@var{opt} and @var{restp} describe @var{fn}'s calling conventions.  The
-function must take @var{req} required arguments and may take @var{opt}
-optional arguments.  Any optional arguments which are not supplied by
-the caller will be bound to @var{SCM_UNSPECIFIED}.  If @var{restp} is
-non-zero, it means that @var{fn} may be called with an arbitrary number
-of arguments, and that any extra arguments supplied by the caller will
-be passed to @var{fn} as a list.  The @var{restp} argument is exactly
-like Scheme's @code{(lambda (arg1 arg2 . arglist))} calling convention.
-
-For example, the procedure @code{read-line}, which takes optional
-@var{port} and @var{handle-delim} arguments, would be declared like so:
-
-@example
-SCM scm_read_line (SCM port, SCM handle_delim);
-gh_make_subr (scm_read_line, 0, 2, 0, "read-line");
-@end example
-
-The @var{req} argument to @code{gh_make_subr} is 0 to indicate that
-there are no required arguments, so @code{read-line} may be called
-without any arguments at all.  The @var{opt} argument is 2, to indicate
-that both the @var{port} and @var{handle_delim} arguments to
-@code{scm_read_line} are optional, and will be bound to
-@code{SCM_UNSPECIFIED} if the calling program does not supply them.
-Because the @var{restp} argument is 0, this function may not be called
-with more than two arguments.
-@end deftypefun
+@c @deftypefun SCM gh_make_subr (SCM (*@var{fn})(), int @var{req}, int @var{opt}, int @var{restp}, char *@var{sym})
+@c Make the C function @var{fn} available to Scheme programs.  The function
+@c will be bound to the symbol @var{sym}.  The arguments @var{req},
+@c @var{opt} and @var{restp} describe @var{fn}'s calling conventions.  The
+@c function must take @var{req} required arguments and may take @var{opt}
+@c optional arguments.  Any optional arguments which are not supplied by
+@c the caller will be bound to @var{SCM_UNSPECIFIED}.  If @var{restp} is
+@c non-zero, it means that @var{fn} may be called with an arbitrary number
+@c of arguments, and that any extra arguments supplied by the caller will
+@c be passed to @var{fn} as a list.  The @var{restp} argument is exactly
+@c like Scheme's @code{(lambda (arg1 arg2 . arglist))} calling convention.
+@c 
+@c For example, the procedure @code{read-line}, which takes optional
+@c @var{port} and @var{handle-delim} arguments, would be declared like so:
+@c 
+@c @example
+@c SCM scm_read_line (SCM port, SCM handle_delim);
+@c gh_make_subr (scm_read_line, 0, 2, 0, "read-line");
+@c @end example
+@c 
+@c The @var{req} argument to @code{gh_make_subr} is 0 to indicate that
+@c there are no required arguments, so @code{read-line} may be called
+@c without any arguments at all.  The @var{opt} argument is 2, to indicate
+@c that both the @var{port} and @var{handle_delim} arguments to
+@c @code{scm_read_line} are optional, and will be bound to
+@c @code{SCM_UNSPECIFIED} if the calling program does not supply them.
+@c Because the @var{restp} argument is 0, this function may not be called
+@c with more than two arguments.
+@c @end deftypefun
 
 @deftypefun SCM gh_apply (SCM proc, SCM args)
 Call the Scheme procedure @var{proc}, with the elements of @var{args} as
