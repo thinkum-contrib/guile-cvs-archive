@@ -1,3 +1,8 @@
+2001-02-02  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* scheme-reading.texi (Further Reading): Add reference to online
+	version of SICP.
+
 2001-01-27  Neil Jerram  <neil@ossau.uklinux.net>
 
 	Further changes to get everything to build to dvi with the latest
