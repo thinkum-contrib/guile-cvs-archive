@@ -15,6 +15,6 @@ if [ x"$1" = x ] ; then
    exit 1
 fi
 
-cvs -d :ext:${user}@subversions.gnu.org:/cvs co -d $1 guile/$1
+cvs -d :ext:${user}@subversions.gnu.org:/cvsroot/guile co -d $1 guile/$1
 
 exit $?
