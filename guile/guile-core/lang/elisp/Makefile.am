@@ -22,11 +22,42 @@
 AUTOMAKE_OPTIONS = gnu
 
 # These should be installed and distributed.
-elisp_sources =								   \
-	buffers.scm calling.scm emacs.scm features.scm format.scm fset.scm \
-	guile.scm keymaps.scm lists.scm load.scm match.scm numbers.scm     \
-	pure.scm read.scm signal.scm strings.scm symprop.scm system.scm    \
-	time.scm trace.scm transform.scm
+
+elisp_primitives = \
+	primitives/buffers.scm \
+	primitives/features.scm \
+	primitives/fns.scm \
+	primitives/format.scm \
+	primitives/guile.scm \
+	primitives/keymaps.scm \
+	primitives/lists.scm \
+	primitives/load.scm \
+	primitives/match.scm \
+	primitives/numbers.scm \
+	primitives/pure.scm \
+	primitives/read.scm \
+	primitives/signal.scm \
+	primitives/strings.scm \
+	primitives/symprop.scm \
+	primitives/system.scm \
+	primitives/time.scm
+
+elisp_internals = \
+	internals/evaluation.scm \
+	internals/format.scm \
+	internals/fset.scm \
+	internals/load.scm \
+	internals/null.scm \
+	internals/set.scm \
+	internals/signal.scm \
+	internals/time.scm \
+	internals/trace.scm
+
+elisp_toplevel = \
+	emacs.scm \
+	transform.scm
+
+elisp_sources = $(elisp_primitives) $(elisp_internals) $(elisp_toplevel)
 
 subpkgdatadir = $(pkgdatadir)/$(VERSION)/lang/elisp
 subpkgdata_DATA = $(elisp_sources)
