@@ -41,6 +41,8 @@
     or is more recent than 1.4.2d.
 
 - Eventually
+  - Allow the deprecation mechanism to be controlled via a preprocessor
+    macro analogous to _GNU_SOURCE. [talk to mvo about this]
   - consider (and likely code) guile using pkg-config
   + also show bidi set-difference counts in api-diff [ttn]
   - write goops test cases in C
