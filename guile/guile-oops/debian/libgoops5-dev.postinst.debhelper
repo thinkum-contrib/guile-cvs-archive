@@ -1,7 +1,0 @@
-# Automatically added by dh_installdocs
-if [ "$1" = "configure" ]; then
-	if [ -d /usr/doc -a ! -e /usr/doc/libgoops5-dev -a -d /usr/share/doc/libgoops5-dev ]; then
-		ln -sf ../share/doc/libgoops5-dev /usr/doc/libgoops5-dev
-	fi
-fi
-# End automatically added section

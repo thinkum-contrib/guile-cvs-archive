@@ -1,8 +1,0 @@
-# Automatically added by dh_installdocs
-if [ \( "$1" = "upgrade" -o "$1" = "remove" \) -a -L /usr/doc/goops-doc ]; then
-	rm -f /usr/doc/goops-doc
-fi
-# End automatically added section
-# Automatically added by dh_installinfo
-install-info --quiet --remove /usr/share/info/goops.info
-# End automatically added section
