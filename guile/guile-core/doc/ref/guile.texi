@@ -209,8 +209,8 @@ Part I: Introduction to Guile
 
 Part II: Programming with Guile
 
-* Programming Intro::           Intoduction to programming with Guile.
-* Programming Options::         Programming Options in Guile.
+* Programming Intro::           Intoduction to this part.
+* Programming Overview::        An overview of Guile programming.
 * Scheme Intro::                Introduction to Guile Scheme.
 * Basic Ideas::                 Basic ideas in Scheme.
 * Guile Scripting::             How to write Guile scripts.
