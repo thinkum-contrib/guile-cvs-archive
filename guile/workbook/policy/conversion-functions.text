@@ -214,9 +214,10 @@ or
 but there are also convenience functions that are actually a bit more
 efficient:
 
-  - SCM scm_from_complex_double (double re, double im);
-  - double scm_to_real_part_double (SCM z);
-  - double scm_to_imag_part_double (SCM z);
+  - SCM scm_c_make_rectangular (double re, double im);
+  - SCM scm_c_make_polar (double mag, double ang);
+  - double scm_c_real_part (SCM z);
+  - double scm_c_imag_part (SCM z);
 
 But remember to use the generic functions scm_make_rectangular,
 scm_real_part, etc if you don't care whether the parts of a complex
@@ -226,13 +227,17 @@ someday offer complex numbers where the real part is a fraction
 this by not treating the parts of a complex as doubles when it is not
 needed.
 
+** Numbers in general
+
+  - int scm_is_number (SCM val)
+
 ** Characters
 
 A Scheme character in Guile is equivalent to a Unicode code point.
 
   - int scm_is_character (SCM val);
   - unsigned long scm_to_unicode (SCM ch);
-  - SCM  scm_from_unicode (unsigned long code);
+  - SCM scm_from_unicode (unsigned long code);
 
 ** Strings
 
@@ -245,20 +250,23 @@ see.
 
   - int scm_is_string (SCM val);
 
-  - SCM scm_from_locale_string (unsigned char *str, size_t len);
+  - SCM scm_from_locale_string (unsigned char *str);
+  - SCM scm_from_locale_stringn (unsigned char *str, size_t len);
 
   Return a new Scheme string initialized with STR, a string encoded
-  according to the current locale.  When LEN is (size_t) -1, STR must
-  be zero-terminated and its length is found that way.  Otherwise LEN
-  gives the length of STR in bytes.
+  according to the current locale.  When LEN is (size_t) -1 or is not
+  provided, STR must be zero-terminated and its length is found that
+  way.  Otherwise LEN gives the length of STR in bytes.
 
-  - SCM scm_from_utf8_string (unsigned char *str, size_t len);
+  - SCM scm_from_utf8_string (unsigned char *str);
+  - SCM scm_from_utf8_stringn (unsigned char *str, size_t len);
 
   Same as above, but STR is encoded in UTF-8.  Future versions of
   Guile will use UTF-8 internally and then this function will not need
   to perform any conversions at all.
 
-  - SCM scm_take_utf8_string (unsigned char *str, size_t len);
+  - SCM scm_take_utf8_string (unsigned char *str);
+  - SCM scm_take_utf8_stringn (unsigned char *str, str, size_t len);
 
   Same as above, but the memory for STR is taken over by Guile.  It
   will eventually be freed using libc 'free'.
@@ -290,23 +298,25 @@ see.
     future they will be in UTF-8. ]
 
 The above functions always return newly allocated memory.  When that
-is inappropriate, the following functions can be used instead.
-
-  - size_t scm_to_locale_string_buf (SCM str, unsigned char *buf,
-                                     size_t offset, size_t size);
-
-  Store the characters of STR into BUF, using the current locale
-  encoding.  The first byte stored into BUF is byte number OFFSET of
-  the encoding; at most SIZE bytes are stored.  The return value is
-  the number of bytes actually stored.
-
-  Note that OFFSET, SIZE and the return value are in units of bytes,
-  not characters.
+is inappropriate, the following function can be used instead.
 
   - size_t scm_to_utf8_string_buf (SCM str, unsigned char *buf,
                                    size_t offset, size_t size);
 
-  Like above, but store the UTF-8 encoding of the string.
+  Store the characters of STR into BUF, using the UTF-8 encoding.  The
+  first byte stored into BUF is byte number OFFSET of the encoded
+  string; at most SIZE bytes are stored.  The return value is the
+  number of bytes actually stored.
+
+  Note that OFFSET, SIZE and the return value are in units of bytes,
+  not characters.
+
+  Such a copying function is only provided for the UTF-8 encoding, not
+  for any other encoding.  The reason is that this copying is cheap
+  for the encoding that Guile uses internally, but becomes quite
+  expensive when a characterset translation must be done.  In that
+  case, it is cheaper to use a function that allocates the memory for
+  the string itself, such as scm_to_locale_string.  [true?]
 
 For really specialized needs, functions are available that avoid all
 copying.  However, care must be taken to use them correctly and
