@@ -83,11 +83,11 @@
 					    SCM_LIST4 (a, b, c, d), SCM_EOL))
 
 #define CLASS_REDEF(c) SCM_SLOT(c, scm_si_redefined)
-#define TEST_CHANGE_CLASS(obj, classe) 						\
+#define TEST_CHANGE_CLASS(obj, class) 						\
 	{ 									\
-	  classe = SCM_CLASS_OF(obj);						\
-          if (CLASS_REDEF(classe) != SCM_BOOL_F) 					\
-	    CALL_GF3("change-object-class", obj, classe, CLASS_REDEF(classe));	\
+	  class = SCM_CLASS_OF(obj);						\
+          if (CLASS_REDEF(class) != SCM_BOOL_F) 					\
+	    CALL_GF3("change-object-class", obj, class, CLASS_REDEF(class));	\
 	}
 
 #define NXT_MTHD_METHODS(m)	(SCM_VELTS (m)[1])
@@ -113,7 +113,7 @@ static SCM Widget;
 
 SCM_SYMBOL (scm_sym_define_public, "define-public");
 
-static void set_slot_value_if_unbound (SCM classe, SCM obj, SCM slot_name, SCM form);
+static void set_slot_value_if_unbound (SCM class, SCM obj, SCM slot_name, SCM form);
 static SCM scm_make_unbound (void);
 static SCM scm_unbound_p (SCM obj);
 
@@ -180,12 +180,12 @@ build_slots_list (SCM dslots, SCM cpl)
 SCM_PROC (s_sys_compute_slots, "%compute-slots", 1, 0, 0, scm_sys_compute_slots);
 
 SCM
-scm_sys_compute_slots (SCM classe)
+scm_sys_compute_slots (SCM class)
 {
-  SCM_ASSERT (SCM_NIMP (classe) && CLASSP (classe),
-	      classe, SCM_ARG1, s_sys_compute_slots);
-  return build_slots_list (SCM_SLOT(classe, scm_si_direct_slots),
-			  SCM_SLOT(classe, scm_si_cpl));
+  SCM_ASSERT (SCM_NIMP (class) && CLASSP (class),
+	      class, SCM_ARG1, s_sys_compute_slots);
+  return build_slots_list (SCM_SLOT(class, scm_si_direct_slots),
+			  SCM_SLOT(class, scm_si_cpl));
 }
 
 /******************************************************************************
@@ -261,7 +261,7 @@ scm_sys_initialize_object (SCM obj, SCM initargs)
   static char k_init_keyword[] = "-init-keyword";
   SCM tmp, get_n_set, slots;
   SCM init_keyword = scm_makekey (k_init_keyword);
-  SCM classe       = SCM_CLASS_OF (obj);
+  SCM class       = SCM_CLASS_OF (obj);
   int n_initargs;
 
   SCM_ASSERT (SCM_NIMP (obj) && SCM_INSTANCEP (obj),
@@ -270,8 +270,8 @@ scm_sys_initialize_object (SCM obj, SCM initargs)
   SCM_ASSERT ((n_initargs & 1) == 0,
 	      initargs, SCM_ARG2, s_sys_initialize_object);
   
-  get_n_set = SCM_SLOT(classe, scm_si_getters_n_setters);
-  slots     = SCM_SLOT(classe, scm_si_slots);
+  get_n_set = SCM_SLOT(class, scm_si_getters_n_setters);
+  slots     = SCM_SLOT(class, scm_si_slots);
   
   /* See for each slot how it must be initialized */
   for ( ; SCM_NNULLP(slots); get_n_set=SCM_CDR(get_n_set), slots=SCM_CDR(slots)) {
@@ -312,7 +312,7 @@ scm_sys_initialize_object (SCM obj, SCM initargs)
       /* set slot to its :initform if it exists */
       tmp = SCM_CAR(SCM_CDR(SCM_CAR(get_n_set)));
       if (tmp != SCM_BOOL_F)
-	set_slot_value_if_unbound(classe, obj, slot_name, tmp);
+	set_slot_value_if_unbound(class, obj, slot_name, tmp);
     }
   }
   
@@ -348,7 +348,6 @@ scm_sys_prep_layout_x (SCM class)
     {
       if (n < 16)
 	{
-	exit_err:
 	  scm_must_free (s);
 	  scm_misc_error (s_sys_prep_layout_x,
 			  "class object doesn't have enough fields: %S",
@@ -391,12 +390,12 @@ scm_sys_inherit_magic_x (SCM class, SCM dsupers)
 /******************************************************************************/
 
 SCM
-scm_basic_make_class (SCM classe, SCM name, SCM dsupers, SCM dslots)
+scm_basic_make_class (SCM class, SCM name, SCM dsupers, SCM dslots)
 {
   SCM z, cpl, slots, nfields, g_n_s;
 
   /* Allocate one instance */
-  z = scm_make_struct (classe, SCM_INUM0, SCM_EOL);
+  z = scm_make_struct (class, SCM_INUM0, SCM_EOL);
 
   /* Initialize its slots */
   cpl   = compute_cpl (dsupers, SCM_LIST1(z));
@@ -417,9 +416,6 @@ scm_basic_make_class (SCM classe, SCM name, SCM dsupers, SCM dslots)
   SCM_SLOT(z, scm_si_environment)
     = scm_top_level_env (SCM_CDR (scm_top_level_lookup_closure_var));
 
-  /* Don't forget to set the accessors list of the object */
-  SCM_ACCESSORS_OF(z) = SCM_SLOT(classe, scm_si_getters_n_setters);
-
   /* Add this class in the direct-subclasses slot of dsupers */
   {
     SCM tmp;
@@ -429,11 +425,11 @@ scm_basic_make_class (SCM classe, SCM name, SCM dsupers, SCM dslots)
   }
 
   /* Support for the underlying structs: */
-  SCM_SET_CLASS_FLAGS (z, (classe == Entity_class
+  SCM_SET_CLASS_FLAGS (z, (class == Entity_class
 			   ? (SCM_OBJF_GOOPS
 			      | SCM_CLASSF_OPERATOR
 			      | SCM_CLASSF_ENTITY)
-			   : classe == Operator_class
+			   : class == Operator_class
 			   ? SCM_OBJF_GOOPS | SCM_CLASSF_OPERATOR
 			   : SCM_OBJF_GOOPS));
   scm_sys_inherit_magic_x (z, dsupers);
@@ -478,19 +474,18 @@ create_Top_Object_Class(void)
 			       | SCM_OBJF_INSTANCE
 			       | SCM_CLASSF_METACLASS));
 
-  SCM_ACCESSORS_OF(Class) = compute_getters_n_setters (slots_of_class);
-
   SCM_SLOT(Class, scm_si_name) 		 = name;
   SCM_SLOT(Class, scm_si_direct_supers)	 = SCM_EOL;  /* will be changed */
   SCM_SLOT(Class, scm_si_direct_slots)	 = slots_of_class;
   SCM_SLOT(Class, scm_si_direct_subclasses)= SCM_EOL;
-  SCM_SLOT(Class, scm_si_direct_methods)	 = SCM_EOL;  
+  SCM_SLOT(Class, scm_si_direct_methods) = SCM_EOL;  
   SCM_SLOT(Class, scm_si_cpl)		 = SCM_EOL;  /* will be changed */
   SCM_SLOT(Class, scm_si_slots)		 = slots_of_class;
-  SCM_SLOT(Class, scm_si_nfields)		 = SCM_MAKINUM (SCM_N_CLASS_SLOTS);
-  SCM_SLOT(Class, scm_si_getters_n_setters)= SCM_ACCESSORS_OF(Class);
+  SCM_SLOT(Class, scm_si_nfields)	 = SCM_MAKINUM (SCM_N_CLASS_SLOTS);
+  SCM_SLOT(Class, scm_si_getters_n_setters)
+    = compute_getters_n_setters (slots_of_class);
   SCM_SLOT(Class, scm_si_redefined) 	 = SCM_BOOL_F;
-  SCM_SLOT(Class, scm_si_environment) 	 = scm_top_level_env (SCM_CDR (scm_top_level_lookup_closure_var));
+  SCM_SLOT(Class, scm_si_environment) = scm_top_level_env (SCM_CDR (scm_top_level_lookup_closure_var));
 
   DEFVAR(name, Class);
 
@@ -832,99 +827,107 @@ scm_sys_fast_slot_set_x (SCM obj, SCM index, SCM value)
 /** Utilities **/
 
 static SCM
-get_slot_value (SCM classe, SCM obj, SCM slot_name)
+get_slot_value (SCM class, SCM obj, SCM slot_name)
 {
   register SCM l;
 
-  for (l = SCM_ACCESSORS_OF (obj); SCM_NNULLP (l); l = SCM_CDR (l)) {
-    if (SCM_CAR (SCM_CAR (l)) == slot_name) {
-      l = SCM_CDR (SCM_CDR (SCM_CAR (l)));
-      /* Two cases here:
-       *	- l is an integer (the offset of this slot in the slots vector)
-       *	- otherwise (car l) is the getter function to apply
-       */
-      if (SCM_INUMP (l))
-	return SCM_SLOT (obj, SCM_INUM (l));
-      else {	/* We must evaluate (apply (car l) (list obj)) 
-		 * where (car l) is known to be a closure of arity 1  */
-	register SCM code, next, env;
+  for (l = SCM_ACCESSORS_OF (obj); SCM_NNULLP (l); l = SCM_CDR (l))
+    {
+      if (SCM_CAAR (l) == slot_name)
+	{
+	  l = SCM_CDDAR (l);
+	  /* Two cases here:
+	   *	- l is an integer (the offset of this slot in the slots vector)
+	   *	- otherwise (car l) is the getter function to apply
+	   */
+	  if (SCM_INUMP (l))
+	    return SCM_SLOT (obj, SCM_INUM (l));
+	  else
+	    {
+	      /* We must evaluate (apply (car l) (list obj)) 
+	       * where (car l) is known to be a closure of arity 1  */
+	      register SCM code, next, env;
 
-	code = SCM_CAR (l);
-	env  = SCM_EXTEND_ENV (SCM_CAR (SCM_CODE (code)),
-			       SCM_LIST1 (obj),
-			       SCM_ENV (code));
-	/* Evaluate the closure body */
-	code = SCM_CDR (SCM_CODE (code));
-	next = code;
-	while (SCM_NNULLP (next = SCM_CDR (next)))
-	  {
-	    if (SCM_NIMP (SCM_CAR (code)))
-	      l = SCM_XEVAL (SCM_CAR (code), env);
-	    code = next;
-	  }
-	return SCM_XEVALCAR (code, env);
-      }
+	      code = SCM_CAR (l);
+	      env  = SCM_EXTEND_ENV (SCM_CAR (SCM_CODE (code)),
+				     SCM_LIST1 (obj),
+				     SCM_ENV (code));
+	      /* Evaluate the closure body */
+	      code = SCM_CDR (SCM_CODE (code));
+	      next = code;
+	      while (SCM_NNULLP (next = SCM_CDR (next)))
+		{
+		  if (SCM_NIMP (SCM_CAR (code)))
+		    l = SCM_XEVAL (SCM_CAR (code), env);
+		  code = next;
+		}
+	      return SCM_XEVALCAR (code, env);
+	    }
+	}
     }
-  }
-  return CALL_GF3 ("slot-missing", classe, obj, slot_name);
+  return CALL_GF3 ("slot-missing", class, obj, slot_name);
 }
 
 static SCM
-set_slot_value (SCM classe, SCM obj, SCM slot_name, SCM value)
+set_slot_value (SCM class, SCM obj, SCM slot_name, SCM value)
 {
   register SCM l;
 
-  for (l = SCM_ACCESSORS_OF (obj); SCM_NNULLP (l); l = SCM_CDR (l)) {
-    if (SCM_CAR (SCM_CAR (l)) == slot_name) {
-      l = SCM_CDR (SCM_CDR (SCM_CAR (l)));
-      /* Two cases here:
-       *	- l is an integer (the offset of this slot in the slots vector)
-       *	- otherwise (cadr l) is the setter function to apply
-       */
-      if (SCM_INUMP (l))
-	SCM_SLOT (obj, SCM_INUM (l)) = value;
-      else {  /* We must evaluate (apply (cadr l) (list obj value))
+  for (l = SCM_ACCESSORS_OF (obj); SCM_NNULLP (l); l = SCM_CDR (l))
+    {
+      if (SCM_CAAR (l) == slot_name)
+	{
+	  l = SCM_CDDAR (l);
+	  /* Two cases here:
+	   *	- l is an integer (the offset of this slot in the slots vector)
+	   *	- otherwise (cadr l) is the setter function to apply
+	   */
+	  if (SCM_INUMP (l))
+	    SCM_SLOT (obj, SCM_INUM (l)) = value;
+	  else
+	    {
+	      /* We must evaluate (apply (cadr l) (list obj value))
 	       * where (cadr l) is known to be a closure of arity 2  */
-	register SCM code, env;
+	      register SCM code, env;
 
-	code = SCM_CADR (l);
-	env  = SCM_EXTEND_ENV (SCM_CAR (SCM_CODE (code)),
-			       SCM_LIST2 (obj, value),
-			       SCM_ENV (code));
-	/* Evaluate the closure body */
-	code = SCM_CDR (SCM_CODE (code));
-	while (SCM_NNULLP (code))
-	  {
-	    if (SCM_NIMP (SCM_CAR (code)))
-	      SCM_XEVAL (SCM_CAR (code), env);
-	    code = SCM_CDR (code);
-	  }
-      }
-      return SCM_UNSPECIFIED;
+	      code = SCM_CADR (l);
+	      env  = SCM_EXTEND_ENV (SCM_CAR (SCM_CODE (code)),
+				     SCM_LIST2 (obj, value),
+				     SCM_ENV (code));
+	      /* Evaluate the closure body */
+	      code = SCM_CDR (SCM_CODE (code));
+	      while (SCM_NNULLP (code))
+		{
+		  if (SCM_NIMP (SCM_CAR (code)))
+		    SCM_XEVAL (SCM_CAR (code), env);
+		  code = SCM_CDR (code);
+		}
+	    }
+	  return SCM_UNSPECIFIED;
+	}
     }
-  }
-  return CALL_GF4("slot-missing", classe, obj, slot_name, value);
+  return CALL_GF4 ("slot-missing", class, obj, slot_name, value);
 }
 
 static void
-set_slot_value_if_unbound (SCM classe, SCM obj, SCM slot_name, SCM form)
+set_slot_value_if_unbound (SCM class, SCM obj, SCM slot_name, SCM form)
 {
-  SCM old_val = get_slot_value(classe, obj, slot_name);
+  SCM old_val = get_slot_value(class, obj, slot_name);
   
   if (SCM_GOOPS_UNBOUNDP (old_val))
-    set_slot_value (classe, obj,
+    set_slot_value (class, obj,
 		    slot_name,
 		    scm_apply (form, SCM_EOL, SCM_EOL));
 }
 
 
 static SCM
-test_slot_existence (SCM classe, SCM obj, SCM slot_name)
+test_slot_existence (SCM class, SCM obj, SCM slot_name)
 {
   register SCM l;
 
   for (l = SCM_ACCESSORS_OF (obj); SCM_NNULLP (l); l = SCM_CDR (l))
-    if (SCM_CAR (SCM_CAR (l)) == slot_name)
+    if (SCM_CAAR (l) == slot_name)
       return SCM_BOOL_T;
 
   return SCM_BOOL_F;
@@ -935,50 +938,50 @@ test_slot_existence (SCM classe, SCM obj, SCM slot_name)
 SCM_PROC (s_slot_ref_using_class, "slot-ref-using-class", 3, 0, 0, scm_slot_ref_using_class);
 
 SCM
-scm_slot_ref_using_class (SCM classe, SCM obj, SCM slot_name)
+scm_slot_ref_using_class (SCM class, SCM obj, SCM slot_name)
 {
   SCM res;
 
-  SCM_ASSERT (SCM_NIMP (classe) && CLASSP (classe),
-	      classe, SCM_ARG1, s_slot_ref_using_class);
+  SCM_ASSERT (SCM_NIMP (class) && CLASSP (class),
+	      class, SCM_ARG1, s_slot_ref_using_class);
   SCM_ASSERT (SCM_NIMP (obj) && SCM_INSTANCEP (obj),
 	      obj, SCM_ARG1, s_slot_ref_using_class);
   SCM_ASSERT (SCM_NIMP (slot_name) && SCM_SYMBOLP (slot_name),
 	      obj, SCM_ARG3, s_slot_ref_using_class);
 
-  res = get_slot_value (classe, obj, slot_name);
+  res = get_slot_value (class, obj, slot_name);
   if (SCM_GOOPS_UNBOUNDP (res))
-    return CALL_GF3 ("slot-unbound", classe, obj, slot_name);
+    return CALL_GF3 ("slot-unbound", class, obj, slot_name);
   return res;
 }
  
 SCM_PROC (s_slot_set_using_class_x, "slot-set-using-class!", 4, 0, 0, scm_slot_set_using_class_x);
 
 SCM
-scm_slot_set_using_class_x (SCM classe, SCM obj, SCM slot_name, SCM value)
+scm_slot_set_using_class_x (SCM class, SCM obj, SCM slot_name, SCM value)
 {
-  SCM_ASSERT (SCM_NIMP (classe) && CLASSP (classe),
-	      classe, SCM_ARG1, s_slot_set_using_class_x);
+  SCM_ASSERT (SCM_NIMP (class) && CLASSP (class),
+	      class, SCM_ARG1, s_slot_set_using_class_x);
   SCM_ASSERT (SCM_NIMP (obj) && SCM_INSTANCEP (obj),
 	      obj, SCM_ARG2, s_slot_set_using_class_x);
   SCM_ASSERT (SCM_NIMP (slot_name) && SCM_SYMBOLP (slot_name),
 	      obj, SCM_ARG3, s_slot_set_using_class_x);
-  return set_slot_value (classe, obj, slot_name, value);
+  return set_slot_value (class, obj, slot_name, value);
 }
 
 SCM_PROC (s_slot_bound_using_class_p, "slot-bound-using-class?", 3, 0, 0, scm_slot_bound_using_class_p);
 
 SCM
-scm_slot_bound_using_class_p (SCM classe, SCM obj, SCM slot_name)
+scm_slot_bound_using_class_p (SCM class, SCM obj, SCM slot_name)
 {
-  SCM_ASSERT (SCM_NIMP (classe) && CLASSP (classe),
-	      classe, SCM_ARG1, s_slot_bound_using_class_p);
+  SCM_ASSERT (SCM_NIMP (class) && CLASSP (class),
+	      class, SCM_ARG1, s_slot_bound_using_class_p);
   SCM_ASSERT (SCM_NIMP (obj) && SCM_INSTANCEP (obj),
 	      obj, SCM_ARG2, s_slot_bound_using_class_p);
   SCM_ASSERT (SCM_NIMP (slot_name) && SCM_SYMBOLP (slot_name),
 	      obj, SCM_ARG3, s_slot_bound_using_class_p);
 
-  return (SCM_GOOPS_UNBOUNDP (get_slot_value (classe, obj, slot_name))
+  return (SCM_GOOPS_UNBOUNDP (get_slot_value (class, obj, slot_name))
 	  ? SCM_BOOL_F
 	  : SCM_BOOL_T);
 }
@@ -986,15 +989,15 @@ scm_slot_bound_using_class_p (SCM classe, SCM obj, SCM slot_name)
 SCM_PROC (s_slot_exists_using_class_p, "slot-exists-using-class?", 3, 0, 0, scm_slot_exists_using_class_p);
 
 SCM
-scm_slot_exists_using_class_p (SCM classe, SCM obj, SCM slot_name)
+scm_slot_exists_using_class_p (SCM class, SCM obj, SCM slot_name)
 {
-  SCM_ASSERT (SCM_NIMP (classe) && CLASSP (classe),
-	      classe, SCM_ARG1, s_slot_exists_using_class_p);
+  SCM_ASSERT (SCM_NIMP (class) && CLASSP (class),
+	      class, SCM_ARG1, s_slot_exists_using_class_p);
   SCM_ASSERT (SCM_NIMP (obj) && SCM_INSTANCEP (obj),
 	      obj, SCM_ARG2, s_slot_exists_using_class_p);
   SCM_ASSERT (SCM_NIMP (slot_name) && SCM_SYMBOLP (slot_name),
 	      obj, SCM_ARG3, s_slot_exists_using_class_p);
-  return test_slot_existence (classe, obj, slot_name);
+  return test_slot_existence (class, obj, slot_name);
 }
 
 
@@ -1005,15 +1008,15 @@ SCM_PROC (s_slot_ref, "slot-ref", 2, 0, 0, scm_slot_ref);
 SCM
 scm_slot_ref (SCM obj, SCM slot_name)
 {
-  SCM res, classe;
+  SCM res, class;
 
   SCM_ASSERT (SCM_NIMP (obj) && SCM_INSTANCEP (obj),
 	      obj, SCM_ARG1, s_slot_ref);
-  TEST_CHANGE_CLASS (obj, classe);
+  TEST_CHANGE_CLASS (obj, class);
 
-  res = get_slot_value (classe, obj, slot_name);
+  res = get_slot_value (class, obj, slot_name);
   if (SCM_GOOPS_UNBOUNDP (res))
-    return CALL_GF3 ("slot-unbound", classe, obj, slot_name);
+    return CALL_GF3 ("slot-unbound", class, obj, slot_name);
   return res;
 }
 
@@ -1022,13 +1025,13 @@ SCM_PROC (s_slot_set_x, "slot-set!", 3, 0, 0, scm_slot_set_x);
 SCM
 scm_slot_set_x (SCM obj, SCM slot_name, SCM value)
 {
-  SCM classe;
+  SCM class;
 
   SCM_ASSERT (SCM_NIMP (obj) && SCM_INSTANCEP (obj),
 	      obj, SCM_ARG1, s_slot_set_x);
-  TEST_CHANGE_CLASS(obj, classe);
+  TEST_CHANGE_CLASS(obj, class);
 
-  return set_slot_value (classe, obj, slot_name, value);
+  return set_slot_value (class, obj, slot_name, value);
 }
 
 SCM_PROC (s_slot_bound_p, "slot-bound?", 2, 0, 0, scm_slot_bound_p);
@@ -1036,13 +1039,13 @@ SCM_PROC (s_slot_bound_p, "slot-bound?", 2, 0, 0, scm_slot_bound_p);
 SCM
 scm_slot_bound_p (SCM obj, SCM slot_name)
 {
-  SCM classe;
+  SCM class;
 
   SCM_ASSERT (SCM_NIMP (obj) && SCM_INSTANCEP (obj),
 	      obj, SCM_ARG1, s_slot_bound_p);
-  TEST_CHANGE_CLASS(obj, classe);
+  TEST_CHANGE_CLASS(obj, class);
 
-  return (SCM_GOOPS_UNBOUNDP (get_slot_value (classe, obj, slot_name))
+  return (SCM_GOOPS_UNBOUNDP (get_slot_value (class, obj, slot_name))
 	  ? SCM_BOOL_F
 	  : SCM_BOOL_T);
 }
@@ -1052,15 +1055,15 @@ SCM_PROC (s_slot_exists_p, "slot-exists?", 2, 0, 0, scm_slots_exists_p);
 SCM
 scm_slots_exists_p (SCM obj, SCM slot_name)
 {
-  SCM classe;
+  SCM class;
 
   SCM_ASSERT (SCM_NIMP (obj) && SCM_INSTANCEP (obj),
 	      obj, SCM_ARG1, s_slot_exists_p);
   SCM_ASSERT (SCM_NIMP (slot_name) && SCM_SYMBOLP (slot_name),
 	      slot_name, SCM_ARG2, s_slot_exists_p);
-  TEST_CHANGE_CLASS (obj, classe);
+  TEST_CHANGE_CLASS (obj, class);
 
-  return test_slot_existence (classe, obj, slot_name);
+  return test_slot_existence (class, obj, slot_name);
 }
 
 
@@ -1073,38 +1076,38 @@ scm_slots_exists_p (SCM obj, SCM slot_name)
 SCM_PROC (s_sys_allocate_instance, "%allocate-instance", 1, 0, 0, scm_sys_allocate_instance);
 
 SCM
-scm_sys_allocate_instance (SCM classe)
+scm_sys_allocate_instance (SCM class)
 {
   int type, n, i = 0;
   SCM z;
 
-  SCM_ASSERT (SCM_NIMP (classe) && CLASSP (classe),
-	      classe, SCM_ARG1, s_sys_allocate_instance);
+  SCM_ASSERT (SCM_NIMP (class) && CLASSP (class),
+	      class, SCM_ARG1, s_sys_allocate_instance);
  
-  z = scm_make_struct (classe, SCM_INUM0, SCM_EOL);
-  if (classe == Generic)
+  z = scm_make_struct (class, SCM_INUM0, SCM_EOL);
+  if (class == Generic)
     type = SCM_OBJF_GOOPS | SCM_OBJF_PURE_GENERIC;
-  else if (classe == Accessor)
+  else if (class == Accessor)
     type = SCM_OBJF_GOOPS | SCM_OBJF_ACCESSOR;
-  else if (classe == Simple_method)
+  else if (class == Simple_method)
     type = SCM_OBJF_GOOPS | SCM_OBJF_SIMPLE_METHOD;
   else
     {
       type = SCM_OBJF_GOOPS | SCM_OBJF_INSTANCE;
-      if (SCM_CLASS_FLAGS (classe) & SCM_CLASSF_METACLASS)
+      if (SCM_CLASS_FLAGS (class) & SCM_CLASSF_METACLASS)
 	{
 	  SCM_SLOT (z, scm_si_print) = SCM_GOOPS_UNBOUND;
 	  i = 8;
-	  if (SCM_SUBCLASSP (classe, Entity_class))
+	  if (SCM_SUBCLASSP (class, Entity_class))
 	    SCM_SET_CLASS_FLAGS (z, SCM_CLASSF_OPERATOR | SCM_CLASSF_ENTITY);
-	  else if (SCM_SUBCLASSP (classe, Operator_class))
+	  else if (SCM_SUBCLASSP (class, Operator_class))
 	    SCM_SET_CLASS_FLAGS (z, SCM_CLASSF_OPERATOR);
 	}
     }
 
   SCM_SET_OBJ_FLAGS (z, type);
   /* Set all the slots except the first to unbound */
-  n = SCM_INUM (SCM_SLOT (classe, scm_si_nfields));
+  n = SCM_INUM (SCM_SLOT (class, scm_si_nfields));
   for (; i < n; i++)
     SCM_SLOT (z, i) = SCM_GOOPS_UNBOUND;
   return z;
@@ -1630,18 +1633,18 @@ SCM_PROC (s_make, "make",  0, 0, 1, scm_make);
 SCM
 scm_make (SCM args)
 {
-  SCM classe, z;
+  SCM class, z;
   int len = scm_ilength (args);
 
   if (len <= 0 || (len & 1) == 0)
     scm_wrong_num_args (scm_makfrom0str (s_make));
 
-  classe = SCM_CAR(args);
+  class = SCM_CAR(args);
   args  = SCM_CDR(args);
   
-  if (classe == Generic)
+  if (class == Generic)
     {
-      z = scm_make_struct (classe,
+      z = scm_make_struct (class,
 			   SCM_INUM0,
 			   SCM_LIST2 (scm_i_get_keyword (scm_makekey (k_name),
 							 args,
@@ -1657,9 +1660,9 @@ scm_make (SCM args)
     }
   else
     {
-      z = scm_sys_allocate_instance (classe);
+      z = scm_sys_allocate_instance (class);
 
-      if (classe == Method || classe == Simple_method || classe == Accessor)
+      if (class == Method || class == Simple_method || class == Accessor)
 	{
 	  SCM_SLOT (z, scm_si_generic_function) =  
 	    scm_i_get_keyword (scm_makekey (k_gf),
