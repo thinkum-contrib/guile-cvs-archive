@@ -1,0 +1,1353 @@
+
+0, unseen,,
+*** EOOH ***
+Return-Path: <mdj@kvast.blakulla.net>
+Received: from kvast.blakulla.net (localhost [127.0.0.1])
+	by kvast (Cyrus v2.1.11-Debian-8) with LMTP; Tue, 18 Feb 2003 14:00:47 +0100
+X-Sieve: CMU Sieve 2.2
+Return-path: <mdj@kvast.blakulla.net>
+Envelope-to: mdj@kvast.blakulla.net
+Received: from mail1.nada.kth.se ([130.237.225.191])
+	by kvast.blakulla.net with esmtp (Exim 3.36 #1 (Debian))
+	id 18l7Md-0007kG-00
+	for <mdj@kvast.blakulla.net>; Tue, 18 Feb 2003 14:00:47 +0100
+Received: (from mailadm@localhost)
+	by mail1.nada.kth.se (8.12.1/8.12.1) id h1ID0lrh015965
+	for mdj@kvast.blakulla.net; Tue, 18 Feb 2003 14:00:47 +0100 (MET)
+X-Authentication-Warning: mail1.nada.kth.se: mailadm set sender to mdj@kvast.blakulla.net using -f
+Received: from mail1.nada.kth.se ([unix socket])
+	by mail1.nada.kth.se (Cyrus v2.1.5) with LMTP; Tue, 18 Feb 2003 14:00:47 +0100
+X-Sieve: CMU Sieve 2.2
+Received: from mx1.nada.kth.se (mx1.nada.kth.se [130.237.222.211])
+	by mail1.nada.kth.se (8.12.1/8.12.1) with ESMTP id h1ID0liV015962
+	for <mdj@mail1.nada.kth.se>; Tue, 18 Feb 2003 14:00:47 +0100 (MET)
+Received: from kvast.blakulla.net (kvast.blakulla.net [213.212.20.77])
+	by mx1.nada.kth.se (8.12.1/8.12.1) with ESMTP id h1ID0jFb015249
+	for <djurfeldt@nada.kth.se>; Tue, 18 Feb 2003 14:00:45 +0100 (MET)
+Received: from dyna224-223.nada.kth.se ([130.237.224.223] helo=linnaeus)
+	by kvast.blakulla.net with esmtp (Exim 3.36 #1 (Debian))
+	id 18l7Mb-0007kA-00
+	for <djurfeldt@nada.kth.se>; Tue, 18 Feb 2003 14:00:45 +0100
+Received: from mdj by linnaeus with local (Exim 3.36 #1 (Debian))
+	id 18l7Ma-0004Fz-00; Tue, 18 Feb 2003 14:00:44 +0100
+To: Mikael Djurfeldt <djurfeldt@nada.kth.se>
+Subject: [Various] Digested Articles
+Reply-To: djurfeldt@nada.kth.se
+Cc: djurfeldt@nada.kth.se
+From: Mikael Djurfeldt <djurfeldt@nada.kth.se>
+Date: Tue, 18 Feb 2003 14:00:38 +0100
+Message-ID: <xy7n0ktrbex.fsf@nada.kth.se>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.2 (i386-pc-linux-gnu)
+MIME-Version: 1.0
+Content-Type: multipart/digest; boundary="=-=-="
+Sender: Mikael Djurfeldt <mdj@linnaeus>
+X-Spam-Status: No, hits=-3.2 required=10.0
+	tests=BALANCE_FOR_LONG_20K,BALANCE_FOR_LONG_40K,
+	      EMAIL_ATTRIBUTION,FROM_AND_TO_SAME_2,QUOTED_EMAIL_TEXT,
+	      SPAM_PHRASE_01_02,USER_AGENT,USER_AGENT_GNUS_UA,
+	      X_AUTH_WARNING
+	version=2.43
+X-Spam-Level: 
+
+--=-=-=
+
+Subject: Topics
+
+Topics:
+   Re: Making guardians a module?
+   Re: Making guardians a module?
+   Re: Making guardians a module?
+   Re: Making guardians a module?
+   Re: Making guardians a module?
+   Re: Making guardians a module?
+   Fixing guardians
+   Re: Fixing guardians
+   Re: Fixing guardians
+   heads up (was: Re: Making guardians a module?)
+   Re: heads up (was: Re: Making guardians a module?)
+   Re: heads up (was: Re: Making guardians a module?)
+   Re: heads up (was: Re: Making guardians a module?)
+   Re: heads up (was: Re: Making guardians a module?)
+   Re: heads up (was: Re: Making guardians a module?)
+
+
+--=-=-=
+
+Date: Wed, 6 Dec 2000 12:37:40 +0100 (MET)
+From: Dirk Herrmann <dirk@ida.ing.tu-bs.de>
+To: djurfeldt@nada.kth.se
+cc: Guile Development List <guile-devel@gnu.org>
+Subject: Re: Making guardians a module?
+Message-ID: <Pine.LNX.4.21.0012061050250.20196-100000@marvin.ida.ing.tu-bs.de>
+MIME-Version: 1.0
+
+On 5 Dec 2000, Mikael Djurfeldt wrote:
+
+> Dirk Herrmann <dirk@ida.ing.tu-bs.de> writes:
+> 
+> > I just realized that it would be easily possible to extract guardians into
+> > a module that was only initialized if necessary.  Below is a possible
+> > implementation for it.  However, I am not sure whether it is a good idea
+> > at all, and whether the solution below is good/portable at all.  At least,
+> > it works here :-)
+> 
+> Probably they should belong (and be initialized) in the libguile
+> library.  (If not, they should probably be broken out completely into
+> a shared library of their own rather than just initialized.)
+> 
+> The reason why I suggest them continuing to be a part of libguile is
+> that they feel like a very fundamental tool which we might want to
+> have available also when implementing Guile itself.  It's the kind of
+> tool which can make the structure of the code cleaner.  If they are a
+> separate library, we won't have that freedom, so there will be a
+> temptation to write nasty code instead.
+
+I agree that we should provide guardians as a part of guile.  However, I
+don't think that everything that guile provides has to be initialized from
+the beginning, given that later initialization does not have any negative
+consequences.  The reason is, that everything that is initialized in guile
+takes up computation time and memory.  In the case of guardians this is
+probably negligible, since it is just one binding (make-guardian) and two
+additional functions that are performed with each garbage
+collection.  Still, probably a lot of code does not need to use guardians.
+
+Some thoughts about guardians:
+
+With respect to guardians one should know, that guardians are not a very
+well thought out thing at all (IMO).  The interface is nice, but the
+semantics are quite strange.  Assume for example, that every port that is
+created is placed into a guardian, to allow for a close operation if the
+file object gets lost.  Further, assume that the user puts a pair
+consisting of a string and a port into a guardian, with the intention to
+print out the string to the port as soon as the pair gets lost.  Now
+assume that the pair actually gets lost and with it the port.  Then, the
+pair can be fetched from the pair's guardian, and the port object can be
+fetched from the guardian that stores all ports on creation.  
+Unfortunately, there is no protection agains the case that the port is
+fetched first by some code, that then performs finalization (i. e. closes
+the port) and only later the pair is fetched from the other guardian.  
+The attempt to print out the pair's string on the port will fail, because
+the port is already closed.
+
+In other words, if you receive an object X from a guardian, you should not
+access and use any futher objects that can be reached from X, because
+these other objects may already be finalized if they were stored in a
+different guardian.  Actually, I don't even understand the point given in
+Dybvig's paper about objects that are registered more than once in more
+than one guardian:  Any object can onle be finalized once.  If an object
+can be retrieved from more than one guardian or several times from the
+same one, the whole point of guardians, namely providing a finalization
+method, is broken.
+
+This makes the concept of guardians far less usefull than it appears at
+the first glance.  Guile's current mechanism, which for each type provides
+finalization code that is called at the very point of garbage collection
+is much cleaner, though more limited.
+
+I have thought about how the nice idea of guardians could be implemented
+more cleanly, but this is quite difficult:  During garbage collection
+there appear objects, that are only protected by guardians.  These
+objects, however, may reference other objects, some of which are also
+protected by guardians.  The 'safe' solution would be to find objects, 
+which are _only_ referenced by guardians, and then put them into the
+zombie list of the guardian.  Further, an object should be only received
+exactly once from exactly one guardian.  (It may, however, be placed into
+a guardian again after it was received.)
+
+Why is this difficult?  Well, during gc you would have to determine a
+reachability matrix between all objects that are potential zombies.  Smobs
+are a special problem in this context.  More difficulties arise in cases,
+where an object can be reached through itself.  Such objects would never
+become zombies, except the cycle could be broken by coming from the
+outside.
+
+An implementation, however, could work as follows:  All objects, that are
+stored in guardians, are stored in a hash table, together with the list of
+guardians they are stored within.  Receiving an object from a guardian
+means removing that object from all other guardians.  After the gc mark
+phase, the zombies are determined according to the following scheme:  Any
+unmarked object X that is reached from a reachable guardian is marked with
+the function scm_gc_mark2, which differs from scm_gc_mark in the following
+way:  scm_gc_mark2 does _not_ mark X itself, but only the other objects
+that are reached from X.  For these objects scm_gc_mark2 simply calls
+scm_gc_mark.  Thus, after a call to scm_gc_mark2 all objects that are
+reached by X are marked.  X will only be marked, if it can be reached
+through itself.  After this has been done for all objects that are reached
+through all reachable guardians, only objects in a guardian remain
+unmarked, which were only reachable through the guardian itself.  These
+objects can then safely be put into the zombie lists.
+
+With this implementation (assuming that it works and that I have not made
+any mistakes :-) receiving an object from a guardian has the
+semantics:  'This object can not be reached any more from any other
+position, not even from a different guardian, thus it can be safely
+finalized'.  It requires to implement scm_gc_mark2, which has a lot of
+similarities with scm_gc_mark.  And, since it does not really build a
+reachability matrix, it cannot solve the problem with circular
+structures.
+
+With a full reachability matrix, one could even drop objects completely
+that are known to be never returned from a guardian.  For example, two
+objects, that can reach each other, are in a circle.  As long as the
+circle exists, none of them will be retrievable.  If, however, any of the
+objects within a circle can be reached from the outside (namely from some
+object that is not itself in some circle), the circle could potentially be
+broken.  Objects within circles that can not be broken any more can simply
+be dropped from the guardians.
+
+Best regards,
+Dirk Herrmann
+
+
+
+
+
+--=-=-=
+
+Date: Wed, 6 Dec 2000 14:42:29 +0100 (MET)
+From: Dirk Herrmann <dirk@ida.ing.tu-bs.de>
+To: djurfeldt@nada.kth.se
+cc: Guile Development List <guile-devel@gnu.org>
+Subject: Re: Making guardians a module?
+Message-ID: <Pine.LNX.4.21.0012061429030.20196-100000@marvin.ida.ing.tu-bs.de>
+MIME-Version: 1.0
+
+On Wed, 6 Dec 2000, Dirk Herrmann wrote:
+
+> With respect to guardians one should know, that guardians are not a very
+> well thought out thing at all (IMO).  The interface is nice, but the
+> semantics are quite strange.  Assume for example, that every port that is
+> created is placed into a guardian, to allow for a close operation if the
+> file object gets lost.  Further, assume that the user puts a pair
+> consisting of a string and a port into a guardian, with the intention to
+> print out the string to the port as soon as the pair gets lost.  Now
+> assume that the pair actually gets lost and with it the port.  Then, the
+> pair can be fetched from the pair's guardian, and the port object can be
+> fetched from the guardian that stores all ports on creation.  
+> Unfortunately, there is no protection agains the case that the port is
+> fetched first by some code, that then performs finalization (i. e. closes
+> the port) and only later the pair is fetched from the other guardian.  
+> The attempt to print out the pair's string on the port will fail, because
+> the port is already closed.
+
+To see this effect, here is an example program:
+
+(define port-guardian (make-guardian))
+(define pair-guardian (make-guardian))
+(define port (open-output-file "tmp"))
+(port-guardian port)
+(pair-guardian (cons "Collected." port))
+(undefine port)
+
+(gc)
+
+(let* ((port (port-guardian)))
+  (if port (close-output-port port)))
+(let* ((pair (pair-guardian)))
+  (if pair (display (car pair) (cdr pair))))
+
+--> 
+
+Backtrace:
+0* (let ((pair (pair-guardian))) (if pair (display (car pair) (cdr pair))))
+1  (if pair (display (car pair) (cdr pair)))
+2  [display "Collected." #<closed: file 0>]
+
+ERROR: In procedure display in expression (display (car pair) (cdr pair)):
+ERROR: Wrong type argument in position 2: #<closed: file 0>
+ABORT: (wrong-type-arg)
+
+
+If, however, you swap the last two statements such that you first access
+the pair-guardian and then the port-guardian, everything works fine.  Now
+imagine that the two guardians belong to two different modules, and that
+for a developer it is not obvious, at which moment the different guardians
+would be accessed...
+
+This property of guardians makes it difficult to use them in modular code,
+since whether or not an object is protected by a guardian should be an
+implementation detail, and other code should not depend on that fact.
+
+Best regards
+Dirk
+
+
+
+
+
+--=-=-=
+
+Date: 06 Dec 2000 19:15:16 +0200
+From: Michael Livshin <mlivshin@bigfoot.com>
+To: Dirk Herrmann <dirk@ida.ing.tu-bs.de>
+Cc: djurfeldt@nada.kth.se, Guile Development List <guile-devel@gnu.org>
+Subject: Re: Making guardians a module?
+Message-ID: <s3g0k1lbdn.fsf@bigfoot.com>
+References: <Pine.LNX.4.21.0012061429030.20196-100000@marvin.ida.ing.tu-bs.de>
+MIME-Version: 1.0
+
+Dirk Herrmann <dirk@ida.ing.tu-bs.de> writes:
+
+> This property of guardians makes it difficult to use them in modular
+> code, since whether or not an object is protected by a guardian
+> should be an implementation detail, and other code should not depend
+> on that fact.
+
+clearly, the "what is multiply guarded is multiply returned" property
+of guardians is kind of unintuitive.
+
+the problem is that breaking this property leads to worse semantic
+problems, like order dependencies.
+
+I'm not sure what to suggest here, in general.  I think that if you
+write a module that uses guardians, then you should document what
+objects are guarded and how many times, so that client code that also
+uses guardians won't lead to nasty surprises.
+
+but!: client code that doesn't use guardians won't suffer.
+
+so I would suggest _not_ treating guardian protection as
+implementation detail -- it should be a part of the documented
+interface.  with the nice property that only guardian-using code cares
+about it, and most client code really shouln't be.
+
+-- 
+What is this talk of 'release'? Klingons do not make software
+'releases.' Our software 'escapes' leaving a bloody trail of designers
+and Quality Assurance people in its wake.
+                                        -- Klingon Programmer
+
+
+
+
+
+--=-=-=
+
+Date: 06 Dec 2000 23:43:34 +0100
+From: Marius Vollmer <mvo@zagadka.ping.de>
+To: Dirk Herrmann <dirk@ida.ing.tu-bs.de>
+Cc: djurfeldt@nada.kth.se, Guile Development List <guile-devel@gnu.org>
+Subject: Re: Making guardians a module?
+Message-ID: <87n1e9goh5.fsf@zagadka.ping.de>
+References: <Pine.LNX.4.21.0012061429030.20196-100000@marvin.ida.ing.tu-bs.de>
+MIME-Version: 1.0
+
+Dirk Herrmann <dirk@ida.ing.tu-bs.de> writes:
+
+> On Wed, 6 Dec 2000, Dirk Herrmann wrote:
+> 
+> > With respect to guardians one should know, that guardians are not a very
+> > well thought out thing at all (IMO).  The interface is nice, but the
+> > semantics are quite strange.  Assume for example, that every port that is
+> > created is placed into a guardian, to allow for a close operation if the
+> > file object gets lost.  Further, assume that the user puts a pair
+> > consisting of a string and a port into a guardian, with the intention to
+> > print out the string to the port as soon as the pair gets lost.  Now
+> > assume that the pair actually gets lost and with it the port.  Then, the
+> > pair can be fetched from the pair's guardian, and the port object can be
+> > fetched from the guardian that stores all ports on creation.  
+> > Unfortunately, there is no protection agains the case that the port is
+> > fetched first by some code, that then performs finalization (i. e. closes
+> > the port) and only later the pair is fetched from the other guardian.  
+> > The attempt to print out the pair's string on the port will fail, because
+> > the port is already closed.
+> 
+> To see this effect, here is an example program:
+
+I think we should fix this.  References from objects that are about to
+be returned from a guardian should not be considered dead, the
+referenced objects should be marked.
+
+In your example, the port would not be returned by the port-guardian
+as long as the cell is in the cell-guardian.
+
+Is this possible?
+
+
+
+
+--=-=-=
+
+Date: 07 Dec 2000 14:44:56 +0200
+From: Michael Livshin <cmm@verisity.com>
+To: Marius Vollmer <mvo@zagadka.ping.de>
+Cc: Dirk Herrmann <dirk@ida.ing.tu-bs.de>, djurfeldt@nada.kth.se,
+   Guile Development List <guile-devel@gnu.org>
+Subject: Re: Making guardians a module?
+Message-ID: <s34s0gl7sn.fsf@bigfoot.com>
+References: <Pine.LNX.4.21.0012061429030.20196-100000@marvin.ida.ing.tu-bs.de>
+	<87n1e9goh5.fsf@zagadka.ping.de>
+MIME-Version: 1.0
+
+Marius Vollmer <mvo@zagadka.ping.de> writes:
+
+> Dirk Herrmann <dirk@ida.ing.tu-bs.de> writes:
+> 
+> > On Wed, 6 Dec 2000, Dirk Herrmann wrote:
+> > 
+> > > With respect to guardians one should know, that guardians are not a very
+> > > well thought out thing at all (IMO).  The interface is nice, but the
+> > > semantics are quite strange.  Assume for example, that every port that is
+> > > created is placed into a guardian, to allow for a close operation if the
+> > > file object gets lost.  Further, assume that the user puts a pair
+> > > consisting of a string and a port into a guardian, with the intention to
+> > > print out the string to the port as soon as the pair gets lost.  Now
+> > > assume that the pair actually gets lost and with it the port.  Then, the
+> > > pair can be fetched from the pair's guardian, and the port object can be
+> > > fetched from the guardian that stores all ports on creation.  
+> > > Unfortunately, there is no protection agains the case that the port is
+> > > fetched first by some code, that then performs finalization (i. e. closes
+> > > the port) and only later the pair is fetched from the other guardian.  
+> > > The attempt to print out the pair's string on the port will fail, because
+> > > the port is already closed.
+> > 
+> > To see this effect, here is an example program:
+> 
+> I think we should fix this.  References from objects that are about to
+> be returned from a guardian should not be considered dead, the
+> referenced objects should be marked.
+
+they *are* marked.  but they are not considered "live" because they
+are not reachable other than through guardians.
+
+(in retrospect, I really regret using the names "live" and "zombie"
+for the object states that guardians deal with.  staying with Dybvig's
+"reachable" and "unreachable" would have been less confusing, it
+seems).
+
+> In your example, the port would not be returned by the port-guardian
+> as long as the cell is in the cell-guardian.
+> 
+> Is this possible?
+
+yes, I think it is.
+
+the smart way would be to order the "zombification" topologically, so
+that you'll get the behaviour you ask for above.  I suppose it's
+implementable, but I'll need to think about it some more to be sure
+there are no semantic pitfalls.
+
+[ glimpse glimpse ]
+
+oooh, I found a very enlightening discussion in my GC list archive.
+here is an excerpt (is that the right word?  I need coffee):
+
+Hans Boehm writes:
+<quote>
+It effectively handles finalization in a single-threaded environment by
+queueing objects need for finalization, and then running finalizers at the
+programs explicit request.  (The same technique, minus the nice Scheme
+embedding, was described in the 1985 PARC tech report by Paul Rovner.)
+
+As far as I can tell, it pushes the dependency issues back into the hands of
+the programmer.  As I've argued before, this doesn't strike me as a good idea.
+ Ordering requires flobal dependency information, which the garbage collector
+has, but the programmer doesn't.
+</quote>
+
+they discussed at length the merits (and demerits) of guardians
+vs. topological finalization.  I can forward the whole thing to anyone 
+sufficiently interested, as I have it handy here.
+
+I think we can actually have both (i.e. a topological finalization
+scheme (probably based on guardians), and bare guardians).  I'll post
+a separate message with a design when it's sufficiently settled.
+
+-- 
+If all the economists in the world were laid end to end, it would probably
+be a good thing.
+
+
+
+
+
+--=-=-=
+
+Date: Thu, 7 Dec 2000 14:22:33 +0100 (MET)
+From: Dirk Herrmann <dirk@ida.ing.tu-bs.de>
+To: Marius Vollmer <mvo@zagadka.ping.de>
+cc: djurfeldt@nada.kth.se, Guile Development List <guile-devel@gnu.org>
+Subject: Re: Making guardians a module?
+Message-ID: <Pine.LNX.4.21.0012071229040.8660-100000@marvin.ida.ing.tu-bs.de>
+MIME-Version: 1.0
+
+On 6 Dec 2000, Marius Vollmer wrote:
+
+> Dirk Herrmann <dirk@ida.ing.tu-bs.de> writes:
+> 
+> > On Wed, 6 Dec 2000, Dirk Herrmann wrote:
+> > 
+> > > With respect to guardians one should know, that guardians are not a very
+> > > well thought out thing at all (IMO).  The interface is nice, but the
+> > > semantics are quite strange.  Assume for example, that every port that is
+> > > created is placed into a guardian, to allow for a close operation if the
+> > > file object gets lost.  Further, assume that the user puts a pair
+> > > consisting of a string and a port into a guardian, with the intention to
+> > > print out the string to the port as soon as the pair gets lost.  Now
+> > > assume that the pair actually gets lost and with it the port.  Then, the
+> > > pair can be fetched from the pair's guardian, and the port object can be
+> > > fetched from the guardian that stores all ports on creation.  
+> > > Unfortunately, there is no protection agains the case that the port is
+> > > fetched first by some code, that then performs finalization (i. e. closes
+> > > the port) and only later the pair is fetched from the other guardian.  
+> > > The attempt to print out the pair's string on the port will fail, because
+> > > the port is already closed.
+> > 
+> > To see this effect, here is an example program:
+> 
+> I think we should fix this.  References from objects that are about to
+> be returned from a guardian should not be considered dead, the
+> referenced objects should be marked.
+> 
+> In your example, the port would not be returned by the port-guardian
+> as long as the cell is in the cell-guardian.
+> 
+> Is this possible?
+
+It is possible, but requires some tricks.  I have thought out an algorithm
+that I hope will solve the problem without additional time overhead.  I
+have only thought about a version that works with the current gc.  I will
+think about whether it can be adapted to a generational gc.
+
+Let's first assume that we have a function scm_gc_mark_successors, which
+for an object X calls scm_gc_mark on every successor of X, but not X
+itself.  This means, if we call scm_gc_mark_successors on an unmarked
+object, but the object is marked after that, then the object references
+itself.  Otherwise, if after the call to scm_gc_mark_successors the object
+is still unmarked, it does _not_ reference itself.
+
+No to the idea of the algorithm:
+
+Every guardian has a zombie-list that contains objects, which are proven
+to be only referenced by guardians, but not by any other object (including
+itself).  Thus, when a zombie gets extracted from the guardian, it is
+known that there can not possibly be another reference to that zombie.  
+Thus, finalizing that zombie is safe.  During garbage collection, the
+zombie objects can already be marked using scm_gc_mark during the normal
+mark phase.
+
+If we don't consider cyclic references, things are quite simple:  Besides
+the zombies, there is a live-list of objects.  Every object that is handed
+to the guardian is first placed into the live-list.  After the mark phase
+of the gc, everything that can be reached from the heap is already marked.  
+And, since zombies are also marked, everything that is reachable from the
+known zombies is also marked.  In the live lists, there may now still
+exist objects, that are not marked yet.  These objects could potentially
+also be zombies.  We iterate through all these objects and apply
+scm_gc_mark_successors to each of them.  Objects that are reachable to any
+other object will thus become marked.  After all objects in the live list
+have been treated like this, the only unmarked objects that are then to be
+found in the live list are those, which are not reachable through any
+other object.  These are finally marked and placed into the zombie list.  
+Objects that are self-referencing, btw., will also be marked and thus
+won't become zombies.
+
+This algorithm is quite simple.  There are, however, some problems with
+it:  It requires to implement scm_gc_mark_successors, which will hold a
+lot of duplicate code with scm_gc_mark.  Further, circular references will
+not be treated very elegantly.  On the positive side, this algorithm has
+almost no performance overhead at all, since the marking process itself is
+used to determine the topological ordering.  The algorithm could even
+issue a warning if during gc a cycle of references among the guarded
+objects is encountered.  Such a warning, however, would in exact terms be 
+too conservative:  If objects that lie within a cycle can be reached from
+a zombie, it was still possible that the code that retrieves the zombie
+might somehow break up the cycle.
+
+If one also wants to threat cyclic references, one would have to extend
+the above algorithm by, for example, collecting objects that lie within
+cycles into a cycle list.  After everything else (zombies and live
+objects) has been marked, there may appear marked objects in the cycle
+list.  These are the cycles that can be reached from the outside and may
+potentially get broken.  Remaining unmarked objects in the cycle list can
+not be reached from anywhere else.  Only for these objects warnings should
+be issued, since these objects will never be retrieved from a
+guardian.  One could even think about a special guardian, that provides
+such objects in cyclic references to the user to allow debugging or such.
+
+Best regards,
+Dirk Herrmann
+
+
+
+
+
+
+
+
+--=-=-=
+
+Date: 10 Dec 2000 23:12:28 +0100
+From: Marius Vollmer <mvo@zagadka.ping.de>
+To: Guile Development List <guile-devel@gnu.org>
+Subject: Fixing guardians
+Message-ID: <87hf4c0vub.fsf_-_@zagadka.ping.de>
+References: <Pine.LNX.4.21.0012061429030.20196-100000@marvin.ida.ing.tu-bs.de> <87n1e9goh5.fsf@zagadka.ping.de>
+ <s34s0gl7sn.fsf@bigfoot.com>
+MIME-Version: 1.0
+
+Michael Livshin <cmm@verisity.com> writes:
+
+> > In your example, the port would not be returned by the port-guardian
+> > as long as the cell is in the cell-guardian.
+> > 
+> > Is this possible?
+> 
+> yes, I think it is.
+> 
+> the smart way would be to order the "zombification" topologically, so
+> that you'll get the behaviour you ask for above.
+
+Ok, let me talk out of my *bleep* here. I haven't read the guardian
+code in Guile, nor did I read any paper.  I'd like to just write down
+what I have in my mind right now, maybe it makes sense.  If it doesn't
+make sense, don't bother to explain it to me in great detail.  Just
+tell me to RTFC.
+
+I imagine guardians for the Guile mark/sweep collector to be
+implemented like this:
+
+
+A guardian has two lists: one list of `guarded' objects and one list
+of `caught' objects.  The `guarded' objects are those that have been
+added to the guardian and not yet moved to the `caught' list.  The
+`caught' list contains those objects that will be returned when asking
+the guardian for objects to finalize.
+
+These two lists are _not_ visible to the GC, that is, objects on them
+are not automatically marked.  Maintaining these lists does not
+trigger the GC either.
+
+After the mark phase of the GC:
+
+    For every guardian:
+      For every object on the `guarded' list:
+        If the object is unmarked:
+          Call scm_gc_mark on it.
+          Unset its mark bit afterwards.
+
+    Then, for every guardian:
+      Move all unmarked objects on the `guarded' list to
+      the `caught' list and set their mark bit.
+
+Then do the sweep phase.  This may delete some guardians and we might
+have superfluously marked some objects that these guardians have on
+their `caught' list.  These objects will not be deleted this time, but
+on the next GC pass.  I don't think it is important to avoid this
+behaviour and it might be tricky to do because guardians might be
+guarded themselves and thus can go from unmarked to marked during the
+process above.
+
+
+This process should take care of guarded objects referencing other
+guarded objects and of cycles among guarded objects.  The cycle will
+be broken at an arbitrary link, but that's OK.
+
+
+For example, take two cons cells
+
+    a:  ( b . #f )
+    b:  ( a . b )
+
+with a guarded by guardian A and b guarded by guardian B.  Thus:
+
+    A guarded: a
+      caught:
+
+    B guarded: b
+      caught:
+
+Suppose both a and b are garbage.  Let us denote a set marked bit by
+`+' and a cleared mark bit by `-'.  Then we have after the mark phase:
+
+    A guarded: a-
+      caught:
+
+    B guarded: b-
+      caught:
+
+In the first guardian phase, we process first A, then B.  Thus, we
+first check a, and see that it is unmarked.  We call scm_gc_mark on it
+and reset its mark bit, leading to:
+
+    A guarded: a-
+      caught:
+
+    B guarded: b+
+      caught:
+
+Then we check b, and see that it is marked.  We do nothing.
+
+In the second guardian phase, we move a to the caught list and set its
+mark bit.  We don't touch b.
+
+    A guarded:
+      caught:  a+
+
+    B guarded: b+
+      caught:
+
+Thus, we have `caught' a but not b, which is right.
+
+
+Ok, what's wrong with this simple algorithm?
+
+_______________________________________________
+Guile-devel mailing list
+Guile-devel@gnu.org
+http://mail.gnu.org/mailman/listinfo/guile-devel
+
+
+
+
+--=-=-=
+
+Date: 11 Dec 2000 01:27:23 +0200
+From: Michael Livshin <mlivshin@bigfoot.com>
+To: Marius Vollmer <mvo@zagadka.ping.de>
+Cc: Guile Development List <guile-devel@gnu.org>
+Subject: Re: Fixing guardians
+Message-ID: <s3y9xng8mc.fsf@bigfoot.com>
+References: <Pine.LNX.4.21.0012061429030.20196-100000@marvin.ida.ing.tu-bs.de>
+	<87n1e9goh5.fsf@zagadka.ping.de> <s34s0gl7sn.fsf@bigfoot.com>
+	<87hf4c0vub.fsf_-_@zagadka.ping.de>
+MIME-Version: 1.0
+
+Marius Vollmer <mvo@zagadka.ping.de> writes:
+
+> Ok, let me talk out of my *bleep* here. I haven't read the guardian
+> code in Guile, nor did I read any paper.  I'd like to just write down
+> what I have in my mind right now, maybe it makes sense.  If it doesn't
+> make sense, don't bother to explain it to me in great detail.  Just
+> tell me to RTFC.
+
+no need to RTFC, since what you describe doesn't match the current
+reality.  so I'll comment, if you don't mind.
+
+> I imagine guardians for the Guile mark/sweep collector to be
+> implemented like this:
+> 
+> A guardian has two lists: one list of `guarded' objects and one list
+> of `caught' objects.  The `guarded' objects are those that have been
+> added to the guardian and not yet moved to the `caught' list.  The
+> `caught' list contains those objects that will be returned when asking
+> the guardian for objects to finalize.
+> 
+> These two lists are _not_ visible to the GC, that is, objects on them
+> are not automatically marked.  Maintaining these lists does not
+> trigger the GC either.
+
+what do you mean by the last sentence?
+
+> After the mark phase of the GC:
+> 
+>     For every guardian:
+>       For every object on the `guarded' list:
+>         If the object is unmarked:
+>           Call scm_gc_mark on it.
+>           Unset its mark bit afterwards.
+> 
+>     Then, for every guardian:
+>       Move all unmarked objects on the `guarded' list to
+>       the `caught' list and set their mark bit.
+> 
+> Then do the sweep phase.  This may delete some guardians and we might
+> have superfluously marked some objects that these guardians have on
+> their `caught' list.  These objects will not be deleted this time, but
+> on the next GC pass.  I don't think it is important to avoid this
+> behaviour and it might be tricky to do because guardians might be
+> guarded themselves and thus can go from unmarked to marked during the
+> process above.
+
+yes, it's tricky and the current implementation doesn't fuss about it
+(too much) either.
+
+> This process should take care of guarded objects referencing other
+> guarded objects and of cycles among guarded objects.  The cycle will
+> be broken at an arbitrary link, but that's OK.
+
+the point about cycles is actually the only one that I find debatable.
+I (apparently in a fine company of Hans Boehm, Dirk Herrmann and maybe
+others) think that it's preferable to leave cycles "guarded" (not
+"caught", that is) and warn the user about them, because finalizing
+things in some wrong order is worse than not finalizing them at all.
+and breaking cycles is not hard and shouldn't be a frequent need in
+practice anyway.
+
+> For example, take two cons cells
+> 
+> [...]
+> 
+> Ok, what's wrong with this simple algorithm?
+
+nothing, in the acyclic case.
+
+-- 
+You question the worthiness of my code? I should kill you where you
+stand!
+                                        -- Klingon Programmer
+
+
+_______________________________________________
+Guile-devel mailing list
+Guile-devel@gnu.org
+http://mail.gnu.org/mailman/listinfo/guile-devel
+
+
+
+
+--=-=-=
+
+Date: 11 Dec 2000 16:11:38 +0100
+From: Marius Vollmer <mvo@zagadka.ping.de>
+To: Michael Livshin <mlivshin@bigfoot.com>
+Cc: Guile Development List <guile-devel@gnu.org>
+Subject: Re: Fixing guardians
+Message-ID: <8766kr3sd1.fsf@zagadka.ping.de>
+References: <Pine.LNX.4.21.0012061429030.20196-100000@marvin.ida.ing.tu-bs.de> <87n1e9goh5.fsf@zagadka.ping.de>
+ <s34s0gl7sn.fsf@bigfoot.com> <87hf4c0vub.fsf_-_@zagadka.ping.de>
+ <s3y9xng8mc.fsf@bigfoot.com>
+MIME-Version: 1.0
+
+Michael Livshin <mlivshin@bigfoot.com> writes:
+
+> > This process should take care of guarded objects referencing other
+> > guarded objects and of cycles among guarded objects.  The cycle will
+> > be broken at an arbitrary link, but that's OK.
+> 
+> the point about cycles is actually the only one that I find debatable.
+> I (apparently in a fine company of Hans Boehm, Dirk Herrmann and maybe
+> others) think that it's preferable to leave cycles "guarded" (not
+> "caught", that is) and warn the user about them, because finalizing
+> things in some wrong order is worse than not finalizing them at all.
+> and breaking cycles is not hard and shouldn't be a frequent need in
+> practice anyway.
+
+Yes, I like this better, too.  See below.
+
+> > For example, take two cons cells
+> > 
+> > [...]
+> > 
+> > Ok, what's wrong with this simple algorithm?
+> 
+> nothing, in the acyclic case.
+
+There is a serious bug in my algorithm with cycles like this
+
+    a: ( #f . x)
+    x: ( #f . a)
+    b: ( #f . x)
+
+a and x form a cycle and b references this cycle at x.  Both a and b
+are guarded, but x is not.  When a is encountered before b in the
+first guardian phase, x gets marked (which is OK) and a has its mark
+bit reset.  Then we encounter b but the marking stops at x because it
+is already marked.  We will then erroneously move a to the `caught'
+list.
+
+I think we might fix this by noting whether we just have marked a
+cycle in the first guardian phase (by using Dirks
+scm_gc_mark_successors, say) and spit out the warning and not reset
+the mark bits in that case.
+
+
+But anyway, I now understand that it is more difficult than I
+originally thought.
+
+_______________________________________________
+Guile-devel mailing list
+Guile-devel@gnu.org
+http://mail.gnu.org/mailman/listinfo/guile-devel
+
+
+
+
+--=-=-=
+
+Date: 24 Dec 2000 01:06:58 +0200
+From: Michael Livshin <mlivshin@bigfoot.com>
+To: Dirk Herrmann <dirk@ida.ing.tu-bs.de>
+Cc: Guile Development List <guile-devel@gnu.org>
+Subject: heads up (was: Re: Making guardians a module?)
+Message-ID: <s3k88q3ffx.fsf@bigfoot.com.cmm>
+References: <Pine.LNX.4.21.0012061050250.20196-100000@marvin.ida.ing.tu-bs.de>
+MIME-Version: 1.0
+
+Dirk Herrmann <dirk@ida.ing.tu-bs.de> writes:
+
+> Some thoughts about guardians:
+> 
+> With respect to guardians one should know, that guardians are not a very
+> well thought out thing at all (IMO).  The interface is nice, but the
+> semantics are quite strange.
+
+I've just commited some changes that should give guardians more
+intuitive semantics without (almost) breaking the interface.  Please
+check it out and comment.  I'm especially concerned about naming and
+clarity (or lack thereof) of the NEWS blurb.
+
+thanks,
+--mike, who hopes he's *done* with guardians for the time being,
+'cause he's *sick* of them. ;)
+
+-- 
+Who's afraid of the garbage collector?
+
+
+_______________________________________________
+Guile-devel mailing list
+Guile-devel@gnu.org
+http://mail.gnu.org/mailman/listinfo/guile-devel
+
+
+
+
+--=-=-=
+
+Date: Thu, 28 Dec 2000 16:55:57 +0100 (MET)
+From: Dirk Herrmann <dirk@ida.ing.tu-bs.de>
+To: Michael Livshin <mlivshin@bigfoot.com>
+cc: Guile Development List <guile-devel@gnu.org>
+Subject: Re: heads up (was: Re: Making guardians a module?)
+Message-ID: <Pine.LNX.4.21.0012281626390.13642-100000@marvin.ida.ing.tu-bs.de>
+MIME-Version: 1.0
+
+On 24 Dec 2000, Michael Livshin wrote:
+
+> Dirk Herrmann <dirk@ida.ing.tu-bs.de> writes:
+> 
+> > Some thoughts about guardians:
+> > 
+> > With respect to guardians one should know, that guardians are not a very
+> > well thought out thing at all (IMO).  The interface is nice, but the
+> > semantics are quite strange.
+> 
+> I've just commited some changes that should give guardians more
+> intuitive semantics without (almost) breaking the interface.  Please
+> check it out and comment.  I'm especially concerned about naming and
+> clarity (or lack thereof) of the NEWS blurb.
+
+I have a question about your use of RECURSE:  Why are you defining it that
+way?  For the standard scm_gc_mark, you just call scm_gc_mark.  But, why
+do you try to avoid marking self-cycles in scm_gc_mark_dependencies?  
+First, it just does not work, because as soon as there are indirections
+across more than one intermediate object, the root object will get marked
+anyway.  Second, it is basically the idea of the algorithm to get the root
+object marked if it references itself, directly or indirectly.  Or am I
+missing something?
+
+Further, I don't quite get the difference between greedy and sharing
+guardians.  What exactly does it mean for each type to guard an object?
+In which case should which type of guardian be used?  Why do we need two
+different types of guardians at all?
+
+Another point:  The 'trick' from eval.c to include the code itself for a
+second compilation pass is, well, not a beautiful thing :-)  It may still
+be the best way to do things in this case.  But, if we are doing things
+this way, shouldn't we split the code into gc.c and gc.template (or
+whatever name) and use it as follows:
+
+  /* Set up definitions for the creation of scm_gc_mark */
+  #define <some definitions for variant #1>
+  #include "gc.template"
+
+  /* Set up definitions for the creation of scm_gc_mark_dependencies */
+  #define <some definitions for variant #2>
+  #include "gc.template"
+
+This would allow to 'localize' the clutter, and to define something like
+an 'interface' for the inclusion of "gc.template".  It would further allow
+to have the corresponding function included in different parts of guile:  
+the scm_gc_mark_dependencies function for example would fit better into
+guardians.c.
+
+Best regards,
+Dirk Herrmann
+
+
+_______________________________________________
+Guile-devel mailing list
+Guile-devel@gnu.org
+http://mail.gnu.org/mailman/listinfo/guile-devel
+
+
+
+
+--=-=-=
+
+Date: 28 Dec 2000 18:47:53 +0200
+From: Michael Livshin <mlivshin@bigfoot.com>
+To: Dirk Herrmann <dirk@ida.ing.tu-bs.de>
+Cc: Guile Development List <guile-devel@gnu.org>
+Subject: Re: heads up (was: Re: Making guardians a module?)
+Message-ID: <s3k88kxzk6.fsf@bigfoot.com.cmm>
+References: <Pine.LNX.4.21.0012281626390.13642-100000@marvin.ida.ing.tu-bs.de>
+MIME-Version: 1.0
+
+Dirk Herrmann <dirk@ida.ing.tu-bs.de> writes:
+
+> I have a question about your use of RECURSE:  Why are you defining it that
+> way?  For the standard scm_gc_mark, you just call scm_gc_mark.
+
+yes.
+
+> But, why do you try to avoid marking self-cycles in
+> scm_gc_mark_dependencies?
+
+because self-cycles are perfectly acceptable, finalization-wise.
+
+> First, it just does not work, because as soon as there are
+> indirections across more than one intermediate object, the root
+> object will get marked anyway.  Second, it is basically the idea of
+> the algorithm to get the root object marked if it references itself,
+> directly or indirectly.  Or am I missing something?
+
+I'm not sure I understand the problem...  sorry if the following is
+obvious:
+
+the idea of the algorithm is to mark all the dependencies (perhaps
+your "descendents" is actually a better term.  or maybe "successors")
+of an object without marking the object itself.  this makes sure that
+it is safe to finalize the object.  if the object references itself
+_but_ there's no other cycles, then it is safe to finalize it.
+
+> Further, I don't quite get the difference between greedy and sharing
+> guardians.  What exactly does it mean for each type to guard an
+> object?  In which case should which type of guardian be used?  Why
+> do we need two different types of guardians at all?
+
+greedy guardians can only guard an object once.  you get an error if
+you try to greedily guard an already greedily guarded object again.
+
+sharing guardians behave more like those described in the Dybvig's
+paper.  they are (theoretically, at least) useful for implementing
+various kinds of weak dictionaries.  in general, they are useful if
+you just want to be notified that some object died and don't want to
+do anything destructive to that object (or resurrect it).
+
+note that the greedy variety is the default, and the sharing variety
+is there in case someone figures out what they are *really* useful
+for. ;)
+
+greedy guardians seem to be what people expect.  you can safely do
+absolutely anything with an object returned by a greedy guardian:
+modify, resurrect etc.
+
+> Another point: The 'trick' from eval.c to include the code itself
+> for a second compilation pass is, well, not a beautiful thing :-) It
+> may still be the best way to do things in this case.  But, if we are
+> doing things this way, shouldn't we split the code into gc.c and
+> gc.template (or whatever name) and use it as follows:
+> 
+>   /* Set up definitions for the creation of scm_gc_mark */
+>   #define <some definitions for variant #1>
+>   #include "gc.template"
+> 
+>   /* Set up definitions for the creation of scm_gc_mark_dependencies */
+>   #define <some definitions for variant #2>
+>   #include "gc.template"
+> 
+> This would allow to 'localize' the clutter, and to define something
+> like an 'interface' for the inclusion of "gc.template".  It would
+> further allow to have the corresponding function included in
+> different parts of guile: the scm_gc_mark_dependencies function for
+> example would fit better into guardians.c.
+
+I actually agree with you.  in this case, I just went with the status
+quo, out of fear that breaking it may lead to a voluminous
+discussion. ;) but since you already started a discussion -- yes, I
+agree.  it would be nice to break up eval.c in this way too, it'd get 
+a little more readable.
+
+thanks for feedback,
+--mike
+
+-- 
+Perhaps it IS a good day to die; I say we ship it!
+                                        -- Klingon Programmer
+
+
+_______________________________________________
+Guile-devel mailing list
+Guile-devel@gnu.org
+http://mail.gnu.org/mailman/listinfo/guile-devel
+
+
+
+
+--=-=-=
+
+Date: Fri, 29 Dec 2000 15:34:54 +0100 (MET)
+From: Dirk Herrmann <dirk@ida.ing.tu-bs.de>
+To: Michael Livshin <mlivshin@bigfoot.com>
+cc: Guile Development List <guile-devel@gnu.org>
+Subject: Re: heads up (was: Re: Making guardians a module?)
+Message-ID: <Pine.LNX.4.21.0012281800081.13642-100000@marvin.ida.ing.tu-bs.de>
+MIME-Version: 1.0
+
+On 28 Dec 2000, Michael Livshin wrote:
+
+> Dirk Herrmann <dirk@ida.ing.tu-bs.de> writes:
+> 
+> > I have a question about your use of RECURSE:  Why are you defining it that
+> > way?  For the standard scm_gc_mark, you just call scm_gc_mark.
+> 
+> yes.
+> 
+> > But, why do you try to avoid marking self-cycles in
+> > scm_gc_mark_dependencies?
+> 
+> because self-cycles are perfectly acceptable, finalization-wise.
+> 
+> > First, it just does not work, because as soon as there are
+> > indirections across more than one intermediate object, the root
+> > object will get marked anyway.  Second, it is basically the idea of
+> > the algorithm to get the root object marked if it references itself,
+> > directly or indirectly.  Or am I missing something?
+> 
+> I'm not sure I understand the problem...  sorry if the following is
+> obvious:
+> 
+> the idea of the algorithm is to mark all the dependencies (perhaps
+> your "descendents" is actually a better term.  or maybe "successors")
+> of an object without marking the object itself.  this makes sure that
+> it is safe to finalize the object.  if the object references itself
+> _but_ there's no other cycles, then it is safe to finalize it.
+
+OK, I get your point.  However, I am not sure if it is really a safe thing
+to do:  Can one really be sure that a directly (but not indirectly)
+self-referencing object is safe to finalize?  Is it guaranteed, for
+example, that a self-referencing struct can safely be finalized?  IMO,
+that is a decision that the gc can not make.  Whether or not a cyclic
+structure is safe to finalize depends on the semantics of the structure,
+not on the question whether the cycle is 'short' (i. e. from the object
+directly to itself) or longer.
+
+Thus, I suggest to simply treat all cycles the same way.  It also has the
+benefit that it simplifies the code a bit.
+
+> note that the greedy variety is the default, and the sharing variety
+> is there in case someone figures out what they are *really* useful
+> for. ;)
+
+The nice thing about the greedy guardians is, that they still fulfill
+(almost, see below) the specs of the Dybvig guardians, because Dybvig's
+original definition of guardians makes no guarantees that an object will
+_ever_ be returned by a guardian.  That's just because of the way garbage
+collection works.  Therefore, using greedy guardians does not change the
+semantics of any program that up to now has used guardians.
+
+The only difference (which I referred to above) is the impossibility to
+guard an object more than once with different guardians.  However, this is
+something which has not been discussed in Dybvig's paper anyway, and the
+semantics are not clear either.  Thus, we don't lose much if we just
+disallow it.  (If we want to allow it, we could give it a nice semantics
+like:  Independent of how many times an object has been registered with
+guardians, it will be retrieved at most once.  And, the object is
+protected from garbage collection as long as there is at least one of the
+guardians alive with which the object was registered.  While this seems to
+be a clean semantics (for me, at least) it requires a lot more bookkeeping
+to get right, thus it is questionable whether it is worth the effort.)
+
+Thus, I'd vote for just kicking those sharing guardians out, until there
+is a real use for them.  Otherwise we suddenly end up with the big
+'backwards compatibility' problem if we once decide to drop them from the
+library :-(
+
+> > Another point: The 'trick' from eval.c to include the code itself
+> > for a second compilation pass is, well, not a beautiful thing :-) It
+> > may still be the best way to do things in this case.  But, if we are
+> > doing things this way, shouldn't we split the code into gc.c and
+> > gc.template (or whatever name) and use it as follows:
+> > 
+> >   /* Set up definitions for the creation of scm_gc_mark */
+> >   #define <some definitions for variant #1>
+> >   #include "gc.template"
+> > 
+> >   /* Set up definitions for the creation of scm_gc_mark_dependencies */
+> >   #define <some definitions for variant #2>
+> >   #include "gc.template"
+> > 
+> > This would allow to 'localize' the clutter, and to define something
+> > like an 'interface' for the inclusion of "gc.template".  It would
+> > further allow to have the corresponding function included in
+> > different parts of guile: the scm_gc_mark_dependencies function for
+> > example would fit better into guardians.c.
+> 
+> I actually agree with you.  in this case, I just went with the status
+> quo, out of fear that breaking it may lead to a voluminous
+> discussion. ;) but since you already started a discussion -- yes, I
+> agree.  it would be nice to break up eval.c in this way too, it'd get 
+> a little more readable.
+
+If the guardians stuff has settled, and we finally come to the conclusion
+that the macro-controlled template compilation is the way to go, I'd
+vote for breaking up the code.  And, as you say it, eval.c is also a
+candidate for such a change.
+
+> thanks for feedback,
+
+Thanks for your work on the guardians!
+
+Best regards,
+Dirk Herrmann
+
+
+
+
+_______________________________________________
+Guile-devel mailing list
+Guile-devel@gnu.org
+http://mail.gnu.org/mailman/listinfo/guile-devel
+
+
+
+
+--=-=-=
+
+Date: 29 Dec 2000 19:40:23 +0200
+From: Michael Livshin <mlivshin@bigfoot.com>
+To: Dirk Herrmann <dirk@ida.ing.tu-bs.de>
+Cc: Guile Development List <guile-devel@gnu.org>
+Subject: Re: heads up (was: Re: Making guardians a module?)
+Message-ID: <s3g0j7w2go.fsf@bigfoot.com.cmm>
+References: <Pine.LNX.4.21.0012281800081.13642-100000@marvin.ida.ing.tu-bs.de>
+MIME-Version: 1.0
+
+Dirk Herrmann <dirk@ida.ing.tu-bs.de> writes:
+
+> On 28 Dec 2000, Michael Livshin wrote:
+> 
+> > Dirk Herrmann <dirk@ida.ing.tu-bs.de> writes:
+> > 
+> > > But, why do you try to avoid marking self-cycles in
+> > > scm_gc_mark_dependencies?
+> > 
+> > because self-cycles are perfectly acceptable, finalization-wise.
+>
+> Can one really be sure that a directly (but not indirectly)
+> self-referencing object is safe to finalize?
+
+yes, one thinks one can. ;)
+
+the guardian's job is to say: here, this object is not referenced by
+anything anymore.  it's the caller's job to handle any self-cycles
+(or, in fact, any other semantic peculiarities) of the object.
+
+> Whether or not a cyclic structure is safe to finalize depends on the
+> semantics of the structure, not on the question whether the cycle is
+> 'short' (i. e. from the object directly to itself) or longer.
+
+exactly.  the thing is that guardians can't deal adequately with
+"long" cycles, but "short" ones present them no difficulty.  no more,
+no less.
+
+> The nice thing about the greedy guardians is, that they still
+> fulfill (almost, see below) the specs of the Dybvig guardians,
+> because Dybvig's original definition of guardians makes no
+> guarantees that an object will _ever_ be returned by a guardian.
+> That's just because of the way garbage collection works.  Therefore,
+> using greedy guardians does not change the semantics of any program
+> that up to now has used guardians.
+
+any program that we know of, that is. ;)
+
+> The only difference (which I referred to above) is the impossibility to
+> guard an object more than once with different guardians.
+
+or with the same guardian.  there's no difference, and quite
+intentionally so.
+
+> However, this is something which has not been discussed in Dybvig's
+> paper anyway, and the semantics are not clear either.  Thus, we
+> don't lose much if we just disallow it.  (If we want to allow it, we
+> could give it a nice semantics like: Independent of how many times
+> an object has been registered with guardians, it will be retrieved
+> at most once.  And, the object is protected from garbage collection
+> as long as there is at least one of the guardians alive with which
+> the object was registered.  While this seems to be a clean semantics
+> (for me, at least) it requires a lot more bookkeeping to get right,
+> thus it is questionable whether it is worth the effort.)
+
+I'm not convinced that it improves anything (well, modulo the buggy
+aspects you pointed out in your mail, which I hope to solve through
+less drastic measures).
+
+> Thus, I'd vote for just kicking those sharing guardians out, until
+> there is a real use for them.  Otherwise we suddenly end up with the
+> big 'backwards compatibility' problem if we once decide to drop them
+> from the library :-(
+
+they are not such a bear to support, actually.  I hate to kick things
+out when there's any possibility of them being useful to somebody.
+never having implemented them in the first place is another thing. ;)
+
+> > thanks for feedback,
+> 
+> Thanks for your work on the guardians!
+
+can I get the big and shiny "spending effort only on unimportant
+features" award, already? ;)
+
+-- 
+The whole idea of modules is so separatist, anyway.  Can't we all just
+get along?                                               -- Jim Blandy
+
+
+_______________________________________________
+Guile-devel mailing list
+Guile-devel@gnu.org
+http://mail.gnu.org/mailman/listinfo/guile-devel
+
+
+
+
+--=-=-=
+
+Date: Fri, 29 Dec 2000 19:25:57 +0100 (MET)
+From: Dirk Herrmann <dirk@ida.ing.tu-bs.de>
+To: Michael Livshin <mlivshin@bigfoot.com>
+cc: Guile Development List <guile-devel@gnu.org>
+Subject: Re: heads up (was: Re: Making guardians a module?)
+Message-ID: <Pine.LNX.4.21.0012291917420.24805-100000@marvin.ida.ing.tu-bs.de>
+MIME-Version: 1.0
+
+On 29 Dec 2000, Michael Livshin wrote:
+
+> > Can one really be sure that a directly (but not indirectly)
+> > self-referencing object is safe to finalize?
+> 
+> yes, one thinks one can. ;)
+> 
+> the guardian's job is to say: here, this object is not referenced by
+> anything anymore.  it's the caller's job to handle any self-cycles
+> (or, in fact, any other semantic peculiarities) of the object.
+
+Yes, I finally got it.  You are perfectly right.
+
+> > Thus, I'd vote for just kicking those sharing guardians out, until
+> > there is a real use for them.  Otherwise we suddenly end up with the
+> > big 'backwards compatibility' problem if we once decide to drop them
+> > from the library :-(
+> 
+> they are not such a bear to support, actually.  I hate to kick things
+> out when there's any possibility of them being useful to somebody.
+
+I prefer to throw things out unless there's prove that something is
+useful.  Small is beautiful :-)
+
+Best regards,
+Dirk Herrmann
+
+
+_______________________________________________
+Guile-devel mailing list
+Guile-devel@gnu.org
+http://mail.gnu.org/mailman/listinfo/guile-devel
+
+
+
+
+--=-=-=--
+
