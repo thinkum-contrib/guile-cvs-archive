@@ -31,11 +31,11 @@
   :use-module (oop goops util)
   :use-module (oop goops dispatch)
   :use-module (oop goops compile)
-;  :no-backtrace
+  :no-backtrace
   )
 
 (export			  ; Define the exported symbols of this file
-    is-a?
+    goops-version is-a?
     ensure-metaclass ensure-metaclass-with-supers
     define-class   class make-class
     define-generic make-generic ensure-generic
@@ -43,7 +43,7 @@
     define-method make-method method add-method!
     object-eqv? object-equal?
     write-object display-object
-    slot-unbound slot-missing 
+    class-slot-ref class-slot-set! slot-unbound slot-missing 
     slot-definition-name  slot-definition-options slot-definition-allocation
     slot-definition-getter slot-definition-setter slot-definition-accessor
     slot-definition-init-value
@@ -745,11 +745,35 @@
 ;;; slot access
 ;;;
 
+(define (class-slot-g-n-s class slot-name)
+  (let* ((this-slot (assq slot-name (slot-ref class 'slots)))
+	 (g-n-s (cddr (or (assq slot-name (slot-ref class 'getters-n-setters))
+			  (slot-missing class slot-name)))))
+    (if (not (memq (slot-definition-allocation this-slot)
+		   '(#:class #:each-subclass)))
+	(slot-missing class slot-name))
+    g-n-s))
+
+(define (class-slot-ref class slot)
+  (let ((x ((car (class-slot-g-n-s class slot)) #f)))
+    (if (unbound? x)
+	(slot-unbound class slot)
+	x)))
+
+(define (class-slot-set! class slot value)
+  ((cadr (class-slot-g-n-s class slot)) #f value))
+
 (define-method slot-unbound ((c <class>) (o <object>) s)
   (goops-error "Slot `%S' is unbound in object %S" s o))
 
+(define-method slot-unbound ((c <class>) s)
+  (goops-error "Slot `%S' is unbound in class %S" s c))
+
 (define-method slot-missing ((c <class>) (o <object>) s)
   (goops-error "No slot with name `%S' in object %S" s o))
+  
+(define-method slot-missing ((c <class>) s)
+  (goops-error "No class slot with name `%S' in class %S" s c))
   
 
 (define-method slot-missing ((c <class>) (o <object>) s value)
@@ -958,10 +982,16 @@
 		  m)))))
 
 (define (make-get index)
-  (eval `(lambda (o) (@slot-ref o ,index))))
+  (let ((src `(@slot-ref o ,index)))
+    ;; *fixme* temporary solution until we get proper method compilation
+    ;; Then there's no need to distinguish accessors from ordinary methods
+    (set-source-property! src 'standard-accessor-method #t)
+    (local-eval `(lambda (o) ,src) (the-environment))))
 
 (define (make-set index)
-  (eval `(lambda (o v) (@slot-set! o ,index v))))
+  (let ((src `(@slot-set! o ,index v)))
+    (set-source-property! src 'standard-accessor-method #t)
+    (local-eval `(lambda (o v) ,src) (the-environment))))
 
 (define standard-get (standard-accessor-method make-get standard-get-methods))
 (define standard-set (standard-accessor-method make-set standard-set-methods))
