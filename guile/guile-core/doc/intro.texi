@@ -591,7 +591,7 @@ make use of an embedded Guile interpreter.  But sometimes, all you want
 to do is make new primitive procedures and data types available to the
 Scheme programmer.  Writing a new version of @code{guile} is
 inconvenient in this case and it would in fact make the life of the
-users of your new fetaures needlessly hard.
+users of your new features needlessly hard.
 
 @c [[ the following is probably a bit longwinded ]]
 
