@@ -1,0 +1,78 @@
+;;; installed-scm-file
+
+;;;; 	Copyright (C) 1999 Free Software Foundation, Inc.
+;;;; 
+;;;; This program is free software; you can redistribute it and/or modify
+;;;; it under the terms of the GNU General Public License as published by
+;;;; the Free Software Foundation; either version 2, or (at your option)
+;;;; any later version.
+;;;; 
+;;;; This program is distributed in the hope that it will be useful,
+;;;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;;;; GNU General Public License for more details.
+;;;; 
+;;;; You should have received a copy of the GNU General Public License
+;;;; along with this software; see the file COPYING.  If not, write to
+;;;; the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
+;;;; Boston, MA 02111-1307 USA
+;;;; 
+
+
+;;;; This software is a derivative work of other copyrighted softwares; the
+;;;; copyright notices of these softwares are placed in the file COPYRIGHTS
+;;;;
+;;;; This file is based upon composite-slot.stklos from the STk
+;;;; distribution by Erick Gallesio <eg@unice.fr>.
+;;;;
+
+(define-module (oop goops composite-slot)
+  :use-module (oop goops))
+
+(export <composite-class>)
+
+(define-class <composite-class> (<class>)
+  ())
+
+(define-method compute-get-n-set ((class <composite-class>) slot)
+  (if (eq? (slot-definition-allocation slot) #:propagated)
+      (compute-propagated-get-n-set slot)
+      (next-method)))
+
+(define (compute-propagated-get-n-set s)
+  (let ((prop   	(get-keyword #:propagate-to (cdr s) #f))
+	(s-name   	(slot-definition-name s))
+	(build-reader   (lambda (s default)
+			  (let ((
+			  (if (pair? s)
+			      (lambda (o)
+				
+			      (set! s (list s default)))
+			  `(slot-ref (slot-ref o ',(car s)) ',(cadr s))))
+	(build-writer	(lambda (s default)
+			  (unless (pair? s) (set! s (list s default)))
+			  `(slot-set! (slot-ref o ',(car s)) ',(cadr s) v))))))))
+    
+    (if (not prop)
+	(goops-error "Propagation not specified for slot %s" s-name))
+    (if (not (pair? prop))
+	(goops-error "Bad propagation list for slot ~s" s-name))
+
+    (let ((objects (map (lambda (p) (if (pair? p) (car p) p)) prop))
+	  (slots (map (lambda (p) (if (pair? p) (cadr p) s-name)) prop)))
+      (let ((first-object (car objects))
+	    (first-slot (car slots)))
+	(list
+	 ;; The getter
+	 (lambda (o) 
+	   (slot-ref (slot-ref o first-object) first-slot))
+
+	 ;; The setter
+	 (if (null? (cdr objects))
+	     (lambda (o v)
+	       (slot-set! (slot-ref o first-object) first-slot v))
+	     (lambda (o v)
+	       (for-each (lambda (object slot)
+			   (slot-set! (slot-ref o object) slot v))
+			 objects
+			 slots))))))))
