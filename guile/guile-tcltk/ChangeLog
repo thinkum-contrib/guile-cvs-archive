@@ -1,3 +1,11 @@
+1999-12-18  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* configure.in: Define SCM_MUTEX_INIT_TWO_ARGS if scm_mutex_init
+	takes an extra attributes arg.
+	
+	* guile-tcl.c (scm_init_gtcl): Conditionally add extra arg to
+	scm_mutex_init.
+
 1999-03-04  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* tcltk.scm (tk-widget): Also accept strings as widget names.
