@@ -13,6 +13,8 @@
 	* GOOPS-VERSION: Updated for shell compatibility, and added
 	LIBGOOPSCORE versions.  (Thanks to Karl M. Hegbloom.)
 
+	* goops-snarf.h: Updated for Guile-1.4 snarf.h.
+
 	* goops.h, goops.c (scm_module_goops): New variable.
 
 	* goops.c (scm_sys_invalidate_method_cache_x): Strip rest args
