@@ -2262,8 +2262,6 @@ scm_make_foreign_object (SCM class, SCM initargs)
   return scm_wrap_object (class, constructor (initargs));
 }
 
-SCM_SYMBOL (sym_write_object, "write-object");
-
 static size_t
 scm_free_foreign_object (SCM *class, SCM *data)
 {
@@ -2297,8 +2295,6 @@ scm_make_class (SCM meta, char *s_name, SCM supers, size_t size,
   
   SCM_SLOT (class, scm_si_layout) = SCM_CAR (scm_intern ("", 0));
   SCM_SLOT (class, scm_si_constructor) = (SCM) constructor;
-  SCM_SLOT (class, scm_si_print) = scm_eval2 (sym_write_object,
-					      scm_goops_lookup_closure);
 
   return class;
 }
