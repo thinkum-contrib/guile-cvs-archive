@@ -4,11 +4,11 @@ Priority: optional
 Maintainer: Mikael Djurfeldt <djurfeldt@nada.kth.se>
 Standards-Version: 3.0.1
 
-Package: libgoops2
+Package: libgoops5
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}
-Suggests: libgoops2-dev, goops, goops-doc
+Suggests: libgoops5-dev, goops, goops-doc
 Description: Shared libraries for goops.
  GOOPS is the object oriented extension to Guile.
  .
@@ -16,7 +16,7 @@ Description: Shared libraries for goops.
  GOOPS. It basically consists of a shared library which can be
  dynamically linked into Guile, and a set of Scheme code libraries.
  .
- Other GOOPS packages are: libgoops2-dev, goops, goops-doc
+ Other GOOPS packages are: libgoops5-dev, goops, goops-doc
  .
  The implementation is derived from STk-3.99.3 by Erick Gallesio and
  version 1.3 of Gregor Kiczales `Tiny-Clos'.  It is very close in
@@ -34,33 +34,33 @@ Description: Shared libraries for goops.
 Package: goops
 Section: interpreters
 Architecture: any
-Depends: libgoops2 (= ${Source-Version})
+Depends: libgoops5 (= ${Source-Version})
 Description: Guile interpreter linked with GOOPS.
  GOOPS is the object oriented extension to Guile.
  .
  GOOPS can be dynamically loaded into any Guile interpreter.  However,
  this package is useful if dynamic loading doesn't work on your system.
  .
- Other GOOPS packages are: libgoops2, libgoops2-dev, goops-doc
+ Other GOOPS packages are: libgoops5, libgoops5-dev, goops-doc
  .
  The implementation is derived from STk-3.99.3 by Erick Gallesio and
  version 1.3 of Gregor Kiczales `Tiny-Clos'.
  .
- See `libgoops2' for further information.
+ See `libgoops5' for further information.
 
-Package: libgoops2-dev
+Package: libgoops5-dev
 Section: devel
 Architecture: any
-Depends: libgoops2 (= ${Source-Version})
+Depends: libgoops5 (= ${Source-Version})
 Description: Development headers and static libraries for goops.
  GOOPS is the object oriented extension to Guile.
  .
- Other GOOPS packages are: libgoops2, goops, goops-doc
+ Other GOOPS packages are: libgoops5, goops, goops-doc
  .
  The implementation is derived from STk-3.99.3 by Erick Gallesio and
  version 1.3 of Gregor Kiczales `Tiny-Clos'.
  .
- See `libgoops2' for further information.
+ See `libgoops5' for further information.
 
 Package: goops-doc
 Section: doc
@@ -70,9 +70,9 @@ Description: Documentation for goops
  .
  This package provides documentation in texinfo, info and postscript formats.
  .
- Other GOOPS packages are: libgoops2, libgoops2-dev, goops
+ Other GOOPS packages are: libgoops5, libgoops5-dev, goops
  .
  The implementation is derived from STk-3.99.3 by Erick Gallesio and
  version 1.3 of Gregor Kiczales `Tiny-Clos'.
  .
- See `libgoops2' for further information.
+ See `libgoops5' for further information.

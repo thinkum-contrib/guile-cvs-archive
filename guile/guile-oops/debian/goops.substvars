@@ -1,1 +1,1 @@
-shlibs:Depends=libc6 (>= 2.1.2), libguile6 (>= 1:1.3-16.1), libguile6 (>= 1:1.3.4-2)
+shlibs:Depends=libc6 (>= 2.2.1-2), libguile9 (>= 1:1.4-9)

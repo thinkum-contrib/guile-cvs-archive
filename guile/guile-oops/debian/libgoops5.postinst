@@ -1,5 +1,5 @@
 #! /bin/sh
-# postinst script for libgoops2
+# postinst script for libgoops5
 #
 # see: dh_installdeb(1)
 

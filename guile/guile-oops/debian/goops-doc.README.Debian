@@ -3,12 +3,12 @@ the Guile Object Oriented Programming System.
 
 GOOPS comes in four binary packages
 
-  libgoops2     - This is everything an application needs to run GOOPS.
+  libgoops5     - This is everything an application needs to run GOOPS.
                   It basically consists of a shared library which can be
 	          dynamically linked into Guile, and a set of Scheme
 		  code libraries.
 
-  libgoops2-dev - Use this if you want to compile code relying on
+  libgoops5-dev - Use this if you want to compile code relying on
 		  GOOPS C level interface.  Contains static library
 		  + headers.
 
