@@ -3,6 +3,11 @@
   - make/implement policy: include TODO snapshot on release
   - delete HEAD and branch_release-1-6 TODO files
 
+- guile-1.6
+  - scan mailing list archives for bugs and add them
+    - subject: Guile fails tests on Tru64 4.0F [ttn]
+    - subject: failed backtrace [ttn]
+
 
 
 	Local Variables:
