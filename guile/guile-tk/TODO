@@ -4,4 +4,8 @@ and commit this file to the repository when you start working on the
 problem.  Always make sure that the problem you're working on is
 represented in this file.
 
-* Make configuration of Tcl and Tk subdirectories work.
+* The Tk library should not use any files in Src.  The proper files
+  should be moved (and modified) to libgtk.
+
+* Move Tk_main to libgtk.
+
