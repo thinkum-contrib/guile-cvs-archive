@@ -1,8 +1,9 @@
-(define-module (lang elisp format)
+(define-module (lang elisp internals format)
   #:pure
   #:use-module (ice-9 r5rs)
   #:use-module ((ice-9 format) #:select ((format . scheme:format)))
-  #:use-module (lang elisp fset)
+  #:use-module (lang elisp internals fset)
+  #:use-module (lang elisp internals signal)
   #:export (format
 	    message))
 
@@ -21,7 +22,7 @@
 	     (mid-control #f))
     (if (null? input)
 	(if mid-control
-	    (signal 'error '("Format string ends in middle of format specifier"))
+	    (error "Format string ends in middle of format specifier")
 	    (list->string (reverse output)))
 	(if mid-control
 	    (case (car input)
@@ -47,9 +48,7 @@
 						 (string (integer->char a)))))
 				    ((#\S) (scheme:format #f "~S" (car args)))
 				    (else
-				     (signal 'error
-					     (list (string-append "Invalid format operation %"
-								  (string (car input)))))))
+				     (error "Invalid format operation %%%c" (car input))))
 				  output)
 		     #f)))
 	    (case (car input)
@@ -61,8 +60,3 @@
 (define (message control-string . args)
   (display (apply format control-string args))
   (newline))
-
-;;; {Elisp Exports}
-
-(fset 'format format)
-(fset 'message message)

@@ -1,3 +1,46 @@
+2001-10-26  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* transform.scm (transformer): New handling for (1) quasiquoting
+	syntax like "(` ...)" as well as the more normal "` ..."; (2)
+	`function'; (3) interactive specification in lambda body.
+	Simplied handling for `setq'.
+	(transform-inside-qq): Fixed to handle improper as well as proper
+	lists.
+	(transform-lambda/interactive): New; wraps transform-lambda to
+	handle setting of various procedure properties.
+	(transform-lambda, m-defmacro): Changed `args' and `num-args' to
+	`%--args' and `%--num-args' in the hope of avoiding lexical
+	vs. dynamic name clashes.
+	(m-and): Use #f instead of '() where a condition fails.
+
+	Plus big hierarchy reorganization, in which most of the previous
+	occupants of lang/elisp moved to lang/elisp/primitives, with some
+	internal processing being split out into lang/elisp/internals.
+	The upshot looks like this.
+
+	* internals/trace.scm, internals/set.scm, internals/load.scm,
+	internals/fset.scm, internals/signal.scm, internals/time.scm,
+	internals/format.scm, internals/null.scm,
+	internals/evaluation.scm, primitives/buffers.scm,
+	primitives/features.scm, primitives/format.scm,
+	primitives/time.scm, primitives/guile.scm, primitives/keymaps.scm,
+	primitives/lists.scm, primitives/load.scm, primitives/match.scm,
+	primitives/numbers.scm, primitives/pure.scm, primitives/read.scm,
+	primitives/signal.scm, primitives/strings.scm,
+	primitives/symprop.scm, primitives/system.scm, primitives/fns.scm:
+	New files.
+
+	* features.scm, format.scm, fset.scm, guile.scm, keymaps.scm,
+	lists.scm, load.scm, match.scm, numbers.scm, pure.scm, read.scm,
+	signal.scm, strings.scm, symprop.scm, system.scm, time.scm,
+	trace.scm: Removed files.
+	
+2001-10-23  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* match.scm (string-match): New implementation using new
+	`make-emacs-regexp' primitive; old workaround implementation
+	renamed to `string-match-workaround'.
+
 2001-10-21  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* transform.scm (m-defun, m-defmacro, m-let, m-defvar,

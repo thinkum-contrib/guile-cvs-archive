@@ -1,5 +1,5 @@
-(define-module (lang elisp keymaps)
-  #:use-module (lang elisp fset))
+(define-module (lang elisp primitives keymaps)
+  #:use-module (lang elisp internals fset))
 
 (define (make-sparse-keymap)
   (list 'keymap))

@@ -1,23 +1,11 @@
 (define-module (lang elisp transform)
-  #:use-module (lang elisp trace)
+  #:use-module (lang elisp internals trace)
+  #:use-module (lang elisp internals fset)
+  #:use-module (lang elisp internals evaluation)
   #:use-module (ice-9 session)
   #:export (transformer))
 
-;;; {Exporting names}
-;;;
-
-;(define (binder converter)
-;  (lambda (names data)
-;    (for-each (lambda (name data)
-;		(fset name (converter data)))
-;	      names
-;	      data)))
-
-;(define export-mmacros
-;  (binder (lambda (x)
-;	    (if (macro? x)
-;		x
-;		(procedure->memoizing-macro x)))))
+(define interactive-spec (make-fluid))
 
 ;;; {S-expressions}
 ;;;
@@ -30,13 +18,16 @@
 (define (transformer x)
   (cond ((null? x) '())
 	((not (pair? x)) x)
+	((and (pair? (car x))
+	      (eq? (caar x) 'quasiquote))
+	 (transformer (car x)))
 	((symbol? (car x))
 	 (case (car x)
 	   ((@fop @bind define-module use-modules use-syntax) x)
 	   ; Escape to Scheme syntax
 	   ((scheme) (cons 'begin (cdr x)))
 	   ; Should be handled in reader
-	   ((quote) (cons 'quote (cars->nil (cdr x))))
+	   ((quote function) (cons 'quote (cars->nil (cdr x))))
 	   ((quasiquote) (m-quasiquote x '()))
 	   ((nil-cond) (transform-1 x))
 	   ((let) (m-let x '()))
@@ -50,12 +41,13 @@
 	   ((prog2) (m-prog2 x '()))
 	   ((progn begin) (cons 'begin (map transformer (cdr x))))
 	   ((cond) (m-cond x '()))
-	   ((lambda) (transform-lambda x))
+	   ((lambda) (transform-lambda/interactive x '<elisp-lambda>))
 	   ((defun) (m-defun x '()))
 	   ((defmacro) (m-defmacro x '()))
-	   ((setq) (cons macro-setq (cdr x)))
+	   ((setq) (m-setq x '()))
 	   ((defvar) (m-defvar x '()))
 	   ((defconst) (m-defconst x '()))
+	   ((interactive) (fluid-set! interactive-spec x) #f)
 	   (else (transform-application x))))
 	(else (syntax-error x))))
 
@@ -71,7 +63,7 @@
 	   ((unquote-splicing) (list 'unquote-splicing (transformer (cadr x))))
 	   (else (cons (car x) (map transform-inside-qq (cdr x))))))
 	(else
-	 (map transform-inside-qq x))))
+	 (cons (transform-inside-qq (car x)) (transform-inside-qq (cdr x))))))
 	
 (define (transform-1 x)
   (cons (car x) (map transformer (cdr x))))
@@ -138,37 +130,49 @@
 			   (else
 			    (error "Bad formals (not a list or a single symbol)"))))))
 
+(define (transform-lambda/interactive exp name)
+  (fluid-set! interactive-spec #f)
+  (let* ((x (transform-lambda exp))
+	 (is (fluid-ref interactive-spec)))
+    `(let ((%--lambda ,x))
+       (set-procedure-property! %--lambda 'name ',name)
+       (set! (,not-subr? %--lambda) #t)
+       ,@(if is
+	     `((set! (,interactive-specification %--lambda) ',is))
+	     '())
+       %--lambda)))
+
 (define (transform-lambda exp)
   (call-with-values (lambda () (parse-formals (cadr exp)))
     (lambda (required optional rest)
       (let ((num-required (length required))
 	    (num-optional (length optional)))
-	`(lambda args
-	   (let ((num-args (length args)))
-	     (cond ((< num-args ,num-required)
+	`(lambda %--args
+	   (let ((%--num-args (length %--args)))
+	     (cond ((< %--num-args ,num-required)
 		    (error "Wrong number of args (not enough required args)"))
 		   ,@(if rest
 			 '()
-			 `(((> num-args ,(+ num-required num-optional))
+			 `(((> %--num-args ,(+ num-required num-optional))
 			    (error "Wrong number of args (too many args)"))))
 		   (else
 		    (@bind ,(append (map (lambda (i)
 					   (list (list-ref required i)
-						 `(list-ref args ,i)))
+						 `(list-ref %--args ,i)))
 					 (iota num-required))
 				    (map (lambda (i)
 					   (let ((i+nr (+ i num-required)))
 					     (list (list-ref optional i)
-						   `(if (> num-args ,i+nr)
-							(list-ref args ,i+nr)
+						   `(if (> %--num-args ,i+nr)
+							(list-ref %--args ,i+nr)
 							#f))))
 					 (iota num-optional))
 				    (if rest
 					(list (list rest
-						    `(if (> num-args
+						    `(if (> %--num-args
 							    ,(+ num-required
 								num-optional))
-							 (list-tail args
+							 (list-tail %--args
 								    ,(+ num-required
 									num-optional))
 							 #f)))
@@ -178,8 +182,11 @@
 
 (define (m-defun exp env)
   (trc 'defun (cadr exp))
-  `(begin (@fop fset ',(cadr exp)
-		,(transform-lambda (cdr exp)))
+  `(begin (,fset ',(cadr exp)
+		 ,(transform-lambda/interactive (cdr exp)
+						(symbol-append '<elisp-defun:
+							       (cadr exp)
+							       '>)))
 	  ',(cadr exp)))
 
 (define (m-defmacro exp env)
@@ -188,41 +195,41 @@
     (lambda (required optional rest)
       (let ((num-required (length required))
 	    (num-optional (length optional)))
-	`(begin (@fop fset ',(cadr exp)
-		      (procedure->memoizing-macro
-		       (lambda (exp1 env1)
-			 (,trc 'using ',(cadr exp))
-			 (let* ((args (cdr exp1))
-				(num-args (length args)))
-			   (cond ((< num-args ,num-required)
-				  (error "Wrong number of args (not enough required args)"))
-				 ,@(if rest
-				       '()
-				       `(((> num-args ,(+ num-required num-optional))
-					  (error "Wrong number of args (too many args)"))))
-				 (else (,transformer
-				  (@bind ,(append (map (lambda (i)
-							 (list (list-ref required i)
-							       `(list-ref args ,i)))
-						       (iota num-required))
-						  (map (lambda (i)
-							 (let ((i+nr (+ i num-required)))
-							   (list (list-ref optional i)
-								 `(if (> num-args ,i+nr)
-								      (list-ref args ,i+nr)
-								      #f))))
-						       (iota num-optional))
-						  (if rest
-						      (list (list rest
-								  `(if (> num-args
-									  ,(+ num-required
-									      num-optional))
-								       (list-tail args
-										  ,(+ num-required
-										      num-optional))
-								       #f)))
-						      '()))
-					 ,@(transform-list (cdddr exp)))))))))))))))
+	`(begin (,fset ',(cadr exp)
+		       (procedure->memoizing-macro
+			(lambda (exp1 env1)
+			  (,trc 'using ',(cadr exp))
+			  (let* ((%--args (cdr exp1))
+				 (%--num-args (length %--args)))
+			    (cond ((< %--num-args ,num-required)
+				   (error "Wrong number of args (not enough required args)"))
+				  ,@(if rest
+					'()
+					`(((> %--num-args ,(+ num-required num-optional))
+					   (error "Wrong number of args (too many args)"))))
+				  (else (,transformer
+					 (@bind ,(append (map (lambda (i)
+								(list (list-ref required i)
+								      `(list-ref %--args ,i)))
+							      (iota num-required))
+							 (map (lambda (i)
+								(let ((i+nr (+ i num-required)))
+								  (list (list-ref optional i)
+									`(if (> %--num-args ,i+nr)
+									     (list-ref %--args ,i+nr)
+									     #f))))
+							      (iota num-optional))
+							 (if rest
+							     (list (list rest
+									 `(if (> %--num-args
+										 ,(+ num-required
+										     num-optional))
+									      (list-tail %--args
+											 ,(+ num-required
+											     num-optional))
+									      #f)))
+							     '()))
+						,@(transform-list (cdddr exp)))))))))))))))
 
 (define (transform-application x)
   (cons '@fop
@@ -239,20 +246,30 @@
 ;;;
 
 (define (m-setq exp env)
-  (let* ((binder (car (last-pair env)))
-	 (varvals (let loop ((ls (cdr exp)))
-		    (if (null? ls)
-			'()
-			;; Ensure existence only at macro expansion time
-			(let ((var (or (binder (car ls) #f)
-				       (binder (car ls) #t))))
-			  (if (not (variable-bound? var))
-			      (variable-set! var #f))
-			  (cons (list 'set! (car ls) (transformer (cadr ls)))
-				(loop (cddr ls))))))))
-    (cond ((null? varvals) '())
-	  ((null? (cdr varvals)) (car varvals))
-	  (else (cons 'begin varvals)))))
+  (cons 'begin
+	(let loop ((sets (cdr exp)) (last-sym #f))
+	  (if (null? sets)
+	      (list last-sym)
+	      (cons `(module-define! ,the-elisp-module
+				     ',(car sets)
+				     ,(transformer (cadr sets)))
+		    (loop (cddr sets) (car sets)))))))
+
+;(define (m-setq exp env)
+;  (let* ((binder (car (last-pair env)))
+;	 (varvals (let loop ((ls (cdr exp)))
+;		    (if (null? ls)
+;			'()
+;			;; Ensure existence only at macro expansion time
+;			(let ((var (or (binder (car ls) #f)
+;				       (binder (car ls) #t))))
+;			  (if (not (variable-bound? var))
+;			      (variable-set! var #f))
+;			  (cons (list 'set! (car ls) (transformer (cadr ls)))
+;				(loop (cddr ls))))))))
+;    (cond ((null? varvals) '())
+;	  ((null? (cdr varvals)) (car varvals))
+;	  (else (cons 'begin varvals)))))
 
 (define (m-let exp env)
   `(@bind ,(map (lambda (binding)
@@ -310,7 +327,7 @@
 		 (if (null? (cdr args))
 		     (list (transformer (car args)))
 		     (cons (list 'not (transformer (car args)))
-			   (cons '()
+			   (cons #f
 				 (loop (cdr args))))))))))
 
 (define (m-or exp env)

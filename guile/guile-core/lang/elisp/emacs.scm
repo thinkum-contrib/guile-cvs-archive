@@ -1,39 +1,27 @@
 (define-module (lang elisp emacs))
 
-;;;; {Elisp Evaluation}
-
-;;;; All elisp evaluation happens within the same module - this one.
-;;;; This is necessary both because elisp itself has no concept of
-;;;; different modules - reflected for example in its single argument
-;;;; `eval' function - and because Guile's current implementation of
-;;;; elisp stores elisp function definitions in slots in global symbol
-;;;; objects.
-
-(define the-elisp-module (current-module))
-
 ;;;; {Elisp Primitives}
 ;;;;
 ;;;; In other words, Scheme definitions of elisp primitives.  This
 ;;;; should include everything that Emacs defines in C.
 
-(use-modules (lang elisp buffers)
-	     (lang elisp calling)
-	     (lang elisp features)
-	     (lang elisp format)
-	     (lang elisp fset)
-	     (lang elisp guile)
-	     (lang elisp keymaps)
-	     (lang elisp lists)
-	     (lang elisp load)
-	     (lang elisp match)
-	     (lang elisp numbers)
-	     (lang elisp pure)
-	     (lang elisp read)
-	     (lang elisp signal)
-	     (lang elisp strings)
-	     (lang elisp symprop)
-	     (lang elisp system)
-	     (lang elisp time))
+(use-modules (lang elisp primitives buffers)
+	     (lang elisp primitives features)
+	     (lang elisp primitives format)
+	     (lang elisp primitives fns)
+	     (lang elisp primitives guile)
+	     (lang elisp primitives keymaps)
+	     (lang elisp primitives lists)
+	     (lang elisp primitives load)
+	     (lang elisp primitives match)
+	     (lang elisp primitives numbers)
+	     (lang elisp primitives pure)
+	     (lang elisp primitives read)
+	     (lang elisp primitives signal)
+	     (lang elisp primitives strings)
+	     (lang elisp primitives symprop)
+	     (lang elisp primitives system)
+	     (lang elisp primitives time))
 
 ;;; Now switch into Emacs Lisp syntax and continue by loading
 ;;; `loadup.el', which is what the `bare' undumped Emacs does to load

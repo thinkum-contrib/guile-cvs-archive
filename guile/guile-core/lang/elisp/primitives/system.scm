@@ -1,5 +1,5 @@
-(define-module (lang elisp system)
-  #:use-module (lang elisp fset))
+(define-module (lang elisp primitives system)
+  #:use-module (lang elisp internals fset))
 
 (fset 'system-name
       (lambda ()
@@ -10,3 +10,5 @@
     (if (string=? uname "Linux")
 	"gnu/linux"
 	uname)))
+
+(define-public system-configuration "i386-suse-linux") ;FIXME

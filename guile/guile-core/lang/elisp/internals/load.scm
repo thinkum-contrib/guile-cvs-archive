@@ -1,12 +1,13 @@
-(define-module (lang elisp load)
+(define-module (lang elisp internals load)
   #:use-module (ice-9 optargs)
-  #:use-module (lang elisp signal)
-  #:use-module (lang elisp format)
-  #:use-module (lang elisp fset))
+  #:use-module (lang elisp internals signal)
+  #:use-module (lang elisp internals format)
+  #:use-module (lang elisp internals evaluation)
+  #:export (load-path
+	    load))
 
-(define the-elisp-module (resolve-module '(lang elisp emacs)))
-
-(define load-path '("/usr/share/emacs/20.7/lisp/"))
+(define load-path '("/usr/share/emacs/20.7/lisp/"
+		    "/usr/share/emacs/20.7/lisp/emacs-lisp/"))
 
 (define* (load file #:optional noerror nomessage nosuffix must-suffix)
   (define (load1 filename)
@@ -39,10 +40,4 @@
 	   (load1 file))
       noerror
       (signal 'file-error
-	      (list (format "Can't find file `%s' in load-path!" file)))))
-
-;;; {Elisp Exports}
-
-(export load-path)
-
-(fset 'load load)
+	      (list "Cannot open load file" file))))

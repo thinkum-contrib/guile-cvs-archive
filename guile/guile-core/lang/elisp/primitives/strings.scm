@@ -1,5 +1,6 @@
-(define-module (lang elisp strings)
-  #:use-module (lang elisp fset))
+(define-module (lang elisp primitives strings)
+  #:use-module (lang elisp internals fset)
+  #:use-module (lang elisp internals signal))
 
 (fset 'substring substring)
 
@@ -17,3 +18,12 @@
 (fset 'string-to-number string->number)
 
 (fset 'number-to-string number->string)
+
+(fset 'string-lessp string<?)
+(fset 'string< 'string-lessp)
+
+(fset 'aref
+      (lambda (array idx)
+	(cond ((vector? array) (vector-ref array idx))
+	      ((string? array) (char->integer (string-ref array idx)))
+	      (else (wta 'arrayp array 1)))))

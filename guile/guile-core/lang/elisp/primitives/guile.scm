@@ -1,5 +1,5 @@
-(define-module (lang elisp guile)
-  #:use-module (lang elisp fset))
+(define-module (lang elisp primitives guile)
+  #:use-module (lang elisp internals fset))
 
 ;;; {Importing Guile procedures into Elisp}
 

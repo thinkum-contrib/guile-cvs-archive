@@ -1,4 +1,4 @@
-(define-module (lang elisp trace)
+(define-module (lang elisp internals trace)
   #:export (trc trc-syms trc-all trc-none))
 
 (define *syms* #f)
@@ -23,3 +23,6 @@
 	  (display ": ")
 	  (write args)
 	  (newline)))))
+
+;; Default to no tracing.
+(trc-none)

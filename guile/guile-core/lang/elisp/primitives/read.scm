@@ -1,5 +1,5 @@
-(define-module (lang elisp read)
-  #:use-module (lang elisp fset))
+(define-module (lang elisp primitives read)
+  #:use-module (lang elisp internals fset))
 
 ;;; MEGA HACK!!!!
 

@@ -1,5 +1,5 @@
-(define-module (lang elisp symprop)
-  #:use-module (lang elisp fset))
+(define-module (lang elisp primitives symprop)
+  #:use-module (lang elisp internals fset))
 
 ;;; {Elisp Exports}
 
@@ -10,17 +10,6 @@
 (fset 'set
       (lambda (sym val)
 	(local-define (list sym) val)))
-
-(fset 'fboundp
-      (lambda (sym)
-	(variable? (symbol-fref sym))))
-
-(fset 'symbol-function
-      (lambda (sym)
-	(let ((var (symbol-fref sym)))
-	  (if (variable? var)
-	      (variable-ref var)
-	      (error "Symbol's function definition is void:" sym)))))
 
 (fset 'boundp defined?)
 

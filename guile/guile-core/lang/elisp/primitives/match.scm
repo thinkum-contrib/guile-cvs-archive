@@ -1,10 +1,10 @@
-(define-module (lang elisp match)
-  #:use-module (lang elisp fset)
+(define-module (lang elisp primitives match)
+  #:use-module (lang elisp internals fset)
   #:use-module (ice-9 regex))
 
 (define last-match #f)
 
-(fset 'string-match
+(fset 'string-match-workaround
       (lambda (regexp string . start)
 
 	;; Work around Guile/libc regex parenthesis bug by
@@ -18,6 +18,19 @@
 		  (loop (cdr buggy-patterns)))))
 
 	(set! last-match (apply string-match regexp string start))
+	(if last-match
+	    (match:start last-match)
+	    #f)))
+
+(fset 'string-match
+      (lambda (regexp string . start)
+
+	(define (emacs-string-match pattern str . args)
+	  (let ((rx (make-emacs-regexp pattern))
+		(start (if (pair? args) (car args) 0)))
+	    (regexp-exec rx str start)))
+
+	(set! last-match (apply emacs-string-match regexp string start))
 	(if last-match
 	    (match:start last-match)
 	    #f)))
