@@ -1,3 +1,12 @@
+1998-12-15  Mikael Djurfeldt  <mdj@barbara.nada.kth.se>
+
+	* goops.h (scm_si_methods): Changed from 5 to 1.
+
+	* goops.c (make_standard_classes): Remove procedure slots for
+	generic functions.
+	(scm_sys_prep_layout_x): No special treatment of entity classes
+	any longer.
+
 1998-12-08  Christian Lynbech  <chl@tbit.dk>
 
 	* goops/goops.scm (change-object-class): Attempt initialization
