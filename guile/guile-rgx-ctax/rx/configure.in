@@ -13,7 +13,7 @@ opt_objs=
 opt_cflags=
 if test -d ../libguile ; then
   opt_objs=rgx.o
-  opt_cflags="-I$srcdir/../libguile -I../libguile -DRX_WANT_RX_DEFS"
+  opt_cflags="-I$srcdir/../libguile -I$srcdir/.. -I../libguile -DRX_WANT_RX_DEFS"
 fi
 
 AC_SUBST(opt_objs)
