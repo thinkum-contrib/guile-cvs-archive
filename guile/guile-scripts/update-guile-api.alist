@@ -1,11 +1,12 @@
 #!/bin/sh
-# Usage: update-guile-api.alist [-n]
+# Usage: update-guile-api.alist [-n] [groupings ...]
 #
 # You need to be in top-level guile-core build dir.
 # You need to build guile first!
 #
 # Flag "-n" (no-commit) means print the guile-api.alist to stdout
-# and skip the cvs edit and cvs commit steps.
+# and skip the cvs edit and cvs commit steps.  Optional GROUPINGS ...
+# args are grouping definition files passed to scan-api, q.v.
 #
 # Env var: GUILE_MAINTAINER_SCRIPTS
 
