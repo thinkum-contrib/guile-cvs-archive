@@ -1843,20 +1843,21 @@ ports} are two interesting and powerful examples of this technique.
 * Soft Ports::                  
 * String Ports::                
 * Closing Ports::               
+* Miscellaneous: Port Operations.
 * Extended I/O (fseek and line read/write)::  
 @end menu
 
 @node File Ports
 @section File Ports
 
-The following procedures can be used to open a file port.  
+The following procedures are used to open file ports.
 See also @ref{Ports and File Descriptors, open}, for an interface
 to the Unix @code{open} system call.
 
-@deffn primitive open-file string modes
+@deffn primitive open-file string mode
 Open the file whose name is @var{string}, and return a port
 representing that file.  Whether an input or output port is
-allocated is determined by the @var{modes} string.  This is
+allocated is determined by the @var{mode} string.  This is
 interpreted in the traditional Unix manner: use @samp{r} for
 reading, @samp{w} for writing, and @samp{a} for appending.  In
 addition, @samp{0} can be used to specifiy an unbuffered port.
@@ -1884,6 +1885,25 @@ Open @var{filename} for output.  Equivalent to
 
 @deffn primitive port-mode port
 Return the mode flags from the open @var{port}.
+@end deffn
+
+@deffn primitive port-filename [port]
+Return the filename associated with @var{port}.  This function returns
+the strings "standard input", "standard output" and "standard error"
+when called on the current input, output and error ports respectively.
+@end deffn
+
+@deffn primitive set-port-filename! [port] filename
+Change the filename associated with @var{port}, using the current input
+port if none is specified.  Note that this does not change the port's
+source of data, but only the value that is returned by
+@code{port-filename} and reported in diagnostic output.
+@end deffn
+
+@deffn primitive %make-void-port mode
+Create and return a new void port.  The @var{mode} argument describes
+the permissions to use for this port; for a description, see the
+documentation for @code{open-file} in @ref{File Ports}.
 @end deffn
 
 @node Soft Ports
@@ -1983,6 +2003,38 @@ R4RS.
 @deffn primitive close-output-port port
 Close the specified output port object.  This procedure is required by 
 R4RS.
+@end deffn
+
+@node Port Operations
+@section Port Operations
+
+These procedures obtain and modify information about ports, but are not
+specific to one kind of port.
+
+@deffn primitive current-error-port
+Return the port to which errors and warnings should be sent (the
+@dfn{standard error} in Unix and C terminology).
+@end deffn
+
+@deffn primitive set-current-input-port port
+@deffnx primitive set-current-output-port port
+@deffnx primitive set-current-error-port port
+Change the ports returned by @code{current-input-port},
+@code{current-output-port} and @code{current-error-port}, respectively,
+so that they use the supplied @var{port} for input or output.
+@end deffn
+
+@deffn primitive port-column [input-port]
+@deffnx primitive port-line [input-port]
+Return the current column number or line number of @var{input-port},
+using the current input port if none is specified.  This is useful for
+documenting the location of source code in a program file, for example.
+@end deffn
+
+@deffn primitive set-port-column! [input-port] column
+@deffnx primitive set-port-line! [input-port] line
+Set the current column or line number of @var{input-port}, using the
+current input port if none is specified.
 @end deffn
 
 @node Extended I/O (fseek and line read/write)

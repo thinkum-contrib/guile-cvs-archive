@@ -646,6 +646,12 @@ E.g.,
 The return value is unspecified.
 @end deffn
 
+@deffn primitive tmpnam
+Create a new file in the file system with a unique name.  The return
+value is the name of the new file.  This function is implemented with
+the @code{tmpnam} function in the system libraries.
+@end deffn
+
 @node User Information
 @chapter User Information
 
@@ -696,6 +702,12 @@ Return the next entry in the user database, using the stream set by
 Closes the stream used by @code{getpwent}.  The return value is unspecified.
 @end deffn
 
+@deffn primitive setpw [reset?]
+If called with a true argument, initialize or reset the password data
+stream.  Otherwise, close the stream.  The @code{setpwent} and
+@code{endpwent} procedures are implemented on top of this.
+@end deffn
+
 @deffn primitive getpw [obj]
 Look up an entry in the user database.  @var{obj} can be an integer,
 a string, or omitted, giving the behaviour of getpwuid, getpwnam
@@ -738,6 +750,12 @@ Return the next entry in the group database, using the stream set by
 @deffn procedure endgrent
 Closes the stream used by @code{getgrent}.
 The return value is unspecified.
+@end deffn
+
+@deffn primitive setgr [reset?]
+If called with a true argument, initialize or reset the group data
+stream.  Otherwise, close the stream.  The @code{setgrent} and
+@code{endgrent} procedures are implemented on top of this.
 @end deffn
 
 @deffn primitive getgr [obj]
@@ -1873,6 +1891,19 @@ The current version level within the release of the operating system.
 @item utsname:machine
 A description of the hardware.
 @end table
+
+@deffn primitive software-type
+Return a symbol describing the current platform's operating system.
+This may be one of AIX, VMS, UNIX, COHERENT, WINDOWS, MS-DOS, OS/2,
+THINKC, AMIGA, ATARIST, MACH, or ACORN.
+
+Note that most varieties of Unix are considered to be simply "UNIX".
+That is because when a program depends on features that are not present
+on every operating system, it is usually better to test for the presence
+or absence of that specific feature.  The return value of
+@code{software-type} should only be used for this purpose when there is
+no other easy or unambiguous way of detecting such features.
+@end deffn
 
 @node Locales
 @chapter Locales

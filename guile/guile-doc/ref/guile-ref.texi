@@ -51,17 +51,10 @@
 @c   numbers.c: $asinh, $acosh, $atanh, $sqrt, $abs, $exp, $log, $sin,
 @c      $cos, $tan, $asin, $acos, $atan, $sinh, $cosh, $tanh, $expt,
 @c      $atan2
-@c   ports.c: current-error-port, set-current-input-port,
-@c      set-current-output-port, set-current-error-port, pt-size,
-@c      pt-member, port-line, set-port-line!, port-column,
-@c      set-port-column!, port-filename, set-port-filename!,
-@c      %make-void-port
-@c   posix.c: setpw, setgr, tmpname
 @c   print.c: current-pstate
 @c   procs.c: make-cclo, closure?, thunk?
 @c   read.c: read-hash-extend
 @c   readline.c: readline, add-history
-@c   simpos.c: system, software-type
 @c   srcprop.c: source-properties, set-source-properties!,
 @c      source-property, set-source-property!
 @c   stacks.c: stack? make-stack, stack-id, stack-ref, stack-length,
@@ -96,9 +89,13 @@
 @c or just happen to know what they do, please write up a little
 @c explanation -- it would be a big help.  Alternatively, if you
 @c know of a great reason why some of these should *not* go in the
-@c manual, please let me know.  I am inclined to think that any
-@c primitive declared in Scheme space should be documented, but may
-@c be persuadable to the contrary.  Thanks. -twp
+@c manual, please let me know.
+@c
+@c The following functions are currently left undocumented for various reasons.
+@c   ports.c: pt-size, pt-member [should be documented in a debugging or
+@c	Guile internals section]
+@c
+@c Thanks. -twp
 
 @include version.texi
 
