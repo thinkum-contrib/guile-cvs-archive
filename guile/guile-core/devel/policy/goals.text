@@ -5,8 +5,8 @@ This file states the goals of Guile.
 Guile is many things to many people.  It has multiple ways to approach
 it: as a C library that provides an extension language, as a
 programming language in its own right, as a interface to the operating
-system, as an interactive shell, or as a platform that integrates many
-independent subsystems.
+system, as an interactive shell, as a platform that integrates many
+independent subsystems, or as the basis for other languages.
 
 These different roles have a lot in common, but there are also some
 opposing forces that need to be balanced.
