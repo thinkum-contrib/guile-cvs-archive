@@ -83,6 +83,7 @@
 #include "mallocs.h"
 #include "mb.h"
 #include "mbconv.h"
+#include "mbbasic.h"
 #include "modules.h"
 #include "net_db.h"
 #include "numbers.h"
@@ -451,6 +452,7 @@ scm_boot_guile_1 (base, closure)
       start_stack (base);
       scm_init_mb ();
       scm_init_mbconv ();
+      scm_init_mbbasic ();
       scm_init_gsubr ();
       scm_init_feature ();
       scm_init_alist ();
