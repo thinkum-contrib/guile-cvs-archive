@@ -2,7 +2,9 @@
 
 	* goops.scm (compute-std-cpl): Compute a CLOS-style cpl.
 	(define-class): Bugfix: Added `new' as alternative in the
-	redefinition condition.
+	redefinition condition;
+	Added write-object in the print slot of builtin classes
+	<operator-class> and <operator-with-setter-class>.
 
 1999-03-16  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
