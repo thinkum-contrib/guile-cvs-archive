@@ -1,3 +1,8 @@
+1999-12-24  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
+
+	* goops.scm (shallow-clone, deep-clone): Added new arg in
+	call to %allocate-instance.
+
 1999-12-20  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* Version 0.1.6 released.  (Sigh...)
