@@ -1461,7 +1461,7 @@ SCM
 scm_make_method_cache (SCM gf)
 {
   return SCM_LIST5 (sym_atdispatch, scm_sym_args, SCM_MAKINUM (1),
-		    scm_make_vector (SCM_MAKINUM (SCM_INITIAL_HASH_SIZE),
+		    scm_make_vector (SCM_MAKINUM (SCM_INITIAL_MCACHE_SIZE),
 				     list_of_bool_f),
 		    gf);
 }

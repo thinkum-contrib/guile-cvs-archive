@@ -142,7 +142,7 @@ typedef struct scm_method_t {
 				&& SCM_INSTANCEP (x) \
 				&& SCM_SUBCLASSP (SCM_CLASS_OF (x), c))
 
-#define SCM_INITIAL_HASH_SIZE	  4
+#define SCM_INITIAL_MCACHE_SIZE	  1
 #define SCM_CMETHOD_CODE(cmethod) SCM_CDR (cmethod)
 #define SCM_CMETHOD_ENV(cmethod)  SCM_CAR (cmethod)
 
