@@ -1,3 +1,10 @@
+2000-08-01  Dirk Herrmann  <D.Herrmann@tu-bs.de>
+
+	* scm.texi (libguile error handling):  Removed reference to
+	scm_error_callback, which is not available any more since
+	guile-1.3.  Thanks to Juli-Manel Merino Vidal and to Gary Houston
+	for pointing this out.
+
 2000-07-31  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* scm.texi (Relationship between Scheme and C functions):
