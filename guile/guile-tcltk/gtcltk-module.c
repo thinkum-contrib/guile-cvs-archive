@@ -50,7 +50,7 @@ scm_init_gtcltk ()
 }
 
 void
-scm_init_ice_9_gtcltk_module ()
+scm_init_tcltk_gtcltk_module ()
 {
-    scm_register_module_xxx ("ice-9 gtcltk", scm_init_gtcltk);
+    scm_register_module_xxx ("tcltk gtcltk", scm_init_gtcltk);
 }
