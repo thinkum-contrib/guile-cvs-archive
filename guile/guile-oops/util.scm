@@ -1,4 +1,4 @@
-;;;; 	Copyright (C) 1999 Free Software Foundation, Inc.
+;;;; 	Copyright (C) 1999, 2000 Free Software Foundation, Inc.
 ;;;; 
 ;;;; This program is free software; you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License as published by
@@ -21,13 +21,51 @@
   :no-backtrace
   )
 
-(export mapappend find-duplicate top-level-env top-level-env?
+(export any every filter
+	mapappend find-duplicate top-level-env top-level-env?
 	map* for-each* length* improper->proper
  )
 
 ;;;
 ;;; {Utilities}
 ;;;
+
+(define (any pred lst . rest)
+  (if (null? rest) ;fast path
+      (and (not (null? lst))
+           (let loop ((head (car lst)) (tail (cdr lst)))
+             (if (null? tail)
+                 (pred head)
+                 (or (pred head)
+                     (loop (car tail) (cdr tail))))))
+      (let ((lsts (cons lst rest)))
+        (and (not (any null? lsts))
+             (let loop ((heads (map car lsts)) (tails (map cdr lsts)))
+               (if (any null? tails)
+                   (apply pred heads)
+                   (or (apply pred heads)
+                       (loop (map car tails) (map cdr tails)))))))))
+
+(define (every pred lst . rest)
+  (if (null? rest) ;fast path
+      (or (null? lst)
+          (let loop ((head (car lst)) (tail (cdr lst)))
+            (if (null? tail)
+                (pred head)
+                (and (pred head)
+                     (loop (car tail) (cdr tail))))))
+      (let ((lsts (cons lst rest)))
+        (or (any null? lsts)
+            (let loop ((heads (map car lsts)) (tails (map cdr lsts)))
+              (if (any null? tails)
+                  (apply pred heads)
+                  (and (apply pred heads)
+                       (loop (map car tails) (map cdr tails)))))))))
+
+(define (filter test? list)
+  (cond ((null? list) '())
+	((test? (car list)) (cons (car list) (filter test? (cdr list))))
+	(else (filter test? (cdr list)))))
 
 (define (mapappend func . args)
   (if (memv '()  args)
