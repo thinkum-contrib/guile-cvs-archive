@@ -73,11 +73,170 @@ R4RS, mostly introduced to make eventual Emacs Lisp translation easier.
 Later chapters will introduce major extensions to Scheme.
 
 @menu
-* Symbol case::                 
+* Guile options interface::     
 @end menu
 
-@node Symbol case
-@section Symbol case
+@node Guile options interface
+@section Guile options interface
+@cindex options interface
+
+Guile's behaviour can be modified by setting options.  For example, is
+the language that Guile accepts case sensitive, or should the debugger
+automatically show a backtrace on error?
+
+Guile has two levels of interface for managing options: a low-level
+control interface, and a user-level interface which allows the enabling
+or disabling of options.
+
+Moreover, the options are classified in groups according to whether they
+configure @emph{reading}, @emph{printing}, @emph{debugging} or
+@emph{evaluating}.
+
+@menu
+* General option interface::    
+* Reader options::              
+* Printing options::            
+* Debugger options::            
+* Evaluator options::           
+@end menu
+
+@node General option interface
+@subsection General option interface
+
+We will use the expression @code{<group>} to represent @code{read},
+@code{print}, @code{debug} or @code{evaluator}.
+
+@subsubheading Low level
+
+@defun <group>-options-interface
+@defunx read-options-interface [SOME-INT]
+@defunx print-options-interface [SOME-INT]
+@defunx evaluator-traps-interface [SOME-INT]
+@defunx read-options-interface [SOME-INT]
+[FIXME: I have just taken the comments for C routine scm_options that
+implements all of these.  It needs to be presented better.]
+
+If scm_options is called without arguments, the current option setting
+is returned.  If the argument is an option setting, options are altered
+and the old setting is returned.  If the argument isn't a list, a list
+of sublists is returned, where each sublist contains option name, value
+and documentation string.
+@end defun
+
+
+@subsubheading User level
+
+@c @deftp {Data type} scm_option
+@c @code{scm_option} is used to represent run time options.  It can be a
+@c @emph{boolean} type, in which case the option will be set by the strings
+@c @code{"yes"} and @code{"no"}.  It can be a 
+@c @end deftp
+
+@defun <group>-options [arg]
+@defunx read-options [arg]
+@defunx print-options [arg]
+@defunx debug-options [arg]
+@defunx traps [arg]
+These functions list the options in their group.  The optional argument
+@var{arg} is a symbol which modifies the form in which the options are
+presented.
+
+With no arguments, @code{<group>-options} returns the values of the
+options in that particular group.  If @var{arg} is @code{'help}, a
+description of each option is given.  If @var{arg} is @code{'full},
+programmers' options are also shown.
+
+@var{arg} can also be a list representing the state of all options.  In
+this case, the list contains single symbols (for enabled boolean
+options) and symbols followed by values.
+@end defun
+[FIXME: I don't think 'full is ever any different from 'help.  What's
+up?]
+
+@defun <group>-enable option-symbol
+@defunx read-enable option-symbol
+@defunx print-enable option-symbol
+@defunx debug-enable option-symbol
+@defunx trap-enable option-symbol
+These functions set the specified @var{option-symbol} in their options
+group.  They only work if the option is boolean, and throw an error
+otherwise.
+@end defun
+
+@defun <group>-disble option-symbol
+@defunx read-disble option-symbol
+@defunx print-disble option-symbol
+@defunx debug-disble option-symbol
+@defunx trap-disable option-symbol
+These functions turn off the specified @var{option-symbol} in their
+options group.  They only work if the option is boolean, and throw an
+error otherwise.
+@end defun
+
+@defun <group>-set! option-symbol value
+@defunx read-set! option-symbol value
+@defunx print-set! option-symbol value
+@defunx debug-set! option-symbol value
+@defunx trap-set! option-symbol value
+These functions set a non-boolean @var{option-symbol} to the specified
+@var{value}.
+@end defun
+
+Here is an example of a session in which some read and debug option
+handling procedures are used:
+@smalllisp
+guile> (define abc "hello")
+guile> abc
+"hello"
+guile> aBc
+ERROR: In expression aBc:
+ERROR: Unbound variable: aBc
+ABORT: (misc-error)
+
+Type "(backtrace)" to get more information.
+guile> (read-options 'help)
+keywords	#f	Style of keyword recognition: #f or 'prefix
+case-insensitive	no	Convert symbols to lower case.
+positions	yes	Record positions of source code expressions.
+copy		no	Copy source code expressions.
+guile> (debug-options 'help)
+stack		20000	Stack size limit (0 = no check).
+debug		yes	Use the debugging evaluator.
+backtrace	no	Show backtrace on error.
+depth		20	Maximal length of printed backtrace.
+maxdepth	1000	Maximal number of stored backtrace frames.
+frames		3	Maximum number of tail-recursive frames in backtrace.
+indent		10	Maximal indentation in backtrace.
+backwards	no	Display backtrace in anti-chronological order.
+procnames	yes	Record procedure names at definition.
+trace		no	*Trace mode.
+breakpoints	no	*Check for breakpoints.
+cheap		yes	*Flyweight representation of the stack at traps.
+guile> (read-enable 'case-insensitive)
+(keywords #f case-insensitive positions)
+guile> aBc
+"hello"
+guile> (read-disable 'case-insensitive)
+(keywords #f positions)
+guile> (debug-enable 'backtrace)
+(stack 20000 debug backtrace depth 20 maxdepth 1000 frames 3 indent 10 procnames cheap)
+guile> aBc
+
+Backtrace:
+0* aBc
+
+ERROR: In expression aBc:
+ERROR: Unbound variable: aBc
+ABORT: (misc-error)
+guile>
+@end smalllisp
+
+
+
+
+
+@node Reader options
+@subsection Reader options
 
 Standard Scheme is case insensitive.  To ease translation of other Lisp
 dialects, notably Emacs Lisp, into Guile, one can select if Guile should
@@ -121,7 +280,14 @@ With any integer argument, it will give more details about the options.
 [FIXME: This can't be all there is to it.]
 @end defun
 
+@node Printing options
+@subsection Printing options
 
+@node Debugger options
+@subsection Debugger options
+
+@node Evaluator options
+@subsection Evaluator options
 
 @page
 @node Keywords
