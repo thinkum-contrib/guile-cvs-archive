@@ -293,7 +293,8 @@ not supplied, the current input port is used.
 @end deffn
 
 @c docstring begin (c-doc-string "ports.c" "unread-string")
-@deffn primitive unread-string str [port]
+@c docstring md5 "7b185a3d540acdf2ec7f6b114c6c3c80"
+@deffn primitive unread-string str port
 Place the string @var{str} in @var{port} so that its characters will be
 read in subsequent read operations.  If called multiple times, the
 unread characters will be read again in last-in first-out order.  If

@@ -1739,11 +1739,11 @@ name is a string of type and protection codes.  To create a new
 structure layout, use this procedure:
 
 @c docstring begin (c-doc-string "struct.c" "make-struct-layout")
-@c docstring md5 "3db9fa14eec939642d6915c37115a9bf"
+@c docstring md5 "47b54dfa8fa09a3fffda1fb1aa69f981"
 @deffn primitive make-struct-layout fields
 Return a new structure layout object.
 
-@var{fields} must be a read-only string made up of pairs of characters
+@var{fields} must be a string made up of pairs of characters
 strung together.  The first character of each pair describes a field
 type, the second a field protection.  Allowed types are 'p' for
 GC-protected Scheme data, 'u' for unprotected binary data, and 's' for
@@ -1762,11 +1762,11 @@ This section describes the basic procedures for creating and accessing
 structures.
 
 @c docstring begin (c-doc-string "struct.c" "make-struct")
-@c docstring md5 "faf2cbc82f2fc9386cc47a8c1da462f5"
+@c docstring md5 "9401449ba9dff362d7b489f1a154a0e1"
 @deffn primitive make-struct vtable tail_array_size . init
 Create a new structure.
 
-@var{type} must be a vtable structure (@xref{Vtables}).
+@var{type} must be a vtable structure (@pxref{Vtables}).
 
 @var{tail-elts} must be a non-negative integer.  If the layout
 specification indicated by @var{type} includes a tail-array,
@@ -6813,9 +6813,9 @@ not allow that procedure to capture the current continuation, calling
 the procedure under a new dynamic root will do the job.
 
 @c docstring begin (c-doc-string "root.c" "call-with-dynamic-root")
-@c docstring md5 "74fe942888f21340a4aaa5c1012492d0"
+@c docstring md5 "684d60639b8939251fef9785bf2883a9"
 @deffn primitive call-with-dynamic-root thunk handler
-Evaluate @var{(thunk)} in a new dynamic context, returning its value.
+Evaluate @code{(thunk)} in a new dynamic context, returning its value.
 
 If an error occurs during evaluation, apply @var{handler} to the
 arguments to the throw, just as @code{throw} would.  If this happens,
@@ -6936,7 +6936,7 @@ executed in a new dynamic root.
 
 @c begin (c-doc-string "threads.c" "call-with-new-thread")
 @deffn primitive call-with-new-thread thunk error-thunk
-Evaluate @var{(thunk)} in a new thread, and new dynamic context,
+Evaluate @code{(thunk)} in a new thread, and new dynamic context,
 returning a new thread object representing the thread.
 
 If an error occurs during evaluation, call error-thunk, passing it an
@@ -7001,7 +7001,7 @@ blocked on @var{mutex} is awakened and grabs the mutex lock.
 
 @c begin (c-doc-string "threads.c" "call-with-new-thread")
 @deffn primitive call-with-new-thread thunk error-thunk
-Evaluate @var{(thunk)} in a new thread, and new dynamic context,
+Evaluate @code{(thunk)} in a new thread, and new dynamic context,
 returning a new thread object representing the thread.
 
 If an error occurs during evaluation, call error-thunk, passing it an
@@ -7339,11 +7339,12 @@ unbound symbols.
 @end deffn
 
 @c docstring begin (c-doc-string "symbols.c" "gensym")
-@c docstring md5 "d1d5a91644bfdb7f7d8bd7425d5665c1"
-@deffn primitive gensym [name [obarray]]
-Create a new, unique symbol in @var{obarray}, using the global symbol
-table by default.  If @var{name} is specified, it should be used as a
-prefix for the new symbol's name.  The default prefix is @code{%%gensym}.
+@c docstring md5 "6ac7c070d8b6f845e75d71807596b613"
+@deffn primitive gensym [prefix]
+Create a new symbol with name constructed from a prefix and a counter value.
+The string PREFIX can be specified as an optional argument.
+Default prefix is @code{g}.  The counter is increased by 1 at each call.
+There is no provision for resetting the counter.
 @end deffn
 
 @c docstring begin (c-doc-string "symbols.c" "intern-symbol")
@@ -7465,10 +7466,9 @@ Change the binding of @var{symbol}'s function slot.
 @end deffn
 
 @c docstring begin (c-doc-string "symbols.c" "symbol-hash")
-@c docstring md5 "1e7a307da0194d2035391c43d37adf0f"
-@deffn primitive symbol-hash s
-Return the hash value derived from @var{symbol}'s name, i.e. the integer
-index into @var{symbol}'s obarray at which it is stored.
+@c docstring md5 "97407eb455f85ab0b49523c8c0021041"
+@deffn primitive symbol-hash symbol
+Return a hash value for @var{symbol}.
 @end deffn
 
 @c docstring begin (c-doc-string "symbols.c" "symbol-interned?")

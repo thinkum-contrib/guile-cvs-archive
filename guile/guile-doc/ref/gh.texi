@@ -332,7 +332,7 @@ C handles procedures with variable numbers of arguments.
 
 @cartouche
 There are several important considerations to be made when writing the C
-routine @var{(*fn)()}.
+routine @code{(*fn)()}.
 
 First of all the C routine has to return type @code{SCM}.
 

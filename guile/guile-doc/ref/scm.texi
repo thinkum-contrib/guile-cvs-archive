@@ -113,9 +113,10 @@ C function's arguments, as well as its return type, will be @code{SCM}.
 @node I/O internals
 @chapter I/O internals
 
-@xref{C Port Interface}
+@xref{C Port Interface}.
 
-@xref{Port Implementation}
+@xref{Port Implementation}.
+
 @node libguile error handling
 @chapter libguile error handling
 

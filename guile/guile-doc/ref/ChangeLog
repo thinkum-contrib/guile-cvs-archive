@@ -1,5 +1,26 @@
 2000-09-22  Neil Jerram  <neil@ossau.uklinux.net>
 
+	* scm.texi (I/O internals): Add full stops (periods) after
+	standalone uses of @xref.
+
+	* scheme.texi (Structure Layout): Doc for make-struct-layout
+	changed to remove reference to "read-only" strings, which no
+	longer exist.
+	(Structure Basics): Use @pxref rather than @xref for parenthetical
+	reference.
+	(Dynamic Roots): Use @code rather than @var for code, in doc for
+	call-with-dynamic-root.
+	(Low level thread primitives): Ditto call-with-new-thread.
+	(Higher level thread procedures): Ditto call-with-new-thread.
+	(Symbols and Variables): Docs for gensym and symbol-hash updated
+	according to libguile changes.
+
+	* posix.texi (Generic Port Operations): Synchronized docstring
+	for unread-string.
+
+	* gh.texi (Defining new Scheme procedures in C): Avoid texinfo
+	warning by using @code rather than @var for code.
+
 	* scheme.texi: Lots more docstring comments added, and docs
 	synchronized with libguile source.
 	(interaction-environment, make-struct, make-vtable-vtable): Newer,
