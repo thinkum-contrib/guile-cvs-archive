@@ -1,3 +1,8 @@
+Sun Oct 27 01:27:24 1996  Gary Houston  <ghouston@actrix.gen.nz>
+
+	* rgx.c (scm_regex_error): use SCM_SYMBOL to declare
+ 	scm_regex_error_key.
+
 Mon Oct 14 04:47:32 1996  Gary Houston  <ghouston@actrix.gen.nz>
 
 	* Makefile.in (depends): add -I.. to gcc flags.  Make the addition

@@ -94,7 +94,7 @@ print_regex_t (obj, port, pstate)
 static scm_smobfuns regex_t_smob =
 { scm_mark0, free_regex_t, print_regex_t, 0 };
 
-SCM scm_regex_error_key;
+SCM_SYMBOL (scm_regex_error_key, "regex-error");
 
 static void
 scm_regex_error (subr, code)
@@ -655,8 +655,6 @@ scm_init_rgx ()
   scm_add_feature ("regex");
   scm_tc16_regex_t = scm_newsmob (&regex_t_smob);
   scm_tc16_dfa_t = scm_newsmob (&dfa_t_smob);
-  scm_regex_error_key
-    = scm_permanent_object (SCM_CAR (scm_intern0 ("regex-error")));
 
   /* from inst-rxposix.h  */
   scm_sysintern ("REG_EXTENDED", SCM_MAKINUM (REG_EXTENDED));
