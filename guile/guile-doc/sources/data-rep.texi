@@ -86,8 +86,10 @@ struct value @{
   @} value;
 @};
 @end example
+with the ellipses replaced with code for the remaining Scheme types.
 
-Given the above example, if @var{x} is an @code{SCM} value:
+This representation is sufficient to implement all of Scheme's
+semantics.  If @var{x} is an @code{SCM} value:
 @itemize @bullet
 @item
   To test if @var{x} is an integer, we can write @code{@var{x}->type == integer}.
@@ -102,10 +104,6 @@ Given the above example, if @var{x} is an @code{SCM} value:
   If we know @var{x} is a pair, we can write
   @code{@var{x}->value.pair.car} to extract its car.
 @end itemize
-
-With the ellipses replaced with code for the remaining Scheme types,
-this representation is sufficient to implement all of Scheme's
-semantics.
 
 
 @node Faster Integers
@@ -127,7 +125,7 @@ allocator for @code{struct value} objects that assures this is true.)
 In this case, the lower two bits of the structure's address are known to
 be zero.
 
-This gives us the room we need to provide an optimized representation
+This gives us the room we need to provide an improved representation
 for integers.  We make the following rules:
 @itemize @bullet
 @item
@@ -193,7 +191,7 @@ Here's how we would answer the questions posed above (again, assume
 
 This representation allows us to operate more efficiently on integers
 than the first.  For example, if @var{x} and @var{y} are known to be
-integers, we can computer their sum as follows:
+integers, we can compute their sum as follows:
 @example
 MAKE_INTEGER (GET_INTEGER (@var{x}) + GET_INTEGER (@var{y}))
 @end example
@@ -217,13 +215,13 @@ Let us refine the convention we established earlier.  Let us assert
 that:
 @itemize @bullet
 @item
-  If the bottom two bits of an @code{SCM} value are @code{00}, then
+  If the bottom two bits of an @code{SCM} value are @code{#b00}, then
   it is a pointer, as before.
 @item
-  If the bottom two bits are @code{01}, then the upper bits are an
+  If the bottom two bits are @code{#b01}, then the upper bits are an
   integer.  This is a bit more restrictive than before.
 @item
-  If the bottom two bits are @code{10}, then the value, with the bottom
+  If the bottom two bits are @code{#b10}, then the value, with the bottom
   two bits masked out, is the address of a pair.
 @end itemize
 
@@ -248,12 +246,12 @@ struct pair @{
 
 #define POINTER_P(x) (((int) (x) & 3) == 0)
 
-#define PAIR_P(x) (((int) (x) & 3) == 1)
-#define GET_PAIR(x) ((struct pair *) ((int) (x) & ~3))
-
-#define INTEGER_P(x) (! POINTER_P (x))
+#define INTEGER_P(x)  (((int) (x) & 3) == 1)
 #define GET_INTEGER(x)  ((int) (x) >> 2)
 #define MAKE_INTEGER(x) ((SCM) (((x) << 2) | 1))
+
+#define PAIR_P(x) (((int) (x) & 3) == 2)
+#define GET_PAIR(x) ((struct pair *) ((int) (x) & ~3))
 @end example
 
 Notice that @code{enum type} and @code{struct value} now only contain
@@ -352,10 +350,11 @@ or @code{SCM_}.
 @c Macros do not evaluate their arguments more than once, unless documented
 @c to do so.
 
-Functions generally check the types of their @code{SCM} arguments, and
-signal an error if their arguments are of an inappropriate type.  Macros
-generally do not, unless that is their specified purpose.  You must
-verify their argument types beforehand, as necessary.
+The functions described here generally check the types of their
+@code{SCM} arguments, and signal an error if their arguments are of an
+inappropriate type.  Macros generally do not, unless that is their
+specified purpose.  You must verify their argument types beforehand, as
+necessary.
 
 Macros and functions that return a boolean value have names ending in
 @code{P} or @code{_p} (for ``predicate'').  Those that return a negated
@@ -369,10 +368,10 @@ boolean value have names starting with @code{SCM_N}.  For example,
 @node Garbage Collection
 @subsection Garbage Collection
 
-Along with the latent typing, the other major source of constraints on a
+Aside from the latent typing, the major source of constraints on a
 Scheme implementation's data representation is the garbage collector.
-The collector needs to be able to traverse every live object in the
-heap, to determine which objects are not live.
+The collector must be able to traverse every live object in the heap, to
+determine which objects are not live.
 
 There are many ways to implement this, but Guile uses an algorithm
 called @dfn{mark and sweep}.  The collector scans the system's global
@@ -394,7 +393,7 @@ to all global variables that refer to the heap, and another list
 (adjusted upon entry to and exit from each function) of local variables,
 for the collector's benefit.
 
-The list of global variables is usually not to difficult to maintain,
+The list of global variables is usually not too difficult to maintain,
 since global variables are relatively rare.  However, an explicitly
 maintained list of local variables (in the author's personal experience)
 is a nightmare to maintain.  Thus, Guile uses a technique called
@@ -419,11 +418,11 @@ pointer or not.  Guile does this as follows:
 @itemize @bullet
 
 @item
-Every object has a two-word header, called a @dfn{cell}.  Some objects,
-like pairs, fit entirely in a cell's two words; others may store
-pointers to additional memory in either of the words.  For example,
-strings and vectors store their length in the first word, and a pointer
-to their elements in the second.
+Every heap object has a two-word header, called a @dfn{cell}.  Some
+objects, like pairs, fit entirely in a cell's two words; others may
+store pointers to additional memory in either of the words.  For
+example, strings and vectors store their length in the first word, and a
+pointer to their elements in the second.
 
 @item
 Guile allocates whole arrays of cells at a time, called @dfn{heap
@@ -461,8 +460,8 @@ includes small integers, characters, boolean values, the empty list, the
 mysterious end-of-file object, and some others.
 
 The remaining types are called, not suprisingly, @dfn{non-immediates}.
-They include pairs, procedures, strings, vectors, and almost everything
-else in Guile.
+They include pairs, procedures, strings, vectors, and all other data
+types in Guile.
 
 @deftypefn Macro int SCM_IMP (SCM @var{x})
 Return non-zero iff @var{x} is an immediate object.
@@ -479,8 +478,9 @@ must write:
 SCM_NIMP (@var{x}) && SCM_CONSP (@var{x})
 @end example
 This is because Guile stores typing information for non-immediate values
-in the cell itself; thus, you must determine whether @var{x} refers to a
-cell before looking inside it.
+in their cells, rather than in the @code{SCM} value itself; thus, you
+must determine whether @var{x} refers to a cell before looking inside
+it.
 
 This is somewhat of a pity, because it means that the programmer needs
 to know which types Guile implements as immediates vs. non-immediates.
@@ -493,9 +493,17 @@ from this weakness.
 @node Immediate Datatypes
 @subsection Immediate Datatypes
 
-The following datatypes fit entirely within an @code{SCM} value.  The
-@code{SCM_IMP} and @code{SCM_NIMP} macros will distinguish these from
-non-immediates; see above.
+The following datatypes are immediate values; that is, they fit entirely
+within an @code{SCM} value.  The @code{SCM_IMP} and @code{SCM_NIMP}
+macros will distinguish these from non-immediates; see @ref{Immediates
+vs. Non-immediates} for an explanation of the distinction.
+
+Note that the type predicates for immediate values work correctly on any
+@code{SCM} value; you do not need to call @code{SCM_IMP} first, to
+establish that a value is immediate.  This differs from the
+non-immediate type predicates, which work correctly only on
+non-immediate values; you must be sure the value is @code{SCM_NIMP}
+before applying them.
 
 
 @menu
@@ -509,7 +517,8 @@ non-immediates; see above.
 @subsubsection Integers
 
 Here are functions for operating on small integers, that fit within an
-@code{SCM}.  In general, integers occupy all but two bits of an
+@code{SCM}.  Such integers are called @dfn{immediate numbers}, or
+@dfn{INUMs}.  In general, INUMs occupy all but two bits of an
 @code{SCM}.
 
 Bignums and floating-point numbers are non-immediate objects, and have
@@ -629,12 +638,35 @@ symbol's value to see if it has a binding as a global variable.
 @subsection Non-immediate Datatypes 
 
 A non-immediate datatype is one which lives in the heap, either because
-it cannot fit entirely within a @code{SCM} word, or because it is
-mutable, and thus refers to a specific storage location (in the
-nomenclature of the Revised^4 Report on Scheme).
+it cannot fit entirely within a @code{SCM} word, or because it denotes a
+specific storage location (in the nomenclature of the Revised^4 Report
+on Scheme).
 
 The @code{SCM_IMP} and @code{SCM_NIMP} macros will distinguish these
 from immediates; see @ref{Immediates vs. Non-immediates}.
+
+Given a cell, Guile distinguishes between pairs and other non-immediate
+types by storing special @dfn{tag} values in a non-pair cell's car, that
+cannot appear in normal pairs.  A cell with a non-tag value in its car
+is an ordinary pair.  The type of a cell with a tag in its car depends
+on the tag; the non-immediate type predicates test this value.  If a tag
+value appears elsewhere (in a vector, for example), the heap may become
+corrupted.
+
+
+@menu
+* Non-immediate Type Predicates::       Special rules for using the type
+                                        predicates described here.
+* Pairs::                       
+* Vectors::                     
+* Procedures::                  
+* Closures::                    
+* Subrs::                       
+* Ports::                       
+@end menu
+
+@node Non-immediate Type Predicates
+@subsubsection Non-immediate Type Predicates
 
 As mentioned in @ref{Garbage Collection}, all non-immediate objects
 start with a @dfn{cell}, or a pair of words.  Furthermore, all type
@@ -644,23 +676,15 @@ indicates only that the object is a non-immediate; all finer
 distinctions require one to examine the cell itself, usually with the
 appropriate type predicate macro.
 
-Given a cell, Guile distinguishes between pairs and other non-immediate
-types by storing special @dfn{tag} values in the cell's car, that cannot
-appear in normal pairs.  A cell with a non-tag value in its car is an
-ordinary pair.  The type of a cell with a tag in its car depends on the
-tag; the non-immediate type predicates test this value.  If a tag value
-appears elsewhere (in a vector, for example), the heap may become
-corrupted.
+The type predicates for non-immediate objects generally assume that
+their argument is a non-immediate value.  Thus, you must be sure that a
+value is @code{SCM_NIMP} first before passing it to a non-immediate type
+predicate.  Thus, the idiom for testing whether a value is a cell or not
+is:
+@example
+SCM_NIMP (@var{x}) && SCM_CONSP (@var{x})
+@end example
 
-
-@menu
-* Pairs::                       
-* Vectors::                     
-* Procedures::                  
-* Closures::                    
-* Subrs::                       
-* Ports::                       
-@end menu
 
 @node Pairs
 @subsubsection Pairs
@@ -669,9 +693,9 @@ Pairs are the essential building block of list structure in Scheme.  A
 pair object has two fields, called the @dfn{car} and the @dfn{cdr}.
 
 It is conventional for a pair's @sc{car} to contain an element of a
-list, and the @sc{cdr} to point to the next pair in the list, or
-@code{SCM_EOL}, indicating the end of the list.  Thus, a set of pairs
-chained through their @sc{cdr}s constitutes a singly-linked list.
+list, and the @sc{cdr} to point to the next pair in the list, or to
+contain @code{SCM_EOL}, indicating the end of the list.  Thus, a set of
+pairs chained through their @sc{cdr}s constitutes a singly-linked list.
 Scheme and libguile define many functions which operate on lists
 constructed in this fashion, so although lists chained through the
 @sc{car}s of pairs will work fine too, they may be less convenient to
@@ -927,8 +951,8 @@ easier.
 
 @deftypefn Macro void SCM_ASSERT (int @var{test}, SCM @var{obj}, int @var{position}, char *@var{subr})
 If @var{test} is zero, signal an error, attributed to the subroutine
-named @var{subr} interactions with the value @var{obj}.  The
-@var{position} value determines exactly what sort of error to signal.
+named @var{subr}, operating on the value @var{obj}.  The @var{position}
+value determines exactly what sort of error to signal.
 
 If @var{position} is a string, @code{SCM_ASSERT} raises a
 ``miscellaneous'' error whose message is that string.
@@ -951,6 +975,11 @@ argument is wrong.  You could pass your own error message to
 @code{SCM_ASSERT} as the @var{position}, but then the error signalled is
 a ``miscellaneous'' error, not a ``wrong type argument'' error.  This
 seems kludgy to me.
+@comment Any function with more than two arguments is wrong --- Perlis
+@comment Despite Perlis, I agree.  Why not have two Macros, one with
+@comment a string error message, and the other with an integer position
+@comment that only claims a type error in an argument?
+@comment --- Keith Wright
 @end deftypefn
 
 @deftypefn Macro int SCM_ARGn
@@ -1032,9 +1061,9 @@ resources held by the object and return.
 @item print
 Guile will apply this function to each instance of the new type to print
 the value, as for @code{display} or @code{write}.  The function should
-write a printed representation of @var{exp} on @var{port}, respecting to
-the parameters in @var{pstate}.  (For more information on print states,
-see @ref{Ports}.)
+write a printed representation of @var{exp} on @var{port}, in accordance
+with the parameters in @var{pstate}.  (For more information on print
+states, see @ref{Ports}.)
 
 @item equalp
 If Scheme code asks the @code{equal?} function to compare two instances
