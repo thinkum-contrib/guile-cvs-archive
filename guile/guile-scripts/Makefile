@@ -7,7 +7,8 @@ scripts =					\
 	update-guile-api.alist			\
 	render-bugs				\
 	checkout-hack				\
-	dist-guile
+	dist-guile				\
+	branch-diff				\
 
 # Yes, sometimes people will check in files w/o +x -- that's life.
 
