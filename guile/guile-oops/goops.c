@@ -430,7 +430,7 @@ scm_sys_prep_layout_x (SCM class)
 		    "bad value in nfields slot: %S",
 		    SCM_LIST1 (nfields));
   n = 2 * SCM_INUM (nfields);
-  if (n < sizeof (SCM_METACLASS_GOOPS_LAYOUT) - 1
+  if (n < sizeof (SCM_CLASS_CLASS_LAYOUT) - 1
       && SCM_SUBCLASSP (class, scm_class_class))
     scm_misc_error (s_sys_prep_layout_x,
 		    "class object doesn't have enough fields: %S",
@@ -576,12 +576,12 @@ scm_basic_basic_make_class (SCM class, SCM name, SCM dsupers, SCM dslots)
 
   /* Support for the underlying structs: */
   SCM_SET_CLASS_FLAGS (z, (class == scm_class_entity_class
-			   ? (SCM_CLASSF_GOOPS
+			   ? (SCM_CLASSF_GOOPS_OR_VALID
 			      | SCM_CLASSF_OPERATOR
 			      | SCM_CLASSF_ENTITY)
 			   : class == scm_class_operator_class
-			   ? SCM_CLASSF_GOOPS | SCM_CLASSF_OPERATOR
-			   : SCM_CLASSF_GOOPS));
+			   ? SCM_CLASSF_GOOPS_OR_VALID | SCM_CLASSF_OPERATOR
+			   : SCM_CLASSF_GOOPS_OR_VALID));
   return z;
 }
 
@@ -625,17 +625,7 @@ build_class_class_slots ()
 	 scm_cons (SCM_LIST3 (Intern ("setter"),
 			      k_type,
 			      scm_class_protected_opaque),
-	 scm_cons (Intern ("name"),
-	 scm_cons (Intern ("direct-supers"),
-	 scm_cons (Intern ("direct-slots"),
-	 scm_cons (Intern ("direct-subclasses"),
-	 scm_cons (Intern ("direct-methods"),
-	 scm_cons (Intern ("cpl"),
-	 scm_cons (Intern ("slots"),
-	 scm_cons (Intern ("nfields"),
-	 scm_cons (Intern ("getters-n-setters"),
 	 scm_cons (Intern ("redefined"),
-	 scm_cons (Intern ("environment"),
 	 scm_cons (SCM_LIST3 (Intern ("h0"),
 			      k_type,
 			      scm_class_int),
@@ -660,7 +650,19 @@ build_class_class_slots ()
 	 scm_cons (SCM_LIST3 (Intern ("h7"),
 			      k_type,
 			      scm_class_int),
-	 SCM_EOL)))))))))))))))))))))))))))));
+	 scm_cons (Intern ("name"),
+	 scm_cons (Intern ("direct-supers"),
+	 scm_cons (Intern ("direct-slots"),
+	 scm_cons (Intern ("direct-subclasses"),
+	 scm_cons (Intern ("direct-methods"),
+	 scm_cons (Intern ("cpl"),
+	 scm_cons (Intern ("default-slot-definition-class"),
+	 scm_cons (Intern ("slots"),
+	 scm_cons (Intern ("getters-n-setters"), /* name-access */
+	 scm_cons (Intern ("keyword-access"),
+	 scm_cons (Intern ("nfields"),
+	 scm_cons (Intern ("environment"),
+	 SCM_EOL)))))))))))))))))))))))))))))));
 }
 
 static void
@@ -669,14 +671,14 @@ create_basic_classes (void)
   /* SCM slots_of_class = build_class_class_slots (); */
 
   /**** <scm_class_class> ****/
-  SCM cs = scm_makfrom0str (SCM_METACLASS_GOOPS_LAYOUT
+  SCM cs = scm_makfrom0str (SCM_CLASS_CLASS_LAYOUT
 			    + 2 * scm_vtable_offset_user);
   SCM cl = scm_make_struct_layout (cs);
   SCM name = Intern ("<class>");
   scm_class_class = scm_permanent_object (scm_make_vtable_vtable (cl,
 							SCM_INUM0,
 							SCM_EOL));
-  SCM_SET_CLASS_FLAGS (scm_class_class, (SCM_CLASSF_GOOPS
+  SCM_SET_CLASS_FLAGS (scm_class_class, (SCM_CLASSF_GOOPS_OR_VALID
 					 | SCM_CLASSF_METACLASS));
 
   SCM_SLOT(scm_class_class, scm_si_name) 		 = name;
@@ -1311,6 +1313,18 @@ scm_sys_modify_class (SCM old, SCM new)
   return SCM_UNSPECIFIED;
 }
 
+SCM_PROC (s_sys_invalidate_class, "%invalidate-class", 1, 0, 0, scm_sys_invalidate_class);
+
+SCM
+scm_sys_invalidate_class (SCM class)
+{
+  SCM_ASSERT (SCM_NIMP (class) && CLASSP (class),
+	      class, SCM_ARG1, s_sys_invalidate_class);
+
+  SCM_CLEAR_CLASS_FLAGS (class, SCM_CLASSF_GOOPS_VALID);
+  return SCM_UNSPECIFIED;
+}
+
 static void
 change_object_class (obj, old_class, new_class)
 {
@@ -1599,6 +1613,73 @@ scm_compute_applicable_methods (SCM gf, SCM args, int len, int scm_find_method)
 	  ? applicable
 	  : sort_applicable_methods (applicable, count, types));
 }
+
+#if 0
+SCM_PROC (s_sys_compute_applicable_methods, "%compute-applicable-methods", 2, 0, 0, scm_sys_compute_applicable_methods);
+#endif
+
+SCM_SYNTAX (s_atslot_ref, "@slot-ref", scm_makmmacro, scm_m_atslot_ref);
+
+SCM
+scm_m_atslot_ref (SCM xorig, SCM env)
+{
+  SCM x = SCM_CDR (xorig);
+  SCM_ASSYNT (scm_ilength (x) == 2, xorig, scm_s_expression, s_atslot_ref);
+  SCM_ASSYNT (SCM_INUMP (SCM_CADR (x)), SCM_CADR (x), SCM_ARG2, s_atslot_ref);
+  return scm_cons (SCM_IM_SLOT_REF, x);
+}
+
+SCM_SYNTAX (s_atslot_set_x, "@slot-set!", scm_makmmacro, scm_m_atslot_set_x);
+
+SCM
+scm_m_atslot_set_x (SCM xorig, SCM env)
+{
+  SCM x = SCM_CDR (xorig);
+  SCM_ASSYNT (scm_ilength (x) == 3, xorig, scm_s_expression, s_atslot_set_x);
+  SCM_ASSYNT (SCM_INUMP (SCM_CADR (x)), SCM_CADR (x), SCM_ARG2, s_atslot_set_x);
+  return scm_cons (SCM_IM_SLOT_SET_X, x);
+}
+
+SCM_SYNTAX (s_dispatch, "@dispatch", scm_makmmacro, scm_m_dispatch);
+
+SCM
+scm_m_dispatch (SCM xorig, SCM env)
+{
+  SCM n, v, x = SCM_CDR (xorig);
+  SCM_ASSYNT (scm_ilength (x) == 2, xorig, scm_s_expression, s_dispatch);
+  n = SCM_XEVALCAR (x, env);
+  SCM_ASSYNT (SCM_INUMP (n), n, SCM_ARG1, s_dispatch);
+  x = SCM_CDR (x);
+  v = SCM_XEVALCAR (x, env);
+  SCM_ASSYNT (SCM_NIMP (v) && SCM_VECTORP (v), v, SCM_ARG2, s_dispatch);
+  return SCM_LIST3 (SCM_IM_DISPATCH, n, v);
+}
+
+SCM_SYNTAX (s_hash_dispatch, "@hash-dispatch", scm_makmmacro, scm_m_hash_dispatch);
+
+SCM
+scm_m_hash_dispatch (SCM xorig, SCM env)
+{
+  SCM n, hashset, mask, v, x = SCM_CDR (xorig);
+  SCM_ASSYNT (scm_ilength (x) == 4, xorig, scm_s_expression, s_hash_dispatch);
+  n = SCM_XEVALCAR (x, env);
+  SCM_ASSYNT (SCM_INUMP (n), n, SCM_ARG1, s_dispatch);
+  x = SCM_CDR (x);
+  hashset = SCM_XEVALCAR (x, env);
+  mask = SCM_XEVALCAR (SCM_CDR (x), env);
+  v = SCM_XEVALCAR (SCM_CDDR (x), env);
+  SCM_ASSYNT (SCM_INUMP (hashset), hashset, SCM_ARG2, s_hash_dispatch);
+  SCM_ASSYNT (SCM_INUMP (mask), mask, SCM_ARG3, s_hash_dispatch);
+  SCM_ASSYNT (SCM_NIMP (v) && SCM_VECTORP (v), v, SCM_ARG4, s_hash_dispatch);
+  return SCM_LIST5 (SCM_IM_HASH_DISPATCH, n, hashset, mask, v);
+}
+
+static void
+memoize_method (SCM x, SCM values)
+{
+  CALL_GF3 ("memoize-method!", SCM_CAR (values), SCM_CDR (values), x);
+}
+
 
 #if 0
 /* Not used */
@@ -1953,9 +2034,10 @@ static void
 create_standard_classes (void)
 {
   SCM tmp0;
-  SCM tmp1 = SCM_LIST3 (Intern ("generic-function"), 
+  SCM tmp1 = SCM_LIST4 (Intern ("generic-function"), 
 			Intern ("specializers"), 
-			Intern ("procedure"));
+			Intern ("procedure"),
+			Intern ("code-table"));
   SCM tmp2 = SCM_LIST1 (Intern ("methods"));
 
   /* Foreign class slot classes */
@@ -2025,7 +2107,7 @@ create_standard_classes (void)
   SCM_SET_CLASS_FLAGS (scm_class_simple_method, SCM_CLASSF_SIMPLE_METHOD);
   make_stdcls (&scm_class_accessor,	   "<accessor-method>",
 	       scm_class_class, scm_class_simple_method,   SCM_EOL);
-  SCM_SET_CLASS_FLAGS (scm_class_accessor, SCM_CLASSF_ACCESSOR);
+  SCM_SET_CLASS_FLAGS (scm_class_accessor, SCM_CLASSF_ACCESSOR_METHOD);
   make_stdcls (&scm_class_entity,	   "<entity>",
 	       scm_class_entity_class, scm_class_object,   SCM_EOL);
   make_stdcls (&scm_class_entity_with_setter, "<entity-with-setter>",
@@ -2446,6 +2528,9 @@ scm_init_goops (void)
   scm_make_extended_class = make_extended_class;
   scm_make_port_classes = make_port_classes;
   scm_change_object_class = change_object_class;
+#ifdef GUILE_DEBUG
+  scm_memoize_method = memoize_method;
+#endif
 
   create_basic_classes ();
   create_standard_classes ();

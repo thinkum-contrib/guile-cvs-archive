@@ -54,37 +54,39 @@
 #include <libguile.h>
 #include <goops-snarf.h>
 
-#define SCM_METACLASS_GOOPS_LAYOUT "pruosrpwpopopopopopwpwpwpwpwpwpwpwpwpwpwuwuwuwuwuwuwuwuw"
-struct scm_metaclass_goops {
-  SCM layout;
-  SCM vcell;
-  SCM vtable;
-  SCM print;
-  SCM proc0;
-  SCM proc1;
-  SCM proc2;
-  SCM proc3;
-  SCM setter;
-  SCM name;
-  SCM direct_supers;
-  SCM direct_slots;
-  SCM direct_subclasses;
-  SCM direct_methods;
-  SCM cpl;
-  SCM slots;
-  SCM nfields;
-  SCM getters_n_setters;
-  SCM redefined;
-  SCM environment;
-  int h0;
-  int h1;
-  int h2;
-  int h3;
-  int h4;
-  int h5;
-  int h6;
-  int h7;
-};
+/*
+ * scm_class_class
+ */
+
+#define SCM_CLASS_CLASS_LAYOUT "pruosrpwpopopopopopwururururururururpwpwpwpwpwpwpwpwpwpwpwpw"
+
+#define scm_si_layout		  0 /* the struct layout */
+#define scm_si_vcell		  1 
+#define scm_si_vtable		  2 
+#define scm_si_print		  3 /* the struct print closure */
+#define scm_si_procedure0	  4 
+#define scm_si_procedure1	  5 
+#define scm_si_procedure2	  6 
+#define scm_si_procedure3	  7 
+#define scm_si_setter		  8 
+				    
+/* Defined in libguile/objects.c:
+#define scm_si_redefined	  9    The class to which class was redefined.
+#define scm_si_hashsets	 	 10
+*/
+#define scm_si_name 		 18 /* a symbol */
+#define scm_si_direct_supers 	 19 /* (class ...) */
+#define scm_si_direct_slots	 20 /* ((name . options) ...) */
+#define scm_si_direct_subclasses 21 /* (class ...) */
+#define scm_si_direct_methods	 22 /* (methods ...) */
+#define scm_si_cpl		 23 /* (class ...) */
+#define scm_si_slotdef_class	 24 
+#define scm_si_slots		 25 /* ((name . options) ...) */
+#define scm_si_name_access	 26 
+#define scm_si_keyword_access	 27 
+#define scm_si_nfields		 28 /* an integer */
+#define scm_si_environment	 29 /* The environment in which class is built  */
+#define SCM_N_CLASS_SLOTS	 30
 
 typedef struct scm_method_t {
   SCM generic_function;
@@ -94,19 +96,21 @@ typedef struct scm_method_t {
 
 #define SCM_METHOD(obj) ((scm_method_t *) SCM_STRUCT_DATA (obj))
 
-#define SCM_CLASSF_PURE_GENERIC  (0x08 << 20)
-#define SCM_CLASSF_SIMPLE_METHOD (0x01 << 24)
-#define SCM_CLASSF_ACCESSOR      (0x02 << 24)
+#define SCM_CLASSF_PURE_GENERIC	   (0x004 << 20)
+#define SCM_CLASSF_SIMPLE_METHOD   (0x008 << 20)
+#define SCM_CLASSF_ACCESSOR_METHOD (0x010 << 20)
 
-#define SCM_CLASSF_FOREIGN	 (0x04 << 24)
-#define SCM_CLASSF_METACLASS     (0x08 << 24)
+#define SCM_CLASSF_FOREIGN	 (0x020 << 20)
+#define SCM_CLASSF_METACLASS     (0x040 << 20)
 
-/* Also defined in libguile/objects.c */
-#define SCM_CLASSF_GOOPS         (0x10 << 24)
+/* Defined in libguile/objects.c */
+/* #define SCM_CLASSF_GOOPS_VALID   (0x080 << 20) */
+/* #define SCM_CLASSF_GOOPS         (0x100 << 20) */
+#define SCM_CLASSF_GOOPS_OR_VALID (SCM_CLASSF_GOOPS | SCM_CLASSF_GOOPS_VALID)
 
 #define SCM_CLASSF_INHERIT	 (~(SCM_CLASSF_PURE_GENERIC \
 				    | SCM_CLASSF_SIMPLE_METHOD \
-				    | SCM_CLASSF_ACCESSOR \
+				    | SCM_CLASSF_ACCESSOR_METHOD \
 				    | SCM_STRUCTF_LIGHT) \
 				  & SCM_CLASSF_MASK)
 
@@ -123,9 +127,9 @@ typedef struct scm_method_t {
 
 #define SCM_PUREGENERICP(x)    (SCM_INST_TYPE(x) & SCM_CLASSF_PURE_GENERIC)
 #define SCM_SIMPLEMETHODP(x)   (SCM_INST_TYPE(x) & SCM_CLASSF_SIMPLE_METHOD)
-#define SCM_ACCESSORP(x)       (SCM_INST_TYPE(x) & SCM_CLASSF_ACCESSOR)
+#define SCM_ACCESSORP(x)       (SCM_INST_TYPE(x) & SCM_CLASSF_ACCESSOR_METHOD)
 #define SCM_FASTMETHODP(x)     (SCM_INST_TYPE(x) \
-				& (SCM_CLASSF_ACCESSOR \
+				& (SCM_CLASSF_ACCESSOR_METHOD \
 				   | SCM_CLASSF_SIMPLE_METHOD))
 
 #define SCM_SLOT(x, i)         (SCM_INST(x)[i])
@@ -134,22 +138,7 @@ typedef struct scm_method_t {
 				&& SCM_INSTANCEP (x) \
 				&& SCM_SUBCLASSP (SCM_CLASS_OF (x), c))
 
-#define scm_si_layout		  0	/* the struct layout */
-#define scm_si_print		  3	/* the struct print closure */
-#define scm_si_name 		  9 	/* a symbol */
-#define scm_si_direct_supers 	 10 	/* (class ...) */
-#define scm_si_direct_slots	 11 	/* ((name . options) ...) */
-#define scm_si_direct_subclasses 12	/* (class ...) */
-#define scm_si_direct_methods	 13	/* (methods ...) */
-#define scm_si_cpl		 14 	/* (class ...) */
-#define scm_si_slots		 15	/* ((name . options) ...) */
-#define scm_si_nfields		 16	/* an integer */
-#define scm_si_getters_n_setters 17	/* ((slot getter setter) ...) */
-/* Also defined in libguile/objects.c: */
-#define scm_si_redefined	 18	/* The class to which class was redefined. */
-#define scm_si_environment	 19	/* The environme in which class is built  */
-#define scm_si_hashsets		 20
-#define SCM_N_CLASS_SLOTS	 28
+#define scm_si_getters_n_setters scm_si_name_access
 
 #define scm_si_constructor	 SCM_N_CLASS_SLOTS
 #define scm_si_destructor	 SCM_N_CLASS_SLOTS + 1
@@ -196,43 +185,50 @@ SCM scm_slot_ref (SCM obj, SCM slot_name);
 SCM scm_slot_set_x (SCM obj, SCM slot_name, SCM value);
 
 SCM scm_compute_applicable_methods (SCM gf, SCM args, int len, int scm_find_method);
-SCM scm_apply_next_method(SCM args);
+SCM scm_apply_next_method (SCM args);
+#ifdef GUILE_DEBUG
+SCM scm_m_atslot_ref (SCM xorig, SCM env);
+SCM scm_m_atslot_set_x (SCM xorig, SCM env);
+SCM scm_m_dispatch (SCM xorig, SCM env);
+SCM scm_m_hash_dispatch (SCM xorig, SCM env);
+#endif
 extern void scm_init_oop_goops_goopscore_module (void);
 
-SCM scm_sys_compute_slots(SCM c); 
-SCM scm_i_get_keyword(SCM key, SCM l, int len, SCM default_value, const char *subr); 
-SCM scm_get_keyword(SCM key, SCM l, SCM default_value); 
-SCM scm_sys_initialize_object(SCM obj, SCM initargs); 
-SCM scm_sys_prep_layout_x(SCM c); 
-SCM scm_sys_inherit_magic_x(SCM c, SCM dsupers); 
-SCM scm_instance_p(SCM obj); 
-SCM scm_class_name(SCM obj); 
-SCM scm_class_direct_supers(SCM obj); 
-SCM scm_class_direct_slots(SCM obj); 
-SCM scm_class_direct_subclasses(SCM obj); 
-SCM scm_class_direct_methods(SCM obj); 
-SCM scm_class_precedence_list(SCM obj); 
-SCM scm_class_slots(SCM obj); 
-SCM scm_class_environment(SCM obj); 
-SCM scm_generic_function_name(SCM obj); 
-SCM scm_generic_function_methods(SCM obj); 
-SCM scm_method_generic_function(SCM obj); 
-SCM scm_method_specializers(SCM obj); 
-SCM scm_method_procedure(SCM obj); 
-SCM scm_sys_fast_slot_ref(SCM obj, SCM index); 
-SCM scm_sys_fast_slot_set_x(SCM obj, SCM index, SCM value); 
-SCM scm_slot_ref_using_class(SCM class, SCM obj, SCM slot_name); 
-SCM scm_slot_set_using_class_x(SCM class, SCM obj, SCM slot_name, SCM value); 
-SCM scm_slot_bound_using_class_p(SCM class, SCM obj, SCM slot_name); 
-SCM scm_slot_exists_using_class_p(SCM class, SCM obj, SCM slot_name); 
-SCM scm_slot_bound_p(SCM obj, SCM slot_name); 
-SCM scm_slots_exists_p(SCM obj, SCM slot_name); 
-SCM scm_sys_modify_instance(SCM old, SCM new); 
-SCM scm_sys_modify_class(SCM old, SCM new); 
-SCM stklos_version(void); 
-SCM scm_make(SCM args); 
-SCM scm_find_method(SCM l); 
-SCM scm_sys_method_more_specific_p(SCM m1, SCM m2, SCM targs); 
+SCM scm_sys_compute_slots (SCM c); 
+SCM scm_i_get_keyword (SCM key, SCM l, int len, SCM default_value, const char *subr); 
+SCM scm_get_keyword (SCM key, SCM l, SCM default_value); 
+SCM scm_sys_initialize_object (SCM obj, SCM initargs); 
+SCM scm_sys_prep_layout_x (SCM c); 
+SCM scm_sys_inherit_magic_x (SCM c, SCM dsupers); 
+SCM scm_instance_p (SCM obj); 
+SCM scm_class_name (SCM obj); 
+SCM scm_class_direct_supers (SCM obj); 
+SCM scm_class_direct_slots (SCM obj); 
+SCM scm_class_direct_subclasses (SCM obj); 
+SCM scm_class_direct_methods (SCM obj); 
+SCM scm_class_precedence_list (SCM obj); 
+SCM scm_class_slots (SCM obj); 
+SCM scm_class_environment (SCM obj); 
+SCM scm_generic_function_name (SCM obj); 
+SCM scm_generic_function_methods (SCM obj); 
+SCM scm_method_generic_function (SCM obj); 
+SCM scm_method_specializers (SCM obj); 
+SCM scm_method_procedure (SCM obj); 
+SCM scm_sys_fast_slot_ref (SCM obj, SCM index); 
+SCM scm_sys_fast_slot_set_x (SCM obj, SCM index, SCM value); 
+SCM scm_slot_ref_using_class (SCM class, SCM obj, SCM slot_name); 
+SCM scm_slot_set_using_class_x (SCM class, SCM obj, SCM slot_name, SCM value); 
+SCM scm_slot_bound_using_class_p (SCM class, SCM obj, SCM slot_name); 
+SCM scm_slot_exists_using_class_p (SCM class, SCM obj, SCM slot_name); 
+SCM scm_slot_bound_p (SCM obj, SCM slot_name); 
+SCM scm_slots_exists_p (SCM obj, SCM slot_name); 
+SCM scm_sys_modify_instance (SCM old, SCM new); 
+SCM scm_sys_modify_class (SCM old, SCM new); 
+SCM scm_sys_invalidate_class (SCM class); 
+SCM stklos_version (void); 
+SCM scm_make (SCM args); 
+SCM scm_find_method (SCM args); 
+SCM scm_sys_method_more_specific_p (SCM m1, SCM m2, SCM targs); 
 void scm_init_goops (void); 
 
 #endif /* GOOPSH */
