@@ -1,6 +1,0 @@
-@node Procedure Index
-@unnumbered Procedure Index
-
-This is an alphabetical list of all the procedures and macros in Guile.
-
-@printindex fn

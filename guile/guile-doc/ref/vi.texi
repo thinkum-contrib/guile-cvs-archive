@@ -1,7 +1,0 @@
-@node Variable Index
-@unnumbered Variable Index
-
-This is an alphabetical list of all the important variables and
-constants in Guile.
-
-@printindex vr

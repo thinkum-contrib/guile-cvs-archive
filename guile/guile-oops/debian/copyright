@@ -1,0 +1,17 @@
+This package was debianized by Mikael Djurfeldt <djurfeldt@nada.kth.se> on
+Wed, 29 Dec 1999 02:46:48 +0100.
+
+It was downloaded from ftp://ftp.gnu.org/pub/gnu/guile/guile-oops-0.1.6.tar.gz
+
+Upstream Author(s): Mikael Djurfeldt <djurfeldt@nada.kth.se>
+                    Christian Lynbech <chl@tbit.dk>
+
+Copyright:
+
+This software is copright (c) 1999 by Free Software Foundation, Inc.
+59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+
+You are free to distribute this software under the terms of the GNU
+General Public License.  On Debian systems, the complete text of the
+GNU General Public License can be found in
+/usr/share/common-licenses/GPL file.

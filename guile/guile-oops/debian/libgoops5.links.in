@@ -1,0 +1,2 @@
+usr/lib/libgoopscore.la usr/share/guile/@GUILEVERSION@/oop/goops/libgoopscore.la
+usr/lib/libgoopscore.so.5 usr/share/guile/@GUILEVERSION@/oop/goops/libgoopscore.so.5

@@ -1,0 +1,100 @@
+guile-oops (1.0.2-1) unstable; urgency=high
+
+  * New upstream version.
+
+ -- Mikael Djurfeldt <mdj@linnaeus.mit.edu>  Fri,  9 Mar 2001 20:22:40 -0500
+
+guile-oops (1.0.0-1) unstable; urgency=high
+
+  * New upstream version (closes: #87111, #83809).
+
+ -- Mikael Djurfeldt <mdj@linnaeus.mit.edu>  Mon,  5 Mar 2001 00:50:45 -0500
+
+guile-oops (0.1.6-5) frozen unstable; urgency=high
+
+  * configure.in, Makefile.am: Added kludge to prevent libgoopscore.so to
+    be linked with libqthreads.so (which strangely generates a lintian
+    shlib-with-non-pic-code error).
+
+ -- Mikael Djurfeldt <djurfeldt@nada.kth.se>  Thu,  9 Mar 2000 17:46:29 +0100
+
+guile-oops (0.1.6-4) frozen unstable; urgency=high
+
+  * goops.texi: Updated.
+  
+  * goops.c (scm_sloppy_num2ulong): Added.
+  (scm_sys_logand): Rewritten.
+  (scm_accessor_method_slot_definition): New selector.
+  (Will soon be rewritten together with the others.)
+  (create_standard_classes): New slot in <accessor-method>: slot-definition.
+  
+  * goops.c, goops.h (scm_oldfmt): New procedure.
+  (scm_c_oldfmt, scm_c_oldfmt0): New functions.
+  Inserted SCM_OLDFMT around all format strings with ~S.
+  
+  * goops.scm (compute-getter-method, compute-setter-method): Add
+  initialization argument for slot-definition.
+  (goops-error): Use `oldfmt'.
+  
+  * configure.in: Added test for scm_simple_format.
+  
+  * goops.c, goops.scm, composite-slot.scm, stklos.scm: Replace %S
+  with ~S everywhere.
+
+ -- Mikael Djurfeldt <djurfeldt@nada.kth.se>  Wed,  8 Mar 2000 17:16:57 +0100
+
+guile-oops (0.1.6-3) unstable; urgency=high
+
+  * goops.texi: Updated reference manual with Neil's work.
+  
+  * goops.scm (make-generic-bound-check-getter): Inserted missing
+  comma which ties down the value of `assert-bound' in the compiled
+  closure.  (Thanks to Thierry Bezecourt.)
+  
+  * goops.h, goops.c: Export the C variables for all classes defined
+  in libgoopscore.
+
+ -- Mikael Djurfeldt <djurfeldt@nada.kth.se>  Tue, 11 Jan 2000 15:41:26 +0100
+
+guile-oops (0.1.6-2) unstable; urgency=high
+
+  * README.Debian: New file.
+
+  * control: Added paragraph with attribution to Erick Gallesio and Gregor
+  Kiczales in each description entry.
+
+  * docs: Removed.
+
+  * libgoops2.docs, goops.docs, goops-doc: Added AUTHORS, COPYRIGHTS,
+  README and THANKS.
+  
+  These changes will appear in next upstream guile-oops release:
+  
+  * README, BUGS: Added note about generic function application MOP
+  not yet implemented.
+  
+  * goops-tutorial.texi (Class precedence list): Removed paragraph
+  about difference between GOOPS and CLOS with regard to the cpl.
+    
+  * README, goops.texi, goops-tutorial.texi: Fixed typos.
+
+  * Makefile.am: Added variable `miscdocs' and removed a couple of
+  left-over lines.  
+  
+  * COPYRIGHTS, goops-tutorial.texi: Technically, GOOPS is now
+  derived from STk-4.0.1, so we use the STk-4.0.1 copyright.
+
+  * goops.scm (shallow-clone, deep-clone): Added new arg in
+  call to %allocate-instance.
+
+ -- Mikael Djurfeldt <djurfeldt@nada.kth.se>  Mon,  3 Jan 2000 17:11:07 +0100
+
+guile-oops (0.1.6-1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Mikael Djurfeldt <djurfeldt@nada.kth.se>  Wed, 29 Dec 1999 02:46:48 +0100
+
+Local variables:
+mode: debian-changelog
+End:
