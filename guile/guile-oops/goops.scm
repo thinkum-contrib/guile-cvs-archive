@@ -935,7 +935,8 @@
 			    (init-thunk
 			     (standard-get g-n-s))
 			    (else
-			     (bound-check-get g-n-s))))))
+			     (bound-check-get g-n-s)))
+	  #:slot-definition slotdef)))
 
 (define-method compute-setter-method ((class <class>) slotdef)
   (let ((g-n-s (cddr slotdef)))
@@ -943,7 +944,8 @@
           #:specializers (list class <top>)
 	  #:procedure (if (pair? g-n-s)
 			  (cadr g-n-s)
-			  (standard-set g-n-s)))))
+			  (standard-set g-n-s))
+	  #:slot-definition slotdef)))
 
 (define (make-generic-bound-check-getter proc)
   (let ((source (and (closure? proc) (procedure-source proc))))
