@@ -43,7 +43,7 @@
     slot-unbound slot-missing 
     slot-definition-name  slot-definition-options slot-definition-allocation
     slot-definition-getter slot-definition-setter slot-definition-accessor
-    slot-definition-init
+    slot-definition-init-value
     slot-definition-init-thunk slot-definition-init-keyword 
     slot-init-function class-slot-definition
     method-source
@@ -262,37 +262,63 @@
 ;;;   OPTION ::= KEYWORD VALUE
 ;;;
 (define class
-  (procedure->memoizing-macro
-    (let ((supers cadr)
-	  (slots cddr)
-	  (options cdddr))
-      (lambda (exp env)
-	(cond ((not (and (list? exp) (>= (length exp) 2)))
-	       (goops-error "missing or extra expression"))
-	      ((not (list? (supers exp)))
-	       (goops-error "malformed superclass list: %S" (supers exp)))
-	      (else
-	       (let ((slot-defs (cons #f '())))
-		 (do ((slots (slots exp) (cdr slots))
-		      (defs slot-defs (cdr defs)))
-		     ((or (null? slots)
-			  (keyword? (car slots)))
-		      `(make-class
-			;; evaluate super class variables
-			(list ,@(supers exp))
-			;; evaluate slot definitions, except the slot name!
-			(list ,@(cdr slot-defs))
-			;; evaluate class options
-			,@slots
-			;; place option last in case someone wants to
-			;; pass a different value
-			#:environment ',env))
-		   (set-cdr!
-		    defs
-		    (list (if (pair? (car slots))
-			      `(list ',(slot-definition-name (car slots))
-				     ,@(slot-definition-options (car slots)))
-			      `(list ',(car slots)))))))))))))
+  (letrec ((slot-option-keyword car)
+	   (slot-option-value cadr)
+	   (process-slot-options
+	    (lambda (options)
+	      (let loop ((options options)
+			 (res '()))
+		(if (null? options)
+		    (reverse res)
+		    (case (slot-option-keyword options)
+		      ((#:init-form)
+		       (loop (cddr options)
+			     (append (list `(lambda ()
+					      ,(slot-option-value options))
+					   #:init-thunk
+					   (list 'quote
+						 (slot-option-value options))
+					   #:init-form)
+				     res)))
+		      (else
+		       (loop (cddr options)
+			     (cons (cadr options)
+				   (cons (car options)
+					 res))))))))))
+    
+    (procedure->memoizing-macro
+      (let ((supers cadr)
+	    (slots cddr)
+	    (options cdddr))
+	(lambda (exp env)
+	  (cond ((not (and (list? exp) (>= (length exp) 2)))
+		 (goops-error "missing or extra expression"))
+		((not (list? (supers exp)))
+		 (goops-error "malformed superclass list: %S" (supers exp)))
+		(else
+		 (let ((slot-defs (cons #f '())))
+		   (do ((slots (slots exp) (cdr slots))
+			(defs slot-defs (cdr defs)))
+		       ((or (null? slots)
+			    (keyword? (car slots)))
+			`(make-class
+			  ;; evaluate super class variables
+			  (list ,@(supers exp))
+			  ;; evaluate slot definitions, except the slot name!
+			  (list ,@(cdr slot-defs))
+			  ;; evaluate class options
+			  ,@slots
+			  ;; place option last in case someone wants to
+			  ;; pass a different value
+			  #:environment ',env))
+		     (set-cdr!
+		      defs
+		      (list (if (pair? (car slots))
+				`(list ',(slot-definition-name (car slots))
+				       ,@(process-slot-options
+					  (slot-definition-options
+					   (car slots))))
+				`(list ',(car slots))))))))))))))
 
 (define (make-class supers slots . options)
   (let ((env (or (get-keyword #:environment options #f)
@@ -534,8 +560,8 @@
 (define (slot-definition-accessor s)
   (get-keyword #:accessor (cdr s) #f))
 
-(define (slot-definition-init s)
-  (get-keyword #:init (cdr s) (make-unbound)))
+(define (slot-definition-init-value s)
+  (get-keyword #:init-value (cdr s) (make-unbound)))
 
 (define (slot-definition-init-thunk s)
   (get-keyword #:init-thunk (cdr s) #f))
@@ -869,7 +895,7 @@
 
   (define (compute-slot-init-function s)
     (or (slot-definition-init-thunk s)
-	(let ((init (slot-definition-init s)))
+	(let ((init (slot-definition-init-value s)))
 	  (and (not (unbound? init))
 	       (lambda () init)))))
 
