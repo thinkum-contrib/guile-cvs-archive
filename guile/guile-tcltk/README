@@ -144,6 +144,9 @@ if libguile on your system is compiled without threads.  You will then
 have to use `tk-main-loop' or `tcl-do-one-event' directly in order to
 handle Tk events.
 
+Since the demos use these procedures, they won't run without a
+threaded guile, at least not without some modification.
+
 
 Important Facts About Snapshots ======================================
 
@@ -245,3 +248,5 @@ are the responsibility of the primary Guile maintainer, Jim Blandy.
 Tom Lord wrote the Guile/Tcl/Tk interface, among many other things.
 
 Mikael Djurfeldt rehacked the scheme part of the interface (tcltk.scm).
+
+Keith Wright invented the new style widget syntax.
