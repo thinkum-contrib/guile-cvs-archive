@@ -1,4 +1,4 @@
-;;; devel/modules/signatures.scm
+;;; signatures.scm
 ;;; This is proof of concept code -- see signatures.texi.
 
 (define (signature-importer-proc module-name signature-name)
