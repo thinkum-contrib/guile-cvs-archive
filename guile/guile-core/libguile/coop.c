@@ -652,13 +652,15 @@ coop_sleephelp (sp, old, bolckq)
 
 #ifdef GUILE_ISELECT
 
-void
+int
 usleep (unsigned usec)
 {
   struct timeval timeout;
   timeout.tv_sec = 0;
   timeout.tv_usec = usec;
   scm_internal_select (0, NULL, NULL, NULL, &timeout);
+  return 0;  /* Maybe we should calculate actual time slept,
+		but this is faster... :) */
 }
 
 unsigned
