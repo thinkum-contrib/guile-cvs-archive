@@ -136,13 +136,14 @@ Proposed implementation
 =======================
 
 As in the current system, it should not be permitted to invoke a
-continuation that was captured by a different thread.  This can be
+continuation that was captured by a different thread.  This could be
 implemented by storing the current thread id in the continuation when
-it's captured.  When the continuation is invoked, the stored id can be
-compared with the current id.
+it's captured and comparing with the current id when the continuation
+is invoked.
 
-For each thread, we can have a simple list representing the
-call-with-continuation-barrier (cwcb) dynamic state.  The head of the
+To implemnent the continuation barrier, for each thread we can have a
+simple list representing the barrier (let's call it
+call-with-continuation-barrier, cwcb) dynamic state.  The head of the
 list would be stored in a thread-local location.  Whenever the scope
 of a cwcb expression is entered, a new cons cell could be inserted at
 the head of the list.  When the scope is exited, the cell would be
@@ -150,8 +151,11 @@ removed (this implies a need for an integrated exception handler, to
 catch non-local exit.  Non-local exit or entry by continuation will
 not be possible).  A pointer to the cell at the head of the list would
 be stored in a continuation when it is captured.  When a continuation
-is invoked, the stored cell pointer can be compared with the current
-head of the list.
+is invoked, the stored cell pointer can be compared with the address
+of the cell currently at the head of the list.
+
+This cwcb list comparison would also prevent cross-thread invokation,
+so comparison of thread-ids can be dropped.
 
 Convenience
 ===========
@@ -203,3 +207,7 @@ Thread on guile mailing list discussing dynamic roots, March 2000
     -- http://sources.redhat.com/ml/guile/2000-03/msg00461.html
 Jim Blandy suggested looking at a few articles, but these appear to
 propose more fundamental changes to the concept of call/cc.
+
+Thread on guile-devel mailing list discussing the use of
+call-with-dynamic-root by applications, Sept 2001.
+    -- http://mail.gnu.org/pipermail/guile-devel/2001-September/003684.html
