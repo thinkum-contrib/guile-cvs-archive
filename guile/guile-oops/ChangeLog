@@ -1,6 +1,7 @@
 2000-04-14  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
 	* save.scm: Rewritten in a more sensible way.
+	Added support for arrays and shared arrays.
 
 2000-04-13  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 

@@ -333,8 +333,8 @@
 			     (display '(make-unbound) file)
 			     (write-component val
 					      (if aname
-						  `(set! (,aname ,o) ,x)
-						  `(slot-set! ,o ',name ,x))
+						  `(set! (,aname ,o) ,val)
+						  `(slot-set! ,o ',name ,val))
 					      file env))))
 		     class)
     (display #\) file)))
