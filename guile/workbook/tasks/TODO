@@ -28,6 +28,7 @@
   - Properly integrate system asyncs and signals with threads. [mvo]
   - Make (ice-9 format) thread safe.  Other modules as well.
   - Gracefully cope with the situation that gc_os_dep.c doesn't compile.
+  - Make 1.8 backwards compatible again with 1.6. [mvo]
 
 - Eventually
 
