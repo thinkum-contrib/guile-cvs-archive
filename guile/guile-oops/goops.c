@@ -1262,6 +1262,47 @@ scm_sys_logand (SCM n1, SCM n2)
   }
 }
 
+/* These are needed in save.scm. */
+#ifndef HAVE_SCM_SHARED_ARRAY_ROOT
+
+SCM_PROC (s_shared_array_root, "shared-array-root", 1, 0, 0, scm_shared_array_root);
+
+SCM
+scm_shared_array_root (SCM ra)
+{
+  SCM_ASSERT (SCM_NIMP (ra) && SCM_ARRAYP (ra), ra, SCM_ARG1, s_shared_array_root);
+  return SCM_ARRAY_V (ra);
+}
+
+
+SCM_PROC (s_shared_array_offset, "shared-array-offset", 1, 0, 0, scm_shared_array_offset);
+
+SCM
+scm_shared_array_offset (SCM ra)
+{
+  SCM_ASSERT (SCM_NIMP (ra) && SCM_ARRAYP (ra), ra, SCM_ARG1, s_shared_array_offset);
+  return SCM_MAKINUM (SCM_ARRAY_BASE (ra));
+}
+
+
+SCM_PROC (s_shared_array_increments, "shared-array-increments", 1, 0, 0, scm_shared_array_increments);
+
+SCM
+scm_shared_array_increments (SCM ra)
+{
+  SCM res = SCM_EOL;
+  scm_sizet k;
+  scm_array_dim *s;
+  SCM_ASSERT (SCM_NIMP (ra) && SCM_ARRAYP (ra), ra, SCM_ARG1, s_shared_array_increments);
+  k = SCM_ARRAY_NDIM (ra);
+  s = SCM_ARRAY_DIMS (ra);
+  while (k--)
+    res = scm_cons (SCM_MAKINUM (s[k].inc), res);
+  return res;
+}
+
+#endif /* HAVE_SCM_SHARED_ARRAY_ROOT */
+
 		/* ======================================== */
 
 SCM_PROC (s_slot_ref_using_class, "slot-ref-using-class", 3, 0, 0, scm_slot_ref_using_class);
