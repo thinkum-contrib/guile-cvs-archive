@@ -1,3 +1,15 @@
+2000-04-06  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* configure.in: Test if thread_create is present in
+	GThreadFunctions.
+
+	* acconfig.h: New file.
+
+	* gthread-guile.c (g_thread_set_priority_guile_impl,
+	g_thread_self_guile_imple): New functions.
+	(g_guile_thread_functions_for_glib): Added above two functions.
+	(Thanks to Ole Myren Rohne.)
+
 2000-03-30  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
 	* configure.in (LIBS): Put GUILE_LDFLAGS first in case it is

@@ -1634,6 +1634,39 @@ esac
 CFLAGS="`gtk-config --cflags` $CFLAGS"
 LIBS="$LIBS `gtk-config --libs gthread`"
 
+echo $ac_n "checking for thread_create in GThreadFunctions""... $ac_c" 1>&6
+echo "configure:1639: checking for thread_create in GThreadFunctions" >&5
+if eval "test \"`echo '$''{'ac_cv_struct_thread_create'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  cat > conftest.$ac_ext <<EOF
+#line 1644 "configure"
+#include "confdefs.h"
+#include <glib.h>
+int main() {
+GThreadFunctions g; g.thread_create;
+; return 0; }
+EOF
+if { (eval echo configure:1651: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+  rm -rf conftest*
+  ac_cv_struct_thread_create=yes
+else
+  echo "configure: failed program was:" >&5
+  cat conftest.$ac_ext >&5
+  rm -rf conftest*
+  ac_cv_struct_thread_create=no
+fi
+rm -f conftest*
+fi
+
+echo "$ac_t""$ac_cv_struct_thread_create" 1>&6
+if test $ac_cv_struct_thread_create = yes; then
+  cat >> confdefs.h <<\EOF
+#define HAVE_THREAD_CREATE 1
+EOF
+
+fi
+
 trap '' 1 2 15
 cat > confcache <<\EOF
 # This file is a shell script that caches the results of configure
