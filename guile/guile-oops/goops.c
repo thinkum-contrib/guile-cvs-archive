@@ -1905,7 +1905,7 @@ scm_i_vector2list (SCM l, int len)
 }
 
 static SCM
-sort_applicable_methods(SCM method_list, int size, SCM *targs)
+sort_applicable_methods (SCM method_list, int size, SCM *targs)
 {
   int i, j, incr;
   SCM *v, vector = SCM_EOL;
@@ -1916,44 +1916,54 @@ sort_applicable_methods(SCM method_list, int size, SCM *targs)
    * consing and reorder the list in place...
    * This idea is due to David McClain <Dave_McClain@msn.com>
    */
-  if (size <= BUFFSIZE) {
-    for(i=0;  i < size; i++) {
-      buffer[i]   = SCM_CAR (method_list);
-      method_list = SCM_CDR (method_list);
+  if (size <= BUFFSIZE)
+    {
+      for (i = 0;  i < size; i++)
+	{
+	  buffer[i]   = SCM_CAR (method_list);
+	  method_list = SCM_CDR (method_list);
+	}
+      v = buffer;
+    } 
+  else
+    {
+      /* Too many elements in method_list to keep everything locally */
+      vector = scm_i_vector2list (save, size);
+      v      = SCM_VELTS (vector);
     }
-    v = buffer;
-  } 
-  else {
-    /* Too many elements in method_list to keep everything locally */
-    vector = scm_i_vector2list (save, size);
-    v      = SCM_VELTS (vector);
-  }
 
   /* Use a simple shell sort since it is generally faster than qsort on 
    * small vectors (which is probably mostly the case when we have to
    * sort a list of applicable methods).
    */
-  for (incr = size / 2; incr; incr /= 2) {
-    for (i = incr; i < size; i++) {
-      for (j = i-incr ;j >= 0; j -= incr) {
-	if (more_specificp(v[j], v[j+incr], targs)) break;
-	else {
-	  SCM tmp   = v[j+incr];
-	  v[j+incr] = v[j];
-	  v[j]	    = tmp;
+  for (incr = size / 2; incr; incr /= 2)
+    {
+      for (i = incr; i < size; i++)
+	{
+	  for (j = i - incr; j >= 0; j -= incr)
+	    {
+	      if (more_specificp (v[j], v[j+incr], targs))
+		break;
+	      else
+		{
+		  SCM tmp = v[j + incr];
+		  v[j + incr] = v[j];
+		  v[j] = tmp;
+		}
+	    }
 	}
-      }
     }
-  }
 
-  if (size <= BUFFSIZE) {
-    /* We did it in locally, so restore the original list (reordered) in-place */
-    for(i=0, method_list=save; i < size; i++, v++) {
-      SCM_CAR(method_list) = *v;
-      method_list      = SCM_CDR(method_list);
+  if (size <= BUFFSIZE)
+    {
+      /* We did it in locally, so restore the original list (reordered) in-place */
+      for (i = 0, method_list = save; i < size; i++, v++)
+	{
+	  SCM_SETCAR (method_list, *v);
+	  method_list = SCM_CDR (method_list);
+	}
+      return save;
     }
-    return save;
-  }
   /* If we are here, that's that we did it the hard way... */ 
   return scm_vector_to_list (vector);
 }
