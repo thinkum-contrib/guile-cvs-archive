@@ -143,12 +143,13 @@ typedef struct scm_method_t {
 #define scm_si_constructor	 SCM_N_CLASS_SLOTS
 #define scm_si_destructor	 SCM_N_CLASS_SLOTS + 1
 
-#define scm_si_methods		  0	/* offset of methods slot in a <generic> */
+#define scm_si_methods		  0  /* offset of methods slot in a <generic> */
 
-#define scm_si_generic_function	  0	/* offset of gf    slot in a <method> */
-#define scm_si_specializers	  1	/* offset of spec. slot in a <method> */
+#define scm_si_generic_function	  0  /* offset of gf    slot in a <method> */
+#define scm_si_specializers	  1  /* offset of spec. slot in a <method> */
 
-#define scm_si_procedure 	  2	/* offset of proc. slot in a <method> */
+#define scm_si_procedure 	  2  /* offset of proc. slot in a <method> */
+#define scm_si_code_table	  3  /* offset of code. slot in a <method> */
 
 /* C interface */
 extern SCM scm_class_foreign_class, scm_class_foreign_object;
@@ -185,7 +186,6 @@ SCM scm_slot_ref (SCM obj, SCM slot_name);
 SCM scm_slot_set_x (SCM obj, SCM slot_name, SCM value);
 
 SCM scm_compute_applicable_methods (SCM gf, SCM args, int len, int scm_find_method);
-SCM scm_apply_next_method (SCM args);
 #ifdef GUILE_DEBUG
 SCM scm_m_atslot_ref (SCM xorig, SCM env);
 SCM scm_m_atslot_set_x (SCM xorig, SCM env);
