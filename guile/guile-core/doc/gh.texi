@@ -839,9 +839,27 @@ detailed documentation in the preceding sections.
 Use @code{#include <libguile.h>} instead of @code{#include
 <guile/gh.h>}.
 
-@item Linking flags
-No change: @code{-lguile} should be added to the link command line,
-along with any additional libraries that your application needs.
+@item Compiling and Linking
+Use @code{guile-config} to pick up the flags required to compile C or
+C++ code that uses @code{libguile}, like so
+
+@smallexample
+$(CC) -o prog.o -c prog.c `guile-config compile`
+@end smallexample
+
+If you are using libtool to link your executables, just use
+@code{-lguile} in your link command.  Libtool will expand this into
+the needed linker options automatically.  If you are not using
+libtool, use the @code{guile-config} program to query the needed
+options explicitely.  A linker command like
+
+@smallexample
+$(CC) -o prog prog.o `guile-config link`
+@end smallexample
+
+should be all that is needed.  To link shared libraries that will be
+used as Guile Extensions, use libtool to control both the compilation
+and the link stage.
 
 @item The @code{SCM} type
 No change: the scm interface also uses this type to represent an
@@ -867,13 +885,10 @@ Use @code{scm_shell} instead.
 Use @code{scm_init_guile} instead.
 
 @item @code{gh_eval_str}
-Use @code{scm_eval_0str} instead.
+Use @code{scm_c_eval_string} instead.
 
 @item @code{gh_eval_file} or @code{gh_load}
-Replace @code{gh_eval_file (@var{fname})} by
-@example
-scm_primitive_load (scm_makfrom0str (@var{fname}))
-@end example
+Use @code{scm_c_primitive_load} instead.
 
 @item @code{gh_new_procedure}
 Use @code{scm_c_define_gsubr} instead, but note that the arguments are
