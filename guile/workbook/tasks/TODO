@@ -24,7 +24,7 @@
     - write dist-hook to call render-bugs to create BUGS
     - delete HEAD and branch_release-1-6 BUGS files
   +R factor guile-core/ administration files [ttn]
-  - factor RELEASE (prefer 1-6) into build/release.text [ttn]
+  +R factor RELEASE (prefer 1-6) into build/release.text [ttn]
   - write build/bugs-triage.text
   - complete build/stability.text [ttn]
   - make sure all bugs have required headers
