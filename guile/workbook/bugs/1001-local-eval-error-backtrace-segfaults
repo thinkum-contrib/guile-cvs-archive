@@ -4,6 +4,7 @@ affects: HEAD
 see-also-dir: 1001.stuff
 test-case: segf-v1.scm
 test-case: segf-v2.scm (ignore for now)
+fixed: Neil Jerram, 2002-07-13, guile-core, HEAD
 
 M Johnson sez:
 > I'm assuming that when (backtrace) seg-faults that that is a bug, no matter how screwed up my cod may be.
@@ -113,3 +114,106 @@ mvo sez:
 
 ttn sez:
 > second posted test case is sadistic; ignoring for now.
+
+
+Fix by Neil Jerram...
+
+Patch
+
+--- /home/neil/Guile/1.6/guile-core/libguile/eval.c.old	Thu May  2 12:45:56 2002
++++ /home/neil/Guile/1.6/guile-core/libguile/eval.c	Thu May  2 12:46:21 2002
+@@ -1417,7 +1417,9 @@
+ 	ls = scm_cons (scm_sym_define,
+ 		       z = scm_cons (n = SCM_CAR (x), SCM_UNSPECIFIED));
+ 	if (SCM_NNULLP (env))
+-	  SCM_SETCAR (SCM_CAR (env), scm_cons (n, SCM_CAR (SCM_CAR (env))));
++	  env = scm_cons (scm_cons (scm_cons (n, SCM_CAAR (env)),
++				    SCM_CDAR (env)),
++			  SCM_CDR (env));
+ 	break;
+       }
+     case SCM_BIT8(SCM_MAKISYM (0)):
+
+Diagnosis
+
+If scm_unmemocopy is called (e.g. from scm_backtrace) to unmemoize an
+expression that has an internal define (i.e. SCM_IM_DEFINE) near the
+top level of the expression, the code in unmemocopy can modify the
+expression passed in.  The modification is such that an extra copy of
+the symbol being defined is added on every call, thus:
+
+  (((args) 4) ...)
+  (((xxx args) 4) ...)
+  (((xxx xxx args) 4) ...)
+
+and so on, and this modification eventually causes some other code
+that looks at the environment to SEGV.
+
+The copy in scm_unmemocopy, which looks as though it might be intended
+to fix this problem, doesn't work because it only copies the
+environment's top-level pair, and it is the car of the car of the
+environment that gets modified as just described.
+
+Fix notes
+
+Basically, avoid modifying the environment in hand by making new list
+structure instead.  This is similar to almost all the other cases in
+unmemocopy, which use EXTEND_ENV.  Fix isn't very elegant, though;
+is there a nicer way of doing this?
+
+Checks
+
+1. make check passes.
+
+2. Rerun of problem scenarios:
+
+guile> (define (fnc args) (local-eval '(define xxx 3) (the-environment)))
+guile> (fnc 4)
+standard input:1:33: In expression (define xxx 3):
+standard input:1:33: Bad define placement
+ABORT: (misc-error)
+
+Type "(backtrace)" to get more information or "(debug)" to enter the debugger.
+guile> (debug)
+This is the Guile debugger; type "help" for help.
+There are 3 frames on the stack.
+
+Frame 2 at standard input:1:33
+	(define xxx 3)
+debug> eval (the-environment)
+;value: (((args) 4) #<eval-closure 40262bd0>)
+debug> ba
+In standard input:
+   2: 0* [fnc 4]
+   1: 1  [local-eval (define xxx 3) (((args) 4) #<eval-closure 40262bd0>)]
+   1: 2* (define xxx 3)
+debug> eval (the-environment)
+;value: (((args) 4) #<eval-closure 40262bd0>)
+guile> 
+
+guile> (load "/home/neil/segf.scm")
+guile> (assignments (command-line))
+<unnamed port>: In expression (define a (option-ref options b ...)):
+<unnamed port>: Bad define placement
+ABORT: (misc-error)
+
+Type "(backtrace)" to get more information or "(debug)" to enter the debugger.
+guile> (backtrace )
+
+Backtrace:
+In standard input:
+   2: 0* [assignments ("/usr/local/bin/guile")]
+In /home/neil/segf.scm:
+   2: 1  (let ((env #)) (for-each (lambda # #) (quote #)))
+   3: 2  [for-each #<procedure #f (triplet)> ((a b c) (d e f))]
+In unknown file:
+   ?: 3* [#<procedure #f (triplet)> (a b c)]
+In /home/neil/segf.scm:
+   5: 4* (let ((x #) (y #) (z #)) (local-eval (quasiquote #) env))
+   8: 5  [local-eval (define a #) (# #)]
+In unknown file:
+   ?: 6* (define a (option-ref options b c))
+
+Type "(debug-enable 'backtrace)" if you would like a backtrace
+automatically if an error occurs in the future.
+guile> 
