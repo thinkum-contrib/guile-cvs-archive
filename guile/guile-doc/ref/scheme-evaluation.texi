@@ -54,6 +54,11 @@ loading and evaluating Scheme code at run time.
 
 @c docstring begin (texi-doc-string "guile" "read-hash-extend")
 @deffn primitive read-hash-extend chr proc
+Install the procedure @var{proc} for reading expressions
+starting with the character sequence @code{#} and @var{chr}.
+@var{proc} will be called with two arguments:  the character
+@var{chr} and the port to read further data from. The object
+returned will be the return value of @code{read}.
 @end deffn
 
 
@@ -62,10 +67,16 @@ loading and evaluating Scheme code at run time.
 
 @c docstring begin (texi-doc-string "guile" "read-options-interface")
 @deffn primitive read-options-interface [setting]
+Option interface for the read options. Instead of using
+this procedure directly, use the procedures @code{read-enable},
+@code{read-disable}, @code{read-set!} and @var{read-options}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "read")
 @deffn primitive read [port]
+Read an s-expression from the input port @var{port}, or from
+the current input port if @var{port} is not specified.
+Any whitespace before the next token is discarded.
 @end deffn
 
 
@@ -97,6 +108,33 @@ Evaluation takes place in (interaction-environment).
 
 @c docstring begin (texi-doc-string "guile" "apply:nconc2last")
 @deffn primitive apply:nconc2last lst
+Given a list (@var{arg1} @dots{} @var{args}), this function
+conses the @var{arg1} @dots{} arguments onto the front of
+@var{args}, and returns the resulting list. Note that
+@var{args} is a list; thus, the argument to this function is
+a list whose last element is a list.
+Note: Rather than do new consing, @code{apply:nconc2last}
+destroys its argument, so use with care.
+@end deffn
+
+@deffn primitive primitive-eval exp
+Evaluate @var{exp} in the top-level environment specified by
+the current module.
+@end deffn
+
+@deffn primitive eval2 obj env_thunk
+Evaluate @var{exp}, a Scheme expression, in the environment
+designated by @var{lookup}, a symbol-lookup function."
+Do not use this version of eval, it does not play well
+with the module system.  Use @code{eval} or
+@code{primitive-eval} instead.
+@end deffn
+
+@deffn primitive read-and-eval! [port]
+Read a form from @var{port} (standard input by default), and evaluate it
+(memoizing it in the process) in the top-level environment.  If no data
+is left to be read from @var{port}, an @code{end-of-file} error is
+signalled.
 @end deffn
 
 
@@ -152,7 +190,7 @@ was passed to @code{primitive-load}.
 @c docstring begin (texi-doc-string "guile" "current-load-port")
 @deffn primitive current-load-port
 Return the current-load-port.
-The load port is used internally by `primitive-load'.
+The load port is used internally by @code{primitive-load}.
 @end deffn
 
 @defvar %load-extensions
@@ -201,10 +239,14 @@ is implicit).
 
 @c docstring begin (texi-doc-string "guile" "eval-options-interface")
 @deffn primitive eval-options-interface [setting]
+Option interface for the evaluation options. Instead of using
+this procedure directly, use the procedures @code{eval-enable},
+@code{eval-disable}, @code{eval-set!} and @var{eval-options}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "evaluator-traps-interface")
 @deffn primitive evaluator-traps-interface [setting]
+Option interface for the evaluator trap options.
 @end deffn
 
 

@@ -767,10 +767,17 @@ the @code{tmpnam} function in the system libraries.
 
 @c docstring begin (texi-doc-string "guile" "dirname")
 @deffn primitive dirname filename
+Return the directory name component of the file name
+@var{filename}. If @var{filename} does not contain a directory
+component, @code{.} is returned.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "basename")
 @deffn primitive basename filename [suffix]
+Return the base name of the file name @var{filename}. The
+base name is the file name without any directory components.
+If @var{suffix} is privided, and is equal to the end of
+@var{basename}, it is removed also.
 @end deffn
 
 
@@ -959,9 +966,9 @@ are calculated for UTC.
 is an optional time zone specifier (otherwise the TZ environment variable
 or the system default is used).
 
-Returns a pair: the CAR is a corresponding
+Returns a pair: the car is a corresponding
 integer time value like that returned
-by @code{current-time}; the CDR is a broken down time object, similar to
+by @code{current-time}; the cdr is a broken down time object, similar to
 as @var{bd-time} but with normalized values.
 @end deffn
 
@@ -986,16 +993,16 @@ is the formatted string.
 
 @c docstring begin (texi-doc-string "guile" "strptime")
 @deffn primitive strptime format string
-Performs the reverse action to @code{strftime}, parsing @var{string}
-according to the specification supplied in @var{template}.  The
-interpretation of month and day names is dependent on the current
-locale.  The
-value returned is a pair.  The CAR has an object with time components
+Performs the reverse action to @code{strftime}, parsing
+@var{string} according to the specification supplied in
+@var{template}.  The interpretation of month and day names is
+dependent on the current locale.  The value returned is a pair.
+The car has an object with time components
 in the form returned by @code{localtime} or @code{gmtime},
 but the time zone components
 are not usefully set.
-The CDR reports the number of characters from @var{string} which
-were used for the conversion.
+The cdr reports the number of characters from @var{string}
+which were used for the conversion.
 @end deffn
 
 @defvar internal-time-units-per-second

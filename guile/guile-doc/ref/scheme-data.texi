@@ -580,8 +580,8 @@ IMAGINARY parts.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "make-polar")
-@deffn primitive make-polar z1 z2
-Return the complex number Z1 * e^(i * Z2).
+@deffn primitive make-polar x y
+Return the complex number X * e^(i * Y).
 @end deffn
 
 @c begin (texi-doc-string "guile" "real-part")
@@ -761,8 +761,9 @@ Return the square root of @var{x}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "$expt")
-@deffn primitive $expt x1 x2
-Return @var{x1} raised to the power of @var{x2}.
+@deffn primitive $expt x y
+Return @var{x} raised to the power of @var{y}. This
+procedure does not accept complex arguments.
 @end deffn
 
 @c begin (texi-doc-string "guile" "$sin")
@@ -796,9 +797,12 @@ Return the arctangent of @var{x} in the range -PI/2 to PI/2.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "$atan2")
-@deffn primitive $atan2 y x
-Return the arctangent of @var{y}/@var{x}, using the signs of @var{x} and
-@var{y} to determine the quadrant of the result.
+@deffn primitive $atan2 x y
+Return the arc tangent of the two arguments @var{x} and
+@var{y}. This is similar to calculating the arc tangent of
+@var{x} / @var{y}, except that the signs of both arguments
+are used to determine the quadrant of the result. This
+procedure does not accept complex arguments.
 @end deffn
 
 @c begin (texi-doc-string "guile" "$exp")
@@ -1008,7 +1012,7 @@ Example:
 
 @c docstring begin (texi-doc-string "guile" "copy-random-state")
 @deffn primitive copy-random-state [state]
-Return a copy of the random state STATE.
+Return a copy of the random state @var{state}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "random")
@@ -1018,11 +1022,11 @@ Accepts a positive integer or real n and returns a
 number of the same type between zero (inclusive) and
 N (exclusive). The values returned have a uniform
 distribution.
-The optional argument STATE must be of the type produced by
-`seed->random-state'. It defaults to the value of the variable
-*random-state*. This object is used to maintain the state of
-the pseudo-random-number generator and is altered as a side
-effect of the random operation.
+The optional argument @var{state} must be of the type produced
+by @code{seed->random-state}. It defaults to the value of the
+variable @var{*random-state*}. This object is used to maintain
+the state of the pseudo-random-number generator and is altered
+as a side effect of the random operation.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "random:exp")
@@ -1073,7 +1077,7 @@ Returns a uniformly distributed inexact real random number in [0,1).
 
 @c docstring begin (texi-doc-string "guile" "seed->random-state")
 @deffn primitive seed->random-state seed
-Return a new random state using SEED.
+Return a new random state using @var{seed}.
 @end deffn
 
 
@@ -1290,53 +1294,57 @@ eventually, and it will be helpful to know how they work.
 @c docstring begin (texi-doc-string "guile" "list->string")
 @deffn primitive string . chrs
 @deffnx primitive list->string chrs
-Returns a newly allocated string composed of the arguments, CHRS.
+Returns a newly allocated string composed of the arguments,
+@var{chrs}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "make-string")
 @deffn primitive make-string k [chr]
-Returns a newly allocated string of
-length K.  If CHR is given, then all elements of the string
-are initialized to CHR, otherwise the contents of the
-STRING are unspecified.
+Return a newly allocated string of
+length @var{k}.  If @var{chr} is given, then all elements of
+the string are initialized to @var{chr}, otherwise the contents
+of the @var{string} are unspecified.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "string-append")
 @deffn primitive string-append . args
-Returns a newly allocated string whose characters form the
-concatenation of the given strings, ARGS.
+Return a newly allocated string whose characters form the
+concatenation of the given strings, @var{args}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "string-length")
 @deffn primitive string-length string
-Returns the number of characters in STRING
+Return the number of characters in @var{string}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "string-ref")
 @deffn primitive string-ref str k
-Returns character K of STR using zero-origin indexing.
-K must be a valid index of STR.
+Return character @var{k} of @var{str} using zero-origin
+indexing. @var{k} must be a valid index of @var{str}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "string-set!")
 @deffn primitive string-set! str k chr
-Stores CHR in element K of STRING and returns an unspecified value.
-K must be a valid index of STR.
+Store @var{chr} in element @var{k} of @var{str} and return
+an unspecified value. @var{k} must be a valid index of
+@var{str}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "string?")
 @deffn primitive string? obj
-Returns #t iff OBJ is a string, else returns #f.
+Returns @code{#t} iff @var{obj} is a string, else returns
+@code{#f}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "substring")
 @deffn primitive substring str start [end]
-Returns a newly allocated string formed from the characters
-of STR beginning with index START (inclusive) and ending with
-index END (exclusive).
-STR must be a string, START and END must be exact integers satisfying:
+Return a newly allocated string formed from the characters
+of @var{str} beginning with index @var{start} (inclusive) and
+ending with index @var{end} (exclusive).
+@var{str} must be a string, @var{start} and @var{end} must be
+exact integers satisfying:
 
-0 <= START <= END <= (string-length STR).
+0 <= @var{start} <= @var{end} <= (string-length @var{str}).
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "string-index")
@@ -1738,8 +1746,8 @@ strings, whether or not they are mutable return #t to this:
 
 @c ARGFIXME x/obj
 @c docstring begin (texi-doc-string "guile" "read-only-string?")
-@deffn primitive read-only-string? x
-Return true if OBJ can be read as a string,
+@deffn primitive read-only-string? obj
+Return true if @var{obj} can be read as a string,
 
 This illustrates the difference between @code{string?} and
 @code{read-only-string?}:
@@ -2252,19 +2260,21 @@ unbound symbols.
 
 @c docstring begin (texi-doc-string "guile" "gensym")
 @deffn primitive gensym [prefix]
-Create a new symbol with name constructed from a prefix and a counter value.
-The string PREFIX can be specified as an optional argument.
-Default prefix is @code{g}.  The counter is increased by 1 at each call.
-There is no provision for resetting the counter.
+Create a new symbol with a name constructed from a prefix and
+a counter value. The string @var{prefix} can be specified as
+an optional argument. Default prefix is @code{g}.  The counter
+is increased by 1 at each call. There is no provision for
+resetting the counter.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "gentemp")
 @deffn primitive gentemp [prefix [obarray]]
 Create a new symbol with a name unique in an obarray.
-The name is constructed from an optional string PREFIX and a counter
-value.  The default prefix is @var{t}.  The OBARRAY is specified as a
-second optional argument.  Default is the system obarray where all
-normal symbols are interned.  The counter is increased by 1 at each
+The name is constructed from an optional string @var{prefix}
+and a counter value.  The default prefix is @code{t}.  The
+@var{obarray} is specified as a second optional argument.
+Default is the system obarray where all normal symbols are
+interned.  The counter is increased by 1 at each
 call.  There is no provision for resetting the counter.
 @end deffn
 
@@ -2420,27 +2430,27 @@ otherwise.
 
 @c docstring begin (texi-doc-string "guile" "builtin-variable")
 @deffn primitive builtin-variable name
-Return the built-in variable with the name NAME.
-NAME must be a symbol (not a string).
-Then use `variable-ref' to access its value.
+Return the built-in variable with the name @var{name}.
+@var{name} must be a symbol (not a string).
+Then use @code{variable-ref} to access its value.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "make-undefined-variable")
 @deffn primitive make-undefined-variable [name-hint]
 Return a variable object initialized to an undefined value.
-If given, uses NAME-HINT as its internal (debugging)
+If given, uses @var{name-hint} as its internal (debugging)
 name, otherwise just treat it as an anonymous variable.
 Remember, of course, that multiple bindings to the same
-variable may exist, so NAME-HINT is just that---a hint.
+variable may exist, so @var{name-hint} is just that---a hint.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "make-variable")
 @deffn primitive make-variable init [name-hint]
-Return a variable object initialized to value INIT.
-If given, uses NAME-HINT as its internal (debugging)
+Return a variable object initialized to value @var{init}.
+If given, uses @var{name-hint} as its internal (debugging)
 name, otherwise just treat it as an anonymous variable.
 Remember, of course, that multiple bindings to the same
-variable may exist, so NAME-HINT is just that---a hint.
+variable may exist, so @var{name-hint} is just that---a hint.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "variable-bound?")
@@ -2451,21 +2461,22 @@ Throws an error if @var{var} is not a variable object.
 
 @c docstring begin (texi-doc-string "guile" "variable-ref")
 @deffn primitive variable-ref var
-Dereference @var{var} and return its value.  @var{var} must be a
-variable object; see @code{make-variable} and
-@code{make-undefined-variable}.
+Dereference @var{var} and return its value.
+@var{var} must be a variable object; see @code{make-variable}
+and @code{make-undefined-variable}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "variable-set!")
 @deffn primitive variable-set! var val
 Set the value of the variable @var{var} to @var{val}.
-@var{var} must be a variable object, @var{val} can be any value.
-Returns an unspecified value.
+@var{var} must be a variable object, @var{val} can be any
+value. Return an unspecified value.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "variable?")
 @deffn primitive variable? obj
-Return @code{#t} iff OBJ is a variable object, else return @code{#f}.
+Return @code{#t} iff @var{obj} is a variable object, else
+return @code{#f}
 @end deffn
 
 
@@ -2719,6 +2730,7 @@ Return a list containing OBJS, the arguments to `list'.
 
 @c docstring begin (texi-doc-string "guile" "cons*")
 @deffn primitive cons* arg . rest
+@deffnx primitive list* arg . rest
 Like `list', but the last arg provides the tail of the constructed list,
 returning (cons ARG1 (cons ARG2 (cons ... ARGn))).
 Requires at least one argument.  If given one argument, that argument
@@ -3822,7 +3834,8 @@ They are displayed as a sequence of @code{0}s and
 
 @c docstring begin (texi-doc-string "guile" "bit-count")
 @deffn primitive bit-count b bitvector
-Returns the number of occurrences of the boolean B in BITVECTOR.
+Returns the number of occurrences of the boolean @var{b} in
+@var{bitvector}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "bit-position")
@@ -3839,15 +3852,15 @@ Modifies @var{bv} by replacing each element with its negation.
 
 @c docstring begin (texi-doc-string "guile" "bit-set*!")
 @deffn primitive bit-set*! v kv obj
-If uve is a bit-vector @var{bv} and uve must be of the same length.  If
-@var{bool} is @code{#t}, uve is OR'ed into @var{bv}; If @var{bool} is @code{#f}, the
-inversion of uve is AND'ed into @var{bv}.
+If uve is a bit-vector @var{bv} and uve must be of the same
+length.  If @var{bool} is @code{#t}, uve is OR'ed into
+@var{bv}; If @var{bool} is @code{#f}, the inversion of uve is
+AND'ed into @var{bv}.
 
-If uve is a unsigned integer vector all the elements of uve must be
-between 0 and the @code{LENGTH} of @var{bv}.  The bits of @var{bv}
-corresponding to the indexes in uve are set to @var{bool}.
-
-The return value is unspecified.
+If uve is a unsigned integer vector all the elements of uve
+must be between 0 and the @code{length} of @var{bv}.  The bits
+of @var{bv} corresponding to the indexes in uve are set to
+@var{bool}.  The return value is unspecified.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "bit-count*")
@@ -4647,38 +4660,51 @@ Returns @t{#t} if @var{obj} is a vector, otherwise returns @t{#f}. (r5rs)
 
 @c docstring begin (texi-doc-string "guile" "make-hook-with-name")
 @deffn primitive make-hook-with-name name [n_args]
+Create a named hook with the name @var{name} for storing
+procedures of arity @var{n_args}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "make-hook")
 @deffn primitive make-hook [n_args]
+Create a hook for storing procedure of arity @var{n_args}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "hook?")
 @deffn primitive hook? x
+Return @code{#t} if @var{x} is a hook.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "hook-empty?")
 @deffn primitive hook-empty? hook
+Return @code{#t} if @var{hook} is an empty hook.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "add-hook!")
 @deffn primitive add-hook! hook proc [append_p]
+Add the procedure @var{proc} to the hook @var{hook}. The
+procedure is added to the end if @var{append_p} is true,
+otherwise it is added to the front.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "remove-hook!")
 @deffn primitive remove-hook! hook proc
+Remove the procedure @var{proc} from the hook @var{hook}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "reset-hook!")
 @deffn primitive reset-hook! hook
+Remove all procedures from the hook @var{hook}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "run-hook")
 @deffn primitive run-hook hook . args
+Apply all procedures from the hook @var{hook} to the arguments
+@var{args}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "hook->list")
 @deffn primitive hook->list hook
+Convert the procedure list of @var{hook} to a list.
 @end deffn
 
 

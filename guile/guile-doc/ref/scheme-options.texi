@@ -309,10 +309,21 @@ E.g., may return "/usr/share/guile/site".
 
 @c docstring begin (texi-doc-string "guile" "parse-path")
 @deffn primitive parse-path path [tail]
+Parse @var{path}, which is expected to be a colon-separated
+string, into a list and return the resulting list with
+@var{tail} appended. If @var{path} is @code{#f}, @var{tail}
+is returned.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "search-path")
 @deffn primitive search-path path filename [extensions]
+Search @var{path} for a directory containing a file named
+@var{filename}. The file must be readable, and not a directory.
+If we find one, return its full filename; otherwise, return
+@code{#f}.  If @var{filename} is absolute, return it unchanged.
+If given, @var{extensions} is a list of strings; for each
+directory in @var{path}, we search for @var{filename}
+concatenated with each @var{extension}.
 @end deffn
 
 @defvar %load-path

@@ -20,18 +20,21 @@ reviewed and largely reorganized.]
 
 @c docstring begin (texi-doc-string "guile" "make-arbiter")
 @deffn primitive make-arbiter name
-Returns an object of type arbiter and name name. Its state is initially unlocked.
-Arbiters are a way to achieve process synchronization.
+Return an object of type arbiter and name @var{name}. Its
+state is initially unlocked.  Arbiters are a way to achieve
+process synchronization.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "try-arbiter")
 @deffn primitive try-arbiter arb
-Returns #t and locks arbiter if arbiter was unlocked. Otherwise, returns #f.
+Return @code{#t} and lock the arbiter @var{arb} if the arbiter
+was unlocked. Otherwise, return @code{#f}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "release-arbiter")
 @deffn primitive release-arbiter arb
-Returns #t and unlocks arbiter if arbiter was locked. Otherwise, returns #f.
+Return @code{#t} and unlock the arbiter @var{arb} if the
+arbiter was locked. Otherwise, return @code{#f}.
 @end deffn
 
 
@@ -40,34 +43,44 @@ Returns #t and unlocks arbiter if arbiter was locked. Otherwise, returns #f.
 
 @c docstring begin (texi-doc-string "guile" "async")
 @deffn primitive async thunk
+Create a new async for the procedure @var{thunk}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "system-async")
 @deffn primitive system-async thunk
+Create a new async for the procedure @var{thunk}.  Also
+add it to the system's list of active async objects.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "async-mark")
 @deffn primitive async-mark a
+Mark the async @var{a} for future execution.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "system-async-mark")
 @deffn primitive system-async-mark a
+Mark the async @var{a} for future execution.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "run-asyncs")
 @deffn primitive run-asyncs list_of_a
+Execute all thunks from the asyncs of the list @var{list_of_a}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "noop")
 @deffn primitive noop . args
+Do nothing.  When called without arguments, return @code{#f},
+otherwise return the first argument.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "unmask-signals")
 @deffn primitive unmask-signals
+Unmask signals. The returned value is not specified.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "mask-signals")
 @deffn primitive mask-signals
+Mask signals. The returned value is not specified.
 @end deffn
 
 

@@ -1,3 +1,23 @@
+2001-02-24  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* posix.texi (File System, Time), scheme-control.texi
+	(Exceptions), scheme-data.texi (Complex, Primitive Numerics,
+	Random, String Fun, Symbols and Variables, Lists, Bit Vectors,
+	Hooks), scheme-debug.texi (Debugging), scheme-evaluation.texi
+	(Reader Extensions, Scheme Read, Fly Evaluation, Loading,
+	Evaluator Options), scheme-io.texi (Reading, Writing, Default
+	Ports, File Ports), scheme-memory.texi (Garbage Collection,
+	Guardians, Objects), scheme-modules.texi (The Guile module
+	system), scheme-options.texi (Install Config),
+	scheme-procedures.texi (Procedure Properties, Procedures with
+	Setters), scheme-scheduling.texi (Arbiters, Asyncs),
+	scheme-translation.texi (Emacs Lisp Support): Automatic docstring
+	updates.
+
+	* scheme-io.texi (Binary IO): New node.
+
+	* scheme-control.texi (Multiple Values): New node.
+
 2001-02-23  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* scheme-utility.texi (Sorting), scheme-procedures.texi (Procedure

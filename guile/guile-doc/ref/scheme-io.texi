@@ -9,6 +9,7 @@
 * Closing::                     Procedures to close a port.
 * Random Access::               Moving around a random access port.
 * Line/Delimited::              Read and write lines or delimited text.
+* Binary IO::                   Save and restore Scheme objects.
 * Default Ports::               Defaults for input, output and errors.
 * Port Types::                  Types of port and how to make them.
 @end menu
@@ -120,8 +121,8 @@ unread characters will be read again in last-in first-out order.  If
 
 @c docstring begin (texi-doc-string "guile" "drain-input")
 @deffn primitive drain-input port
-Drains @var{PORT}'s read buffers (including any pushed-back characters)
-and returns the contents as a single string.
+Drain @var{port}'s read buffers (including any pushed-back
+characters) and returns the content as a single string.
 @end deffn
 
 @c ARGFIXME port/input-port
@@ -148,6 +149,40 @@ Set the current column or line number of @var{port}, using the
 current input port if none is specified.
 @end deffn
 
+@deffn primitive read-string!/partial str [port_or_fdes [start [end]]]
+Read characters from an fport or file descriptor into a
+string @var{str}.  This procedure is scsh-compatible
+and can efficiently read large strings.  It will:
+
+@itemize
+@item
+attempt to fill the entire string, unless the @var{start}
+and/or @var{end} arguments are supplied.  i.e., @var{start}
+defaults to 0 and @var{end} defaults to
+@code{(string-length str)}
+@item
+use the current input port if @var{port_or_fdes} is not
+supplied.
+@item
+read any characters that are currently available,
+without waiting for the rest (short reads are possible).
+
+@item
+wait for as long as it needs to for the first character to
+become available, unless the port is in non-blocking mode
+@item
+return @code{#f} if end-of-file is encountered before reading
+any characters, otherwise return the number of characters
+read.
+@item
+return 0 if the port is in non-blocking mode and no characters
+are immediately available.
+@item
+return 0 if the request is for 0 bytes, with no
+end-of-file check
+@end itemize
+@end deffn
+
 
 @node Writing
 @section Writing
@@ -156,35 +191,46 @@ current input port if none is specified.
 
 @c docstring begin (texi-doc-string "guile" "get-print-state")
 @deffn primitive get-print-state port
+Return the print state of the port @var{port}. If @var{port}
+has no associated print state, @code{#f} is returned.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "newline")
 @deffn primitive newline [port]
-Send a newline to PORT.
+Send a newline to @var{port}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "port-with-print-state")
 @deffn primitive port-with-print-state port pstate
+Create a new port which behaves like @var{port}, but with an
+included print state @var{pstate}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "print-options-interface")
 @deffn primitive print-options-interface [setting]
+Option interface for the print options. Instead of using
+this procedure directly, use the procedures @code{print-enable},
+@code{print-disable}, @code{print-set!} and @var{print-options}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "simple-format")
 @deffn primitive simple-format destination message . args
-Write MESSAGE to DESTINATION, defaulting to `current-output-port'.
-MESSAGE can contain ~A (was %s) and ~S (was %S) escapes.  When printed,
-the escapes are replaced with corresponding members of ARGS:
-~A formats using `display' and ~S formats using `write'.
-If DESTINATION is #t, then use the `current-output-port',
-if DESTINATION is #f, then return a string containing the formatted text.
-Does not add a trailing newline.
+Write @var{message} to @var{destination}, defaulting to
+the current output port.
+@var{message} can contain @code{~A} (was @code{%s}) and
+@code{~S} (was @code{%S}) escapes.  When printed,
+the escapes are replaced with corresponding members of
+@var{ARGS}:
+@code{~A} formats using @code{display} and @code{~S} formats
+using @code{write}.
+If @var{destination} is @code{#t}, then use the current output
+port, if @var{destination} is @code{#f}, then return a string
+containing the formatted text. Does not add a trailing newline.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "write-char")
 @deffn primitive write-char chr [port]
-Send character CHR to PORT.
+Send character @var{chr} to @var{port}.
 @end deffn
 
 @findex fflush
@@ -429,22 +475,36 @@ delimiter may be either a newline or the @var{eof-object}; if
 @code{(#<eof> . #<eof>)}.
 @end deffn
 
+@node Binary IO
+@section Saving and Restoring Scheme Objects
+
+@deffn primitive binary-read [port]
+Read and return an object from @var{port} in a binary format.
+If omitted, @var{port} defaults to the current output port.
+@end deffn
+
+@deffn primitive binary-write obj [port]
+Write @var{obj} to @var{port} in a binary format.
+If omitted, @var{port} defaults to the current output port.
+@end deffn
+
 
 @node Default Ports
 @section Default Ports for Input, Output and Errors
 
 @c docstring begin (texi-doc-string "guile" "current-input-port")
 @deffn primitive current-input-port
-Returns the current input port.  This is the default port used by many
-input procedures.  Initially, @code{current-input-port} returns the
-value of @code{???}.
+Return the current input port.  This is the default port used
+by many input procedures.  Initially, @code{current-input-port}
+returns the @dfn{standard input} in Unix and C terminology.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "current-output-port")
 @deffn primitive current-output-port
-Returns the current output port.  This is the default port used by many
-output procedures.  Initially, @code{current-output-port} returns the
-value of @code{???}.
+Return the current output port.  This is the default port used
+by many output procedures.  Initially,
+@code{current-output-port} returns the @dfn{standard output} in
+Unix and C terminology.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "current-error-port")
@@ -484,6 +544,7 @@ Set the current default error port to PORT.
 * Soft Ports:: Ports on arbitrary Scheme procedures.
 * Void Ports:: Ports on nothing at all.
 @end menu
+
 
 @node File Ports
 @subsection File Ports
@@ -578,6 +639,11 @@ source of data, but only the value that is returned by
 @code{port-filename} and reported in diagnostic output.
 @end deffn
 
+@deffn primitive file-port? obj
+Determine whether @var{obj} is a port that is related to a file.
+@end deffn
+
+
 @node String Ports
 @subsection String Ports
 
@@ -622,6 +688,7 @@ At present there isn't a procedure that simply returns a new string
 port.  There's also no way of opening read/write string ports from
 Scheme even though it's possible from C.  SRFI 6 could be implemented
 without much difficulty.
+
 
 @node Soft Ports
 @subsection Soft Ports
@@ -673,6 +740,7 @@ the port has reached end-of-file.  For example:
 (write p p) @result{} #<input-output: soft 8081e20>
 @end example
 @end deffn
+
 
 @node Void Ports
 @subsection Void Ports

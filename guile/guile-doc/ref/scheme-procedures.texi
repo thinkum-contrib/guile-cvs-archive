@@ -53,14 +53,17 @@ documentation for that procedure.
 
 @c docstring begin (texi-doc-string "guile" "closure?")
 @deffn primitive closure? obj
+Return @code{#t} if @var{obj} is a closure.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "procedure?")
 @deffn primitive procedure? obj
+Return @code{#t} if @var{obj} is a procedure.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "thunk?")
 @deffn primitive thunk? obj
+Return @code{#t} if @var{obj} is a thunk.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "set-source-properties!")
@@ -93,14 +96,20 @@ Return the source property specified by @var{key} from
 
 @c docstring begin (texi-doc-string "guile" "make-procedure-with-setter")
 @deffn primitive make-procedure-with-setter procedure setter
+Create a new procedure which behaves like @var{procedure}, but
+with the associated setter @var{setter}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "procedure-with-setter?")
 @deffn primitive procedure-with-setter? obj
+Return @code{#t} if @var{obj} is a procedure with an
+associated setter procedure.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "procedure")
 @deffn primitive procedure proc
+Return the procedure of @var{proc}, which must be either a
+procedure with setter, or an operator struct.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "setter")

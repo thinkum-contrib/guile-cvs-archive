@@ -34,6 +34,8 @@ returned by this function for @var{obj}
 
 @c docstring begin (texi-doc-string "guile" "unhash-name")
 @deffn primitive unhash-name name
+Flushes the glocs for @var{name}, or all glocs if @var{name}
+is @code{#t}.
 @end deffn
 
 
@@ -166,17 +168,17 @@ Create a new guardian.
 A guardian protects a set of objects from garbage collection,
 allowing a program to apply cleanup or other actions.
 
-make-guardian returns a procedure representing the guardian.
+@code{make-guardian} returns a procedure representing the guardian.
 Calling the guardian procedure with an argument adds the
 argument to the guardian's set of protected objects.
 Calling the guardian procedure without an argument returns
 one of the protected objects which are ready for garbage
-collection or @code{#f} if no such object is available.
+collection, or @code{#f} if no such object is available.
 Objects which are returned in this way are removed from
 the guardian.
 
-make-guardian takes one optional argument that says whether the
-new guardian should be greedy or sharing.  if there is any chance
+@code{make-guardian} takes one optional argument that says whether the
+new guardian should be greedy or sharing.  If there is any chance
 that any object protected by the guardian may be resurrected,
 then you should make the guardian greedy (this is the default).
 
@@ -189,6 +191,20 @@ and Implementation, June 1993.
 paper still (mostly) accurately describes the interface).
 @end deffn
 
+@deffn primitive destroy-guardian! guardian
+Destroys @var{guardian}, by making it impossible to put any more
+objects in it or get any objects from it.  It also unguards any
+objects guarded by @var{guardian}.
+@end deffn
+
+@deffn primitive guardian-greedy? guardian
+Return @code{#t} if @var{guardian} is a greedy guardian, otherwise @code{#f}.
+@end deffn
+
+@deffn primitive guardian-destroyed? guardian
+Return @code{#t} if @var{guardian} has been destroyed, otherwise @code{#f}.
+@end deffn
+
 
 @page
 @node Objects
@@ -196,22 +212,30 @@ paper still (mostly) accurately describes the interface).
 
 @c docstring begin (texi-doc-string "guile" "entity?")
 @deffn primitive entity? obj
+Return @code{#t} if @var{obj} is an entity.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "operator?")
 @deffn primitive operator? obj
+Return @code{#t} if @var{obj} is an operator.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "set-object-procedure!")
 @deffn primitive set-object-procedure! obj proc
+Return the object procedure of @var{obj} to @var{proc}.
+@var{obj} must be either an entity or an operator.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "make-class-object")
 @deffn primitive make-class-object metaclass layout
+Create a new class object of class @var{metaclass}, with the
+slot layout specified by @var{layout}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "make-subclass-object")
 @deffn primitive make-subclass-object class layout
+Create a subclass object of @var{class}, with the slot layout
+specified by @var{layout}.
 @end deffn
 
 

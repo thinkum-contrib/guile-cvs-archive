@@ -134,6 +134,7 @@ and standards for contributed modules.]
 
 @c docstring begin (texi-doc-string "guile" "standard-eval-closure")
 @deffn primitive standard-eval-closure module
+Return an eval closure for the module @var{module}.
 @end deffn
 
 Some modules are included in the Guile distribution; here are references
