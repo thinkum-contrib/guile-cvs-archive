@@ -1,3 +1,11 @@
+2000-04-13  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* configure.in: Check for scm_shared_array_root.
+
+	* goops.c (scm_shared_array_root, scm_shared_array_offset,
+	scm_shared_array_increments): New primities.  (These are provided
+	by newer Guile versions.)
+
 2000-04-13  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
 	* save.scm (enumerate!, write-readably): Handle uniform vectors.
