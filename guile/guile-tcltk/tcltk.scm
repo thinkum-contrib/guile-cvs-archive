@@ -233,7 +233,7 @@
 	  (lambda (tag . message)
 	    (cons 1 (apply errcat message)))))
 
-(define (errcat . args)
+(define-public (errcat . args)
   (apply string-append
 	 (map (lambda (x)
 		(call-with-output-string
