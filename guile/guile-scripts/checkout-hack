@@ -1,0 +1,13 @@
+#! /bin/sh -x
+# Usage: checkout-hack
+
+cores="1-4 1-6 HEAD"
+
+cvs co hack
+cd hack
+for branch in $cores ; do
+    cvs co -d core-$branch -r branch_release-$branch core
+done
+ln -sf core-HEAD core
+
+# checkout-hack ends here
