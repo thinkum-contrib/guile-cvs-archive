@@ -1,12 +1,23 @@
 1999-12-18  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
+	* goops.c (scm_init_goops): Conditionally add extra arg to
+	scm_mutex_init.
+
+	* configure.in: Define SCM_MUTEX_INIT_TWO_ARGS if scm_mutex_init
+	takes an extra attributes arg.
+
+	* goops.scm (method-source): Bugfix.
+
 	* Makefile.am (.c.x): Remove .x-file on failure.
 	(DISTCLEANFILES): Added *.x.  (Thanks to Anders Holst.)
 
 	* goops.c (scm_assert_bound): New function.
-
-	* goops.scm (compute-get-n-set): Use `assert-bound' in the class
-	allocation getters.
+	
+	* goops.scm (compute-slot-accessors): Only use boundness checking
+	if necessary.
+	(make-closure-variable): New procedure.  Only use boundness
+	checking if necessary.
+	(compute-get-n-set): Use `make-closure-variable'.
 	(make-get): Use `assert-bound' for versions of Guile which don't
 	have boundness check in eval.c.
 	
