@@ -25,7 +25,7 @@
     - delete HEAD and branch_release-1-6 BUGS files
   +R factor guile-core/ administration files [ttn]
   - write build/bugs-triage.text
-  - complete build/stability.text
+  - complete build/stability.text [ttn]
   - make sure all bugs have required headers
 
 
