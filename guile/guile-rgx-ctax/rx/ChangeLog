@@ -1,3 +1,18 @@
+Sat Sep 28 04:51:33 1996  Gary Houston  <ghouston@actrix.gen.nz>
+
+	* rgx.c: define scm_regex_error_key.
+	(scm_regex_error): new procedure.
+	(scm_init_rgx): add feature "regex".
+	include libguile/feature.h.
+	(scm_regcomp, scm_regexec, scm_regexp_to_dfa): use scm_regex_error
+	instead of returning the error status.
+	(scm_regcomp): use scm_memory_error for allocation errors.
+	(scm_regexec): delete useless code assigning to starts and ends.
+	Return something useful when match_pick is #t or undefined.
+	Fix pmatch[i].rm_so >= 0 check when match_pick is a vector.
+
+	* PLUGIN/guile.config: add librx.a to xtra_dependencies.
+
 Wed Sep 11 14:39:47 1996  Jim Blandy  <jimb@floss.cyclic.com>
 
 	* Makefile.in (ALL_CFLAGS): Delete reference to libguile header

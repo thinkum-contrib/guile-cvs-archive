@@ -46,6 +46,7 @@
 #include <libguile/smob.h>
 #include <libguile/mallocs.h>
 #include <libguile/chars.h>
+#include <libguile/feature.h>
 
 #ifdef STDC_HEADERS
 #include <string.h>
@@ -101,6 +102,20 @@ print_regex_t (obj, port, writing)
 static scm_smobfuns regex_t_smob =
 { scm_mark0, free_regex_t, print_regex_t, 0 };
 
+SCM scm_regex_error_key;
+
+static void
+scm_regex_error (subr, code)
+     char *subr;
+     int code;
+{
+  lgh_error (scm_regex_error_key,
+	     subr,
+	     "%s",
+	     scm_listify (scm_makfrom0str (rx_error_msg [code]),
+			  SCM_UNDEFINED),
+	     scm_listify (SCM_MAKINUM (code), SCM_UNDEFINED));
+}
 
 SCM_PROC (s_compiled_regexp_p, "compiled-regexp?", 1, 0, 0, scm_compiled_regexp_p);
 #ifdef __STDC__
@@ -143,14 +158,13 @@ scm_regcomp (pat, cfl)
     if (!it)
       {
       allocation:
-	SCM_ALLOW_INTS;
-	SCM_ASSERT (0, pat, "allocation failure", s_regcomp);
+	scm_memory_error (s_regcomp);
       }
     status = regncomp (it, SCM_ROLENGTH (pat), SCM_ROCHARS (pat), SCM_INUM (cfl));
     if (status)
       {
 	free (it);
-	answer = SCM_MAKINUM (status);
+	scm_regex_error (s_regcomp, status);
       }
     else
       {
@@ -198,15 +212,6 @@ scm_regexec (rgx, str, match_pick, eflags)
 
   vector_result = (SCM_NIMP (match_pick) && SCM_VECTORP (match_pick));
 
-  if (RGX(rgx)->n_subexps)
-    {
-      SCM starts;
-      SCM ends;
-      starts = scm_make_vector (SCM_MAKINUM (RGX(rgx)->n_subexps), SCM_BOOL_F, SCM_BOOL_F);
-      ends  = scm_make_vector (SCM_MAKINUM (RGX(rgx)->n_subexps), SCM_BOOL_F, SCM_BOOL_F);
-      answer = scm_cons (starts, ends);
-    }
-  
   malloc_protect = scm_malloc_obj (0);
   SCM_DEFER_INTS;
   {
@@ -217,21 +222,10 @@ scm_regexec (rgx, str, match_pick, eflags)
     if (status)
       {
 	SCM_ALLOW_INTS;
-	if ((match_pick == SCM_BOOL_F) || vector_result)
-	  {
-	    if (status == REG_NOMATCH)
-	      return SCM_BOOL_F;
-	    else
-	      scm_throw (SCM_CAR (scm_intern0 ("regexp-error")),
-			 scm_listify (SCM_MAKINUM (status),
-				      rgx,
-				      str,
-				      match_pick,
-				      eflags,
-				      SCM_UNDEFINED));
-	  }
+	if (status == REG_NOMATCH)
+	  return SCM_BOOL_F;
 	else
-	  return SCM_MAKINUM (status);
+	  scm_regex_error (s_regexec, status);
       }
     if (match_pick == SCM_BOOL_F)
       free (pmatch);
@@ -244,11 +238,21 @@ scm_regexec (rgx, str, match_pick, eflags)
     return SCM_BOOL_T;
   else if ((match_pick == SCM_BOOL_T) || (match_pick == SCM_UNDEFINED))
     {
-      answer = (scm_listify
-		(scm_make_shared_substring (str, SCM_MAKINUM (0), SCM_MAKINUM (pmatch[0].rm_so)),
-		 scm_make_shared_substring (str, SCM_MAKINUM (pmatch[0].rm_so), SCM_MAKINUM (pmatch[0].rm_eo)),
-		 scm_make_shared_substring (str, SCM_MAKINUM (pmatch[0].rm_eo), SCM_UNDEFINED),
-		 SCM_UNDEFINED));
+      int i;
+
+      answer = scm_listify (SCM_UNDEFINED);
+      for (i = RGX (rgx)->n_subexps - 1; i >= 0; i--)
+	{
+	  if (pmatch[i].rm_so >= 0)
+	    {
+	      answer = scm_cons (scm_make_shared_substring
+				 (str, SCM_MAKINUM (pmatch[i].rm_so), 
+				  SCM_MAKINUM (pmatch[i].rm_eo)),
+				 answer);
+	    }
+	  else
+	    answer = scm_cons (SCM_BOOL_F, answer);
+	}
       return answer;
     }
   else if (vector_result)
@@ -262,7 +266,7 @@ scm_regexec (rgx, str, match_pick, eflags)
       if (vlen < bound)
 	bound = vlen;
       for (i = 0; i < bound; ++i)
-	if (pmatch[0].rm_so >= 0)
+	if (pmatch[i].rm_so >= 0)
 	  SCM_VELTS (match_pick)[i] = scm_cons (SCM_MAKINUM (pmatch[i].rm_so),
 					    SCM_MAKINUM (pmatch[i].rm_eo));
 	else
@@ -470,11 +474,7 @@ scm_regexp_to_dfa (regexp, cfl)
   ret = rx_parse (&parsed, pattern, len, syntax, 256, 0);
 
   if (ret)
-    {
-      SCM_ALLOW_INTS;
-      return SCM_MAKINUM (ret);
-    }
-
+    scm_regex_error (s_regexp_to_dfa, ret);
 
   r = (struct rx_dfa_state *)scm_must_malloc (sizeof (struct rx_dfa_state), "dfa");
   r->unfa = rx_unfa (rx_basic_unfaniverse (), parsed, 256);
@@ -641,8 +641,11 @@ void
 scm_init_rgx ()
 #endif
 {
+  scm_add_feature ("regex");
   scm_tc16_regex_t = scm_newsmob (&regex_t_smob);
   scm_tc16_dfa_t = scm_newsmob (&dfa_t_smob);
+  scm_regex_error_key
+    = scm_permanent_object (SCM_CAR (scm_intern0 ("regex-error")));
 #include "rgx.x"
 }
 
