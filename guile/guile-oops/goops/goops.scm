@@ -53,6 +53,7 @@
     method-more-specific? sort-applicable-methods
     class-subclasses class-methods
     slot-value ;(setter slot-value)
+    goops-error
 )
 
 ;;; *fixme* Should go into goops.c
@@ -72,6 +73,9 @@
 ;			      U t i l i t i e s
 ;
 ;=============================================================================
+
+(define (goops-error format-string args)
+  (scm-error 'goops-error format-string args))
 
 (define (mapappend func . args)
   (if (memv '()  args)
@@ -115,14 +119,14 @@
 ; 						[FIXME] This is too complicate
 (define (%find-class name env . default)
   ;; Verify that name is a correct symbol
-  (unless (symbol? name) (error "find-class: bad symbol ~S" name))
+  (unless (symbol? name) (goops-error "find-class: bad symbol %S" name))
   
   ;; Search symbol in the globals of given env. (it must denote a class)
   (or (and (symbol-bound? name env)
 	   (let ((cls (lookup-symbol name env)))
 	     (and (is-a? cls <class>) cls)))
       (if (null? default)
-	  (error "find-class: class ~S not found" name)
+	  (goops-error "find-class: class %S not found" name)
 	  (car default))))
 
 ;=============================================================================
@@ -218,9 +222,11 @@
     (let ((tmp1 (find-duplicate supers))
 	  (tmp2 (find-duplicate (map slot-definition-name slots))))
       (when tmp1
-	(error "define-class: super class ~S is duplicate in class ~S" tmp1 name))
+	(goops-error "define-class: super class %S is duplicate in class %S"
+		     tmp1 name))
       (when tmp2
-	(error "define-class: slot ~S is duplicate in class ~S" tmp2 name)))
+	(goops-error "define-class: slot %S is duplicate in class %S"
+		     tmp2 name)))
 
     ;; Everything seems correct, build the class
     (let ((old (%find-class name env #f))
@@ -511,10 +517,10 @@
 ;==== Slot access
 
 (define-method slot-unbound ((c <class>) (o <object>) s)
-  (error "Slot `~S' is unbound in object ~S" s o))
+  (goops-error "Slot `%S' is unbound in object %S" s o))
 
 (define-method slot-missing ((c <class>) (o <object>) s)
-  (error "No slot with name `~S' in object ~S" s o))
+  (goops-error "No slot with name `%S' in object %S" s o))
   
 
 (define-method slot-missing ((c <class>) (o <object>) s value)
@@ -523,14 +529,14 @@
 ; ==== Methods for the possible error we can encounter when calling a gf
 
 (define-method no-next-method ((gf <generic>) args)
-  (error "No next method when calling ~S\nwith ~S as argument" gf args))
+  (goops-error "No next method when calling %S\nwith %S as argument" gf args))
 
 (define-method no-applicable-method ((gf <generic>) args)
-  (error "No applicable method for ~S\nin call ~S"
+  (goops-error "No applicable method for %S\nin call %S"
 	 gf (cons (generic-function-name gf) args)))
 
 (define-method no-method ((gf <generic>) args)
-  (error "No method defined for ~S"  gf))
+  (goops-error "No method defined for %S"  gf))
 
 ;=============================================================================
 ;
@@ -674,10 +680,10 @@
 	      (set (cadr l)))
 	  (unless (and (closure? get)
 		       (= (car (procedure-property get 'arity)) 1))
-	    (error "Bad getter closure for slot `~S' in ~S: ~S" slot class get))
+	    (goops-error "Bad getter closure for slot `%S' in %S: %S" slot class get))
 	  (unless (and (closure? set)
 		       (= (car (procedure-property set 'arity)) 2))
-	    (error "Bad setter closure for slot `~S' in ~S: ~S" slot class set)))))
+	    (goops-error "Bad setter closure for slot `%S' in %S: %S" slot class set)))))
 
   (map (lambda (s)
 	 (let* ((s     (if (pair? s) s (list s)))
@@ -752,13 +758,13 @@
 		   (set (get-keyword #:slot-set! (slot-definition-options s) #f))
 		   (env (class-environment class)))
 	       (unless (and get set)
-		  (error "You must supply a :slot-ref and a :slot-set! in ~A" s))
+		  (goops-error "You must supply a :slot-ref and a :slot-set! in %S" s)) ;error message originally used ~A
 	       (list (make-closure get env)
 		     (make-closure set env))))
     (else    (next-method))))
 
 (define-method compute-get-n-set ((o <object>) s)
-  (error "Allocation \"~S\" is unknown" (slot-definition-allocation s)))
+  (goops-error "Allocation \"%S\" is unknown" (slot-definition-allocation s)))
 
 ;=============================================================================
 ;
