@@ -93,8 +93,6 @@
 
 
 
-#ifndef SCM_DOCSTRING_SNARF
-
 #define SCM_VALIDATE_NIM(pos,scm) \
   do { SCM_ASSERT(SCM_NIMP(scm), scm, pos, FUNC_NAME); } while (0)
 
@@ -308,7 +306,5 @@
 
 #define SCM_VALIDATE_VECTOR_LEN(pos,v,len) \
   do { SCM_ASSERT (SCM_NIMP (v) && SCM_VECTORP (v) && len == SCM_LENGTH(v), v, pos, FUNC_NAME); } while (0)
-
-#endif
 
 #endif
