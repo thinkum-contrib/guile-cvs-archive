@@ -1,5 +1,7 @@
 1998-04-19  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
+	* Makefile.am (libgtcltk_la_LDFLAGS): Bump version number to 1.0.
+
 	* README: Some minor docs.
 
 	* graph.scm, breakout.scm: Demos.

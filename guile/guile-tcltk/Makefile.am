@@ -11,7 +11,7 @@ EXTRA_libgtcltk_la_SOURCES = tclInt.h tclUnixPort.h tclUnixNotfy.c
 BUILT_SOURCES = guile-tcl.x guile-tk.x
 libgtcltk_la_DEPENDENCIES = @LIBLOBJS@
 libgtcltk_la_LIBADD = @LIBLOBJS@
-libgtcltk_la_LDFLAGS = -version-info 0:0
+libgtcltk_la_LDFLAGS = -version-info 1:0
 
 guile_tcltk_LDADD = libgtcltk.la
 
