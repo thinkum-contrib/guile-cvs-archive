@@ -1,5 +1,0 @@
-#!@guile@ -s
-!#
-
-(use-modules (system base compile))
-(for-each compile-file (cdr (command-line)))
