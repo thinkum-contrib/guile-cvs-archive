@@ -1,3 +1,9 @@
+1999-08-09  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
+
+	* Makefile.am, compile.scm, util.scm: New files.
+
+	* goops.c, goops.h: Added n-specialized slot in generics.
+
 1999-08-05  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
 	* goops.c: Removed old apply generic protocol.

@@ -19,6 +19,8 @@
 
 (define-module (oop goops dispatch)
   :use-module (oop goops)
+  :use-module (oop goops util)
+  :use-module (oop goops compile)
 ;  :no-backtrace
   )
 
@@ -73,15 +75,15 @@
 (define (method-cache-methods exp)
   (cache-methods (method-cache-entries exp)))
 
-(define d #f)
-
 (define (method-cache-insert! exp entry)
-  (set! d exp)
   (vector-set! (method-cache-entries exp)
 	       (method-cache-n-methods exp)
 	       entry)
   ;;(write-line (list 'method-cache-insert! '--> d))
   )
+
+(define (method-cache-generic-function exp)
+  (list-ref exp (if (method-cache-hashed? exp) 6 4)))
 
 (define (set-hashed-method-cache-hashset! exp hashset)
   (set-car! (cdddr exp) hashset))
@@ -160,8 +162,8 @@
   (let* ((specializers (method-specializers (car applicable)))
 	 (n-specializers (if (list? specializers)
 			     (length specializers)
-			     (min (+ 1 (length* specializers))
-				  (length args)))))
+			     (+ 1 (slot-ref (method-cache-generic-function exp)
+					    'n-specialized)))))
     (if (> n-specializers (method-cache-n-specialized exp))
 	(set-method-cache-n-specialized! exp n-specializers))
     (let ((types (map class-of (first-n args n-specializers))))
@@ -170,6 +172,7 @@
 ;;; Memoization
 
 (define (memoize-method! gf args exp)
+  ;;(write-line 'enter-memoized)
   ;;*fixme* Want to use generic cam.  How to avoid looping?
   (let ((applicable (apply find-method gf args)))
     (cond ((not applicable)
@@ -183,9 +186,8 @@
 				  args
 				  applicable))
 	  (else
-	   (method-cache-install! method-cache-insert! exp args applicable)))))
-
-;;; Compilation
+	   (method-cache-install! method-cache-insert! exp args applicable))))
+  (force-output))
 
 (define (method-entry methods types)
   (cond ((assoc types (slot-ref (car methods) 'code-table))
@@ -197,59 +199,6 @@
 			   (acons types entry
 				  (slot-ref (car methods) 'code-table)))
 		entry))))
-
-(define source-formals cadr)
-(define source-body cddr)
-
-(define code-code cdr)
-(define code-environment car)
-
-(define (make-final-make-next-method method)
-  (lambda default-args
-    (lambda args
-      (@apply method (if (null? args) default-args args)))))	  
-
-(define (make-make-next-method vcell methods types)
-  (lambda default-args
-    (lambda args
-      (let* ((code (compile-method methods types))
-	     (method (local-eval (cons 'lambda (code-code code))
-				 (code-environment code))))
-	(set-cdr! vcell (make-final-make-next-method method))
-	(@apply method (if (null? args) default-args args))))))
-
-(define (compile-method methods types)
-  (let* ((proc (method-procedure (car methods)))
-	 (src (procedure-source proc))
-	 (formals (source-formals src))
-	 (vcell (cons 'goops:make-next-method #f)))
-    (set-cdr! vcell (make-make-next-method vcell (cdr methods) types))
-    ;;*fixme*
-    `(,(cons vcell (procedure-environment proc))
-      ,formals
-      ;;*fixme* Only do this on source where next-method can't be inlined
-      (let ((next-method ,(if (list? formals)
-			      `(goops:make-next-method ,@formals)
-			      `(apply goops:make-next-method
-				      ,@(improper->proper formals)))))
-	,@(source-body src)))))
-
-;;; Utilities
-
-(define (length* ls)
-  (do ((n 0 (+ 1 n))
-       (ls ls (cdr ls)))
-      ((not (pair? ls)) n)))
-
-(define (improper->proper ls)
-  (if (pair? ls)
-      (cons (car ls) (improper->proper (cdr ls)))
-      (list ls)))
-
-(define (first-n ls n)
-  (if (zero? n)
-      '()
-      (cons (car ls) (first-n (cdr ls) (- n 1)))))
 
 (define (apply-0-arity-method gf)
   ;;*fixme* Want to use generic cam.  How to avoid looping?

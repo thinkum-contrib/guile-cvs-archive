@@ -28,6 +28,7 @@
 
 (define-module (oop goops)
   :use-module (oop goops goopscore)
+  :use-module (oop goops util)
   :use-module (oop goops dispatch)
 ;  :no-backtrace
   )
@@ -542,6 +543,8 @@
 (define (internal-add-method! gf m)
   (slot-set! m  'generic-function gf)
   (slot-set! gf 'methods (compute-new-list-of-methods gf m))
+  (slot-set! gf 'n-specialized (max (length* (slot-ref m 'specializers))
+				    (slot-ref gf 'n-specialized)))
   (add-method-in-classes! m)
   *unspecified*)
 
@@ -1233,6 +1236,7 @@
 						  (apply previous-definition 
 							 l))))
 				    '()))
+    (slot-set! generic 'n-specialized 0)
     (if name
 	(set-procedure-property! generic 'name name))
     ))
