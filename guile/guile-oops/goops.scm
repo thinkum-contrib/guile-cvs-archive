@@ -75,7 +75,7 @@
     class-slots class-environment
     generic-function-name
     generic-function-methods method-generic-function method-specializers
-    enable-primitive-generic!
+    primitive-generic-generic enable-primitive-generic!
     method-procedure slot-exists? make find-method get-keyword)
 
 
