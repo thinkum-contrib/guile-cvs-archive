@@ -1,7 +1,10 @@
 2000-06-30  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
+	* goops.h, goops.c (scm_module_goops): New variable.
+
 	* goops.c (scm_sys_invalidate_method_cache_x): Strip rest args
 	flag.  (Thanks to Nicolas Neuss.)
+	(scm_init_goops, make_class_from_template): Use scm_module_goops.
 
 2000-06-21  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 	
