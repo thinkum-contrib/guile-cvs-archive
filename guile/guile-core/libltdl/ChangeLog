@@ -1,8 +1,0 @@
-2002-10-04  Marius Vollmer  <mvo@zagadka.ping.de>
-
-	* ltdl.c: Renamed all exported functions and variables to have a
-	"scm_lt_" prefix.
-	(try_dlopen): Set newhandle to null when try_all_dlopen failed.
-	(scm_lt_dlopenext): Reverse test of "file_not_found()".
-	Previously, we would stop searching when the file wasn't found
-	yet, while we should continue in that case.
