@@ -1,0 +1,38 @@
+summary: interaction of dynamic-wind, call/cc, exceptions and/or handler causes segfault
+reported: Gary Houston <ghouston@arglist.com>, 2002-04-08
+affects: 1.4, HEAD
+
+This example is from workbook/extension/dynamic-root.txt.  It's
+probably not surprising that nesting exception handlers and dynamic
+wind may cause difficulties.
+
+(define with-reentry-barrier
+  (lambda (thunk)
+    (let ((entered #f))
+      (dynamic-wind
+	  (lambda ()
+	    (if entered
+		(error "Attempt to break reentry barrier")
+		(set! entered #t)))
+	  thunk
+	  (lambda () #f)))))
+
+(define (break-me user-proc)
+  (catch #t
+	 (lambda ()
+	   (display "executing user ...\n")
+	   (with-reentry-barrier user-proc)
+	   (display "... done\n"))
+	 (lambda args
+	   (display "outer catch!\n")
+	   (write args))))
+
+guile> (define cont #f)
+(break-me (lambda ()
+	    (call-with-current-continuation (lambda (c)
+					      (set! cont c)))))
+
+guile> executing user ...
+... done
+guile> (cont #f)
+Segmentation fault
