@@ -542,7 +542,7 @@ scm_init_readline ()
 #ifdef HAVE_RL_GETC_FUNCTION
 #include "guile-readline/readline.x"
   scm_readline_completion_function_var
-    = scm_define ("*readline-completion-function*", SCM_BOOL_F);
+    = scm_c_define ("*readline-completion-function*", SCM_BOOL_F);
   rl_getc_function = current_input_getc;
   rl_redisplay_function = redisplay;
   rl_completion_entry_function = (Function*) completion_function;
