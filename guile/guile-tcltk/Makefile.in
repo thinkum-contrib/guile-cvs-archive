@@ -155,7 +155,7 @@ install-sh ltconfig ltmain.sh mdate-sh missing mkinstalldirs
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
-TAR = gtar
+TAR = tar
 GZIP_ENV = --best
 DEP_FILES =  .deps/gtcltk-module.P .deps/guile-tcl.P .deps/guile-tcltk.P \
 .deps/guile-tk.P .deps/guiledlopenhelper.P .deps/tclUnixNotfy.P
