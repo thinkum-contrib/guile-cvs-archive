@@ -82,12 +82,12 @@
 #define CALL_GF4(name,a,b,c,d)	(scm_apply (GETVAR (Intern(name)), \
 					    SCM_LIST4 (a, b, c, d), SCM_EOL))
 
-#define CLASS_REDEF(c) SCM_SLOT(c, scm_si_redefined)
-#define TEST_CHANGE_CLASS(obj, class) 						\
-	{ 									\
-	  class = SCM_CLASS_OF(obj);						\
-          if (CLASS_REDEF(class) != SCM_BOOL_F) 					\
-	    CALL_GF3("change-object-class", obj, class, CLASS_REDEF(class));	\
+/* #define SCM_CLASS_REDEF(c) SCM_SLOT(c, scm_si_redefined) */
+#define TEST_CHANGE_CLASS(obj, class) 					      \
+	{ 								      \
+	  class = SCM_CLASS_OF(obj);					      \
+          if (SCM_CLASS_REDEF(class) != SCM_BOOL_F) 			      \
+	    CALL_GF3("change-object-class", obj, class, SCM_CLASS_REDEF(class)); \
 	}
 
 #define NXT_MTHD_METHODS(m)	(SCM_VELTS (m)[1])
@@ -526,6 +526,7 @@ scm_instance_p (SCM obj)
 }
 
 SCM_PROC (s_class_of, "class-of", 1, 0, 0, scm_class_of);
+/* scm_class_of is defined in libguile */
 
 /******************************************************************************
  * 
@@ -1024,6 +1025,12 @@ scm_sys_modify_instance (SCM old, SCM new)
   SCM_SETCDR (old, SCM_CDR (new));
   SCM_SETCDR (new, tmp);
   return SCM_UNSPECIFIED;
+}
+
+static void
+change_object_class (obj, old_class, new_class)
+{
+  CALL_GF3 ("change-object-class", obj, old_class, new_class);
 }
 
 /* Kept for compatibility with STKlos. */
@@ -1820,6 +1827,7 @@ scm_init_goops (void)
     = scm_permanent_object (scm_make_subr (s_apply_generic_3,
 					   scm_tc7_lsubr_2,
 					   apply_generic_3));
+  scm_change_object_class = change_object_class;
 
   create_Top_Object_Class ();
   make_standard_classes ();
