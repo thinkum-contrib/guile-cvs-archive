@@ -169,7 +169,6 @@ Part III: Guile Modules
 * SLIB::                        Using the SLIB Scheme library.
 * POSIX::                       POSIX system calls and networking.
 * SRFI Support::                Support for various SRFIs.
-* SRFI-13/14::                  String library and character set library.
 * Readline Support::            Module for using the readline library.
 * Value History::               Maintaining a value history in the REPL.
 * Expect::			Controlling interactive programs with Guile.
@@ -253,7 +252,6 @@ Indices
 @include slib.texi
 @include posix.texi
 @include srfi-modules.texi
-@include srfi-13-14.texi
 @include repl-modules.texi
 @include expect.texi
 @include scsh.texi
