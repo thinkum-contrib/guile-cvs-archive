@@ -175,7 +175,7 @@ what will happen in this area.
 (scheme safe)		 Safe modules.
 (scheme srfi-1)		 List processing.
 (scheme srfi-8)		 Multiple valuas via `receive'.
-(scheme receive)	 dito.
+(scheme receive)	 ditto.
 (scheme and-let-star)	 and-let*
 (scheme syncase)	 syntax-case hygienic macros (maybe included in
 			 (scheme r5rs?).
@@ -204,11 +204,11 @@ In the database section, there should be sub-module hierarchies for
 each supported database which contains the low-level code, and a
 common database layer, which should unify access to SQL databases via a single interface a la Perl's DBMI.
 
-(database postgres ...)  Low-level database functionality. 
+(database postgres ...)  Low-level database functionality.
 (database oracle ...)    ...
 (database mysql ...)     ...
 (database msql ...)      ...
-(database sql)		 Common SQL accessors. 
+(database sql)		 Common SQL accessors.
 (database gdbm ...)      ...
 (database hashed)        Common hashed database accessors (like gdbm).
 (database util)		 Leftovers.
