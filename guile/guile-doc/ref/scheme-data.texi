@@ -2,11 +2,48 @@
 @node Generic Data Types
 @chapter Data Types for Generic Use
 
+This chapter describes all the data types that Guile provides for
+``generic use''.
+
+One of the great strengths of Scheme is that there is no straightforward
+distinction between ``data'' and ``functionality''.  For example,
+Guile's support for dynamic linking could be described
+
+@itemize
+@item
+either in a ``data-centric'' way, as the behaviour and properties of the
+``dynamically linked object'' data type, and the operations that may be
+applied to instances of this type
+
+@item
+or in a ``functionality-centric'' way, as the set of procedures that
+constitute Guile's support for dynamic linking, in the context of the
+module system.
+@end itemize
+
+The contents of this chapter are, therefore, a matter of judgement.  By
+``generic use'', we mean to select those data types whose typical use as
+@emph{data} in a wide variety of programming contexts is more important
+than their use in the implementation of a particular piece of
+@emph{functionality}.
+
+@ifinfo
+The following menu
+@end ifinfo
+@iftex
+The table of contents for this chapter
+@end iftex
+@ifhtml
+The following table of contents
+@end ifhtml
+show the data types that are documented in this chapter.  The final
+section of this chapter lists all the core Guile data types that are not
+documented here, and provides links to the ``functionality-centric''
+sections of this manual that cover them.
+
 @menu
 * Booleans::                    True/false values.
 * Numbers::                     Numerical operations.
-* Bitwise Operations::          Logical AND, OR, NOT, and so on.
-* Random::                      Random number generation.
 * Characters::                  New character names.
 * Strings::                     Special things about strings.
 * Regular Expressions::         Pattern matching and substitution.
@@ -14,16 +51,13 @@
 * Keywords::                    Self-quoting, customizable display keywords.
 * Pairs::                       Scheme's basic building block.
 * Lists::                       Special list functions supported by Guile.
-
-To make it easier to write powerful applications, Guile provides many
-data structures not found in standard Scheme.
-
 * Records::
 * Structures::
 * Arrays::
 * Association Lists and Hash Tables::
 * Vectors::
 * Hooks::                       User-customizable event lists.
+* Other Data Types::            Data types that are documented elsewhere.
 @end menu
 
 
@@ -320,9 +354,14 @@ Return the complex number Z1 * e^(i * Z2).
 Returns an exact number that is numerically closest to Z.
 @end deffn
 
+@menu
+* Bitwise Operations::          Logical AND, OR, NOT, and so on.
+* Random::                      Random number generation.
+@end menu
+
 
 @node Bitwise Operations
-@section Bitwise Operations
+@subsection Bitwise Operations
 
 @c docstring begin (texi-doc-string "guile" "logand")
 @deffn primitive logand n1 n2
@@ -482,7 +521,7 @@ Example:
 
 
 @node Random
-@section Random
+@subsection Random
 
 @c docstring begin (texi-doc-string "guile" "copy-random-state")
 @deffn primitive copy-random-state [state]
@@ -4131,6 +4170,10 @@ Returns @t{#t} if @var{obj} is a vector, otherwise returns @t{#f}. (r5rs)
 @c docstring begin (texi-doc-string "guile" "hook->list")
 @deffn primitive hook->list hook
 @end deffn
+
+
+@node Other Data Types
+@section Other Core Guile Data Types
 
 
 @c Local Variables:

@@ -14,3 +14,8 @@ nice explanation of continuations.
 http://wombat.doc.ic.ac.uk/foldoc/
 
 @end itemize
+
+
+@c Local Variables:
+@c TeX-master: "guile.texi"
+@c End:

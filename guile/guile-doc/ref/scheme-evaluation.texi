@@ -1,0 +1,140 @@
+@page
+@node Evaluation
+@chapter Evaluation
+
+This chapter describes Guile functions that are concerned with loading
+and evaluating Scheme code at run time.  R4RS Scheme, because of strong
+differences in opinion among implementors, only provides a @code{load}
+function.  There are many useful programs that are difficult or
+impossible to write without more powerful evaluation procedures, so we
+have provided some.
+
+@c ARGFIXME x/obj
+@c docstring begin (texi-doc-string "guile" "promise?")
+@deffn primitive promise? x
+Return true if @var{obj} is a promise, i.e. a delayed computation
+(@pxref{Delayed evaluation,,,r4rs.info,The Revised^4 Report on Scheme}).
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "force")
+@deffn primitive force x
+If the promise X has not been computed yet, compute and return
+X, otherwise just return the previously computed value.
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "copy-tree")
+@deffn primitive copy-tree obj
+Recursively copy the data tree that is bound to @var{obj}, and return a
+pointer to the new data structure.  @code{copy-tree} recurses down the
+contents of both pairs and vectors (since both cons cells and vector
+cells may point to arbitrary objects), and stops recursing when it hits
+any other object.
+@end deffn
+
+@c ARGFIXME environment/environment specifier
+@c docstring begin (texi-doc-string "guile" "eval")
+@deffn primitive eval exp environment
+Evaluate @var{exp}, a list representing a Scheme expression, in the
+environment given by @var{environment specifier}.
+@end deffn
+
+@c ARGFIXME obj/exp env_thunk/lookup
+@c docstring begin (texi-doc-string "guile" "eval2")
+@deffn primitive eval2 obj env_thunk
+Evaluate @var{exp}, a Scheme expression, in the environment designated
+by @var{lookup}, a symbol-lookup function.  @code{(eval exp)} is
+equivalent to @code{(eval2 exp *top-level-lookup-closure*)}.
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "local-eval")
+@deffn primitive local-eval exp [env]
+Evaluate @var{exp} in its environment.  If @var{env} is supplied,
+it is the environment in which to evaluate @var{exp}.  Otherwise,
+@var{exp} must be a memoized code object (in which case, its environment
+is implicit).
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "eval-string")
+@deffn primitive eval-string string
+Evaluate @var{string} as the text representation of a Scheme form
+or forms, and return whatever value they produce.
+Evaluation takes place in (interaction-environment).
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "apply:nconc2last")
+@deffn primitive apply:nconc2last lst
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "read-and-eval!")
+@deffn primitive read-and-eval! [port]
+Read a form from @var{port} (standard input by default), and evaluate it
+(memoizing it in the process) in the top-level environment.  If no data
+is left to be read from @var{port}, an @code{end-of-file} error is
+signalled.
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "eval-options-interface")
+@deffn primitive eval-options-interface [setting]
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "evaluator-traps-interface")
+@deffn primitive evaluator-traps-interface [setting]
+@end deffn
+
+@c ARGFIXME file/filename
+@c docstring begin (texi-doc-string "guile" "primitive-load")
+@deffn primitive primitive-load filename
+Load @var{file} and evaluate its contents in the top-level environment.
+The load paths are not searched; @var{file} must either be a full
+pathname or be a pathname relative to the current directory.  If the
+variable @code{%load-hook} is defined, it should be bound to a procedure
+that will be called before any code is loaded.  See documentation for
+@code{%load-hook} later in this section.
+@end deffn
+
+@c ARGFIXME file/filename
+@c docstring begin (texi-doc-string "guile" "primitive-load-path")
+@deffn primitive primitive-load-path filename
+Search @var{%load-path} for @var{file} and load it into the top-level
+environment.  If @var{file} is a relative pathname and is not found in
+the list of search paths, an error is signalled.
+@end deffn
+
+@c ARGFIXME file/filename
+@c docstring begin (texi-doc-string "guile" "%search-load-path")
+@deffn primitive %search-load-path filename
+Search @var{%load-path} for @var{file}, which must be readable by the
+current user.  If @var{file} is found in the list of paths to search or
+is an absolute pathname, return its full pathname.  Otherwise, return
+@code{#f}.  Filenames may have any of the optional extensions in the
+@code{%load-extensions} list; @code{%search-load-path} will try each
+extension automatically.
+@end deffn
+
+@defvar %load-hook
+A procedure to be run whenever @code{primitive-load} is called.  If this
+procedure is defined, it will be called with the filename argument that
+was passed to @code{primitive-load}.
+
+@example
+(define %load-hook (lambda (file)
+                     (display "Loading ")
+                     (display file)
+                     (write-line "...."))) @result{} undefined
+(load-from-path "foo.scm")
+@print{} Loading /usr/local/share/guile/site/foo.scm....
+@end example
+
+@end defvar
+
+@defvar %load-extensions
+A list of default file extensions for files containing Scheme code.
+@code{%search-load-path} tries each of these extensions when looking for
+a file to load.  By default, @code{%load-extensions} is bound to the
+list @code{("" ".scm")}.
+@end defvar
+
+
+@c Local Variables:
+@c TeX-master: "guile.texi"
+@c End:

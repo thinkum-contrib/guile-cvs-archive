@@ -1,0 +1,160 @@
+@page
+@node Procedures
+@chapter Procedures
+
+@c docstring begin (texi-doc-string "guile" "procedure-properties")
+@deffn primitive procedure-properties proc
+Return @var{obj}'s property list.
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "procedure-property")
+@deffn primitive procedure-property p k
+Return the property of @var{obj} with name @var{key}.
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "set-procedure-properties!")
+@deffn primitive set-procedure-properties! proc new_val
+Set @var{obj}'s property list to @var{alist}.
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "set-procedure-property!")
+@deffn primitive set-procedure-property! p k v
+In @var{obj}'s property list, set the property named @var{key} to
+@var{value}.
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "closure?")
+@deffn primitive closure? obj
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "make-procedure-with-setter")
+@deffn primitive make-procedure-with-setter procedure setter
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "procedure")
+@deffn primitive procedure proc
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "procedure-with-setter?")
+@deffn primitive procedure-with-setter? obj
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "procedure?")
+@deffn primitive procedure? obj
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "thunk?")
+@deffn primitive thunk? obj
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "set-source-properties!")
+@deffn primitive set-source-properties! obj plist
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "set-source-property!")
+@deffn primitive set-source-property! obj key datum
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "source-properties")
+@deffn primitive source-properties obj
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "source-property")
+@deffn primitive source-property obj key
+@end deffn
+
+[FIXME: This needs some more text on the difference between procedures,
+macros and memoizing macros.  Also, any definitions listed here should
+be double-checked by someone who knows what's going on.  Ask Mikael, Jim
+or Aubrey for help. -twp]
+
+@c docstring begin (texi-doc-string "guile" "procedure-documentation")
+@deffn primitive procedure-documentation proc
+Return the documentation string associated with @code{proc}.  By
+convention, if a procedure contains more than one expression and the
+first expression is a string constant, that string is assumed to contain
+documentation for that procedure.
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "procedure->syntax")
+@deffn primitive procedure->syntax code
+Returns a @dfn{macro} which, when a symbol defined to this value
+appears as the first symbol in an expression, returns the result
+of applying @var{code} to the expression and the environment.
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "procedure->macro")
+@deffn primitive procedure->macro code
+Returns a @dfn{macro} which, when a symbol defined to this value
+appears as the first symbol in an expression, evaluates the result
+of applying @var{code} to the expression and the environment.
+The value returned from @var{code} which has been passed to
+@code{procedure->memoizing-macro} replaces the form passed to
+@var{code}.  For example:
+
+@example
+(define trace
+  (procedure->macro
+   (lambda (x env) `(set! ,(cadr x) (tracef ,(cadr x) ',(cadr x))))))
+
+(trace @i{foo}) @equiv{} (set! @i{foo} (tracef @i{foo} '@i{foo})).
+@end example
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "procedure->memoizing-macro")
+@deffn primitive procedure->memoizing-macro code
+Returns a @dfn{macro} which, when a symbol defined to this value
+appears as the first symbol in an expression, evaluates the result
+of applying @var{proc} to the expression and the environment.
+The value returned from @var{proc} which has been passed to
+@code{procedure->memoizing-macro} replaces the form passed to
+@var{proc}.  For example:
+
+@example
+(define trace
+  (procedure->macro
+   (lambda (x env) `(set! ,(cadr x) (tracef ,(cadr x) ',(cadr x))))))
+
+(trace @i{foo}) @equiv{} (set! @i{foo} (tracef @i{foo} '@i{foo})).
+@end example
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "macro?")
+@deffn primitive macro? obj
+Return @code{#t} if @var{obj} is a regular macro, a memoizing macro or a
+syntax transformer.
+@end deffn
+
+@c ARGFIXME m/obj
+@c docstring begin (texi-doc-string "guile" "macro-type")
+@deffn primitive macro-type m
+Return one of the symbols @code{syntax}, @code{macro} or @code{macro!},
+depending on whether @var{obj} is a syntax tranformer, a regular macro,
+or a memoizing macro, respectively.  If @var{obj} is not a macro,
+@code{#f} is returned.
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "macro-name")
+@deffn primitive macro-name m
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "macro-transformer")
+@deffn primitive macro-transformer m
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "cons-source")
+@deffn primitive cons-source xorig x y
+Create and return a new pair whose car and cdr are @var{x} and @var{y}.
+Any source properties associated with @var{xorig} are also associated
+with the new pair.
+@end deffn
+
+
+@page
+@node Optional Arguments
+@chapter Optional Arguments
+
+
+@c Local Variables:
+@c TeX-master: "guile.texi"
+@c End:

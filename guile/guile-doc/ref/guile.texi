@@ -222,28 +222,30 @@ Part II: Guile Scheme
 * Guile and R5RS Scheme::       Guile as an extended implementation of Scheme.
 * Scheme Ideas::                Introduction to basic Scheme ideas.
 * Generic Data Types::          Data types for generic use.
-* Options::                     How to query and set Guile's runtime options.
-* Read Syntax Extensions::      Block comments, interpreter triggers, etc.
-* Optional Arguments::          Handling keyword, optional and rest arguments.
-* Exceptions::                  Signalling and handling fatal errors.
-* Modules::                     Designing reusable code libraries.
-* Evaluation::                  Running and evaluating code on the fly.
-* Equality::                    When are two values `the same'?
 * Procedures::                  Procedure types and properties.
+* Optional Arguments::          Handling keyword, optional and rest arguments.
+* Equality::                    When are two values `the same'?
 * Property Lists::              Managing metainformation about Scheme objects.
 * Primitive Properties::        A modern low-level interface to object properties.
+* Sorting::                     Sort utility procedures.
+* Binding Constructs::
+* Control Mechanisms::
+* Read Syntax Extensions::      Block comments, interpreter triggers, etc.
 * Ports::                       I/O in Scheme.
 * Reading and Writing::         Reading and writing.
-* Sorting::                     Sort utility procedures.
-* Dynamic Linking from Marius::
+* Evaluation::                  Running and evaluating code on the fly.
+* Exceptions::                  Signalling and handling fatal errors.
 * Dynamic Wind::
-* Threads and Dynamic Roots::
+* Garbage Collection::
 * Weak References::
 * Objects::                     Low level object orientation support.
 * Guardians::                   Guardians.
-* Emacs Lisp Support::          Helper primitives for translating Emacs Lisp.
-* Garbage Collection::
+* Modules::                     Designing reusable code libraries.
+* Dynamic Linking from Marius::
+* Threads and Dynamic Roots::
+* Options::                     How to query and set Guile's runtime options.
 * Configuration Data::		Version info, library directories, etc.
+* Emacs Lisp Support::          Helper primitives for translating Emacs Lisp.
 * Internal Debugging Interface::
 * SLIB::                        Using the SLIB Scheme library.
 * POSIX System Calls and Networking::
@@ -321,7 +323,21 @@ Indices
 @include scheme-intro.texi
 @include scheme-ideas.texi
 @include scheme-data.texi
-@include scheme.texi
+@include scheme-procedures.texi
+@include scheme-utility.texi
+@include scheme-binding.texi
+@include scheme-control.texi
+@include scheme-io.texi
+@include scheme-evaluation.texi
+@include scheme-exceptions.texi
+@include scheme-memory.texi
+@include scheme-modules.texi
+@include scheme-scheduling.texi
+@c object orientation support here
+@include scheme-options.texi
+@include scheme-translation.texi
+@include scheme-debug.texi
+@include slib.texi
 
 @c Unix system interface
 @iftex

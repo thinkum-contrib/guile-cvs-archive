@@ -1,0 +1,28 @@
+@page
+@node Emacs Lisp Support
+@chapter Emacs Lisp Support
+
+@c docstring begin (texi-doc-string "guile" "nil-car")
+@deffn primitive nil-car x
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "nil-cdr")
+@deffn primitive nil-cdr x
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "nil-cons")
+@deffn primitive nil-cons x y
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "nil-eq")
+@deffn primitive nil-eq x y
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "null")
+@deffn primitive null x
+@end deffn
+
+
+@c Local Variables:
+@c TeX-master: "guile.texi"
+@c End:

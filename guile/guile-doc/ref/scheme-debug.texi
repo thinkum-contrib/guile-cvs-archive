@@ -1,0 +1,141 @@
+@page
+@node Internal Debugging Interface
+@chapter Internal Debugging Interface
+
+--- The name of this chapter needs to clearly distinguish it
+    from the appendix describing the debugger UI.  The intro
+    should have a pointer to the UI appendix.
+
+@c docstring begin (texi-doc-string "guile" "display-error")
+@deffn primitive display-error stack port subr message args rest
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "display-application")
+@deffn primitive display-application frame [port [indent]]
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "display-backtrace")
+@deffn primitive display-backtrace stack port [first [depth]]
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "backtrace")
+@deffn primitive backtrace
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "malloc-stats")
+@deffn primitive malloc-stats
+Return an alist ((WHAT . N) ...) describing number of malloced objects.
+WHAT is the second argument to scm_must_malloc, N is the number of objects
+of that type currently allocated.
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "debug-options-interface")
+@deffn primitive debug-options-interface [setting]
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "with-traps")
+@deffn primitive with-traps thunk
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "memoized?")
+@deffn primitive memoized? obj
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "unmemoize")
+@deffn primitive unmemoize m
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "memoized-environment")
+@deffn primitive memoized-environment m
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "procedure-name")
+@deffn primitive procedure-name proc
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "procedure-source")
+@deffn primitive procedure-source proc
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "procedure-environment")
+@deffn primitive procedure-environment proc
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "debug-object?")
+@deffn primitive debug-object? obj
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "frame-arguments")
+@deffn primitive frame-arguments frame
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "frame-evaluating-args?")
+@deffn primitive frame-evaluating-args? frame
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "frame-next")
+@deffn primitive frame-next frame
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "frame-number")
+@deffn primitive frame-number frame
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "frame-overflow?")
+@deffn primitive frame-overflow? frame
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "frame-previous")
+@deffn primitive frame-previous frame
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "frame-procedure")
+@deffn primitive frame-procedure frame
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "frame-procedure?")
+@deffn primitive frame-procedure? frame
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "frame-real?")
+@deffn primitive frame-real? frame
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "frame-source")
+@deffn primitive frame-source frame
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "frame?")
+@deffn primitive frame? obj
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "last-stack-frame")
+@deffn primitive last-stack-frame obj
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "make-stack")
+@deffn primitive make-stack obj . args
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "stack-id")
+@deffn primitive stack-id stack
+Return the identifier given to @var{stack} by @code{start-stack}.
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "stack-length")
+@deffn primitive stack-length stack
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "stack-ref")
+@deffn primitive stack-ref stack i
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "stack?")
+@deffn primitive stack? obj
+Return @code{#t} if @var{obj} is a calling stack.
+@end deffn
+
+
+@c Local Variables:
+@c TeX-master: "guile.texi"
+@c End:

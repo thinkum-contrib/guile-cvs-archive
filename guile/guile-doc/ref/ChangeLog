@@ -1,3 +1,35 @@
+2000-12-06  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* scheme-data.texi (Generic Data Types): Added chapter
+	introduction.
+	(Bitwise Operations, Random): Moved underneath Numbers.
+	(Other Data Types): New placeholder section for data types that
+	are documented elsewhere.
+
+	* scheme-indices.texi, scheme-reading.texi: Added Local Variables
+	block.
+
+2000-12-06  Neil Jerram  <neil@ossau.uklinux.net>
+
+	This change replaces scheme.texi, which is unmanageably large, by
+	a set of smaller one-per-chapter files.  The set and ordering of
+	the new files reflects the intended top level structure of the
+	Guile Scheme part of the reference manual.  This structure is not
+	yet all reflected in the combined Texinfo/Info, though, because I
+	haven't yet fixed the @node levels appropriately.
+	
+	* scheme.texi: Removed, after dividing content into new files.
+
+	* scheme-procedures.texi, scheme-utility.texi,
+	scheme-binding.texi, scheme-control.texi, scheme-io.texi,
+	scheme-evaluation.texi, scheme-exceptions.texi,
+	scheme-memory.texi, scheme-modules.texi, scheme-scheduling.texi,
+	scheme-options.texi, scheme-translation.texi, scheme-debug.texi,
+	slib.texi: New files.
+
+	* guile.texi: @include new files instead of scheme.texi.  Reorder
+	existing top level nodes.
+	
 2000-12-01  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* scheme-data.texi: Remove @page breaks (following demotion).
