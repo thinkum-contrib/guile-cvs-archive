@@ -14,12 +14,14 @@
 (define data-file-2 (in-vicinity data-dir "port-data-2"))
 
 (define (read-sexp) 
-  (time-thunk-repeated 
-   'read-sexp 10
+  (time-accumulate
+   'read-sexp
    (lambda ()
-     (let ((data-1 (open-input-file data-file-1)))
-       (read data-1)
-       (close-port data-1)))))
+     (do ((i 0 (+ i 1)))
+	 ((>= i 10))
+       (let ((data-1 (open-input-file data-file-1)))
+	 (time-pass (lambda () (read data-1)))
+	 (close-port data-1))))))
 
 (define (write-sexp)
   (let ((sexp (let* ((data-1 (open-input-file data-file-1))
@@ -99,9 +101,14 @@
 ;;;
 ;;; The total GC time increases by a factor of eight.  I don't really
 ;;; know what's going on here.
+;;;
+;;; Maybe what this means is that my whole benchmarking approach is
+;;; wrong --- I should start a separate Guile process for each test,
+;;; and try to calibrate for startup time.  But in that case, how does
+;;; the framework know how much time Guile spent in GC?
 
 (define (port-run)
-  (benchmark-title "ports" 3)
+  (benchmark-title "ports" 4)
 
   (read-sexp)
   (write-sexp)
