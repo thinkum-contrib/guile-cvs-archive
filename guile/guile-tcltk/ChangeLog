@@ -1,3 +1,12 @@
+Wed Sep 11 14:34:20 1996  Jim Blandy  <jimb@floss.cyclic.com>
+
+	Find the libguile headers correctly when building in a separate
+	dir.
+	* Makefile.in (ALL_CFLAGS): Refer to GTCLTK_INCLUDES and
+	LIBGUILE_INCLUDES; the net effect is to add -I$(srcdir) and
+	-I.. to the header path.
+	(GTCLTK_INCLUDES, LIBGUILE_INCLUDES): New variables.
+
 Tue Sep 10 16:51:03 1996  Jim Blandy  <jimb@floss.cyclic.com>
 
 	* guile-tcl.c, guile-tk.c: Use the SCM_P macro to declare

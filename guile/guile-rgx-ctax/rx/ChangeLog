@@ -1,3 +1,10 @@
+Wed Sep 11 14:39:47 1996  Jim Blandy  <jimb@floss.cyclic.com>
+
+	* Makefile.in (ALL_CFLAGS): Delete reference to libguile header
+	directory; @opt_cflags@ is supposed to provide that.
+	* configure.in: Include '-I..' in opt_cflags, if we're being
+	compiled as part of libguile.  No need to give '-I../libguile'.
+
 Tue Sep 10 16:56:33 1996  Jim Blandy  <jimb@floss.cyclic.com>
 
 	* rgx.c: #include smob.h, mallocs.h, and chars.h.  Use
