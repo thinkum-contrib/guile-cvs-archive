@@ -305,6 +305,27 @@ do formulate the decisions as I assume that we will agree about.
 4. Incremental changes for improving the evaluator
 ==================================================
 
+* get rid of the builtin "acros" and "macros".  These two kinds of syntax
+  transformers are dynamically executed whenever the corresponding code is
+  executed (see above).  Thus, they can never be separated from the execution
+  phase.  Therefore, with support for these transformers, no separation of
+  memoization and execution would be possible.
+
+  This change means to remove the following functions from guile:
+  - scm_makacro (C function)
+  - procedure->syntax (scheme function)
+  - scm_makmacro (C function)
+  - procedure->macro (scheme function)
+
+  The following functions would become pointless and could also be removed:
+  - scm_macro_type (C function)
+  - macro-type (scheme function)
+  - SCM_MACRO_TYPE (C macro)
+
+  The signature of the following functions could be simplified:
+  - scm_make_synt (C function)
+  - SCM_SYNTAX (C macro)
+
 * split the functionality of scm_lookupcar into the following subtasks:
   a) a function to transform a symbol into its memoized form:
      static SCM symbol2memoized_symbol (SCM symbol, SCM environment);
