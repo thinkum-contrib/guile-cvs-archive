@@ -223,6 +223,9 @@
   do { SCM_ASSERT (SCM_NIMP (a) && SCM_ASYNCP (a), a, pos, FUNC_NAME); \
        cvar = SCM_ASYNC(a); } while (0)
 
+#define SCM_VALIDATE_THREAD(pos,a) \
+  do { SCM_ASSERT (SCM_NIMP (a) && SCM_THREADP (a), a, pos, FUNC_NAME); } while (0)
+
 #define SCM_VALIDATE_THUNK(pos,thunk) \
   do { SCM_ASSERT (SCM_NFALSEP (scm_thunk_p (thunk)), thunk, pos, FUNC_NAME); } while (0)
 
