@@ -4,6 +4,18 @@ See the end for copying conditions.
 
 Please send guile-gtkthreads bug reports to bug-guile@gnu.org.
 
+Changes since version 0.1.4:
+
+* New procedure: gtkthreads-ensure-handler
+
+If no gtk-main handler is running, start one in a Guile thread.
+If a handler is running, do nothing.
+
+* New procedure: gtkthreads-handler?
+
+Returns #t if a handler is running, #f otherwise.
+
+
 Changes since version 0.1.2:
 
 * Upgraded with full support for the new thread functions in glib-1.3.

@@ -1,3 +1,16 @@
+2000-04-09  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* GTKTHREADS-VERSION: Release of 1.0.
+
+	* threads.scm (gtkthreads-ensure-handler): Use
+	gdk-threads-enter/leave.
+
+	* configure.in: Added check for sgtk_gdk_threads_enter.
+	Added check for gtk-config.  Added check for build-guile-gtk.
+
+	* gtkthreads.c, gtkthreads.h (sgtk_gdk_threads_enter,
+	sgtk_gdk_threads_leave): New functions.
+
 2000-04-08  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
 	* GTKTHREADS-VERSION: Release of 0.1.4.

@@ -11,6 +11,8 @@ This library needs to be compiled with:
 
 * libguile >2000-03-29 with thread support (--with-threads)
 
+* gtk 1.2 or 1.3
+
 * guile-gtk
 
 
@@ -22,8 +24,7 @@ Getting started
   (define b (gtk-button-new-with-label "Hello"))
   (gtk-container-add w b)
   (gtk-widget-show-all w)
-  (begin-thread (gtk-main)) ; this becomes the handler thread
-
+  (gtkthreads-ensure-handler)
 
 Notes
 -----
