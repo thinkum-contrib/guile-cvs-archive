@@ -86,7 +86,7 @@
 
 
 (define-public ((lexeme-reader dfa) . opt-port)
-  (let  ((port (or (and=> opt-port car) (current-input-port)))
+  (let  ((port (if (null? opt-port) (current-input-port) (car opt-port)))
 	 (buffer "")
 	 (best-tag -1)
 	 (best-pos #f)
@@ -266,7 +266,8 @@
 	 (apply handler scan-token port (read-lexeme port)))
 
        (define (scan-token-interface . opt-port)
-	 (let ((port (or (and=> opt-port car) (current-input-port))))
+	 (let ((port (if (null? opt-port) (current-input-port)
+			 (car opt-port))))
 	   (if (not (lineio-port? port))
 	       (throw 'error
 		      "Currently, only lineio ports are supported by lex."
