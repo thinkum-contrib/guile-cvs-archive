@@ -261,7 +261,7 @@ Releasing Guile
         - Check that the version numbers mentioned in the manual and
           in the output of "guile --version" are the right ones.
 
-        - Run "make dist".
+        - Run "make distcheck".
 
       * Test the beta release candidate tarfile.
 
@@ -352,24 +352,24 @@ Releasing Guile
 
       - Do a 'make dist'.
 
-      - Upload the tarfile.
-
-      - Update the News on www.guile.org.
+      - Upload the tarfile to gnudist.gnu.org:~ftp/pub/gnu/guile and
+        check the permissions.
 
   * Announcing the release
 
-    - Send an announcement message to gnu-announce@gnu.org.  Put a
-      brief summary of the changes in this release first, then
-      "Obtaining Guile", "Thanks", "About This Distribution," and
-      "Nightly Snapshots."  If I remember correctly, the moderator
-      will delay it until the distribution appears on ftp.gnu.org.
-      The announcement text should be mostly taken from Guile's README
-      file.
+    - Send an announcement message to gnu-announce@gnu.org,
+      guile-user@gnu.org, and guile-devel@gnu.org.  See the list
+      archives for announcement examples.
 
-    - Notify freshmeat.net, although they're probably watching anyway.
-      (They got the 1.3 release just fine.)  I have no idea if
-      www.bowerbird.com.au will be something anyone refers to, but
-      Guile does have an entry there.
+    - Update the News on www.guile.org.
+
+        - cd template
+        - edit news.html
+        - make singlefile=news.html one-no-commit
+        - check ../news.html
+        - commit changes from ../
+
+    - Change the topic on irc.freenode.net #guile.
 
 * Volunteer Testers
 
