@@ -1,8 +1,44 @@
+Overview
+========
+
+Proposed new procedures:
+
+with-continuation-barrier, implemented by
+scm_with_continuation_barrier in C. Takes 2 SCM arguments: a body
+thunk and an exception handler procedure.  The body is executed inside
+a "continuation barrier" that prevents calling continuations that were
+created on the other side of the barrier, in either direction.
+Uncaught throws inside the body are caught by the handler, in the
+style of scm_internal_catch.
+
+Two additional interfaces are created for use from C to give more
+convenient access to the exception handler:
+
+scm_c_c_continuation_barrier (scm_t_catch_body body, void *body_data,
+			      scm_t_catch_handler handler,
+			      void *handler_data)
+
+SCM
+scm_c_continuation_barrier (SCM body,
+			    scm_t_catch_handler handler,
+			    void *handler_data)
+
+
+The new procedures would ideally exist in a module, perhaps shared
+with other continuation or exception handling facilities.
+
+Procedures proposed for deprecation:
+
+scm_call_with_dynamic_root implements call-with-dynamic-root
+scm_apply_with_dynamic_root (undocumented, unused by Guile).
+scm_internal_cwdr (undocumented)
+
 The Problem
 ===========
 
 Certain applications embedding Guile (Scwm, Guppi) have found it
-necessary to include hacked versions of scm_call_with_dynamic_root.
+necessary to include hacked versions of scm_call_with_dynamic_root
+and/or its related procedures.
 
 They want to run user callbacks, but don't want the callback to be
 able to longjmp (via exceptions or continuations) randomly in and out,
@@ -106,7 +142,7 @@ The jump-back-in example above may now be fixed:
 		   (with-reentry-barrier user-proc)
 		   (display "... done\n")))
 
-However the jump-out example is resistent to this technique.  In any
+However the jump-out example is resistant to this technique.  In any
 case the interaction of dynamic-wind and continuations and exceptions
 is likely to cause strange and unstable behaviour:
 
@@ -135,18 +171,23 @@ preventing the execution of continuations that would cross the
 continuation barrier, instead of trying to clean things up after the
 continuation has been executed.
 
-Hence, what we really need is a method similar to dynamic-root, but
-without using dynamic root - which will remove one obstacle to the
-proposed removal of the dynamic roots.
+Hence, one approach is to use a method similar to dynamic-root, but
+without using dynamic root.
+
+Removing the interface for creating dynamic roots from the external
+API would allow dynamic roots to be limited to their use in the thread
+system: initially with exactly one dynamic root for each thread.  The
+implementation could then be changed without affect on the external
+API.
 
 Proposed implementation
 =======================
 
-As in the current system, it should not be permitted to invoke a
-continuation that was captured by a different thread.  This could be
-implemented by storing the current thread id in the continuation when
-it's captured and comparing with the current id when the continuation
-is invoked.
+In the current system it's not possible to invoke a continuation that
+was captured by a different thread.  It's not proposed to change this
+convention.  A possible implementation technique would be to store the
+current thread id in the continuation when it's captured and compare
+with the current id when the continuation is invoked.
 
 To implement the continuation barrier, for each thread we can have a
 simple list representing the barrier (let's call it
@@ -162,7 +203,8 @@ invoked, the stored cell pointer can be compared with the address of
 the cell currently at the head of the list.
 
 This w-c-b list comparison would also prevent cross-thread invokation,
-so comparison of thread-ids can be dropped.
+so the comparison of thread-ids suggested above can actually be
+dropped.
 
 An example implementation to play with is attached below.
 
@@ -171,7 +213,7 @@ Convenience
 
 For ease of use, we would like to have a single facility to set up
 both continuation and exception handlers.  An exception handler is
-needed in any case in the implementation discussed above.  Such an
+needed in any case in the implementation described above.  Such an
 interface in C should take at least a) the callback to be protected b)
 and exception handler and associated handler data to be passed to
 scm_internal_catch.
@@ -199,9 +241,9 @@ scm_c_continuation_barrier (SCM body,
 			    scm_t_catch_handler handler,
 			    void *handler_data)
 
-Should the facility be provide at the Scheme level too, or just in C?
-There's no obvious reason to restrict the application of callbacks to
-C, hence there is a third variant that takes two SCM arguments:
+Should the facility be provided at the Scheme level too, or just in C?
+There's no obvious reason to restrict the use of callbacks to C, hence
+there is a third variant that takes two SCM arguments:
 
 SCM_DEFINE (scm_with_continuation_barrier, "with-continuation-barrier",
 	    2, 0, 0,
@@ -244,11 +286,22 @@ functions.  To remove them completely will require minor changes to
 coop thread spawning, which will benefit by simplification of the
 scm_root struct.
 
-To do
-=====
+Module system
+=============
 
-error handling and reporting (stack trace?), more on convenience of
-use (e.g., try it out in Guppi).
+New interfaces should probably be in a separate module, to allow later
+modifications to the interface without breaking old code -- e.g., by
+adding a new module with a new name, if versioning isn't available.
+However to make this work in C too, the module needs to be a separate
+dynamic library, which reduces the convenience of use.  Perhaps it
+could be combined into a module with related non-R5RS continuation or
+catch/throw facilities.
+
+Unknowns
+========
+
+Does anything need to be done for error handling and reporting (e.g.,
+stack trace?)  This may be a topic for a separate discussion.
 
 References
 ==========
