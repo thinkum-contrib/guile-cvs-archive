@@ -38,49 +38,6 @@ Any problems with the installation should be reported to
 @email{bug-guile@@gnu.ai.mit.edu}
 
 @page
-@node Invoking Guile
-@appendix Invoking Guile
-        --- mentions read-eval-print loops
-	--- both the SCSH and GAWK manuals relegate invocation details
-            to an appendix.  We can give examples in the introduction.
-
-@table @samp
-@item -h
-@itemx --help
-Display a helpful message.
-@item -v
-@item --version
-Display the current version.
-@item --emacs
-To be used for emacs editing support.
-@item -s @var{file}
-Process @var{file} as a script then quit.  This is a terminating option:
-any further command line arguments can be accessed by the script using
-the @code{(program-arguments)} procedure.
-
-An executable script can start with the following:
-
-@smallexample
-#!/usr/bin/guile -s
-!#
-@end smallexample
-
-Note the @code{!#} token on the second line.  It is very important
-to include this token when writing Guile scripts.  Guile and SCSH,
-the Scheme shell, share the convention that @code{#!}  and
-@code{!#} may be used to mark block comments (@pxref{Block
-comments and interpreter triggers}).  If the closing @code{!#}
-token is not included, then Guile will consider the block comment
-to be unclosed, and the script will probably not compile
-correctly.
-
-It is also important to include the @samp{-s} option at the
-beginning of the Guile script, so that Guile knows not to behave
-in an interactive fashion.
-
-@end table
-
-@page
 @node debugger user interface
 @appendix debugger user interface
  
