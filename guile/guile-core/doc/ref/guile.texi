@@ -83,7 +83,7 @@
 
 @dircategory The Algorithmic Language Scheme
 @direntry
-* Guile Reference: (guile).  The Guile reference manual.
+* Guile Reference: (guile).     The Guile reference manual.
 @end direntry
 
 @setchapternewpage off

@@ -1,6 +1,3 @@
-@c $Id$
-
-
 @page
 @node What is Guile?
 @chapter What is Guile?
