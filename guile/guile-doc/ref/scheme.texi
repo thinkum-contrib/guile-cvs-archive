@@ -2249,6 +2249,10 @@ A wrapper for @code{close-port}.  This procedure is required by R4RS.
 A wrapper for @code{close-port}.  This procedure is required by R4RS.
 @end deffn
 
+@deffn primitive port-closed? port
+Returns @code{#t} if @var{port} is closed or @code{#f} if it is open.
+@end deffn
+
 @deffn primitive current-error-port
 Return the port to which errors and warnings should be sent (the
 @dfn{standard error} in Unix and C terminology).
