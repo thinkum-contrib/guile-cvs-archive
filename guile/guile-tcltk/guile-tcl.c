@@ -76,9 +76,9 @@ print_interp (exp, port, pstate)
      SCM port;
      scm_print_state *pstate;
 {
-  scm_gen_puts(scm_regular_string, "#<tcl-interpreter ", port);
+  scm_puts("#<tcl-interpreter ", port);
   scm_intprint(exp, 16, port);
-  scm_gen_putc('>', port);
+  scm_putc('>', port);
   return 1;
 }
 
