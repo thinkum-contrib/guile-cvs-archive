@@ -28,7 +28,6 @@
 
 (define-module (oop describe)
   :use-module (oop goops)
-  :use-module (oop compat)
   :use-module (ice-9 session)
   :use-module (ice-9 slib))
 
@@ -183,7 +182,7 @@
     (format #t "    Method ~A~%" x)
     
     ;; Associated generic
-    (when (null? omit-generic)
+    (if (null? omit-generic)
       (let ((gf (method-generic-function x)))
 	(if gf
 	    (format #t "\t     Generic: ~A~%" (generic-function-name gf))
