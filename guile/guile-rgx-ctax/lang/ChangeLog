@@ -1,3 +1,11 @@
+Thu Aug  1 02:56:13 1996  Jim Blandy  <jimb@totoro.cyclic.com>
+
+	* Makefile.in (dist-dir): New target, for new dist system.
+	(manifest): Deleted.
+	* PLUGIN/this.configure (aux_files): Add ChangeLog.  Omit PLUGIN;
+	that's a directory, and needs special handling in the dist-dir
+	target.  Omit ../doc/lang.texi; doc/Makefile.in handles that.
+
 Sun Jul 28 22:28:47 1996  Jim Blandy  <jimb@totoro.cyclic.com>
 
 	* PLUGIN/this.configure (aux_files): Add missing backslash.

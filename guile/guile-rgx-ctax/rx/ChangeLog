@@ -1,3 +1,11 @@
+Thu Aug  1 03:07:59 1996  Jim Blandy  <jimb@totoro.cyclic.com>
+
+	* Makefile.in: Updated to work with Guile's dist system.
+	(ancillery): Omit ../doc files; doc/Makefile.in handles them.
+	Omit PLUGIN; that needs special handling in the dist-dir target.
+	(dist-dir): New target.
+	(manifest): Deleted.
+
 Tue Jun 18 11:44:46 1996  Tom Lord  <lord@beehive>
 
 	* rxanal.c (rx_start_superstate): Don't release an old superstate

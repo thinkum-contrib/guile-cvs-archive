@@ -1,0 +1,8 @@
+Thu Aug  1 02:46:04 1996  Jim Blandy  <jimb@totoro.cyclic.com>
+
+	* Makefile.in: Updated for new dist system.
+	(dist-dir): New target.
+	(manifest): Target deleted.
+	* PLUGIN/this.configure (aux_files): Omit PLUGIN; it's a
+	directory, and it needs special handling in the dist-dir target.
+	Omit ../doc/ctax.texi; doc/Makefile.in takes care of that.
