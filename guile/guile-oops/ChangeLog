@@ -1,3 +1,50 @@
+1998-11-27  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* goops/goops.scm: Use module (goops core).
+	(initialize <class>): %inherit-magic! before initializing layout
+	slot.
+
+	* goops.c (CLASSP): Use the metaclass flag to determine if the
+	object is a class.  This is faster than looking in the supers
+	slot.
+	(scm_prep_layout_x): Make procedure slots opaque.
+	(scm_basic_make_class): Prep layout *after* inheriting magic, so
+	that we can use the flags for information;
+	Set the SCM_OBJF_GOOPS flag here.  scm_sys_inherit_magic_x uses it
+	for argument checking.
+	(scm_class_of): Don't presume that all structs are Goops objects!
+	(scm_sys_allocate_instance): Major rewrite of the class/object
+	flag logic.
+	(scm_make): Use scm_set_object_procedure_x to set the procedures.
+	(scm_init_goops): Use a new scheme for loading bindings into the
+	same module (goops goops) as the scheme code: We pretend that we
+	are the module (goops core) but switch to (goops goops) when
+	creating bindings.  (The old scheme had big problems since the
+	current module system isn't designed for having both scheme and
+	object code in the same module.)
+
+	* goops.h, goops.c: Renamed SCM_OBJF_GENERIC -->
+	SCM_OBJF_PURE_GENERIC.
+	(SCM_OBJ_FLAGS, SCM_SET_OBJ_FLAGS): New macros.
+	(scm_init_goops_core_module): Renamed from
+	scm_init_goops_goops_module.
+
+	* guile-oops.c (inner_main): Call scm_init_goops_core_module.
+
+	* goops.h (SCM_INST_TYPE): Use SCM_OBJ_FLAGS.
+	(scm_si_print): New slot index.
+
+	* goops/describe.scm: New file.
+
+	* TODO: New file.
+
+1998-11-26  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* goops.c (scm_sys_inherit_magic_x): Return SCM_UNSPECIFIED.
+
+	* goops.c, goops.h: Position of procedure slots moved in class
+	objects.
+
 1998-11-25  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* goops/goops.scm: Moved STk compatibility code to
