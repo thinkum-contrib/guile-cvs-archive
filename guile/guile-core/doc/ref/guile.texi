@@ -301,6 +301,7 @@ available through both Scheme and C interfaces.
 * Scheduling::                  Threads, mutexes, asyncs and dynamic roots.
 * Options and Config::          Configuration, features and runtime options.
 * Translation::                 Support for translating other languages.
+* Internationalization::        Support for gettext, etc.
 * Debugging::                   Internal debugging interface.
 * GH::                          The deprecated GH interface.
 @end menu
@@ -324,6 +325,7 @@ available through both Scheme and C interfaces.
 @c object orientation support here
 @include api-options.texi
 @include api-translation.texi
+@include api-i18n.texi
 @include api-debug.texi
 @include gh.texi
 
