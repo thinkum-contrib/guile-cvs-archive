@@ -58,7 +58,7 @@
 /* Define this if you want to debug the free list (helps w/ GC bugs) */
 #undef GUILE_DEBUG_FREELIST
 
-/* Define this if you want to debug scm_must_malloc/realloc/free calls */
+/* Define this if you want to debug scm_gc_malloc/realloc/free calls */
 #undef GUILE_DEBUG_MALLOC
 
 /* Define this if your system defines S_ISLNK in sys/stat.h */
