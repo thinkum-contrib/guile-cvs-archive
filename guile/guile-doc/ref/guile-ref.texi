@@ -119,34 +119,70 @@ Part I: Preliminaries
 * Linking Programs With Guile::
 * Writing Guile Modules::
 
-Part II: Guile Scheme
+Part II: Scheme Extensions
 
-* R4RS Scheme as a starting point::
-* Keywords::
-* Modules::
-* Exceptions::
+Guile provides many features and extensions not present in
+standard Scheme: a module system, threads, a regular expression
+interface, and so on.  Some other Scheme implementations provide
+these and similar features: we have endeavored to maintain
+compatibility with many of these systems.
+
+* Extensions to Scheme::        Guile supports many features not in R4RS.
+* SLIB::                        Using the SLIB Scheme library.
+* Data Structures::		Records, hash tables, etc.
+* Strings::                     Special things about strings.
+* Property Lists::              Managing metainformation about Scheme objects.
+* Ports::                       I/O in Scheme.
+* Bitwise Operations::          [Previously "Binary Numeric Operations" -twp]
+* Regular Expressions::         Pattern matching and substitution.
+* Keywords::                    Self-quoting, customizable display keywords.
+* Exceptions::                  Signalling and handling fatal errors.
+* Modules::                     Designing reusable code libraries.
+* Module Internals::            [FIXME: I think this should be a subnode
+                                       of Modules. -twp]
 * Dynamic Wind::
-* Records::
-* Structures::
-* Arrays::
-* Binary Numeric Operations::
-* Shared and Read-Only Strings::
-* Property Lists::
-* Association Lists and Hash Tables::
-* Input/Output Ports::
-* Garbage Collection::
 * Threads and Dynamic Roots::
 * Reflection::
 * Weak References::
-* Regular Expressions::
-* SLIB::
-* POSIX system calls and networking::
-* The Scheme shell (scsh)::
-* Tcl/Tk Interface::
-* Module Internals::
+* Garbage Collection::
 * Internal Debugging Interface::
 
-Part III: Using Scheme with C --- a Portable Interface
+Part III: Unix Programming
+
+Guile may be used as a system programming language (for writing daemons,
+system tools, database clients or network interfaces).  Guile's ``POSIX
+interface'' -- the code that permits you to use Unix system and library
+calls -- is described below.
+
+* Conventions::                 Conventions employed by the POSIX interface.
+* Ports and File Descriptors::	Scheme ``ports'' and Unix file descriptors
+				  have different representations.
+* File System::			stat, chown, chmod, etc.
+* User Information::		Retrieving a user's GECOS (/etc/passwd) entry.
+* Time::			gettimeofday, localtime, strftime, etc.
+* Processes::			getuid, getpid, etc.
+* Signals::                     sigaction, kill, pause, alarm, etc.
+* Terminals and Ptys::		ttyname, tcsetpgrp, etc.
+* Pipes::			Communicating data between processes.
+* Networking::			gethostbyaddr, getnetent, socket, bind, listen.
+* System Identification::	`uname' and getting info about this machine.
+* Locales::                     setlocale, etc.
+* Expect::			Controlling interactive programs with Guile.
+* The Scheme shell (scsh)::
+	The SCSH compatibility module has been made an
+	add-on, so maybe it shouldn't be documented here
+	(though it is nice to have a link from here to the
+	Guile-scsh manual, if one exists).
+* Tcl/Tk Interface::
+
+Part IV: Guile Extension Language
+
+All of the functions that make up the Guile interpreter can be found in
+the `libguile' library.  You may link other programs with this library
+and thereby use Scheme as an extension language for those programs.
+This section of the manual describes how to do that.
+
+Using Scheme with C --- a Portable Interface
 
 * A Portable C to Scheme Interface::
 * gh preliminaries::
@@ -162,7 +198,7 @@ Part III: Using Scheme with C --- a Portable Interface
 * Calling Scheme procedures from C::
 * Mixing gh and scm APIs::
 
-Part IV: Using Scheme with C --- Guile's Interface
+Part V: Using Scheme with C --- Guile's Low-Level Interface
 
 * Scheme data representation::
 * Relationship between Scheme and C functions::
@@ -175,13 +211,13 @@ Appendices and Indices
 * Obtaining and Installing Guile::
 * Reporting Bugs::
 * debugger user interface::
+
 * Concept Index::
 * Procedure Index::
 * Variable Index::
 * Type Index::
 
 @end menu
-
 
 @quotation
 OK, enough is enough.  I can see that I'm not going to be able to fool
@@ -214,22 +250,30 @@ programming world back, and I promise to be a good boy from now on.
 @c programming in Scheme
 @iftex
 @page
-@unnumbered{Part II: Guile Scheme}
+@unnumbered{Part II: Scheme Extensions}
 @end iftex
 
 @include scheme.texi
 
-@c Hybrid programming -- C and Scheme
+@c Unix system interface
 @iftex
 @page
-@unnumbered{Part III: Using Scheme with C --- a Portable Interface}
+@unnumbered{Part III: Unix Programming}
+@end iftex
+
+@include posix.texi
+
+@c Guile as an extension language
+@iftex
+@page
+@unnumbered{Part IV: Using Scheme with C --- a Portable Interface}
 @end iftex
 
 @include gh.texi
 
 @iftex
 @page
-@unnumbered{Part IV: Using Scheme with C --- Guile's Interface}
+@unnumbered{Part V: Using Scheme with C --- Guile's Low-Level Interface}
 @end iftex
 
 @include scm.texi
