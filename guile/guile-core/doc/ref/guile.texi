@@ -212,8 +212,6 @@ Part II: Guile Scheme
 * Debugging::                   Internal debugging interface.
 * Deprecated::                  Features that are planned to disappear.
 * Further Reading::             Where to find out more about Scheme programming.
-* R5RS Index::
-* Guile Extensions Index::
 
 Part III: Guile Modules
 
@@ -257,6 +255,8 @@ Indices
 * Procedure Index::
 * Variable Index::
 * Type Index::
+* R5RS Index::
+* Guile Extensions Index::
 
 @end menu
 
