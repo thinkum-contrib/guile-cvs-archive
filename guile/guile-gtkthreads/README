@@ -17,7 +17,9 @@ Getting started
 
   (use-modules (gtk gtk) (gtk threads))
   (define w (gtk-window-new 'toplevel))
-  (gtk-widget-show w)
+  (define b (gtk-button-new-with-label "Hello"))
+  (gtk-container-add w b)
+  (gtk-widget-show-all w)
   (begin-thread (gtk-main)) ; this becomes the handler thread
 
 
