@@ -39,6 +39,10 @@
  * whether to permit this exception to apply to your modifications.
  * If you do not wish that, delete this exception notice.  */
 
+#if HAVE_CONFIG_H
+#  include <config.h>
+#endif
+
 #include <stdio.h>
 #include <errno.h>
 #include <limits.h>
@@ -54,7 +58,7 @@
 
 #include "libguile/iselect.h"
 
-#ifdef USE_COOP_THREADS
+#ifdef SCM_USE_COOP_THREADS
 
 #include "libguile/coop-threads.h"
 
@@ -688,7 +692,7 @@ scm_internal_select (int nfds,
 }
 
 #else
-#ifdef USE_NULL_THREADS
+#ifdef SCM_USE_NULL_THREADS
 
 int
 scm_internal_select (int nfds,
@@ -708,8 +712,8 @@ scm_init_iselect ()
 #include "libguile/iselect.x"
 }
 
-#endif /* USE_NULL_THREADS */
-#endif /* !USE_COOP_THREADS */
+#endif /* SCM_USE_NULL_THREADS */
+#endif /* !SCM_USE_COOP_THREADS */
 
 /*
   Local Variables:
