@@ -66,15 +66,14 @@
 #define SPEC_OF(x)	    	SCM_SLOT(x, scm_si_specializers)
 
 
-#if 0 
-#define DEFVAR(v,val)		{STk_define_public_var(STklos,(v),(val)); \
-				 STk_export_symbol(v, STklos);}
-#define GETVAR(v)		(*(STk_varlookup((v), MOD_ENV(STklos),0)))
-#else /*fixme* Should integrate with module system */
-#define DEFVAR(v,val) {SCM_SETCDR (scm_sym2vcell (v, SCM_BOOL_F, SCM_BOOL_F), val);}
-#define GETVAR(v)     (SCM_CDR (scm_sym2vcell (v, SCM_BOOL_F, SCM_BOOL_F)))
-#define Intern(s)     (gh_symbol2scm (s))
-#endif
+#define DEFVAR(v,val) \
+{ scm_eval2 (SCM_LIST3 (scm_sym_define_public, (v), (val)), \
+	     scm_goops_lookup_closure); }
+/*fixme* Should optimize by keeping track of the variable object itself */
+#define GETVAR(v) (SCM_CDDR (scm_apply (scm_goops_lookup_closure, \
+					SCM_LIST2 ((v), SCM_BOOL_F), \
+					SCM_EOL)))
+#define Intern(s) (gh_symbol2scm (s))
 
 /* Fixme: Should use already interned symbols */
 #define CALL_GF1(name,a)	(scm_apply (GETVAR (Intern(name)), \
@@ -108,8 +107,7 @@ static SCM Boolean, Char, Pair, Procedure, String, Symbol, Vector, Number,
 static SCM Widget;
 #endif
 
-SCM_SYMBOL (scm_sym_procedure_class, "<procedure-class>");
-SCM_SYMBOL (scm_sym_entity_class, "<entity-class>");
+SCM_SYMBOL (scm_sym_define_public, "define-public");
 
 /*fixme* initialize Complex */
 
@@ -1841,8 +1839,8 @@ void
 scm_init_goops (void)
 {
   SCM goops = SCM_CAR (scm_intern0 ("goops"));
-  SCM goops_module = scm_make_module (SCM_LIST2 (goops, goops));
-  SCM old_module = scm_select_module (goops_module);
+  SCM goops_module = scm_selected_module ();
+  scm_ensure_user_module (goops_module);
   scm_goops_lookup_closure = scm_module_lookup_closure (goops_module);
   
 #include "goops.x"
@@ -1873,7 +1871,7 @@ scm_init_goops (void)
   create_Top_Object_Class ();
   make_standard_classes ();
 
-  scm_select_module (old_module);
+  scm_load_scheme_module (SCM_LIST2 (goops, goops));
 }
 
 void
