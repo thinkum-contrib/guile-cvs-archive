@@ -7,12 +7,8 @@ great.  Send them to guile@cygnus.com, or to me, Jim Blandy
 <jimb@red-bean.com>.
 
 To run these benchmarks, you will need a version of Guile more recent
-than 5 May 1999 or so --- the tests use the (ice-9 format) module,
-which was added to Guile around then.
-
-[cmm] To run the `gc-stress' benchmark, you will need a version of
-Guile more recent than 16 Aug 2000 --- this benchmark uses some GC
-stats not provided by earlier versions.
+than 16 Aug 2000 --- the tests use some GC stats not provided by
+earlier versions.
 
 Before you can run these benchmarks, you'll need to do two steps by hand:
 - In the `run-ports' script, change the #! line at the top to point to the
