@@ -50,6 +50,7 @@
 
 
 - Eventually
+  - write maintainer script dist-guile
   - write why-not-release? scanner
   - forward port guile-1.6.x stuff
     - guile-snarf and docs
