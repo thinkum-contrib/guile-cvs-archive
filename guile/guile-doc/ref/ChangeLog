@@ -1,3 +1,16 @@
+2000-12-01  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* guile.texi (Top): @include new files.
+
+	* scheme-intro.texi, scheme-ideas.texi: New files.
+
+	* scheme.texi (Guile and R5RS Scheme): Moved introductory chapter
+	to its own file	(scheme-intro.texi).
+	(About Closure) Chapter completed.
+	(About Data, About Procedures, About Expressions, About Closure):
+	Ideas chapters moved to their own file (scheme-ideas.texi);
+	scheme.texi was just getting too large!
+
 2000-11-09  Gary Houston  <ghouston@arglist.com>
 
 	* posix.texi (Ports and File Descriptors): updated

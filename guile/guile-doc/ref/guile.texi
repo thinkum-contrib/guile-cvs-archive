@@ -332,6 +332,8 @@ Indices
 @unnumbered{Part II: Guile Scheme}
 @end iftex
 
+@include scheme-intro.texi
+@include scheme-ideas.texi
 @include scheme.texi
 
 @c Unix system interface
