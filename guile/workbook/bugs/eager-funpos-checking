@@ -1,7 +1,8 @@
 summary: the function position is checked too early
 reported: tb@becket.net (Thomas Bushnell, BSG), 2002-05-11
-
-This bug exists in Guile 1.4.
+affects: HEAD branch_release-1-6 branch_release-1-4
+see-also-dir: eager-funpos-checking.stuff
+test-case: efc.scm
 
 
 From: Al Petrofsky <al@petrofsky.org>
