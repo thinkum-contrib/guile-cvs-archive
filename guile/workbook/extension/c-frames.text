@@ -1,0 +1,131 @@
+Unwinding C call frames
+-----------------------
+
+Error reporting differes between C and Scheme: C functions usually
+return some kind of indication to their calling function when an error
+occured.  Scheme functions (including functions written in C that
+follow the Scheme conventions) on the other hand usually do not return
+to their caller in case of an error but instead transfer control to
+some handler 'up the stack'.
+
+Such a non-local transfer of control is called "unwinding the stack"
+(and is implemented with longjmp).
+
+Sometimes, it is necessary to perform cleanups when the unwinding
+happens.  Frequently, dynamically allocated temporary data structures
+need to be deallocated, for example.
+
+Scheme code can use 'dynwind' to register such cleanup actions.  C
+code could use it as well, but it would require a lot of code that
+would be unnatural for C.  Therefore, Guile offers a facility that is
+better suited for C code.
+
+These frames also inhibit continuations (as explained below).  Thus,
+you might want to use frames even when you don't have any cleanup
+actions to perform.  Also, the label that appears in a backtrace is
+useful on it own as well.
+
+Here is an example.  Reference documentation is below.
+
+  /* Suppose there is a function called FOO in some library that you
+     would like to make available to Scheme code (or to C code that
+     follows the Scheme conventions).
+
+     FOO takes two C strings and returns a new string.  When an error
+     has occurred in FOO, it returns NULL.
+  */
+
+  char *foo (char *s1, char *s2);
+
+  /* SCM_FOO interfaces the C function FOO to the Scheme way of life.
+     It takes care to free up all temporary strings in the case of
+     non-local exits.  */
+
+  SCM
+  scm_foo (SCM s1, SCM s2)
+  {
+    char *c_s1, *c_s2, *c_res;
+
+    scm_begin_frame ();
+
+    c_s1 = scm_to_string (s1);
+    scm_on_unwind (free, s1, 1);
+
+    c_s2 = scm_to_string (s2);
+    scm_on_unwind (free, s2, 1);
+
+    c_res = foo (c_s1, c_s2);
+    if (c_res == NULL)
+      scm_memory_error ("foo");
+
+    scm_end_frame ();
+
+    return scm_from_string (res, 1);
+  }
+
+
+- C Function: void scm_begin_frame ()
+
+  Starts a new frame and makes it the 'current' one.  The frame will
+  be 'non-continueable', see below.
+
+  The frame is ended either implicitly when a non-local exit happens,
+  or explicitly with scm_end_frame.
+
+- C Function: void scm_on_unwind (void (*func)(void *), void *data,
+                                  int explicit)
+
+  Arranges for FUNC to be called with DATA as its arguments when the
+  current frame ends implicitly.  If EXPLICIT is non-zero, FUNC is
+  also called when the frame ends explicitly.
+
+- C Function: void scm_end_frame ()
+
+  End the current frame explicitly and make the previous frame
+  current.
+
+
+Continuations and frames
+------------------------
+
+In addition to unwinding the stack, Scheme can also 'rewind' it.  This
+can happen when a continuation is called.  When a stack is rewound,
+call frames are added back to it.  This can even happen multiple times
+so that some code might find that a function returns more than once.
+This is against the expectations of most C code.  For this reason, the
+frames explained above do not allow the invocation of continuations
+that would rewind those frames.
+
+When you do want to allow continuations, you can start a frame with
+scm_begin_continuable_frame instead of with scm_begin_frame.  In
+addition to unwind actions, you can also register rewind actions for
+such frames with scm_on_rewind.
+
+- C Function: void scm_begin_rewindable_frame ()
+
+  Starts a new frame and makes it the 'current' one.  The frame will
+  be 'continueable', that is, it allows continuations to be invoked
+  that rewind this frame.
+
+- C Function: void scm_on_rewind (void (*func)(void *), void *data,
+                                  int explicit)
+
+  Arrange for FUNC to be called with DATA as its argument when the
+  current frame is restarted by rewinding the stack.  When EXPLICIT is
+  non-zero, FUNC is called immediately as well.
+
+
+Implementation
+--------------
+
+The frames stuff above can and probably should be the basis for all
+the dynwind business of Guile, with scm_dynwind, for example, being
+implemented using scm_begin_continuable_frame, scm_on_rewind,
+scm_on_unwind, etc.
+
+Also, the frames stored by the debugging evaluator could be combined
+with this.
+
+All data for frames could ba allocated on the stack, but the above API
+does not allow this.  This has been done to achieve easy binary
+compatibility and a very clean and simple API.
