@@ -107,11 +107,11 @@
 #define SCM_VALIDATE_ROSTRING(pos,str) SCM_MAKE_VALIDATE(pos,str,ROSTRINGP)
 
 #define SCM_VALIDATE_ROSTRING_COPY(pos,str,cvar) \
-  do { SCM_ASSERT(SCM_NIMP (str) && SCM_ROSTRINGP (str), str, pos, FUNC_NAME); \
+  do { SCM_ASSERT(SCM_ROSTRINGP (str), str, pos, FUNC_NAME); \
        cvar = SCM_ROCHARS(str); } while (0)
 
 #define SCM_VALIDATE_NULLORROSTRING_COPY(pos,str,cvar) \
-  do { SCM_ASSERT(SCM_FALSEP(str) || (SCM_NIMP (str) && SCM_ROSTRINGP (str)), str, pos, FUNC_NAME); \
+  do { SCM_ASSERT(SCM_FALSEP(str) || SCM_ROSTRINGP (str), str, pos, FUNC_NAME); \
        if (SCM_FALSEP(str)) cvar = NULL; else cvar = SCM_ROCHARS(str); } while (0)
 
 #define SCM_VALIDATE_STRING(pos,str) SCM_MAKE_VALIDATE(pos,str,STRINGP)
