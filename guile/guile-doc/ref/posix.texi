@@ -241,8 +241,8 @@ is a pair in which the CAR contains an input port and the CDR an
 output port.  Data written to the output port can be read from the
 input port.  Note that both ports are buffered so it may be necessary
 to flush the output port before data will actually be sent across the pipe.
-Alternatively a new unbuffered output port can be created using
-@code{duplicate-port} with an appropriate mode string.
+Alternatively a buffer can be added to the port using @code{setvbuf}
+(see below).
 @end deffn
 
 The next group of procedures perform a @code{dup2}
@@ -1339,16 +1339,18 @@ close a pipe, but doesn't return the status.
 @chapter Networking
 
 @menu
-* Networking Databases::        
-* Network sockets::             
+* Network Databases and Address Conversion::
+* Network Sockets and Communication::
 @end menu
 
-@node Networking Databases
-@section Networking Databases
+@node Network Databases and Address Conversion
+@section Network Databases and Address Conversion
 
 This section describes procedures which convert internet addresses
 and query various network databases.  Care should be taken when using
 the database routines since they are not reentrant.
+
+@subsection Address Conversion
 
 @deffn primitive inet-aton address
 Converts a string containing an Internet host address in the traditional
@@ -1395,11 +1397,14 @@ with the local-address-within-network number @var{lna}.
 @end smalllisp
 @end deffn
 
+@subsection The Host Database
+
 A @dfn{host object} is a structure that represents what is known about a
 network host, and is the usual way of representing a system's network
-identity inside software.  The @code{hostent} functions accept a host
-object and return some information about that host's presence on the
-network.
+identity inside software.
+
+The following functions accept a host object and return a selected
+component:
 
 @deffn procedure hostent:name host
 The "official" hostname for @var{host}.
@@ -1418,26 +1423,32 @@ The length of each address for @var{host}, in bytes.
 The list of network addresses associated with @var{host}.
 @end deffn
 
-The @code{gethost} functions are used to find a particular host's entry
-in the host database.
+The following procedures are used to search the host database:
 
 @deffn primitive gethost [host]
 @deffnx procedure gethostbyname hostname
 @deffnx procedure gethostbyaddr address
-Look up a host by name or address, and return a host object.  The
+Look up a host by name or address, returning a host object.  The
 @code{gethost} procedure will accept either a string name or an integer
 address; if given no arguments, it behaves like @code{gethostent} (see
-below).
+below).  If a name or address is supplied but the address can not be
+found, an error will be thrown to one of the keys:
+@code{host-not-found}, @code{try-again}, @code{no-recovery} or
+@code{no-data}, corresponding to the equivalent @code{h_error} values.
+Unusual conditions may result in errors thrown to the
+@code{system-error} or @code{misc_error} keys.
 @end deffn
 
-The following three procedures may be used to step through the host
-database from beginning to end.  [FIXME: document the `sethost' variant
-of `sethostent'.]
+The following procedures may be used to step through the host
+database from beginning to end.
 
-@deffn procedure sethostent
+@deffn procedure sethostent [stayopen]
 Initialize an internal stream from which host objects may be read.  This
 procedure must be called before any calls to @code{gethostent}, and may
-also be called afterward to reset the host entry stream.
+also be called afterward to reset the host entry stream.  If 
+@var{stayopen} is supplied and is not @code{#f}, the database is not
+closed by subsequent @code{gethostbyname} or @code{gethostbyaddr} calls,
+possibly giving an efficiency gain.
 @end deffn
 
 @deffn procedure gethostent
@@ -1450,8 +1461,14 @@ This procedure may not be used before @code{sethostent} has been called.
 Close the stream used by @code{gethostent}.  The return value is unspecified.
 @end deffn
 
-The @code{netent} functions accept an object representing a network
-and return a selected component.
+@deffn primitive sethost [stayopen]
+If @var{stayopen} is omitted, this is equivalent to @code{endhostent}.
+Otherwise it is equivalent to @code{sethostent stayopen}.
+@end deffn
+@subsection The Network Database
+
+The following functions accept an object representing a network
+and return a selected component:
 
 @deffn procedure netent:name net
 The "official" network name.
@@ -1467,9 +1484,7 @@ The type of the network number.  Currently, this returns only
 The network number.
 @end deffn
 
-The @code{getnet} procedures look up a particular network in the network
-database.  Each returns a @dfn{network object} that describes the
-network's technical nature.
+The following procedures are used to search the network database:
 
 @deffn primitive getnet [net]
 @deffnx procedure getnetbyname net-name
@@ -1481,13 +1496,16 @@ argument, behaving like @code{getnetent} (see below) if no arguments are
 given.
 @end deffn
 
-[FIXME: document the `setnet' variant of `setnetent'.]
+The following procedures may be used to step through the network
+database from beginning to end.
 
-@deffn procedure setnetent
-Initializes a stream used by @code{getnetent} to read from the network
-database.
-The next use of @code{getnetent} will return the first entry.  The
-return value is unspecified.
+@deffn procedure setnetent [stayopen]
+Initialize an internal stream from which network objects may be read.  This
+procedure must be called before any calls to @code{getnetent}, and may
+also be called afterward to reset the net entry stream.  If 
+@var{stayopen} is supplied and is not @code{#f}, the database is not
+closed by subsequent @code{getnetbyname} or @code{getnetbyaddr} calls,
+possibly giving an efficiency gain.
 @end deffn
 
 @deffn procedure getnetent
@@ -1498,8 +1516,15 @@ Return the next entry from the network database.
 Close the stream used by @code{getnetent}.  The return value is unspecified.
 @end deffn
 
-The @code{protoent} procedures accept an object representing a protocol
-and return a selected component.
+@deffn primitive setnet [stayopen]
+If @var{stayopen} is omitted, this is equivalent to @code{endnetent}.
+Otherwise it is equivalent to @code{setnetent stayopen}.
+@end deffn
+
+@subsection The Protocol Database
+
+The following functions accept an object representing a protocol
+and return a selected component:
 
 @deffn procedure protoent:name protocol
 The "official" protocol name.
@@ -1511,8 +1536,7 @@ A list of aliases for the protocol.
 The protocol number.
 @end deffn
 
-The @code{getproto} procedures look up a particular network protocol and
-return a @dfn{protocol object}.
+The following procedures are used to search the protocol database:
 
 @deffn primitive getproto [protocol]
 @deffnx procedure getprotobyname name
@@ -1523,13 +1547,16 @@ argument.  @code{getproto} will accept either type, behaving like
 @code{getprotoent} (see below) if no arguments are supplied.
 @end deffn
 
-[FIXME: document the `setproto' variant of `setprotoent'.]
+The following procedures may be used to step through the protocol
+database from beginning to end.
 
-@deffn procedure setprotoent
-Initializes a stream used by @code{getprotoent} to read from the protocol
-database.
-The next use of @code{getprotoent} will return the first entry.  The
-return value is unspecified.
+@deffn procedure setprotoent [stayopen]
+Initialize an internal stream from which protocol objects may be read.  This
+procedure must be called before any calls to @code{getprotoent}, and may
+also be called afterward to reset the protocol entry stream.  If 
+@var{stayopen} is supplied and is not @code{#f}, the database is not
+closed by subsequent @code{getprotobyname} or @code{getprotobynumber} calls,
+possibly giving an efficiency gain.
 @end deffn
 
 @deffn procedure getprotoent
@@ -1540,8 +1567,15 @@ Return the next entry from the protocol database.
 Close the stream used by @code{getprotoent}.  The return value is unspecified.
 @end deffn
 
-The @code{servent} procedures accept a @dfn{service object} and return
-some information about that service.
+@deffn primitive setproto [stayopen]
+If @var{stayopen} is omitted, this is equivalent to @code{endprotoent}.
+Otherwise it is equivalent to @code{setprotoent stayopen}.
+@end deffn
+
+@subsection The Service Database
+
+The following functions accept an object representing a service
+and return a selected component:
 
 @deffn procedure servent:name serv
 The "official" name of the network service.
@@ -1557,9 +1591,7 @@ The protocol used by the service.  A service may be listed many times
 in the database under different protocol names.
 @end deffn
 
-The @code{getserv} procedures look up a network service and return a
-@dfn{service object} which describes the names and network ports
-conventionally assigned to the service.
+The following procedures are used to search the service database:
 
 @deffn primitive getserv [name protocol]
 @deffnx procedure getservbyname name protocol
@@ -1574,13 +1606,16 @@ as its first argument; if given no arguments, it behaves like
 @code{getservent} (see below).
 @end deffn
 
-[FIXME: document the `setserv' variant of `setservent'.]
+The following procedures may be used to step through the service
+database from beginning to end.
 
-@deffn procedure setservent
-Initializes a stream used by @code{getservent} to read from the services
-database.
-The next use of @code{getservent} will return the first entry.  The
-return value is unspecified.
+@deffn procedure setservent [stayopen]
+Initialize an internal stream from which service objects may be read.  This
+procedure must be called before any calls to @code{getservent}, and may
+also be called afterward to reset the service entry stream.  If 
+@var{stayopen} is supplied and is not @code{#f}, the database is not
+closed by subsequent @code{getservbyname} or @code{getservbyport} calls,
+possibly giving an efficiency gain.
 @end deffn
 
 @deffn procedure getservent
@@ -1591,18 +1626,24 @@ Return the next entry from the services database.
 Close the stream used by @code{getservent}.  The return value is unspecified.
 @end deffn
 
-@node Network sockets
-@section Network sockets
+@deffn primitive setserv [stayopen]
+If @var{stayopen} is omitted, this is equivalent to @code{endservent}.
+Otherwise it is equivalent to @code{setservent stayopen}.
+@end deffn
+
+@node Network Sockets and Communication
+@section Network Sockets and Communication
 
 Socket ports can be created using @code{socket} and @code{socketpair}. 
 The ports are initially unbuffered, to
-makes reading and writing to the same port more reliable.  Buffered
-ports can be obtained with
-@code{duplicate-port}, @xref{Ports and File Descriptors}.
+makes reading and writing to the same port more reliable.
+A buffer can be added to the port using @code{setvbuf},
+@xref{Ports and File Descriptors}.
 
-These procedures convert Internet addresses
-and port values between "host" order and "network" order as required.  The
-arguments and return values should be in "host" order.
+The convention used for "host" vs "network" addresses is that addresses
+are always held in host order at the Scheme level.  The procedures in
+this section automatically convert between host and network order when
+required.  The arguments and return values are thus in host order.
 
 @deffn primitive socket family style protocol
 Returns a new socket port of the type specified by @var{family}, @var{style}
@@ -1854,6 +1895,51 @@ bitwise OR of MSG_OOB, MSG_PEEK, MSG_DONTROUTE etc.
 Note that the data is written directly to the socket file descriptor:
 any unflushed buffered port data is ignored.
 @end deffn
+
+The following functions can be used to convert short and long integers
+between "host" and "network" order.  Although the procedures above do
+this automatically for addresses, the conversion will still need to
+be done when sending or receiving encoded integer data from the network.
+
+@deffn primitive htons value
+Returns a new integer from @var{value} by converting from host to
+network order. @var{value} must be within the range of a C unsigned
+short integer.
+@end deffn
+
+@deffn primitive ntohs value
+Returns a new integer from @var{value} by converting from network to
+host order.  @var{value} must be within the range of a C unsigned short
+integer.
+@end deffn
+
+@deffn primitive htonl value
+Returns a new integer from @var{value} by converting from host to
+network order. @var{value} must be within the range of a C unsigned
+long integer.
+@end deffn
+
+@deffn primitive ntohl value
+Returns a new integer from @var{value} by converting from network to
+host order. @var{value} must be within the range of a C unsigned
+long integer.
+@end deffn
+
+These procedures are inconvenient to use at present, but consider:
+
+@example
+(define write-network-long
+  (lambda (value port)
+    (let ((v (make-uniform-vector 1 1 0)))
+      (uniform-vector-set! v 0 (htonl value))
+      (uniform-vector-write v port))))
+
+(define read-network-long
+  (lambda (port)
+    (let ((v (make-uniform-vector 1 1 0)))
+      (uniform-vector-read! v port)
+      (ntohl (uniform-vector-ref v 0)))))
+@end example
 
 @node System Identification
 @chapter System Identification

@@ -1,3 +1,17 @@
+1999-11-18  Gary Houston  <ghouston@freewire.co.uk>
+
+	* posix.texi (Network Sockets and Communication): add htons etc.
+	(Ports and File Descriptors, Network Sockets and Communication):
+	suggest setvbuf instead of duplicate-port for converting
+	unbuffered ports to buffered.
+
+	* scheme.texi (Uniform Array): add missing array types to the
+	table.
+
+1999-11-17  Gary Houston  <ghouston@freewire.co.uk>
+
+	* posix.texi (Network Databases): updated.
+
 1999-10-24  Gary Houston  <ghouston@freewire.co.uk>
 
 	* scheme.texi (String Ports): add with-output-to-string and

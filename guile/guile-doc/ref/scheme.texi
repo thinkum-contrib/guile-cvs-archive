@@ -1264,24 +1264,28 @@ Another example:
 @noindent
 @dfn{Uniform Array} and vectors are arrays whose elements are all of the
 same type.  Uniform vectors occupy less storage than conventional
-vectors.  Uniform Array procedures also work on vectors,
-uniform-vectors, bit-vectors, and strings.
+vectors.  Uniform Array procedures also work on vectors, bit-vectors and 
+strings.
 
 @noindent
-@var{prototype} arguments in the following procedures are interpreted
-according to the table:
+When creating a uniform array or vector, the type of data to be stored
+is indicated with a @var{prototype} argument.  The following table
+lists the types available and example prototypes:
 
 @example
-prototype       type                            printing character
+prototype           type                       printing character
 
-#t              boolean (bit-vector)                    b
-#\a             char (string)                           a
-integer >0      unsigned integer                        u
-integer <0      signed integer                          e
-1.0             float (single precision)                s
-1/3             double (double precision float)         i
-+i              complex (double precision)              c
-()              conventional vector
+#t             boolean (bit-vector)                    b
+#\a            char (string)                           a
+#\nul          byte (integer)                          y
+'s             short (integer)                         h
+1              unsigned long (integer)                 u
+-1             signed long (integer)                   e
+'l             signed long long (integer)              
+1.0            float (single precision)                s
+1/3            double (double precision float)         i
+0+i            complex (double precision)              c
+()             conventional vector
 @end example
 
 @noindent
@@ -1346,8 +1350,8 @@ Returns the number of elements in @var{uve}.
 @deffnx primitive make-uniform-vector length prototype [fill]
 Creates and returns a uniform array or vector of type corresponding to
 @var{prototype} with dimensions @var{dims} or length @var{length}.  If
-the @var{fill} argument is supplied, the returned array is filled with
-this value.
+@var{fill} is supplied, it's used to fill the array, otherwise 
+@var{prototype} is used.
 @end deffn
 
 @c Another compiled-closure. -twp
