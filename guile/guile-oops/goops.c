@@ -726,7 +726,7 @@ scm_basic_basic_make_class (SCM class, SCM name, SCM dsupers, SCM dslots)
   SCM_SLOT(z, scm_si_getters_n_setters) = g_n_s;
   SCM_SLOT(z, scm_si_redefined)         = SCM_BOOL_F;
   SCM_SLOT(z, scm_si_environment)
-    = scm_top_level_env (SCM_CDR (scm_top_level_lookup_closure_var));
+    = scm_top_level_env (SCM_TOP_LEVEL_LOOKUP_CLOSURE);
 
   /* Add this class in the direct-subclasses slot of dsupers */
   {
@@ -845,7 +845,8 @@ create_basic_classes (void)
   /* SCM_SLOT(scm_class_class, scm_si_getters_n_setters)
      = compute_getters_n_setters (slots_of_class); */
   SCM_SLOT(scm_class_class, scm_si_redefined) 	 = SCM_BOOL_F;
-  SCM_SLOT(scm_class_class, scm_si_environment) = scm_top_level_env (SCM_CDR (scm_top_level_lookup_closure_var));
+  SCM_SLOT(scm_class_class, scm_si_environment)
+    = scm_top_level_env (SCM_TOP_LEVEL_LOOKUP_CLOSURE);
 
   prep_hashsets (scm_class_class);
 
@@ -2752,7 +2753,7 @@ scm_wrap_component (SCM class, SCM container, void *data)
 SCM
 scm_ensure_accessor (SCM name)
 {
-  SCM gf = scm_apply (SCM_CDR (scm_top_level_lookup_closure_var),
+  SCM gf = scm_apply (SCM_TOP_LEVEL_LOOKUP_CLOSURE,
 		      SCM_LIST2 (name, SCM_BOOL_F),
 		      SCM_EOL);
   if (!SCM_IS_A_P (gf, scm_class_generic_with_setter))
