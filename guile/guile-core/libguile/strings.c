@@ -166,17 +166,6 @@ scm_i_string_mark (SCM str)
 void
 scm_i_string_free (SCM str)
 {
-  /* The refcount of a stringbuf is stored in its fourth word, so even
-     if the stringbuf of this string has already been swept, we can
-     safely decrement its refcount.
-  */
-  if (!IS_SH_STRING (str))
-    {
-#if 0
-      SCM buf = STRING_STRINGBUF (str);
-      SET_STRINGBUF_REFCOUNT (buf, STRINGBUF_REFCOUNT (buf) - 1);
-#endif
-    }
 }
 
 /* Debugging
