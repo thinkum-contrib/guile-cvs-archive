@@ -225,7 +225,8 @@ Part II: Programming with Guile
 Part III: Guile API Reference
 
 * Reference Intro::             Introduction to the Guile API reference.
-* Data Types::                  Data types for generic use.
+* Simple Data Types::           Numbers, strings, booleans and so on.
+* Compound Data Types::         Data types for holding other data.
 * Procedures and Macros::       Procedures and macros.
 * Utility Functions::           General utility functions.
 * Binding Constructs::          Definitions and variable bindings.
@@ -306,6 +307,7 @@ options available.
 @unnumbered Part III: Guile API Reference
 
 @include scheme-data.texi
+@include scheme-compound.texi
 @include scheme-procedures.texi
 @include scheme-utility.texi
 @include scheme-binding.texi
