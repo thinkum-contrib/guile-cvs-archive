@@ -1,4 +1,4 @@
-/*	Copyright (C) 1998 Free Software Foundation, Inc.
+/*	Copyright (C) 1998, 1999 Free Software Foundation, Inc.
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -694,6 +694,8 @@ create_basic_classes (void)
   SCM_SLOT(scm_class_class, scm_si_redefined) 	 = SCM_BOOL_F;
   SCM_SLOT(scm_class_class, scm_si_environment) = scm_top_level_env (SCM_CDR (scm_top_level_lookup_closure_var));
 
+  prep_hashsets (scm_class_class);
+
   DEFVAR(name, scm_class_class);
 
   /**** <scm_class_top> ****/
@@ -1347,70 +1349,6 @@ change_object_class (obj, old_class, new_class)
  *
  ******************************************************************************/
 
-static char s_apply_next_method[] = "apply-next-method";
-static SCM scm_f_apply_next_method;
-
-/*fixme*: next-methods should be a subclass of <method>.  They
-  shouldn't need this kind of special treatment but should be handled
-  as entities directly in the evaluator.  */
-
-SCM
-scm_make_next_method (SCM methods, SCM args, SCM gf)
-{
-  register SCM z, l;
-
-  /* if gf is SCM_EOL, args already contains the GF in front of args.
-   * This saves the cost of a a cons. This situation is very frequent since
-   * most of the time next-method is called without parameter and we just have 
-   * to propagate the previous args.
-   */
-  l = (SCM_NULLP(gf))? args : scm_cons(gf, args);
-
-  SCM_NEWCELL (z);
-  SCM_DEFER_INTS;
-  SCM_SETCHARS (z, scm_must_malloc (3 * sizeof (SCM), "compiled-closure"));
-  SCM_SETLENGTH (z, 3, scm_tc7_cclo);
-  SCM_VELTS (z)[0] = scm_f_apply_next_method;
-  SCM_VELTS (z)[1] = methods;
-  SCM_VELTS (z)[2] = l;
-  SCM_ALLOW_INTS;
-  return z;
-}
-
-SCM
-scm_apply_next_method (SCM args)
-{
-  SCM next = SCM_CAR (args);
-  SCM methods = NXT_MTHD_METHODS (next);
-  SCM tmp;
-  args = SCM_CDR (args);
-  
-  if (SCM_NULLP (args))
-    {
-      tmp   = NXT_MTHD_ARGS (next);
-      args  = SCM_CDR (tmp);
-    }
-  else
-    tmp  = scm_cons (SCM_CAR (NXT_MTHD_ARGS (next)), args);
-  
-  if (SCM_NULLP (methods))
-    {
-      SCM gf = SCM_CAR (NXT_MTHD_ARGS (next));
-    
-      return CALL_GF2 ("no-next-method", gf, args);    
-    }
-  else
-    {
-      SCM m        = SCM_CAR (methods);
-      SCM new_next = scm_make_next_method (SCM_CDR(methods),tmp, SCM_EOL);
-    
-      /* m is the function to call with args. */
-      return scm_apply (SCM_METHOD (m)->procedure,
-			scm_cons (new_next, args),
-			SCM_EOL);
-    }
-}
-
 /******************************************************************************
  * 
  * Protocol for calling a generic fumction
@@ -1680,183 +1618,6 @@ memoize_method (SCM x, SCM values)
   CALL_GF3 ("memoize-method!", SCM_CAR (values), SCM_CDR (values), x);
 }
 
-
-#if 0
-/* Not used */
-static SCM apply_methods(SCM gf, SCM methods, SCM args)
-{
-  SCM m, next;
-  
-  if (SCM_NULLP(methods)) {
-    /* 
-     * methods can be SCM_EOL if we have a no-applicable-method handler which 
-     * doesn't signal an error (or dont ends with a call to next-method)
-     * In this case return an undefined value
-     */
-    return SCM_UNSPECIFIED;
-  }
-  
-  m    = SCM_CAR(methods);
-  next = SCM_FASTMETHODP(m) ? SCM_UNDEFINED : scm_make_next_method (SCM_CDR(methods), args, gf);
-
-  /* Next-method is set to UNBOUND for simple_method and accessors */
-  return scm_apply (SCM_METHOD (m)->procedure,
-		    scm_cons (next, args),
-		    SCM_EOL);
-}
-
-/* Not used */
-SCM STk_apply_generic(SCM gf, SCM args)
-{
-  if (NGENERICP(gf)) 			 Err("apply: bad generic function", gf);
-  if (SCM_NULLP(SCM_SLOT(gf, scm_si_methods))) CALL_GF2("no-method", gf, args);
-
-  return 
-    apply_methods(gf,
-		  STk_compute_applicable_methods(gf,args,scm_length(args),0),
-		  args);
-}
-
-/* Not used */
-SCM STk_apply_user_generic(SCM gf, SCM args)
-{
-  if (NGENERICP(gf)) Err("apply: bad generic function", gf);
-  return CALL_GF2("apply-generic", gf, args);
-}
-#endif
-
-static char s_apply_generic_0[] = "apply-generic-0";
-static SCM scm_f_apply_generic_0;
-static SCM
-apply_generic_0 (SCM gf)
-{
-  SCM methods;
-  if (SCM_NULLP (SCM_SLOT (gf, scm_si_methods)))
-    scm_apply (GETVAR (Intern ("no-method")),
-	       SCM_LIST2 (gf, SCM_EOL),
-	       SCM_EOL);
-  methods = scm_compute_applicable_methods (gf, SCM_EOL, 0, 0);
-  /* methods is the list of applicable methods. Apply the
-   * first one with the tail of the list as first
-   * parameter (next-method). If fct is NIL, that's because
-   * the no-applicable-method triggered didn't call error.
-   */
-  if (SCM_NULLP (methods))
-    return SCM_UNSPECIFIED;
-  /*fixme* Should be made tail-recursive!  Methods are closures in goops. */
-  return scm_apply (SCM_METHOD (SCM_CAR (methods))->procedure,
-		    SCM_LIST1 (SCM_FASTMETHODP (SCM_CAR (methods))
-			       ? SCM_BOOL_F
-			       : scm_make_next_method (SCM_CDR (methods),
-						       SCM_EOL,
-						       gf)),
-		    SCM_EOL);
-}
-
-static char s_apply_generic_1[] = "apply-generic-1";
-static SCM scm_f_apply_generic_1;
-static SCM
-apply_generic_1 (SCM gf, SCM arg1)
-{
-  SCM methods, args = SCM_LIST1 (arg1);
-  if (SCM_NULLP (SCM_SLOT (gf, scm_si_methods)))
-    scm_apply (GETVAR (Intern ("no-method")),
-	       SCM_LIST2 (gf, args),
-	       SCM_EOL);
-  methods = scm_compute_applicable_methods (gf, args, 1, 0);
-  if (SCM_NULLP (methods))
-    return SCM_UNSPECIFIED;
-  return scm_apply (SCM_METHOD (SCM_CAR (methods))->procedure,
-		    SCM_LIST2 (SCM_FASTMETHODP (SCM_CAR (methods))
-			       ? SCM_BOOL_F
-			       : scm_make_next_method (SCM_CDR (methods),
-						       args,
-						       gf),
-			       arg1),
-		    SCM_EOL);
-}
-
-static char s_apply_generic_2[] = "apply-generic-2";
-static SCM scm_f_apply_generic_2;
-static SCM
-apply_generic_2 (SCM gf, SCM arg1, SCM arg2)
-{
-  SCM methods, args = SCM_LIST2 (arg1, arg2);
-  if (SCM_NULLP (SCM_SLOT (gf, scm_si_methods)))
-    scm_apply (GETVAR (Intern ("no-method")),
-	       SCM_LIST2 (gf, args),
-	       SCM_EOL);
-  methods = scm_compute_applicable_methods (gf, args, 2, 0);
-  if (SCM_NULLP (methods))
-    return SCM_UNSPECIFIED;
-  return scm_apply (SCM_METHOD (SCM_CAR (methods))->procedure,
-		    SCM_LIST3 (SCM_FASTMETHODP (SCM_CAR (methods))
-			       ? SCM_BOOL_F
-			       : scm_make_next_method (SCM_CDR (methods),
-						       args,
-						       gf),
-			       arg1,
-			       arg2),
-		    SCM_EOL);
-}
-
-static char s_apply_generic_3[] = "apply-generic-3";
-static SCM scm_f_apply_generic_3;
-static SCM
-apply_generic_3 (SCM gf, SCM arg1, SCM rest)
-{
-  SCM methods, args = scm_cons (arg1, rest);
-  if (SCM_NULLP (SCM_SLOT (gf, scm_si_methods)))
-    scm_apply (GETVAR (Intern ("no-method")),
-	       SCM_LIST2 (gf, args),
-	       SCM_EOL);
-  methods = scm_compute_applicable_methods (gf, args, scm_ilength (args), 0);
-  if (SCM_NULLP (methods))
-    return SCM_UNSPECIFIED;
-  return scm_apply (SCM_METHOD (SCM_CAR (methods))->procedure,
-		    scm_cons (SCM_FASTMETHODP (SCM_CAR (methods))
-			      ? SCM_BOOL_F
-			      : scm_make_next_method (SCM_CDR (methods),
-						      args,
-						      gf),
-			       args),
-		    SCM_EOL);
-}
-
-#if 0
-static SCM
-internal_apply_generic ()
-{
-	        tmp = eval_args(tmp, env);
-	        if (SCM_PUREGENERICP(fct)) {
-		  /* Do it in C */
-		  SCM methods;
-		  
-		  if (NULLP(SCM_SLOT(fct, scm_si_methods)))
-		    Apply(STk_STklos_value(Intern("no-method")), LIST2(fct, tmp));
-
-		  methods = STk_compute_applicable_methods(fct, tmp, len, 0);
-		  /* methods is the list of applicable methods. Apply the
-		   * first one with the tail of the list as first
-		   * parameter (next-method). If fct is NIL, that's because
-		   * the no-applicable-method triggered didn't call error.
-		   */
-		  if (NULLP(methods)) RETURN(UNDEFINED);
-		  tmp = Cons(SCM_FASTMETHODP(CAR(methods))? 
-			     		UNBOUND: 
-			     		STk_make_next_method(CDR(methods),tmp,fct),
-			     tmp);
-		  fct = SCM_SLOT(CAR(methods), scm_si_procedure);
-		  env = extend_env(fct, tmp, x, len+1);
-		  tmp = CLOSBODY(fct);
-		  goto Begin;
-		}
-		else
-		  /* Do it in Scheme */
-		  RETURN(STk_apply_user_generic(fct, tmp));
-}
-#endif
-		
 /******************************************************************************
  *
  * A simple make (which will be redefined later in Scheme)
@@ -1896,10 +1657,10 @@ scm_make (SCM args)
 				    scm_get_keyword (k_name,
 						     args,
 						     SCM_BOOL_F));
-      scm_set_object_procedure_x (z, SCM_LIST4 (scm_f_apply_generic_0,
-						scm_f_apply_generic_1,
-						scm_f_apply_generic_2,
-						scm_f_apply_generic_3));
+      scm_set_object_procedure_x
+	(z, scm_apply (GETVAR (Intern ("make-apply-generic")),
+		       SCM_EOL,
+		       SCM_EOL));
       if (class == scm_class_generic_with_setter)
 	{
 	  SCM setter = scm_get_keyword (k_setter, args, SCM_BOOL_F);
@@ -1933,6 +1694,7 @@ scm_make (SCM args)
 			       len - 1,
 			       SCM_EOL,
 			       s_make);
+	  SCM_SLOT (z, scm_si_code_table) = SCM_EOL;
 	}
       else
 	{
@@ -2505,26 +2267,6 @@ scm_init_goops (void)
   scm_goops_the_unbound_value
     = scm_permanent_object (scm_cons (the_unbound_value, SCM_EOL));
   
-  scm_f_apply_next_method
-    = scm_permanent_object (scm_make_subr (s_apply_next_method,
-					   scm_tc7_lsubr,
-					   scm_apply_next_method));
-  scm_f_apply_generic_0
-    = scm_permanent_object (scm_make_subr (s_apply_generic_0,
-					   scm_tc7_subr_1,
-					   apply_generic_0));
-  scm_f_apply_generic_1
-    = scm_permanent_object (scm_make_subr (s_apply_generic_1,
-					   scm_tc7_subr_2,
-					   apply_generic_1));
-  scm_f_apply_generic_2
-    = scm_permanent_object (scm_make_subr (s_apply_generic_2,
-					   scm_tc7_subr_3,
-					   apply_generic_2));
-  scm_f_apply_generic_3
-    = scm_permanent_object (scm_make_subr (s_apply_generic_3,
-					   scm_tc7_lsubr_2,
-					   apply_generic_3));
   scm_make_extended_class = make_extended_class;
   scm_make_port_classes = make_port_classes;
   scm_change_object_class = change_object_class;
