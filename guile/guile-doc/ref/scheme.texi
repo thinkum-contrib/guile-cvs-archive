@@ -1022,50 +1022,65 @@ provided, it will be interpreted as a print call-back function.
 
 @end deffn
 
-
-
-
 @page
 @node Arrays
 @section Arrays
 
-[FIXME: this is pasted in from Tom Lord's original guile.texi and should
-be reviewed]
-
 @menu
-* Conventional Arrays::         
-* Array Mapping::               
-* Uniform Array::               
-* Bit Vectors::                 
+* Conventional Arrays::   Arrays with arbitrary data.
+* Array Mapping::         Applying a procedure to the contents of an array.
+* Uniform Arrays::        Arrays with data of a single type.       
+* Bit Vectors::           Vectors of bits.      
 @end menu
 
 @node Conventional Arrays
 @subsection Conventional Arrays
 
-@dfn{Arrays} read and write as a @code{#} followed by the @dfn{rank}
-(number of dimensions) followed by what appear as lists (of lists) of
-elements.  The lists must be nested to the depth of the rank.  For each
-depth, all lists must be the same length.
+@dfn{Conventional arrays} are a collection of cells organised into an
+arbitrary number of dimensions.  Each cell can hold any kind of Scheme
+value and can be accessed in constant time by supplying an index for
+each dimension.  This contrasts with uniform arrays, which use memory
+more efficiently but can hold data of only a single type, and lists
+where inserting and deleting cells is more efficient, but more time
+is usually required to access a particular cell.
+
+A conventional array is displayed as @code{#} followed by the @dfn{rank}
+(number of dimensions) followed by the cells, organised into dimensions
+using parentheses.  The nesting depth of the parentheses is equal to 
+the rank.
+
+When an array is created, the number of dimensions and range of each
+dimension must be specified, e.g., to create a 2x3 array with a 
+zero-based index:
+
 @example
-(make-array 'ho 3 3) @result{}
-#2((ho ho ho) (ho ho ho) (ho ho ho))
+(make-array 'ho 2 3) @result{}
+#2((ho ho ho) (ho ho ho))
 @end example
 
-Unshared conventional (not uniform) 0-based arrays of rank 1 (dimension)
-are equivalent to (and can't be distinguished from) vectors.
+The range of each dimension can also be given explicitly, e.g., another
+way to create the same array:
+
 @example
-(make-array 'ho 3) @result{} (ho ho ho)
+(make-array 'ho '(0 1) '(0 2)) @result{}
+#2((ho ho ho) (ho ho ho))
 @end example
 
-When constructing an array, @var{bound} is either an inclusive range of
-indices expressed as a two element list, or an upper bound expressed
-as a single integer.  So
+A conventional array with one dimension based at zero is identical to
+a vector:
+
 @example
-(make-array 'foo 3 3) @equiv{} (make-array 'foo '(0 2) '(0 2))
+(make-array 'ho 3) @result{}
+#(ho ho ho)
 @end example
 
-@deffn primitive array? obj
+The following procedures can be used with conventional arrays (or vectors).
+
+@deffn primitive array? obj [prototype]
 Returns @code{#t} if the @var{obj} is an array, and @code{#f} if not.
+
+The @var{prototype} argument is used with uniform arrays and is described
+elsewhere.
 @end deffn
 
 @deffn procedure make-array initial-value bound1 bound2 @dots{}
@@ -1258,17 +1273,19 @@ Another example:
 @end example
 @end deffn
 
-@node Uniform Array
-@subsection Uniform Array
+@node Uniform Arrays
+@subsection Uniform Arrays
 
 @noindent
-@dfn{Uniform Array} and vectors are arrays whose elements are all of the
-same type.  Uniform vectors occupy less storage than conventional
-vectors.  Uniform Array procedures also work on vectors, bit-vectors and 
-strings.
+@dfn{Uniform arrays} have elements all of the
+same type and occupy less storage than conventional
+arrays.  Uniform arrays with a single zero-based dimension 
+are also known as @dfn{uniform vectors}.  The procedures in
+this section can also be used on conventional arrays, vectors,
+bit-vectors and strings.
 
 @noindent
-When creating a uniform array or vector, the type of data to be stored
+When creating a uniform array, the type of data to be stored
 is indicated with a @var{prototype} argument.  The following table
 lists the types available and example prototypes:
 
@@ -1281,7 +1298,7 @@ prototype           type                       printing character
 's             short (integer)                         h
 1              unsigned long (integer)                 u
 -1             signed long (integer)                   e
-'l             signed long long (integer)              
+'l             signed long long (integer)              l
 1.0            float (single precision)                s
 1/3            double (double precision float)         i
 0+i            complex (double precision)              c
@@ -1289,33 +1306,35 @@ prototype           type                       printing character
 @end example
 
 @noindent
-Unshared uniform character 0-based arrays of rank 1 (dimension)
-are equivalent to (and can't be distinguished from) strings.
+Unshared uniform arrays of characters with a single zero-based dimension
+are identical to strings:
+
 @example
-(make-uniform-array #\a 3) @result{} "$q2"
+(make-uniform-array #\a 3) @result{}
+"aaa"
 @end example
 
 @noindent
-Unshared uniform boolean 0-based arrays of rank 1 (dimension) are
-equivalent to (and can't be distinguished from) @ref{Bit Vectors,
-bit-vectors}.
+Unshared uniform arrays of booleans with a single zero-based dimension 
+are indentical to @ref{Bit Vectors, bit-vectors}.
+
 @example
-(make-uniform-array #t 3) @result{} #*000
-@equiv{}
-#b(#f #f #f) @result{} #*000
-@equiv{}
-#1b(#f #f #f) @result{} #*000
+(make-uniform-array #t 3) @result{}
+#*111
 @end example
 
 @noindent
 Other uniform vectors are written in a form similar to that of vectors,
 except that a single character from the above table is put between
-@code{#} and @code{(}.  For example, @code{'#e(3 5 9)} returns a uniform
-vector of signed integers.
+@code{#} and @code{(}.  For example, a uniform vector of signed
+long integers is displayed in the form @code{'#e(3 5 9)}.
 
-@deffn primitive array? obj prototype
+@deffn primitive array? obj [prototype]
 Returns @code{#t} if the @var{obj} is an array of type corresponding to
 @var{prototype}, and @code{#f} if not.
+
+If @var{prototype} is omitted, @code{#t} will be returned if @var{obj}
+is an array of any type.
 @end deffn
 
 @deffn procedure make-uniform-array prototype bound1 bound2 @dots{}
@@ -1383,8 +1402,8 @@ The optional arguments @var{start}
 and @var{end} allow
 a specified region of a vector (or linearized array) to be written.
 
-The
-number of objects actually written is returned. @var{port-or-fdes} may be
+The number of objects actually written is returned. 
+@var{port-or-fdes} may be
 omitted, in which case it defaults to the value returned by
 @code{(current-output-port)}.
 @end deffn
@@ -1393,16 +1412,20 @@ omitted, in which case it defaults to the value returned by
 @subsection Bit Vectors
 
 @noindent
-Bit vectors can be written and read as a sequence of @code{0}s and
-@code{1}s prefixed by @code{#*}.
-
-@example
-#b(#f #f #f #t #f #t #f) @result{} #*0001010
-@end example
+Bit vectors are a specific type of uniform array: an array of booleans
+with a single zero-based index.
 
 @noindent
-Some of these operations will eventually be generalized to other
-uniform-arrays.
+They are displayed as a sequence of @code{0}s and
+@code{1}s prefixed by @code{#*}, e.g.,
+
+@example
+(make-uniform-vector 8 #t #f) @result{} 
+#*00000000
+
+#b(#t #f #t) @result{}
+#*101
+@end example
 
 @deffn primitive bit-count bool bv
 Returns the number occurrences of @var{bool} in @var{bv}.
@@ -2367,7 +2390,7 @@ or read text delimited by a specified set of characters.
 @findex fread
 Interfaces to @code{read}/@code{fread} and @code{write}/@code{fwrite} are
 also available, as @code{uniform-array-read!} and @code{uniform-array-write!},
-@ref{Uniform Array}.
+@ref{Uniform Arrays}.
 
 @deffn procedure read-line [port] [handle-delim]
 Return a line of text from @var{port} if specified, otherwise from the
