@@ -7,3 +7,17 @@ i think tom has some good points, although the formalism is a bit heavy.
 definitely, digging through mailing list archives is suboptimal.  once i get
 1.4.1 (and .2, etc, if required) out, i'll organize an archeological dig to
 get all the proper bits (and xref) locked down.
+
+* 2002/02/23 19:58:56 ttn
+
+well, now i think xref is "under the treshold" for minimal reflection; i.e.,
+1.4.1 doc/guile-api.alist needs xref annotation.  this doesn't excuse api-diff
+from needing to handle un-annotated entries, however.
+
+although logically, separation implies reduced dependencies, so that cutting
+ourselves slack is feasible (by not making 1.4.1 release dependent on x.a.),
+it's no big deal to do (grep+lambda); archeology isn't that bad if it involves
+writing simple tools and applying them.
+
+this is being more careful by using guile.
+
