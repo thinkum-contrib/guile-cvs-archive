@@ -46,19 +46,30 @@
 
 #include <libguile/snarf.h>
 
-#ifndef SCM_MAGIC_SNARFER
-#define SCM_CLASS(C_NAME, S_NAME, SUPERS, SIZE, CONSTR, DESTR)	\
-	static SCM C_NAME = SCM_BOOL_F
-#else
-#define SCM_CLASS(C_NAME, S_NAME, SUPERS, SIZE, CONSTR, DESTR)	\
+#define SCM_I_CLASS(C_NAME, S_NAME, SUPERS, SIZE, CONSTR, DESTR)	\
 %%%	scm_load_goops ();						\
-	C_NAME = scm_permanent_object (scm_intern0 (S_NAME));	\
+	C_NAME = scm_permanent_object (scm_intern0 (S_NAME));		\
 	SCM_SETCDR (C_NAME,						\
 		    scm_make_class (scm_class_foreign_class,		\
 				    S_NAME, SUPERS, SIZE,		\
 				    (void * (*) (SCM)) CONSTR,		\
-				    (size_t (*) (void *)) DESTR)); \
+				    (size_t (*) (void *)) DESTR));	\
 	C_NAME = SCM_CDR (C_NAME)
+
+#ifndef SCM_MAGIC_SNARFER
+#define SCM_CLASS(C_NAME, S_NAME, SUPERS, SIZE, CONSTR, DESTR)		\
+	static SCM C_NAME = SCM_BOOL_F
+#else
+#define SCM_CLASS(C_NAME, S_NAME, SUPERS, SIZE, CONSTR, DESTR)		\
+SCM_I_CLASS(C_NAME, S_NAME, SUPERS, SIZE, CONSTR, DESTR)
+#endif
+
+#ifndef SCM_MAGIC_SNARFER
+#define SCM_GLOBAL_CLASS(C_NAME, S_NAME, SUPERS, SIZE, CONSTR, DESTR)	\
+	SCM C_NAME = SCM_BOOL_F
+#else
+#define SCM_GLOBAL_CLASS(C_NAME, S_NAME, SUPERS, SIZE, CONSTR, DESTR)	\
+SCM_I_CLASS(C_NAME, S_NAME, SUPERS, SIZE, CONSTR, DESTR)
 #endif
 
 #ifndef SCM_MAGIC_SNARFER
@@ -126,7 +137,7 @@ SCM_I_SLOT (C_CLASS, C_TYPE, C_SLOT, S_SLOT, S_TYPE,			\
 
 #define SCM_ROSLOT_PTR(C_CLASS, C_TYPE, C_SLOT, S_SLOT, S_TYPE, A)	\
 SCM_I_ROSLOT (C_CLASS, C_TYPE, C_SLOT, S_SLOT, S_TYPE,			\
-	      scm_wrap_object (S_TYPE, obj, o->C_SLOT, A))
+	      scm_wrap_component (S_TYPE, obj, o->C_SLOT), A)
 
 #define SCM_SLOT_INT(C_CLASS, C_TYPE, C_SLOT, SCM_SLOT, A)		\
 SCM_I_SLOT (C_CLASS, C_TYPE, C_SLOT, SCM_SLOT, scm_class_int,		\
