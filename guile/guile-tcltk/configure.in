@@ -14,15 +14,25 @@ AC_PATH_XTRA
 ### On some systems, the Tcl library contains references to
 ### functions in the dynamic linker library, -ldl, so we may need
 ### to include that.
-AC_CHECK_LIB(dl, dlopen, DL_LIBS='-ldl', DL_LIBS='')
+AC_CHECK_LIB(dl, dlopen, TCL_EXTRA_LIBS='-ldl', TCL_EXTRA_LIBS='')
+
+### On some systems, the Tcl library contains references to
+### functions in the socket library, -lsocket, so we may need
+### to include that.
+AC_CHECK_LIB(socket, main, TCL_EXTRA_LIBS="$TCL_EXTRA_LIBS -lsocket")
+
+### On some systems, the Tcl library contains references to
+### functions in the nsl library, -lnsl, so we may need
+### to include that.
+AC_CHECK_LIB(nsl, main, TCL_EXTRA_LIBS="$TCL_EXTRA_LIBS -lnsl")
 
 ### Use gtcltk-lib only if we seem to have Tcl installed on the
 ### system.  We really should check for Tk as well, but that involves
 ### finding all the X libraries that we need to do a complete link.
-AC_CHECK_LIB(tcl7.5, Tcl_CreateInterp, GTCLTK=libgtcltk.a, GTCLTK=, -lm $DL_LIBS)
+AC_CHECK_LIB(tcl7.5, Tcl_CreateInterp, GTCLTK=libgtcltk.a, GTCLTK=, $TCL_EXTRA_LIBS -lm)
 AC_SUBST(GTCLTK)
 
 dnl Checks for library functions.
 AC_FUNC_ALLOCA
-AC_SUBST(DL_LIBS)
+AC_SUBST(TCL_EXTRA_LIBS)
 AC_OUTPUT(Makefile PLUGIN/Makefile)

@@ -1,3 +1,9 @@
+Sat Dec 21 14:42:04 1996  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* configure.in, PLUGIN/{Makefile.{am,in},guile.config.in}: Also
+ 	include -lsocket and -lnsl when testing for presence of Tcl.
+  	Renamed LD_LIBS --> TCL_EXTRA_LIBS
+
 Mon Dec  9 17:21:57 1996  Tom Tromey  <tromey@cygnus.com>
 
 	* Makefile.am: Use guile-snarf.
