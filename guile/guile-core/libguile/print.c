@@ -1,4 +1,4 @@
-/* Copyright (C) 1995-1999,2000,2001, 2002, 2003 Free Software Foundation, Inc.
+/* Copyright (C) 1995-1999,2000,2001, 2002, 2003, 2004 Free Software Foundation, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -517,18 +517,18 @@ scm_iprin1 (SCM exp, SCM port, scm_print_state *pstate)
 	  scm_remember_upto_here_1 (exp);
 	  break;
 	case scm_tc7_symbol:
-	  if (SCM_SYMBOL_INTERNED_P (exp))
+	  if (scm_i_symbol_is_interned (exp))
 	    {
-	      scm_print_symbol_name (SCM_SYMBOL_CHARS (exp),
-				     SCM_SYMBOL_LENGTH (exp),
+	      scm_print_symbol_name (scm_i_symbol_chars (exp),
+				     scm_i_symbol_length (exp),
 				     port);
 	      scm_remember_upto_here_1 (exp);
 	    }
 	  else
 	    {
 	      scm_puts ("#<uninterned-symbol ", port);
-	      scm_print_symbol_name (SCM_SYMBOL_CHARS (exp),
-				     SCM_SYMBOL_LENGTH (exp),
+	      scm_print_symbol_name (scm_i_symbol_chars (exp),
+				     scm_i_symbol_length (exp),
 				     port);
 	      scm_putc (' ', port);
 	      scm_intprint ((long)exp, 16, port);
@@ -596,7 +596,7 @@ scm_iprin1 (SCM exp, SCM port, scm_print_state *pstate)
 		    ? "#<primitive-generic "
 		    : "#<primitive-procedure ",
 		    port);
-	  scm_puts (SCM_SYMBOL_CHARS (SCM_SNAME (exp)), port);
+	  scm_puts (scm_i_symbol_chars (SCM_SNAME (exp)), port);
 	  scm_putc ('>', port);
 	  break;
 #ifdef CCLO
@@ -611,7 +611,7 @@ scm_iprin1 (SCM exp, SCM port, scm_print_state *pstate)
 		if (scm_is_true (name))
 		  {
 		    scm_putc (' ', port);
-		    scm_puts (SCM_SYMBOL_CHARS (name), port);
+		    scm_puts (scm_i_symbol_chars (name), port);
 		  }
 	      }
 	    else
@@ -1108,7 +1108,7 @@ scm_init_print ()
   vtable = scm_make_vtable_vtable (scm_nullstr, SCM_INUM0, SCM_EOL);
   layout = scm_make_struct_layout (scm_makfrom0str (SCM_PRINT_STATE_LAYOUT));
   type = scm_make_struct (vtable, SCM_INUM0, scm_list_1 (layout));
-  scm_set_struct_vtable_name_x (type, scm_str2symbol ("print-state"));
+  scm_set_struct_vtable_name_x (type, scm_from_locale_symbol ("print-state"));
   scm_print_state_vtable = type;
 
   /* Don't want to bind a wrapper class in GOOPS, so pass 0 as arg1. */

@@ -653,7 +653,7 @@ SCM
 scm_sym2ovcell_soft (SCM sym, SCM obarray)
 {
   SCM lsym, z;
-  size_t hash = SCM_SYMBOL_HASH (sym) % SCM_VECTOR_LENGTH (obarray);
+  size_t hash = scm_i_symbol_hash (sym) % SCM_VECTOR_LENGTH (obarray);
 
   scm_c_issue_deprecation_warning ("`scm_sym2ovcell_soft' is deprecated. "
 				   "Use hashtables instead.");
@@ -716,8 +716,8 @@ scm_sym2ovcell (SCM sym, SCM obarray)
 SCM 
 scm_intern_obarray_soft (const char *name,size_t len,SCM obarray,unsigned int softness)
 {
-  SCM symbol = scm_mem2symbol (name, len);
-  size_t raw_hash = SCM_SYMBOL_HASH (symbol);
+  SCM symbol = scm_from_locale_symboln (name, len);
+  size_t raw_hash = scm_i_symbol_hash (symbol);
   size_t hash;
   SCM lsym;
 
@@ -841,7 +841,7 @@ SCM_DEFINE (scm_intern_symbol, "intern-symbol", 2, 0, 0,
 				   "Use hashtables instead.");
 
   SCM_VALIDATE_VECTOR (1,o);
-  hval = SCM_SYMBOL_HASH (s) % SCM_VECTOR_LENGTH (o);
+  hval = scm_i_symbol_hash (s) % SCM_VECTOR_LENGTH (o);
   /* If the symbol is already interned, simply return. */
   SCM_REDEFER_INTS;
   {
@@ -883,7 +883,7 @@ SCM_DEFINE (scm_unintern_symbol, "unintern-symbol", 2, 0, 0,
   if (scm_is_false (o))
     return SCM_BOOL_F;
   SCM_VALIDATE_VECTOR (1,o);
-  hval = SCM_SYMBOL_HASH (s) % SCM_VECTOR_LENGTH (o);
+  hval = scm_i_symbol_hash (s) % SCM_VECTOR_LENGTH (o);
   SCM_DEFER_INTS;
   {
     SCM lsym_follow;
@@ -1138,6 +1138,25 @@ scm_c_substring2str (SCM obj, char *str, size_t start, size_t len)
 
   scm_to_locale_stringbuf (obj, str, len);
   return str;
+}
+
+/* Converts the given Scheme symbol OBJ into a C string, containing a copy
+   of OBJ's content with a trailing null byte.  If LENP is non-NULL, set
+   *LENP to the string's length.
+
+   When STR is non-NULL it receives the copy and is returned by the function,
+   otherwise new memory is allocated and the caller is responsible for 
+   freeing it via free().  If out of memory, NULL is returned.
+
+   Note that Scheme symbols may contain arbitrary data, including null
+   characters.  This means that null termination is not a reliable way to 
+   determine the length of the returned value.  However, the function always 
+   copies the complete contents of OBJ, and sets *LENP to the length of the
+   scheme symbol (if LENP is non-null).  */
+char *
+scm_c_symbol2str (SCM obj, char *str, size_t *lenp)
+{
+  return scm_c_string2str (scm_symbol_to_string (obj), str, lenp);
 }
 
 double

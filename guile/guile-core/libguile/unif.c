@@ -179,11 +179,11 @@ scm_make_uve (long k, SCM prot)
       if (scm_num_eq_p (exactly_one_third, prot))
         goto dvect;
     }
-  else if (SCM_SYMBOLP (prot) && (1 == SCM_SYMBOL_LENGTH (prot)))
+  else if (scm_is_symbol (prot) && (1 == scm_i_symbol_length (prot)))
     {
       char s;
 
-      s = SCM_SYMBOL_CHARS (prot)[0];
+      s = scm_i_symbol_chars (prot)[0];
       if (s == 's')
 	return make_uve (scm_tc7_svect, k, sizeof (short));
 #if SCM_SIZEOF_LONG_LONG != 0
@@ -286,15 +286,15 @@ SCM_DEFINE (scm_array_p, "array?", 1, 1, 0,
  	  protp = SCM_I_INUMP(prot) && SCM_I_INUM(prot)<=0;
           break;
  	case scm_tc7_svect:
- 	  protp = SCM_SYMBOLP (prot)
- 	    && (1 == SCM_SYMBOL_LENGTH (prot))
- 	    && ('s' == SCM_SYMBOL_CHARS (prot)[0]);
+ 	  protp = scm_is_symbol (prot)
+ 	    && (1 == scm_i_symbol_length (prot))
+ 	    && ('s' == scm_i_symbol_chars (prot)[0]);
           break;
 #if SCM_SIZEOF_LONG_LONG != 0
  	case scm_tc7_llvect:
- 	  protp = SCM_SYMBOLP (prot)
- 	    && (1 == SCM_SYMBOL_LENGTH (prot))
- 	    && ('l' == SCM_SYMBOL_CHARS (prot)[0]);
+ 	  protp = scm_is_symbol (prot)
+ 	    && (1 == scm_i_symbol_length (prot))
+ 	    && ('l' == scm_i_symbol_chars (prot)[0]);
           break;
 #endif
  	case scm_tc7_fvect:
@@ -564,7 +564,7 @@ SCM_DEFINE (scm_dimensions_to_uniform_array, "dimensions->uniform-array", 2, 1, 
       SCM answer = scm_make_uve (scm_to_long (dims), prot);
       if (!SCM_UNBNDP (fill))
 	scm_array_fill_x (answer, fill);
-      else if (SCM_SYMBOLP (prot))
+      else if (scm_is_symbol (prot))
 	scm_array_fill_x (answer, scm_from_int (0));
       else
 	scm_array_fill_x (answer, prot);
@@ -589,7 +589,7 @@ SCM_DEFINE (scm_dimensions_to_uniform_array, "dimensions->uniform-array", 2, 1, 
 
   if (!SCM_UNBNDP (fill))
     scm_array_fill_x (ra, fill);
-  else if (SCM_SYMBOLP (prot))
+  else if (scm_is_symbol (prot))
     scm_array_fill_x (ra, scm_from_int (0));
   else
     scm_array_fill_x (ra, prot);
@@ -2589,10 +2589,10 @@ loop:
     case scm_tc7_ivect:
       return scm_from_int (-1);
     case scm_tc7_svect:
-      return scm_str2symbol ("s");
+      return scm_from_locale_symbol ("s");
 #if SCM_SIZEOF_LONG_LONG != 0
     case scm_tc7_llvect:
-      return scm_str2symbol ("l");
+      return scm_from_locale_symbol ("l");
 #endif
     case scm_tc7_fvect:
       return scm_from_double (1.0);

@@ -94,7 +94,7 @@ scm_input_error (char const *function,
     
   string = scm_get_output_string (string_port);
   scm_close_output_port (string_port);
-  scm_error_scm (scm_str2symbol ("read-error"),
+  scm_error_scm (scm_from_locale_symbol ("read-error"),
 		 scm_makfrom0str (function),
 		 string,
 		 arg,
@@ -462,7 +462,7 @@ scm_lreadr (SCM *tok_buf, SCM port, SCM *copy)
 
 	case '{':
 	  j = scm_read_token (c, tok_buf, port, 1);
-	  return scm_mem2symbol (scm_i_string_chars (*tok_buf), j);
+	  return scm_string_to_symbol (scm_c_substring_copy (*tok_buf, 0, j));
 
 	case '\\':
 	  c = scm_getc (port);
@@ -491,7 +491,7 @@ scm_lreadr (SCM *tok_buf, SCM port, SCM *copy)
 	  /* #:SYMBOL is a syntax for keywords supported in all contexts.  */
 	case ':':
 	  j = scm_read_token ('-', tok_buf, port, 0);
-	  p = scm_mem2symbol (scm_i_string_chars (*tok_buf), j);
+	  p = scm_string_to_symbol (scm_c_substring_copy (*tok_buf, 0, j));
 	  return scm_make_keyword_from_dash_symbol (p);
 
 	default:
@@ -629,7 +629,7 @@ scm_lreadr (SCM *tok_buf, SCM port, SCM *copy)
       if (scm_is_eq (SCM_PACK (SCM_KEYWORD_STYLE), scm_keyword_prefix))
 	{
 	  j = scm_read_token ('-', tok_buf, port, 0);
-	  p = scm_mem2symbol (scm_i_string_chars (*tok_buf), j);
+	  p = scm_string_to_symbol (scm_c_substring (*tok_buf, 0, j));
 	  return scm_make_keyword_from_dash_symbol (p);
 	}
       /* fallthrough */
@@ -641,7 +641,7 @@ scm_lreadr (SCM *tok_buf, SCM port, SCM *copy)
       /* fallthrough */
 
     tok:
-      return scm_mem2symbol (scm_i_string_chars (*tok_buf), j);
+      return scm_string_to_symbol (scm_c_substring (*tok_buf, 0, j));
     }
 }
 #undef FUNC_NAME

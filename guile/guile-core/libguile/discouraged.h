@@ -113,6 +113,13 @@ SCM_API double scm_num2double (SCM num, unsigned long int pos,
 
 SCM_API SCM scm_make_complex (double x, double y);
 
+/* Discouraged because they don't make the encoding explicit.
+ */
+
+SCM_API SCM scm_mem2symbol (const char *mem, size_t len);
+SCM_API SCM scm_mem2uninterned_symbol (const char *mem, size_t len);
+SCM_API SCM scm_str2symbol (const char *str);
+
 void scm_i_init_discouraged (void);
 
 #endif /* SCM_ENABLE_DISCOURAGED == 1 */

@@ -2,7 +2,7 @@
    discourage something, move it here when that is feasible.
 */
 
-/* Copyright (C) 2003 Free Software Foundation, Inc.
+/* Copyright (C) 2003, 2004 Free Software Foundation, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -80,6 +80,24 @@ SCM
 scm_make_complex (double x, double y)
 {
   return scm_c_make_rectangular (x, y);
+}
+
+SCM
+scm_mem2symbol (const char *mem, size_t len)
+{
+  return scm_from_locale_symboln (mem, len);
+}
+
+SCM
+scm_mem2uninterned_symbol (const char *mem, size_t len)
+{
+  return scm_make_symbol (scm_from_locale_stringn (mem, len));
+}
+
+SCM
+scm_str2symbol (const char *str)
+{
+  return scm_from_locale_symbol (str);
 }
 
 void

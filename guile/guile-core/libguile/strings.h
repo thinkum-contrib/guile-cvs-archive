@@ -3,7 +3,7 @@
 #ifndef SCM_STRINGS_H
 #define SCM_STRINGS_H
 
-/* Copyright (C) 1995,1996,1997,1998,2000,2001 Free Software Foundation, Inc.
+/* Copyright (C) 1995,1996,1997,1998,2000,2001, 2004 Free Software Foundation, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -124,10 +124,21 @@ SCM_API const char *scm_i_string_chars (SCM str);
 SCM_API char *scm_i_string_writable_chars (SCM str);
 SCM_API void scm_i_string_stop_writing (void);
 
+/* internal functions related to symbols. */
+
+SCM_API SCM scm_i_make_symbol (SCM name, unsigned long hash, SCM props);
+SCM_API const char *scm_i_symbol_chars (SCM sym);
+SCM_API size_t scm_i_symbol_length (SCM sym);
+SCM_API SCM scm_i_symbol_substring (SCM sym, size_t start, size_t end);
+
+/* internal GC functions. */
+
 SCM_API SCM scm_i_string_mark (SCM str);
 SCM_API SCM scm_i_stringbuf_mark (SCM buf);
+SCM_API SCM scm_i_symbol_mark (SCM buf);
 SCM_API void scm_i_string_free (SCM str);
 SCM_API void scm_i_stringbuf_free (SCM buf);
+SCM_API void scm_i_symbol_free (SCM sym);
 
 /* internal utility functions. */
 

@@ -1369,13 +1369,13 @@ SCM_DEFINE (scm_mknod, "mknod", 4, 0, 0,
 #define FUNC_NAME s_scm_mknod
 {
   int val;
-  char *p;
+  const char *p;
   int ctype = 0;
 
   SCM_VALIDATE_STRING (1, path);
   SCM_VALIDATE_SYMBOL (2, type);
 
-  p = SCM_SYMBOL_CHARS (type);
+  p = scm_i_symbol_chars (type);
   if (strcmp (p, "regular") == 0)
     ctype = S_IFREG;
   else if (strcmp (p, "directory") == 0)

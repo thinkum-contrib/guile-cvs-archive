@@ -1,4 +1,4 @@
-/* Copyright (C) 1995,1996,1997,1998,1999,2000,2001 Free Software Foundation, Inc.
+/* Copyright (C) 1995,1996,1997,1998,1999,2000,2001, 2004 Free Software Foundation, Inc.
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -95,7 +95,7 @@ gh_set_substr (const char *src, SCM dst, long start, size_t len)
 SCM 
 gh_symbol2scm (const char *symbol_str)
 {
-  return scm_str2symbol(symbol_str);
+  return scm_from_locale_symbol(symbol_str);
 }
 
 SCM
@@ -562,28 +562,7 @@ gh_get_substr (SCM src, char *dst, long start, size_t len)
 char *
 gh_symbol2newstr (SCM sym, size_t *lenp)
 {
-  char *ret_str;
-  size_t len;
-
-  SCM_ASSERT (SCM_SYMBOLP (sym), sym, SCM_ARG3, "gh_scm2newsymbol");
-
-  len = SCM_SYMBOL_LENGTH (sym);
-
-  ret_str = (char *) malloc ((len + 1) * sizeof (char));
-  if (ret_str == NULL)
-    return NULL;
-  /* so we copy sym to ret_str, which is what we will allocate */
-  memcpy (ret_str, SCM_SYMBOL_CHARS (sym), len);
-  scm_remember_upto_here_1 (sym);
-  /* now make sure we null-terminate it */
-  ret_str[len] = '\0';
-
-  if (lenp != NULL)
-    {
-      *lenp = len;
-    }
-
-  return ret_str;
+  return gh_scm2newstr (scm_symbol_to_string (sym), lenp);
 }
 
 
@@ -666,7 +645,7 @@ gh_module_lookup (SCM module, const char *sname)
 
   SCM_VALIDATE_MODULE (SCM_ARG1, module);
 
-  sym = scm_str2symbol (sname);
+  sym = scm_from_locale_symbol (sname);
   var = scm_sym2var (sym, scm_module_lookup_closure (module), SCM_BOOL_F);
   if (var != SCM_BOOL_F)
     return SCM_VARIABLE_REF (var);

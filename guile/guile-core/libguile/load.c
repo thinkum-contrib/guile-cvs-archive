@@ -1,4 +1,4 @@
-/* Copyright (C) 1995,1996,1998,1999,2000,2001 Free Software Foundation, Inc.
+/* Copyright (C) 1995,1996,1998,1999,2000,2001, 2004 Free Software Foundation, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -499,11 +499,12 @@ init_build_info ()
   unsigned long i;
 
   for (i = 0; i < (sizeof (info) / sizeof (info[0])); i++)
-    *loc = scm_acons (scm_str2symbol (info[i].name),
-		      scm_makfrom0str (info[i].value),
-		      *loc);
+    {
+      SCM key = scm_from_locale_symbol (info[i].name);
+      SCM val = scm_from_locale_string (info[i].value);
+      *loc = scm_acons (key, val, *loc);
+    }
 }
-
 
 
 void

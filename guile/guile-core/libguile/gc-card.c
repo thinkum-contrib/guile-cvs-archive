@@ -1,4 +1,4 @@
-/* Copyright (C) 1995,1996,1997,1998,1999,2000,2001, 2002 Free Software Foundation, Inc.
+/* Copyright (C) 1995,1996,1997,1998,1999,2000,2001, 2002, 2004 Free Software Foundation, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -199,8 +199,7 @@ scm_i_sweep_card (scm_t_cell *  p, SCM *free_list, scm_t_heap_segment*seg)
 	  scm_i_stringbuf_free (scmptr);
 	  break;
 	case scm_tc7_symbol:
-	  scm_gc_free (SCM_SYMBOL_CHARS (scmptr), 
-		       SCM_SYMBOL_LENGTH (scmptr) + 1, "symbol");
+	  scm_i_symbol_free (scmptr); 
 	  break;
 	case scm_tc7_variable:
 	  break;

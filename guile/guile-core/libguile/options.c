@@ -252,7 +252,7 @@ scm_init_opts (SCM (*func) (SCM), scm_t_option options[], unsigned int n)
 
   for (i = 0; i != n; ++i)
     {
-      SCM name = scm_str2symbol (options[i].name);
+      SCM name = scm_from_locale_symbol (options[i].name);
       options[i].name =	(char *) SCM_UNPACK (name);
       scm_permanent_object (name);
     }

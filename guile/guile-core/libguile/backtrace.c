@@ -177,7 +177,7 @@ display_expression (SCM frame, SCM pname, SCM source, SCM port)
   pstate->fancyp = 1;
   pstate->level  = DISPLAY_EXPRESSION_MAX_LEVEL;
   pstate->length = DISPLAY_EXPRESSION_MAX_LENGTH;
-  if (SCM_SYMBOLP (pname) || scm_is_string (pname))
+  if (scm_is_symbol (pname) || scm_is_string (pname))
     {
       if (SCM_FRAMEP (frame)
 	  && SCM_FRAME_EVAL_ARGS_P (frame))
@@ -228,13 +228,13 @@ display_error_body (struct display_error_args *a)
       prev_frame = SCM_FRAME_PREV (current_frame);
       if (!SCM_MEMOIZEDP (source) && scm_is_true (prev_frame))
 	source = SCM_FRAME_SOURCE (prev_frame);
-      if (!SCM_SYMBOLP (pname)
+      if (!scm_is_symbol (pname)
 	  && !scm_is_string (pname)
 	  && SCM_FRAME_PROC_P (current_frame)
 	  && scm_is_true (scm_procedure_p (SCM_FRAME_PROC (current_frame))))
 	pname = scm_procedure_name (SCM_FRAME_PROC (current_frame));
     }
-  if (SCM_SYMBOLP (pname) || scm_is_string (pname) || SCM_MEMOIZEDP (source))
+  if (scm_is_symbol (pname) || scm_is_string (pname) || SCM_MEMOIZEDP (source))
     {
       display_header (source, a->port);
       display_expression (current_frame, pname, source, a->port);

@@ -2024,7 +2024,7 @@ init_raprocs (ra_iproc *subra)
 {
   for (; subra->name; subra++)
     {
-      SCM sym = scm_str2symbol (subra->name);
+      SCM sym = scm_from_locale_symbol (subra->name);
       SCM var =
 	scm_sym2var (sym, scm_current_module_lookup_closure (), SCM_BOOL_F);
       if (var != SCM_BOOL_F)

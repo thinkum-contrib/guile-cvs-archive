@@ -38,9 +38,7 @@ static int debugme = 0;
 
 SCM scm_sys_debug_strings (void);
 SCM scm_sys_string_dump (SCM str);
-
-static SCM debug_buf = SCM_BOOL_F;
-
+SCM scm_sys_symbol_dump (SCM str);
 
 SCM_DEFINE (scm_sys_debug_strings, "%debug-strings", 0, 0, 0,
 	    (), "")
@@ -54,43 +52,43 @@ SCM_DEFINE (scm_sys_debug_strings, "%debug-strings", 0, 0, 0,
 
 /* Stringbufs 
  *
- * XXX - keeping an accurate refcount seems to be quite tricky, so we
- * just keep score of whether a stringbuf might be shared, not wether
- * it definitely is.  The refcount is either 1 for a guaranteed
- * unshared stringbuf, or 2 for a possibly shared one.
+ * XXX - keeping an accurate refcount during GC seems to be quite
+ * tricky, so we just keep score of whether a stringbuf might be
+ * shared, not wether it definitely is.
+ *
+ * A stringbuf needs to know its length, but only so that it can be
+ * reported when the stringbuf is freed.
  */
 
-#define ACCURATE_REFCOUNTS
-#define ACCURATE_GC_REFCOUNTS
+#define STRINGBUF_F_SHARED      0x100
 
 #define STRINGBUF_TAG           scm_tc7_stringbuf
-#define STRINGBUF_REFCOUNT(buf) ((size_t)(SCM_CELL_WORD_3 (buf)))
+#define STRINGBUF_SHARED(buf)   (SCM_CELL_WORD_0(buf) & STRINGBUF_F_SHARED)
 #define STRINGBUF_CHARS(buf)    ((char *)SCM_CELL_WORD_1(buf))
 #define STRINGBUF_LENGTH(buf)   (SCM_CELL_WORD_2(buf))
 
-#define SET_STRINGBUF_REFCOUNT(buf,rc)\
-         (SCM_SET_CELL_WORD_3 ((buf), (scm_t_bits)rc))
+#define SET_STRINGBUF_SHARED(buf) \
+  (SCM_SET_CELL_WORD_0 ((buf), scm_tc7_stringbuf | STRINGBUF_F_SHARED))
 
 static SCM
 make_stringbuf (size_t len)
 {
-  /* XXX - for the benefit of SCM_STRING_CHARS, all stringbufs are
-     null-terminated.  Once SCM_STRING_CHARS is removed, this
-     null-termination can be dropped.
+  /* XXX - for the benefit of SCM_STRING_CHARS, SCM_SYMBOL_CHARS and
+     scm_i_symbol_chars, all stringbufs are null-terminated.  Once
+     SCM_STRING_CHARS and SCM_SYMBOL_CHARS are removed and the code
+     has been changed for scm_i_symbol_chars, this null-termination
+     can be dropped.
   */
 
   char *mem = scm_gc_malloc (len+1, "string");
   mem[len] = '\0';
   return scm_double_cell (STRINGBUF_TAG, (scm_t_bits) mem,
-			  (scm_t_bits) len, (scm_t_bits) 1);
+			  (scm_t_bits) len, (scm_t_bits) 0);
 }
 
 SCM
 scm_i_stringbuf_mark (SCM buf)
 {
-#ifdef ACCURATE_GC_REFCOUNTS
-  SET_STRINGBUF_REFCOUNT (buf, 0);
-#endif
   return SCM_BOOL_F;
 }
 
@@ -100,21 +98,7 @@ scm_i_stringbuf_free (SCM buf)
   scm_gc_free (STRINGBUF_CHARS (buf), STRINGBUF_LENGTH (buf) + 1, "string");
 }
 
-SCM_MUTEX (stringbuf_refcount_mutex);
-
-static void
-stringbuf_ref (SCM buf)
-{
-  scm_i_plugin_mutex_lock (&stringbuf_refcount_mutex);
-#ifdef ACCURATE_REFCOUNTS
-  SET_STRINGBUF_REFCOUNT (buf, STRINGBUF_REFCOUNT (buf) + 1);
-#else
-  SET_STRINGBUF_REFCOUNT (buf, 2);
-#endif
-  if (buf == debug_buf)
-    fprintf (stderr, "ss: %u\n", STRINGBUF_REFCOUNT (debug_buf));
-  scm_i_plugin_mutex_unlock (&stringbuf_refcount_mutex);
-}
+SCM_MUTEX (stringbuf_write_mutex);
 
 /* Copy-on-write strings.
  */
@@ -157,7 +141,9 @@ SCM
 scm_i_substring (SCM str, size_t start, size_t end)
 {
   SCM buf = STRING_STRINGBUF (str);
-  stringbuf_ref (buf);
+  scm_i_plugin_mutex_lock (&stringbuf_write_mutex);
+  SET_STRINGBUF_SHARED (buf);
+  scm_i_plugin_mutex_unlock (&stringbuf_write_mutex);
   return scm_double_cell (STRING_TAG, SCM_UNPACK(buf),
 			  (scm_t_bits)start, (scm_t_bits) end - start);
 }
@@ -224,38 +210,12 @@ scm_i_string_mark (SCM str)
   if (IS_SH_STRING (str))
     return SH_STRING_STRING (str);
   else
-    {
-#ifdef ACCURATE_GC_REFCOUNTS
-      SCM buf = STRING_STRINGBUF (str);
-      scm_gc_mark (buf);
-      SET_STRINGBUF_REFCOUNT (buf, STRINGBUF_REFCOUNT(buf) + 1);
-      return SCM_BOOL_F;
-#else
-      return STRING_STRINGBUF (str);
-#endif
-    }
-}
-
-void
-scm_i_string_gc_hook (int what)
-{
-  static size_t before;
-
-  if (SCM_NIMP (debug_buf))
-    {
-      if (what == 0)
-	before = STRINGBUF_REFCOUNT (debug_buf);
-      else if (before != STRINGBUF_REFCOUNT (debug_buf))
-	fprintf (stderr, "gc: %u -> %u\n",
-		 before, STRINGBUF_REFCOUNT (debug_buf));
-    }
+    return STRING_STRINGBUF (str);
 }
 
 void
 scm_i_string_free (SCM str)
 {
-  if (STRING_STRINGBUF (str) == debug_buf)
-    fprintf (stderr, "freeing %p\n", str);
 }
 
 /* Debugging
@@ -282,12 +242,12 @@ SCM_DEFINE (scm_sys_string_dump, "%string-dump", 1, 0, 0,
       fprintf (stderr, " buf:   %p\n", buf);
       fprintf (stderr, "  chars:  %p\n", STRINGBUF_CHARS (buf));
       fprintf (stderr, "  length: %u\n", STRINGBUF_LENGTH (buf));
-      fprintf (stderr, "  refcnt: %u\n", STRINGBUF_REFCOUNT (buf));
-      debug_buf = buf;
+      fprintf (stderr, "  shared: %u\n", STRINGBUF_SHARED (buf));
     }
   return SCM_UNSPECIFIED;
 }
 #undef FUNC_NAME
+
 
 /* Internal accessors
  */
@@ -321,8 +281,8 @@ scm_i_string_writable_chars (SCM str)
       start += STRING_START (str);
     }
   buf = STRING_STRINGBUF (str);
-  scm_i_plugin_mutex_lock (&stringbuf_refcount_mutex);
-  if (STRINGBUF_REFCOUNT (buf) > 1)
+  scm_i_plugin_mutex_lock (&stringbuf_write_mutex);
+  if (STRINGBUF_SHARED (buf))
     {
       /* Clone stringbuf.  For this, we put all threads to sleep.
        */
@@ -330,18 +290,13 @@ scm_i_string_writable_chars (SCM str)
       size_t len = STRING_LENGTH (str);
       SCM new_buf;
 
-      scm_i_plugin_mutex_unlock (&stringbuf_refcount_mutex);
+      scm_i_plugin_mutex_unlock (&stringbuf_write_mutex);
 
       new_buf = make_stringbuf (len);
       memcpy (STRINGBUF_CHARS (new_buf),
 	      STRINGBUF_CHARS (buf) + STRING_START (str), len);
 
       scm_i_thread_put_to_sleep ();
-#ifdef ACCURATE_REFCOUNTS
-      SET_STRINGBUF_REFCOUNT (buf, STRINGBUF_REFCOUNT (buf) - 1);
-#endif
-      if (buf == debug_buf)
-	fprintf (stderr, "cw: %u\n", STRINGBUF_REFCOUNT (buf));
       SET_STRING_STRINGBUF (str, new_buf);
       start -= STRING_START (str);
       SET_STRING_START (str, 0);
@@ -349,7 +304,7 @@ scm_i_string_writable_chars (SCM str)
 
       buf = new_buf;
 
-      scm_i_plugin_mutex_lock (&stringbuf_refcount_mutex);
+      scm_i_plugin_mutex_lock (&stringbuf_write_mutex);
     }
 
   return STRINGBUF_CHARS (buf) + start;
@@ -358,8 +313,116 @@ scm_i_string_writable_chars (SCM str)
 void
 scm_i_string_stop_writing (void)
 {
-  scm_i_plugin_mutex_unlock (&stringbuf_refcount_mutex);
+  scm_i_plugin_mutex_unlock (&stringbuf_write_mutex);
 }
+
+/* Symbols.
+ 
+   Basic symbol creation and accessing is done here, the rest is in
+   symbols.[hc].  This has been done to keep stringbufs and the
+   internals of strings and string-like objects confined to this file.
+*/
+
+#define SYMBOL_STRINGBUF SCM_CELL_OBJECT_1
+
+#if 0
+SCM
+scm_i_make_symbol (const char *name, size_t len,
+		   unsigned long hash, SCM props)
+{
+  SCM buf = make_stringbuf (len);
+  memcpy (STRINGBUF_CHARS (buf), name, len);
+  return scm_double_cell (scm_tc7_symbol, SCM_UNPACK (buf),
+			  (scm_t_bits) hash, SCM_UNPACK (props));
+}
+#endif
+
+SCM
+scm_i_make_symbol (SCM name, unsigned long hash, SCM props)
+{
+  SCM buf;
+  size_t start = STRING_START (name);
+  size_t length = STRING_LENGTH (name);
+
+  if (IS_SH_STRING (name))
+    {
+      name = SH_STRING_STRING (name);
+      start += STRING_START (name);
+    }
+  buf = SYMBOL_STRINGBUF (name);
+
+  if (start == 0 && length == STRINGBUF_LENGTH (buf))
+    {
+      /* reuse buf. */
+      scm_i_plugin_mutex_lock (&stringbuf_write_mutex);
+      SET_STRINGBUF_SHARED (buf);
+      scm_i_plugin_mutex_unlock (&stringbuf_write_mutex);
+    }
+  else
+    {
+      /* make new buf. */
+      SCM new_buf = make_stringbuf (length);
+      memcpy (STRINGBUF_CHARS (new_buf),
+	      STRINGBUF_CHARS (buf) + start, length);
+      buf = new_buf;
+    }
+  return scm_double_cell (scm_tc7_symbol, SCM_UNPACK (buf),
+			  (scm_t_bits) hash, SCM_UNPACK (props));
+}
+
+size_t
+scm_i_symbol_length (SCM sym)
+{
+  return STRINGBUF_LENGTH (SYMBOL_STRINGBUF (sym));
+}
+
+const char *
+scm_i_symbol_chars (SCM sym)
+{
+  return STRINGBUF_CHARS (SYMBOL_STRINGBUF (sym));
+}
+
+SCM
+scm_i_symbol_mark (SCM sym)
+{
+  scm_gc_mark (SYMBOL_STRINGBUF (sym));
+  return SCM_CELL_OBJECT_3 (sym);
+}
+
+void
+scm_i_symbol_free (SCM sym)
+{
+}
+
+SCM
+scm_i_symbol_substring (SCM sym, size_t start, size_t end)
+{
+  SCM buf = SYMBOL_STRINGBUF (sym);
+  scm_i_plugin_mutex_lock (&stringbuf_write_mutex);
+  SET_STRINGBUF_SHARED (buf);
+  scm_i_plugin_mutex_unlock (&stringbuf_write_mutex);
+  return scm_double_cell (STRING_TAG, SCM_UNPACK(buf),
+			  (scm_t_bits)start, (scm_t_bits) end - start);
+}
+
+SCM_DEFINE (scm_sys_symbol_dump, "%symbol-dump", 1, 0, 0,
+	    (SCM sym),
+	    "")
+#define FUNC_NAME s_scm_sys_symbol_dump
+{
+  SCM_VALIDATE_SYMBOL (1, sym);
+  fprintf (stderr, "%p:\n", sym);
+  fprintf (stderr, " hash: %lu\n", scm_i_symbol_hash (sym));
+  {
+    SCM buf = SYMBOL_STRINGBUF (sym);
+    fprintf (stderr, " buf: %p\n", buf);
+    fprintf (stderr, "  chars:  %p\n", STRINGBUF_CHARS (buf));
+    fprintf (stderr, "  length: %u\n", STRINGBUF_LENGTH (buf));
+    fprintf (stderr, "  shared: %u\n", STRINGBUF_SHARED (buf));
+  }
+  return SCM_UNSPECIFIED;
+}
+#undef FUNC_NAME
 
 
 
@@ -738,7 +801,7 @@ scm_take_locale_string (char *str)
   SCM buf, res;
 
   buf = scm_double_cell (STRINGBUF_TAG, (scm_t_bits) str,
-			 (scm_t_bits) len, (scm_t_bits) 1);
+			 (scm_t_bits) len, (scm_t_bits) 0);
   res = scm_double_cell (STRING_TAG,
 			 SCM_UNPACK (buf),
 			 (scm_t_bits) 0, (scm_t_bits) len);

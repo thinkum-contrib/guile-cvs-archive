@@ -116,7 +116,7 @@ scm_hasher(SCM obj, unsigned long n, size_t d)
 	return hash;
       }
     case scm_tc7_symbol:
-      return SCM_SYMBOL_HASH (obj) % n;
+      return scm_i_symbol_hash (obj) % n;
     case scm_tc7_wvect:
     case scm_tc7_vector:
       {
