@@ -19,14 +19,10 @@
 ##   Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ##   MA 02111-1307 USA
 
-EXTRA_DIST = \
-	README.Debian changelog control copyright files			     \
-	goops-doc.README.Debian goops-doc.docs goops-doc.files		     \
-	goops-doc.info goops-doc.postinst.debhelper			     \
-	goops-doc.prerm.debhelper goops.README.Debian goops.docs goops.files \
-	goops.postinst.debhelper goops.prerm.debhelper goops.substvars	     \
-	libgoops5-dev.README.Debian libgoops5-dev.docs			     \
-	libgoops5-dev.files libgoops5-dev.postinst.debhelper		     \
-	libgoops5-dev.prerm.debhelper libgoops5.docs			     \
-	libgoops5.links.in libgoops5.postinst postinst.debhelper	     \
-	prerm.debhelper rules shlibs substvars
+EXTRA_DIST =								\
+	README.Debian changelog control copyright			\
+	goops-doc.README.Debian goops-doc.docs goops-doc.files		\
+	goops-doc.info goops.README.Debian goops.docs goops.files	\
+	libgoops5-dev.README.Debian libgoops5-dev.docs			\
+	libgoops5-dev.files libgoops5.docs				\
+	libgoops5.links.in rules
