@@ -1,3 +1,20 @@
+Sun Oct  6 06:20:46 1996  Gary Houston  <ghouston@actrix.gen.nz>
+
+	* rgx.c (scm_regexec): Changed the default return type to be
+ 	similar to regexec in guile-iii: a newly allocated vector with
+ 	match indices.  This provides all the information required: the
+ 	justification for the all the other return types is presumably
+ 	efficiency.  A list of strings is now returned by passing a string
+ 	for match_pick.
+
+	See ../doc/regex.txt.
+
+	* rgx.h: new file.
+
+	* rgx.c (scm_init_rgx): intern various regexp control symbols,
+	REG_EXTENDED etc.
+	Use K&R function definitions, include rgx.h.
+
 Thu Oct  3 00:37:59 1996  Jim Blandy  <jimb@totoro.cyclic.com>
 
 	* rgx.c (print_regex_t, print_dfa_t): Change 'writing' argument to

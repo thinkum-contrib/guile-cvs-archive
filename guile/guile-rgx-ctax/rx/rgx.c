@@ -42,11 +42,13 @@
 
 
 #include <stdio.h>
-#include <libguile/_scm.h>
-#include <libguile/smob.h>
-#include <libguile/mallocs.h>
-#include <libguile/chars.h>
-#include <libguile/feature.h>
+#include "libguile/_scm.h"
+#include "libguile/smob.h"
+#include "libguile/mallocs.h"
+#include "libguile/chars.h"
+#include "libguile/feature.h"
+
+#include "rgx.h"
 
 #ifdef STDC_HEADERS
 #include <string.h>
@@ -63,14 +65,9 @@ long scm_tc16_regex_t;
 #define RGX(X)	((regex_t *)SCM_CDR(X))
 #define RGXP(X)	(SCM_CAR(X) == (SCM)scm_tc16_regex_t)
 
-#ifdef __STDC__
-size_t
-free_regex_t (SCM obj)
-#else
 size_t
 free_regex_t (obj)
      SCM obj;
-#endif
 {
   regex_t *r;
   r = RGX(obj);
@@ -79,16 +76,11 @@ free_regex_t (obj)
   return 0;
 }
 
-#ifdef __STDC__
-int
-print_regex_t (SCM obj, SCM port, scm_print_state *pstate)
-#else
 int
 print_regex_t (obj, port, pstate)
      SCM obj;
      SCM port;
-     scm_print_states *pstate;
-#endif
+     scm_print_state *pstate;
 {
   regex_t *r;
   r = RGX (obj);
@@ -118,14 +110,9 @@ scm_regex_error (subr, code)
 }
 
 SCM_PROC (s_compiled_regexp_p, "compiled-regexp?", 1, 0, 0, scm_compiled_regexp_p);
-#ifdef __STDC__
-SCM
-scm_compiled_regexp_p (SCM obj)
-#else
 SCM
 scm_compiled_regexp_p (obj)
      SCM obj;
-#endif
 {
   return ((SCM_NIMP (obj) && RGXP (obj))
 	  ? SCM_BOOL_T
@@ -133,15 +120,10 @@ scm_compiled_regexp_p (obj)
 }
 
 SCM_PROC(s_regcomp, "regcomp", 1, 1, 0, scm_regcomp);
-#ifdef __STDC__
-SCM
-scm_regcomp (SCM pat, SCM cfl)
-#else
 SCM
 scm_regcomp (pat, cfl)
      SCM pat;
      SCM cfl;
-#endif
 {
   SCM answer;
   SCM_ASSERT (SCM_NIMP (pat) && SCM_ROSTRINGP (pat), pat, SCM_ARG1, s_regcomp);
@@ -185,32 +167,78 @@ scm_regcomp (pat, cfl)
   return answer;
 }
 
+#if 0
+SCM_PROC(s_regexec, "regexec", 2, 1, 0, scm_regexec);
+SCM
+scm_regexec (rgx, str, eflags)
+     SCM rgx;
+     SCM str;
+     SCM eflags;
+{
+  SCM answer;
+  SCM malloc_protect;
+  regmatch_t *pmatch = 0;
+  int status;
+
+  SCM_ASSERT (SCM_NIMP (rgx) && RGXP (rgx), rgx, SCM_ARG1, s_regexec);
+  SCM_ASSERT (SCM_NIMP (str) && SCM_ROSTRINGP (str), str, SCM_ARG2, s_regexec);
+  if (eflags == SCM_UNDEFINED)
+    eflags = SCM_INUM0;
+  SCM_ASSERT (SCM_INUMP (eflags), eflags, SCM_ARG3, s_regexec);
+
+  malloc_protect = scm_malloc_obj (0);
+  SCM_DEFER_INTS;
+
+  status = regnexec (RGX(rgx), SCM_ROLENGTH (str), SCM_ROCHARS (str),
+		     0, &pmatch, eflags | REG_ALLOC_REGS);
+  if (status)
+    {
+      SCM_ALLOW_INTS;
+      if (status == REG_NOMATCH)
+	return SCM_BOOL_F;
+      else
+	scm_regex_error (s_regexec, status);
+    }
+
+  SCM_SETMALLOCDATA (malloc_protect, pmatch);
+  SCM_ALLOW_INTS;
+
+  {
+    int i;
+    size_t bound;
+    int vlen;
+
+    bound = RGX(rgx)->n_subexps;
+    answer = scm_make_vector (SCM_MAKINUM (bound), SCM_UNDEFINED, SCM_BOOL_F);
+    for (i = 0; i < bound; ++i)
+      if (pmatch[i].rm_so >= 0)
+	SCM_VELTS (answer)[i] = scm_cons (SCM_MAKINUM (pmatch[i].rm_so),
+					  SCM_MAKINUM (pmatch[i].rm_eo));
+      else
+	SCM_VELTS (answer)[i] = SCM_BOOL_F;
+    }
+
+  return answer;
+}
+#endif
 
 SCM_PROC(s_regexec, "regexec", 2, 2, 0, scm_regexec);
-#ifdef __STDC__
-SCM
-scm_regexec (SCM rgx, SCM str, SCM match_pick, SCM eflags)
-#else
 SCM
 scm_regexec (rgx, str, match_pick, eflags)
      SCM rgx;
      SCM str;
      SCM match_pick;
      SCM eflags;
-#endif
 {
   SCM answer;
   SCM malloc_protect;
   regmatch_t * pmatch;
-  int vector_result;
 
   SCM_ASSERT (SCM_NIMP (rgx) && RGXP (rgx), rgx, SCM_ARG1, s_regexec);
   SCM_ASSERT (SCM_NIMP (str) && SCM_ROSTRINGP (str), str, SCM_ARG2, s_regexec);
   if (eflags == SCM_UNDEFINED)
     eflags = SCM_INUM0;
   SCM_ASSERT (SCM_INUMP (eflags), eflags, SCM_ARG4, s_regexec);
-
-  vector_result = (SCM_NIMP (match_pick) && SCM_VECTORP (match_pick));
 
   malloc_protect = scm_malloc_obj (0);
   SCM_DEFER_INTS;
@@ -240,8 +268,25 @@ scm_regexec (rgx, str, match_pick, eflags)
     {
       int i;
 
+      answer = scm_make_vector (SCM_MAKINUM (RGX (rgx)->n_subexps),
+				SCM_BOOL_F, SCM_BOOL_F);
+      for (i = 0; i < RGX (rgx)->n_subexps; i++)
+	{
+	  if (pmatch[i].rm_so >= 0)
+	    {
+	      SCM_VELTS (answer)[i] = scm_cons (SCM_MAKINUM (pmatch[i].rm_so),
+						SCM_MAKINUM (pmatch[i].rm_eo));
+	    }
+	}
+      return answer;
+    }
+  else if ((SCM_NIMP (match_pick) && SCM_ROSTRINGP (match_pick)))
+    {
+      int i;
+
       answer = scm_listify (SCM_UNDEFINED);
-      for (i = RGX (rgx)->n_subexps - 1; i >= 0; i--)
+      
+      for (i = RGX (rgx)->n_subexps - 1; i >= 1; i--)
 	{
 	  if (pmatch[i].rm_so >= 0)
 	    {
@@ -253,9 +298,21 @@ scm_regexec (rgx, str, match_pick, eflags)
 	  else
 	    answer = scm_cons (SCM_BOOL_F, answer);
 	}
+      answer = scm_cons (scm_listify (scm_make_shared_substring
+				      (str, SCM_MAKINUM (0),
+				       SCM_MAKINUM (pmatch[0].rm_so)),
+				      scm_make_shared_substring
+				      (str, SCM_MAKINUM (pmatch[0].rm_so),
+				       SCM_MAKINUM (pmatch[0].rm_eo)),
+				      scm_make_shared_substring
+				      (str, SCM_MAKINUM (pmatch[0].rm_eo),
+				       SCM_MAKINUM (SCM_LENGTH (str))),
+				      SCM_UNDEFINED),
+			 answer);
+
       return answer;
     }
-  else if (vector_result)
+  else if (SCM_NIMP (match_pick) && SCM_VECTORP (match_pick))
     {
       int i;
       size_t bound;
@@ -373,7 +430,6 @@ scm_regexec (rgx, str, match_pick, eflags)
     }
 }
 
-
 
 
 struct rx_dfa_state
@@ -386,14 +442,9 @@ long scm_tc16_dfa_t;
 #define DFA(X)	((struct rx_dfa_state *)SCM_CDR(X))
 #define DFAP(X)	(SCM_CAR(X) == (SCM)scm_tc16_dfa_t)
 
-#ifdef __STDC__
-size_t
-free_dfa_t (SCM obj)
-#else
 size_t
 free_dfa_t (obj)
      SCM obj;
-#endif
 {
   struct rx_dfa_state *r;
   r = DFA(obj);
@@ -403,16 +454,11 @@ free_dfa_t (obj)
   return sizeof (struct rx_dfa_state);
 }
 
-#ifdef __STDC__
 int
-print_dfa_t (SCM obj, SCM port, scm_print_state *pstate)
-#else
-int
-print_dfa_t (obj, port, )
+print_dfa_t (obj, port, pstate)
      SCM obj;
      SCM port;
      scm_print_state *pstate;
-#endif
 {
   struct rx_dfa_state *r;
   r = DFA (obj);
@@ -427,15 +473,10 @@ static scm_smobfuns dfa_t_smob =
 
 
 SCM_PROC (s_regexp_to_dfa, "regexp->dfa", 1, 1, 0, scm_regexp_to_dfa);
-#ifdef __STDC__
-SCM 
-scm_regexp_to_dfa (SCM regexp, SCM cfl)
-#else
 SCM 
 scm_regexp_to_dfa (regexp, cfl)
      SCM regexp;
      SCM cfl;
-#endif
 {
   reg_errcode_t ret;
   unsigned int syntax;
@@ -496,14 +537,9 @@ scm_regexp_to_dfa (regexp, cfl)
 
 
 SCM_PROC (s_dfa_fork, "dfa-fork", 1, 0, 0, scm_dfa_fork);
-#ifdef __STDC__
-SCM
-scm_dfa_fork (SCM dfa)
-#else
 SCM
 scm_dfa_fork (dfa)
      SCM dfa;
-#endif
 {
   struct rx_dfa_state *r;
   SCM answer;
@@ -529,14 +565,9 @@ scm_dfa_fork (dfa)
 
 
 SCM_PROC (s_reset_dfa_x, "reset-dfa!", 1, 0, 0, scm_reset_dfa_x);
-#ifdef __STDC__
-SCM
-scm_reset_dfa_x (SCM dfa)
-#else
 SCM
 scm_reset_dfa_x (dfa)
      SCM dfa;
-#endif
 {
   SCM_ASSERT (SCM_NIMP (dfa) && DFAP (dfa),
 	      dfa, SCM_ARG1, s_reset_dfa_x);
@@ -554,14 +585,9 @@ scm_reset_dfa_x (dfa)
 
 
 SCM_PROC (s_dfa_final_tag, "dfa-final-tag", 1, 0, 0, scm_dfa_final_tag);
-#ifdef __STDC__
-SCM
-scm_dfa_final_tag (SCM dfa)
-#else
 SCM
 scm_dfa_final_tag (dfa)
      SCM dfa;
-#endif
 {
   SCM_ASSERT (SCM_NIMP (dfa) && DFAP (dfa),
 	      dfa, SCM_ARG1, s_dfa_final_tag);
@@ -575,14 +601,9 @@ scm_dfa_final_tag (dfa)
 
 
 SCM_PROC (s_dfa_continuable_p, "dfa-continuable?", 1, 0, 0, scm_dfa_continuable_p);
-#ifdef __STDC__
-SCM
-scm_dfa_continuable_p (SCM dfa)
-#else
 SCM
 scm_dfa_continuable_p (dfa)
      SCM dfa;
-#endif
 {
   SCM_ASSERT (SCM_NIMP (dfa) && DFAP (dfa),
 	      dfa, SCM_ARG1, s_dfa_continuable_p);
@@ -594,15 +615,10 @@ scm_dfa_continuable_p (dfa)
 
 
 SCM_PROC (s_advance_dfa_x, "advance-dfa!", 2, 0, 0, scm_advance_dfa_x);
-#ifdef __STDC__
-SCM
-scm_advance_dfa_x (SCM dfa, SCM s)
-#else
 SCM
 scm_advance_dfa_x (dfa, s)
      SCM dfa;
      SCM s;
-#endif
 {
   struct rx_dfa_state * d;
   char * str;
@@ -633,19 +649,53 @@ scm_advance_dfa_x (dfa, s)
 
 
 
-#ifdef __STDC__
-void
-scm_init_rgx (void)
-#else
 void
 scm_init_rgx ()
-#endif
 {
   scm_add_feature ("regex");
   scm_tc16_regex_t = scm_newsmob (&regex_t_smob);
   scm_tc16_dfa_t = scm_newsmob (&dfa_t_smob);
   scm_regex_error_key
     = scm_permanent_object (SCM_CAR (scm_intern0 ("regex-error")));
+
+  /* from inst-rxposix.h  */
+  scm_sysintern ("REG_EXTENDED", SCM_MAKINUM (REG_EXTENDED));
+  scm_sysintern ("REG_ICASE", SCM_MAKINUM (REG_ICASE));
+  scm_sysintern ("REG_NEWLINE", SCM_MAKINUM (REG_NEWLINE));
+  scm_sysintern ("REG_NOTBOL", SCM_MAKINUM (REG_NOTBOL));
+  scm_sysintern ("REG_NOTEOL", SCM_MAKINUM (REG_NOTEOL));
+
+  /* from rxgnucomp.h, can be used by regexp->dfa.  */
+  scm_sysintern ("RE_BACKSLASH_ESCAPE_IN_LISTS", SCM_MAKINUM (RE_BACKSLASH_ESCAPE_IN_LISTS));
+  scm_sysintern ("RE_BK_PLUS_QM", SCM_MAKINUM (RE_BK_PLUS_QM));
+  scm_sysintern ("RE_CHAR_CLASSES", SCM_MAKINUM (RE_CHAR_CLASSES));
+  scm_sysintern ("RE_CONTEXT_INDEP_ANCHORS", SCM_MAKINUM (RE_CONTEXT_INDEP_ANCHORS));
+  scm_sysintern ("RE_CONTEXT_INDEP_OPS", SCM_MAKINUM (RE_CONTEXT_INDEP_OPS));
+  scm_sysintern ("RE_CONTEXT_INVALID_OPS", SCM_MAKINUM (RE_CONTEXT_INVALID_OPS));
+  scm_sysintern ("RE_DOT_NEWLINE", SCM_MAKINUM (RE_DOT_NEWLINE));
+  scm_sysintern ("RE_DOT_NOT_NULL", SCM_MAKINUM (RE_DOT_NOT_NULL));
+  scm_sysintern ("RE_HAT_LISTS_NOT_NEWLINE", SCM_MAKINUM (RE_HAT_LISTS_NOT_NEWLINE));
+  scm_sysintern ("RE_INTERVALS", SCM_MAKINUM (RE_INTERVALS));
+  scm_sysintern ("RE_LIMITED_OPS", SCM_MAKINUM (RE_LIMITED_OPS));
+  scm_sysintern ("RE_NEWLINE_ALT", SCM_MAKINUM (RE_NEWLINE_ALT));
+  scm_sysintern ("RE_NO_BK_BRACES", SCM_MAKINUM (RE_NO_BK_BRACES));
+  scm_sysintern ("RE_NO_BK_PARENS", SCM_MAKINUM (RE_NO_BK_PARENS));
+  scm_sysintern ("RE_NO_BK_REFS", SCM_MAKINUM (RE_NO_BK_REFS));
+  scm_sysintern ("RE_NO_BK_VBAR", SCM_MAKINUM (RE_NO_BK_VBAR));
+  scm_sysintern ("RE_NO_EMPTY_RANGES", SCM_MAKINUM (RE_NO_EMPTY_RANGES));
+  scm_sysintern ("RE_UNMATCHED_RIGHT_PAREN_ORD", SCM_MAKINUM (RE_UNMATCHED_RIGHT_PAREN_ORD));
+  scm_sysintern ("RE_SYNTAX_EMACS", SCM_MAKINUM (RE_SYNTAX_EMACS));
+  scm_sysintern ("RE_SYNTAX_AWK", SCM_MAKINUM (RE_SYNTAX_AWK));
+  scm_sysintern ("RE_SYNTAX_POSIX_AWK", SCM_MAKINUM (RE_SYNTAX_POSIX_AWK));
+  scm_sysintern ("RE_SYNTAX_GREP", SCM_MAKINUM (RE_SYNTAX_GREP));
+  scm_sysintern ("RE_SYNTAX_EGREP", SCM_MAKINUM (RE_SYNTAX_EGREP));
+  scm_sysintern ("RE_SYNTAX_POSIX_EGREP", SCM_MAKINUM (RE_SYNTAX_POSIX_EGREP));
+  scm_sysintern ("RE_SYNTAX_SED", SCM_MAKINUM (RE_SYNTAX_SED));
+  scm_sysintern ("RE_SYNTAX_POSIX_BASIC", SCM_MAKINUM (RE_SYNTAX_POSIX_BASIC));
+  scm_sysintern ("RE_SYNTAX_POSIX_MINIMAL_BASIC", SCM_MAKINUM (RE_SYNTAX_POSIX_MINIMAL_BASIC));
+  scm_sysintern ("RE_SYNTAX_POSIX_EXTENDED", SCM_MAKINUM (RE_SYNTAX_POSIX_EXTENDED));
+  scm_sysintern ("RE_SYNTAX_POSIX_MINIMAL_EXTENDED", SCM_MAKINUM (RE_SYNTAX_POSIX_MINIMAL_EXTENDED));
+
 #include "rgx.x"
 }
 
