@@ -13,8 +13,8 @@ if test "$enable_fdi_example" = y || test "$enable_fdi_example" = yes; then
 fi
 
 GUILE_FLAGS
-if test "`guile -c '(display (string>=? (version) "1.3.2"))'`" != "#t"; then
-  AC_MSG_ERROR([Your Guile is too old.  You need guile-core-1.3.2 or later.])
+if test "`guile -c '(display (string>=? (version) "1.3.3"))'`" != "#t"; then
+  AC_MSG_ERROR([Your Guile is too old.  You need guile-core-1.3.3 or later.])
 fi
 
 AC_PROG_CC
@@ -23,8 +23,6 @@ AM_PROG_LIBTOOL
 
 CFLAGS="$CFLAGS $GUILE_CFLAGS"
 LIBS="$LIBS $GUILE_LDFLAGS"
-
-AC_CHECK_FUNCS(scm_apply_generic)
 
 ## If we're using GCC, ask for aggressive warnings.
 case "$GCC" in
