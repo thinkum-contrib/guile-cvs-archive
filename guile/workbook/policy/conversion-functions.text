@@ -31,8 +31,7 @@ looks like
 
 This function could be pronounced as "make Scheme from <type>" to
 remember that the conversion is from <type> to a Scheme object.
-No error will usually be signalled, except when not enough memory is
-available.
+No error will usually be signalled.
 
 Sometimes a function named
 
@@ -59,22 +58,27 @@ should normally use scm_is_true or scm_is_false to test for trueness
 or falseness.  This is because all values except SCM_BOOL_F are
 normally treated as true.
 
+  - int scm_is_true (SCM);
+
+  Return 0 when SCM is SCM_BOOL_F, else return 1.
+
+  - int scm_is_false (SCM);
+
+  Return 1 when SCM is SCM_BOOL_F, else return 0.
+
   - int scm_is_bool (SCM val);
 
   Return 1 when val is either SCM_BOOL_F or SCM_BOOL_T.
 
   - SCM scm_from_bool (int val);
 
-    Return SCM_BOOL_T when val is non-zero, else return SCM_BOOL_F.
+  Return SCM_BOOL_T when val is non-zero, else return SCM_BOOL_F.
 
-  - int scm_to_bool (SCM);
-  - int scm_is_true (SCM);
+  - int scm_to_bool (SCM val);
 
-    Return 0 when SCM is SCM_BOOL_F, else return 1.
+  Return 0 when VAL is SCM_BOOL_F, return 1 when it is SCM_BOOL_T,
+  else signal an error.
 
-  - int scm_is_false (SCM);
-
-    Return 1 when SCM is SCM_BOOL_F, else return 0.
 
 ** Integers
 
@@ -307,6 +311,8 @@ However, care must be taken to use them correctly and reasonably.
 
   You are not allowed to modify the string contents.
 
+  When STR is not a string, this function returns NULL.
+
   (The "scm_l_" prefix denotes a function that must be called with a
   locked heap.)
 
@@ -328,6 +334,10 @@ to/from a symbol directly.
   - unsigned char *scm_to_utf8_symbol (SCM str, size_t *lenp);
   - const unsigned char *scm_l_get_utf8_symbol_mem (SCM str);
   - size_t scm_l_get_utf8_symbol_len (SCM str);
+
+** Keywords
+
+Like symbols.
 
 ** Uniform vectors
 
