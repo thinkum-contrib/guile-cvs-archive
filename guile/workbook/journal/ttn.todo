@@ -1,10 +1,7 @@
 - bugs
   + give input on "render-bugs" to Evan Prodromou
   - add "render-bugs" to guile-tools
-  - add bugs
-    - subject: Guile fails tests on Tru64 4.0F
-    - subject: failed backtrace
-    - [more: archive diving required]
+  - if no-one else takes it, do archive diving for more bugs to add
   - write tests for each bug
   - encourage specification: criticality, etc.
   - test elisp translator against rfc822.el
