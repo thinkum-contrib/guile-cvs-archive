@@ -1,7 +1,51 @@
 @node Introduction
 @chapter Introduction
+
+Guile is an interpreter for the Scheme programming language, packaged
+for use in a wide variety of applications.  Guile implements Scheme as
+described in the Revised^4 Report on the Algorithmic Language Scheme
+(usually known as R4RS), providing clean and general data and control
+structures.  Guile goes beyond the rather austere language presented in
+R4RS, extending it with a module system, full access to POSIX system
+calls, networking support, multiple threads, dynamic linking, a foreign
+function call interface, powerful string processing, and many other
+features needed for programming in the real world.
+
+Like a shell, Guile can run interactively, reading expressions from the
+user, evaluating them, and displaying the results, or as a script
+interpreter, reading and executing Scheme code from a file.  However,
+Guile is also packaged as an object library, allowing other applications
+to incorporate the full power of the Scheme programming language.  An
+application can use Guile as an extension language, a clean and powerful
+configuration language, or as multi-purpose ``glue'', connecting
+primitives provided by the application.  It is easy to call Scheme code
+from C code and vice versa, giving the application designer full control
+of how and when to invoke the interpreter.  Applications can add new
+functions, data types, control structures, and even syntax to Guile,
+creating a domain-specific language tailored to the task at hand, but
+based on a robust language design.
+
+Guile's module system allows one to break up a large program into
+manageable sections with well-defined interfaces between them.  Modules
+may contain a mixture of interpreted and compiled code; Guile can use
+either static or dynamic linking to incorporate compiled code.  Modules
+also encourage developers to package up useful collections of routines
+for general distribution; as of this writing, one can find Emacs
+interfaces, database access routines, compilers, GUI toolkit interfaces,
+and HTTP client functions, among others.
+
+In the future, we hope to expand Guile to support other languages like
+Tcl and Perl by compiling them to Scheme code.  This means that, if an
+application uses Guile as its extension language, users can extend it in
+the language of their choice, rather than having the tastes of the
+application's author imposed on them.
+
+
 @node Running Guile Interactively
 @chapter Running Guile Interactively
+
+
+
 @node Guile Scripts
 @chapter Guile Scripts
 @node Invoking Guile
