@@ -1830,5 +1830,5 @@ scm_init_goops (void)
 void
 scm_init_goops_goopscore_module ()
 {
-  scm_register_module_xxx ("goops goopscore", scm_init_goops);
+  scm_register_module_xxx ("goops goopscore", (void *) scm_init_goops);
 }
