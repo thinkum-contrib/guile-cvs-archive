@@ -23,7 +23,7 @@
 ;  :no-backtrace
   )
 
-(export compile-method)
+(export compile-method code-code code-environment)
 
 (define source-formals cadr)
 (define source-body cddr)
@@ -36,21 +36,33 @@
     (lambda args
       (@apply method (if (null? args) default-args args)))))	  
 
-(define (make-make-next-method vcell methods types)
+(define (make-final-make-no-next-method gf)
   (lambda default-args
     (lambda args
-      (let* ((code (compile-method methods types))
-	     (method (local-eval (cons 'lambda (code-code code))
-				 (code-environment code))))
-	(set-cdr! vcell (make-final-make-next-method method))
-	(@apply method (if (null? args) default-args args))))))
+      (no-next-method gf (if (null? args) default-args args)))))
+
+(define (make-make-next-method vcell gf methods types)
+  (lambda default-args
+    (lambda args
+      (if (null? methods)
+	  (begin
+	    (set-cdr! vcell (make-final-make-no-next-method gf))
+	    (no-next-method gf (if (null? args) default-args args)))
+	  (let* ((code (compile-method methods types))
+		 (method (local-eval (cons 'lambda (code-code code))
+				     (code-environment code))))
+	    (set-cdr! vcell (make-final-make-next-method method))
+	    (@apply method (if (null? args) default-args args)))))))
 
 (define (compile-method methods types)
   (let* ((proc (method-procedure (car methods)))
 	 (src (procedure-source proc))
 	 (formals (source-formals src))
 	 (vcell (cons 'goops:make-next-method #f)))
-    (set-cdr! vcell (make-make-next-method vcell (cdr methods) types))
+    (set-cdr! vcell
+	      (make-make-next-method vcell
+				     (method-generic-function (car methods))
+				     (cdr methods) types))
     ;;*fixme*
     `(,(cons vcell (procedure-environment proc))
       ,formals

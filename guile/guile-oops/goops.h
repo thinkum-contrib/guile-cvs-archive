@@ -69,7 +69,9 @@
 #define scm_si_procedure2	  6 
 #define scm_si_procedure3	  7 
 #define scm_si_setter		  8 
-				    
+
+#define scm_si_goops_fields	  9
+
 /* Defined in libguile/objects.c:
 #define scm_si_redefined	  9    The class to which class was redefined.
 #define scm_si_hashsets	 	 10
@@ -140,6 +142,10 @@ typedef struct scm_method_t {
 				&& SCM_INSTANCEP (x) \
 				&& SCM_SUBCLASSP (SCM_CLASS_OF (x), c))
 
+#define SCM_INITIAL_HASH_SIZE	  4
+#define SCM_CMETHOD_CODE(cmethod) SCM_CDR (cmethod)
+#define SCM_CMETHOD_ENV(cmethod)  SCM_CAR (cmethod)
+
 #define scm_si_getters_n_setters scm_si_name_access
 
 #define scm_si_constructor	 SCM_N_CLASS_SLOTS
@@ -147,6 +153,7 @@ typedef struct scm_method_t {
 
 #define scm_si_methods		 0  /* offset of methods slot in a <generic> */
 #define scm_si_n_specialized	 1
+#define scm_si_used_by		 2
 
 #define scm_si_generic_function	 0  /* offset of gf    slot in a <method> */
 #define scm_si_specializers	 1  /* offset of spec. slot in a <method> */
@@ -189,11 +196,13 @@ SCM scm_slot_ref (SCM obj, SCM slot_name);
 SCM scm_slot_set_x (SCM obj, SCM slot_name, SCM value);
 
 SCM scm_compute_applicable_methods (SCM gf, SCM args, int len, int scm_find_method);
-#ifdef GUILE_DEBUG
+SCM scm_sys_compute_applicable_methods (SCM gf, SCM args);
 SCM scm_m_atslot_ref (SCM xorig, SCM env);
 SCM scm_m_atslot_set_x (SCM xorig, SCM env);
 SCM scm_m_dispatch (SCM xorig, SCM env);
 SCM scm_m_hash_dispatch (SCM xorig, SCM env);
+#ifdef GUILE_DEBUG
+SCM scm_pure_generic_p (SCM obj);
 #endif
 extern void scm_init_oop_goops_goopscore_module (void);
 
@@ -227,7 +236,9 @@ SCM scm_slot_bound_p (SCM obj, SCM slot_name);
 SCM scm_slots_exists_p (SCM obj, SCM slot_name); 
 SCM scm_sys_modify_instance (SCM old, SCM new); 
 SCM scm_sys_modify_class (SCM old, SCM new); 
-SCM scm_sys_invalidate_class (SCM class); 
+SCM scm_sys_invalidate_class (SCM class);
+SCM scm_make_method_cache (SCM gf);
+SCM scm_sys_invalidate_method_cache_x (SCM gf);
 SCM stklos_version (void); 
 SCM scm_make (SCM args); 
 SCM scm_find_method (SCM args); 

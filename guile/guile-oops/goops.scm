@@ -30,6 +30,7 @@
   :use-module (oop goops goopscore)
   :use-module (oop goops util)
   :use-module (oop goops dispatch)
+  :use-module (oop goops compile)
 ;  :no-backtrace
   )
 
@@ -55,7 +56,8 @@
     change-class 
     shallow-clone deep-clone
     class-redefinition
-    apply-generic apply-method apply-methods compute-applicable-methods 
+    apply-generic apply-method apply-methods
+    compute-applicable-methods %compute-applicable-methods
     method-more-specific? sort-applicable-methods
     class-subclasses class-methods
     slot-value
@@ -545,6 +547,7 @@
   (slot-set! gf 'methods (compute-new-list-of-methods gf m))
   (slot-set! gf 'n-specialized (max (length* (slot-ref m 'specializers))
 				    (slot-ref gf 'n-specialized)))
+  (%invalidate-method-cache! gf)
   (add-method-in-classes! m)
   *unspecified*)
 
@@ -554,12 +557,6 @@
 		      (make <method>
 			#:specializers (list <generic> <method>)
 			#:procedure internal-add-method!))
-
-(define (%compute-applicable-methods gf args)
-  (apply find-method gf args))
-
-;;; Redefined as a generic below
-(define compute-applicable-methods %compute-applicable-methods)
 
 ;;;
 ;;; {Access to meta objects}
@@ -755,7 +752,7 @@
 ;;; Methods for the possible error we can encounter when calling a gf
 
 (define-method no-next-method ((gf <generic>) args)
-  (goops-error "No next method when calling %S\nwith %S as argument" gf args))
+  (goops-error "No next method when calling %S\nwith arguments %S" gf args))
 
 (define-method no-applicable-method ((gf <generic>) args)
   (goops-error "No applicable method for %S\nin call %S"
@@ -1224,10 +1221,7 @@
 (define-method initialize ((generic <generic>) initargs)
   (let ((previous-definition (get-keyword #:default initargs #f))
 	(name (get-keyword #:name initargs #f)))
-    ;; Primitive apply-generic-<n> for direct instances of <generic>
-    (next-method generic (append initargs
-				 (list #:procedure
-				       (make-apply-generic generic))))
+    (next-method)
     (slot-set! generic 'methods (if (is-a? previous-definition <procedure>)
 				    (list (make <method>
 						#:specializers <top>
@@ -1237,6 +1231,7 @@
 							 l))))
 				    '()))
     (slot-set! generic 'n-specialized 0)
+    (slot-set! generic 'used-by #f)
     (if name
 	(set-procedure-property! generic 'name name))
     ))
@@ -1325,11 +1320,15 @@
 	(apply-methods gf (sort-applicable-methods gf methods args) args)
 	(no-applicable-method gf args))))
 
-(set! compute-applicable-methods #f)
-(define-generic compute-applicable-methods)
+;; compute-applicable-methods is bound to %compute-applicable-methods.
+;; *fixme* use let
+(define %%compute-applicable-methods
+  (make <generic> #:name 'compute-applicable-methods))
 
-(define-method compute-applicable-methods ((gf <generic>) args)
+(define-method %%compute-applicable-methods ((gf <generic>) args)
   (%compute-applicable-methods gf args))
+
+(set! compute-applicable-methods %%compute-applicable-methods)
 
 (define-method sort-applicable-methods ((gf <generic>) methods args)
   (let ((targs (map class-of args)))

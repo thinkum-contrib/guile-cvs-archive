@@ -35,8 +35,3 @@
   (if (pair? ls)
       (cons (car ls) (improper->proper (cdr ls)))
       (list ls)))
-
-(define (first-n ls n)
-  (if (zero? n)
-      '()
-      (cons (car ls) (first-n (cdr ls) (- n 1)))))

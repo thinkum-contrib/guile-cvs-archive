@@ -66,6 +66,7 @@
 #define DEFVAR(v,val) \
 { scm_eval2 (SCM_LIST3 (scm_sym_define_public, (v), (val)), \
 	     scm_goops_lookup_closure); }
+/* Temporary hack until we get the new module system */
 /*fixme* Should optimize by keeping track of the variable object itself */
 #define GETVAR(v) (SCM_CDDR (scm_apply (scm_goops_lookup_closure, \
 					SCM_LIST2 ((v), SCM_BOOL_F), \
@@ -827,7 +828,7 @@ scm_generic_function_name (SCM obj)
 {
   SCM_ASSERT (SCM_NIMP (obj) && GENERICP (obj),
 	      obj, SCM_ARG1, s_generic_function_name);
-  return scm_procedure_property (obj, scm_i_name);
+  return scm_procedure_property (obj, scm_sym_name);
 }
 
 SCM_PROC (s_generic_function_methods, "generic-function-methods", 1, 0, 0, scm_generic_function_methods);
@@ -1179,72 +1180,90 @@ scm_slots_exists_p (SCM obj, SCM slot_name)
  *
  ******************************************************************************/
 
+static SCM f_apply_0_arity_method;
+
+static void clear_method_cache (SCM);
+
 SCM_PROC (s_sys_allocate_instance, "%allocate-instance", 2, 0, 0, scm_sys_allocate_instance);
 
 SCM
 scm_sys_allocate_instance (SCM class, SCM initargs)
 {
   int n, i;
-  SCM z;
+  SCM z, *m;
 
   SCM_ASSERT (SCM_NIMP (class) && CLASSP (class),
 	      class, SCM_ARG1, s_sys_allocate_instance);
- 
-  if (SCM_CLASS_FLAGS (class) & SCM_CLASSF_FOREIGN)
-    return scm_make_foreign_object (class, initargs);
-  
-  n = SCM_INUM (SCM_SLOT (class, scm_si_nfields));
-  /*fixme* Optimize: look at several flags simultaneously to filter
-           out the most common case immediately */
-  if (SCM_CLASS_FLAGS (class) & SCM_CLASSF_METACLASS)
+
+  /* Most instances */
+  if (SCM_CLASS_FLAGS (class) & SCM_STRUCTF_LIGHT)
     {
-      /* allocate class object */
-      z = scm_make_struct (class, SCM_INUM0, SCM_EOL);
-      SCM_SLOT (z, scm_si_print) = SCM_GOOPS_UNBOUND;
-      if (SCM_SUBCLASSP (class, scm_class_entity_class))
-	SCM_SET_CLASS_FLAGS (z, SCM_CLASSF_OPERATOR | SCM_CLASSF_ENTITY);
-      else if (SCM_SUBCLASSP (class, scm_class_operator_class))
-	SCM_SET_CLASS_FLAGS (z, SCM_CLASSF_OPERATOR);
-      i = 9;
+      SCM_NEWCELL (z);
+      n = SCM_INUM (SCM_SLOT (class, scm_si_nfields));
+      m = (SCM *) scm_must_malloc (n * sizeof (SCM), "instance");
     }
+  /* Foreign objects */
+  else if (SCM_CLASS_FLAGS (class) & SCM_CLASSF_FOREIGN)
+    return scm_make_foreign_object (class, initargs);
   else
     {
-      /* allocate instance; optimize for speed */
-      SCM *m;
-      if (SCM_CLASS_FLAGS (class) & SCM_STRUCTF_LIGHT)
+      SCM_NEWCELL (z);
+      n = SCM_INUM (SCM_SLOT (class, scm_si_nfields));
+      /* Entities */
+      if (SCM_CLASS_FLAGS (class) & SCM_CLASSF_ENTITY)
 	{
-	  if (n == 0)
-	    m = 0;
-	  else
-	    m = (SCM *) scm_must_malloc (n * sizeof (SCM), "instance");
-	}
-      else
-	{
-	  if (SCM_CLASS_FLAGS (class) & SCM_CLASSF_ENTITY)
+	  m = (SCM *) scm_alloc_struct (n,
+					scm_struct_entity_n_extra_words,
+					"instance");
+	  /* Generic functions */
+	  if (SCM_CLASS_FLAGS (class) & SCM_CLASSF_PURE_GENERIC)
 	    {
-	      m = (SCM *) scm_alloc_struct (n,
-					    scm_struct_entity_n_extra_words,
-					    "instance");
+	      SCM_SETCDR (z, m);
+	      clear_method_cache (z);
+	    }
+	  else
+	    {
 	      m[scm_struct_i_proc + 0] = SCM_BOOL_F;
 	      m[scm_struct_i_proc + 1] = SCM_BOOL_F;
 	      m[scm_struct_i_proc + 2] = SCM_BOOL_F;
 	      m[scm_struct_i_proc + 3] = SCM_BOOL_F;
-	      m[scm_struct_i_setter] = SCM_BOOL_F;
 	    }
-	  else
-	    m = (SCM *) scm_alloc_struct (n,
-					  scm_struct_n_extra_words,
-					  "instance");
+	  m[scm_struct_i_setter] = SCM_BOOL_F;
 	}
-      SCM_NEWCELL (z);
-      SCM_SETCDR (z, m);
-      SCM_SETCAR (z, (SCM) SCM_STRUCT_DATA (class) + scm_tc3_cons_gloc);
-      i = 0;
-    }
+      /* Class objects */
+      else if (SCM_CLASS_FLAGS (class) & SCM_CLASSF_METACLASS)
+	{
+	  /* allocate class object */
+	  z = scm_make_struct (class, SCM_INUM0, SCM_EOL);
 
-  /* Set all the slots to unbound */
-  for (; i < n; i++)
-    SCM_SLOT (z, i) = SCM_GOOPS_UNBOUND;
+	  SCM_SLOT (z, scm_si_print) = SCM_GOOPS_UNBOUND;
+	  for (i = scm_si_goops_fields; i < n; i++)
+	    SCM_SLOT (z, i) = SCM_GOOPS_UNBOUND;
+
+	  if (SCM_SUBCLASSP (class, scm_class_entity_class))
+	    SCM_SET_CLASS_FLAGS (z, SCM_CLASSF_OPERATOR | SCM_CLASSF_ENTITY);
+	  else if (SCM_SUBCLASSP (class, scm_class_operator_class))
+	    SCM_SET_CLASS_FLAGS (z, SCM_CLASSF_OPERATOR);
+
+	  return z;
+	}
+      /* Non-light instances */
+      else
+	{
+	  SCM_NEWCELL (z);
+	  m = (SCM *) scm_alloc_struct (n,
+					scm_struct_n_extra_words,
+					"instance");
+	}
+    }
+  
+  /* Set all slots to unbound */
+  for (i = 0; i < n; i++)
+    m[i] = SCM_GOOPS_UNBOUND;
+
+  SCM_SETCDR (z, m);
+  SCM_SETCAR (z, (SCM) SCM_STRUCT_DATA (class) + scm_tc3_cons_gloc);
+
   return z;
 }
 
@@ -1350,6 +1369,85 @@ change_object_class (obj, old_class, new_class)
  *	- a hard-coded MOP for standard gf, which can be overloaded for non-std gf
  *
  ******************************************************************************/
+
+SCM_SYMBOL (sym_gf, "gf");
+
+static const char s_apply_0_arity_method[] = "apply-0-arity-method";
+static SCM var_compute_applicable_methods;
+
+static SCM
+scm_apply_0_arity_method (SCM gf)
+{
+  SCM applicable = scm_apply (SCM_CDR (var_compute_applicable_methods),
+			      SCM_LIST2 (gf, SCM_EOL),
+			      SCM_EOL);
+  if (SCM_FALSEP (applicable))
+    {
+      CALL_GF2 ("no-applicable-method", gf, SCM_EOL);
+      return SCM_UNSPECIFIED;
+    }
+  else
+    {
+      SCM cmethod = CALL_GF2 ("compile-method", applicable, SCM_EOL);
+      SCM code;
+      SCM_ASSERT (SCM_NIMP (cmethod) && SCM_CONSP (cmethod)
+		  && SCM_NIMP (SCM_CDR (cmethod))
+		  && SCM_CONSP (SCM_CDR (cmethod)),
+		  cmethod,
+		  "strange cmethod returned by compile-method",
+		  s_apply_0_arity_method);
+      code = scm_acons (sym_gf,
+			SCM_EOL,
+			SCM_CDR (SCM_CMETHOD_CODE (cmethod)));
+      /* There can only be one 0-arity method. */
+      SCM_ENTITY_PROC_0 (gf) = scm_closure (code, SCM_CMETHOD_ENV (cmethod));
+      return scm_apply (gf, SCM_EOL, SCM_EOL);
+    }
+}
+
+static SCM sym_atdispatch, list_of_bool_f;
+
+SCM
+scm_make_method_cache (SCM gf)
+{
+  return SCM_LIST5 (sym_atdispatch, scm_sym_args, SCM_MAKINUM (1),
+		    scm_make_vector (SCM_MAKINUM (SCM_INITIAL_HASH_SIZE),
+				     list_of_bool_f),
+		    gf);
+}
+
+static void
+clear_method_cache (SCM gf)
+{
+  SCM_ENTITY_PROC_0 (gf) = f_apply_0_arity_method;
+  SCM_ENTITY_PROC_1 (gf) = scm_make_method_cache (gf);
+  SCM_ENTITY_PROC_2 (gf) = scm_make_method_cache (gf);
+  SCM_ENTITY_PROC_3 (gf) = scm_make_method_cache (gf);
+  SCM_SLOT (gf, scm_si_used_by) = SCM_BOOL_F;
+}
+
+SCM_PROC (s_sys_invalidate_method_cache_x, "%invalidate-method-cache!", 1, 0, 0, scm_sys_invalidate_method_cache_x);
+
+SCM
+scm_sys_invalidate_method_cache_x (SCM gf)
+{
+  SCM used_by;
+  SCM_ASSERT (SCM_NIMP (gf) && SCM_STRUCTP (gf) && SCM_PUREGENERICP (gf),
+	      gf, SCM_ARG1, s_sys_invalidate_method_cache_x);
+  used_by = SCM_SLOT (gf, scm_si_used_by);
+  if (SCM_NFALSEP (used_by))
+    {
+      SCM methods = SCM_SLOT (gf, scm_si_methods);
+      for (; SCM_NIMP (used_by) && SCM_CONSP (used_by);
+	   used_by = SCM_CDR (used_by))
+	scm_sys_invalidate_method_cache_x (SCM_CAR (used_by));
+      clear_method_cache (gf);
+      for (; SCM_NIMP (methods) && SCM_CONSP (methods);
+	   methods = SCM_CDR (methods))
+	SCM_SLOT (SCM_CAR (methods), scm_si_code_table) = SCM_EOL;
+    }
+  return SCM_UNSPECIFIED;
+}
 
 /******************************************************************************
  * 
@@ -1498,7 +1596,7 @@ sort_applicable_methods(SCM method_list, int size, SCM *targs)
 }
 
 SCM
-scm_compute_applicable_methods (SCM gf, SCM args, int len, int scm_find_method)
+scm_compute_applicable_methods (SCM gf, SCM args, int len, int find_method_p)
 {
   register int i;
   int count = 0;
@@ -1543,11 +1641,11 @@ scm_compute_applicable_methods (SCM gf, SCM args, int len, int scm_find_method)
 
   if (count == 0)
     {
-      if (scm_find_method)
+      if (find_method_p)
 	return SCM_BOOL_F;
-      CALL_GF2("no-applicable-method", gf, save);
+      CALL_GF2 ("no-applicable-method", gf, save);
       /* if we are here, it's because no-applicable-method hasn't signaled an error */
-      return SCM_EOL;
+      return SCM_BOOL_F;
     }
   return (count == 1
 	  ? applicable
@@ -1557,6 +1655,21 @@ scm_compute_applicable_methods (SCM gf, SCM args, int len, int scm_find_method)
 #if 0
 SCM_PROC (s_sys_compute_applicable_methods, "%compute-applicable-methods", 2, 0, 0, scm_sys_compute_applicable_methods);
 #endif
+
+static const char s_sys_compute_applicable_methods[] = "%compute-applicable-methods";
+
+SCM
+scm_sys_compute_applicable_methods (SCM gf, SCM args)
+{
+  int n;
+  SCM_ASSERT (SCM_NIMP (gf) && GENERICP (gf),
+	      gf, SCM_ARG1, s_sys_compute_applicable_methods);
+  n = scm_ilength (args);
+  SCM_ASSERT (n >= 0, args, SCM_ARG2, s_sys_compute_applicable_methods);
+  return scm_compute_applicable_methods (gf, args, n, 1);
+}
+
+SCM_VCELL_INIT (var_compute_applicable_methods, "compute-applicable-methods", scm_make_gsubr (s_sys_compute_applicable_methods, 2, 0, 0, scm_sys_compute_applicable_methods));
 
 SCM_SYNTAX (s_atslot_ref, "@slot-ref", scm_makmmacro, scm_m_atslot_ref);
 
@@ -1581,6 +1694,8 @@ scm_m_atslot_set_x (SCM xorig, SCM env)
 }
 
 SCM_SYNTAX (s_dispatch, "@dispatch", scm_makmmacro, scm_m_dispatch);
+
+SCM_SYMBOL (sym_atdispatch, s_dispatch);
 
 SCM
 scm_m_dispatch (SCM xorig, SCM env)
@@ -1666,11 +1781,12 @@ scm_make (SCM args)
   if (class == scm_class_generic || class == scm_class_generic_with_setter)
     {
       z = scm_make_struct (class, SCM_INUM0, SCM_LIST2 (SCM_EOL, SCM_INUM0));
-      scm_set_procedure_property_x (z, scm_i_name,
+      scm_set_procedure_property_x (z, scm_sym_name,
 				    scm_get_keyword (k_name,
 						     args,
 						     SCM_BOOL_F));
-      scm_set_object_procedure_x (z, CALL_GF1 ("make-apply-generic", z));
+      clear_method_cache (z);
+      SCM_SLOT (z, scm_si_used_by) = SCM_BOOL_F;
       if (class == scm_class_generic_with_setter)
 	{
 	  SCM setter = scm_get_keyword (k_setter, args, SCM_BOOL_F);
@@ -1810,8 +1926,9 @@ create_standard_classes (void)
 			Intern ("specializers"), 
 			Intern ("procedure"),
 			Intern ("code-table"));
-  SCM tmp2 = SCM_LIST2 (Intern ("methods"),
-			Intern ("n-specialized"));
+  SCM tmp2 = SCM_LIST3 (Intern ("methods"),
+			Intern ("n-specialized"),
+			Intern ("used-by"));
 
   /* Foreign class slot classes */
   make_stdcls (&scm_class_foreign_slot,	   "<foreign-slot>",
@@ -2278,6 +2395,11 @@ static SCM
 sys_goops_loaded ()
 {
   goops_loaded_p = 1;
+  var_compute_applicable_methods
+    = SCM_CDR (scm_apply (scm_goops_lookup_closure,
+			  SCM_LIST2 (SCM_CAR (var_compute_applicable_methods),
+				     SCM_BOOL_F),
+			  SCM_EOL));
   return SCM_UNSPECIFIED;
 }
 
@@ -2296,7 +2418,13 @@ scm_init_goops (void)
 
   goops_rstate = scm_c_make_rstate ("GOOPS", 5);
 
+  f_apply_0_arity_method
+    = scm_make_gsubr (s_apply_0_arity_method, 1, 0, 0,
+		      scm_apply_0_arity_method);
+
 #include "goops.x"
+
+  list_of_bool_f = scm_permanent_object (SCM_LIST1 (SCM_BOOL_F));
   
   scm_goops_the_unbound_value
     = scm_permanent_object (scm_cons (the_unbound_value, SCM_EOL));
@@ -2304,9 +2432,7 @@ scm_init_goops (void)
   scm_make_extended_class = make_extended_class;
   scm_make_port_classes = make_port_classes;
   scm_change_object_class = change_object_class;
-#ifdef GUILE_DEBUG
   scm_memoize_method = memoize_method;
-#endif
 
   create_basic_classes ();
   create_standard_classes ();

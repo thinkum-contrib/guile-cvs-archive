@@ -158,23 +158,33 @@
 	   (lambda (key misses)
 	     misses))))
 
-(define (method-cache-install! insert! exp args applicable)
-  (let* ((specializers (method-specializers (car applicable)))
-	 (n-specializers (if (list? specializers)
-			     (length specializers)
-			     (+ 1 (slot-ref (method-cache-generic-function exp)
-					    'n-specialized)))))
-    (if (> n-specializers (method-cache-n-specialized exp))
-	(set-method-cache-n-specialized! exp n-specializers))
-    (let ((types (map class-of (first-n args n-specializers))))
-      (insert! exp (method-entry applicable types)))))
+(define method-cache-install!
+  (letrec ((first-n
+	    (lambda (ls n)
+	      (if (or (zero? n) (null? ls))
+		  '()
+		  (cons (car ls) (first-n (cdr ls) (- n 1)))))))
+    (lambda (insert! exp args applicable)
+      (let* ((specializers (method-specializers (car applicable)))
+	     (n-specializers
+	      (if (list? specializers)
+		  (length specializers)
+		  (+ 1 (slot-ref (method-cache-generic-function exp)
+				 'n-specialized)))))
+	(if (> n-specializers (method-cache-n-specialized exp))
+	    (set-method-cache-n-specialized! exp n-specializers))
+	(let ((types (map class-of (first-n args n-specializers))))
+	  (insert! exp (method-entry applicable types)))))))
 
 ;;; Memoization
 
 (define (memoize-method! gf args exp)
-  ;;(write-line 'enter-memoized)
-  ;;*fixme* Want to use generic cam.  How to avoid looping?
-  (let ((applicable (apply find-method gf args)))
+  (if (not (slot-ref gf 'used-by))
+      (slot-set! gf 'used-by '()))
+  (let ((applicable ((if (eq? gf compute-applicable-methods)
+			 %compute-applicable-methods
+			 compute-applicable-methods)
+		     gf args)))
     (cond ((not applicable)
 	   (no-applicable-method gf args))
 	  ((method-cache-hashed? exp)
@@ -186,8 +196,7 @@
 				  args
 				  applicable))
 	  (else
-	   (method-cache-install! method-cache-insert! exp args applicable))))
-  (force-output))
+	   (method-cache-install! method-cache-insert! exp args applicable)))))
 
 (define (method-entry methods types)
   (cond ((assoc types (slot-ref (car methods) 'code-table))
@@ -206,7 +215,7 @@
     (if (not applicable)
 	(no-applicable-method gf '())
 	(let* ((code (compile-method applicable '()))
-	       (closure (cons 'lambda (cons '(gf) (code-code code)))))
+	       (closure (cons 'lambda (cons '(gf) (cdr (code-code code))))))
 	  (set-object-procedure! gf
 				 (local-eval closure (code-environment code)))
 	  (gf)))))
