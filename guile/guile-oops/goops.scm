@@ -557,7 +557,7 @@
 (define-method method-source ((m <method>))
   (let* ((spec (map* class-name (slot-ref m 'specializers)))
 	 (proc (procedure-source (slot-ref m 'procedure)))
-	 (args (cdadr proc))
+	 (args (cadr proc))
 	 (body (cddr proc)))
     (cons 'method
 	  (cons (map* list args spec)
@@ -583,6 +583,7 @@
   (get-keyword #:accessor (cdr s) #f))
 
 (define (slot-definition-init-value s)
+  ;; can be #f, so we can't use #f as non-value
   (get-keyword #:init-value (cdr s) (make-unbound)))
 
 (define (slot-definition-init-thunk s)
@@ -730,6 +731,9 @@
 
 (define-method slot-unbound ((c <class>) s)
   (goops-error "Slot `%S' is unbound in class %S" s c))
+
+(define-method slot-unbound ((o <object>))
+  (goops-error "Unbound slot in object %S" o))
 
 (define-method slot-missing ((c <class>) (o <object>) s)
   (goops-error "No slot with name `%S' in object %S" s o))
@@ -899,14 +903,19 @@
 	      (getter-function (slot-definition-getter   s))
 	      (setter-function (slot-definition-setter   s))
 	      (accessor        (slot-definition-accessor s))
-	      (g-n-s (cddr g-n-s)))
+	      (init-thunk      (cadr g-n-s))
+	      (g-n-s           (cddr g-n-s)))
 	  (if getter-function
 	      (add-method! getter-function
 			   (make <accessor-method>
 				 #:specializers (list class)
-				 #:procedure (if (pair? g-n-s)
-						 (car g-n-s)
-						 (standard-get g-n-s)))))
+				 #:procedure (cond ((pair? g-n-s)
+						    (car g-n-s))
+						   (init-thunk
+						    (standard-get g-n-s))
+						   (else
+						    (bound-check-get g-n-s))))
+			   ))
 	  (if setter-function
 	      (add-method! setter-function
 			   (make <accessor-method>
@@ -919,9 +928,12 @@
 		(add-method! accessor
 			     (make <accessor-method>
 				   #:specializers (list class)
-				   #:procedure (if (pair? g-n-s)
-						 (car g-n-s)
-						 (standard-get g-n-s))))
+				   #:procedure (cond ((pair? g-n-s)
+						    (car g-n-s))
+						   (init-thunk
+						    (standard-get g-n-s))
+						   (else
+						    (bound-check-get g-n-s)))))
 		(add-method! (setter accessor)
 			     (make <accessor-method>
 				   #:specializers (list class <top>)
@@ -932,6 +944,7 @@
 
 (define n-standard-accessor-methods 10)
 
+(define bound-check-get-methods (make-vector n-standard-accessor-methods #f))
 (define standard-get-methods (make-vector n-standard-accessor-methods #f))
 (define standard-set-methods (make-vector n-standard-accessor-methods #f))
 
@@ -943,18 +956,18 @@
 		  (vector-set! methods index m)
 		  m)))))
 
-(if (pair? (make-unbound))
-    ;; In previous versions of the evaluator there was
-    ;; no boundness check in @slot-ref.
-    (define (make-get index)
-      (local-eval `(lambda (o) (assert-bound (@slot-ref o ,index) o))
-		  (the-environment)))
-    (define (make-get index)
-      (local-eval `(lambda (o) (@slot-ref o ,index)) (the-environment))))
+(define (make-bound-check-get index)
+  (local-eval `(lambda (o) (assert-bound (@slot-ref o ,index) o))
+	      (the-environment)))
+
+(define (make-get index)
+  (local-eval `(lambda (o) (@slot-ref o ,index)) (the-environment)))
 
 (define (make-set index)
   (local-eval `(lambda (o v) (@slot-set! o ,index v)) (the-environment)))
 
+(define bound-check-get
+  (standard-accessor-method make-bound-check-get bound-check-get-methods))
 (define standard-get (standard-accessor-method make-get standard-get-methods))
 (define standard-set (standard-accessor-method make-set standard-set-methods))
 
@@ -1134,9 +1147,7 @@
      (let ((name (slot-definition-name s)))
        (if (memq name (map slot-definition-name (class-direct-slots class)))
 	   ;; This slot is direct; create a new shared variable
-	   (let ((shared-variable (make-unbound)))
-	     (list (lambda (o)   (assert-bound shared-variable o))
-		   (lambda (o v) (set! shared-variable v))))
+	   (make-closure-variable class s)
 	   ;; Slot is inherited. Find its definition in superclass
 	   (let loop ((l (cdr (class-precedence-list class))))
 	     (let ((r (assoc name (slot-ref (car l) 'getters-n-setters))))
@@ -1146,9 +1157,7 @@
 
     ((#:each-subclass) ;; slot shared by instances of direct subclass.
      ;; (Thomas Buerger, April 1998)
-     (let ((shared-variable (make-unbound)))
-       (list (lambda (o)   (assert-bound shared-variable))
-	     (lambda (o v) (set! shared-variable v)))))
+     (make-closure-variable class s))
 
     ((#:virtual) ;; No allocation
      ;; slot-ref and slot-set! function must be given by the user
@@ -1160,6 +1169,17 @@
 			s))
        (list get set)))
     (else    (next-method))))
+
+(define (make-closure-variable class s)
+  (let ((shared-variable (make-unbound)))
+    (list (if (or (get-keyword #:init-value (slot-definition-options s) #f)
+		  (get-keyword #:init-thunk (slot-definition-options s) #f)
+		  ;; #:init-form implies #:init-thunk
+		  )
+	      ;; safe not to check boundness
+	      (lambda (o) shared-variable)
+	      (lambda (o) (assert-bound shared-variable o)))
+	  (lambda (o v) (set! shared-variable v)))))
 
 (define-method compute-get-n-set ((o <object>) s)
   (goops-error "Allocation \"%S\" is unknown" (slot-definition-allocation s)))
