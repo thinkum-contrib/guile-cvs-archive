@@ -1,4 +1,4 @@
-/*	Copyright (C) 1995, 1996, 1997, 1998, 2000 Free Software Foundation, Inc.
+/* Copyright (C) 1995, 1996, 1997, 1998, 2000 Free Software Foundation, Inc.
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -387,6 +387,15 @@ SCM_DEFINE(scm_thread_join, "thread-join", 1, 0, 0,
 {
   scm_thread_t thread_data;
   SCM_VALIDATE_THREAD (1, thread);
+  /* Dirk:FIXME:: SCM_THREAD_DATA is a handle for a thread.  It may be that a
+   * certain thread implementation uses a value of 0 as a valid thread handle.
+   * With the following code, this thread would always be considered finished.
+   */
+  /* Dirk:FIXME:: With preemptive threading, a thread may finish immediately
+   * after SCM_THREAD_DATA is read.  Thus, it must be guaranteed that the
+   * handle remains valid until the thread-object is garbage collected, or
+   * a mutex has to be used for reading and modifying SCM_THREAD_DATA.
+   */
   thread_data = SCM_THREAD_DATA (thread);
   if (thread_data)
     /* The thread is still alive */
