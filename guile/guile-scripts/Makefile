@@ -3,7 +3,8 @@ scripts =					\
 	nightly					\
 	update-anon-cvs-public			\
 	dist-guile-www				\
-	update-anon-cvs
+	update-anon-cvs				\
+	update-guile-api.alist
 
 # Yes, sometimes people will check in files w/o +x -- that's life.
 
