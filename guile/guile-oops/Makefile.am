@@ -34,10 +34,9 @@ goopsdata_DATA = $(goops_sources)
 info_TEXINFOS = goops.texi
 goops_TEXINFOS = goops-tutorial.texi hierarchy.eps hierarchy.txt
 
-EXTRA_DIST = ANON-CVS COPYRIGHTS GOOPS-VERSION HACKING SNAPSHOTS TAGS TODO \
-             goops.scm $(goops_sources) mop.text
-	$(LIBTOOL) --mode=install $(INSTALL) libgoopscore.la \
-		$(goopsdatadir)/libgoopscore.la
+miscdocs = ANON_CVS COPYRIGHTS HACKING SNAPSHOTS TAGS TODO mop.text
+
+EXTRA_DIST = $(subpkgdata_DATA) $(goops_sources) $(miscdocs) GOOPS-VERSION
 
 install-exec-hook:
 	$(mkinstalldirs) $(goopsdatadir)
