@@ -4,6 +4,13 @@ See the end for copying conditions.
 
 Please send GOOPS bug reports to bug-guile@gnu.org.
 
+Changes since GOOPS 0.1:
+
+* Changes to Scheme functions and syntax
+
+** Corrected serious bugs in compute-slot-accessors and initialize <class>.
+
+
 Copyright information:
 
 Copyright (C) 1999 Free Software Foundation, Inc.
