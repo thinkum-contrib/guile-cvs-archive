@@ -137,6 +137,8 @@
 
 #define SCM_VALIDATE_REAL(pos, z) SCM_MAKE_VALIDATE (pos, z, REALP)
 
+#define SCM_VALIDATE_NUMBER(pos, z) SCM_MAKE_VALIDATE (pos, z, NUMBERP)
+
 #define SCM_VALIDATE_NUMBER_COPY(pos, z, cvar)	\
   do {						\
     if (SCM_INUMP (z))				\
