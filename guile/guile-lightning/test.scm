@@ -240,9 +240,9 @@
 				   (local sum))))
 			(goto loop (quote 1) (quote 0)))))
 
-(compile-show code)
+;(compile-show code)
 
-(define x (compile code))
+;(define x (compile code))
 
 (define (y n) 
   (let loop ((i 1)
@@ -262,15 +262,56 @@
 ; 			      (local d)))
 ; 			 (goto l1 (quote 0)))))
 
-(define sum-ints (compile
-		  '(lambda-template (n)
-		     (labels ((loop (i sum)
-				    (if (invoke (global <=)
-						(local i) (local n))
-					(goto loop
-					      (invoke (global +)
-						      (local i) (quote 1))
-					      (invoke (global +)
-						      (local i) (local sum)))
-					(local sum))))
-			     (goto loop (quote 1) (quote 0))))))
+; (define sum-ints (compile
+; 		  '(lambda-template (n)
+; 		     (labels ((loop (i sum)
+; 				    (if (invoke (global <=)
+; 						(local i) (local n))
+; 					(goto loop
+; 					      (invoke (global +)
+; 						      (local i) (quote 1))
+; 					      (invoke (global +)
+; 						      (local i) (local sum)))
+; 					(local sum))))
+; 			     (goto loop (quote 1) (quote 0))))))
+
+(define code2
+  '(lambda-template (n)
+    (labels ((outer ((i :reg 1))
+		    (if (invoke (global <=) (local i) (quote 0))
+			(quote #t)
+			(begin 
+			  (labels ((loop ((i :reg 1) (sum :reg 1))
+					 (if (invoke (global <=)
+						     (local i) (quote 10000))
+					     (goto loop
+						   (invoke (global +)
+							   (local i)
+							   (quote 1))
+						   (invoke (global +)
+							   (local i)
+							   (local sum)))
+					     (local sum))))
+				  (goto loop (quote 1) (quote 0)))
+			  (goto outer (invoke (global -)
+					      (local i)
+					      (quote 1)))))))
+	     (goto outer (local n)))))
+
+(define reverse-map-code
+  '(lambda-template (p l)
+     (labels ((loop ((l :reg 1) (x :reg 1))
+		    (if (invoke (global pair?)
+				(local l))
+			(goto loop
+			      (invoke (global cdr)
+				      (local l))
+			      (invoke (global cons)
+				      (invoke (local p)
+					      (invoke (global car)
+						      (local l)))
+				      (local x)))
+			(local x))))
+	     (goto loop (local l) (quote ())))))
+
+;(define reverse-map (compile reverse-map-code))
