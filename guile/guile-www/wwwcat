@@ -25,6 +25,6 @@
 
 (if (program-arguments)
     (display (www:get (list-ref (program-arguments) 1)))
-    (display "wwwget: no document specified" (current-error-port)))
+    (display "wwwcat: no document specified" (current-error-port)))
 
 ;;;; wwwcat ends here
