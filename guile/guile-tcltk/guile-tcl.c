@@ -70,10 +70,6 @@ static SCM
 mark_interp (obj)
      SCM obj;
 {
-  if (SCM_GC8MARKP (obj))
-    return SCM_BOOL_F;
-
-  SCM_SETGC8MARK (obj);
   return SCM_PROPS (obj); 
 }
 
