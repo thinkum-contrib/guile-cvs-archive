@@ -14,3 +14,8 @@ NJ 2002-03-08:
 Problem was caused by (top-repl)'s loading of (ice-9 debug), which
 ended with unconditional `(debug-enable 'debug)'.  Fixed by removing
 the offending lines.
+
+ttn 2002-03-25:
+
+in the discussion two module usages were identified based on whether or not
+side effects on load are to be expected.
