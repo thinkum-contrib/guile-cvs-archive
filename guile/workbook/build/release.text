@@ -181,6 +181,8 @@ Releasing Guile
             grep 'Copyright' * | grep -v 1999
           and looking for files you know you've worked on a lot.
 
+        - Also, check the copyright years in "guile --version".
+
         - Make sure NEWS, INSTALL, AUTHORS and THANKS and the docs are
           up to date:
             - Scan the ChangeLogs for user-visible changes, marked with
@@ -255,6 +257,9 @@ Releasing Guile
           Makefile.in files.)
 
         - Run "make" and "make check".
+
+        - Check that the version numbers mentioned in the manual and
+          in the output of "guile --version" are the right ones.
 
         - Run "make dist".
 
