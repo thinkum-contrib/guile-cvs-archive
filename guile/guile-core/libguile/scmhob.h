@@ -105,7 +105,7 @@ USA */
 #define number2string scm_number_to_string
 #define symbol2string scm_symbol_to_string
 
-#define append2(lst1,lst2) (scm_list_append(scm_cons2((lst1),(lst2),SCM_EOL)))
+#define append2(lst1,lst2) (scm_append(scm_cons2((lst1),(lst2),SCM_EOL)))
 #define st_append scm_string_append
 
 #define string scm_string
@@ -119,14 +119,14 @@ USA */
 #define assq scm_assq
 #define memv scm_memv
 #define member scm_member
-#define append scm_list_append
+#define append scm_append
 
 #define CHAR_P SCM_ICHRP
 #define CHAR_UPCASE(chr) SCM_MAKICHR(scm_upcase(SCM_ICHR(chr)))
 #define CHAR_DOWNCASE(chr) SCM_MAKICHR(scm_downcase(SCM_ICHR(chr)))
 #define procedurep(x) (scm_procedure_p(x) == SCM_BOOL_T)
 #define VECTOR_P(x) (!(SCM_IMP(x)) && SCM_VECTORP(x))
-#define reverse scm_list_reverse
-#define length scm_list_length
+#define reverse scm_reverse
+#define length scm_length
 #define input_portp scm_input_port_p
 #define output_portp scm_output_port_p
