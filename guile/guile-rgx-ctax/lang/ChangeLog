@@ -1,0 +1,5 @@
+Sun Jul 28 22:28:47 1996  Jim Blandy  <jimb@totoro.cyclic.com>
+
+	* PLUGIN/this.configure (aux_files): Add missing backslash.
+
+	* Sources received from Tom Lord.
