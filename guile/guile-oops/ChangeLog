@@ -1,6 +1,9 @@
 1999-08-26  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
-	* configure.in: Added test for scm_apply_generic.
+	* configure.in: GOOPS is now dependent on Guile >= 1.3.3.
+
+	* goops.h: Representation of GOOPS objects modified: Only one
+	entity and operator procedure now.
 
 	* goops.c (create_standard_classes): New class
 	<primitive-generic>.
