@@ -2511,7 +2511,15 @@ make_class_from_template (char *template, char *type_name, SCM supers)
       && SCM_FALSEP (scm_apply (scm_goops_lookup_closure,
 				SCM_LIST2 (name, SCM_BOOL_F),
 				SCM_EOL)))
-    DEFVAR (name, class);
+    {
+      /* Make sure we add the binding in the GOOPS module.
+       * This kludge is needed until DEFVAR ceases to use `define-public'
+       * or `define-public' ceases to use `current-module'.
+       */
+      SCM old_module = scm_select_module (scm_module_goops);
+      DEFVAR (name, class);
+      scm_select_module (old_module);
+    }
   return class;
 }
 
@@ -2814,18 +2822,21 @@ sys_goops_loaded ()
   return SCM_UNSPECIFIED;
 }
 
+SCM scm_module_goops;
+
 void
 scm_init_goops (void)
 {
-  SCM goops_module = scm_make_module (scm_read_0str ("(oop goops)"));
-  SCM old_module = scm_select_module (goops_module);
+  SCM old_module;
 #ifndef SCM_UNBOUND
   SCM the_unbound_value = SCM_CAR (scm_intern0 ("the-unbound-value"));
   scm_goops_the_unbound_value
     = scm_permanent_object (scm_cons (the_unbound_value, SCM_EOL));
 #endif
+  scm_module_goops = scm_make_module (scm_read_0str ("(oop goops)"));
+  old_module = scm_select_module (scm_module_goops);
   
-  scm_goops_lookup_closure = scm_module_lookup_closure (goops_module);
+  scm_goops_lookup_closure = scm_module_lookup_closure (scm_module_goops);
 
   scm_components = scm_permanent_object (scm_make_weak_key_hash_table
 					 (SCM_MAKINUM (37)));
