@@ -41,7 +41,7 @@
 
 
 #include <stdio.h>
-#include "_scm.h"
+#include <libguile.h>
 #include <tk.h>
 #include "guile-tcl.h"
 #include "guile-tk.h"

@@ -42,10 +42,7 @@
 #include <stdio.h>
 #include <malloc.h>
 #include <tcl.h>
-#include "_scm.h"
-#include "alist.h"
-#include "eval.h"
-#include "smob.h"
+#include <libguile.h>
 
 #include "guile-tcl.h"
 

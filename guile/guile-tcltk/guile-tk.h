@@ -43,8 +43,6 @@
  * If you do not wish that, delete this exception notice.  
  */
 
-#include "__scm.h"
-
 
 extern SCM scm_init_main_window SCM_P ((SCM tobj, SCM display, SCM name, SCM class));
 extern SCM scm_do_one_event SCM_P ((SCM flags));

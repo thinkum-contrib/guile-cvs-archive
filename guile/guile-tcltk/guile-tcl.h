@@ -43,8 +43,6 @@
  * If you do not wish that, delete this exception notice.  
  */
 
-#include "__scm.h"
-
 
 /* We represent an interpreter using SCM's "smob" representation.  The
    interpreter value points to a pair whose car is

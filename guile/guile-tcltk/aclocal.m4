@@ -1,17 +1,5 @@
 dnl aclocal.m4 generated automatically by aclocal 1.1n
 
-
-dnl Usage: AM_INIT_GUILE_MODULE(module-name)
-dnl This macro will automatically get the guile version from the
-dnl top-level srcdir, and will initialize automake.  It also
-dnl defines the `module' variable.
-AC_DEFUN([AM_INIT_GUILE_MODULE],[
-. $srcdir/../GUILE-VERSION
-AM_INIT_AUTOMAKE($PACKAGE, $VERSION, no-define)
-AC_CONFIG_AUX_DIR(..)
-module=[$1]
-AC_SUBST(module)])
-
 # Do all the work for Automake.  This macro actually does too much --
 # some checks are only needed if your package does certain things.
 # But this isn't really a big deal.
@@ -96,29 +84,6 @@ else
    AC_MSG_RESULT(missing)
 fi
 AC_SUBST($1)])
-
-# Add --enable-maintainer-mode option to configure.
-# From Jim Meyering
-
-# serial 1
-
-AC_DEFUN(AM_MAINTAINER_MODE,
-[AC_MSG_CHECKING([whether to enable maintainer-specific portions of Makefiles])
-  dnl maintainer-mode is disabled by default
-  AC_ARG_ENABLE(maintainer-mode,
-[  --enable-maintainer-mode enable make rules and dependencies not useful
-                          (and sometimes confusing) to the casual installer],
-      USE_MAINTAINER_MODE=$enableval,
-      USE_MAINTAINER_MODE=no)
-  AC_MSG_RESULT($USE_MAINTAINER_MODE)
-  if test $USE_MAINTAINER_MODE = yes; then
-    MAINT=
-  else
-    MAINT='#M#'
-  fi
-  AC_SUBST(MAINT)dnl
-]
-)
 
 
 # serial 4 AM_PROG_LIBTOOL

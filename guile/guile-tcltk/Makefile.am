@@ -2,17 +2,18 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-INCLUDES = -I$(srcdir)/../libguile -I$(srcdir)/.. -I../
-
-lib_LTLIBRARIES = @GTCLTK@
-EXTRA_LTLIBRARIES = libgtcltk.la
+lib_LTLIBRARIES = libgtcltk.la
+bin_PROGRAMS = guile-tcltk
 
 libgtcltk_la_SOURCES = guile-tcl.c guile-tk.c guile-tcl.h guile-tk.h \
 	gtcltk-module.c
 libgtcltk_la_LDFLAGS = -version-info 0:0 -rpath $(libdir)
 
+guile_tcltk_LDADD = libgtcltk.la
+
 SUFFIXES = .x
-SNARF=@SNARF@
+## We assume the user has already installed Guile.
+SNARF=guile-snarf
 .c.x:
 	$(SNARF) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $(X_CFLAGS) $< > $@
 
