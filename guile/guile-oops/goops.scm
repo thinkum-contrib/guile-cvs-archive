@@ -72,8 +72,10 @@
     slot-exists-using-class? slot-ref slot-set! slot-bound? class-of
     class-name class-direct-supers class-direct-subclasses
     class-direct-methods class-direct-slots class-precedence-list
-    class-slots class-environment generic-function-name
+    class-slots class-environment
+    generic-function-name
     generic-function-methods method-generic-function method-specializers
+    enable-primitive-generic!
     method-procedure slot-exists? make find-method get-keyword)
 
 
@@ -438,7 +440,8 @@
 		   (goops-error "bad method name: %S" name))
 		  ((defined? name env)
 		   `(begin
-		      (if (not (is-a? ,name <generic>))
+		      (if (not (or (is-a? ,name <generic>)
+				   (is-a? ,name <primitive-generic>)))
 			  (define-generic ,name))
 		      (add-method! ,name (method ,@(cddr exp)))))
 		  (else
@@ -526,6 +529,9 @@
 		      (make <method>
 			#:specializers (list <generic> <method>)
 			#:procedure internal-add-method!))
+
+(define-method add-method! ((pg <primitive-generic>) (m <method>))
+  (add-method! (primitive-generic-generic pg) m))
 
 ;;;
 ;;; {Access to meta objects}
@@ -685,7 +691,7 @@
 		<operator-class> <operator-with-setter-class>
 		<entity> <entity-with-setter>
 		<method> <simple-method> <accessor-method>
-		<generic> <generic-with-setter>
+		<generic> <generic-with-setter> <primitive-generic>
 		<boolean> <char>
 		<list> <pair> <null>
 		<string> <symbol>

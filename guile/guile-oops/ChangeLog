@@ -1,3 +1,25 @@
+1999-08-26  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
+
+	* configure.in: Added test for scm_apply_generic.
+
+	* goops.c (create_standard_classes): New class
+	<primitive-generic>.
+
+	* goops.scm (define-primitive-generic): New special form.
+
+	* goops.c (scm_init_goops): Create and define generic
+	scm_no_applicable_method.
+
+	* goops.c (memoize_method): Now returns the cmethod to evaluate.
+	(call_memoize_method): Bugfix: Check that another thread hasn't
+	inserted a method between the cache miss and locking the mutex.
+	(This bug wouldn't have shown itself until POSIX threads.)
+
+	* dispatch.scm (method-entry): Moved to compile.scm.
+
+	* compile.scm (make-make-next-method): Use compute-cmethod.
+	(compute-cmethod): New procedure: Uses code-table if possible.
+
 1999-08-23  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
 	* goops.c (scm_sys_allocate_instance): Rewritten.

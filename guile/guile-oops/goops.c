@@ -131,6 +131,9 @@ static SCM scm_goops_lookup_closure;
 static SCM scm_class_top, scm_class_object, scm_class_class;
 static SCM scm_class_entity, scm_class_entity_with_setter;
 static SCM scm_class_generic, scm_class_generic_with_setter, scm_class_method;
+#ifndef HAVE_SCM_APPLY_GENERIC
+static SCM scm_class_primitive_generic;
+#endif
 static SCM scm_class_simple_method, scm_class_accessor;
 static SCM scm_class_procedure_class;
 static SCM scm_class_operator_class, scm_class_operator_with_setter_class;
@@ -1434,6 +1437,7 @@ change_object_class (obj, old_class, new_class)
  ******************************************************************************/
 
 SCM_SYMBOL (sym_gf, "gf");
+SCM_KEYWORD (k_name, "name");
 
 static const char s_apply_0_arity_method[] = "apply-0-arity-method";
 static SCM var_compute_applicable_methods;
@@ -1511,6 +1515,41 @@ scm_sys_invalidate_method_cache_x (SCM gf)
     }
   return SCM_UNSPECIFIED;
 }
+
+#ifdef HAVE_SCM_APPLY_GENERIC
+SCM_PROC (s_enable_primitive_generic_x, "enable-primitive-generic!", 0, 0, 1, scm_enable_primitive_generic_x);
+
+SCM
+scm_enable_primitive_generic_x (SCM subrs)
+{
+  while (SCM_NIMP (subrs))
+    {
+      SCM subr = SCM_CAR (subrs);
+      SCM_ASSERT (scm_subr_p (subr) && SCM_SUBR_GENERIC (subr),
+		  subr, SCM_ARGn, s_enable_primitive_generic_x);
+      *SCM_SUBR_GENERIC (subr)
+	= scm_make (SCM_LIST3 (scm_class_generic,
+			       k_name,
+			       SCM_SNAME (subr)));
+      subrs = SCM_CDR (subrs);
+    }
+  return SCM_UNSPECIFIED;
+}
+
+SCM_PROC (s_primitive_generic_generic, "primitive-generic-generic", 1, 0, 0, scm_primitive_generic_generic);
+
+SCM
+scm_primitive_generic_generic (SCM subr)
+{
+  if (scm_subr_p (subr) && SCM_SUBR_GENERIC (subr))
+    {
+      SCM gf = *SCM_SUBR_GENERIC (subr);
+      if (gf)
+	return gf;
+    }
+  return scm_wta (subr, (char *) SCM_ARG1, s_primitive_generic_generic);
+}
+#endif /* HAVE_SCM_APPLY_GENERIC */
 
 /******************************************************************************
  * 
@@ -1825,21 +1864,30 @@ call_memoize_method (void *a)
   SCM args = (SCM) a;
   SCM gf = SCM_CAR (args);
   SCM x = SCM_CADR (args);
+  /* First check if another thread has inserted a method between
+   * the cache miss and locking the mutex.
+   */
+#ifdef HAVE_SCM_APPLY_GENERIC
+  SCM cmethod = scm_mcache_lookup_cmethod (x, SCM_CDDR (args));
+  if (SCM_NIMP (cmethod))
+    return cmethod;
+#endif
+  /*fixme* Use scm_apply */
   return CALL_GF3 ("memoize-method!", gf, SCM_CDDR (args), x);
 }
 
-static void
+static SCM
 memoize_method (SCM x, SCM args)
 {
   SCM gf = SCM_CAR (scm_last_pair (x));
 #ifdef USE_THREADS
-  scm_internal_dynamic_wind (lock_cache_mutex,
-			     call_memoize_method,
-			     unlock_cache_mutex,
-			     (void *) scm_cons2 (gf, x, args),
-			     (void *) SCM_SLOT (gf, scm_si_cache_mutex));
+  return scm_internal_dynamic_wind (lock_cache_mutex,
+				    call_memoize_method,
+				    unlock_cache_mutex,
+				    (void *) scm_cons2 (gf, x, args),
+				    (void *) SCM_SLOT (gf, scm_si_cache_mutex));
 #else
-  call_memoize_method ((void *) scm_cons2 (gf, x, args));
+  return call_memoize_method ((void *) scm_cons2 (gf, x, args));
 #endif
 }
 
@@ -1853,7 +1901,6 @@ memoize_method (SCM x, SCM args)
  *
  ******************************************************************************/
 
-SCM_KEYWORD (k_name,		"name");
 SCM_KEYWORD (k_setter,		"setter");
 SCM_KEYWORD (k_specializers,	"specializers");
 SCM_KEYWORD (k_procedure,	"procedure");
@@ -2171,6 +2218,8 @@ create_standard_classes (void)
 	       scm_class_procedure_class, scm_class_top,   SCM_EOL);
   make_stdcls (&scm_class_procedure_with_setter, "<procedure-with-setter>",
 	       scm_class_procedure_class, scm_class_procedure, SCM_EOL);
+  make_stdcls (&scm_class_primitive_generic, "<primitive-generic>",
+	       scm_class_procedure_class, scm_class_procedure, SCM_EOL);
   make_stdcls (&scm_class_port,		   "<port>",
 	       scm_class_class, scm_class_top,		   SCM_EOL);
   make_stdcls (&scm_class_input_port,	   "<input-port>",
@@ -2295,7 +2344,6 @@ create_struct_classes (void)
 {
   scm_internal_hash_fold (make_struct_class, 0, SCM_BOOL_F, scm_struct_table);
 }
-
 
 /**********************************************************************
  *
@@ -2551,6 +2599,15 @@ scm_init_goops (void)
   create_struct_classes ();
   create_port_classes ();
 
+  {
+    SCM name = SCM_CAR (scm_intern0 ("no-applicable-method"));
+    scm_no_applicable_method
+      = scm_permanent_object (scm_make (SCM_LIST3 (scm_class_generic,
+						   k_name,
+						   name)));
+    DEFVAR (name, scm_no_applicable_method);
+  }
+  
   scm_select_module (old_module);
 }
 

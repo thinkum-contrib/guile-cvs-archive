@@ -23,13 +23,50 @@
   :no-backtrace
   )
 
-(export compile-method cmethod-code cmethod-environment)
+(export compute-cmethod compute-entry-with-cmethod
+	compile-method cmethod-code cmethod-environment)
 
 (define source-formals cadr)
 (define source-body cddr)
 
 (define cmethod-code cdr)
 (define cmethod-environment car)
+
+
+;;;
+;;; Method entries
+;;;
+
+(define code-table-lookup
+  (letrec ((check-entry (lambda (entry types)
+			  (if (null? types)
+			      (and (not (struct? (car entry)))
+				   entry)
+			      (and (eq? (car entry) (car types))
+				   (check-entry (cdr entry) (cdr types)))))))
+    (lambda (code-table types)
+      (cond ((null? code-table) #f)
+	    ((check-entry (car code-table) types)
+	     => (lambda (cmethod)
+		  (cons (car code-table) cmethod)))
+	    (else (code-table-lookup (cdr code-table) types))))))
+
+(define (compute-entry-with-cmethod methods types)
+  (or (code-table-lookup (slot-ref (car methods) 'code-table) types)
+      (let* ((method (car methods))
+	     (place-holder (list #f))
+	     (entry (append types place-holder)))
+	;; In order to handle recursion nicely, put the entry
+	;; into the code-table before compiling the method 
+	(slot-set! (car methods) 'code-table
+		   (cons entry (slot-ref (car methods) 'code-table)))
+	(let ((cmethod (compile-method methods types)))
+	  (set-car! place-holder (car cmethod))
+	  (set-cdr! place-holder (cdr cmethod)))
+	(cons entry place-holder))))
+
+(define (compute-cmethod methods types)
+  (cdr (compute-entry-with-cmethod methods types)))
 
 ;;;
 ;;; Next methods
@@ -59,9 +96,9 @@
 	  (begin
 	    (set-cdr! vcell (make-final-make-no-next-method gf))
 	    (no-next-method gf (if (null? args) default-args args)))
-	  (let* ((code (compile-method methods types))
-		 (method (local-eval (cons 'lambda (cmethod-code code))
-				     (cmethod-environment code))))
+	  (let* ((cmethod (compute-cmethod methods types))
+		 (method (local-eval (cons 'lambda (cmethod-code cmethod))
+				     (cmethod-environment cmethod))))
 	    (set-cdr! vcell (make-final-make-next-method method))
 	    (@apply method (if (null? args) default-args args)))))))
 

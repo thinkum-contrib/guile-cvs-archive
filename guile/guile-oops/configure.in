@@ -21,6 +21,11 @@ AC_PROG_CC
 AC_PROG_LN_S
 AM_PROG_LIBTOOL
 
+CFLAGS="$CFLAGS $GUILE_CFLAGS"
+LIBS="$LIBS $GUILE_LDFLAGS"
+
+AC_CHECK_FUNCS(scm_apply_generic)
+
 ## If we're using GCC, ask for aggressive warnings.
 case "$GCC" in
   yes)
@@ -33,9 +38,6 @@ esac
 AC_SUBST(GOOPS_MAJOR_VERSION)
 AC_SUBST(GOOPS_MINOR_VERSION)
 AC_SUBST(GOOPS_VERSION)
-
-CFLAGS="$CFLAGS $GUILE_CFLAGS"
-LIBS="$LIBS $GUILE_LDFLAGS"
 
 ## If we're creating a shared library (using libtool!), then we'll
 ## need to generate a list of .lo files corresponding to the .o files

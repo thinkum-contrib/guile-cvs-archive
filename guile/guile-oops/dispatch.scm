@@ -206,6 +206,11 @@
 ;;; Memoization
 ;;;
 
+;; Backward compatibility
+(if (not (defined? 'lookup-create-cmethod))
+    (define (lookup-create-cmethod gf args)
+      (no-applicable-method (car args) (cadr args))))
+
 (define (memoize-method! gf args exp)
   (if (not (slot-ref gf 'used-by))
       (slot-set! gf 'used-by '()))
@@ -214,7 +219,10 @@
 			 compute-applicable-methods)
 		     gf args)))
     (cond ((not applicable)
-	   (no-applicable-method gf args))
+	   ;; Mutate arglist to fit no-applicable-method
+	   (set-cdr! args (list (cons (car args) (cdr args))))
+	   (set-car! args gf)
+	   (lookup-create-cmethod no-applicable-method args))
 	  ((method-cache-hashed? exp)
 	   (method-cache-install! hashed-method-cache-insert!
 				  exp args applicable))
@@ -243,26 +251,8 @@
 				 'n-specialized)))))
 	(if (> n-specializers (method-cache-n-specialized exp))
 	    (set-method-cache-n-specialized! exp n-specializers))
-	(let ((types (map class-of (first-n args n-specializers))))
-	  (insert! exp (method-entry applicable types)))))))
-
-;;;
-;;; Method entries
-;;;
-
-(define (method-entry methods types)
-  (cond ((assoc types (slot-ref (car methods) 'code-table))
-	 => (lambda (types-code) (cdr types-code)))
-	(else (let* ((method (car methods))
-		     ;;*fixme* new seek primitive => no double types
-		     (place-holder (list #f))
-		     (entry (append types place-holder)))
-		;; In order to handle recursion nicely, put the entry
-		;; into the code-table before compiling the method 
-		(slot-set! (car methods) 'code-table
-			   (acons types entry
-				  (slot-ref (car methods) 'code-table)))
-		(let ((cmethod (compile-method methods types)))
-		  (set-car! place-holder (car cmethod))
-		  (set-cdr! place-holder (cdr cmethod)))
-		entry))))
+	(let* ((types (map class-of (first-n args n-specializers)))
+	       (entry+cmethod (compute-entry-with-cmethod applicable types)))
+	  (insert! exp (car entry+cmethod)) ; entry = types + cmethod
+	  (cdr entry+cmethod) ; cmethod
+	  )))))

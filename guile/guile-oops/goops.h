@@ -143,8 +143,13 @@ typedef struct scm_method_t {
 				&& SCM_SUBCLASSP (SCM_CLASS_OF (x), c))
 
 #define SCM_INITIAL_MCACHE_SIZE	  1
+/* SCM_CMETHOD_CODE and SCM_CMETHOD_ENV are defined in libguile/objects.h
+ * starting with Guile 1.3.4.
+ */
+#ifndef SCM_CMETHOD_CODE
 #define SCM_CMETHOD_CODE(cmethod) SCM_CDR (cmethod)
 #define SCM_CMETHOD_ENV(cmethod)  SCM_CAR (cmethod)
+#endif
 
 #define scm_si_getters_n_setters scm_si_name_access
 
@@ -242,6 +247,10 @@ SCM scm_sys_modify_class (SCM old, SCM new);
 SCM scm_sys_invalidate_class (SCM class);
 SCM scm_make_method_cache (SCM gf);
 SCM scm_sys_invalidate_method_cache_x (SCM gf);
+#ifdef HAVE_SCM_APPLY_GENERIC
+SCM scm_enable_primitive_generic_x (SCM subrs);
+SCM scm_primitive_generic_generic (SCM subr);
+#endif
 SCM stklos_version (void); 
 SCM scm_make (SCM args); 
 SCM scm_find_method (SCM args); 
