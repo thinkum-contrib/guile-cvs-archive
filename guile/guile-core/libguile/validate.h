@@ -159,6 +159,12 @@
 
 #define SCM_VALIDATE_REAL(pos, z) SCM_MAKE_VALIDATE (pos, z, REALP)
 
+#define SCM_VALIDATE_REAL_COPY(pos, z, cvar)		\
+  do {							\
+    SCM_ASSERT (SCM_REALP (z), z, pos, FUNC_NAME);	\
+    cvar = SCM_REAL_VALUE (z);				\
+  } while (0)
+
 #define SCM_VALIDATE_INUM(pos, k) SCM_MAKE_VALIDATE (pos, k, INUMP)
 
 #define SCM_VALIDATE_INUM_COPY(pos, k, cvar) \
