@@ -2,17 +2,19 @@
   - merge HEAD and branch_release-1-6 TODO files into this one
   - make/implement policy: include TODO snapshot on release
   - delete HEAD and branch_release-1-6 TODO files
+  - make/implement policy: create BUGS from db on release
+  - delete HEAD and branch_release-1-6 BUGS files
 
 - guile-1.6
   - scan mailing list archives for bugs and add them
-    - subject: Guile fails tests on Tru64 4.0F [ttn]
+    + subject: Guile fails tests on Tru64 4.0F [ttn]
     - subject: failed backtrace [ttn]
 
 
 
 	Local Variables:
 	mode: outline
-	outline-regexp: "\\([ ][ ]\\)*-"
+	outline-regexp: "\\([ ][ ]\\)*[-+]"
 	End:
 
 
