@@ -27,8 +27,6 @@
 
 * New special from for definingextending generics and adding methods?
 
-* Update manual with Neil Jerram's work.
-
 * Introduce new syntax (define-method (foo ...) ...)
   Announce old syntax as deprecated.
 
