@@ -72,21 +72,226 @@ how to use the Guile debugger.
 @node Running Guile Interactively
 @chapter Running Guile Interactively
 
-In its simplest form, Guile is an interactive interpreter for the Scheme
-programming language.  
+In its simplest form, Guile acts as an interactive interpreter for the
+Scheme programming language, reading and evaluating Scheme expressions
+the user enters from the terminal.  Here is a sample interaction between
+Guile and a user; the user's input appears after the @code{$} and
+@code{guile>} prompts:
+
+@example
+$ guile
+guile> (+ 1 2 3)                ; add some numbers
+6
+guile> (define (factorial n)    ; define a function
+         (if (zero? n) 1 (* n (factorial (- n 1)))))
+guile> (factorial 20)
+2432902008176640000
+guile> (getpwnam "jimb")        ; find my entry in /etc/passwd
+#("jimb" ".0krIpK2VqNbU" 4008 10 "Jim Blandy" "/u/jimb"
+  "/usr/local/bin/bash")
+guile> @kbd{C-d}
+$
+@end example
+
 
 @node Guile Scripts
 @chapter Guile Scripts
 
+Like AWK, Perl, or any shell, Guile can interpret script files.  A Guile
+script is simply a file of Scheme code with some extra information at
+the beginning which tells the operating system how to invoke Guile, and
+then tells Guile how to handle the Scheme code.
+
+Before we go into details, here is a trivial Guile script:
+@example
+#!/usr/local/bin/guile -s
+!#
+(display "Hello, world!")
+(newline)
+@end example
+
 @menu
-* The Top of a script file::    
-* Invoking Guile::              
+* The Top of a script file::    How to start a Guile script.
+* Invoking Guile::              The arguments Guile takes, in detail.
+* The Meta Argument::           Passing complex argument lists to Guile
+                                from shell scripts.
+* Scripting Examples::          Simple Guile scripts, explained.
 @end menu
 
 @node The Top of a script file
 @section The Top of a script file
+
+The first line of a Guile script must tell the operating system to use
+Guile to evaluate the script, and then tell Guile how to go about doing
+that.  Here is the simplest case:
+@itemize @bullet
+
+@item
+The first two characters of the file must be @samp{#!}.
+
+@item
+Next, on the same line, must come the full pathname to the Guile
+interpreter.  On most systems, this would be
+@samp{/usr/local/bin/guile}.
+
+@item
+Then must come a space, followed by a command-line argument to pass to
+Guile; this should be @samp{-s}.  This argument tells Guile to run a
+script, instead of soliciting the user for input from the terminal.
+There are more elaborate things to do here; see @ref{The Meta Argument}
+
+@item
+Then should appear a newline.
+
+@item
+The second line should contain only the characters @samp{!#} --- just
+like the top of the file, but reversed.
+
+@item
+The rest of the file should be a series of arbitrary Scheme definitions
+and expressions.
+
+@end itemize
+
+Guile evaluates the definitions and expressions in the order they
+appear.  Upon reaching the end of the file, Guile exits.
+
+The function @code{command-line} returns the name of the script file and
+any command-line arguments passed by the user, as a list of strings.
+
+For example, consider the following script file:
+@example
+#!/usr/local/bin/guile -s
+!#
+(write (command-line))
+(newline)
+@end example
+
+If you put that text in a file called @file{foo} in the current
+directory, then you could make it executable and try it out like this:
+@example
+$ chmod a+x foo
+$ ./foo
+("./foo")
+$ ./foo bar baz
+("./foo" "bar" "baz")
+$ 
+@end example
+
+As another example, here is a simple replacement for the Unix
+@code{echo} command:
+@example
+#!/usr/local/bin/guile -s
+!#
+(for-each (lambda (s) (display s) (display " "))
+  (cdr (command-line)))
+(newline)
+@end example
+
 @node Invoking Guile
 @section Invoking Guile
+
+Guile processes its command-line arguments from left to right,
+recognizing the switches described below.  For examples, see
+@ref{Scripting Examples}.
+
+@table @code
+
+@item -s @var{script} @var{arg ...}
+Read and evaluate Scheme source code from the file @var{script}, as the
+@code{load} function would.  After loading @var{script}, exit.  Any
+command-line arguments following @var{script} become the script's
+arguments; the @code{command-line} function returns a list of strings
+of the form @code{(@var{script} @var{arg...})}.
+
+@item -c @var{expr} @var{arg ...}
+Evaluate @var{expr} as Scheme code, and then exit.  Any command-line
+arguments following @var{expr} become command-line arguments; the
+@code{command-line} function returns a list of strings of the form
+@code{(@var{guile} @var{arg...})}, where @var{guile} is the path of the
+Guile executable.
+
+@item -- @var{arg ...}
+Run interactively, prompting the user for expressions and evaluating
+them.  As for @code{-c}, the @code{command-line} function returns a list
+of strings of the form @code{(@var{guile} @var{arg...})}, where
+@var{guile} is the path of the Guile executable.
+
+@item -l @var{file}
+Load Scheme source code from @var{file}, and continue processing
+command-line arguments.
+
+@item -e @var{function}
+Make @var{function} the @dfn{entry point} of the script.  After loading
+the script file (with @code{-s}) or evaluating the expression (with
+@code{-e}), apply @var{function} to the program name and command-line
+arguments.
+
+A @code{-e} argument can appear anywhere in the argument list, but Guile
+always invokes the @var{function} as the @emph{last} action it performs.
+This is weird, but because of the way script invocation works under
+POSIX, the @code{-s} option must always come last in the list.
+
+@xref{Scripting Examples}.
+
+@item -ds
+Treat a final @code{-s} option as if it occurred at this point in the
+command line arguments; load the script here.
+
+This switch is necessary because, although the POSIX script invocation
+mechanism effectively requires the @code{-s} option to appear last, the
+programmer may well want to run the script before other actions
+requested on the command line.
+
+@item \
+Read more command-line arguments starting from the second line of the
+script.  @xref{The Meta Argument}.
+
+@item --emacs
+Assume we are running as an inferior process of Emacs, and use a special
+protocol for communicating with Emacs's Guile interaction mode.  This
+just sets the global variable use-emacs-interface to @code{#t}.
+
+This switch is still experimental.
+
+@item -h@r{, }--help
+Display help on invoking Guile, and then exit.
+
+@item -v@r{, }--version
+Display the current version of Guile, and then exit.
+
+@end table
+
+@node The Meta Argument
+@section The Meta Argument
+
+@node Scripting Examples
+@section Scripting Examples
+
+For example:
+@example
+$ cat scriptfile
+(define (mum args)
+  (write args)
+  (newline))
+$ guile -e mum -s scriptfile foo bar baz
+("scriptfile" "foo" "bar" "baz")
+$ 
+@end example
+
+The @code{-e} option allows you to write a scheme file that can be both
+an executable script, performing some action when invoked, and a
+loadable module, merely introducting some definitions but not performing
+any actions.  For example:
+
+#!
+
+ act as a
+module as well as an independent script.  With the @code{-e} option, the
+file can simply contain a series of definitions and initialization
+expressions, and then use @code{-e} to specify the appropriate entry
+point to use when the user invokes the script; if another 
+
 
 @node Linking Programs With Guile
 @chapter Linking Programs With Guile
