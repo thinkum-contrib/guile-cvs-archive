@@ -1824,14 +1824,56 @@ called with string containing unusual characters.
 @node String Syntax
 @subsubsection String Read Syntax
 
-The read syntax for strings is an arbitrarily long sequence of
-characters enclosed in double quotes (@code{"}).@footnote{Actually,
-the current implementation restricts strings to a length of
-@math{2^24}, or 16,777,216, characters.  Sorry.}  If you want to
-insert a double quote character into a string literal, it must be
-prefixed with a backslash @samp{\} character (called an @dfn{escape
-character}).
+@c  In the following @code is used to get a good font in TeX etc, but
+@c  is omitted for Info format, so as not to risk any confusion over
+@c  whether surrounding ` ' quotes are part of the escape or are
+@c  special in a string (they're not).
 
+The read syntax for strings is an arbitrarily long sequence of
+characters enclosed in double quotes (@nicode{"}). @footnote{Actually,
+the current implementation restricts strings to a length of
+@math{2^24}, or 16,777,216, characters.  Sorry.}
+
+Backslash is an escape character and can be used to insert the
+following special characters.  @nicode{\"} and @nicode{\\} are R5RS
+standard, the rest are Guile extensions, notice they follow C string
+syntax.
+
+@table @asis
+@item @nicode{\\}
+Backslash character.
+
+@item @nicode{\"}
+Double quote character (an unescaped @nicode{"} is otherwise the end
+of the string).
+
+@item @nicode{\0}
+NUL character (ASCII 0).
+
+@item @nicode{\a}
+Bell character (ASCII 7).
+
+@item @nicode{\f}
+Formfeed character (ASCII 12).
+
+@item @nicode{\n}
+Newline character (ASCII 10).
+
+@item @nicode{\r}
+Carriage return character (ASCII 13).
+
+@item @nicode{\t}
+Tab character (ASCII 9).
+
+@item @nicode{\v}
+Vertical tab character (ASCII 11).
+
+@item @nicode{\xHH}
+Character code given by two hexadecimal digits.  For example
+@nicode{\x7f} for an ASCII DEL (127).
+@end table
+
+@noindent
 The following are examples of string literals:
 
 @lisp
@@ -1841,7 +1883,6 @@ The following are examples of string literals:
 "\"Hi\", he said."
 @end lisp
 
-@c FIXME::martin: What about escape sequences like \r, \n etc.?
 
 @node String Predicates
 @subsubsection String Predicates
@@ -2297,21 +2338,22 @@ the same regular expression is used several times (for example, in a
 loop).  For better performance, you can compile a regular expression in
 advance and then match strings against the compiled regexp.
 
-@deffn {Scheme Procedure} make-regexp pat . flags
-@deffnx {C Function} scm_make_regexp (pat, flags)
+@deffn {Scheme Procedure} make-regexp pat flag@dots{}
+@deffnx {C Function} scm_make_regexp (pat, flaglst)
 Compile the regular expression described by @var{pat}, and
 return the compiled regexp structure.  If @var{pat} does not
 describe a legal regular expression, @code{make-regexp} throws
 a @code{regular-expression-syntax} error.
 
-The @var{flags} arguments change the behavior of the compiled
-regular expression.  The following flags may be supplied:
+The @var{flag} arguments change the behavior of the compiled
+regular expression.  The following values may be supplied:
 
-@table @code
-@item regexp/icase
+@defvar regexp/icase
 Consider uppercase and lowercase letters to be the same when
 matching.
-@item regexp/newline
+@end defvar
+
+@defvar regexp/newline
 If a newline appears in the target string, then permit the
 @samp{^} and @samp{$} operators to match immediately after or
 immediately before the newline, respectively.  Also, the
@@ -2320,7 +2362,9 @@ character.  The intent of this flag is to treat the target
 string as a buffer containing many lines of text, and the
 regular expression as a pattern that may match a single one of
 those lines.
-@item regexp/basic
+@end defvar
+
+@defvar regexp/basic
 Compile a basic (``obsolete'') regexp instead of the extended
 (``modern'') regexps that are the default.  Basic regexps do
 not consider @samp{|}, @samp{+} or @samp{?} to be special
@@ -2329,13 +2373,15 @@ metacharacters to be backslash-escaped (@pxref{Backslash
 Escapes}).  There are several other differences between basic
 and extended regular expressions, but these are the most
 significant.
-@item regexp/extended
+@end defvar
+
+@defvar regexp/extended
 Compile an extended regular expression rather than a basic
 regexp.  This is the default behavior; this flag will not
 usually be needed.  If a call to @code{make-regexp} includes
 both @code{regexp/basic} and @code{regexp/extended} flags, the
 one which comes last will override the earlier one.
-@end table
+@end defvar
 @end deffn
 
 @deffn {Scheme Procedure} regexp-exec rx str [start [flags]]
@@ -2349,16 +2395,17 @@ or @code{#f} if no match could be found.
 The @var{flags} arguments change the matching behavior.
 The following flags may be supplied:
 
-@table @code
-@item regexp/notbol
+@defvar regexp/notbol
 Operator @samp{^} always fails (unless @code{regexp/newline}
 is used).  Use this when the beginning of the string should
 not be considered the beginning of a line.
-@item regexp/noteol
+@end defvar
+
+@defvar regexp/noteol
 Operator @samp{$} always fails (unless @code{regexp/newline}
 is used).  Use this when the end of the string should not be
 considered the end of a line.
-@end table
+@end defvar
 @end deffn
 
 @lisp
