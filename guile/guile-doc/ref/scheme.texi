@@ -1873,10 +1873,12 @@ value returned by @code{(current-output-port)}; equivalent to:
 (newline [port])
 @end smalllisp
 @end deffn
+
 @deffn procedure ftell port
 Returns an integer representing the current position of @var{port},
 measured from the beginning.
 @end deffn
+
 @deffn procedure fseek port offset whence
 Sets the current position of @var{port} to the integer @var{offset},
 which is interpreted according to the value of @var{whence}.
@@ -2604,26 +2606,34 @@ Test whether obj is a compiled regular expression.
 SLIB is a portable Scheme library which can be obtained by ftp from
 @url{ftp://prep.ai.mit.edu/pub/gnu/jacal}.
 
-The slib package should be unpacked in the installed ice-9 directory.
+The SLIB package should be unpacked somewhere in Guile's load path.
+The load path can be checked from inside the interpreter, e.g.,
 
-To get access to SLIB facilities, use:
+@smalllisp
+guile> %load-path
+("/usr/local/share/guile/site" "/usr/local/share/guile/1.3a" "/usr/local/share/guile" ".")
+@end smalllisp
+
+so we may have @code{/usr/local/share/guile/site/slib/...}.
+
+Before the the SLIB facilities can be used, the following Scheme
+expression must be executed:
+
 @smalllisp
 (use-modules (ice-9 slib))
 @end smalllisp
 
-after which @code{require} can be used as described in 
-@ref{Top, , SLIB, slib, The SLIB Manual}.
+@code{require} can then be used as described in 
+@ref{Top, , SLIB, slib, The SLIB Manual}, e.g.,
 
+@smalllisp
+(require 'format)
+(format "~8,48D" 10)
+@end smalllisp
 
 @page
 @node POSIX system calls and networking
 @chapter POSIX system calls and networking
-
---- I think people will generally know whether they're looking
-    for a system call or not, so this should be an okay category.
-
-[FIXME: I have just pasted Gary's stuff in, since Jim's outline pretty
-much matched Gary's chapters.  Slight review needed.]
 
 The low level Unix interfaces are currently available by default in the
 Guile top level.  However in the future they will probably be placed in
@@ -2631,22 +2641,23 @@ a module and @code{use-modules} or something similar will be required to
 make them available.
 
 @menu
-* conventions (includes error handling)::  
+* conventions::
 * ports vs. file descriptors::  
-* file system (mknod goes here no?)::  
-* user database::               
-* time (includes gettimeofday or whatever strftime strptime)::  
-* processes::                   
+* file system::
+* user database::
+* time::
+* processes::
+* signals::
 * terminals and pseudo-terminals::  
 * pipes::                       
-* networking includes databases - address conversion and sockets::  
+* networking::
 * system identification (uname)::  
 * locales (setlocale):: 
 * expect::
 @end menu
 
-@node conventions (includes error handling)
-@section conventions (includes error handling)
+@node conventions
+@section conventions
 
 The low-level interfaces are designed to give Scheme programs access to
 as much functionality as possible from the underlying Unix system.  They
@@ -2782,6 +2793,16 @@ is initialized to zero.  The modes string is the same as that accepted
 by @code{open-file}.
 @end deffn
 
+@findex fflush
+@deffn procedure force-output [port]
+Flush the specified output port, or the current output port if @var{port}
+is omitted.  The return value is unspecified.
+@end deffn
+
+@deffn procedure flush-all-ports
+Flush all open output ports.  The return value is unspecified.
+@end deffn
+
 @defun fdes->ports fdes
 Returns a list of existing ports which have @var{fdes} as an
 underlying file descriptor, without changing their revealed counts.
@@ -2877,6 +2898,33 @@ Reopen @var{port} on the specified @var{filename}
 with mode string @var{modes} as for @code{open-file}.
 @end deffn
 
+@deffn procedure fcntl port command value
+Apply @var{command} to @var{port}'s file descriptor, with
+@var{value} as an argument.
+
+Values for @var{command} are:
+
+@table @code
+@item F_DUPFD
+Duplicate a file descriptor
+@item F_GETFD
+Get flags associated with the file descriptor.
+@item F_SETFD
+Set flags associated with the file descriptor to @var{value}.
+@item F_GETFL
+Get flags associated with the open file.
+@item F_SETFL
+Set flags associated with the open file to @var{value}
+@item F_GETOWN
+Get the process ID of a socket's owner, for @code{SIGIO} signals.
+@item F_SETOWN
+Set the process that owns a socket to @var{value}, for @code{SIGIO} signals.
+@item FD_CLOEXEC
+The value used to indicate the "close on exec" flag with @code{F_GETFL} or
+@code{F_SETFL}.
+@end table
+@end deffn
+
 @deffn procedure select reads writes excepts [secs] [usecs]
 @var{reads}, @var{writes} and @var{excepts} can be lists or vectors: it
 doesn't matter which, but the corresponding object returned will be
@@ -2889,7 +2937,7 @@ either an integer or a real number, or both @var{secs} and @var{usecs}
 can be specified as integers, in which case @var{usecs} is an additional
 timeout expressed in microseconds.
 
-Buffered input or output data is (currently, but this will change)
+Buffered input or output data is (currently, but this may change)
 ignored: select uses the underlying file descriptor of a port
 (@code{char-ready?} will check input buffers, output buffers are
 problematic).
@@ -2902,10 +2950,8 @@ doesn't accept input lists or a microsecond timeout, returns multiple
 values instead of a list and has an additional select! interface.
 @end deffn
 
-@node file system (mknod goes here no?)
-@section file system (mknod goes here no?)
-
-[FIXME: must grab stuff from Gary's misc. section]
+@node file system
+@section file system
 
 These procedures allow querying and setting file system attributes
 (such as owner,
@@ -3120,9 +3166,8 @@ Creates a new special file, such as a file corresponding to a device.
 @var{path} specifies the name of the file.  @var{type} should
 be one of the following symbols:
 regular, directory, symlink, block-special, char-special,
-fifo, or socket.  @var{perms} specifies the file permissions and
-should be a decimal value.
-@var{dev} is an integer specifying which device the special file refers
+fifo, or socket.  @var{perms} (an integer) specifies the file permissions.
+@var{dev} (an integer) specifies which device the special file refers
 to.  Its exact interpretation depends on the kind of special file
 being created.
 
@@ -3234,10 +3279,8 @@ a string, or omitted, giving the behaviour of getgrgid, getgrnam
 or getgrent respectively.
 @end deffn
 
-@node time (includes gettimeofday or whatever strftime strptime)
-@section time (includes gettimeofday or whatever strftime strptime)
-
-[FIXME: must grab from Gary's misc. section]
+@node time
+@section time
 
 @deffn procedure current-time
 Returns the number of seconds since 1970-01-01 00:00:00 UTC, excluding
@@ -3455,37 +3498,6 @@ from its controlling terminal if it has one.
 The return value is an integer representing the new process group ID.
 @end deffn
 
-@deffn procedure kill pid sig
-
-Sends a signal to the specified process or group of processes.
-
-@var{pid} specifies the processes to which the signal is sent:
-
-@table @r
-@item @var{pid} greater than 0
-The process whose identifier is @var{pid}.
-@item @var{pid} equal to 0
-All processes in the current process group.
-@item @var{pid} less than -1
-The process group whose identifier is -@var{pid}
-@item @var{pid} equal to -1
-If the process is privileged, all processes except for some special
-system processes.  Otherwise, all processes with the current effective
-user ID.
-@end table
-
-@var{sig} should be specified using a variable corresponding to
-the Unix symbolic name, e.g.,
-
-@defvar SIGHUP
-Hang-up signal.
-@end defvar
-
-@defvar SIGINT
-Interrupt signal.
-@end defvar
-@end deffn
-
 @deffn procedure waitpid pid [options]
 This procedure collects status information from a child process which
 has terminated or (optionally) stopped.  Normally it will
@@ -3548,6 +3560,12 @@ process, if any, otherwise @code{#f}.
 @deffn procedure status:stop-sig status
 Returns the signal number which stopped the
 process, if any, otherwise @code{#f}.
+@end deffn
+
+@deffn procedure primitive-exit [status]
+Terminate the current process without unwinding the Scheme stack.
+This is would typically be useful after a fork.  The exit status
+is @var{status} if supplied, otherwise zero.
 @end deffn
 
 @deffn procedure execl path [arg] ...
@@ -3615,6 +3633,108 @@ priority value means that the process runs less often.
 The return value is unspecified.
 @end deffn
 
+@node signals
+@section signals
+
+Procedures to raise, handle and wait for signals.
+
+@deffn procedure kill pid sig
+
+Sends a signal to the specified process or group of processes.
+
+@var{pid} specifies the processes to which the signal is sent:
+
+@table @r
+@item @var{pid} greater than 0
+The process whose identifier is @var{pid}.
+@item @var{pid} equal to 0
+All processes in the current process group.
+@item @var{pid} less than -1
+The process group whose identifier is -@var{pid}
+@item @var{pid} equal to -1
+If the process is privileged, all processes except for some special
+system processes.  Otherwise, all processes with the current effective
+user ID.
+@end table
+
+@var{sig} should be specified using a variable corresponding to
+the Unix symbolic name, e.g.,
+
+@defvar SIGHUP
+Hang-up signal.
+@end defvar
+
+@defvar SIGINT
+Interrupt signal.
+@end defvar
+@end deffn
+
+@deffn procedure raise sig
+
+Sends a specified signal @var{sig} to the current process, where
+@var{sig} is as described for the kill procedure.
+@end deffn
+
+@deffn procedure sigaction signum [action] [flags]
+
+Install or report the signal hander for a specified signal.
+
+@var{signum} is the signal number, which can be specified using the value
+of variables such as @code{SIGINT}.
+
+If @var{action} is omitted, @code{sigaction} returns a pair: the
+CAR is the current
+signal hander, which will be either an integer with the value @code{SIG_DFL}
+(default action) or @code{SIG_IGN} (ignore), or the Scheme procedure which
+handles the signal, or @code{#f} if a non-Scheme procedure handles the
+signal.  The CDR contains the current @code{sigaction} flags for the handler.
+
+If @var{action} is provided, it is installed as the new handler for
+@var{signum}.
+@var{action} can be a Scheme procedure taking one argument, or the value of
+@code{SIG_DFL} (default action) or @code{SIG_IGN} (ignore), or @code{#f}
+to restore
+whatever signal handler was installed before @code{sigaction} was first used.
+Flags can optionally be specified for the new handler (@code{SA_RESTART} is
+always used if the system provides it, so need not be specified.)  The
+return value is a pair with information about the old handler as
+described above.
+
+This interface does not provide access to the "signal blocking"
+facility.  Maybe this is not needed, since the thread support may
+provide solutions to the problem of consistent access to data
+structures.
+@end deffn
+
+@deffn procedure restore-signals
+Return all signal handlers to the values they had before any call to
+@code{sigaction} was made.  The return value is unspecified.
+@end deffn
+
+@deffn procedure alarm secs
+Set a timer to raise a @code{SIGALRM} signal after the specified
+number of seconds (an integer).  It's advisable to install a signal
+handler for
+@code{SIGALRM} beforehand, since the default action is to terminate
+the process.
+
+The return value indicates the time remaining for the previous alarm,
+if any.  The new value replaces the previous alarm.  If there was
+no previous alarm, the return value is zero.
+@end deffn
+
+@deffn procedure pause
+Pause the current process (thread?) until a signal arrives whose
+action is to either terminate the current process or invoke a
+handler procedure.  The return value is unspecified.
+@end deffn
+
+@deffn procedure sleep secs
+Wait for the given number of seconds (an integer) or until a signal
+arrives.  The return value is zero if the time elapses or the number
+of seconds remaining otherwise.
+@end deffn
+
 @node terminals and pseudo-terminals
 @section terminals and pseudo-terminals
 
@@ -3651,13 +3771,11 @@ Set the foreground process group ID for the terminal used by the file
 descriptor underlying @var{port} to the integer @var{pgid}.
 The calling process
 must be a member of the same session as @var{pgid} and must have the same
-controlling terminal.  The return value is unspeficied.
+controlling terminal.  The return value is unspecified.
 @end deffn
 
 @node pipes
 @section pipes
-
-[FIXME: must grab stuff from Gary's misc. section]
 
 These procedures provide an interface to the @code{popen} and 
 @code{pclose} system routines.
@@ -3688,10 +3806,8 @@ procedure.
 the status.
 @end deffn
 
-@node networking includes databases - address conversion and sockets
-@section networking includes databases - address conversion and sockets
-
-[FIXME: must grab stuff from Gary's misc. section]
+@node networking
+@section networking
 
 @menu
 * Networking Databases::        
@@ -4193,9 +4309,6 @@ A description of the hardware.
 @node locales (setlocale)
 @section locales (setlocale)
 
---- Note that there is no more 'misc'.  It's better to have
-    small sections than unhelpful names.
-
 @deffn procedure setlocale category [locale]
 If @var{locale} is omitted, returns the current value of the specified
 locale category 
@@ -4212,8 +4325,11 @@ is an empty string, the locale will be set using envirionment variables.
 @node expect
 @section expect
 
-Using these macros requires for now:
-(load-from-path "ice-9/expect")
+The macros in this section are made available with:
+
+@smalllisp
+(use-modules (ice-9 expect))
+@end smalllisp
 
 @code{expect} is a macro for selecting actions based on the output from
 a port.  The name comes from a tool of similar functionality by Don Libes.
@@ -4334,37 +4450,27 @@ be used with @code{expect}.
 @node The Scheme shell (scsh)
 @chapter The Scheme shell (scsh)
 
---- includes info on how to get SCSH features (open this
-    module), but mostly just a pointer to the SCSH manual.
-    This should not be under POSIX.  SCSH includes plenty of
-    high-level stuff for starting processes and string
-    processing.  SCSH is not a subset of POSIX, nor the
-    reverse.
-
-[FIXME: I'm pasting in Gary's stuff from unix.texi's SCSH chapter; it
-should be almost entirely OK.]
-
-
-Guile includes an incomplete port of the Scheme shell (scsh) 0.4.4.
+An incomplete port of the Scheme shell (scsh) 0.5.1 is available for
+Guile.  The idea is to allow Scheme code using scsh interfaces to be run
+inside the Guile interpreter.
 
 For information about scsh on the Web see
 @url{http://www-swiss.ai.mit.edu/scsh/scsh.html}.
 The original scsh is available by ftp from
 @url{ftp://swiss-ftp.ai.mit.edu:/pub/su}.
 
+The scsh code is distributed as a separate module, guile-scsh,
+which must be installed somewhere in Guile's load path before
+it can be used.  This is similar to the installation
+of slib (you may want to install that first, since it's needed before
+scsh can run in Guile: see @ref{SLIB} for details).
+
 This port of scsh does not currently use the Guile module system, but
-can be initialized using:
+can be initialized with:
+
 @smalllisp
 (load-from-path "scsh/init")
 @end smalllisp
-
-Note that SLIB must be installed before scsh can be initialized, see
-@ref{SLIB} for details.
-
-[FIXME: I (Mark) think we should also put examples of using scsh in
-Guile that highlight how it is different from SCSH; for example, the
-SLIB requirement.]
-
 
 @page
 @node Tcl/Tk Interface

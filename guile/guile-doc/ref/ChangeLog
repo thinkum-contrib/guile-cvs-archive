@@ -1,3 +1,16 @@
+Sat Jul 19 04:04:50 1997  Gary Houston  <ghouston@actrix.gen.nz>
+
+	* scheme.texi (signals): new section.
+	(processes): primitive-exit.
+	(ports vs. file descriptors): force-output, flush-all-ports.
+	fcntl from NEWS.
+
+Fri Jul 18 07:58:52 1997  Gary Houston  <ghouston@actrix.gen.nz>
+
+	* scheme.texi (SLIB): update initialization details.
+	(expect): likewise.
+	(The Scheme shell (scsh)): likewise.
+
 Fri Jun 27 00:31:25 1997  Tim Pierce  <twp@twp.tezcat.com>
 
 	* scheme.texi (Regexp Functions): Add docs for make-regexp flags
