@@ -61,3 +61,8 @@ the bug plus a "."-separated extension, like "bug-1.scm".
 Meta information about the bug tracking system (like this README file)
 should be put into files that start with a upper case letter.
 
+
+----------------------------------------------------------------------
+fyi, ttn's bug-naming convention:
+NUMBER-NP-VP (noun phrase, verb-phrase), NUMBER starts at 1000.
+also, i like to put related files in subdir NUMBER.stuff/.
