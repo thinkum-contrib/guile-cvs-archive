@@ -2,7 +2,7 @@
 @node R5RS Index
 @chapter R5RS Index
 
-@printindex r5
+@printindex rn
 
 
 @page

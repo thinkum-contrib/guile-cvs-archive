@@ -95,7 +95,7 @@
 @c Define indices that are used in the Guile Scheme part of the
 @c reference manual to group stuff according to whether it is R5RS or a
 @c Guile extension.
-@defcodeindex r5
+@defcodeindex rn
 @defcodeindex ge
 
 @include version.texi
