@@ -685,7 +685,7 @@ prep_hashsets (SCM class)
 
   for (i = 0; i < 7; ++i)
     SCM_SLOT (class, scm_si_hashsets + i)
-      = scm_c_uniform32 (goops_rstate);
+      = SCM_PACK (scm_c_uniform32 (goops_rstate));
 }
 
 /******************************************************************************/
@@ -1420,7 +1420,7 @@ wrap_init (SCM class, SCM *m, int n)
 
   SCM_NEWCELL (z);
   SCM_SETCDR (z, m);
-  SCM_SETCAR (z, (SCM) SCM_STRUCT_DATA (class) + scm_tc3_cons_gloc);
+  SCM_SETCAR (z, SCM_UNPACK (SCM_STRUCT_DATA (class)) | scm_tc3_cons_gloc);
 
   return z;
 }

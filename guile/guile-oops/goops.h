@@ -54,6 +54,11 @@
 #include <libguile.h>
 #include <goops-snarf.h>
 
+#ifndef SCM_PACK
+#define SCM_PACK(x) x
+#define SCM_UNPACK(x) x
+#endif
+
 /*
  * scm_class_class
  */
@@ -120,8 +125,9 @@ typedef struct scm_method_t {
 /* Also defined in libguuile/objects.c */
 #define SCM_CLASS_OF(x)        SCM_STRUCT_VTABLE (x)
 #define SCM_ACCESSORS_OF(x)    (SCM_STRUCT_VTABLE_DATA (x)[scm_si_getters_n_setters])
-#define SCM_NUMBER_OF_SLOTS(x) (SCM_STRUCT_DATA (x)[scm_struct_i_n_words] \
-			       - scm_struct_n_extra_words) \
+#define SCM_NUMBER_OF_SLOTS(x)\
+ (SCM_UNPACK (SCM_STRUCT_DATA (x)[scm_struct_i_n_words]) \
+  - scm_struct_n_extra_words) \
 
 #define SCM_INSTANCEP(x)       (SCM_STRUCTP (x) \
 			       && (SCM_INST_TYPE (x) & SCM_CLASSF_GOOPS))
