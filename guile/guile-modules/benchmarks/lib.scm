@@ -93,7 +93,7 @@
 (define (data-file filename)
   (let ((f (in-vicinity datadir filename)))
     (or (file-exists? f)
-	(error "Benchmark data file does not exists: " f))
+	(error "Benchmark data file does not exist: " f))
     f))
 
 
