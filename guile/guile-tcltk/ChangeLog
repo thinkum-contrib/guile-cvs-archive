@@ -1,5 +1,8 @@
 Fri Aug 30 15:34:06 1996  Jim Blandy  <jimb@floss.cyclic.com>
 
+	* PLUGIN/guile.config.in (xtra_cflags): Remove references to gtcl
+	and gtk directories; they're long gone.
+
 	* Makefile.in (exec_prefix, bindir, libdir, includedir, infodir):
 	Get values directly from autoconf, instead of deriving them
 	ourselves.
