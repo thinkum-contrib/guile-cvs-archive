@@ -1,3 +1,10 @@
+2000-10-25  Mikael Djurfeldt  <mdj@linnaeus.mit.edu>
+
+	* Makefile.am: Added goops.texi and new files to dist_texis.
+
+	* goops.texi, goops-tutorial.texi, hierarchy.eps, hierarchy.txt:
+	New files.
+
 2000-10-15  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* gh.texi (Starting and controlling the interpreter): Removed
