@@ -135,7 +135,7 @@ AC_DEFUN(AM_MAINTAINER_MODE,
 )
 
 
-# serial 24 AM_PROG_LIBTOOL
+# serial 25 AM_PROG_LIBTOOL
 AC_DEFUN(AM_PROG_LIBTOOL,
 [AC_REQUIRE([AM_ENABLE_SHARED])dnl
 AC_REQUIRE([AM_ENABLE_STATIC])dnl
@@ -189,9 +189,13 @@ esac
 # Actually configure libtool.  ac_aux_dir is where install-sh is found.
 CC="$CC" CFLAGS="$CFLAGS" CPPFLAGS="$CPPFLAGS" \
 LD="$LD" NM="$NM" RANLIB="$RANLIB" LN_S="$LN_S" \
-${CONFIG_SHELL-/bin/sh} $ac_aux_dir/ltconfig \
+${CONFIG_SHELL-/bin/sh} $ac_aux_dir/ltconfig --no-reexec \
 $libtool_flags --no-verify $ac_aux_dir/ltmain.sh $host \
 || AC_MSG_ERROR([libtool configure failed])
+
+# Redirect the config.log output again, so that the ltconfig log is not
+# clobbered by the next message.
+exec 5>>./config.log
 ])
 
 # AM_ENABLE_SHARED - implement the --enable-shared flag
@@ -202,10 +206,8 @@ AC_DEFUN(AM_ENABLE_SHARED,
 [define([AM_ENABLE_SHARED_DEFAULT], ifelse($1, no, no, yes))dnl
 AC_ARG_ENABLE(shared,
 changequote(<<, >>)dnl
-<<  --enable-shared         build shared libraries [default=>>AM_ENABLE_SHARED_DEFAULT]
+<<  --enable-shared[=PKGS]  build shared libraries [default=>>AM_ENABLE_SHARED_DEFAULT],
 changequote([, ])dnl
-[  --enable-shared=PKGS    only build shared libraries if the current package
-                          appears as an element in the PKGS list],
 [p=${PACKAGE-default}
 case "$enableval" in
 yes) enable_shared=yes ;;
@@ -241,10 +243,8 @@ AC_DEFUN(AM_ENABLE_STATIC,
 [define([AM_ENABLE_STATIC_DEFAULT], ifelse($1, no, no, yes))dnl
 AC_ARG_ENABLE(static,
 changequote(<<, >>)dnl
-<<  --enable-static         build static libraries [default=>>AM_ENABLE_STATIC_DEFAULT]
+<<  --enable-static[=PKGS]  build static libraries [default=>>AM_ENABLE_STATIC_DEFAULT],
 changequote([, ])dnl
-[  --enable-static=PKGS    only build shared libraries if the current package
-                          appears as an element in the PKGS list],
 [p=${PACKAGE-default}
 case "$enableval" in
 yes) enable_static=yes ;;
@@ -278,7 +278,9 @@ if test "$ac_cv_prog_gcc" = yes; then
   ac_prog=`($CC -print-prog-name=ld) 2>&5`
   case "$ac_prog" in
   # Accept absolute paths.
+changequote(,)dnl
   /* | [A-Za-z]:\\*)
+changequote([,])dnl
     test -z "$LD" && LD="$ac_prog"
     ;;
   "")
@@ -341,11 +343,10 @@ fi])
 AC_DEFUN(AM_PROG_NM,
 [AC_MSG_CHECKING([for BSD-compatible nm])
 AC_CACHE_VAL(ac_cv_path_NM,
-[case "$NM" in
-/* | [A-Za-z]:\\*)
-  ac_cv_path_NM="$NM" # Let the user override the test with a path.
-  ;;
-*)
+[if test -n "$NM"; then
+  # Let the user override the test.
+  ac_cv_path_NM="$NM"
+else
   IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS="${IFS}:"
   for ac_dir in /usr/ucb /usr/ccs/bin $PATH /bin; do
     test -z "$ac_dir" && ac_dir=.
@@ -365,8 +366,7 @@ AC_CACHE_VAL(ac_cv_path_NM,
   done
   IFS="$ac_save_ifs"
   test -z "$ac_cv_path_NM" && ac_cv_path_NM=nm
-  ;;
-esac])
+fi])
 NM="$ac_cv_path_NM"
 AC_MSG_RESULT([$NM])
 AC_SUBST(NM)
