@@ -10,4 +10,4 @@
 (display ";;; Use (ice-9 and-let-star) instead.\n\n"
 	 (current-error-port))
 
-(export-syntax and-let*)
+(re-export-syntax and-let*)
