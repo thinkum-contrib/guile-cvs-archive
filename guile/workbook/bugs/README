@@ -1,7 +1,9 @@
 This directory is the Guile bug data base.
 
 It contains one file per bug with a simple, mail-message like format.
-Each file starts with a number of header lines in the form
+For quick start adding a bug, see TEMPLATE.
+
+Each bug file starts with a number of header lines in the form
 
      field-name: field-value
 
@@ -19,7 +21,7 @@ except when noted.
 
     A one-line summary of the bug.  Mandatory.
 
-  Tags: tag1, tag2, ...  
+  Tags: tag1, tag2, ...
 
     A comma separated list of symbolic tag names (for example
     release-critical-1.6).  Tags can be used to collect bugs into
@@ -27,10 +29,10 @@ except when noted.
     their meaning.
 
   Reported: mailbox, yyyy-mm-dd
-    
+
     The mail address of the reporter, in RFC2822 mailbox format,
     followed by the date of the report, in ISO8601 format.
-  
+
   Assigned: mailbox, yyyy-mm-dd
 
     The developer who is working on a fix, and since when.
@@ -58,3 +60,4 @@ the bug plus a "."-separated extension, like "bug-1.scm".
 
 Meta information about the bug tracking system (like this README file)
 should be put into files that start with a upper case letter.
+
