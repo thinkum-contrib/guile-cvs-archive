@@ -95,9 +95,9 @@
   do { SCM_ASSERT(SCM_BOOLP(flag), flag, pos, FUNC_NAME); \
        cvar = (SCM_BOOL_T == flag)? 1: 0; } while (0)
 
-#define SCM_VALIDATE_CHAR(pos,scm) SCM_MAKE_VALIDATE(pos,scm,ICHRP)
+#define SCM_VALIDATE_ICHR(pos,scm) SCM_MAKE_VALIDATE(pos,scm,ICHRP)
 
-#define SCM_VALIDATE_CHAR_COPY(pos,scm,cvar) \
+#define SCM_VALIDATE_ICHR_COPY(pos,scm,cvar) \
   do { SCM_ASSERT(SCM_ICHRP(scm), scm, pos, FUNC_NAME); \
        cvar = SCM_ICHR(scm); } while (0)
 
