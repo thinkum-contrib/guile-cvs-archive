@@ -1,0 +1,27 @@
+* Get rid of compler warning messages
+
+* Test, correct bugs
+
+* Fix some *fixme*'s
+
+* Make sure that all of Guile's primitive types are represented in the
+  class hierarchy
+
+* Make sure that it isn't possible to create entities with too few slots.
+
+* README-file with "How to get started"
+
+* Introduction to Goops
+
+* Make sure that Makefile.am mentions all files which should go into
+  the distribution
+
+* Test that `make dist' yields a nice distribution
+
+* Release Goops 1.0!
+
+* Optimize
+
+* Design a new MOP for generic method application
+
+* Implementing ditto and optimize!
