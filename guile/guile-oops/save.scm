@@ -262,13 +262,37 @@
 ;;; Classes
 ;;;
 
-;;; Currently, we son't support reading in class objects
+;;; Currently, we don't support reading in class objects
 ;;;
 
-(define-method enumerate! ((o <class>) env) #t)
+(define-method enumerate! ((o <class>) env) #f)
 
 (define-method write-readably ((o <class>) file env)
   (display (class-name o) file))
+
+;;;
+;;; Generics
+;;;
+
+;;; Currently, we don't support reading in generic functions
+;;;
+
+(define-method enumerate! ((o <generic>) env) #f)
+
+(define-method write-readably ((o <generic>) file env)
+  (display (generic-function-name o) file))
+
+;;;
+;;; Method
+;;;
+
+;;; Currently, we don't support reading in methods
+;;;
+
+(define-method enumerate! ((o <method>) env) #f)
+
+(define-method write-readably ((o <method>) file env)
+  (goops-error "No read-syntax for <method> defined"))
 
 ;;;
 ;;; Environments
