@@ -4,6 +4,8 @@ AUTOMAKE_OPTIONS = foreign
 
 INCLUDES = $(GUILE_CFLAGS)
 
+ACLOCAL = ./guile-gtk-aclocal.sh
+
 lib_LTLIBRARIES = libguile-tcltk-gtcltk.la libguiledlopenhelper.la
 bin_PROGRAMS = guile-tcltk
 
