@@ -1,3 +1,13 @@
+1998-11-22  Mikael Djurfeldt  <mdj@kenneth>
+
+	* Makefile.am (install-exec-hook): Added: Puts symbolic links to
+	the dynamically linked library into the goops module directory.
+
+	* configure.in: Removed unneccesary lines; Added AC_PROG_LN_S.
+
+	* goops/goops.scm: Added workaround so that compiled code and
+	interpreted code can coexist in the same module.
+
 1998-11-22  Mikael Djurfeldt  <mdj@barbara.nada.kth.se>
 
 	* goops.h, goops.c: New files.  Port of stklos from STk-3.99.3
