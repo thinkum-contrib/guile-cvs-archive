@@ -46,7 +46,6 @@
 #include "_scm.h"
 
 /* Everybody has an init function.  */
-#include "mb.h"
 #include "alist.h"
 #include "arbiters.h"
 #include "async.h"
@@ -82,6 +81,8 @@
 #include "load.h"
 #include "macros.h"
 #include "mallocs.h"
+#include "mb.h"
+#include "mbconv.h"
 #include "modules.h"
 #include "net_db.h"
 #include "numbers.h"
@@ -449,6 +450,7 @@ scm_boot_guile_1 (base, closure)
 #endif
       start_stack (base);
       scm_init_mb ();
+      scm_init_mbconv ();
       scm_init_gsubr ();
       scm_init_feature ();
       scm_init_alist ();
