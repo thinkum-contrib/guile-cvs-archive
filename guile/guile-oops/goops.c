@@ -53,6 +53,7 @@
 #include <guile/gh.h>
 
 #include "goops.h"
+#include "versiondat.h"
 
 #define CLASSP(x)   (SCM_STRUCTP (x) \
 		     && SCM_OBJ_CLASS_FLAGS (x) & SCM_CLASSF_METACLASS)
@@ -151,6 +152,14 @@ SCM_SYMBOL (scm_sym_define_public, "define-public");
 static void set_slot_value_if_unbound (SCM class, SCM obj, SCM slot_name, SCM form);
 static SCM scm_make_unbound (void);
 static SCM scm_unbound_p (SCM obj);
+
+SCM_PROC (s_goops_version, "goops-version", 0, 0, 0, scm_goops_version);
+
+SCM
+scm_goops_version ()
+{
+  return scm_makfrom0str (GOOPS_VERSION);
+}
 
 /******************************************************************************
  *
@@ -413,12 +422,12 @@ scm_sys_initialize_object (SCM obj, SCM initargs)
 
     if (slot_value)
       /* set slot to provided value */
-      scm_slot_set_x(obj, slot_name, slot_value);
+      scm_slot_set_x (obj, slot_name, slot_value);
     else {
       /* set slot to its :init-form if it exists */
-      tmp = SCM_CAR(SCM_CDR(SCM_CAR(get_n_set)));
+      tmp = SCM_CADAR (get_n_set);
       if (tmp != SCM_BOOL_F)
-	set_slot_value_if_unbound(class, obj, slot_name, tmp);
+	set_slot_value_if_unbound (class, obj, slot_name, tmp);
     }
   }
   
@@ -1058,7 +1067,7 @@ set_slot_value (SCM class, SCM obj, SCM slot_name, SCM value)
 static void
 set_slot_value_if_unbound (SCM class, SCM obj, SCM slot_name, SCM form)
 {
-  SCM old_val = get_slot_value(class, obj, slot_name);
+  SCM old_val = get_slot_value (class, obj, slot_name);
   
   if (SCM_GOOPS_UNBOUNDP (old_val))
     set_slot_value (class, obj,
