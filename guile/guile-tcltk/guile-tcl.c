@@ -113,8 +113,8 @@ scm_tcl_create_interp ()
       SCM_ASSERT (0, SCM_BOOL_F, SCM_NALLOC, s_tcl_create_interp);
     }
   SCM_NEWCELL (answer);
-  SCM_CAR (answer) = scm_tc16_tcl_interp;
-  SCM_CDR (answer) = (SCM) gtcltk;
+  SCM_SETCAR (answer, scm_tc16_tcl_interp);
+  SCM_SETCDR (answer, (SCM) gtcltk);
   SCM_TERP (answer) = Tcl_CreateInterp ();
   SCM_PROPS (answer) = SCM_EOL;
   SCM_ALLOW_INTS;
@@ -458,9 +458,9 @@ scm_tcl_merge (tobj, args)
 			  s_tcl_merge);
 	    }
 	  if (SCM_SUBSTRP (SCM_CAR (args)))
-	    SCM_CAR (args) = scm_makfromstr (SCM_ROCHARS (SCM_CAR (args)),
+	    SCM_SETCAR (args, scm_makfromstr (SCM_ROCHARS (SCM_CAR (args)),
 					     SCM_ROLENGTH (SCM_CAR (args)),
-					     0);
+					     0));
 	  argv[i] = SCM_ROCHARS (SCM_CAR (args));
 	  args = SCM_CDR (args);
 	}

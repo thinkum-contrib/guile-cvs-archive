@@ -1,3 +1,8 @@
+Tue Dec 31 20:27:14 1996  Mikael Djurfeldt  <mdj@kenneth>
+
+	* guile-tcl.c (scm_tcl_create_interp, scm_tcl_merge): SCM_CXR -->
+	SCM_SETCXR
+
 Sat Dec 21 14:42:04 1996  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* configure.in, PLUGIN/{Makefile.{am,in},guile.config.in}: Also
