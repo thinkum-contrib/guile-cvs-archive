@@ -28,7 +28,7 @@ echo "@paragraphindent 0"
 
 # run the script that will generate texinfo
 main='(module-ref (resolve-module '\''(scripts snarf-check-and-output-texi)) '\''main)'
-apply_main="(apply $main (cdr (command-line)))"
+apply_main="(apply $main (quote ($*)))"
 
 if [ `basename ${bindir}` = libguile ]; then
    GUILE_LOAD_PATH=${srcdir}/..; export GUILE_LOAD_PATH
