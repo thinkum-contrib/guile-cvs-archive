@@ -1,3 +1,26 @@
+1999-09-02  James Blandy  <jimb@mule.m17n.org>
+
+	* Makefile.am (check_PROGRAMS): add check_mb.
+	(check_mb_SOURCES, check_mb_LDADD): New variables.
+	(check-local): Run check_mb.
+	* check_mb.c: New file, testing multibyte processing functions.
+	* mb.c (scm_mb_get_func): Fix typo in variable name.
+	(scm_mb_walk): Fix another typo in variable name.
+	(scm_mb_multibyte_to_fixed): Use the right variable for the end
+	of the multibyte text.
+	(scm_mb_fixed_to_multibyte): Use the return value from scm_mb_put,
+	instead of making a separate call to scm_mb_len.
+
+	* libguile.h: #include "mb.h".
+
+	* mb.c, mb.h: New files.
+	* init.c: #include "mb.h".
+	(scm_boot_guile_1): call scm_init_mb.
+	* Makefile.am (libguile_la_SOURCES, BUILT_SOURCES,
+	modinclude_HEADERS): Include the `mb' files in the lists.
+
+	* Base of multibyte branch.
+
 1999-09-01  James Blandy  <jimb@mule.m17n.org>
 
 	I take it all back --- bcopy does handle overlapping source and
