@@ -1,0 +1,56 @@
+#!/usr/local/bin/bash
+#### update-anon-cvs --- update the public anonymous CVS repository for Guile
+#### Jim Blandy <jimb@red-bean.com> --- July 1998
+
+#### Copy a set of subdirectories from a CVS repository on one machine
+#### to a repository on another, and switch between them as atomically
+#### as possible.
+####
+#### The procedure:
+#### - Make a tar file of the appropriate directories from a local repository.
+#### - unpack that tar file in a subdirectory of the public repository.
+#### - Switch a symlink over from the old subdirectory to the new subdirectory.
+#### - Delete the old subdirectory.
+
+#### Parameters:
+
+#### CVSROOT_PATH - the name of the parent directory in the local CVS
+####   repository containing the directories we want to copy over to
+####   the public CVS repository.
+#### PUBLISHED_SUBDIRS - list of subdirectories of LOCAL_CVSROOT_PATH
+####   that should be copied.  Space-delimited.
+#### PUBLIC_SERVER - name of the machine containing the public repository.
+####   Note that this isn't necessarily the public CVS server; they might
+####   share the repository via NFS.
+#### PUBLIC_CVSROOT_PATH - name of the parent directory on the public CVS
+####   server; the symlink, and the directories it points at, live here.
+
+progname="`basename $0`"
+
+[ -d "${CVSROOT_PATH}" ] || {
+  echo "${progname}: CVSROOT_PATH is not a directory: ${CVSROOT_PATH}" >&2
+  exit 1
+}
+
+for subdir in ${PUBLISHED_SUBDIRS}; do
+  [ -d "${CVSROOT_PATH}/${subdir}" ] || {
+    echo "${progname}: published directory does not exist: ${CVSROOT_PATH}/${subdir}" >&2
+    exit 1
+  }
+done
+
+ssh ${PUBLIC_SERVER} true || {
+  echo "${progname}: could not connect to ${PUBLIC_SERVER} via ssh" >&2
+  exit 1
+}
+
+ssh ${PUBLIC_SERVER} "test -d ${PUBLIC_CVSROOT_PATH}" || {
+  echo "${progname}: not a directory: ${PUBLIC_SERVER}:${PUBLIC_CVSROOT_PATH}" >&2
+  exit 1
+}
+
+ssh ${PUBLIC_SERVER} "test -w ${PUBLIC_CVSROOT_PATH}" || {
+  echo "${progname}: not a directory: ${PUBLIC_SERVER}:${PUBLIC_CVSROOT_PATH}" >&2
+  exit 1
+}
+
