@@ -1,3 +1,23 @@
+2001-10-21  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* transform.scm (m-defun, m-defmacro, m-let, m-defvar,
+	m-defconst): Use more selective tracing mechanism (provided by new
+	file trace.scm).
+	
+	* symprop.scm (get, boundp), transform.scm (transform-lambda,
+	m-defmacro): Remove unnecessary uses of nil-ify and t-ify.
+	
+	* match.scm (string-match): Workaround Guile/libc regex
+	parenthesis bug.
+
+	* emacs.scm: Move elisp primitive definitions into more specific
+	files, so that emacs.scm contains only overall code.
+
+	* Makefile.am: Added new files.
+	
+	* numbers.scm, trace.scm, time.scm, pure.scm, system.scm,
+	read.scm, calling.scm, guile.scm: New files.
+
 2001-10-20  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* Makefile.am (elisp_sources): Added match.scm and strings.scm.

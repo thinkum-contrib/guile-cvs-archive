@@ -1037,24 +1037,6 @@ scm_m_nil_cond (SCM xorig, SCM env SCM_UNUSED)
   return scm_cons (SCM_IM_NIL_COND, SCM_CDR (xorig));
 }
 
-SCM_SYNTAX (s_nil_ify, "nil-ify", scm_makmmacro, scm_m_nil_ify);
-
-SCM
-scm_m_nil_ify (SCM xorig, SCM env SCM_UNUSED)
-{
-  SCM_ASSYNT (scm_ilength (SCM_CDR (xorig)) == 1, scm_s_expression, "nil-ify");
-  return scm_cons (SCM_IM_NIL_IFY, SCM_CDR (xorig));
-}
-
-SCM_SYNTAX (s_t_ify, "t-ify", scm_makmmacro, scm_m_t_ify);
-
-SCM
-scm_m_t_ify (SCM xorig, SCM env SCM_UNUSED)
-{
-  SCM_ASSYNT (scm_ilength (SCM_CDR (xorig)) == 1, scm_s_expression, "t-ify");
-  return scm_cons (SCM_IM_T_IFY, SCM_CDR (xorig));
-}
-
 SCM_SYNTAX (s_atfop, "@fop", scm_makmmacro, scm_m_atfop);
 
 SCM
@@ -1065,6 +1047,16 @@ scm_m_atfop (SCM xorig, SCM env SCM_UNUSED)
   var = scm_symbol_fref (SCM_CAR (x));
   SCM_ASSYNT (SCM_VARIABLEP (var),
 	      "Symbol's function definition is void", NULL);
+  /* Support `defalias'. */
+  while (SCM_SYMBOLP (SCM_VARIABLE_REF (var)))
+    {
+      var = scm_symbol_fref (SCM_VARIABLE_REF (var));
+      SCM_ASSYNT (SCM_VARIABLEP (var),
+		  "Symbol's function definition is void", NULL);
+    }
+  /* Use `var' here rather than `SCM_VARIABLE_REF (var)' because the
+     former allows for automatically picking up redefinitions of the
+     corresponding symbol. */
   SCM_SETCAR (x, var);
   return x;
 }
@@ -2400,16 +2392,6 @@ dispatch:
 	  x = proc;
 	  PREP_APPLY (SCM_UNDEFINED, SCM_EOL);
 	  goto carloop;
-
-	case (SCM_ISYMNUM (SCM_IM_NIL_IFY)):
-	  x = SCM_CDR (x);
-	  RETURN ((SCM_FALSEP (proc = EVALCAR (x, env)) || SCM_NULLP (proc))
-		   ? SCM_BOOL_F
-		   : proc)
-	    
-	case (SCM_ISYMNUM (SCM_IM_T_IFY)):
-	  x = SCM_CDR (x);
-	  RETURN (SCM_BOOL (!SCM_FALSEP (EVALCAR (x, env))))
 
 	case (SCM_ISYMNUM (SCM_IM_BIND)):
 	  {

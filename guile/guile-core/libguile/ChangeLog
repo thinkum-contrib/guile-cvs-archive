@@ -1,3 +1,15 @@
+2001-10-21  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* tags.h (SCM_IM_NIL_IFY, SCM_IM_T_IFY): Removed.  ISYM numbers
+	for following constants shuffled down accordingly.
+	
+	* print.c (scm_isymnames): Removed entries for nil-ify and t-ify.
+
+	* eval.c (scm_m_atfop): Support `defalias' by following symbol
+	trails.
+	(scm_m_nil_ify, scm_m_t_ify): Removed.
+	(SCM_CEVAL): Removed code for SCM_IM_NIL_IFY and SCM_IM_T_IFY.
+
 2001-10-19  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* eval.c (scm_lisp_t, scm_lisp_nil, scm_m_0_cond, scm_m_0_ify,

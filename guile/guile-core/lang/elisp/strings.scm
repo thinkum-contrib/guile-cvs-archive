@@ -13,3 +13,7 @@
 		       ((vector? arg) (list->string (vector->list arg)))
 		       (else (error "Wrong type argument for concat"))))
 		    args))))
+
+(fset 'string-to-number string->number)
+
+(fset 'number-to-string number->string)

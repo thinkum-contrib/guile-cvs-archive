@@ -113,8 +113,6 @@ char *scm_isymnames[] =
   /* Multi-language support */
   
   "#@nil-cond",
-  "#@nil-ify",
-  "#@t-ify",
   "#@bind",
   
   "#@delay",

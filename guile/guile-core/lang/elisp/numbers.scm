@@ -1,0 +1,11 @@
+(define-module (lang elisp numbers)
+  #:use-module (lang elisp fset))
+
+(fset 'logior logior)
+(fset 'logand logand)
+(fset 'integerp integer?)
+(fset '= =)
+(fset '< <)
+(fset '> >)
+(fset '<= <=)
+(fset '>= >=)

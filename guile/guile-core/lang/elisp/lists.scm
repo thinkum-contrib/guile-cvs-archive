@@ -1,5 +1,6 @@
 (define-module (lang elisp lists)
-  #:use-module (lang elisp fset))
+  #:use-module (lang elisp fset)
+  #:use-module (lang elisp signal))
 
 (let ((null (lambda (l)
 	      (or (not l)
@@ -30,6 +31,11 @@
 	  (or (eq? x y)
 	      (and (null x) (null y)))))
 
+  (fset 'equal
+	(lambda (x y)
+	  (or (equal? x y)
+	      (and (null x) (null y)))))
+
   (fset 'setcar set-car!)
 
   (fset 'setcdr
@@ -50,5 +56,21 @@
 			      (proc elt list))))))
 	    '( memq  member  assq  assoc)
 	    `(,memq ,member ,assq ,assoc))
+
+  (fset 'length
+	(lambda (x)
+	  (cond ((null x) 0)
+		((pair? x) (length x))
+		((vector? x) (vector-length x))
+		((string? x) (string-length x))
+		(else (wta x 1)))))
+
+  (fset 'elt
+	(lambda (obj i)
+	  (cond ((pair? obj) (list-ref obj i))
+		((vector? obj) (vector-ref obj i))
+		((string? obj) (char->integer (string-ref obj i))))))
+
+  (fset 'list list)
 
 )

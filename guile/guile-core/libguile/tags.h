@@ -456,12 +456,10 @@ extern char *scm_isymnames[];   /* defined in print.c */
 /* Multi-language support */
 
 #define SCM_IM_NIL_COND		SCM_MAKISYM (25)
-#define SCM_IM_NIL_IFY		SCM_MAKISYM (26)
-#define SCM_IM_T_IFY		SCM_MAKISYM (27)
-#define SCM_IM_BIND		SCM_MAKISYM (28)
+#define SCM_IM_BIND		SCM_MAKISYM (26)
 
-#define SCM_IM_DELAY		SCM_MAKISYM (29)
-#define SCM_IM_CALL_WITH_VALUES SCM_MAKISYM (30)
+#define SCM_IM_DELAY		SCM_MAKISYM (27)
+#define SCM_IM_CALL_WITH_VALUES SCM_MAKISYM (28)
 
 /* When a variable is unbound this is marked by the SCM_UNDEFINED
  * value.  The following is an unbound value which can be handled on
@@ -472,7 +470,7 @@ extern char *scm_isymnames[];   /* defined in print.c */
  * used instead.  It is not ideal to let this kind of unique and
  * strange values loose on the Scheme level.
  */
-#define SCM_UNBOUND		SCM_MAKIFLAG (31)
+#define SCM_UNBOUND		SCM_MAKIFLAG (29)
 
 #define SCM_UNBNDP(x)		(SCM_EQ_P ((x), SCM_UNDEFINED))
 

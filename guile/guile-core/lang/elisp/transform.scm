@@ -1,4 +1,5 @@
 (define-module (lang elisp transform)
+  #:use-module (lang elisp trace)
   #:use-module (ice-9 session)
   #:export (transformer))
 
@@ -167,24 +168,22 @@
 						    `(if (> num-args
 							    ,(+ num-required
 								num-optional))
-							 (nil-ify (list-tail args
-									     ,(+ num-required
-										 num-optional)))
+							 (list-tail args
+								    ,(+ num-required
+									num-optional))
 							 #f)))
 					'()))
 			   ,@(transform-list (cddr exp)))))))
 	))))
 
 (define (m-defun exp env)
-  (display (list 'defun (cadr exp)))
-  (newline)
+  (trc 'defun (cadr exp))
   `(begin (@fop fset ',(cadr exp)
 		,(transform-lambda (cdr exp)))
 	  ',(cadr exp)))
 
 (define (m-defmacro exp env)
-  (display (list 'defmacro (cadr exp)))
-  (newline)
+  (trc 'defmacro (cadr exp))
   (call-with-values (lambda () (parse-formals (caddr exp)))
     (lambda (required optional rest)
       (let ((num-required (length required))
@@ -192,8 +191,7 @@
 	`(begin (@fop fset ',(cadr exp)
 		      (procedure->memoizing-macro
 		       (lambda (exp1 env1)
-			 (display (list 'using ',(cadr exp)))
-			 (newline)
+			 (,trc 'using ',(cadr exp))
 			 (let* ((args (cdr exp1))
 				(num-args (length args)))
 			   (cond ((< num-args ,num-required)
@@ -219,9 +217,9 @@
 								  `(if (> num-args
 									  ,(+ num-required
 									      num-optional))
-								       (nil-ify (list-tail args
-											   ,(+ num-required
-											       num-optional)))
+								       (list-tail args
+										  ,(+ num-required
+										      num-optional))
 								       #f)))
 						      '()))
 					 ,@(transform-list (cdddr exp)))))))))))))))
@@ -258,8 +256,7 @@
 
 (define (m-let exp env)
   `(@bind ,(map (lambda (binding)
-		  (write (list 'let binding))
-		  (newline)
+		  (trc 'let binding)
 		  (if (pair? binding)
 		      `(,(car binding) ,(transformer (cadr binding)))
 		      `(,binding #f)))
@@ -358,8 +355,7 @@
 		   #f)))
 
 (define (m-defvar exp env)
-  (display (list 'defvar (cadr exp)))
-  (newline)
+  (trc 'defvar (cadr exp))
   (if (null? (cddr exp))
       `',(cadr exp)
       `(begin (if (not (defined? ',(cadr exp)))
@@ -367,8 +363,7 @@
 	      ',(cadr exp))))
 
 (define (m-defconst exp env)
-  (display (list 'defconst (cadr exp)))
-  (newline)
+  (trc 'defconst (cadr exp))
   `(begin (,macro-setq ,(cadr exp) ,(caddr exp))
 	  ',(cadr exp)))
 
