@@ -16,6 +16,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+extern SCM scm_gtkthreads_update (void);
+
 extern void scm_init_gtkthreads (void);
 extern void scm_init_gthread (void);
 extern void scm_init_gtk_guilegtkthreads_module (void);
