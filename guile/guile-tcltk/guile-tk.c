@@ -49,7 +49,7 @@
 
 
 SCM_PROC(s_init_main_window, "tk-init-main-window", 4, 0, 0, scm_init_main_window);
-SCM scm_init_main_window PROTO ((SCM tobj, SCM display, SCM name, SCM class));
+SCM scm_init_main_window SCM_P ((SCM tobj, SCM display, SCM name, SCM class));
 SCM
 scm_init_main_window (tobj, display, name, class)
      SCM tobj;
@@ -90,7 +90,7 @@ scm_init_main_window (tobj, display, name, class)
 
 
 SCM_PROC(s_do_one_event, "tk-do-one-event", 1, 0, 0, scm_do_one_event);
-SCM scm_do_one_event PROTO ((SCM flags));
+SCM scm_do_one_event SCM_P ((SCM flags));
 SCM
 scm_do_one_event (flags)
      SCM flags;
@@ -104,7 +104,7 @@ scm_do_one_event (flags)
 }
 
 SCM_PROC(s_main_loop, "tk-main-loop", 0, 0, 0, scm_main_loop);
-SCM scm_main_loop PROTO ((void));
+SCM scm_main_loop SCM_P ((void));
 SCM
 scm_main_loop ()
 {
@@ -116,7 +116,7 @@ scm_main_loop ()
 
 
 SCM_PROC(s_num_main_windows, "tk-num-main-windows", 0, 0, 0, scm_num_main_windows);
-SCM scm_num_main_windows PROTO ((void));
+SCM scm_num_main_windows SCM_P ((void));
 SCM
 scm_num_main_windows ()
 {
@@ -124,7 +124,7 @@ scm_num_main_windows ()
 }
 
 
-void scm_init_gtk PROTO ((void));
+void scm_init_gtk SCM_P ((void));
 void
 scm_init_gtk ()
 {
