@@ -1,4 +1,4 @@
-# Makefile.in generated automatically by automake 1.1l from Makefile.am
+# Makefile.in generated automatically by automake 1.1n from Makefile.am
 
 # Copyright (C) 1994, 1995, 1996 Free Software Foundation, Inc.
 # This Makefile.in is free software; the Free Software Foundation
@@ -32,32 +32,44 @@ pkgincludedir = $(includedir)/@PACKAGE@
 
 top_builddir = .
 
+ACLOCAL = @ACLOCAL@
+AUTOCONF = @AUTOCONF@
+AUTOMAKE = @AUTOMAKE@
+AUTOHEADER = @AUTOHEADER@
+
 INSTALL = @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 transform = @program_transform_name@
-host_triplet = @host@
+
+NORMAL_INSTALL = true
+PRE_INSTALL = true
+POST_INSTALL = true
+NORMAL_UNINSTALL = true
+PRE_UNINSTALL = true
+POST_UNINSTALL = true
 host_alias = @host_alias@
+host_triplet = @host@
+CC = @CC@
+GTCLTK = @GTCLTK@
 LIBTOOL = @LIBTOOL@
+MAINT = @MAINT@
+PACKAGE = @PACKAGE@
+RANLIB = @RANLIB@
+TCL_EXTRA_LIBS = @TCL_EXTRA_LIBS@
 VERSION = @VERSION@
 module = @module@
-CC = @CC@
-RANLIB = @RANLIB@
-MAINT = @MAINT@
-GTCLTK = @GTCLTK@
-INSTALL_SCRIPT = @INSTALL_SCRIPT@
-PACKAGE = @PACKAGE@
-TCL_EXTRA_LIBS = @TCL_EXTRA_LIBS@
 
 AUTOMAKE_OPTIONS = foreign
 
 INCLUDES = -I$(srcdir)/../libguile -I$(srcdir)/.. -I../
 
-lib_PROGRAMS = @GTCLTK@
-EXTRA_PROGRAMS = libgtcltk.la
+lib_LTLIBRARIES = @GTCLTK@
+EXTRA_LTLIBRARIES = libgtcltk.la
 
-libgtcltk_la_SOURCES = guile-tcl.c guile-tk.c guile-tcl.h guile-tk.h gtcltk-module.c
+libgtcltk_la_SOURCES = guile-tcl.c guile-tk.c guile-tcl.h guile-tk.h \
+	gtcltk-module.c
 libgtcltk_la_LDFLAGS = -version-info 0:0 -rpath $(libdir)
 
 SUFFIXES = .x
@@ -65,10 +77,10 @@ SUFFIXES = .x
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $(X_CFLAGS)
 
 MKDEP = gcc -M -MG $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $(X_CFLAGS)
-ACLOCAL = $(top_srcdir)/aclocal.m4
+ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/../mkinstalldirs
 CONFIG_CLEAN_FILES = 
-PROGRAMS =  $(lib_PROGRAMS)
+LTLIBRARIES =  $(lib_LTLIBRARIES)
 
 
 DEFS = @DEFS@ -I. -I$(srcdir) 
@@ -79,18 +91,19 @@ X_CFLAGS = @X_CFLAGS@
 X_LIBS = @X_LIBS@
 X_EXTRA_LIBS = @X_EXTRA_LIBS@
 X_PRE_LIBS = @X_PRE_LIBS@
+libgtcltk_la_LIBADD = 
 libgtcltk_la_OBJECTS =  guile-tcl.lo guile-tk.lo gtcltk-module.lo
-libgtcltk_la_LDADD = $(LDADD)
 CFLAGS = @CFLAGS@
+LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
 LINK = $(LIBTOOL) --mode=link $(CC) $(LDFLAGS) -o $@
 DIST_COMMON =  COPYING ChangeLog Makefile.am Makefile.in aclocal.m4 \
 configure configure.in
 
 
-DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) \
-	$(TEXINFOS) $(MANS) $(EXTRA_DIST)
+DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
+GZIP = --best
 DEP_FILES =  .deps/gtcltk-module.P .deps/guile-tcl.P .deps/guile-tk.P
 SOURCES = $(libgtcltk_la_SOURCES)
 OBJECTS = $(libgtcltk_la_OBJECTS)
@@ -99,43 +112,44 @@ default: all
 
 .SUFFIXES:
 .SUFFIXES: .c .o .lo .x
-$(srcdir)/Makefile.in: @MAINT@ Makefile.am $(top_srcdir)/configure.in $(ACLOCAL) 
-	cd $(top_srcdir) && automake --foreign Makefile
+$(srcdir)/Makefile.in: @MAINT@ Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
+	cd $(top_srcdir) && $(AUTOMAKE) --foreign Makefile
 
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status $(BUILT_SOURCES)
 	cd $(top_builddir) \
 	  && CONFIG_FILES=$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
-$(srcdir)/aclocal.m4: @MAINT@configure.in
-	cd $(srcdir) && aclocal
+$(srcdir)/aclocal.m4: @MAINT@ configure.in 
+	cd $(srcdir) && $(ACLOCAL)
 
 config.status: configure
 	$(SHELL) ./config.status --recheck
-$(srcdir)/configure: @MAINT@configure.in $(ACLOCAL) $(CONFIGURE_DEPENDENCIES)
-	cd $(srcdir) && autoconf
+$(srcdir)/configure: @MAINT@configure.in $(ACLOCAL_M4) $(CONFIGURE_DEPENDENCIES)
+	cd $(srcdir) && $(AUTOCONF)
 
-mostlyclean-libPROGRAMS:
+mostlyclean-libLTLIBRARIES:
 
-clean-libPROGRAMS:
-	test -z "$(lib_PROGRAMS)" || rm -f $(lib_PROGRAMS)
+clean-libLTLIBRARIES:
+	test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
 
-distclean-libPROGRAMS:
+distclean-libLTLIBRARIES:
 
-maintainer-clean-libPROGRAMS:
+maintainer-clean-libLTLIBRARIES:
 
-install-libPROGRAMS: $(lib_PROGRAMS)
-	$(NORMAL_INSTALL)
+install-libLTLIBRARIES: $(lib_LTLIBRARIES)
+	@$(NORMAL_INSTALL)
 	$(mkinstalldirs) $(libdir)
-	@list="$(lib_PROGRAMS)"; for p in $$list; do \
+	@list='$(lib_LTLIBRARIES)'; for p in $$list; do \
 	  if test -f $$p; then \
-	    echo "$(LIBTOOL) --mode=install $(INSTALL_PROGRAM) $$p $(libdir)/$$p"; \
-	    $(LIBTOOL) --mode=install $(INSTALL_PROGRAM) $$p $(libdir)/$$p; \
+	    echo "$(LIBTOOL)  --mode=install $(INSTALL_PROGRAM) $$p $(libdir)/$$p"; \
+	    $(LIBTOOL)  --mode=install $(INSTALL_PROGRAM) $$p $(libdir)/$$p; \
 	  else :; fi; \
 	done
 
-uninstall-libPROGRAMS:
-	list="$(lib_PROGRAMS)"; for p in $$list; do \
-	  $(LIBTOOL) --mode=uninstall rm -f $(libdir)/$$p; \
+uninstall-libLTLIBRARIES:
+	$(NORMAL_UNINSTALL)
+	list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  $(LIBTOOL)  --mode=uninstall rm -f $(libdir)/$$p; \
 	done
 
 .c.o:
@@ -165,7 +179,7 @@ distclean-libtool:
 maintainer-clean-libtool:
 
 libgtcltk.la: $(libgtcltk_la_OBJECTS) $(libgtcltk_la_DEPENDENCIES)
-	$(LINK) $(libgtcltk_la_LDFLAGS) $(libgtcltk_la_OBJECTS) $(libgtcltk_la_LDADD) $(LIBS)
+	$(LINK)  $(libgtcltk_la_LDFLAGS) $(libgtcltk_la_OBJECTS) $(libgtcltk_la_LIBADD) $(LIBS)
 
 tags: TAGS
 
@@ -175,11 +189,11 @@ ID: $(HEADERS) $(SOURCES)
 TAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES)
 	tags=; \
 	here=`pwd`; \
-	list="$(SUBDIRS)"; for subdir in $$list; do \
+	list='$(SUBDIRS)'; for subdir in $$list; do \
 	  test -f $$subdir/TAGS && tags="$$tags -i $$here/$$subdir/TAGS"; \
 	done; \
 	test -z "$(ETAGS_ARGS)$(SOURCES)$(HEADERS)$$tags" \
-	  || cd $(srcdir) && etags $(ETAGS_ARGS) $$tags  $(SOURCES) $(HEADERS) -o $$here/TAGS
+	  || (cd $(srcdir) && etags $(ETAGS_ARGS) $$tags  $(SOURCES) $(HEADERS) -o $$here/TAGS)
 
 mostlyclean-tags:
 
@@ -196,7 +210,7 @@ distdir = $(PACKAGE)-$(VERSION)
 # tarfile.
 distcheck: dist
 	rm -rf $(distdir)
-	$(TAR) zxf $(distdir).tar.gz
+	GZIP=$(GZIP) $(TAR) zxf $(distdir).tar.gz
 	mkdir $(distdir)/=build
 	mkdir $(distdir)/=inst
 	dc_install_base=`cd $(distdir)/=inst && pwd`; \
@@ -214,11 +228,11 @@ distcheck: dist
 	echo "========================"
 dist: distdir
 	-chmod -R a+r $(distdir)
-	$(TAR) chozf $(distdir).tar.gz $(distdir)
+	GZIP=$(GZIP) $(TAR) chozf $(distdir).tar.gz $(distdir)
 	rm -rf $(distdir)
 dist-all: distdir
 	-chmod -R a+r $(distdir)
-	$(TAR) chozf $(distdir).tar.gz $(distdir)
+	GZIP=$(GZIP) $(TAR) chozf $(distdir).tar.gz $(distdir)
 	rm -rf $(distdir)
 distdir: $(DISTFILES)
 	rm -rf $(distdir)
@@ -226,7 +240,7 @@ distdir: $(DISTFILES)
 	-chmod 755 $(distdir)
 	here=`pwd`; distdir=`cd $(distdir) && pwd` \
 	  && cd $(srcdir) \
-	  && automake --include-deps --build-dir=$$here --srcdir-name=$(srcdir) --output-dir=$$distdir --foreign
+	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(srcdir) --output-dir=$$distdir --foreign
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  test -f $(distdir)/$$file \
@@ -253,24 +267,24 @@ maintainer-clean-depend:
 	@echo "Computing dependencies for $<..."
 	@o='o';				\
 	test -n "$o" && o='$$o';	\
-	$(MKDEP) $< | sed "s/^\(.*\)\.o:/\1.$$o \1.l$$o:/" > $@
+	$(MKDEP) $< | sed "s,^\(.*\)\.o:,\1.$$o \1.l$$o $@:," > $@
 info:
 dvi:
 check: all
 	$(MAKE)
 installcheck:
-install-exec: install-libPROGRAMS
-	$(NORMAL_INSTALL)
+install-exec: install-libLTLIBRARIES
+	@$(NORMAL_INSTALL)
 
 install-data: 
-	$(NORMAL_INSTALL)
+	@$(NORMAL_INSTALL)
 
 install: install-exec install-data all
 	@:
 
-uninstall: uninstall-libPROGRAMS
+uninstall: uninstall-libLTLIBRARIES
 
-all: $(PROGRAMS) Makefile
+all: $(LTLIBRARIES) Makefile
 
 install-strip:
 	$(MAKE) INSTALL_PROGRAM='$(INSTALL_PROGRAM) -s' install
@@ -292,37 +306,37 @@ distclean-generic:
 maintainer-clean-generic:
 	test -z "$(MAINTAINERCLEANFILES)" || rm -f $(MAINTAINERCLEANFILES)
 	test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
-mostlyclean:  mostlyclean-libPROGRAMS mostlyclean-compile \
+mostlyclean:  mostlyclean-libLTLIBRARIES mostlyclean-compile \
 		mostlyclean-libtool mostlyclean-tags mostlyclean-depend \
 		mostlyclean-generic
 
-clean:  clean-libPROGRAMS clean-compile clean-libtool clean-tags \
+clean:  clean-libLTLIBRARIES clean-compile clean-libtool clean-tags \
 		clean-depend clean-generic mostlyclean
 
-distclean:  distclean-libPROGRAMS distclean-compile distclean-libtool \
+distclean:  distclean-libLTLIBRARIES distclean-compile distclean-libtool \
 		distclean-tags distclean-depend distclean-generic clean
 	rm -f config.status
 	rm -f libtool
 
-maintainer-clean:  maintainer-clean-libPROGRAMS maintainer-clean-compile \
-		maintainer-clean-libtool maintainer-clean-tags \
-		maintainer-clean-depend maintainer-clean-generic \
-		distclean
+maintainer-clean:  maintainer-clean-libLTLIBRARIES \
+		maintainer-clean-compile maintainer-clean-libtool \
+		maintainer-clean-tags maintainer-clean-depend \
+		maintainer-clean-generic distclean
 	@echo "This command is intended for maintainers to use;"
 	@echo "it deletes files that may require special tools to rebuild."
 	rm -f config.status
 
-.PHONY: default mostlyclean-libPROGRAMS distclean-libPROGRAMS \
-clean-libPROGRAMS maintainer-clean-libPROGRAMS uninstall-libPROGRAMS \
-install-libPROGRAMS mostlyclean-compile distclean-compile clean-compile \
-maintainer-clean-compile mostlyclean-libtool distclean-libtool \
-clean-libtool maintainer-clean-libtool tags mostlyclean-tags \
-distclean-tags clean-tags maintainer-clean-tags distdir \
-mostlyclean-depend distclean-depend clean-depend \
-maintainer-clean-depend info dvi installcheck install-exec install-data \
-install uninstall all installdirs mostlyclean-generic distclean-generic \
-clean-generic maintainer-clean-generic clean mostlyclean distclean \
-maintainer-clean
+.PHONY: default mostlyclean-libLTLIBRARIES distclean-libLTLIBRARIES \
+clean-libLTLIBRARIES maintainer-clean-libLTLIBRARIES \
+uninstall-libLTLIBRARIES install-libLTLIBRARIES mostlyclean-compile \
+distclean-compile clean-compile maintainer-clean-compile \
+mostlyclean-libtool distclean-libtool clean-libtool \
+maintainer-clean-libtool tags mostlyclean-tags distclean-tags \
+clean-tags maintainer-clean-tags distdir mostlyclean-depend \
+distclean-depend clean-depend maintainer-clean-depend info dvi \
+installcheck install-exec install-data install uninstall all \
+installdirs mostlyclean-generic distclean-generic clean-generic \
+maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
 .c.x:
 	../libguile/guile-snarf $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $< > $@
