@@ -5071,6 +5071,12 @@ Returns @code{#t} if @var{x} is an output port, otherwise returns
 @code{port?}.
 @end deffn
 
+@c docstring begin (texi-doc-string "guile" "port?")
+@deffn primitive port? x
+Returns a boolean indicating whether @var{x} is a port.
+Equivalent to @code{(or (input-port? X) (output-port? X))}.
+@end deffn
+
 @c docstring begin (texi-doc-string "guile" "port-closed?")
 @deffn primitive port-closed? port
 Returns @code{#t} if @var{port} is closed or @code{#f} if it is open.
