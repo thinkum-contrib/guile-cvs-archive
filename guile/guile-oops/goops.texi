@@ -14,11 +14,11 @@
 * goops: (goops).          The GOOPS reference manual.
 @end direntry
 
-@macro goops                    @c was {\stklos}
+@macro goops
 GOOPS
 @end macro
 
-@macro guile                    @c was {\stk}
+@macro guile
 Guile
 @end macro
 
