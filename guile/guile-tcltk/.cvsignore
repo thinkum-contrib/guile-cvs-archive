@@ -1,12 +1,13 @@
+*.la
+*.lo
+*.o
+*.x
 .deps
 .libs
 Makefile
+confdefs.h
 config.cache
 config.log
 config.status
 guile-tcltk
 libtool
-*.x
-*.o
-*.lo
-*.la

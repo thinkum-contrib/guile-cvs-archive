@@ -1,3 +1,29 @@
+Mon May  5 17:25:25 1997  Jim Blandy  <jimb@floss.cyclic.com>
+
+	Make the Guile/Tcl/Tk glue library a separate module.
+	* Makefile.am: (EXTRA_LTLIBRARIES): Deleted; nothing is optional
+	any more.
+	(lib_LTLIBRARIES): Move libgtcltk.la to here, since it's always
+	built.
+	(bin_PROGRAMS): New program: guile-tcltk.
+	(guile_tcltk_LDADD): List the libraries we have to link it against.
+	(INCLUDES): Deleted.  We use the installed headers now.
+	(SNARF): Deleted.  We use the installed snarfer now.
+	* configure.in (AM_INIT_AUTOMAKE): Call this, instead of ...
+	(AC_INIT_GUILE_MODULE): ... this.
+	(AM_MAINTAINER_MODE): Deleted; not needed.
+	(AC_ARG_WITH): Fix option name from "tcl" to "tk".
+ 	(AC_PATH_X): Removed; AC_PATH_XTRA is a superset of it.  Put the
+	cflags and libs we find directly in CFLAGS and LIBS.
+	Nothing is optional any more; require that Tcl, Tk, and Guile be
+	installed.  Don't look for SNARF; just use the installed snarfer.
+	Don't create plugin files.
+	(AC_FUNC_ALLOCA): Don't check for this.
+	* guile-tcl.c, guile-tcl.h, guile-tk.c, guile-tk.h: Just #include
+	<libguile.h>, don't try to grab a bunch of internal stuff.
+	* guile-tcltk.c: New file, built into the installed executable.
+	* Makefile.in, aclocal.m4, configure: Degeneraret.
+
 Fri Apr 11 20:09:14 1997  Jim Blandy  <jimb@floss.cyclic.com>
 
 	Don't run the snarfer if Tcl/Tk support isn't enabled.
