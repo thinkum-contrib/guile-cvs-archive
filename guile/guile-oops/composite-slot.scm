@@ -31,8 +31,7 @@
 
 (export <composite-class>)
 
-(define-class <composite-class> (<class>)
-  ())
+(define-class <composite-class> (<class>))
 
 (define-method compute-get-n-set ((class <composite-class>) slot)
   (if (eq? (slot-definition-allocation slot) #:propagated)

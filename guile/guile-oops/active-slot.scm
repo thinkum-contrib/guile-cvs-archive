@@ -31,8 +31,7 @@
 
 (export <active-class>)
 
-(define-class <active-class> (<class>)
-  ())
+(define-class <active-class> (<class>))
 
 (define-method compute-get-n-set ((class <active-class>) slot)
   (if (eq? (slot-definition-allocation slot) #:active)
