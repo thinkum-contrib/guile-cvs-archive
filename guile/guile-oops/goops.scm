@@ -84,7 +84,7 @@
 ;;
 (define (goops-error format-string . args)
   (save-stack)
-  (scm-error 'goops-error #f format-string args '()))
+  (scm-error 'goops-error #f (oldfmt format-string) args '()))
 
 ;;
 ;; is-a?
@@ -266,7 +266,7 @@
 	  (cond ((not (and (list? exp) (>= (length exp) 2)))
 		 (goops-error "missing or extra expression"))
 		((not (list? (supers exp)))
-		 (goops-error "malformed superclass list: %S" (supers exp)))
+		 (goops-error "malformed superclass list: ~S" (supers exp)))
 		(else
 		 (let ((slot-defs (cons #f '())))
 		   (do ((slots (slots exp) (cdr slots))
@@ -310,10 +310,10 @@
       (let ((tmp1 (find-duplicate supers))
 	    (tmp2 (find-duplicate (map slot-definition-name slots))))
 	(if tmp1
-	    (goops-error "make-class: super class %S is duplicate in class %S"
+	    (goops-error "make-class: super class ~S is duplicate in class ~S"
 			 tmp1 name))
 	(if tmp2
-	    (goops-error "make-class: slot %S is duplicate in class %S"
+	    (goops-error "make-class: slot ~S is duplicate in class ~S"
 			 tmp2 name)))
 
       ;; Everything seems correct, build the class
@@ -333,7 +333,7 @@
     (lambda (exp env)
       (let ((name (cadr exp)))
 	(cond ((not (symbol? name))
-	       (goops-error "bad generic function name: %S" name))
+	       (goops-error "bad generic function name: ~S" name))
 	      ((defined? name env)
 	       `(define ,name
 		  (if (is-a? ,name <generic>)
@@ -363,7 +363,7 @@
     (lambda (exp env)
       (let ((name (cadr exp)))
 	(cond ((not (symbol? name))
-	       (goops-error "bad accessor name: %S" name))
+	       (goops-error "bad accessor name: ~S" name))
 	      ((defined? name env)
 	       `(define ,name
 		  (if (and (is-a? ,name <generic-with-setter>)
@@ -427,7 +427,7 @@
 		 (null? (cddr name)))
 	    (let ((name (cadr name)))
 	      (cond ((not (symbol? name))
-		     (goops-error "bad method name: %S" name))
+		     (goops-error "bad method name: ~S" name))
 		    ((defined? name env)
 		     `(begin
 			;; *fixme* Temporary hack for the current module system
@@ -439,7 +439,7 @@
 			(define-accessor ,name)
 			(add-method! (setter ,name) (method ,@(cddr exp)))))))
 	    (cond ((not (symbol? name))
-		   (goops-error "bad method name: %S" name))
+		   (goops-error "bad method name: ~S" name))
 		  ((defined? name env)
 		   `(begin
 		      ;; *fixme* Temporary hack for the current module system
@@ -547,7 +547,7 @@
   (add-method! (primitive-generic-generic pg) m))
 
 (define-method add-method! (obj (m <method>))
-  (goops-error "%S is not a valid generic function" obj))
+  (goops-error "~S is not a valid generic function" obj))
 
 ;;;
 ;;; {Access to meta objects}
@@ -732,19 +732,19 @@
   ((cadr (class-slot-g-n-s class slot)) #f value))
 
 (define-method slot-unbound ((c <class>) (o <object>) s)
-  (goops-error "Slot `%S' is unbound in object %S" s o))
+  (goops-error "Slot `~S' is unbound in object ~S" s o))
 
 (define-method slot-unbound ((c <class>) s)
-  (goops-error "Slot `%S' is unbound in class %S" s c))
+  (goops-error "Slot `~S' is unbound in class ~S" s c))
 
 (define-method slot-unbound ((o <object>))
-  (goops-error "Unbound slot in object %S" o))
+  (goops-error "Unbound slot in object ~S" o))
 
 (define-method slot-missing ((c <class>) (o <object>) s)
-  (goops-error "No slot with name `%S' in object %S" s o))
+  (goops-error "No slot with name `~S' in object ~S" s o))
   
 (define-method slot-missing ((c <class>) s)
-  (goops-error "No class slot with name `%S' in class %S" s c))
+  (goops-error "No class slot with name `~S' in class ~S" s c))
   
 
 (define-method slot-missing ((c <class>) (o <object>) s value)
@@ -753,14 +753,14 @@
 ;;; Methods for the possible error we can encounter when calling a gf
 
 (define-method no-next-method ((gf <generic>) args)
-  (goops-error "No next method when calling %S\nwith arguments %S" gf args))
+  (goops-error "No next method when calling ~S\nwith arguments ~S" gf args))
 
 (define-method no-applicable-method ((gf <generic>) args)
-  (goops-error "No applicable method for %S in call %S"
+  (goops-error "No applicable method for ~S in call ~S"
 	       gf (cons (generic-function-name gf) args)))
 
 (define-method no-method ((gf <generic>) args)
-  (goops-error "No method defined for %S"  gf))
+  (goops-error "No method defined for ~S"  gf))
 
 ;;;
 ;;; {Cloning functions (from rdeline@CS.CMU.EDU)}
@@ -999,11 +999,11 @@
 	      (set (cadr l)))
 	  (if (not (and (closure? get)
 			(= (car (procedure-property get 'arity)) 1)))
-	      (goops-error "Bad getter closure for slot `%S' in %S: %S"
+	      (goops-error "Bad getter closure for slot `~S' in ~S: ~S"
 			   slot class get))
 	  (if (not (and (closure? set)
 			(= (car (procedure-property set 'arity)) 2)))
-	    (goops-error "Bad setter closure for slot `%S' in %S: %S"
+	    (goops-error "Bad setter closure for slot `~S' in ~S: ~S"
 			 slot class set)))))
 
   (map (lambda (s)
@@ -1177,7 +1177,7 @@
 	   (set (get-keyword #:slot-set! (slot-definition-options s) #f))
 	   (env (class-environment class)))
        (if (not (and get set))
-	   (goops-error "You must supply a :slot-ref and a :slot-set! in %S"
+	   (goops-error "You must supply a :slot-ref and a :slot-set! in ~S"
 			s))
        (list get set)))
     (else    (next-method))))
@@ -1188,7 +1188,7 @@
 	  (lambda (o v) (set! shared-variable v)))))
 
 (define-method compute-get-n-set ((o <object>) s)
-  (goops-error "Allocation \"%S\" is unknown" (slot-definition-allocation s)))
+  (goops-error "Allocation \"~S\" is unknown" (slot-definition-allocation s)))
 
 (define-method compute-slots ((class <class>))
   (%compute-slots class))
