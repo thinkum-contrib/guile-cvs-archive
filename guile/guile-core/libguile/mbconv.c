@@ -221,6 +221,7 @@ scm_mb_iconv_open (const char *tocode, const char *fromcode)
 	       text_unknown_encoding_msg, args, args);
   }
 
+  /* Never reached.  */
   return 0;
 }
 
@@ -298,42 +299,43 @@ scm_mb_iconv (struct scm_mb_iconv *context,
       return ours->from->reset (ours->from_data, 0, 0);
     }
 
-  if (! outbuf || *outbytesleft <= 0)
-    return scm_mb_iconv_more_room;
-
   /* Oh!  We actually have some *TEXT* to convert!  Not bureaucracy!!!  */
-  while (*inbytesleft > 0)
+  while (*inbytesleft > 0 || ours->valid > 0)
     {
+      if (! outbuf || *outbytesleft <= 0)
+	return scm_mb_iconv_more_room;
+
       /* Convert as many characters as possible from the input buffer
 	 into the intermediate scm_char_t buffer.  */
-      {
-	scm_char_t *buf = ours->buffer + ours->valid;
-	size_t buf_left = ours->size - ours->valid;
-	enum scm_mb_read_result read_result
-	  = ours->from->read (ours->from_data, inbuf, inbytesleft,
-			      &buf, &buf_left);
-	ours->valid = ours->size - buf_left;
+      if (*inbytesleft > 0)
+	{
+	  scm_char_t *buf = ours->buffer + ours->valid;
+	  size_t buf_left = ours->size - ours->valid;
+	  enum scm_mb_read_result read_result
+	    = ours->from->read (ours->from_data, inbuf, inbytesleft,
+				&buf, &buf_left);
+	  ours->valid = ours->size - buf_left;
 
-	if (*inbytesleft < 0)
-	  abort ();
-
-	switch (read_result)
-	  {
-	  case scm_mb_read_ok:
-	    break;
-	  case scm_mb_read_incomplete:
-	    return scm_mb_iconv_incomplete_encoding;
-	  case scm_mb_read_error:
-	    return scm_mb_iconv_bad_encoding;
-	  default:
+	  if (*inbytesleft < 0)
 	    abort ();
-	  }
-      }
+
+	  switch (read_result)
+	    {
+	    case scm_mb_read_ok:
+	      break;
+	    case scm_mb_read_incomplete:
+	      return scm_mb_iconv_incomplete_encoding;
+	    case scm_mb_read_error:
+	      return scm_mb_iconv_bad_encoding;
+	    default:
+	      abort ();
+	    }
+	}
 
       /* Convert as many characters as possible from the intermediate
          scm_char_t buffer to the output buffer.  */
       {
-	scm_char_t *buf = ours->buffer;
+	const scm_char_t *buf = ours->buffer;
 	size_t buf_left = ours->valid;
 	enum scm_mb_write_result write_result
 	  = ours->to->write (ours->to_data, &buf, &buf_left,
