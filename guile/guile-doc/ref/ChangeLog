@@ -1,3 +1,8 @@
+2001-01-19  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* intro.texi: Change R4RS everywhere to R5RS.
+	(What is Guile?): Change "compiling" to "translating".
+
 2001-01-07  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* appendices.texi (Internals): Content merged into Symbols and

@@ -7,14 +7,14 @@ Guile is an interpreter for the Scheme programming language, packaged
 for use in a wide variety of environments.  Guile implements Scheme as
 described in the
 @tex
-Revised$^4$
+Revised$^5$
 @end tex
 @ifinfo
-Revised^4
+Revised^5
 @end ifinfo
-Report on the Algorithmic Language Scheme (usually known as R4RS),
+Report on the Algorithmic Language Scheme (usually known as R5RS),
 providing clean and general data and control structures.  Guile goes
-beyond the rather austere language presented in R4RS, extending it with
+beyond the rather austere language presented in R5RS, extending it with
 a module system, full access to POSIX system calls, networking support,
 multiple threads, dynamic linking, a foreign function call interface,
 powerful string processing, and many other features needed for
@@ -44,7 +44,7 @@ interfaces, database access routines, compilers, GUI toolkit interfaces,
 and HTTP client functions, among others.
 
 In the future, we hope to expand Guile to support other languages like
-Tcl and Perl by compiling them to Scheme code.  This means that users
+Tcl and Perl by translating them to Scheme code.  This means that users
 can program applications which use Guile in the language of their
 choice, rather than having the tastes of the application's author
 imposed on them.
@@ -163,7 +163,7 @@ The operating system interprets this to mean that the rest of the line
 is the name of an executable that can interpret the script.  Guile,
 however, interprets these characters as the beginning of a multi-line
 comment, terminated by the characters @samp{!#} on a line by themselves.
-(This is an extension to the syntax described in R4RS, added to support
+(This is an extension to the syntax described in R5RS, added to support
 shell scripts.)
 
 @item
@@ -593,7 +593,7 @@ $
 @node Layout of this Manual
 @chapter Layout of this Manual
 
-This manual assumes you know Scheme, as described in R4RS.  From there,
+This manual assumes you know Scheme, as described in R5RS.  From there,
 it describes:
 @table @b
 
@@ -603,7 +603,7 @@ into your own applications, and how to write modules of interpreted and
 compiled code for use with Guile,
 
 @item Part II
-Guile's extensions to the language described in R4RS,
+Guile's extensions to the language described in R5RS,
 
 @item Part III
 how to call Guile from C code, and how to add new functions written in C
