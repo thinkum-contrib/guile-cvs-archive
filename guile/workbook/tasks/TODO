@@ -16,10 +16,21 @@
 - Guile 1.6.1 (branched: only modify items according to ../build/release.txt)
 
 
+- Guile 1.8.0
+
+  - Change the license to LGPL.
+  - Finish and test GMP support for bignums.  If it works out, add it.
+  - consider (and likely use) pkg-config for guile.
+  - add support for srfi-30 (multi-line-comments) - follow std *carefully*.
+
 - Eventually
+
+  - add support for srfi-25 (multi-dimensional arrays).
+    - How do we handle guile's existing support? srfi module overrides?
+    - Should guile's support eventually be a separate module?
+  - Look at new srfis (and add).
   - Allow the deprecation mechanism to be controlled via a preprocessor
     macro analogous to _GNU_SOURCE. [talk to mvo about this]
-  - consider (and likely code) guile using pkg-config
   + also show bidi set-difference counts in api-diff [ttn]
   - write goops test cases in C
   - scan ideas web page and link to implementations
