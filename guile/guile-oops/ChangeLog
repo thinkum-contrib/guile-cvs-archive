@@ -2,7 +2,7 @@
 
 	* goops.scm (internal-add-method!): Bugfix: n-specialized must be
 	larger than the longest specializer list if any specializer list
-	contains a rest argument.  Th fact that a method with rest
+	contains a rest argument.  The fact that a method with rest
 	arguments has been added is now coded in the sign of
 	n-specialized.  (Thanks to Nicolas Neuss.)
 
