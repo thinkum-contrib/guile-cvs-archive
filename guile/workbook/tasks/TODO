@@ -1,6 +1,12 @@
 - Guile 1.4.1
-  - back port ice-9/and-let*.scm naming fix
+  - back port ice-9/and-let*.scm naming fix [ttn]
   +R write TODO summarizer [ttn]
+  - include group membership attributes in guile-api.alist
+    - add filter hook to (mscripts) scan-api
+    - write grouping attributes filter
+    - add doc/Makefile.am MAINTAINER_MODE rule for guile-api.alist
+    - regen guile-api.alist all branches
+  -D update (gscripts) api-diff to be group-aware [ttn]
 
 
 - Guile 1.6
