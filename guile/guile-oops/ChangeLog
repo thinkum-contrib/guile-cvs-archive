@@ -1,7 +1,17 @@
+1999-03-21  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* goops.scm (define-class, class): Change in syntax: Removed the
+	redundant pair of parenthesis around the slot definitions.  (We
+	anyway need to go through the list of slots in both macros, so
+	this change in syntax doesn't introduce any extra cost.)
+
+	* active-slot.scm, composite-slot.scm: Changed to new class syntax.
+
 1999-03-19  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* goops.scm (write-object): New method: More informative printing
 	of methods.
+	(make-method): Exported.
 
 	* Makefile.am (internal.scm, active-slot.scm, composite-slot.scm):
 	Added.
