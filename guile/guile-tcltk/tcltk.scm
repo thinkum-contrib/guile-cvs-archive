@@ -410,7 +410,8 @@
 	     (tcl-type-checks (cdr formals) (+ 1 pos))))))
 
 (define-public tcl-type-converters
-  `( (number 	. 	,(lambda (x) (tcl->number x))) ))		
+  `( (number 	. 	,(lambda (x) (tcl->number x)))
+     (string	.	,(lambda (x) x)) ))
 
 (define (tcl-type-check x)
   (let ((a (assoc (car x) tcl-type-converters)))
