@@ -36,11 +36,6 @@
 ;;; Save OBJECT ... to PORT so that when the data is read and evaluated
 ;;; OBJECT ... are re-created under names NAME ... .
 ;;;
-;;; [OK, I just quickly needed this code, and threw it together.
-;;;  This is not how I think code should look like.
-;;;  I still think it's usefulness motivates its inclusion in GOOPS.
-;;;  Hopefully I can clean it up later.  /mdj]
-;;;
 ;;; To add new read syntax, hang methods on `enumerate!' and
 ;;; `write-readably'.
 ;;;
@@ -52,23 +47,22 @@
 ;;;
 ;;; write-readably OBJECT PORT ENV
 ;;;   Should write a readable representation of OBJECT to PORT.
-;;;   Should call `write-component' (same args) to print each
-;;;   component object.  If `write-component' returns #f, printing
-;;;   failed dure to a circular reference, and you should call
-;;;   `write-circref'.  Use `literal?' to decide if a component
-;;;   is a literal.
+;;;   Should use `write-component' to print each component object.
+;;;   Use `literal?' to decide if a component is a literal.
 ;;;
 ;;; Utilities:
 ;;;
 ;;; enumerate-component! OBJECT ENV
 ;;;
-;;; write-component OBJECT PORT ENV
+;;; write-component OBJECT PATCHER PORT ENV
+;;;   PATCHER is an expression which, when evaluated, stores OBJECT
+;;;   into its current location.
 ;;;
-;;; write-circref OBJECT COMPONENT PATCHER PORT ENV
-;;;   PATCHER is a procedure taking OBJECT and VALUE as arguments,
-;;;   and returning the list representation of a Scheme expression
-;;;   which can set the location in OBJECT containing COMPONENT to
-;;;   VALUE.
+;;;   Example:
+;;;
+;;;     (write-component (car ls) `(set-car! ,ls ,(car ls)) file env)
+;;;
+;;;   write-component is a macro.
 ;;;
 ;;; literal? COMPONENT ENV
 ;;;
@@ -94,13 +88,9 @@
   (write o file) ;doesn't catch bugs, but is much more flexible
   )
 
-(define-method write-readably ((o <null>) file env) (write o file))
-(define-method write-readably ((o <number>) file env) (write o file))
-(define-method write-readably ((o <boolean>) file env) (write o file))
-(define-method write-readably ((o <symbol>) file env) (write o file))
-(define-method write-readably ((o <char>) file env) (write o file))
-(define-method write-readably ((o <string>) file env) (write o file))
-(define-method write-readably ((o <keyword>) file env) (write o file))
+;;;
+;;; Readables
+;;;
 
 (if (or (not (defined? 'readables))
 	(not readables))
@@ -125,7 +115,7 @@
 ;;;
 
 (define-method enumerate! ((o <vector>) env)
-  (or (uniform-vector? o)
+  (or (not (vector? o))
       (let ((literal? #t))
 	(array-for-each (lambda (o)
 			  (if (not (enumerate-component! o env))
@@ -134,7 +124,7 @@
 	literal?)))
 
 (define-method write-readably ((o <vector>) file env)
-  (if (uniform-vector? o)
+  (if (not (vector? o))
       (write o file)
       (let ((n (vector-length o)))
 	(if (zero? n)
@@ -144,23 +134,17 @@
 			   "#("
 			   "(vector ")
 		       file)
-	      (or (write-component (vector-ref o 0) file env)
-		  (write-circref o
-				 (vector-ref o 0)
-				 (lambda (cont comp)
-				   `(vector-set! ,cont 0 ,comp))
-				 file
-				 env))
+	      (write-component (vector-ref o 0)
+			       `(vector-set! ,o 0 ,(vector-ref o 0))
+			       file
+			       env)
 	      (do ((i 1 (+ 1 i)))
 		  ((= i n))
 		(display #\space file)
-		(or (write-component (vector-ref o i) file env)
-		    (write-circref o
-				   (vector-ref o i)
-				   (lambda (cont comp)
-				     `(vector-set! ,cont ,i ,comp))
-				   file
-				   env)))
+		(write-component (vector-ref o i)
+				 `(vector-set! ,o ,i ,(vector-ref o i))
+				 file
+				 env))
 	      (display #\) file))))))
 
 ;;;
@@ -171,9 +155,6 @@
 ;;; most objects, since they take over some of the logic of
 ;;; `write-component'.
 ;;;
-;;; `special-reference?' is used to look ahead
-;;; `push-ref!' is used to push references onto the reference stack
-;;;
 
 (define-method enumerate! ((o <pair>) env)
   (let ((literal? (enumerate-component! (car o) env)))
@@ -181,41 +162,37 @@
 	 literal?)))
 
 (define-method write-readably ((o <pair>) file env)
-  (let ((refs (ref-stack env))
-	(proper? (list? o))
+  (let ((proper? (list? o))
 	(1? (or (not (pair? (cdr o)))
-		(special-reference? (cdr o) env)))
-	(literal? (literal? o env)))
+		(binding? (cdr o) env)))
+	(literal? (literal? o env))
+	(infos '()))
     (display (cond (literal? #\()
 		   (proper? "(list ")
 		   (1? "(cons ")
 		   (else "(list* "))
 	     file)
-    (or (write-component (car o) file env)
-	(write-circref o (car o)
-		       (lambda (o x) `(set-car! ,o ,x))
-		       file env))
-    (do ((ls (cdr o) (cdr ls)))
+    (write-component (car o) `(set-car! ,o ,(car o)) file env)
+    (do ((ls (cdr o) (cdr ls))
+	 (prev o ls))
 	((or (not (pair? ls))
-	     (special-reference? ls env))
+	     (binding? ls env))
 	 (if (not (null? ls))
 	     (begin
 	       (if literal?
 		   (display " ." file))
 	       (display #\space file)
-	       (or (write-component ls file env)
-		   (write-circref (container env) ls
-				  (lambda (o x) `(set-cdr! ,o ,x))
-				  file env))))
+	       (write-component ls `(set-cdr! ,prev ,ls) file env)))
 	 (display #\) file))
-      (push-ref! ls env)
       (display #\space file)
-      (or (write-component (car ls) file env)
-	  (write-circref ls (car ls)
-			 (lambda (o x) `(set-car! ,o ,x))
-			 file env))
+      (set! infos (cons (object-info ls env) infos))
+      (set! (visiting? (car infos)) #t)
+      (write-component (car ls) `(set-car! ,ls ,(car ls)) file env)
       )
-    (set-ref-stack! env refs)))
+    (for-each (lambda (info)
+		(set! (visiting? info) #f))
+	      infos)
+    ))
 
 ;;;
 ;;; Objects
@@ -279,15 +256,11 @@
 		       (let ((val (get o)))
 			 (if (unbound? val)
 			     (display '(make-unbound) file)
-			     (or (write-component val file env)
-				 (write-circref o val
-						(lambda (o x)
-						  (if aname
-						      `(set! (,aname ,o) ,x)
-						      `(slot-set! ,o
-								  ',name
-								  ,x)))
-						file env)))))
+			     (write-component val
+					      (if aname
+						  `(set! (,aname ,o) ,x)
+						  `(slot-set! ,o ',name ,x))
+					      file env))))
 		     class)
     (display #\) file)))
 
@@ -330,199 +303,265 @@
 ;;;
 ;;; Environments
 ;;;
-;;; ENVIRONMENT = (HASH-TABLE REFSTACK TOP-LEVEL BINDING-WRITTEN . BINDINGS)
-;;;
-;;; HASH-KEY = OBJECT
-;;; HASH-DATA = (#t/NAME . LITERAL?)
-;;;
-;;; TOP-LEVEL-KEY = OBJECT
-;;; TOP-LEVEL-DATA = (NAME SETEXPn SETEXPn-1 ...)
-;;;
-;;; BINDING-KEY = NAME
-;;; BINDING-DATA = OBJECT
-;;;
 
-(define (make-env)
-  (list (make-hash-table 61) '() '() #f))
+(define-class <environment> ()
+  (object-info 	  #:accessor object-info
+	       	  #:init-form (make-hash-table 61))
+  (excluded	  #:accessor excluded
+		  #:init-form (make-hash-table 61))
+  (pass-2?	  #:accessor pass-2?
+		  #:init-value #f)
+  (container-info #:accessor container-info)
+  (objects	  #:accessor objects
+		  #:init-value '())
+  (locals	  #:accessor locals
+		  #:init-value '())
+  (stand-ins	  #:accessor stand-ins
+		  #:init-value '())
+  (definitions	  #:accessor definitions
+		  #:init-value '())
+  (patchers	  #:accessor patchers
+		  #:init-value '())
+  )
 
-(define hash-table car)
+(define-method (object-info o env)
+  (hashq-ref (object-info env) o))
 
-;;; The ref-stack is obsolete and should be removed
-;;; root and cointainer should be new fields
-(define ref-stack cadr)
+(define-method ((setter object-info) o env x)
+  (hashq-set! (object-info env) o x))
 
-(define (set-ref-stack! env refs)
-  (set-car! (cdr env) refs))
+(define (excluded? o env)
+  (hashq-get-handle (excluded env) o))
 
-(define (clear-ref-stack! env)
-  (set-car! (cdr env) '()))
+(define (add-patcher! patcher env)
+  (set! (patchers env) (cons patcher (patchers env))))
 
-(define (push-ref! o env)
-  (set-car! (cdr env) (cons o (ref-stack env))))
+(define-class <object-info> ()
+  (visiting? #:accessor visiting?
+	     #:init-value #f)
+  (binding   #:accessor binding
+	     #:init-value #f)
+  (literal?  #:accessor literal?)
+  )
 
-(define (pop-ref! env)
-  (set-car! (cdr env) (cdr (ref-stack env))))
+(define-method (binding o env)
+  (binding (object-info o env)))
 
-(define container caadr)
+(define binding? binding)
 
-(define container-container cadadr)
+(define-method (literal? (info <boolean>))
+  #t)
 
-(define (root env)
-  (car (last-pair (ref-stack env))))
-
-(define (circular-reference? o env)
-  (memq o (ref-stack env)))
-
-(define (fixing-literals! env)
-  (set-car! (cddr env) #f))
-
-(define (fixing-literals? env)
-  (not (caddr env)))
-
-(define top-level caddr)
-
-(define (clear-top-level! env)
-  (set-car! (cddr env) '()))
-
-(define (top-level-add! name o env)
-  (set-car! (cddr env) (cons (list o name) (caddr env))))
-
-(define (add-setexp! setexp env)
-  (let ((entry (cdr (assq (root env) (top-level env)))))
-    (set-cdr! entry (cons setexp (cdr entry)))))
-
-(define (setexps o env)
-  (map (lambda (info)
-	 ((caddr info)
-	  (object->var (car info) env)
-	  (object->var (cadr info) env)))
-       (reverse (cond ((assq o (top-level env)) => cddr)
-		      (else '())))))
-
-(define (writing! var env)
-  (set-car! (cdddr env) var))
-
-(define (writing? var env)
-  (eq? (cadddr env) var))
-
-(define (add-binding! x env)
-  (let ((name (gensym "%o"))
-	(entry (hashq-ref (hash-table env) x)))
-    (set-cdr! (cdddr env) (acons name x (cddddr env)))
-    (set-car! entry name)))
-
-(define (register-binding! x env)
-  (let ((entry (hashq-ref (hash-table env) x)))
-    (or (and entry (car entry))
-	(add-binding! x env))))
-
-(define (bindings env)
-  (cddddr env))
-
-(define (literal? o env)
+(define-method (literal? o env)
   (or (immediate? o)
-      (cdr (hashq-ref (hash-table env) o))))
-
-;;; Only used in setexps
-(define (object->var o env)
-  (cond ((assq o (top-level env)) => cadr)
-	(else (car (hashq-ref (hash-table env) o)))))
-
-(define (special-reference? o env)
-  ;; See write-component
-  (let ((var (car (hashq-ref (hash-table env) o))))
-    (or (and var
-	     (or (eq? o (root env))
-		 (not (assq o (top-level env)))))
-	(and (symbol? var)
-	     (not (writing? var env))))))
+      (excluded? o env)
+      (literal? (object-info o env))))
 
 ;;;
 ;;; Enumeration
 ;;;
 
+;;; Enumeration has two passes.
+;;;
+;;; Pass 1: Detect common substructure, circular references and order
+;;;
+;;; Pass 2: Detect literals
+
 (define (enumerate-component! o env)
-  (cond ((immediate? o)
-	 (enumerate! o env))
+  (cond ((immediate? o) #t)
 	((readable? o) #f)
-	((fixing-literals? env)
-	 (let ((entry (hashq-ref (hash-table env) o)))
-	   ;; handle vars
-	   (if (and (not (null? ref-stack))
-		    (symbol? (car entry)))
-	       #f
-	       (let ((literal? (if (circular-reference? o env)
-				   (cdr entry)
-				   (and (cdr entry)
-					(begin
-					  (push-ref! o env)
-					  (let ((literal? (enumerate! o env)))
-					    (pop-ref! env)
-					    literal?))))))
-		 (set-cdr! entry literal?)
-		 literal?))))
-	((hashq-ref (hash-table env) o)
-	 =>
-	 (lambda (x)
-	   (or (car x)
-	       (and (not (null? (ref-stack env)))
-		    (assq o (top-level env)))
-	       (add-binding! o env))
-	   (and (not (null? (ref-stack env)))
-		(or (eq? o (root env))
-		    (not (assq o (top-level env))))
-		(begin
-		  (or (null? (cdr (ref-stack env))) ;container is root
-		      (begin
-			(register-binding! (container env) env)
-			;(set-cdr! (hashq-ref (hash-table env)
-			;		     (container-container env))
-			;	  #f)
-			))
-		  (if (not (car x))
-		      (set-car! x #t))
-		  #t))))
+	((excluded? o env) #t)
+	((pass-2? env)
+	 (let ((info (object-info o env)))
+	   (if (binding? info)
+	       (not (visiting? info))
+	       (and (enumerate! o env)
+		    (begin
+		      (set! (literal? info) #t)
+		      #t)))))
+	((object-info o env)
+	 => (lambda (info)
+	      (set! (binding info) #t)
+	      (if (visiting? info)
+		  ;; circular reference--mark container
+		  (set! (binding (container-info env)) #t))))
 	(else
-	 (let ((entry (cons #f #f)))
-	   (hashq-set! (hash-table env) o entry)
-	   (push-ref! o env)
-	   (let ((literal? (enumerate! o env)))
-	     (pop-ref! env)
-	     (if literal?
-		 (set-cdr! entry #t))
-	     literal?)))))
+	 (let ((info (make <object-info>)))
+	   (set! (object-info o env) info)
+	   (set! (container-info env) info)
+	   (set! (visiting? info) #t)
+	   (enumerate! o env)
+	   (set! (visiting? info) #f)
+	   (set! (objects env) (cons o (objects env)))))))
 
-(define (write-component o file env)
-  (cond ((immediate? o)
-	 (write-readably o file env)
-	 #t)
-	((readable? o)
-	 (write (readable-expression o) file)
-	 #t)
+(define (write-component-procedure o file env)
+  "Return #f if circular reference"
+  (cond ((immediate? o) (write o file) #t)
+	((readable? o) (write (readable-expression o) file) #t)
+	((excluded? o env))
 	(else
-	 (let ((var (car (hashq-ref (hash-table env) o))))
-	   (cond ((and var
-		       (not (null? (ref-stack env)))
-		       (or (eq? o (root env))
-			   (not (assq o (top-level env)))))
-		  #f)
-		 ((or (boolean? var)
-		      (writing? var env))
-		  (push-ref! o env)
-		  (write-readably o file env)
-		  (pop-ref! env)
-		  #t)
-		 (else
-		  (display var file)
-		  #t))))))
+	 (let ((info (object-info o env)))
+	   (cond ((not (binding? info)) (write-readably o file env) #t)
+		 ((not (eq? (visiting? info) #:defined)) #f) ;forward reference
+		 (else (display (binding info) file) #t))))))
 
-(define (write-circref cont comp setexp file env)
-  (display #f file)
-  (add-setexp! (list cont comp setexp) env))
+;;; write-component OBJECT PATCHER FILE ENV
+;;;
+(define write-component
+  (procedure->memoizing-macro
+    (lambda (exp env)
+      `(or (write-component-procedure ,(cadr exp) ,@(cdddr exp))
+	   (begin
+	     (display #f ,(cadddr exp))
+	     (add-patcher! ,(caddr exp) env))))))
 
 ;;;
 ;;; Main engine
 ;;;
+
+(define binding-name car)
+(define binding-object cdr)
+
+(define (pass-1! alist env)
+  ;; Determine object order and necessary bindings
+  (for-each (lambda (binding)
+	      (enumerate-component! (binding-object binding) env))
+	    alist))
+
+(define (make-local i)
+  (string->symbol (string-append "%o" (number->string i))))
+
+(define (name-bindings! alist env)
+  ;; Name top-level bindings
+  (for-each (lambda (b)
+	      (let ((o (binding-object b)))
+		(if (not (or (immediate? o)
+			     (readable? o)
+			     (excluded? o env)))
+		    (set! (binding (object-info o env))
+			  (binding-name b)))))
+	    alist)
+  ;; Name rest of bindings and create stand-in and definition lists
+  (let loop ((ls (objects env))
+	     (i 0)
+	     (locs '())
+	     (sins '())
+	     (defs '()))
+    (if (null? ls)
+	(begin
+	  (set! (locals env) locs)
+	  (set! (stand-ins env) sins)
+	  (set! (definitions env) defs))
+	(let ((info (object-info (car ls) env)))
+	  (cond ((not (binding? info))
+		 (loop (cdr ls) i locs sins defs))
+		((boolean? (binding info))
+		 (set! (binding info) (make-local i))
+		 (loop (cdr ls)
+		       (+ 1 i)
+		       (cons (car ls) locs)
+		       sins
+		       defs))
+		((null? locs)
+		 (loop (cdr ls)
+		       i
+		       locs
+		       sins
+		       (cons (car ls) defs)))
+		(else
+		 (let ((real-name (binding info)))
+		   (set! (binding info) (make-local i))
+		   (loop (cdr ls)
+			 (+ 1 i)
+			 (cons (car ls) locs)
+			 (acons real-name (binding info) sins)
+			 defs))))))))
+
+(define (pass-2! env)
+  (set! (pass-2? env) #t)
+  (for-each (lambda (o)
+	      (let ((info (object-info o env)))
+		(set! (literal? (object-info o env)) (enumerate! o env))
+		(set! (visiting? info) #:pass-2)))
+	    (append (locals env) (definitions env))))
+
+(define (write-define! name val literal? file)
+  (display "(define " file)
+  (display name file)
+  (display #\space file)
+  (if literal? (display #\' file))
+  (write val file)
+  (display ")\n" file))
+
+(define (write-empty-defines! file env)
+  (for-each (lambda (o)
+	      (write-define! (binding o env) #f #f file))
+	    (definitions env)))
+
+(define (write-definition! prefix o file env)
+  (display prefix file)
+  (let ((info (object-info o env)))
+    (display (binding info) file)
+    (display #\space file)
+    (if (literal? info)
+	(display #\' file))
+    (write-readably o file env)
+    (set! (visiting? info) #:defined)
+    (display #\) file)))
+
+(define (write-let*-head! file env)
+  (display "(let* (" file)
+  (write-definition! "(" (car (locals env)) file env)
+  (for-each (lambda (o)
+	      (write-definition! "\n(" o file env))
+	    (cdr (locals env)))
+  (display ")\n" file))
+
+(define (write-stand-in-patches! file env)
+  (for-each (lambda (patch)
+	      (display "  (set! " file)
+	      (display (car patch) file)
+	      (display #\space file)
+	      (display (cdr patch) file)
+	      (display ")\n" file))
+	    (stand-ins env)))
+
+(define (write-definitions! prefix file env)
+  (for-each (lambda (o)
+	      (write-definition! prefix o file env)
+	      (newline file))
+	    (definitions env)))
+
+(define (write-patches! prefix file env)
+  (for-each (lambda (patch)
+	      (display prefix file)
+	      (display (let name-objects ((patcher patch))
+			 (cond ((object-info patcher env) => binding)
+			       ((pair? patcher)
+				(cons (name-objects (car patcher))
+				      (name-objects (cdr patcher))))
+			       (else patcher)))
+		       file)
+	      (newline file))
+	    (patchers env)))
+
+(define (write-immediates! alist file)
+  (for-each (lambda (b)
+	      (if (immediate? (binding-object b))
+		  (write-define! (binding-name b)
+				 (binding-object b)
+				 #t
+				 file)))
+	    alist))
+
+(define (write-readables! alist file)
+  (for-each (lambda (b)
+	      (if (readable? (binding-object b))
+		  (write-define! (binding-name b)
+				 (readable-expression (binding-object b))
+				 #f
+				 file)))
+	    alist))
 
 (define-method save-objects ((alist <pair>) (file <string>) . rest)
   (let ((port (open-output-file file)))
@@ -531,85 +570,28 @@
 
 (define-method save-objects ((alist <pair>) (file <output-port>) . rest)
   (let ((excluded (if (>= (length rest) 1) (car rest) '()))
-	(uses     (if (>= (length rest) 2) (cadr rest) '()))
-	(env (make-env)))
-    (for-each (lambda (pair)
-		(top-level-add! (car pair) (cdr pair) env)
-		(enumerate-component! (cdr pair) env))
-	      alist)
-    (fixing-literals! env)
-    (for-each (lambda (pair)
-		(enumerate-component! (cdr pair) env))
-	      alist)
-    (if (not (null? uses))
-	(begin
-	  (write `(use-modules ,@uses) file)
-	  (newline file)))
-    (clear-top-level! env)
-    (let ((bindings (bindings env)))
-      (let ((write-binding
-	     (lambda (binding file)
-	       (top-level-add! (car binding) (cdr binding) env)
-	       (display "(" file)
-	       (display (car binding) file)
-	       (display #\space file)
-	       (if (literal? (cdr binding) env)
-		   (display #\' file))
-	       (write-component (cdr binding) file env)
-	       (display ")" file)))
-	    (write-definitions
-	     (lambda ()
-	       (let ((prefix (if (null? bindings) "(define " "  (set! ")))
-		 (for-each (lambda (pair)
-			     (top-level-add! (car pair) (cdr pair) env)
-			     (display prefix file)
-			     (display (car pair) file)
-			     (display #\space file)
-			     (if (literal? (cdr pair) env)
-				 (display #\' file))
-			     (write-component (cdr pair) file env)
-			     (display ")\n" file)
-			     (or (immediate? (cdr pair))
-				 (set-car! (hashq-ref (hash-table env)
-						      (cdr pair))
-					   (car pair))))
-			   alist))))
-	    (write-circref-patches
-	     (lambda ()
-	       (for-each (lambda (entry)
-			   (for-each (lambda (setexp)
-				       (display (if (null? bindings) "" "  ")
-						file)
-				       (write ((caddr setexp)
-					       (object->var (car setexp) env)
-					       (object->var (cadr setexp) env))
-					      file)
-				       (newline file))
-				     (reverse (cddr entry))))
-			 (reverse (top-level env))))))
-	(if (null? bindings)
-	    (begin
-	      (write-definitions)
-	      (write-circref-patches))
-	    (begin
-	      (for-each (lambda (pair)
-			  (display "(define " file)
-			  (display (car pair) file)
-			  (display " #f)\n" file))
-			alist)
-	      (display "(let* (" file)
-	      (writing! (caar bindings) env)
-	      (write-binding (car bindings) file)
-	      (for-each (lambda (pair)
-			  (display "\n       " file)
-			  (writing! (car pair) env)
-			  (write-binding pair file))
-			(cdr bindings))
-	      (writing! #f env)
-	      (display ")\n" file)
-	      (write-definitions)
-	      (write-circref-patches)
-	      (display "  )\n" file)))))))
+	(uses     (if (>= (length rest) 2) (cadr rest) '())))
+    (let ((env (make <environment> #:excluded excluded)))
+      (pass-1! alist env)
+      (name-bindings! alist env)
+      (pass-2! env)
+      (if (not (null? uses))
+	  (begin
+	    (write `(use-modules ,@uses) file)
+	    (newline file)))
+      (write-immediates! alist file)
+      (if (null? (locals env))
+	  (begin
+	    (write-definitions! "(define " file env)
+	    (write-patches! "" file env))
+	  (begin
+	    (write-empty-defines! file env)
+	    (write-let*-head! file env)
+	    (write-stand-in-patches! file env)
+	    (write-definitions! "  (set! " file env)
+	    (write-patches! "  " file env)
+	    (display "  )\n" file)))
+      (write-readables! alist file))))
 
 (define-method load-objects ((file <string>))
   (let* ((port (open-input-file file))
