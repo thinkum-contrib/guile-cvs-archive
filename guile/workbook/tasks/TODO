@@ -25,8 +25,8 @@
     +R define bugs db format (see bugs/README) [mvo]
     + import current BUGS [mvo]
     + write stub for render-bugs [ttn]
-    - write dist-hook to call render-bugs to create BUGS
-    - delete HEAD and branch_release-1-6 BUGS files
+    - write autogen.sh frag to call render-bugs to create BUGS [ttn]
+    - delete HEAD and branch_release-1-6 BUGS files [ttn]
   +R factor guile-core/ administration files [ttn]
   +R factor RELEASE (prefer 1-6) into build/release.text [ttn]
   + show news on guile webpage [ttn]
