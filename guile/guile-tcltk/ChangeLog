@@ -1,3 +1,7 @@
+Thu Aug 14 16:52:43 1997  Jim Blandy  <jimb@totoro.red-bean.com>
+
+	* aclocal.m4, configure: Regenerated with automake 1.1p.
+
 Wed Jul 23 18:51:34 1997  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 *	* configure.in: Added new configuration option --with-tkdir which
