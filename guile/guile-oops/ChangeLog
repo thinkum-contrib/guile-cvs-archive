@@ -1,5 +1,9 @@
 2001-03-04  Mikael Djurfeldt  <mdj@linnaeus.mit.edu>
 
+	* GOOPS-VERSION
+	(GOOPS_MAJOR_VERSION, GOOPS_MINOR_VERSION): Bumed to 1.0.
+	(LIBGOOPSCORE_MAJOR_VERSION): Bumbed to 5.
+
 	* goops.c, goops.h (scm_sys_tag_body): Added.
 
 	* dispatch.scm (method-cache-install!): Fixed n-specializers.
