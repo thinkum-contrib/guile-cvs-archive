@@ -204,6 +204,7 @@ Part I: Introduction to Guile
 
 * What is Guile?::              And what does it do?
 * Whirlwind Tour::              An introductory whirlwind tour.
+* Obtaining and Installing Guile::
 * Reporting Bugs::              Reporting bugs in Guile or this manual.
 
 Part II: Guile Scheme
@@ -252,13 +253,10 @@ Part V: Extending Applications Using Guile
 * Libguile Intro::              Using Guile as an extension language.
 * Data Representation::         Data representation in Guile.
 * Scheme Primitives::           Writing Scheme primitives in C.
-* I/O Extensions::              Using and extending ports in C.
-* Handling Errors::             How to handle errors in C code.
 * GH::                          The deprecated GH interface.
 
 Appendices
 
-* Obtaining and Installing Guile::
 * Debugger User Interface::
 
 Indices
