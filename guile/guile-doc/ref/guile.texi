@@ -226,9 +226,13 @@ Part II: Guile Scheme
 * Strings::                     Special things about strings.
 * Characters::			New character names.
 * Hooks::                       User-customizable event lists.
+* Procedures::                  Procedure types and properties.
 * Property Lists::              Managing metainformation about Scheme objects.
 * Ports::                       I/O in Scheme.
+* Reading and Writing::         Reading and writing.
 * Numbers::                     Numerical operations.
+* Random::                      Random number generation.
+* Sorting::                     Sort utility procedures.
 * Bitwise Operations::          Logical AND, OR, NOT, and so on.
 * Regular Expressions::         Pattern matching and substitution.
 * Dynamic Linking from Marius::
@@ -238,11 +242,13 @@ Part II: Guile Scheme
 * Objects::                     Low level object orientation support.
 * Guardians::                   Guardians.
 * Emacs Lisp Support::          Helper primitives for translating Emacs Lisp.
+* Symbols and Variables::       Symbols and variables.
 * Garbage Collection::
 * Configuration Data::		Version info, library directories, etc.
 * Internal Debugging Interface::
 * SLIB::                        Using the SLIB Scheme library.
 * POSIX System Calls and Networking::
+* Deprecated::                  Features that are planned to disappear.
 * Expect::			Controlling interactive programs with Guile.
 * The Scheme shell (scsh)::
 	The SCSH compatibility module has been made an
@@ -319,6 +325,7 @@ Indices
 @end iftex
 
 @include posix.texi
+@include deprecated.texi
 @include expect.texi
 @include scsh.texi
 @include tcltk.texi
