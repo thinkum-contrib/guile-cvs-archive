@@ -9,7 +9,7 @@ AM_PROG_LIBTOOL
 
 ## If we're using GCC, ask for aggressive warnings.
 case "$GCC" in
-  yes )
+  yes)
     ## We had -Wstrict-prototypes in here for a bit, but Guile does too
     ## much stuff with generic function pointers for that to really be
     ## less than exasperating.
