@@ -1,3 +1,9 @@
+Sun Dec  8 02:09:53 1996  Gary Houston  <ghouston@actrix.gen.nz>
+
+	* Makefile.am (.c.x): define COMPILE with $(X_CFLAGS) added to the
+	default.
+	(MKDEP): add $(X_CFLAGS)
+
 Fri Dec  6 22:27:32 1996  Tom Tromey  <tromey@cygnus.com>
 
 	* configure.in: Use $DL_LIBS, not -ldl, in tcl7.5 check.
