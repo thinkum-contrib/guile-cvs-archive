@@ -86,12 +86,12 @@
 
 ;; Puck dynamic
 ;;
-(define puck-max-vx 1.1)
-(define puck-max-vy 1.1)
-(define puck-init-init-vx .25)
-(define puck-init-init-vy -.25)
-(define puck-init-vx .25)
-(define puck-init-vy -.25)
+(define puck-max-vx 4.4)
+(define puck-max-vy 4.4)
+(define puck-init-init-vx 1.0)
+(define puck-init-init-vy -1.0)
+(define puck-init-vx 1.0)
+(define puck-init-vy -1.0)
 
 (define puck-vx puck-init-vx)
 (define puck-vy puck-init-vy)
@@ -287,6 +287,7 @@
 (define (loop)
   (let loop ()
     (puck-tick)
+    (usleep 1000)
     (if game-playing
 	(loop))))
 
