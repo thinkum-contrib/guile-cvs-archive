@@ -1,0 +1,53 @@
+summary: lambda* fails with #:key and "." rest argument
+reported: Christopher Cramer <crayc@pyro.net>, 2002-05-30
+
+Here's the problem:
+
+guile> (use-modules (ice-9 optargs))
+guile> (lambda* (#:key foo . bar) #t)
+/usr/local/share/guile/1.5.6/ice-9/optargs.scm:371:24: In procedure list-copy in expression (list-copy arglist):
+/usr/local/share/guile/1.5.6/ice-9/optargs.scm:371:24: Wrong type argument in position 1: (#:key foo . bar)
+ABORT: (wrong-type-arg)
+
+Basically, there's a part where it tries to copy an improper list
+with list-copy, which doesn't work. The solution lies in creating
+improper-list-copy. At first I just put a new function in list.c (which
+is trivial: copy scm_list_copy to scm_improper_list_copy and change
+SCM_VALIDATE_LIST to SCM_VALIDATE_CONS), but then I figured I wanted
+it fixed in stable, and we probably don't want a new public procedure at
+this point.
+
+Index: ice-9/optargs.scm
+===================================================================
+RCS file: /cvsroot/guile/guile/guile-core/ice-9/optargs.scm,v
+retrieving revision 1.14.2.3
+diff -u -r1.14.2.3 optargs.scm
+--- ice-9/optargs.scm	18 Oct 2001 19:41:08 -0000	1.14.2.3
++++ ice-9/optargs.scm	30 May 2002 18:26:05 -0000
+@@ -368,7 +368,7 @@
+      ((null? arglist) (cont '() '() '() #f #f))
+      ((not (pair? arglist)) (cont '() '() '() #f arglist))
+      ((not (list? arglist))
+-	  (let* ((copy (list-copy arglist))
++	  (let* ((copy (improper-list-copy arglist))
+ 		 (lp (last-pair copy))
+ 		 (ra (cdr lp)))
+ 	    (set-cdr! lp '())
+@@ -387,7 +387,16 @@
+ 
+   (parse-rest arglist cont))
+ 
+-
++(define (improper-list-copy l)
++    (let ((out '()))
++	(let loop ((in l) (prev '()))
++	    (if (pair? in)
++		(let ((cur (cons (car in) (cdr in))))
++		    (if (null? prev)
++			(set! out cur)
++			(set-cdr! prev cur))
++		    (loop (cdr in) cur))
++		out))))
+ 
+ ;; define* args . body
+ ;; define*-public args . body
