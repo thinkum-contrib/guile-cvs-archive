@@ -204,6 +204,10 @@ SCM_API int scm_pthread_cond_wait (pthread_cond_t *cond,
 SCM_API int scm_pthread_cond_timedwait (pthread_cond_t *cond,
 					pthread_mutex_t *mutex,
 					const struct timespec *abstime);
+
+/* More convenience functions.
+ */
+
 SCM_API unsigned int scm_std_sleep (unsigned int);
 SCM_API unsigned long scm_std_usleep (unsigned long);
 

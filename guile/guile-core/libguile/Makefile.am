@@ -184,7 +184,7 @@ pkginclude_HEADERS = gh.h
 modincludedir = $(includedir)/libguile
 modinclude_HEADERS = __scm.h alist.h arbiters.h async.h backtrace.h boolean.h \
     chars.h continuations.h convert.h debug.h				      \
-    debug-malloc.h null-threads.h					      \
+    debug-malloc.h							      \
     deprecation.h deprecated.h discouraged.h dynl.h dynwind.h		      \
     environments.h eq.h							      \
     error.h eval.h							      \
