@@ -25,19 +25,20 @@ while scm_c_FOO might take C function pointers and a passthrough
 value.
 
 
-If there's a C function with global scope which is only intended to be
-used internally in libguile, it has the prefix scm_i_.
+If there's a C entity (function, variable or typedef) with global
+scope which is only intended to be used internally in libguile, it has
+the prefix scm_i_.
 
-String literals with global scope has the prefix scm_s_.  (Greg
+String literals with global scope have the prefix scm_s_.  (Greg
 introduced the prefix s_scm_ but this has to change to scm_s_ since
 s_scm_ trespasses the user's namespace.)
 
-Not correct: Those names have module-local scope and does not trespass
+Not correct: Those names have module-local scope and do not trespass
 user name space.
 
-Keywords with global scope has the prefix scm_k_.
+Keywords with global scope have the prefix scm_k_.
 
-Symbols with global scope has the prefix scm_sym_.
+Symbols with global scope have the prefix scm_sym_.
 
 Variable bindings with global scope has the prefix scm_var_.
 
@@ -63,7 +64,7 @@ There are exceptions, though:
 
 * Guile has a lot of history with lots of different strange names.
   Perhaps a major name overhaul can be done at the same time as we go
-  through Guile's interfaces to checks soundness and theoretical
+  through Guile's interfaces to check soundness and theoretical
   properties such as type safety.  We *should* be a bit careful with
   name changes in order not to break existing application code.
 
@@ -95,6 +96,9 @@ scm_i_XXX :
     can't distinguish between C variables holding symbols that are part of
     the official API and internally used C variables holding symbols.
 
+    [cmm] I agree, and I changed the relevant text above.  the prefix
+    construction rule should probably be: scm[_i]_[type]_[rest]
+
 what about boolean variables/constants? scm_bool_?  This would fit nicely
     with the current macro names SCM_BOOL_T and SCM_BOOL_F.
 
@@ -108,6 +112,8 @@ scm_s_, scm_k_, scm_sym_, scm_var_:
 Macros in general:
     Should internally used macros be called SCM_I_xxx, thus following the
     above scheme?
+
+    [cmm] I like this.  in fact, it's already used in some places.
 
     How do scheme-level names translate if there are macros that do the
     same thing?  set-car! --> SCM_SETCAR, thus, the '!' is dropped and the
