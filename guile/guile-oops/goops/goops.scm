@@ -26,6 +26,10 @@
 ;;;; Erick Gallesio <eg@unice.fr>.
 ;;;;
 
+;; Load the primitives if not loaded
+(if (not (defined? '<top>))
+    (try-module-dynamic-link '(goops goops)))
+
 (define-module (goops goops))
 
 (export			  ; Define the exported symbols of this file
