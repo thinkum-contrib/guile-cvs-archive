@@ -677,7 +677,7 @@ void
 scm_init_backtrace ()
 {
   SCM f = scm_make_fluid ();
-  scm_the_last_stack_fluid_var = scm_define ("the-last-stack", f);
+  scm_the_last_stack_fluid_var = scm_c_define ("the-last-stack", f);
 
 #ifndef SCM_MAGIC_SNARFER
 #include "libguile/backtrace.x"

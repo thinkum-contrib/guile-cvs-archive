@@ -130,7 +130,7 @@ gh_new_procedure5_0 (const char *proc_name, SCM (*fn) ())
 SCM
 gh_define (const char *name, SCM val)
 {
-  scm_define (name, val);
+  scm_c_define (name, val);
   return SCM_UNSPECIFIED;
 }
 

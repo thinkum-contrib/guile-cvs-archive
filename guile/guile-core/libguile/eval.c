@@ -4100,17 +4100,17 @@ scm_init_eval ()
 
 #if SCM_DEBUG_DEPRECATED == 0
   scm_top_level_lookup_closure_var =
-    scm_define ("*top-level-lookup-closure*", scm_make_fluid ());
+    scm_c_define ("*top-level-lookup-closure*", scm_make_fluid ());
   scm_system_transformer =
-    scm_define ("scm:eval-transformer", scm_make_fluid ());
+    scm_c_define ("scm:eval-transformer", scm_make_fluid ());
 #endif
 
 #ifndef SCM_MAGIC_SNARFER
 #include "libguile/eval.x"
 #endif
 
-  scm_define ("nil", scm_lisp_nil);
-  scm_define ("t", scm_lisp_t);
+  scm_c_define ("nil", scm_lisp_nil);
+  scm_c_define ("t", scm_lisp_t);
   
   scm_add_feature ("delay");
 }
