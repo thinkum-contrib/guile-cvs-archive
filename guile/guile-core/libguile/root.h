@@ -66,11 +66,6 @@ typedef struct scm_root_state
 
   SCM progargs;
 
-  SCM cur_inp;
-  SCM cur_outp;
-  SCM cur_errp;
-  SCM cur_loadp;
-
   SCM fluids;
 
   SCM handle;			/* The root object for this root state */
@@ -98,12 +93,6 @@ SCM_API pthread_key_t scm_i_root_key;
 #define scm_dynwinds			(scm_root->dynwinds)
 #define scm_progargs			(scm_root->progargs)
 #define scm_last_debug_frame		(scm_root->last_debug_frame)
-#define scm_exitval 			(scm_root->exitval)
-#define scm_cur_inp			(scm_root->cur_inp)
-#define scm_cur_outp			(scm_root->cur_outp)
-#define scm_cur_errp			(scm_root->cur_errp)
-#define scm_cur_loadp			(scm_root->cur_loadp)
-
 
 
 

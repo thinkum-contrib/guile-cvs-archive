@@ -15,7 +15,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-
+#include <stdio.h>
+#include <string.h>
 
 #include "libguile/_scm.h"
 #include "libguile/print.h"
@@ -27,17 +28,20 @@
 #include "libguile/ports.h"
 #include "libguile/deprecation.h"
 #include "libguile/lang.h"
-
-#define INITIAL_FLUIDS 10
 #include "libguile/validate.h"
 
-static volatile long n_fluids;
+#define INITIAL_FLUIDS  20
+#define FLUID_INCREMENT 20
+
 scm_t_bits scm_tc16_fluid;
+
+static size_t allocated_fluids_len;
+static char *allocated_fluids;
 
 SCM
 scm_i_make_initial_fluids ()
 {
-  return scm_c_make_vector (INITIAL_FLUIDS, SCM_BOOL_F);
+  return scm_c_make_vector (allocated_fluids_len, SCM_BOOL_F);
 }
 
 static void
@@ -56,11 +60,6 @@ grow_fluids (scm_root_state *root_state, int new_length)
 			     SCM_SIMPLE_VECTOR_REF (old_fluids, i));
       i++;
     }
-  while (i < new_length)
-    {
-      SCM_SIMPLE_VECTOR_SET (new_fluids, i, SCM_BOOL_F);
-      i++;
-    }
 
   root_state->fluids = new_fluids;
 }
@@ -69,6 +68,14 @@ void
 scm_i_copy_fluids (scm_root_state *root_state)
 {
   grow_fluids (root_state, SCM_SIMPLE_VECTOR_LENGTH (root_state->fluids));
+}
+
+static size_t
+fluid_free (SCM fluid)
+{
+  //fprintf (stderr, "freeing fluid %d\n", SCM_FLUID_NUM (fluid));
+  allocated_fluids[SCM_FLUID_NUM (fluid)] = 0;
+  return 0;
 }
 
 static int
@@ -84,9 +91,28 @@ static long
 next_fluid_num ()
 {
   long n;
-  SCM_CRITICAL_SECTION_START;
-  n = n_fluids++;
-  SCM_CRITICAL_SECTION_END;
+
+  scm_frame_begin (0);
+  scm_frame_pthread_mutex_lock (&scm_i_misc_mutex);
+
+  for (n = 0; n < allocated_fluids_len; n++)
+    if (allocated_fluids[n] ==  0)
+      {
+	allocated_fluids[n] = 1;
+	break;
+      }
+
+  if (n == allocated_fluids_len)
+    {
+      allocated_fluids = scm_realloc (allocated_fluids,
+				      allocated_fluids_len +  FLUID_INCREMENT);
+      memset (allocated_fluids + allocated_fluids_len, FLUID_INCREMENT, 0);
+      allocated_fluids_len += FLUID_INCREMENT;
+      allocated_fluids[n] = 1;
+    }
+
+  scm_frame_end ();
+  //fprintf (stderr, "allocated fluid %ld\n", n);
   return n;
 }
 
@@ -114,7 +140,7 @@ SCM_DEFINE (scm_fluid_p, "fluid?", 1, 0, 0,
 	    "@code{#f}.")
 #define FUNC_NAME s_scm_fluid_p
 {
-  return scm_from_bool(SCM_FLUIDP (obj));
+  return scm_from_bool (SCM_FLUIDP (obj));
 }
 #undef FUNC_NAME
 
@@ -286,7 +312,12 @@ void
 scm_init_fluids ()
 {
   scm_tc16_fluid = scm_make_smob_type ("fluid", 0);
+  scm_set_smob_free (scm_tc16_fluid, fluid_free);
   scm_set_smob_print (scm_tc16_fluid, fluid_print);
+
+  allocated_fluids_len = INITIAL_FLUIDS;
+  allocated_fluids = scm_calloc (allocated_fluids_len);
+
 #include "libguile/fluids.x"
 }
 

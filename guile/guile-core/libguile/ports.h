@@ -306,6 +306,7 @@ SCM_API SCM scm_pt_member (SCM member);
 /* internal */
 
 SCM_API long scm_i_mode_bits (SCM modes);
+SCM_API void scm_i_frame_current_load_port (SCM port);
 
 
 #endif  /* SCM_PORTS_H */

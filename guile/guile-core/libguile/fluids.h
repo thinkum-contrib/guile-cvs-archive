@@ -29,24 +29,18 @@
 /* Fluids.
 
    Fluids are objects of a certain type (a smob) that can hold one SCM
-   value per dynamic root.  That is, modifications to this value are
-   only visible to code that executes within the same dynamic root as
-   the modifying code.  When a new dynamic root is constructed, it
+   value per dynamic state.  That is, modifications to this value are
+   only visible to code that executes with the same dynamic state as
+   the modifying code.  When a new dynamic state is constructed, it
    inherits the values from its parent.  Because each thread executes
-   in its own dynamic root, you can use fluids for thread local
+   with its own dynamic state, you can use fluids for thread local
    storage.
 
    Each fluid is identified by a small integer.  This integer is used
-   to index a vector that holds the values of all fluids.  Each root
-   has its own vector.
-
-   Currently, you can't get rid a certain fluid if you don't use it
-   any longer.  The slot that has been allocated for it in the fluid
-   vector will not be reused for other fluids.  Therefore, only use
-   SCM_MAKE_FLUID or its Scheme variant `make-fluid' in initialization
-   code that is only run once.  Nevertheless, it should be possible to
-   implement a more lightweight version of fluids on top of this basic
-   mechanism. */
+   to index a vector that holds the values of all fluids.  A dynamic
+   state consists of this vector, wrapped in a smob so that the vector
+   can be grown.
+ */
 
 SCM_API scm_t_bits scm_tc16_fluid;
 
@@ -54,13 +48,14 @@ SCM_API scm_t_bits scm_tc16_fluid;
 #define SCM_FLUID_NUM(x) (SCM_CELL_WORD_1 (x))
 
 /* The fastest way to acces/modify the value of a fluid.  These macros
-do no error checking at all.  You should only use them when you know
-that the relevant fluid already exists in the current dynamic root.
-The easiest way to ensure this is to execute a SCM_FLUID_SET_X in the
-topmost root, for example right after SCM_MAKE_FLUID in your
-SCM_INIT_MUMBLE routine that gets called from SCM_BOOT_GUILE_1.  The
-first argument is the index number of the fluid, obtained via
-SCM_FLUID_NUM, not the fluid itself. */
+   do no error checking at all.  You should only use them when you
+   know that the relevant fluid already exists in the current dynamic
+   state.  The easiest way to ensure this is to execute a
+   'scm_fluid_set_x' in the topmost dynamic state, for example right
+   after 'scm_make_fluid' in your 'scm_init_mumble' routine that gets
+   called from 'scm_boot_guile'.  The first argument is the index
+   number of the fluid, obtained via SCM_FLUID_NUM, not the fluid
+   itself. */
 
 #define SCM_FAST_FLUID_REF(n) (SCM_VELTS(scm_root->fluids)[n])
 #define SCM_FAST_FLUID_SET_X(n, val) (SCM_VELTS(scm_root->fluids)[n] = val)

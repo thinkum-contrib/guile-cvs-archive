@@ -61,14 +61,15 @@ scm_stack_size (SCM_STACKITEM *start)
 void 
 scm_stack_report ()
 {
+  SCM port = scm_current_error_port ();
   SCM_STACKITEM stack;
   scm_uintprint (scm_stack_size (SCM_BASE (scm_rootcont)) * sizeof (SCM_STACKITEM),
-		16, scm_cur_errp);
-  scm_puts (" of stack: 0x", scm_cur_errp);
-  scm_uintprint ((scm_t_bits) SCM_BASE (scm_rootcont), 16, scm_cur_errp);
-  scm_puts (" - 0x", scm_cur_errp);
-  scm_uintprint ((scm_t_bits) &stack, 16, scm_cur_errp);
-  scm_puts ("\n", scm_cur_errp);
+		16, port);
+  scm_puts (" of stack: 0x", port);
+  scm_uintprint ((scm_t_bits) SCM_BASE (scm_rootcont), 16, port);
+  scm_puts (" - 0x", port);
+  scm_uintprint ((scm_t_bits) &stack, 16, port);
+  scm_puts ("\n", port);
 }
 
 

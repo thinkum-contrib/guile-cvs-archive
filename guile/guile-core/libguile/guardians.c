@@ -569,16 +569,17 @@ whine_about_self_centered_zombies (void *dummy1 SCM_UNUSED,
 {
   if (!scm_is_null (self_centered_zombies))
     {
+      SCM port = scm_current_error_port ();
       SCM pair;
       
       scm_puts ("** WARNING: the following guarded objects were unguarded due to cycles:",
-                scm_cur_errp);
-      scm_newline (scm_cur_errp);
+                port);
+      scm_newline (port);
       for (pair = self_centered_zombies;
            !scm_is_null (pair); pair = SCM_CDR (pair))
         {
-          scm_display (SCM_CAR (pair), scm_cur_errp);
-          scm_newline (scm_cur_errp);
+          scm_display (SCM_CAR (pair), port);
+          scm_newline (port);
         }
 
       self_centered_zombies = SCM_EOL;

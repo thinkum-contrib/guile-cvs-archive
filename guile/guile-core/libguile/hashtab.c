@@ -18,6 +18,9 @@
 
 
 
+#include <stdio.h>
+#include <unistd.h>
+
 #include "libguile/_scm.h"
 #include "libguile/alist.h"
 #include "libguile/hash.h"

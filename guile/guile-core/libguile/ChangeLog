@@ -1,3 +1,14 @@
+2005-01-25  Marius Vollmer  <mvo@zagadka.de>
+
+	* root.h, root.c, deprecated.h, deprecated.c (scm_cur_inp,
+	scm_cur_outp, scm_cur_errp, scm_cur_loadp): Deprecated by moving
+	to deprecated.h and deprecated.c and reimplemented in terms of
+	scm_current_input_port, etc.  Changed all uses in the same way.
+	(scm_root): Removed cur_inp, cur_outp, cur_errp, and cur_loadp
+	fields.  They are now fluids.
+	(root_mark): Do not mark them.
+	(scm_make_root): Do not initialize them.
+	
 2005-01-18  Marius Vollmer  <marius.vollmer@uni-dortmund.de>
 
 	* ports.c, smob.c: Include "libguile/goops.h".

@@ -385,7 +385,7 @@ static void
 handler_message (void *handler_data, SCM tag, SCM args)
 {
   char *prog_name = (char *) handler_data;
-  SCM p = scm_cur_errp;
+  SCM p = scm_current_error_port ();
 
   if (scm_ilength (args) == 4)
     {

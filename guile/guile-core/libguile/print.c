@@ -878,7 +878,7 @@ SCM
 scm_write (SCM obj, SCM port)
 {
   if (SCM_UNBNDP (port))
-    port = scm_cur_outp;
+    port = scm_current_output_port ();
 
   SCM_ASSERT (scm_valid_oport_value_p (port), port, SCM_ARG2, s_write);
 
@@ -899,7 +899,7 @@ SCM
 scm_display (SCM obj, SCM port)
 {
   if (SCM_UNBNDP (port))
-    port = scm_cur_outp;
+    port = scm_current_output_port ();
 
   SCM_ASSERT (scm_valid_oport_value_p (port), port, SCM_ARG2, s_display);
 
@@ -938,7 +938,7 @@ SCM_DEFINE (scm_simple_format, "simple-format", 2, 0, 1,
 
   if (scm_is_eq (destination, SCM_BOOL_T))
     {
-      destination = port = scm_cur_outp;
+      destination = port = scm_current_output_port ();
     }
   else if (scm_is_false (destination))
     {
@@ -1020,7 +1020,7 @@ SCM_DEFINE (scm_newline, "newline", 0, 1, 0,
 #define FUNC_NAME s_scm_newline
 {
   if (SCM_UNBNDP (port))
-    port = scm_cur_outp;
+    port = scm_current_output_port ();
 
   SCM_VALIDATE_OPORT_VALUE (1, port);
 
@@ -1035,7 +1035,7 @@ SCM_DEFINE (scm_write_char, "write-char", 1, 1, 0,
 #define FUNC_NAME s_scm_write_char
 {
   if (SCM_UNBNDP (port))
-    port = scm_cur_outp;
+    port = scm_current_output_port ();
 
   SCM_VALIDATE_CHAR (1, chr);
   SCM_VALIDATE_OPORT_VALUE (2, port);

@@ -18,6 +18,8 @@
 
 
 
+#define _GNU_SOURCE
+
 #include "libguile/_scm.h"
 
 #if HAVE_UNISTD_H
@@ -293,9 +295,6 @@ guilify_self_2 (SCM parent)
       scm_root_state *thread_root = SCM_ROOT_STATE (t->root);
       scm_root_state *parent_root = SCM_ROOT_STATE (parent);
 
-      thread_root->cur_inp = parent_root->cur_inp;
-      thread_root->cur_outp = parent_root->cur_outp;
-      thread_root->cur_errp = parent_root->cur_errp;
       thread_root->fluids = parent_root->fluids;
       scm_i_copy_fluids (thread_root);
     }
@@ -356,10 +355,10 @@ get_thread_stack_base ()
   pthread_attr_t attr;
   void *start, *end;
   size_t size;
-  int res;
 
-  /* XXX - pthread_getattr_np does not seem to work for the main
-     thread, but we can use __libc_stack_end in that case.
+  /* XXX - pthread_getattr_np from LinuxThreads does not seem to work
+     for the main thread, but we can use __libc_stack_end in that
+     case.
   */
 
   pthread_getattr_np (pthread_self (), &attr);
@@ -1318,9 +1317,6 @@ scm_init_threads_root_root ()
 
   scm_i_root_root = scm_permanent_object (scm_make_root (SCM_BOOL_F));
   rr = SCM_ROOT_STATE (scm_i_root_root);
-  rr->cur_inp = scm_cur_inp;
-  rr->cur_outp = scm_cur_outp;
-  rr->cur_errp = scm_cur_errp;
   rr->fluids = scm_root->fluids;
   scm_i_copy_fluids (rr);
 }

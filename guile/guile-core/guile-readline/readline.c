@@ -172,7 +172,7 @@ SCM_DEFINE (scm_readline, "%readline", 0, 4, 0,
 	}
     }
   
-  if (!((SCM_UNBNDP (inp) && SCM_OPINFPORTP (scm_cur_inp))
+  if (!((SCM_UNBNDP (inp) && SCM_OPINFPORTP (scm_current_input_port ()))
 	|| SCM_OPINFPORTP (inp)))
     {
       --in_readline;
@@ -181,7 +181,7 @@ SCM_DEFINE (scm_readline, "%readline", 0, 4, 0,
 		      SCM_EOL);
     }
   
-  if (!((SCM_UNBNDP (outp) && SCM_OPOUTFPORTP (scm_cur_outp))
+  if (!((SCM_UNBNDP (outp) && SCM_OPOUTFPORTP (scm_current_output_port ()))
 	|| SCM_OPOUTFPORTP (outp)))
     {
       --in_readline;
@@ -296,10 +296,10 @@ void
 scm_readline_init_ports (SCM inp, SCM outp)
 {
   if (SCM_UNBNDP (inp))
-    inp = scm_cur_inp;
+    inp = scm_current_input_port ();
   
   if (SCM_UNBNDP (outp))
-    outp = scm_cur_outp;
+    outp = scm_current_output_port ();
   
   if (!SCM_OPINFPORTP (inp)) {
     scm_misc_error (0,

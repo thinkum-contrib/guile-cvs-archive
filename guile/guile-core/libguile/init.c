@@ -243,18 +243,18 @@ scm_init_standard_ports ()
      buffered input on stdin can reset \ex{(current-input-port)} to
      block buffering for higher performance.  */
 
-  scm_cur_inp
-    = scm_standard_stream_to_port (0, 
-				   isatty (0) ? "r0" : "r",
-				   "standard input");
-  scm_cur_outp = scm_standard_stream_to_port (1,
-					      isatty (1) ? "w0" : "w",
-					      "standard output");
-  scm_cur_errp = scm_standard_stream_to_port (2,
-					      isatty (2) ? "w0" : "w",
-					      "standard error");
-
-  scm_cur_loadp = SCM_BOOL_F;
+  scm_set_current_input_port 
+    (scm_standard_stream_to_port (0, 
+				  isatty (0) ? "r0" : "r",
+				  "standard input"));
+  scm_set_current_output_port
+    (scm_standard_stream_to_port (1,
+				  isatty (1) ? "w0" : "w",
+				  "standard output"));
+  scm_set_current_error_port
+    (scm_standard_stream_to_port (2,
+				  isatty (2) ? "w0" : "w",
+				  "standard error"));
 }
 
 
@@ -305,8 +305,6 @@ struct main_func_closure
   char **argv;			/* the argument list it should receive */
 };
 
-static void scm_boot_guile_1 (SCM_STACKITEM *base,
-			      struct main_func_closure *closure);
 static void *invoke_main_func(void *body_data);
 
 

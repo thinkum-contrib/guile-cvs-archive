@@ -46,9 +46,6 @@ root_mark (SCM root)
   scm_gc_mark (s->rootcont);
   scm_gc_mark (s->dynwinds);
   scm_gc_mark (s->progargs);
-  scm_gc_mark (s->cur_inp);
-  scm_gc_mark (s->cur_outp);
-  scm_gc_mark (s->cur_errp);
   /* No need to gc mark def_loadp */
   scm_gc_mark (s->fluids);
   scm_gc_mark (s->active_asyncs);
@@ -90,10 +87,6 @@ scm_make_root (SCM parent)
       root_state->rootcont
 	= root_state->dynwinds
 	= root_state->progargs
-	= root_state->cur_inp
-	= root_state->cur_outp
-	= root_state->cur_errp
-	= root_state->cur_loadp
 	= root_state->fluids
 	= root_state->handle
 	= root_state->parent

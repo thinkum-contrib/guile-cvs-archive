@@ -1357,6 +1357,38 @@ scm_i_array_dims (SCM a)
   return SCM_I_ARRAY_DIMS (a);
 }
 
+SCM
+scm_i_cur_inp (void)
+{
+  scm_c_issue_deprecation_warning
+    ("scm_cur_inp is deprecated.  Use scm_current_input_port instead.");
+  return scm_current_input_port ();
+}
+
+SCM
+scm_i_cur_outp (void)
+{
+  scm_c_issue_deprecation_warning
+    ("scm_cur_outp is deprecated.  Use scm_current_output_port instead.");
+  return scm_current_output_port ();
+}
+
+SCM
+scm_i_cur_errp (void)
+{
+  scm_c_issue_deprecation_warning
+    ("scm_cur_errp is deprecated.  Use scm_current_error_port instead.");
+  return scm_current_error_port ();
+}
+
+SCM
+scm_i_cur_loadp (void)
+{
+  scm_c_issue_deprecation_warning
+    ("scm_cur_loadp is deprecated.  Use scm_current_load_port instead.");
+  return scm_current_load_port ();
+}
+
 void
 scm_i_init_deprecated ()
 {

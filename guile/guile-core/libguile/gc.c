@@ -837,6 +837,7 @@ scm_gc_unregister_roots (SCM *b, unsigned long n)
 
 int scm_i_terminating;
 
+#if 0
 /* called on process termination.  */
 #ifdef HAVE_ATEXIT
 static void
@@ -855,6 +856,7 @@ cleanup (int status, void *arg)
   scm_i_terminating = 1;
   scm_flush_all_ports ();
 }
+#endif
 
 
 

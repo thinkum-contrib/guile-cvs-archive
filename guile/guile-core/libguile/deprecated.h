@@ -511,6 +511,19 @@ SCM_API scm_t_array_dim *scm_i_array_dims (SCM a);
 #define SCM_ARRAY_BASE(a)  scm_i_array_base(a)
 #define SCM_ARRAY_DIMS(a)  scm_i_attay_dims(a)
 
+/* Deprecated because they can not be lvalues.
+ */
+
+#define scm_cur_inp    scm_i_cur_inp ()
+#define scm_cur_outp   scm_i_cur_outp ()
+#define scm_cur_errp   scm_i_cur_errp ()
+#define scm_cur_loadp  scm_i_cur_loadp ()
+
+SCM_API SCM scm_i_cur_inp (void);
+SCM_API SCM scm_i_cur_outp (void);
+SCM_API SCM scm_i_cur_errp (void);
+SCM_API SCM scm_i_cur_loadp (void);
+
 void scm_i_init_deprecated (void);
 
 #endif
