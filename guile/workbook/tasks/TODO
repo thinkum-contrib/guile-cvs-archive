@@ -1,5 +1,7 @@
 - guile-www 1.1.1
   - integrate cgi enhancement patch from Aaron VanDevender [ttn]
+  - create examples/ and move wwwcat there
+
 
 - Guile 1.4.1
   - back port ice-9/and-let*.scm naming fix [ttn]
