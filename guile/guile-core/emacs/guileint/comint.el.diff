@@ -1,0 +1,226 @@
+cd ~/Downloads/guileint-1.5.2/
+diff -Naur /home/neil/Downloads/ /home/neil/Downloads/guileint-1.5.2/comint.el
+--- /home/neil/Downloads/comint.el	Wed Aug 20 19:18:35 2003
++++ /home/neil/Downloads/guileint-1.5.2/comint.el	Fri Aug  8 14:33:43 2003
+@@ -131,8 +131,10 @@
+ ;;  comint-get-old-input		function Hooks for specific
+ ;;  comint-input-filter-functions	hook	process-in-a-buffer
+ ;;  comint-output-filter-functions	hook	function modes.
++;;  comint-unallowed-output-filter-functions	hook
+ ;;  comint-preoutput-filter-functions   hook
+ ;;  comint-input-filter			function ...
++;;  comint-output-filter-function	function  ...
+ ;;  comint-input-sender			function ...
+ ;;  comint-eol-on-send			boolean	...
+ ;;  comint-process-echoes		boolean	...
+@@ -352,6 +354,16 @@
+ 
+ This variable is buffer-local.")
+ 
++(defvar comint-output-filter-function 'comint-output-filter
++  "Selects which process output filter to use.
++It's normal value is `comint-output-filter' but if you want your process
++to control emacs via a one-character protocol as in xscheme, set it to
++`comint-dispatch-output-filter' and describe your protocol using the
++variables `comint-dispatch-escape-character' and
++`comint-dispatch-alist'.
++
++This variable is buffer-local.")
++
+ (defvar comint-output-filter-functions '(comint-postoutput-scroll-to-bottom)
+   "Functions to call after output is inserted into the buffer.
+ One possible function is `comint-postoutput-scroll-to-bottom'.
+@@ -364,6 +376,29 @@
+ 
+ This variable is buffer-local.")
+ 
++(defvar comint-allow-output-p t
++  "Setting this varible to nil inhibits process output.")
++
++(defvar comint-unallowed-output-filter-functions '()
++  "Functions to call with output which the process generates while
++`comint-allow-output-p' is nil.")
++
++(defvar comint-dispatch-state 'idle
++  "State of scheme process escape reader state machine:
++idle                   waiting for an escape sequence
++reading-type           received an escape character but nothing else
++reading-string         reading string")
++
++(defvar comint-string-accumulator ""
++  "Accumulator for the string being received from the process.")
++
++(defvar comint-string-receiver nil
++  "Procedure to send the string argument from the process.")
++
++(defvar comint-receiving-buffer nil)
++
++(defvar comint-buffer-receiver nil)
++
+ (defvar comint-input-sender (function comint-simple-send)
+   "Function to actually send to PROCESS the STRING submitted by user.
+ Usually this is just `comint-simple-send', but if your mode needs to
+@@ -432,7 +467,9 @@
+ (put 'comint-save-input-ring-index 'permanent-local t)
+ (put 'comint-input-autoexpand 'permanent-local t)
+ (put 'comint-input-filter-functions 'permanent-local t)
++(put 'comint-output-filter-function 'permanent-local t)
+ (put 'comint-output-filter-functions 'permanent-local t)
++(put 'comint-unallowed-output-filter-functions 'permanent-local t)
+ (put 'comint-preoutput-filter-functions 'permanent-local t)
+ (put 'comint-scroll-to-bottom-on-input 'permanent-local t)
+ (put 'comint-scroll-to-bottom-on-output 'permanent-local t)
+@@ -515,7 +552,15 @@
+   (make-local-variable 'comint-scroll-to-bottom-on-output)
+   (make-local-variable 'comint-scroll-show-maximum-output)
+   (add-hook 'pre-command-hook 'comint-preinput-scroll-to-bottom t t)
++  (make-local-variable 'comint-output-filter-function)
++  (make-local-variable 'comint-allow-output-p)
++  (make-local-variable 'comint-dispatch-state)
++  (make-local-variable 'comint-string-accumulator)
++  (make-local-variable 'comint-string-receiver)
++  (make-local-variable 'comint-receiving-buffer)
++  (make-local-variable 'comint-buffer-receiver)
+   (make-local-hook 'comint-output-filter-functions)
++  (make-local-hook 'comint-unallowed-output-filter-functions)
+   (make-local-hook 'comint-exec-hook)
+   (make-local-variable 'comint-ptyp)
+   (make-local-variable 'comint-process-echoes)
+@@ -702,7 +747,9 @@
+ 	   (if (consp command)
+ 	       (open-network-stream name buffer (car command) (cdr command))
+ 	     (comint-exec-1 name buffer command switches))))
+-      (set-process-filter proc 'comint-output-filter)
++      (set-process-filter proc comint-output-filter-function)
++      (let ((init-fn (get 'comint-output-filter-function 'initialize)))
++	(and init-fn (funcall init-fn)))
+       (make-local-variable 'comint-ptyp)
+       (setq comint-ptyp process-connection-type) ; T if pty, NIL if pipe.
+       ;; Jump to the end, and set the process mark.
+@@ -1575,6 +1622,11 @@
+     ;; First check for killed buffer or no input.
+     (when (and string oprocbuf (buffer-name oprocbuf))
+       (with-current-buffer oprocbuf
++	(comint-insert-output process string)))))
++  
++(defun comint-insert-output (process string)
++  (if comint-allow-output-p
++      (progn
+ 	;; Run preoutput filters
+ 	(let ((functions comint-preoutput-filter-functions))
+ 	  (while (and functions string)
+@@ -1683,7 +1735,111 @@
+ 
+ 	    (goto-char saved-point)
+ 
+-	    (run-hook-with-args 'comint-output-filter-functions string)))))))
++	    (run-hook-with-args 'comint-output-filter-functions string))))
++    (run-hook-with-args 'comint-unallowed-output-filter-functions string)))
++
++(defun comint-dispatch-filter-initialize ()
++  (setq comint-dispatch-state 'idle))
++
++(defun comint-dispatch-output-filter (process input)
++  (let ((buffer (process-buffer process))
++	(inhibit-quit nil)) ;MDJ
++    (if (and buffer (buffer-name buffer))
++	(let ((old-buffer (current-buffer)))
++	  (unwind-protect
++	      (progn
++		(set-buffer buffer)
++		(while input
++		  (cond ((eq comint-dispatch-state 'idle)
++			 (let ((start (string-match
++				       comint-dispatch-escape-character
++				       input)))
++			   (if start
++			       (progn
++				 (comint-insert-output
++				  process
++				  (substring input 0 start))
++				 (setq input
++				       (substring input (1+ start)))
++				 (setq comint-dispatch-state 'reading-type))
++			     (comint-insert-output process input)
++			     (setq input nil))))
++			((eq comint-dispatch-state 'reading-type)
++			 (if (zerop (length input))
++			     (setq input nil)
++			   (let ((char (aref input 0)))
++			     (setq input (substring input 1))
++			     (let ((entry (assq char comint-dispatch-alist)))
++			       (if entry
++				   (funcall (nth 2 entry) (nth 1 entry))
++				 (progn
++				   (comint-insert-output
++				    process
++				    (concat comint-dispatch-escape-character
++					    (char-to-string char)))
++				   (setq comint-dispatch-state 'idle)))))))
++			((eq comint-dispatch-state 'reading-string)
++			 (let ((end (string-match
++				     comint-dispatch-string-end-regexp
++				     input)))
++			   (if end
++			       (let ((string
++				      (concat comint-string-accumulator
++					      (substring input 0 end))))
++				 (setq input
++				       (substring input (match-end 0)))
++				 (setq comint-dispatch-state 'idle)
++				 (funcall comint-string-receiver string))
++			     (setq comint-string-accumulator
++				   (concat comint-string-accumulator input))
++			     (setq input nil))))
++			((eq comint-dispatch-state 'reading-to-buffer)
++			 (let ((end (string-match
++				     comint-dispatch-buffer-end-regexp
++				     input)))
++			   (if end
++			       (progn
++				 (save-excursion
++				   (set-buffer comint-receiving-buffer)
++				   (insert (substring input 0 end)))
++				 (setq input
++				       (substring input (match-end 0)))
++				 (setq comint-dispatch-state 'idle)
++				 (funcall comint-buffer-receiver
++					  comint-receiving-buffer))
++			     (save-excursion
++			       (set-buffer comint-receiving-buffer)
++			       (insert input))
++			     (setq input nil))))
++			(t
++			 (error "Scheme process filter -- bad state")))))
++	    (set-buffer old-buffer))))))
++
++(put 'comint-dispatch-output-filter 'initialize
++     'comint-dispatch-filter-initialize)	      
++
++(defvar comint-dispatch-escape-character "\032"
++  "The escape character which introduces commands from the process.
++See `comint-dispatch-output-filter'.")
++
++(defvar comint-dispatch-string-end-regexp "\032\\.")
++
++(defvar comint-dispatch-buffer-end-regexp "\032\\.")
++
++(defvar comint-dispatch-alist '()
++  "Table used to decide how to handle process filter commands.
++Value is a list of entries, each entry is a list of three items.
++
++The first item is the character that the process filter dispatches on.
++The second item is the action to be taken, a function.
++The third item is the handler for the entry, a function.
++
++When the process filter sees a command whose character matches a
++particular entry, it calls the handler with two arguments: the action
++and the string containing the rest of the process filter's input
++stream.  It is the responsibility of the handler to invoke the action
++with the appropriate arguments, and to reenter the process filter with
++the remaining input.")
+ 
+ (defun comint-preinput-scroll-to-bottom ()
+   "Go to the end of buffer in all windows showing it.
+
+Diff finished at Wed Aug 20 19:18:43

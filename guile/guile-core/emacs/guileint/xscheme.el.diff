@@ -1,0 +1,4 @@
+cd ~/Downloads/guileint-1.5.2/
+diff -Naur /home/neil/Downloads/ /home/neil/Downloads/guileint-1.5.2/xscheme.el
+
+Diff finished (no differences) at Wed Aug 20 19:30:31

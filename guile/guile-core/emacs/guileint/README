@@ -1,0 +1,10 @@
+This directory holds the Emacs side of an experimental Guile/Emacs
+interface.  The Guile side of the interface is in ice-9/emacs.scm.
+
+This interface has previously been developed by Mikael Djurfeldt - see
+README.mdj for his notes - and is now being worked on (slowly!) by
+Neil Jerram <neil@ossau.uklinux.net>.  Drop me a line if you're
+interested in helping out.
+
+There is no installation or distribution support here yet because this
+code isn't yet intended to be installed or distributed.

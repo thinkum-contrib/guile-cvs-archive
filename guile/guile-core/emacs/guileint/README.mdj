@@ -1,0 +1,213 @@
+Guile-Emacs interface
+=====================
+
+This is version 1.5.2 of an Emacs interaction mode for running the
+Guile Scheme interpreter.  (The Guile side of the interface resides in
+ice-9/emacs.scm.)
+
+It was originally part of a Guile-based course environment at KTH,
+Stockholm.
+
+Disclaimer
+----------
+
+The core of this code was thrown together in a few days and was never
+intended as more than a prototype.  It has then evolved through
+patching to quickly fix problems or adding new features and has for a
+very long time been a playground for miscellaneous wild ideas.  The
+quality of the code reflects this.
+
+Features
+--------
+
+1. Automatic displaying (and highlighting) of erring expression in
+   source buffer.
+
+2. Tracking of source expressions in the source buffer so that
+   scheme:s view of source positions can be translated into actual
+   position which may be different due to recent editing in the
+   buffer.
+
+3. Errors and backtraces come up in separate buffers. (This keeps the
+   interaction buffer cleaner, and it's easier to see what you've
+   written before.)
+
+4. The part of the interaction buffer above the prompt line is write
+   protected.  The motivation is to enforce a correct dialog history.
+
+5. Typing things in the interaction buffer while point is above the
+   prompt line moves point to prompt line.
+
+6. Previous expressions in the interaction buffer are clickable.
+   Clicking reenters the expression to the interpreter.  Clicking
+   with shift copies the expression to the prompt line.
+
+7. Backtraces are clickable so that klicking (mouse-2) on a certain
+   frame selects it, and, if possible, highlights the corresponding
+   expression in the source buffer.
+
+8. Shift-clicking (S-mouse-2) on a variable in the source buffer or in
+   a backtrace window displays the value in the echo area.  The
+   variable is evaluated in the context of the currently selected
+   backtrace frame (see feature 7).
+
+9. The users input and the computers answer has different faces.
+
+10. Incomplete expressions in scheme buffers has a special face.
+
+11. Completion: When TAB:ing in the *scheme* buffer (or S-TAB:ing in
+    the scheme source buffer), Emacs tries to complete the text at
+    point into a currently accessible scheme symbol.
+
+12. Probably several more features which I haven't documented here
+    yet...
+
+Planned features
+----------------
+
+13. When single stepping through code, the current expression should
+    be highlighted in the source buffer.
+
+Short notes on how to run it
+----------------------------
+
+Choose "Guile" in the "Interpret" menu.
+
+Then you should get a scheme window with a running Guile.
+
+First try typing something erroneous.
+
+You should get an error + backtrace window.
+You can exit this with `q' or ESC.
+
+Then try opening a scheme file, e. g. "foo.scm".
+Type in something, e. g.,
+
+(define (fac x)
+  (if (= x 0)
+      (koko)
+      (* x (fac (1- x)))))
+
+Choose "Eval buffer" from the menu, then type "(foo 3)" in
+the scheme interpreter window.
+
+Your scheme buffer ("foo.scm") should now pop up, split into three
+sections, and the expression "(koko)" should be marked in red.
+
+Again, typing `q' or ESC *in the error or backtrace window* will
+remove these windows.
+
+Now try out the different items in the Scheme buffer "Scheme" menu.
+If you go to the buffer "foo.scm" and select "Attach buffer" in the
+menu, all changes to definitions in that buffer will be automagically
+transfered to scheme.  So, the illusion produced is that typing in the
+"foo.scm" buffer is like typing into scheme memory.
+
+This illusion breaks down, however, if the scheme buffer contains
+other stuff than procedure definitions...
+
+Code
+----
+
+The two main components are:
+
+* Code that can track positions of expressions in a source buffer
+  while editing.  It maintains overlays over each top-level
+  expression, and can create new ones and delete old ones on the fly.
+
+* An extension to comint so that it gets a dispatching I/O multiplexer
+  similar to the one in xscheme.el.
+
+Most things are in "guile.el".
+
+Some setups + additional code is done by init-file-like files like
+"guile-init.el".  These are relics from the two first days of the
+interface's life when it still had something reminiscent of
+structure... ;-)
+
+Files with the same names as files in the Emacs distribution is slight
+modifications of the correspondees.  I originally planned to try
+getting these included in Emacs.
+
+The following changes have been made to files from the Emacs distribution:
+
+cmuscheme.el:
+
+1. New buffer local variable:
+
+  inferior-scheme-mode-line-process
+
+2. The variable
+
+  scheme-buffer
+
+has been replaced by the buffer local variable
+
+  inferior-scheme-associated-buffers
+
+3. mode-line-process has been changed to use
+
+  inferior-scheme-mode-line-process
+
+comint.el:
+
+1. New buffer local variables:
+
+  comint-unallowed-output-filter-functions
+  comint-output-filter-function
+  comint-allow-output-p
+  comint-dispatch-state
+  comint-string-accumulator
+  comint-string-receiver
+  comint-receiving-buffer
+  comint-buffer-receiver
+
+2. Patch to comint-exec
+
+Use comint-output-filter-function instead of comint-output-filter.
+
+3. Patch to comint-output-filter.
+
+4. New functions:
+
+  comint-insert-output
+  comint-dispatch-filter-initialize
+  comint-dispatch-output-filter
+
+5. New variables:
+
+  comint-dispatch-escape-character
+  comint-dispatch-string-end-regexp
+  comint-dispatch-buffer-end-regexp
+  comint-dispatch-alist
+
+Debugging
+---------
+
+* If you don't get a guile prompt in the *scheme* buffer or if the
+  Emacs interface doesn't seem to have been activated, please
+  see the note about guile.patch in INSTALL.
+
+If you do
+
+  M-x guile-show-overlays
+
+in a scheme source buffer, the interface will show how it interprets
+the expressions in the buffer (and how it tracks them, when they are
+modified).
+
+Shut it off with
+
+  M-x guile-hide-overlays
+
+I use *pairs* of colors for denoting each meaning.  This is so that
+you can distinguish adjacent overlays from eachother.
+
+Colors mean:
+
+dark/light blue: expressions are unmodified since last sent to Guile
+
+green/pink: expressions have been modified
+
+underlined: expressions are "broken" (which means that they can't be
+            sent to Guile)

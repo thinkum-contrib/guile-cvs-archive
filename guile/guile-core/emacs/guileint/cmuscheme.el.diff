@@ -1,0 +1,37 @@
+cd ~/Guile/cvs/guile-core/emacs/guileint/uncommitted/
+diff -Naur /home/neil/Downloads/ /home/neil/Guile/cvs/guile-core/emacs/guileint/uncommitted/cmuscheme.el
+--- /home/neil/Downloads/cmuscheme.el	Wed Aug 20 19:41:08 2003
++++ /home/neil/Guile/cvs/guile-core/emacs/guileint/uncommitted/cmuscheme.el	Fri Aug  8 14:33:43 2003
+@@ -88,7 +88,7 @@
+ ;;;   of this facility.
+ ;;;
+ ;;; 3/12/90 Olin
+-;;; - scheme-load-file and scheme-compile-file no longer switch-to-scheme.
++;;; - scheme-load-file and scheme-compile-file no longer switch-to-scheme
+ ;;;   Tale suggested this.
+ 
+ ;;; Code:
+@@ -155,7 +155,9 @@
+     '("Evaluate Last S-expression" . scheme-send-last-sexp))
+ )
+ 
+-(defvar scheme-buffer)
++(defvar inferior-scheme-mode-line-process '("%s"))
++
++(defvar inferior-scheme-associated-buffers '())
+ 
+ (define-derived-mode inferior-scheme-mode comint-mode "Inferior Scheme"
+   "Major mode for interacting with an inferior Scheme process.
+@@ -197,7 +199,9 @@
+   ;; Customise in inferior-scheme-mode-hook
+   (setq comint-prompt-regexp "^[^>\n]*>+ *") ; OK for cscheme, oaklisp, T,...
+   (scheme-mode-variables)
+-  (setq mode-line-process '(":%s"))
++  (make-local-variable 'inferior-scheme-mode-line-process)
++  (make-local-variable 'inferior-scheme-associated-buffers)
++  (setq mode-line-process '(":" inferior-scheme-mode-line-process))
+   (setq comint-input-filter (function scheme-input-filter))
+   (setq comint-get-old-input (function scheme-get-old-input)))
+ 
+
+Diff finished at Wed Aug 20 19:41:25
