@@ -166,6 +166,94 @@ Lots of complexity here.  Many interesting ideas come from Mikael
 Djurfeldt's guileint interface, but the end result will look quite
 different from that, I think.
 
+The following subsections describe some of the ideas that I have in
+mind.
+
+4.3.1. Tracking the relationship between Scheme source buffers and the
+       application they are relevant to
+
+[This idea comes from guileint.]
+
+Suppose a debugged application hits an error, and Emacs pops up a
+buffer displaying the source code for the error location.  If the user
+edits and then wants to reevaluate part of that source code, the
+frontend should know that the application to send the evaluation to is
+the one that just hit the error.
+
+Then there is the case where the edit is in a file not yet known by
+the frontend to be associated with the application ...
+
+Getting the associated application is ultimately a heuristic effort.
+Therefore the goal is not to implement something provably correct, but
+to guess helpfully what the user wants 90% of the time, provide useful
+cues as to what the frontend is guessing, and make it equally easy for
+the user to go with the guess and to override it.
+
+4.3.2. Enhanced Scheme buffer editing
+
+[This idea comes from guileint.]
+
+Enhanced editing helps the user by keeping track of which top level
+forms have been edited since they were last evaluated by the
+associated application, and provides a convenient `reevaluate all
+edited forms' command.
+
+It also remembers, for each top level form, what the result of the
+last evaluation was.
+
+It also detects when a top level form is syntactically broken -
+i.e. its parentheses don't balance.  Broken forms are excluded from
+the `reevaluate all edited forms' command.
+
+Finally, it visually indicates the current state of each top level
+form, which is one of `up to date', `edited' or `broken'.
+
+4.3.3. Application and module browsing
+
+This is a tree-like display of:
+
+Applications
+  Modules (used by each application)
+    Bindings (of each module)
+
+It can be used to:
+- set and configure breakpoints
+- see the current value of a binding
+- see the documentation for a binding.
+
+There are several possible methods for getting the list of modules for
+an application, and the list of bindings for a module, from static
+scanning to actually loading or running the code and seeing what
+results.  The desirability and safety of each method depends on the
+code itself and is difficult to determine heuristically, so the
+frontend simply provides all the available options and leaves the
+choice up to the user.  (Perhaps defaulting to a safe static scan.)
+
+I think it would be good to implement this as a specialized kind of
+Speedbar, to avoid completely reinventing the wheel.
+
+4.3.4. Error location and stack display
+
+[This idea comes from guileint.]
+
+When an error or breakpoint is hit, the frontend displays, in 3
+windows:
+- the relevant source code
+- the stack
+- the error or breakpoint details.
+
+At such times, the frontend provides convenience commands for
+exploring the stack, evaluating variables, single stepping, continuing
+execution and whatever else is useful.
+
+4.3.5. Debug session recording and replay
+
+One disadvantage of a graphical interface is that it can be difficult
+to keep a log of actions performed and to repeat actions if necessary.
+The Emacs frontend remedies this by keeping a record of actions
+performed, on a per-application basis, and making it possible to
+replay them.
+
 4.4. Debugging channel protocol
 
 (name NAME)
