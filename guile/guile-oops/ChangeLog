@@ -1,3 +1,7 @@
+1999-12-14  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* goops.c (SCM_GOOPS_UNBOUND): Define as SCM_UNBOUND if existent.
+
 1999-12-12  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* goops.c (set_slot_value_if_unbound): Removed.
