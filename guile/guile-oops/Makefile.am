@@ -29,7 +29,7 @@ subpkgdata_DATA = goops.scm
 
 goops_sources = dispatch.scm compile.scm util.scm stklos.scm \
 		describe.scm internal.scm active-slot.scm composite-slot.scm \
-		save.scm
+		save.scm old-define-method.scm
 
 goopsdatadir = $(datadir)/guile/@GUILEVERSION@/oop/goops
 goopsdata_DATA = $(goops_sources)

@@ -108,7 +108,7 @@ modinclude_DATA = versiondat.h
 subpkgdatadir = $(datadir)/guile/@GUILEVERSION@/oop
 subpkgdata_DATA = goops.scm
 
-goops_sources = dispatch.scm compile.scm util.scm stklos.scm 		describe.scm internal.scm active-slot.scm composite-slot.scm 		save.scm
+goops_sources = dispatch.scm compile.scm util.scm stklos.scm 		describe.scm internal.scm active-slot.scm composite-slot.scm 		save.scm old-define-method.scm
 
 
 goopsdatadir = $(datadir)/guile/@GUILEVERSION@/oop/goops
