@@ -244,7 +244,11 @@
 (define (ensure-class name supers slots metaclass env . options)
   (let ((supers (if (null? supers) 
 		    (list (%find-class '<object> env))
-		    (map (lambda (x) (%find-class x env)) supers))))
+		    (map (lambda (x)
+			   (if (is-a? x <class>)
+			       x
+			       (%find-class x env)))
+			 supers))))
     ;; Verify that all direct slots are different and that we don't inherit
     ;; several time from the same class
     (let ((tmp1 (find-duplicate supers))
