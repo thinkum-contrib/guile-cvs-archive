@@ -43,7 +43,7 @@ opt_objs=@opt_objs@
 
 source= hashrexp.c runtests.c rx.c rxanal.c rxbasic.c rxbitset.c rxcset.c rxdbug.c rxgnucomp.c rxhash.c rxnfa.c rxnode.c rxposix.c rxsimp.c rxspencer.c rxstr.c rxsuper.c rxunfa.c rgx.c
 
-headers=_rx.h rx.h rxanal.h rxbasic.h rxbitset.h rxcontext.h rxcset.h rxgnucomp.h rxhash.h rxnfa.h rxnode.h inst-rxposix.h  rxposix.h rxproto.h rxsimp.h rxspencer.h rxstr.h rxsuper.h rxunfa.h testcases.h rxall.h
+headers=_rx.h rx.h rgx.h rxanal.h rxbasic.h rxbitset.h rxcontext.h rxcset.h rxgnucomp.h rxhash.h rxnfa.h rxnode.h inst-rxposix.h  rxposix.h rxproto.h rxsimp.h rxspencer.h rxstr.h rxsuper.h rxunfa.h testcases.h rxall.h
 
 ancillery = \
 	COPYING.LIB \
