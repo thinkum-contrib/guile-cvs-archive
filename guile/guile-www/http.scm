@@ -1,22 +1,22 @@
-;;;; www/http.scm: HTTP client library for Guile.
+;;; www/http.scm --- HTTP client library for Guile
 
-;;;; 	Copyright (C) 1997,2001 Free Software Foundation, Inc.
-;;;;
-;;;; This program is free software; you can redistribute it and/or modify
-;;;; it under the terms of the GNU General Public License as published by
-;;;; the Free Software Foundation; either version 2, or (at your option)
-;;;; any later version.
-;;;;
-;;;; This program is distributed in the hope that it will be useful,
-;;;; but WITHOUT ANY WARRANTY; without even the implied warranty of
-;;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-;;;; GNU General Public License for more details.
-;;;;
-;;;; You should have received a copy of the GNU General Public License
-;;;; along with this software; see the file COPYING.  If not, write to
-;;;; the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
-;;;; Boston, MA 02111-1307 USA
-;;;;
+;; 	Copyright (C) 1997,2001,2002 Free Software Foundation, Inc.
+;;
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation; either version 2, or (at your option)
+;; any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this software; see the file COPYING.  If not, write to
+;; the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
+;; Boston, MA 02111-1307 USA
+;;
 
 ;;; Commentary:
 
@@ -53,29 +53,29 @@
 (define-public http:version "HTTP/1.0")  ; bump up to 1.1 when ready
 (define-public http:user-agent "GuileHTTP 0.1")
 
-;;; An HTTP message is represented by a vector:
-;;;	#(VERSION STATUS-CODE STATUS-TEXT HEADERS BODY)
-;;;
-;;; Each of VERSION, STATUS-CODE, STATUS-TEXT are strings.  HEADERS
-;;; is an alist of headers and their contents.  BODY is a single string.
+;; An HTTP message is represented by a vector:
+;;	#(VERSION STATUS-CODE STATUS-TEXT HEADERS BODY)
+;;
+;; Each of VERSION, STATUS-CODE, STATUS-TEXT are strings.  HEADERS
+;; is an alist of headers and their contents.  BODY is a single string.
 
 (define (http:make-message version statcode stattext headers body)
   (vector version statcode stattext headers body))
 
 ;;;; HTTP status predicates.
-;;;
-;;; (http:message-version MSG)
-;;;	Returns the HTTP version in use in HTTP message MSG.
-;;;
-;;; (http:message-status-code MSG)
-;;;	Returns the status code returned in HTTP message MSG.
-;;;
-;;; (http:message-status-text MSG)
-;;;	Returns the text of the status line from HTTP message MSG.
-;;;
-;;; (http:message-status-ok? STATUS)
-;;;	Returns #t if status code STATUS indicates a successful request,
-;;;	#f otherwise.
+
+;; (http:message-version MSG)
+;;	Returns the HTTP version in use in HTTP message MSG.
+;;
+;; (http:message-status-code MSG)
+;;	Returns the status code returned in HTTP message MSG.
+;;
+;; (http:message-status-text MSG)
+;;	Returns the text of the status line from HTTP message MSG.
+;;
+;; (http:message-status-ok? STATUS)
+;;	Returns #t if status code STATUS indicates a successful request,
+;;	#f otherwise.
 
 (define-public (http:message-version msg)     (vector-ref msg 0))
 (define-public (http:message-status-code msg) (vector-ref msg 1))
@@ -87,33 +87,33 @@
 
 (define-public (http:message-body msg) (vector-ref msg 4))
 
-;;; HTTP response headers functions
-;;;
-;;; An HTTP message header is represented here by a pair.  The CAR is a
-;;; symbol representing the header name, and the CDR is a string
-;;; containing the header text.  E.g.:
-;;;
-;;;	'((date . "Thu, 29 May 1997 23:48:27 GMT")
-;;;	  (server . "NCSA/1.5.1")
-;;;	  (last-modified . "Tue, 06 May 1997 18:32:03 GMT")
-;;;	  (content-type . "text/html")
-;;;	  (content-length . "8097"))
-;;;
-;;; Note: these symbols are all lowercase, although the original headers
-;;; were mixed-case.  Clients using this library should keep this in
-;;; mind, since Guile symbols are case-sensitive.
-;;;
-;;; FIXME: should headers with known semantics be parsed automatically?
-;;;   I.e. should the Content-Length header automatically get string->number?
-;;;   Should Date and Last-Modified headers be run through strptime?
-;;;   It is advantageous to keep headers in a uniform format, but it may
-;;;   be convenient to parse headers that have unambiguous meanings.
-;;;
-;;; (http:message-headers MSG)
-;;;	Returns a list of the headers from HTTP message MSG.
-;;; (http:message-header HEADER MSG)
-;;;	Return the header field named HEADER from HTTP message MSG, or
-;;;	#f if no such header is present in the message.
+;; HTTP response headers functions
+;;
+;; An HTTP message header is represented here by a pair.  The CAR is a
+;; symbol representing the header name, and the CDR is a string
+;; containing the header text.  E.g.:
+;;
+;;	'((date . "Thu, 29 May 1997 23:48:27 GMT")
+;;	  (server . "NCSA/1.5.1")
+;;	  (last-modified . "Tue, 06 May 1997 18:32:03 GMT")
+;;	  (content-type . "text/html")
+;;	  (content-length . "8097"))
+;;
+;; Note: these symbols are all lowercase, although the original headers
+;; were mixed-case.  Clients using this library should keep this in
+;; mind, since Guile symbols are case-sensitive.
+;;
+;; FIXME: should headers with known semantics be parsed automatically?
+;;   I.e. should the Content-Length header automatically get string->number?
+;;   Should Date and Last-Modified headers be run through strptime?
+;;   It is advantageous to keep headers in a uniform format, but it may
+;;   be convenient to parse headers that have unambiguous meanings.
+;;
+;; (http:message-headers MSG)
+;;	Returns a list of the headers from HTTP message MSG.
+;; (http:message-header HEADER MSG)
+;;	Return the header field named HEADER from HTTP message MSG, or
+;;	#f if no such header is present in the message.
 
 (define-public (http:message-headers msg) (vector-ref msg 3))
 (define-public (http:message-header header msg)
@@ -141,11 +141,11 @@
 
 
 ;;; HTTP connection management functions.
-;;;
-;;; Open connections are cached on hostname in the connection-table.
-;;; If an HTTP connection is already open to a particular host and TCP port,
-;;; looking up the hostname and port number in connection-table will yield
-;;; a Scheme port that may be used to communicate with that server.
+
+;; Open connections are cached on hostname in the connection-table.
+;; If an HTTP connection is already open to a particular host and TCP port,
+;; looking up the hostname and port number in connection-table will yield
+;; a Scheme port that may be used to communicate with that server.
 
 (define connection-table '())
 
@@ -165,20 +165,20 @@
 
 
 ;;; HTTP methods.
-;;;
-;;; Common methods: GET, POST etc.
+
+;; Common methods: GET, POST etc.
 
 (define-public (http:get url)
   ;; FIXME: if http:open returns an old connection that has been
   ;; closed remotely, this will fail.
   (http:request "GET" url))
 
-;;; Connection-oriented functions:
-;;;
-;;; (http:open HOST [PORT])
-;;;     Return an HTTP connection to HOST on TCP port PORT (default 80).
-;;;     If an open connection already exists, use it; otherwise, create
-;;;     a new socket.
+;; Connection-oriented functions:
+;;
+;; (http:open HOST [PORT])
+;;     Return an HTTP connection to HOST on TCP port PORT (default 80).
+;;     If an open connection already exists, use it; otherwise, create
+;;     a new socket.
 
 (define-public (http:open host . args)
   (let ((port (cond ((null? args) 80)
@@ -192,31 +192,31 @@
 	  (add-open-connection! host port sock)
 	  sock))))
 
-;;; (http:request METHOD URL [HEADERS [BODY]])
-;;;	Submit an HTTP request.
-;;;     URL is a structure returned by url:parse.
-;;;     METHOD is the name of some HTTP method, e.g. "GET" or "POST".
-;;;     The optional HEADERS and BODY arguments are lists of strings
-;;;     which describe HTTP messages.  The `Content-Length' header
-;;;     is calculated automatically and should not be supplied.
-;;;
-;;;	Example usage:
-;;;	  (http:request "get" parsed-url
-;;;			(list "User-Agent: GuileHTTP 0.1"
-;;;			      "Content-Type: text/plain"))
-;;;       (http:request "post" parsed-url
-;;;			(list "User-Agent: GuileHTTP 0.1"
-;;;			      "Content-Type: unknown/x-www-form-urlencoded")
-;;;			(list "search=Gosper"
-;;;			      "case=no"
-;;;			      "max_hits=50"))
+;; (http:request METHOD URL [HEADERS [BODY]])
+;;	Submit an HTTP request.
+;;     URL is a structure returned by url:parse.
+;;     METHOD is the name of some HTTP method, e.g. "GET" or "POST".
+;;     The optional HEADERS and BODY arguments are lists of strings
+;;     which describe HTTP messages.  The `Content-Length' header
+;;     is calculated automatically and should not be supplied.
+;;
+;;	Example usage:
+;;	  (http:request "get" parsed-url
+;;			(list "User-Agent: GuileHTTP 0.1"
+;;			      "Content-Type: text/plain"))
+;;       (http:request "post" parsed-url
+;;			(list "User-Agent: GuileHTTP 0.1"
+;;			      "Content-Type: unknown/x-www-form-urlencoded")
+;;			(list "search=Gosper"
+;;			      "case=no"
+;;			      "max_hits=50"))
 
 (define-public (http:request method url . args)
   (let ((host     (url:host url))
 	(tcp-port (or (url:port url) 80))
-	(path     (string-append "/" (or (url:path url) ""))))
+	(path     (format #f "/~A" (or (url:path url) ""))))
     (let ((sock (http:open host tcp-port))
-	  (request (string-append method " " path " " http:version))
+	  (request (format #f "~A ~A ~A" method path http:version))
 	  (headers (if (pair? args) (car args) '()))
 	  (body    (if (and (pair? args) (pair? (cdr args)))
 		       (cadr args)
@@ -227,8 +227,7 @@
 			    (+ 2 (string-length line)))	; + 2 for CRLF
 			  body)))
 	     (headers (if (positive? content-length)
-			  (cons (string-append "Content-Length: "
-					       (number->string content-length))
+			  (cons (format #f "Content-Length: ~A" content-length)
 				headers)
 			  headers)))
 
@@ -289,7 +288,7 @@
 
 
 
-;;;; System interface cruft & string funcs
+;;; System interface cruft & string funcs
 
 (define (read-n-chars num . port-arg)
   (let ((p (if (null? port-arg)
@@ -305,10 +304,10 @@
   (apply display line p)
   (apply display "\r\n" p))
 
-;;; (sans-trailing-whitespace STR)
-;;;	These are defined in module (ice-9 string-fun), so this code
-;;;	will prob.  be discarded when the module system and boot-9
-;;;	settle down.
+;; (sans-trailing-whitespace STR)
+;;	These are defined in module (ice-9 string-fun), so this code
+;;	will prob.  be discarded when the module system and boot-9
+;;	settle down.
 
 (define (sans-trailing-whitespace s)
   (let ((st 0)
