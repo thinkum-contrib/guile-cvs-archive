@@ -1236,8 +1236,6 @@
 						  (apply previous-definition 
 							 l))))
 				    '()))
-    (slot-set! generic 'n-specialized 0)
-    (slot-set! generic 'used-by #f)
     (if name
 	(set-procedure-property! generic 'name name))
     ))
