@@ -3,6 +3,8 @@
 	* goops.c (scm_sys_modify_instance, scm_sys_modify_class):
 	Rewritten (In Guile-1.4, we can no longer rely on
 	SCM_REDEFER/REALLOW_INTS.)
+	(scm_wrap_init, scm_wrap_object): Adapt to recent change to
+	structs in guile.
 
 2000-08-08  Mikael Djurfeldt  <mdj@linnaeus.mit.edu>
 
