@@ -455,7 +455,9 @@
 (define-method (literal? o env)
   (or (immediate? o)
       (excluded? o env)
-      (literal? (object-info o env))))
+      (let ((info (object-info o env)))
+	(or (not (eq? (visiting info) #:defined))
+	    (literal? info)))))
 
 ;;;
 ;;; Enumeration
