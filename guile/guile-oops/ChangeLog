@@ -1,5 +1,11 @@
 1999-01-21  Mikael Djurfeldt  <mdj@barbara.nada.kth.se>
 
+	* goops.c (scm_init_goops_goopscore_module): Added cast for
+	scm_init_goops.
+
+	* goops/goops.scm (change-object-class): Only copy slots with
+	instance allocation. (Thanks to Christian Lynbech.)
+
 	* goops.c: Renamed class Xxx --> scm_class_xxx.
 
 	* goops.c, goops.h: Renamed and moved C globals containing basic
