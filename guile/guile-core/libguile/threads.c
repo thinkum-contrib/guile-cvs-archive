@@ -129,6 +129,9 @@ c_launch_thread (void *p)
 		     (scm_catch_handler_t) c_handler_bootstrip,
 		     data,
 		     (SCM_STACKITEM *) &thread);
+  /* Dirk:FIXME:: In contrast to the scheme level launch function, the SCM
+   * thread object is not invalidated here.  Thus, the thread data can still
+   * be accessed via the SCM thread object even after the thread has died. */
   scm_thread_count--;
   scm_must_free ((char *) data);
   return NULL;
@@ -178,7 +181,18 @@ scheme_launch_thread (void * p)
 		     (scm_catch_handler_t) scheme_handler_bootstrip,
 		     &data,
 		     (SCM_STACKITEM *) &thread);
-  SCM_SET_CELL_WORD_1 (thread, 0);
+  /* Dirk:FIXME:: This code is probably necessary in order not to be able to
+   * access threads from scheme that have died.  However, since 0 may be a
+   * valid value for some existing thread, this is insecure.  Further, after
+   * this value has been set to 0, the function thread_free can not free the
+   * thread any more, since the thread id is not available.
+   * It would be better to have a status bit in the cell type that tells about
+   * whether the thread is still alive.  The problem is, that the two accesses
+   * to the status bit and to the thread id could be interrupted.  Thus, a
+   * mutex would be required to change and read the read status bit and thread
+   * data.  However, since this is an essential mutex used by the threads
+   * implementation, it must be created at guile's startup. */
+  SCM_SET_THREAD_DATA (thread, 0);
   scm_thread_count--;
   SCM_DEFER_INTS;
   return NULL;
@@ -206,7 +220,7 @@ scm_spawn_thread (scm_catch_body_t body, void *body_data,
   /* Prepare parameters for c_launch_thread */
   SCM_NEWCELL (thread);
   SCM_DEFER_INTS;
-  SCM_SETCAR (thread, scm_tc16_thread);
+  SCM_SET_CELL_TYPE (thread, scm_tc16_thread);
   data->u.thread = thread;
   /* Dirk:Note:: We have to set the root data from within the new thread.
    * This is different from the way it was done before.
@@ -223,7 +237,7 @@ scm_spawn_thread (scm_catch_body_t body, void *body_data,
   
   /* Create thread */
   thread_data = (* scm_thread.make_thread) (NULL, c_launch_thread, (void *) data);
-  SCM_SET_CELL_WORD_1 (thread, (scm_bits_t) thread_data);
+  SCM_SET_THREAD_DATA (thread, thread_data);
   
   scm_thread_count++;
   /* Note that the following statement also could cause coop_yield.*/
@@ -272,7 +286,7 @@ SCM_DEFINE(scm_call_with_new_thread, "call-with-new-thread", 2, 0, 0,
   /* Prepare parameters for scheme_launch_thread */
   SCM_NEWCELL (thread);
   SCM_DEFER_INTS;
-  SCM_SETCAR (thread, scm_tc16_thread);
+  SCM_SET_CELL_TYPE (thread, scm_tc16_thread);
   args = scm_cons (error_thunk, SCM_EOL);
   args = scm_cons (thunk, args);
   /* Dirk:Note:: We have to set the root data from within the new thread.
@@ -287,7 +301,7 @@ SCM_DEFINE(scm_call_with_new_thread, "call-with-new-thread", 2, 0, 0,
 
   /* Create thread */
   thread_data = (* scm_thread.make_thread) (NULL, scheme_launch_thread, (void *) SCM_UNPACK (args));
-  SCM_SET_CELL_WORD_1 (thread, (scm_bits_t) thread_data);
+  SCM_SET_THREAD_DATA (thread, thread_data);
 
   scm_thread_count++;
   /* Note that the following statement also could cause coop_yield.*/
@@ -333,8 +347,12 @@ SCM_DEFINE(scm_thread_cancel, "thread-cancel", 1, 0, 0,
 	   "Abort the execution of THREAD.")
 #define FUNC_NAME s_scm_thread_cancel
 {
+  scm_thread_t thread_data;
   SCM_VALIDATE_THREAD (1, thread);
-  (* scm_thread.thread_cancel) (SCM_THREAD_DATA (thread));
+  thread_data = SCM_THREAD_DATA (thread);
+  if (thread_data)
+    /* The thread is still alive */
+    (* scm_thread.thread_cancel) (thread_data);
   return SCM_BOOL_T;
 }
 #undef FUNC_NAME
@@ -343,7 +361,14 @@ SCM_DEFINE(scm_thread_cancel, "thread-cancel", 1, 0, 0,
 static scm_sizet
 thread_free (SCM thread)
 {
-  return (* scm_thread.thread_free) (SCM_THREAD_DATA (thread));  
+  scm_thread_t thread_data = SCM_THREAD_DATA (thread);
+  if (thread_data)
+    /* The thread is still alive */
+    return (* scm_thread.thread_free) (thread_data);
+  else
+    /* Dirk:FIXME:: If the thread has exited, then the thread data is 0.
+     * This has to be solved in a better way. */
+    return 0;
 }
 
 
@@ -360,8 +385,12 @@ SCM_DEFINE(scm_thread_join, "thread-join", 1, 0, 0,
 	   "already terminated.")
 #define FUNC_NAME s_scm_thread_join
 {
+  scm_thread_t thread_data;
   SCM_VALIDATE_THREAD (1, thread);
-  (* scm_thread.thread_join) (SCM_THREAD_DATA (thread), NULL);
+  thread_data = SCM_THREAD_DATA (thread);
+  if (thread_data)
+    /* The thread is still alive */
+    (* scm_thread.thread_join) (thread_data, NULL);
   return SCM_BOOL_T;
 }
 #undef FUNC_NAME
@@ -616,10 +645,18 @@ scm_init_threads (SCM_STACKITEM *i)
   scm_set_smob_free (scm_tc16_mutex, mutex_free);
   scm_tc16_cond = scm_make_smob_type ("condition-variable", 0);
   scm_set_smob_free (scm_tc16_cond, cond_free);
-                                        
+
 #include "libguile/threads.x"
   /* Initialize implementation specific details of the threads support */
+  /* Dirk:FIXME:: We should initialize the functions with some default, and
+   * have the thread library dynamically loaded later.  However, what if some
+   * features are needed from the start, like a mutex that is needed by the
+   * wrapper functions in this file?  Further, how to deal with thread, mutex
+   * etc. objects that were created by threading system a) when system b) is
+   * dynamically loaded? */
   scm_threads_init (i);
+
+  scm_add_feature ("threads");
 }
 
 /*

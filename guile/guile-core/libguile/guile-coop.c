@@ -42,6 +42,7 @@
 
 #include "libguile/coop.h"
 #include "libguile/_scm.h"
+#include "libguile/feature.h"
 #include "libguile/root.h"
 #include "libguile/threads.h"
 #include "libguile/guile-coop.h"
@@ -391,6 +392,8 @@ scm_threads_init (SCM_STACKITEM *i)
   scm_thread.threads_mark_stacks = threads_mark_stacks;
 
   scm_thread.set_threads_stack_size = set_threads_stack_size;
+
+  scm_add_feature ("coop-threads");
 }
 
 

@@ -214,6 +214,7 @@ extern long scm_tc16_cond;
 
 #define SCM_THREADP(x) (!SCM_IMP (x) && (SCM_TYP16 (x) == scm_tc16_thread))
 #define SCM_THREAD_DATA(x) (SCM_CELL_WORD_1 (x))
+#define SCM_SET_THREAD_DATA(x, v) (SCM_SET_CELL_WORD_1 ((x), (v)))
 
 #define SCM_MUTEXP(x) (!SCM_IMP (x) && (SCM_TYP16 (x) == scm_tc16_mutex))
 #define SCM_MUTEX_DATA(x) ((scm_mutex_t *) SCM_CELL_WORD_1 (x))

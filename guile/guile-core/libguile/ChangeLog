@@ -1,3 +1,28 @@
+2000-06-07  Dirk Herrmann  <D.Herrmann@tu-bs.de>
+
+	* feature.c (scm_init_feature):  Let the threads subsystem take
+	care of adding 'threads to the feature list.
+
+	* threads.c (scm_init_threads), guile-coop.c (scm_threads_init):
+	Add 'threads and 'coop-threads to the feature list.
+
+	* init.c (scm_boot_guile_1):  Make sure that the feature list
+	exists before threads are initialized.
+
+	* threads.h (SCM_SET_THREAD_DATA):  Added.
+
+	* threads.c (scheme_launch_thread, scm_spawn_thread,
+	scm_call_with_new_thread):  Use SCM_SET_CELL_TYPE and
+	SCM_SET_THREAD_DATA to modify cell elements of thread objects.
+
+	* threads.c (c_launch_thread, scheme_launch_thread, thread_free):
+	Add comments about invalidating the SCM object of a thread that
+	has exited.
+
+	(scm_thread_cancel, thread_free, scm_thread_join):  Make sure that
+	the thread data is valid (i. e. the thread is still running)
+	before passing thread data to the thread implementation.
+
 2000-06-06  Dirk Herrmann  <D.Herrmann@tu-bs.de>
 
 	* Makefile.am (noinst_HEADERS):  coop-threads.c coop-threads.h

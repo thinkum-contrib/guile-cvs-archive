@@ -485,11 +485,11 @@ scm_boot_guile_1 (SCM_STACKITEM *base, struct main_func_closure *closure)
       scm_init_subr_table ();
       scm_init_root ();
       scm_init_gsubr ();
+      scm_init_feature ();      /* Requires gsubr */
 #ifdef USE_THREADS
-      scm_init_threads (base);  /* Requires gsubr */
+      scm_init_threads (base);  /* Requires gsubr, feature */
 #endif
       start_stack (base);       /* Requires threads */
-      scm_init_feature ();
       scm_init_alist ();
       scm_init_arbiters ();
       scm_init_async ();
