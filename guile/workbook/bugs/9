@@ -1,0 +1,36 @@
+summary: sibling threads not infinite looping
+reported: giraud@tif.inria.fr, 2001-09-24
+
+Manuel Giraud sez:
+> I've configure guile-1.5.4 '--with-threads' and '--with-modules' on a
+> "classical" Linux box and used this code that crash silently :
+>
+> (use-modules (ice-9 threads))
+>
+> (begin-thread
+>  (let loop ()
+>    (display "a")
+>    (newline)
+>    (loop)))
+>
+> (begin-thread
+>  (let loop ()
+>    (display "b")
+>    (newline)
+>    (loop)))
+
+mdj sez:
++ 2001-10-06  Mikael Djurfeldt  <mdj@linnaeus>
++
++ 	These changes fixes a race condition in the Guile coop - pthread
++ 	compatibility code.
++
++ 	* coop.c (mother_awake_p): New variable.
++ 	(coop_create): Set mother_awake_p before creating or signalling
++ 	mother; wait until mother is going to sleep before returning.
++ 	(mother): Reset mother_awake_p before going to sleep.
++
+
+ttn sez:
+crash still occurs w/ "guile -s bug.scm" (cvs checkout on 2001/11/06).
+however, "guile -l bug.scm" works as expected.

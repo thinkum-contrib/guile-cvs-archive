@@ -1,0 +1,11 @@
+summary: documentation mirroring not complete
+reported: lord@regexps.com, 2001-08
+fixed: ttn@glug.org, 2002-03-17
+
+ttn sez:
+uncollated mirroring is already available:
+http://savannah.gnu.org/cgi-bin/viewcvs/guile/
+http://mail.gnu.org/pipermail/guile-devel/
+
+collated snapshots: http://www.glug.org/snap/ (user initiative)
+

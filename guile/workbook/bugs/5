@@ -1,0 +1,34 @@
+summary: uniform vector read-hash "e" clashes w/ exactness specification
+reported: kwright@gis.net / 2001-10-07
+fixed: Mikael Djurfeldt <mdj@linnaeus>, 2001-10-14, guile-core, branch_release-1-6
+fixed: Mikael Djurfeldt <mdj@linnaeus>, 2001-10-14, guile-core, HEAD
+
+Keith Wright sez:
+> Before getting into philosophy, I want to mention that while poking
+> around and rethinking I found the following Bug.
+>
+>     guile> (version)
+>     "1.5.2"
+>     guile> #E3
+>     3
+>     guile> #e3
+>     ERROR: read:uniform-vector list not found
+>     ABORT: (misc-error)
+>     guile> 3
+>
+> This violates both R5RS 7.1 ``Case is insignificant'' and
+>
+> > From: guile-1.5.2/doc/ref/guile.info-3 Line 568
+> >
+> >     The codes for indicating exactness (which can, incidentally, be
+> >  applied to all numerical values) are:
+> >
+> >   * `#e', `#E' -- the number is exact
+
+2001-10-14  Mikael Djurfeldt  <mdj@linnaeus>
+
+	* read.c (scm_lreadr): When user-defined hash procedure returns
+	SCM_UNSPECIFIED: Fall back to standard handling instead of raising
+	an exception.  (This prevents parsing of uniform vectors from
+	interfering with parsing of numbers.)
+

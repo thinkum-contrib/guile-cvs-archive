@@ -1,0 +1,5 @@
+summary: (expt 0 0) -> 0
+reported: rlb, 2001-03-21
+
+According to R5RS (expt 0 0) -> 1
+

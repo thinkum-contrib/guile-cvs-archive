@@ -1,0 +1,43 @@
+summary: (ice-9 optargs) #:rest arg polluted by keys/values
+reported: ttn / 2001-11-09
+fixed: mvo@zagadka.de, 2001-11-09
+
+ttn sez:
+> the following code displays
+>
+>   (#<procedure good x> ())
+>   (#<procedure good x> (1))
+>   (#<procedure good x> ((1 2 3)))
+>   (#<procedure blah x> JAY KAY (#:j JAY #:k KAY))
+>   (#<procedure blah x> JAY KAY (#:j JAY #:k KAY 1))
+>   (#<procedure blah x> JAY KAY (#:j JAY #:k KAY (1 2 3)))
+>
+> but `x' should be the same for both `good' and `blah':
+>
+>   (use-modules (ice-9 optargs) (ice-9 rdelim))
+>
+>   (define* (good #:rest x)
+>     (write-line (list good x)))
+>
+>   (good)
+>   (good 1)
+>   (good '(1 2 3))
+>
+>   (define* (blah #:key (j 'j) (k 'k) #:rest x)
+>     (write-line (list blah j k x)))
+>
+>   (blah #:j 'JAY #:k 'KAY)
+>   (blah #:j 'JAY #:k 'KAY 1)
+>   (blah #:j 'JAY #:k 'KAY '(1 2 3))
+
+mvo sez:
+> In Common Lisp, there are no non-key rest-args when you have keyword
+> parameters.  After the required and optional arguments, there must
+> follow an even number of additional arguments, and every two of them
+> are treated as a keyword/value pair.
+>
+> I think it makes sense the way CL specifies this.  Anything beyond
+> this would lead to confusion.  If you want to go beyond what (ice-9
+> optargs) offers, yo are probably best off writing your own argument
+> parser.
+
