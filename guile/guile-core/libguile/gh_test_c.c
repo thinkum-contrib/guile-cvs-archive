@@ -52,7 +52,7 @@ SCM c_vector_test (SCM s_length);
 
 /* the gh_enter() routine, the standard entry point for the gh_
    interface, makes you use a separate main function */
-void 
+static void 
 main_prog (int argc, char *argv[])
 {
   int done;
