@@ -1,5 +1,8 @@
 2002-11-17  Mikael Djurfeldt  <mdj@linnaeus>
 
+	* configure.in: Make thread support test depend on the existence
+	of scm_internal_select instead of -lqthreads GUILE_LIBS.
+
 	* Makefile.am (INCLUDES): Define INCLUDES to GUILE_CFLAGS.
 
 2002-11-14  Mikael Djurfeldt  <mdj@linnaeus>
