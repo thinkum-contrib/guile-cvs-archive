@@ -1,5 +1,9 @@
 1998-12-04  Christian Lynbech  <chl@tbit.dk>
-
+ 
+	* goops/goops.scm (goops-error): New function.
+	Changed usage of `error' into `goops-error' to get error message
+	formatting and changed directive from "~" to "%".
+	
 	* goops.h: Added missing prototypes for a nunch of functions.
 	Added #include <guile/gh.h>.
 
