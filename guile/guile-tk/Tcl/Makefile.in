@@ -44,35 +44,35 @@ clean:
 # Files which must be generated if system does not provide the function they
 # implement
 
-getcwd.o: ./compat/getcwd.c
-	$(CC) -c $(CFLAGS) ./compat/getcwd.c
+getcwd.o: $(srcdir)/compat/getcwd.c
+	$(CC) -c $(CFLAGS) $(srcdir)/compat/getcwd.c
 
-opendir.o: ./compat/opendir.c
-	$(CC) -c $(CFLAGS) ./compat/opendir.c
+opendir.o: $(srcdir)/compat/opendir.c
+	$(CC) -c $(CFLAGS) $(srcdir)/compat/opendir.c
 
-strerror.o: ./compat/strerror.c
-	$(CC) -c $(CFLAGS) ./compat/strerror.c
+strerror.o: $(srcdir)/compat/strerror.c
+	$(CC) -c $(CFLAGS) $(srcdir)/compat/strerror.c
 
-strstr.o: ./compat/strstr.c
-	$(CC) -c $(CFLAGS) ./compat/strstr.c
+strstr.o: $(srcdir)/compat/strstr.c
+	$(CC) -c $(CFLAGS) $(srcdir)/compat/strstr.c
 
-strtod.o: ./compat/strtod.c
-	$(CC) -c $(CFLAGS) ./compat/strtod.c
+strtod.o: $(srcdir)/compat/strtod.c
+	$(CC) -c $(CFLAGS) $(srcdir)/compat/strtod.c
 
-strtol.o: ./compat/strtol.c
-	$(CC) -c $(CFLAGS) ./compat/strtol.c
+strtol.o: $(srcdir)/compat/strtol.c
+	$(CC) -c $(CFLAGS) $(srcdir)/compat/strtol.c
 
-strtoul.o: ./compat/strtoul.c
-	$(CC) -c $(CFLAGS) ./compat/strtoul.c
+strtoul.o: $(srcdir)/compat/strtoul.c
+	$(CC) -c $(CFLAGS) $(srcdir)/compat/strtoul.c
 
-tmpnam.o: ./compat/tmpnam.c
-	$(CC) -c $(CFLAGS) ./compat/tmpnam.c
+tmpnam.o: $(srcdir)/compat/tmpnam.c
+	$(CC) -c $(CFLAGS) $(srcdir)/compat/tmpnam.c
 
-waitpid.o: ./compat/waitpid.c
-	$(CC) -c $(CFLAGS) ./compat/waitpid.c
+waitpid.o: $(srcdir)/compat/waitpid.c
+	$(CC) -c $(CFLAGS) $(srcdir)/compat/waitpid.c
 
-fixstrtod.o: ./compat/fixstrtod.c
-	$(CC) -c $(CFLAGS) ./compat/fixstrtod.c
+fixstrtod.o: $(srcdir)/compat/fixstrtod.c
+	$(CC) -c $(CFLAGS) $(srcdir)/compat/fixstrtod.c
 
-strncasecmp.o: ./compat/strncasecmp.c
-	$(CC) -c $(CFLAGS) ./compat/strncasecmp.c
+strncasecmp.o: $(srcdir)/compat/strncasecmp.c
+	$(CC) -c $(CFLAGS) $(srcdir)/compat/strncasecmp.c
