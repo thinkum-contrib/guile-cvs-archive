@@ -132,11 +132,11 @@ character set and encoding together as an @dfn{encoding}.
 @node Promised Properties of the Guile Multibyte Encoding, Functions for Operating on Multibyte Text, Multibyte String Terminology, Working With Multibyte Strings in C
 @section Promised Properties of the Guile Multibyte Encoding
 
-Internally, Guile a single encoding for all text --- symbols, strings,
-error messages, etc.  Here we list a number of helpful properties of
-Guile's encoding.  It is correct to write code which assumes these
-properties; code which uses these assumptions will be portable to all
-future versions of Guile, as far as we know.
+Internally, Guile uses a single encoding for all text --- symbols,
+strings, error messages, etc.  Here we list a number of helpful
+properties of Guile's encoding.  It is correct to write code which
+assumes these properties; code which uses these assumptions will be
+portable to all future versions of Guile, as far as we know.
 
 @b{Every @sc{ASCII} character is encoded as a single byte from 0 to 127, in
 the obvious way.}  This means that a standard C string containing only
