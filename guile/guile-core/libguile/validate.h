@@ -156,7 +156,7 @@
 #define SCM_VALIDATE_STRING_COPY(pos, str, cvar) \
   do { \
     SCM_ASSERT (SCM_STRINGP (str), str, pos, FUNC_NAME); \
-    cvar = SCM_CHARS(str); \
+    cvar = SCM_STRING_CHARS(str); \
   } while (0)
 
 #define SCM_VALIDATE_RWSTRING(pos, str) \
