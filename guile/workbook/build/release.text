@@ -128,8 +128,6 @@ Spiffing checklist:
   + Scan the ChangeLogs for user-visible changes, marked with an asterisk
     at the left margin.
   + Update NEWS and the Texinfo documentation as appropriate.
-  + Remove the user-visible markers from the log entries once they're
-    documented.
   + Check for any [[incomplete]] sections of NEWS.
   + Fact-check INSTALL.
   + Make sure AUTHORS and THANKS are up-to-date (see also TODO).
