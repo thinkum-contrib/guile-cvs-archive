@@ -61,6 +61,7 @@ host_alias = @host_alias@
 host_triplet = @host@
 CC = @CC@
 CPP = @CPP@
+GUILE_CONFIG = @GUILE_CONFIG@
 LD = @LD@
 LIBLOBJS = @LIBLOBJS@
 LIBTOOL = @LIBTOOL@
@@ -85,7 +86,7 @@ EXTRA_libgtcltk_la_SOURCES = tclInt.h tclUnixPort.h tclUnixNotfy.c
 BUILT_SOURCES = guile-tcl.x guile-tk.x
 libgtcltk_la_DEPENDENCIES = @LIBLOBJS@
 libgtcltk_la_LIBADD = @LIBLOBJS@
-libgtcltk_la_LDFLAGS = -version-info 1:0
+libgtcltk_la_LDFLAGS = -version-info 1:0 -export-dynamic
 
 guile_tcltk_LDADD = libgtcltk.la
 
@@ -390,6 +391,7 @@ check: all
 installcheck:
 install-exec: install-libLTLIBRARIES install-binPROGRAMS
 	@$(NORMAL_INSTALL)
+	$(MAKE) install-exec-hook
 
 install-data: install-subpkgdataDATA install-modincludeHEADERS
 	@$(NORMAL_INSTALL)
@@ -459,6 +461,14 @@ install uninstall all installdirs mostlyclean-generic distclean-generic \
 clean-generic maintainer-clean-generic clean mostlyclean distclean \
 maintainer-clean
 
+
+install-exec-hook:
+	$(mkinstalldirs) $(subpkgdatadir)
+	(test ! -e $(libdir)/libgtcltk.so.1 \
+	 || (cd $(subpkgdatadir) \
+	     && rm -f libgtcltk.la libgtcltk.so.1 \
+	     && $(LN_S) $(libdir)/libgtcltk.la \
+	     && $(LN_S) $(libdir)/libgtcltk.so.1))
 .c.x:
 	$(SNARF) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $(X_CFLAGS) $< > $@
 
