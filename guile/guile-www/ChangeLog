@@ -1,3 +1,33 @@
+2002-04-26  Thien-Thi Nguyen  <ttn@giblet.glug.org>
+
+	* cgi.scm: Update copyright.
+	Also use modules (ice-9 regex) and (ice-9 optargs).
+
+	(file-uploads, cookies): New vars.
+	(cgi:init): Handle "application/x-www-form-urlencoded".
+	Handle "multipart/form-data".
+	Handle cookies init.
+	(cgi:uploads, cgi:upload, cgi:cookies, cgi:cookie,
+	cgi:make-cookie): New procs, exported.
+	(parse-form-multipart): New proc.
+	(init-environment): Also set var `cgi-http-cookie'.
+	(get-cookies): New proc.
+
+	Thanks to Aaron VanDevender.
+
+	* http.scm: Update copyright.
+	(http:request): Use `format' instead of `string-append'.
+
+	* main.scm: Comment munging; nfc.
+
+	* url.scm: Update copyright.
+	(url:unparse): Use `format' instead of `string-append'.
+
+2002-04-11  Thien-Thi Nguyen  <ttn@glug.org>
+
+	* examples/wwwcat, examples/cookie.cgi, examples/README:
+	New files (wwwcat moved from ..).
+
 2001-11-21  Thien-Thi Nguyen  <ttn@glug.org>
 
 	* wwwcat: Fix typo.  Thanks to Ralf Mattes.
