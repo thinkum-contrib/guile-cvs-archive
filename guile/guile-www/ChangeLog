@@ -1,3 +1,8 @@
+2000-06-04  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* main.scm (www:get): Pass url as single arg.
+	(Thanks to Dale	P. Smith.)
+
 1998-07-27  Jim Blandy  <jimb@red-bean.com>
 
         * Test of EGCS repository access.
