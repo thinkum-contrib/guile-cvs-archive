@@ -893,7 +893,8 @@ public calls (API) all have the @code{scm_} prefix.
 There is also a higher-level libguile interface, which is usually
 referred to as the @code{gh_} interface (libGuile High).  Its public
 calls all have the @code{gh_} prefix.  The @code{gh_} library interface
-is designed to be portable to other underlying Scheme implementations.
+is designed to hide the implementation details, thus making it easier to
+assimilate and portable to other underlying Scheme implementations.
 
 People extending Guile by adding bindings to C libraries (like OpenGL or
 Rx) are encouraged to use the @code{gh_} interface, so their work will
@@ -932,7 +933,7 @@ single source file, @code{learn0.c}:
 
 #include <stdio.h>
 
-#include <gh.h>
+#include <guile/gh.h>
 
 void main_prog(int argc, char *argv[]);
 
@@ -945,8 +946,6 @@ void main_prog(int argc, char *argv[])
 @{
   int done;
   char input_str[200];
-
-  gh_startup();
 
   gh_eval_str("(display \"hello Guile\")");
   gh_eval_str("(newline)");
@@ -973,10 +972,11 @@ void main_prog(int argc, char *argv[])
 If you name this program @code{learn0.c}, it can now be compiled with:
 @smallexample
 gcc -g -c learn0.c -o learn0.o
-gcc -o learn0 learn0.o -lguile -lgh -lm
+gcc -o learn0 learn0.o -lguile -lm
 @end smallexample
-@emph{NOTE: If you are in the Guile development tree, you can simply do
-``cd doc/examples/c; make; ./learn0''.}
+
+@c @emph{NOTE: If you are in the Guile development tree, you can simply do
+@c ``cd doc/examples/c; make; ./learn0''.}
 
 The program is simple: it creates a Scheme interpreter, passes a couple
 of strings to it that define new Scheme functions @code{square} and
@@ -987,7 +987,6 @@ It then goes into a read-eval-print-loop (REPL), so you could type
 one-line Scheme expressions to it and have them evaluated.  For example:
 @smallexample
 <shell-prompt> ./learn0
-welcome to Guile
 hello Guile
 learn0> (display (sin 1.3))
 963.558185417193e-3
@@ -1002,7 +1001,7 @@ You should notice the key steps involved in this @code{learn0} program:
 @cartouche
 @enumerate
 @item
-@code{#include <gh.h>}
+@code{#include <guile/gh.h>}
 @item
 You need to invoke the initialization routine @code{gh_enter()}.  This
 starts up a Scheme interpreter, handling many implementation-specific
@@ -1017,7 +1016,7 @@ works: the whole program has to run in the dynamic context of
 You pass strings to the Scheme interpreter with the @code{gh_eval_str()}
 routine.
 @item
-You link your program with @code{-lgh -lguile}.
+You link your program with @code{-lguile}.
 @end enumerate
 @end cartouche
 

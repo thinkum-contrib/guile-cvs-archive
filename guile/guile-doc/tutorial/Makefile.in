@@ -1,8 +1,14 @@
-# Makefile.in generated automatically by automake 1.2 from Makefile.am
+# Makefile.in generated automatically by automake 1.2f from Makefile.am
 
-# Copyright (C) 1994, 1995, 1996, 1997 Free Software Foundation, Inc.
+# Copyright (C) 1994, 1995, 1996, 1997, 1998 Free Software Foundation, Inc.
 # This Makefile.in is free software; the Free Software Foundation
-# gives unlimited permission to copy, distribute and modify it.
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY, to the extent permitted by law; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
 
 
 SHELL = /bin/sh
@@ -43,17 +49,17 @@ INSTALL_DATA = @INSTALL_DATA@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 transform = @program_transform_name@
 
-NORMAL_INSTALL = true
-PRE_INSTALL = true
-POST_INSTALL = true
-NORMAL_UNINSTALL = true
-PRE_UNINSTALL = true
-POST_UNINSTALL = true
+NORMAL_INSTALL = :
+PRE_INSTALL = :
+POST_INSTALL = :
+NORMAL_UNINSTALL = :
+PRE_UNINSTALL = :
+POST_UNINSTALL = :
 MAKEINFO = @MAKEINFO@
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@
 
-AUTOMAKE_OPTIONS = foreign
+AUTOMAKE_OPTIONS = gnu
 
 info_TEXINFOS = guile-tut.texi
 
@@ -76,9 +82,9 @@ GZIP = --best
 default: all
 
 .SUFFIXES:
-.SUFFIXES: .dvi .info .ps .texi .texinfo
+.SUFFIXES: .dvi .info .ps .texi .texinfo .txi
 $(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
-	cd $(top_srcdir) && $(AUTOMAKE) --foreign tutorial/Makefile
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu tutorial/Makefile
 
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status $(BUILT_SOURCES)
 	cd $(top_builddir) \
@@ -96,17 +102,17 @@ stamp-vti: guile-tut.texi $(top_srcdir)/configure.in
 	@cmp -s vti.tmp $(srcdir)/stamp-vti \
 	  || (echo "Updating $(srcdir)/stamp-vti"; \
 	      cp vti.tmp $(srcdir)/stamp-vti)
-	@rm -f vti.tmp
+	-@rm -f vti.tmp
 
 mostlyclean-vti:
-	rm -f vti.tmp
+	-rm -f vti.tmp
 
 clean-vti:
 
 distclean-vti:
 
 maintainer-clean-vti:
-	rm -f stamp-vti version.texi
+	-rm -f stamp-vti version.texi
 
 guile-tut.info: guile-tut.texi version.texi $(guile_tut_TEXINFOS)
 guile-tut.dvi: guile-tut.texi version.texi $(guile_tut_TEXINFOS)
@@ -141,6 +147,20 @@ DVIPS = dvips
 .texinfo.dvi:
 	TEXINPUTS=$(srcdir):$$TEXINPUTS \
 	  MAKEINFO='$(MAKEINFO) -I $(srcdir)' $(TEXI2DVI) $<
+
+.txi.info:
+	@cd $(srcdir) && rm -f $@ $@-[0-9] $@-[0-9][0-9]
+	cd $(srcdir) \
+	  && $(MAKEINFO) `echo $< | sed 's,.*/,,'`
+
+.txi.dvi:
+	TEXINPUTS=$(srcdir):$$TEXINPUTS \
+	  MAKEINFO='$(MAKEINFO) -I $(srcdir)' $(TEXI2DVI) $<
+
+.txi:
+	@cd $(srcdir) && rm -f $@ $@-[0-9] $@-[0-9][0-9]
+	cd $(srcdir) \
+	  && $(MAKEINFO) `echo $< | sed 's,.*/,,'`
 .dvi.ps:
 	$(DVIPS) $< -o $@
 
@@ -170,9 +190,10 @@ uninstall-info:
 	  ii=yes; \
 	else ii=; fi; \
 	for file in $(INFO_DEPS); do \
-	  test -z $ii || install-info --info-dir=$(infodir) --remove $$file; \
+	  test -z "$ii" \
+	    || install-info --info-dir=$(infodir) --remove $$file; \
 	done
-	$(NORMAL_UNINSTALL)
+	@$(NORMAL_UNINSTALL)
 	for file in $(INFO_DEPS); do \
 	  (cd $(infodir) && rm -f $$file $$file-[0-9] $$file-[0-9][0-9]); \
 	done
@@ -188,18 +209,23 @@ dist-info: $(INFO_DEPS)
 	done
 
 mostlyclean-aminfo:
-	rm -f guile-tut.aux guile-tut.cp guile-tut.cps guile-tut.dvi \
-	  guile-tut.fn guile-tut.fns guile-tut.ky guile-tut.log \
-	  guile-tut.pg guile-tut.toc guile-tut.tp guile-tut.tps \
-	  guile-tut.vr guile-tut.vrs guile-tut.op guile-tut.tr \
-	  guile-tut.cv
+	-rm -f guile-tut.aux guile-tut.cp guile-tut.cps guile-tut.dvi \
+	  guile-tut.fn guile-tut.fns guile-tut.ky guile-tut.kys \
+	  guile-tut.ps guile-tut.log guile-tut.pg guile-tut.toc \
+	  guile-tut.tp guile-tut.tps guile-tut.vr guile-tut.vrs \
+	  guile-tut.op guile-tut.tr guile-tut.cv guile-tut.cn
 
 clean-aminfo:
 
 distclean-aminfo:
 
 maintainer-clean-aminfo:
-	for i in $(INFO_DEPS); do rm -f `eval echo $$i*`; done
+	for i in $(INFO_DEPS); do \
+	  rm -f $$i; \
+	  if test "`echo $$i-[0-9]*`" != "$$i-[0-9]*"; then \
+	    rm -f $$i-[0-9]*; \
+	  fi; \
+	done
 tags: TAGS
 TAGS:
 
@@ -211,8 +237,9 @@ subdir = tutorial
 distdir: $(DISTFILES)
 	here=`cd $(top_builddir) && pwd`; \
 	top_distdir=`cd $(top_distdir) && pwd`; \
+	distdir=`cd $(distdir) && pwd`; \
 	cd $(top_srcdir) \
-	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --foreign tutorial/Makefile
+	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu tutorial/Makefile
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  test -f $(distdir)/$$file \
@@ -245,25 +272,25 @@ installdirs:
 
 
 mostlyclean-generic:
-	test -z "$(MOSTLYCLEANFILES)" || rm -f $(MOSTLYCLEANFILES)
+	-test -z "$(MOSTLYCLEANFILES)" || rm -f $(MOSTLYCLEANFILES)
 
 clean-generic:
-	test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
+	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
 
 distclean-generic:
-	rm -f Makefile $(DISTCLEANFILES)
-	rm -f config.cache config.log stamp-h stamp-h[0-9]*
-	test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
+	-rm -f Makefile $(DISTCLEANFILES)
+	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
+	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 
 maintainer-clean-generic:
-	test -z "$(MAINTAINERCLEANFILES)" || rm -f $(MAINTAINERCLEANFILES)
-	test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
+	-test -z "$(MAINTAINERCLEANFILES)" || rm -f $(MAINTAINERCLEANFILES)
+	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 mostlyclean:  mostlyclean-vti mostlyclean-aminfo mostlyclean-generic
 
 clean:  clean-vti clean-aminfo clean-generic mostlyclean
 
 distclean:  distclean-vti distclean-aminfo distclean-generic clean
-	rm -f config.status
+	-rm -f config.status
 
 maintainer-clean:  maintainer-clean-vti maintainer-clean-aminfo \
 		maintainer-clean-generic distclean
