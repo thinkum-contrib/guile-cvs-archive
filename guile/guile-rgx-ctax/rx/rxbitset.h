@@ -44,7 +44,7 @@ typedef void (*rx_bitset_iterator) ();
 #define rx_bitset_subset_val(B,N)  ((B)[rx_bitset_subset(N)])
 
 
-/* Genericly combine the word containing the Nth bit with a 1 bit mask
+/* Generically combine the word containing the Nth bit with a 1 bit mask
  * of the Nth bit position within that word.
  */
 #define RX_bitset_access(B,N,OP) \

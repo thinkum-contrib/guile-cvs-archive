@@ -47,7 +47,7 @@ enum rexp_node_type
 
   r_interval = 8,		/* Counted subexpression.  `a{4, 1000}' */
   r_parens = 9,			/* Parenthesized subexpression */
-  r_context = 10		/* Context-sensative operator such as "^" */
+  r_context = 10		/* Context-sensitive operator such as "^" */
 };
 
 #define RX_regular_node_type(T)  ((T) <= r_interval)

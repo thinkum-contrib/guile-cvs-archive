@@ -169,7 +169,7 @@ rx_cache_free (cache, size, mem)
  * The fault handler revives the semi-free state, patches
  * incoming transitions back to normal, and continues.
  *
- * The idea is basicly to free in two stages, aborting 
+ * The idea is basically to free in two stages, aborting 
  * between the two if the state turns out to be useful again.
  * When a free is aborted, the rescued superstate is placed
  * in the most-favored slot to maximize the time until it

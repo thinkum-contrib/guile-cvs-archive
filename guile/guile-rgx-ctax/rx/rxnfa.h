@@ -87,7 +87,7 @@ struct rx_nfa_state
    * That set of target states corresponds to one state in the
    * superstate NFA.
    *
-   * Staticly, before matching begins, it is convenient to analyze the
+   * Statically, before matching begins, it is convenient to analyze the
    * nfa.  Each state is labeled with a list of the observably
    * equivalant path sets who's union covers all the
    * epsilon-side-effect paths beginning in this state.  This list is

@@ -21,9 +21,8 @@
  */
 
 
-#if 0
+#ifdef STDC_HEADERS
 #include <stdlib.h>
-#include "malloc.h"
 #endif
 
 #ifdef __STDC__

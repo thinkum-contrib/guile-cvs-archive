@@ -19,6 +19,10 @@
  */
 
 
+#ifdef STDC_HEADERS
+#include <string.h>
+#endif
+
 
 #include "rxall.h"
 #include "rxnode.h"

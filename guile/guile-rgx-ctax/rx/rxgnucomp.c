@@ -1592,7 +1592,7 @@ rx_parse (rexp_p, pattern, size, syntax, cset_size, translate)
 	      break;
 
 	    append_node:
-	      /* This genericly appends the rexp APPEND to *LAST_EXPRESSION
+	      /* This generically appends the rexp APPEND to *LAST_EXPRESSION
 	       * and then parses the next character normally.
 	       */
 	      if (RX_regular_node_type (append->type))

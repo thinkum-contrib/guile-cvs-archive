@@ -1,3 +1,13 @@
+Wed Aug  7 08:27:03 1996  Gary Houston  <ghouston@actrix.gen.nz>
+
+	* Fixes motivated by Petr Adamek <adamek@mit.edu>:
+
+	* spelling fixes.
+
+	* rxall.h: include stdlib.h if STDC_HEADERS.
+
+	* rgx.c, rxnode.c, rxposix.c: include string.h.
+
 Thu Aug  1 03:07:59 1996  Jim Blandy  <jimb@totoro.cyclic.com>
 
 	* Makefile.in: Updated to work with Guile's dist system.

@@ -111,7 +111,7 @@ rx_free_nfa_edge (e)
 
 
 /* This constructs a POSSIBLE_FUTURE, which is a kind epsilon-closure
- * of an NFA.  These are added to an nfa automaticly by eclose_nfa.
+ * of an NFA.  These are added to an nfa automatically by eclose_nfa.
  */  
 
 #ifdef __STDC__

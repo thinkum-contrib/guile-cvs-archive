@@ -43,6 +43,11 @@
 
 #include <stdio.h>
 #include <_scm.h>
+
+#ifdef STDC_HEADERS
+#include <string.h>
+#endif
+
 #include "inst-rxposix.h"
 #include "rxgnucomp.h"
 #include "rxanal.h"
