@@ -238,13 +238,12 @@
   } while (0)
 
 /* [low,high) */
-#define SCM_VALIDATE_INUM_RANGE(pos, k, low, high) \
-  do { \
-    SCM_ASSERT (SCM_INUMP (k), k, pos, FUNC_NAME); \
-    SCM_ASSERT_RANGE (pos, k, \
-		      (SCM_INUM (k) >= low \
-                      && ((unsigned) SCM_INUM (k)) < high)); \
-  } while (0)
+#define SCM_VALIDATE_INUM_RANGE(pos,k,low,high) \
+  do { SCM_ASSERT(SCM_INUMP(k), k, pos, FUNC_NAME); \
+       SCM_ASSERT_RANGE(pos,k, \
+                        (SCM_INUM (k) >= low && \
+                         SCM_INUM (k) < high)); \
+     } while (0)
 
 #define SCM_VALIDATE_INUM_RANGE_COPY(pos, k, low, high, cvar) \
   do { \
