@@ -72,13 +72,13 @@ extern SCM scm_text_not_guile_char;
 
 /* Retrieve the character whose encoding is at P.  */
 #define scm_mb_get(p) \
-  (*(p) < 128 ? *(p) : scm_mb_get_func (p))
+  ((unsigned char) *(p) < 128 ? *(p) : scm_mb_get_func (p))
 extern scm_char_t scm_mb_get_func (const unsigned char *p);
 
 /* Store the encoding of the character C at P, and return the
    encoding's length in bytes.  */
 #define scm_mb_put(c, p) \
-  ((c) < 128 ? (*(p) = c, 1) : scm_mb_put_func ((c), (p)))
+  ((unsigned char) (c) < 128 ? (*(p) = c, 1) : scm_mb_put_func ((c), (p)))
 extern int scm_mb_put_func (scm_char_t c, unsigned char *p);
 
 /* The length of the longest character encoding, in bytes.  */
@@ -86,10 +86,10 @@ extern int scm_mb_put_func (scm_char_t c, unsigned char *p);
 
 /* Given an encoding's first byte, return its length.  */
 #define scm_mb_len(b)				\
-  ((b) < 0x80 ? 1				\
-   : (b) < 0x90 ? 2				\
-   : (b) < 0x9C ? 3				\
-   : (b) < 0x9E ? 4				\
+  ((unsigned char) (b) < 0x80 ? 1		\
+   : (unsigned char) (b) < 0x90 ? 2		\
+   : (unsigned char) (b) < 0x9C ? 3		\
+   : (unsigned char) (b) < 0x9E ? 4		\
    : 1)
 extern int scm_mb_len_func (unsigned char b);
 
@@ -102,7 +102,7 @@ extern int scm_mb_len_char_func (scm_char_t c);
 /* Finding character encoding boundaries.  */
 
 /* Return true if P points at the first byte of an encoding.  */
-#define scm_mb_boundary_p(p) (*(p) < 0xA0)
+#define scm_mb_boundary_p(p) ((unsigned char) *(p) < 0xA0)
 
 /* Round P to the previous/next character boundary.  */
 extern const unsigned char *scm_mb_floor (const unsigned char *p);
