@@ -65,7 +65,7 @@ scm_mb_get_func (const unsigned char *p)
 {
   unsigned char lead = *p;
   
-  if (IS_ASCII_CHAR (lead))
+  if (lead < 0x80)
     return lead;
   else if (lead == 0x80)
     /* Guile does *not* support composite characters, thank goodness.  */
