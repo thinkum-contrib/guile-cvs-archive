@@ -391,6 +391,10 @@ dnl  fi
 dnl  fi
 dnl  fi
 
+# If the system has iconv, we should use it to handle conversions we
+# don't support explicitly ourselves.
+AC_CHECK_FUNCS(iconv)
+
 #--------------------------------------------------------------------
 #
 # Flags for thread support
