@@ -7,7 +7,7 @@
 #
 
 #include ../config.make
-FLAVOR=unix
+FLAVOR=@FLAVOR@
 
 all: libtk.a
 

@@ -539,6 +539,8 @@ ac_configure=$ac_aux_dir/configure # This should be Cygnus configure.
 
 subdirs="unix"
 
+FLAVOR=unix
+
 trap '' 1 2 15
 cat > confcache <<\EOF
 # This file is a shell script that caches the results of configure
@@ -651,7 +653,7 @@ done
 
 ac_given_srcdir=$srcdir
 
-trap 'rm -fr `echo "" | sed "s/:[^ ]*//g"` conftest*; exit 1' 1 2 15
+trap 'rm -fr `echo "Makefile" | sed "s/:[^ ]*//g"` conftest*; exit 1' 1 2 15
 EOF
 cat >> $CONFIG_STATUS <<EOF
 
@@ -682,6 +684,7 @@ s%@oldincludedir@%$oldincludedir%g
 s%@infodir@%$infodir%g
 s%@mandir@%$mandir%g
 s%@subdirs@%$subdirs%g
+s%@FLAVOR@%$FLAVOR%g
 
 CEOF
 EOF
@@ -723,7 +726,7 @@ EOF
 
 cat >> $CONFIG_STATUS <<EOF
 
-CONFIG_FILES=\${CONFIG_FILES-""}
+CONFIG_FILES=\${CONFIG_FILES-"Makefile"}
 EOF
 cat >> $CONFIG_STATUS <<\EOF
 for ac_file in .. $CONFIG_FILES; do if test "x$ac_file" != x..; then
