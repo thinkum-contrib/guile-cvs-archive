@@ -49,6 +49,15 @@ How to get started ===================================================
 
 Demos ================================================================
 
+Hand
+----
+
+(use-modules (tcltk hand))
+
+(hand) starts the demo: a hand turning anti-clockwise.
+
+Use (stop) to stop and (start) to start again.
+
 Graph
 -----
 

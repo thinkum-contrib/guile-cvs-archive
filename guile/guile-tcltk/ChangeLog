@@ -1,3 +1,11 @@
+1998-04-21  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* hand.scm: New demo.
+
+	* Makefile.am: Add new demo.
+
+	* README: Describe new demo.
+
 1998-04-20  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* breakout.scm (loop): Use `usleep' for game-loop.
