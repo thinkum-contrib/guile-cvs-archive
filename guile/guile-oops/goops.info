@@ -1,4 +1,4 @@
-This is goops.info, produced by makeinfo version 3.12s from goops.texi.
+This is goops.info, produced by makeinfo version 4.0 from goops.texi.
 
 INFO-DIR-SECTION Scheme Programming
 START-INFO-DIR-ENTRY
@@ -930,36 +930,36 @@ Function and Variable Index
 
 
 Tag Table:
-Node: Top481
-Node: Introduction973
-Node: Getting Started1825
-Node: Running GOOPS2211
-Node: Methods2711
-Node: User-defined types2971
-Node: Asking for the type of an object3805
-Node: Reference Manual4181
-Node: MOP specification4338
-Node: Tutorial4490
-Node: Copyright4845
-Node: Intro5728
-Node: Class definition and instantiation6832
-Node: Class definition7046
-Ref: Class definition-Footnote-18560
-Ref: Class definition-Footnote-28613
-Ref: Class definition-Footnote-38796
-Node: Inheritance9121
-Node: Class hierarchy and inheritance of slots9410
-Node: Instance creation and slot access11632
-Node: Slot description13118
-Node: Class precedence list20692
-Ref: Class precedence list-Footnote-123234
-Node: Generic functions23335
-Node: Generic functions and methods23525
-Node: Next-method26671
-Node: Example27489
-Ref: Example-Footnote-130686
-Node: Index30908
-Node: Concept Index31004
-Node: Function and Variable Index31981
+Node: Top479
+Node: Introduction971
+Node: Getting Started1823
+Node: Running GOOPS2209
+Node: Methods2709
+Node: User-defined types2969
+Node: Asking for the type of an object3803
+Node: Reference Manual4179
+Node: MOP specification4336
+Node: Tutorial4488
+Node: Copyright4843
+Node: Intro5726
+Node: Class definition and instantiation6830
+Node: Class definition7044
+Ref: Class definition-Footnote-18558
+Ref: Class definition-Footnote-28611
+Ref: Class definition-Footnote-38794
+Node: Inheritance9119
+Node: Class hierarchy and inheritance of slots9408
+Node: Instance creation and slot access11630
+Node: Slot description13116
+Node: Class precedence list20690
+Ref: Class precedence list-Footnote-123232
+Node: Generic functions23333
+Node: Generic functions and methods23523
+Node: Next-method26669
+Node: Example27487
+Ref: Example-Footnote-130684
+Node: Index30906
+Node: Concept Index31002
+Node: Function and Variable Index31979
 
 End Tag Table
