@@ -1,3 +1,9 @@
+Sun Sep 28 00:02:35 1997  Mark Galassi  <rosalia@nis.lanl.gov>
+
+	* scheme.texi (Keywords): very small re-organization to take
+	advantage of the fact that read-options is now documented in
+	another chapter.
+
 Thu Sep 25 23:37:02 1997  Mark Galassi  <rosalia@nis.lanl.gov>
 
 	* scheme.texi (Guile options interface): renamed the symbol case
