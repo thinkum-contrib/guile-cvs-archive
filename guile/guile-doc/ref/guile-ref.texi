@@ -213,6 +213,7 @@ compatibility with many of these systems.
 * Modules::                     Designing reusable code libraries.
 * Module Internals::            [FIXME: I think this should be a subnode
                                        of Modules. -twp]
+* Dynamic Linking from Marius::
 * Dynamic Wind::
 * Threads and Dynamic Roots::
 * Reflection::
@@ -272,7 +273,7 @@ Using Scheme with C --- a Portable Interface
 * Calling Scheme procedures from C::
 * Mixing gh and scm APIs::
 
-Part V: Using Scheme with C --- Guile's Low-Level Interface
+Using Scheme with C --- Guile's Low-Level Interface
 
 * Scheme data representation::
 * Relationship between Scheme and C functions::

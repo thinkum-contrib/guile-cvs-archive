@@ -1,3 +1,10 @@
+1998-04-29  Mark Galassi  <rosalia@cygnus.com>
+
+	* scheme.texi (Dynamic Linking from Marius): added Marius's new
+	chapter on dynamic linking; there is still a section in dynamic
+	linking (written by Tim maybe?), and I have to examine how to
+	resolve that.
+
 1998-03-30  Mikael Djurfeldt  <mdj@nada.kth.se>
 
 	* scheme.texi (Port Operations): Changed entry for port-column and

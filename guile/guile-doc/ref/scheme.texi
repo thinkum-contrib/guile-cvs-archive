@@ -3306,6 +3306,379 @@ object code module, and using dynamic-link and dynamic-call to load the
 module.]
 
 @page
+@node Dynamic Linking from Marius
+@chapter Dynamic Linking from Marius
+
+Most modern Unices have something called @dfn{shared libraries}.  This
+ordinarily means that they have the capability to share the executable
+image of a library between several running programs to save memory and
+disk space.  But generally, shared libraries give a lot of additional
+flexibility compared to the traditional static libraries.  In fact,
+calling them `dynamic' libraries is as correct as calling them `shared'.
+
+Shared libraries really give you a lot of flexibility in addition to the
+memory and disk space savings.  When you link a program against a shared
+library, that library is not closely incorporated into the final
+executable.  Instead, the executable of your program only contains
+enough information to find the needed shared libraries when the program
+is actually run.  Only then, when the program is starting, is the final
+step of the linking process performed.  This means that you need not
+recompile all programs when you install a new, only slightly modified
+version of a shared library.  The programs will pick up the changes
+automatically the next time they are run.
+
+Now, when all the necessary machinery is there to perform part of the
+linking at run-time, why not take the next step and allow the programmer
+to explicitly take advantage of it from within his program?  Of course,
+many operating systems that support shared libraries do just that, and
+chances are that Guile will allow you to access this feature from within
+your Scheme programs.  As you might have guessed already, this feature
+is called @dfn{dynamic linking}@footnote{Some people also refer to the
+final linking stage at program startup as `dynamic linking', so if you
+want to make yourself perfectly clear, it is probably best to use the
+more technical term @dfn{dlopening}, as suggested by Gordon Matzigkeit
+in his libtool documentation.}
+
+As with many aspects of Guile, there is a low-level way to access the
+dynamic linking apparatus, and a more high-level interface that
+integrates dynamically linked libraries into the module system.
+
+@menu
+* Low level dynamic linking::   
+* Compiled Code Modules::       
+* Dynamic Linking and Compiled Code Modules::  
+@end menu
+
+@node Low level dynamic linking
+@section Low level dynamic linking
+
+When using the low level procedures to do your dynamic linking, you have
+complete control over which library is loaded when and what get's done
+with it.
+
+@deffn primitive dynamic-link library
+Find the shared library denoted by @var{library} (a string) and link it
+into the running Guile application.  When everything works out, return a
+Scheme object suitable for representing the linked object file.
+Otherwise an error is thrown.  How object files are searched is system
+dependent.
+
+Normally, @var{library} is just the name of some shared library file
+that will be searched for in the places where shared libraries usually
+reside, such as in @file{/usr/lib} and @file{/usr/local/lib}.
+@end deffn
+
+@deffn primitive dynamic-object? val
+Determine whether @var{val} represents a dynamically linked object file.
+@end deffn
+
+@deffn primitive dynamic-unlink dynobj
+Unlink the indicated object file from the application.  The argument
+@var{dynobj} should be one of the values returned by
+@code{dynamic-link}.  When @code{dynamic-unlink} has been called on
+@var{dynobj}, it is no longer usable as an argument to the functions
+below and you will get type mismatch errors when you try to.
+@end deffn
+
+@deffn primitive dynamic-func function dynobj
+Search the C function indicated by @var{function} (a string or symbol)
+in @var{dynobj} and return some Scheme object that can later be used
+with @code{dynamic-call} to actually call this function.  Right now,
+these Scheme objects are formed by casting the address of the function
+to @code{long} and converting this number to its Scheme representation.
+
+Regardless whether your C compiler prepends an underscore @samp{_} to
+the global names in a program, you should @strong{not} include this
+underscore in @var{function}.  Guile knows whether the underscore is
+needed or not and will add it when necessary.
+@end deffn
+
+@deffn primitive dynamic-call function dynobj
+Call the C function indicated by @var{function} and @var{dynobj}.  The
+function is passed no arguments and its return value is ignored.  When
+@var{function} is something returned by @code{dynamic-func}, call that
+function and ignore @var{dynobj}.  When @var{function} is a string (or
+symbol, etc.), look it up in @var{dynobj}; this is equivalent to
+
+@smallexample
+(dynamic-call (dynamic-func @var{function} @var{dynobj} #f))
+@end smallexample
+
+Interrupts are deferred while the C function is executing (with
+@code{SCM_DEFER_INTS}/@code{SCM_ALLOW_INTS}).
+@end deffn
+
+@deffn primitive dynamic-args-call function dynobj args
+Call the C function indicated by @var{function} and @var{dynobj}, just
+like @code{dynamic-call}, but pass it some arguments and return its
+return value.  The C function is expected to take two arguments and
+return an @code{int}, just like @code{main}:
+
+@smallexample
+int c_func (int argc, char **argv);
+@end smallexample
+
+The parameter @var{args} must be a list of strings and is converted into
+an array of @code{char *}.  The array is passed in @var{argv} and its
+size in @var{argc}.  The return value is converted to a Scheme number
+and returned from the call to @code{dynamic-args-call}.
+@end deffn
+
+When dynamic linking is disabled or not supported on your system,
+the above functions throw errors, but they are still available.
+
+Here is a small example that works on GNU/Linux:
+
+@smallexample
+(define libc-obj (dynamic-link "libc.so"))
+libc-obj
+@result{} #<dynamic-object "libc.so">
+(dynamic-args-call 'rand libc-obj '())
+@result{} 269167349
+(dynamic-unlink libc-obj)
+libc-obj
+@result{} #<dynamic-object "libc.so" (unlinked)>
+@end smallexample
+
+As you can see, after calling @code{dynamic-unlink} on a dynamically
+linked library, it is marked as @samp{(unlinked)} and you are no longer
+able to use it with @code{dynamic-call}, etc.  Whether the library is
+really removed from you program is system-dependent and will generally
+not happen when some other parts of your program still use it.  In the
+example above, @code{libc} is almost certainly not removed from your
+program because it is badly needed by almost everything.
+
+The functions to call a function from a dynamically linked library,
+@code{dynamic-call} and @code{dynamic-args-call}, are not very powerful.
+They are mostly intended to be used for calling specially written
+initialization functions that will then add new primitives to Guile.
+For example, we do not expect that you will dynamically link
+@file{libX11} with @code{dynamic-link} and then construct a beautiful
+graphical user interface just by using @code{dynamic-call} and
+@code{dynamic-args-call}.  Instead, the usual way would be to write a
+special Guile<->X11 glue library that has intimate knowledge about both
+Guile and X11 and does whatever is necessary to make them inter-operate
+smoothly.  This glue library could then be dynamically linked into a
+vanilla Guile interpreter and activated by calling its initialization
+function.  That function would add all the new types and primitives to
+the Guile interpreter that it has to offer.
+
+>From this setup the next logical step is to integrate these glue
+libraries into the module system of Guile so that you can load new
+primitives into a running system just as you can load new Scheme code.
+
+There is, however, another possibility to get a more thorough access to
+the functions contained in a dynamically linked library.  Anthony Green
+has written @file{libffi}, a library that implements a @dfn{foreign
+function interface} for a number of different platforms.  With it, you
+can extend the Spartan functionality of @code{dynamic-call} and
+@code{dynamic-args-call} considerably.  There is glue code available in
+the Guile contrib archive to make @file{libffi} accessible from Guile.
+
+@node Compiled Code Modules
+@section Putting Compiled Code into Modules
+
+The new primitives that you add to Guile with @code{gh_new_procedure} or
+with any of the other mechanisms are normally placed into the same
+module as all the other builtin procedures (like @code{display}).
+However, it is also possible to put new primitives into their own
+module.
+
+The mechanism for doing so is not very well thought out and is likely to
+change when the module system of Guile itself is revised, but it is
+simple and useful enough to document it as it stands.
+
+What @code{gh_new_procedure} and the functions used by the snarfer
+really do is to add the new primitives to whatever module is the
+@emph{current module} when they are called.  This is analogous to the
+way Scheme code is put into modules: the @code{define-module} expression
+at the top of a Scheme source file creates a new module and makes it the
+current module while the rest of the file is evaluated.  The
+@code{define} expressions in that file then add their new definitions to
+this current module.
+
+Therefore, all we need to do is to make sure that the right module is
+current when calling @code{gh_new_procedure} for our new primitives.
+Unfortunately, there is not yet an easy way to access the module system
+from C, so we are better off with a more indirect approach.  Instead of
+adding our primitives at initialization time we merely register with
+Guile that we are ready to provide the contents of a certain module,
+should it ever be needed.
+
+@deftypefun void scm_register_module_xxx (char *@var{name}, void (*@var{initfunc})(void))
+Register with Guile that @var{initfunc} will provide the contents of the
+module @var{name}.
+
+The function @var{initfunc} should perform the usual initialization
+actions for your new primitives, like calling @code{gh_new_procedure} or
+including the file produced by the snarfer.  When @var{initfunc} is
+called, the current module is a newly created module with a name as
+indicated by @var{name}.  Each definition that is added to it will be
+automatically exported.
+
+The string @var{name} indicates the hierachical name of the new module.
+It should consist of the individual components of the module name
+separated by single spaces.  That is, the Scheme module name @code{(foo
+bar)}, which is a list, should be written as @code{"foo bar"} for the
+@var{name} parameter.
+
+You can call @code{scm_register_module_xxx} at any time, even before
+Guile has been initialized.  This might be useful when you want to put
+the call to it in some initialization code that is magically called
+before main, like constructors for global C++ objects.
+
+An example for @code{scm_register_module_xxx} appears in the next section.
+@end deftypefun
+
+Now, instead of calling the initialization function at program startup,
+you should simply call @code{scm_register_module_xxx} and pass it the
+initialization function.  When the named module is later requested by
+Scheme code with @code{use-modules} for example, Guile will notice that
+it knows how to create this module and will call the initialization
+function at the right time in the right context.
+
+@node Dynamic Linking and Compiled Code Modules
+@section Dynamic Linking and Compiled Code Modules
+
+The most interesting application of dynamically linked libraries is
+probably to use them for providing @emph{compiled code modules} to
+Scheme programs.  As much fun as programming in Scheme is, every now and
+then comes the need to write some low-level C stuff to make Scheme even
+more fun.
+
+Not only can you put these new primitives into their own module (see the
+previous section), you can even put them into a shared library that is
+only then linked to your running Guile image when it is actually
+needed.
+
+An example will hopefully make everything clear.  Suppose we want to
+make the Bessel functions of the C library available to Scheme in the
+module @samp{(math bessel)}.  First we need to write the appropriate
+glue code to convert the arguments and return values of the functions
+from Scheme to C and back.  Additionally, we need a function that will
+add them to the set of Guile primitives.  Because this is just an
+example, we will only implement this for the @code{j0} function, tho.
+
+@smallexample
+#include <math.h>
+#include <guile/gh.h>
+
+SCM
+j0_wrapper (SCM x)
+@{
+  return gh_double2scm (j0 (gh_scm2double (x)));
+@}
+
+void
+init_math_bessel ()
+@{
+  gh_new_procedure1_0 ("j0", j0_wrapper);
+@}
+@end smallexample
+
+We can already try to bring this into action by manually calling the low
+level functions for performing dynamic linking.  The C source file needs
+to be compiled into a shared library.  Here is how to do it on
+GNU/Linux, please refer to the @code{libtool} documentation for how to
+create dynamically linkable libraries portably.
+
+@smallexample
+gcc -shared -o libbessel.so -fPIC bessel.c
+@end smallexample
+
+Now fire up Guile:
+
+@smalllisp
+(define bessel-lib (dynamic-link "./libbessel.so"))
+(dynamic-call "init_math_bessel" bessel-lib)
+(j0 2)
+@result{} 0.223890779141236
+@end smalllisp
+
+The filename @file{./libbessel.so} should be pointing to the shared
+library produced with the @code{gcc} command above, of course.  The
+second line of the Guile interaction will call the
+@code{init_math_bessel} function which in turn will register the C
+function @code{j0_wrapper} with the Guile interpreter under the name
+@code{j0}.  This function becomes immediately available and we can call
+it from Scheme.
+
+Fun, isn't it?  But we are only half way there.  This is what
+@code{apropos} has to say about @code{j0}:
+
+@smallexample
+(apropos 'j0)
+@print{} the-root-module: j0     #<primitive-procedure j0>
+@end smallexample
+
+As you can see, @code{j0} is contained in the root module, where all
+the other Guile primitives like @code{display}, etc live.  In general,
+a primitive is put into whatever module is the @dfn{current module} at
+the time @code{gh_new_procedure} is called.  To put @code{j0} into its
+own module named @samp{(math bessel)}, we need to make a call to
+@code{scm_register_module_xxx}.  Additionally, to have Guile perform
+the dynamic linking automatically, we need to put @file{libbessel.so}
+into a place where Guile can find it.  The call to
+@code{scm_register_module_xxx} should be contained in a specially
+named @dfn{module init function}.  Guile knows about this special name
+and will call that function automatically after having linked in the
+shared library.  For our example, we add the following code to
+@file{bessel.c}:
+
+@smallexample
+void scm_init_math_bessel_module ()
+@{
+  scm_register_module_xxx ("math bessel", init_math_bessel);
+@}
+@end smallexample
+
+The general pattern for the name of a module init function is:
+@samp{scm_init_}, followed by the name of the module where the
+individual hierarchical components are concatenated with underscores,
+followed by @samp{_module}.  It should call
+@code{scm_register_module_xxx} with the correct module name and the
+appropriate initialization function.  When that initialization function
+will be called, a newly created module with the right name will be the
+@emph{current module} so that all definitions that the initialization
+functions makes will end up in the correct module.
+
+After @file{libbessel.so} has been rebuild, we need to place the shared
+library into the right place.  When Guile tries to autoload the
+@samp{(math bessel)} module, it looks not only for a file called
+@file{math/bessel.scm} in its @code{%load-path}, but also for
+@file{math/libbessel.so}.  So all we need to do is to create a directory
+called @file{math} somewhere in Guile's @code{%load-path} and place
+@file{libbessel.so} there.  Normally, the current directory @file{.} is
+in the @code{%load-path}, so we just use that for this example.
+
+@smallexample
+% mkdir maths
+% ln -s ../libbessel.so .
+% cd ..
+% guile
+guile> (use-modules (math bessel))
+guile> (j0 2)
+0.223890779141236
+guile> (apropos 'j0)
+@print{} bessel: j0      #<primitive-procedure j0>
+@end smallexample
+
+That's it!
+
+Note that we used a symlink to make @file{libbessel.so} appear in the
+right spot.  This is probably not a bad idea in general.  The
+directories that the @file{%load-path} normally contains are supposed to
+contain only architecture independent files.  They are not really the
+right place for a shared library.  You might want to install the
+libraries somewhere below @samp{exec_prefix} and then symlink to them
+from the architecture independent directory.  This will at least work on
+heterogenous systems where the architecture dependent stuff resides in
+the same place on all machines (which seems like a good idea to me
+anyway).
+
+
+
+@page
 @node Dynamic Wind
 @chapter Dynamic Wind
 
