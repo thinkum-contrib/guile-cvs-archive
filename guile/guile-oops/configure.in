@@ -27,7 +27,7 @@ LIBQTHREADS=`echo $GUILE_LDFLAGS | sed 's/.*\(-lqthreads\).*/\1/p;d'`
 
 AC_SUBST(LIBQTHREADS)
 
-AC_CHECK_FUNCS(scm_simple_format, scm_shared_array_root, scm_init_goops)
+AC_CHECK_FUNCS(scm_simple_format scm_shared_array_root scm_init_goops)
 
 if test "$ac_cv_func_scm_init_goops" == "yes"; then
   AC_MSG_ERROR([Your Guile already has GOOPS built in.  You don't need this package.])
