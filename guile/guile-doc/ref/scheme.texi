@@ -2268,7 +2268,7 @@ the earlier one.
 @defun regexp-exec regexp str [start]
 Match the compiled regular expression @var{regexp} against @code{str}.
 If the optional integer @var{start} argument is provided, begin matching
->From that position in the string.  Return a match structure describing
+from that position in the string.  Return a match structure describing
 the results of the match, or @code{#f} if no match could be found.
 @end defun
 
