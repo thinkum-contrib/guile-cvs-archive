@@ -1,3 +1,13 @@
+Wed Sep 24 15:25:03 1997  Mark Galassi  <rosalia@nis.lanl.gov>
+
+	* scheme.texi (The Guile module system): Added a bit more to this
+	chapter, mostly the more user-friendly (use-modules (ice-9
+	module-name)) approach.
+	(Symbol case): tried to write something about this, but it will
+	need to be reviewed by someone who understands the big picture of
+	read options.  I also think the section name should be changed to
+	something like "Read options".
+
 Sun Sep 21 18:45:57 1997  Mark Galassi  <rosalia@nis.lanl.gov>
 
 	* scheme.texi (SLIB): some little details, including splitting off

@@ -83,18 +83,80 @@ Standard Scheme is case insensitive.  To ease translation of other Lisp
 dialects, notably Emacs Lisp, into Guile, one can select if Guile should
 ignore case or not.
 
-@defun read-options-interface SOME-ARG
+Case sensitivity is an option to Guile's @code{read} primitive.  The
+@code{read} options available from C are:
+
+@defvar scm_read_opts
+@smallexample
+scm_option scm_read_opts[] = @{
+  @{ SCM_OPTION_BOOLEAN, "copy", 0,
+    "Copy source code expressions." @},
+  @{ SCM_OPTION_BOOLEAN, "positions", 0,
+    "Record positions of source code expressions." @},
+  @{ SCM_OPTION_BOOLEAN, "case-insensitive", 0,
+    "Convert symbols to lower case."@},
+  @{ SCM_OPTION_SCM, "keywords", SCM_BOOL_F,
+    "Style of keyword recognition: #f or 'prefix"@}
+@};
+@end smallexample
+@end defvar
+
+The following functions and macros manipulate the @code{read} options
+from Scheme.
+
+@defun read-enable option
+Sets the given read @var{option}.  For example, to tell Guile to be case
+sensitive (as specified in R4RS), you could use
+@smalllisp
+(read-enable 'case-insensitive)
+@end smalllisp
+[FIXME: to documen this properly I need to know more about this
+function.]
+@end defun
+
+@defun read-options-interface [SOME-INT]
 With no arguments, @code{read-options-interface} returns the list with
 the options for reading, including the ``case-insensitive'' option.
-[FIXME: Need to figure out how option setting can be done at runtime, if
-at all.  Also need to say more when you use ``(read-options-interface
-1)'']
+With any integer argument, it will give more details about the options.
+[FIXME: This can't be all there is to it.]
 @end defun
+
 
 
 @page
 @node Keywords
 @chapter Keywords
+
+[FIXME: need some initial schmooze about keywords; this is all taken
+from the NEWS file, and is accurate but not very useful to someone who
+has not used keywords before.]
+
+Guile supports a new R4RS-compliant syntax for keywords.  A token of the
+form #:NAME, where NAME has the same syntax as a Scheme symbol, is the
+external representation of the keyword named NAME.  Keyword objects
+print using this syntax as well, so values containing keyword objects
+can be read back into Guile.  When used in an expression, keywords are
+self-quoting objects.
+
+Guile suports this read syntax, and uses this print syntax, regardless
+of the current setting of the `keyword' read option.  The `keyword'
+read option only controls whether Guile recognizes the `:NAME' syntax,
+which is incompatible with R4RS.  (R4RS says such token represent
+symbols.)
+
+@defmac read-set! option value
+[FIXME: I have no idea how this function is defined in general, so here
+is an example.]
+For example, you can enable the @code{:xxx} keyword syntax as follows:
+@smalllisp
+(read-set! keywords 'prefix)
+@end smalllisp
+To make keyword syntax R4RS compliant, with the @code{#:xxx} syntax, do
+this:
+@smalllisp
+(read-set! keywords #f)
+@end smalllisp
+@end defmac
 
 [FIXME: in state of flux right now; here are the Scheme primitives
 defined in @file{kw.c}:]
@@ -115,7 +177,7 @@ not commented.]
 @chapter Modules
 @cindex modules
 
-[FIXME: somewhat babbling; shoudl be reviewed by someone who understands
+[FIXME: somewhat babbling; should be reviewed by someone who understands
 modules, once the new module system is in place]
 
 When programs become large, naming conflicts can occur when a function
@@ -179,7 +241,7 @@ module system.
 @section The Guile module system
 
 In 1996 Tom Lord implemented a full-featured module system for Guile
-which allows loading Scheme source files into private name space.
+which allows loading Scheme source files into a private name space.
 
 This module system is regarded as being rather idiosyncratic, and will
 probably change to something more like the ML module system, so for now
@@ -193,17 +255,66 @@ is called @code{ice-9}.
 So for example, the SLIB interface, contained in
 @file{$srcdir/ice-9/slib.scm}, starts out with
 @smalllisp
-(define-module #/ice-9/slib)
+(define-module (ice-9 slib))
 @end smalllisp
-and the user program can use
+and a user program can use
 @smalllisp
-(define-module (guile) :use-module (ice-9 slib))
+(use-modules (ice-9 slib))
 @end smalllisp
+to have access to all procedures and variables defined within the slib
+module with @code{(define-public ...)}.
 
-This [FIXME: must say more, and explain, and also demonstrate a private
-name space use, and demonstrate how one would do Python's "from Tkinter
-import *" versus "import Tkinter"]
+So here are the functions involved:
+@defun define-module module-specification
+@var{module-specification} is of the form @code{(hierarchy file)}.  One
+example of this is
+@smalllisp
+(use-modules (ice-9 slib))
+@end smalllisp
+define-module makes this module available to Guile programs under the
+given @var{module-specification}.
+@end defun
 
+@defun define-public ...
+Makes a procedure or variable available to programs that use the current
+module.
+@end defun
+
+@defun use-modules module-specification
+@var{module-specification} is of the form @code{(hierarchy file)}.  One
+example of this is
+@smalllisp
+(use-modules (ice-9 slib))
+@end smalllisp
+use-modules allows the current Guile program to use all publicly defined
+procedures and variables in the module denoted by
+@var{module-specification}.
+@end defun
+
+[FIXME: must say more, and explain, and also demonstrate a private name
+space use, and demonstrate how one would do Python's "from Tkinter
+import *" versus "import Tkinter".  Must also add something about paths
+and standards for contributed modules.]
+
+Some modules are included in the Guile distribution; here are references
+to the entries in this manual which describe them in more detail:
+@table @strong
+@item boot-9
+boot-9 is Guile's initialization module, and it is always loaded when
+Guile starts up.
+@item (ice-9 debug)
+Mikael Djurfeldt's source-level debugging support for Guile
+(@pxref{debugger user interface}).
+@item (ice-9 threads)
+Guile's support for multi threaded execution (@pxref{Threads and Dynamic
+Roots}).
+@item (ice-9 slib)
+This module contains hooks for using Aubrey Jaffer's portable Scheme
+library SLIB from Guile (@pxref{SLIB}).
+@item (ice-9 jacal)
+This module contains hooks for using Aubrey Jaffer's symbolic math
+packge Jacal from Guile (@pxref{JACAL}).
+@end table
 
 
 @page
