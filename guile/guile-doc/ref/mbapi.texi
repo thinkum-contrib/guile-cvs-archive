@@ -1,3 +1,8 @@
+\input texinfo
+@setfilename mbapi.info
+@settitle Multibyte API
+@setchapternewpage off
+
 @node Working With Multibyte Strings in C
 @chapter Working With Multibyte Strings in C
 
@@ -28,14 +33,14 @@ UTF-8, with some extensions.
 
 @menu
 * Multibyte String Terminology::  
-* Promised Properties of Guile's Multibyte Encoding::  
+* Promised Properties of the Guile Multibyte Encoding::  
 * Functions for Operating on Multibyte Text::  
 * Multibyte Text Processing Errors::  
-* Why Guile Doesn't Use a Fixed-Width Encoding::  
+* Why Guile Does Not Use a Fixed-Width Encoding::  
 @end menu
 
 
-@node Multibyte String Terminology, Promised Properties of Guile's Multibyte Encoding, Working With Multibyte Strings in C, Working With Multibyte Strings in C
+@node Multibyte String Terminology, Promised Properties of the Guile Multibyte Encoding, Working With Multibyte Strings in C, Working With Multibyte Strings in C
 @section Multibyte String Terminology 
 
 In the descriptions which follow, we make the following definitions:
@@ -96,8 +101,8 @@ a particular character set.  Thus, we may sometimes refer to the
 character set and encoding together as an @dfn{encoding}.
 
 
-@node Promised Properties of Guile's Multibyte Encoding, Functions for Operating on Multibyte Text, Multibyte String Terminology, Working With Multibyte Strings in C
-@section Promised Properties of Guile's Multibyte Encoding
+@node Promised Properties of the Guile Multibyte Encoding, Functions for Operating on Multibyte Text, Multibyte String Terminology, Working With Multibyte Strings in C
+@section Promised Properties of Guiles Multibyte Encoding
 
 Internally, Guile uses a single encoding for all text.  It is correct to
 write code which assumes that a string or symbol name uses this
@@ -142,7 +147,7 @@ addition to storing the string's length explicitly, Guile always either
 terminates the string's storage with a zero byte, or shares it with
 another string which is terminated this way.
 
-@node Functions for Operating on Multibyte Text, Multibyte Text Processing Errors, Promised Properties of Guile's Multibyte Encoding, Working With Multibyte Strings in C
+@node Functions for Operating on Multibyte Text, Multibyte Text Processing Errors, Promised Properties of the Guile Multibyte Encoding, Working With Multibyte Strings in C
 @section Functions for Operating on Multibyte Text
 
 Guile provides the following functions, variables, and types for working
@@ -180,6 +185,12 @@ Place the encoded form of the Guile character @var{c} at @var{p}, and
 return its length in bytes.
 @end deftypefn
 
+@deftypevr {Libguile Constant} int scm_char_max_len
+The maximum length of any character's encoding, in bytes.  You may
+assume this is relatively small --- less than a dozen or so.
+@end deftypevr
+
+
 @deftypefn {Libguile Function} int scm_char_len (scm_char_t @var{c})
 Return the length of the encoding of the character @var{c}, in bytes.
 
@@ -187,11 +198,11 @@ Note that @code{scm_char_len} may be implemented as a macro, and it may
 evaluate its argument several times.
 @end deftypefn
 
-@deftypefn {Libguile Function} int scm_char_leading_len (unsigned char @var{b})
+@deftypefn {Libguile Function} int scm_char_len_leading (unsigned char @var{b})
 If @var{b} is the first byte of a character's encoding, return the full
 length of the character's encoding, in bytes.
 
-Note that @code{scm_char_leading_len} may be implemented as a macro, and
+Note that @code{scm_char_len_leading} may be implemented as a macro, and
 it may evaluate its argument several times.
 @end deftypefn
 
@@ -199,17 +210,8 @@ it may evaluate its argument several times.
 @node Finding Character Encoding Boundaries, Multibyte String Functions, Basic Multibyte Character Processing, Functions for Operating on Multibyte Text
 @subsection Finding Character Encoding Boundaries
 
-Here are functions for finding the boundaries between characters in
+These are functions for finding the boundaries between characters in
 multibyte text.
-
-Note that it is not friendly for functions to silently correct byte
-offsets that point into the middle of a character's encoding.  Such
-offsets almost always indicate a programming error, and they should be
-reported as early as possible.  So, when you write code which operates
-on multibyte text, you do not use functions like these to ``clean up''
-byte offsets; instead, your code should signal a
-@code{text:not-char-boundary} error as soon as it detects an invalid
-offset.  @xref{Multibyte Text Processing Errors}.
 
 @deftypefn {Libguile Function} int scm_char_boundary_p (unsigned char *@var{p})
 Return non-zero iff @var{p} points to the start of a character in
@@ -232,6 +234,15 @@ pointer to the first byte of the encoding of the next character.  If
 @var{p} unchanged.
 @end deftypefn
 
+Note that it is not friendly for functions to silently correct byte
+offsets that point into the middle of a character's encoding.  Such
+offsets almost always indicate a programming error, and they should be
+reported as early as possible.  So, when you write code which operates
+on multibyte text, you do not use functions like these to ``clean up''
+byte offsets; instead, your code should signal a
+@code{text:not-char-boundary} error as soon as it detects an invalid
+offset.  @xref{Multibyte Text Processing Errors}.
+
 
 @node Multibyte String Functions, Guile Character Properties, Finding Character Encoding Boundaries, Functions for Operating on Multibyte Text
 @subsection Multibyte String Functions
@@ -241,8 +252,8 @@ character encodings.
 
 @deftypefn {Libguile Function} int scm_char_count (unsigned char *@var{p}, int @var{len})
 Return the number of Guile characters encoded by the @var{len} bytes at
-@var{p}.  Return -1 if the sequence is not a concatenation of valid
-character encodings.
+@var{p}.  Return -1 if the sequence contains any invalid character
+encodings, or if the last character encoding is incomplete.
 @end deftypefn
 
 @deftypefn {Libguile Function} scm_char_t scm_char_walk (unsigned char **@var{pp})
@@ -271,14 +282,14 @@ be after @var{p}.  If you use this function to drive an iteration, it
 guarantees forward progress.
 @end deftypefn
 
-@deftypefn {Libguile Function} unsigned char *scm_char_index (unsigned char *@var{base}, int @var{len}, int @var{i})
-Assuming that the @var{len} bytes starting at @var{base} are a
+@deftypefn {Libguile Function} unsigned char *scm_char_index (unsigned char *@var{p}, int @var{len}, int @var{i})
+Assuming that the @var{len} bytes starting at @var{p} are a
 concatenation of valid character encodings, return a pointer to the
 start of the @var{i}'th character encoding in the sequence.
 
 This function scans the sequence from the beginning to find the
 @var{i}'th character, and will generally require time proportional to
-the distance from @var{base} to the returned address.
+the distance from @var{p} to the returned address.
 
 If the sequence contains invalid character encodings before the
 @var{i}'th character, treat each byte which is not part of a valid
@@ -314,21 +325,20 @@ initialized to zero before its first use, and whenever the string's text
 changes.
 @end deftp
 
-@deftypefn {Libguile Function} unsigned char *scm_char_index_cached
-(unsigned char *@var{base}, int @var{len}, int @var{i}, struct scm_char_cache *@var{cache})
+@deftypefn {Libguile Function} unsigned char *scm_char_index_cached (unsigned char *@var{p}, int @var{len}, int @var{i}, struct scm_char_cache *@var{cache})
 This function is identical to @code{scm_char_index}, except that it may
 consult and update *@var{cache} in order to avoid scanning the string
 from the beginning.
 
 Using @code{scm_char_index_cached}, you can scan a string from left to
-right in time linear in the length of the string.
+right in time proportional to the length of the string.
 @end deftypefn
 
 Guile also provides functions to convert between an encoded sequence of
 characters, and an array of @code{scm_char_t} objects.
 
-@deftypefn {Libguile Function} scm_char_t *scm_char_multibyte_to_fixed (unsigned char *@var{base}, int @var{len}, int *@var{result_len})
-Convert the variable-width text in the @var{len} bytes at @var{base}
+@deftypefn {Libguile Function} scm_char_t *scm_char_multibyte_to_fixed (unsigned char *@var{p}, int @var{len}, int *@var{result_len})
+Convert the variable-width text in the @var{len} bytes at @var{p}
 to an array of @code{scm_char_t} values.  Return a pointer to the array,
 and set @code{*@var{result_len}} to the number of elements it contains.
 The returned array is allocated with @code{malloc}, and it is the
@@ -353,78 +363,80 @@ caller's responsibility to free it.
 @subsection Guile Character Properties
 
 These functions give information about the nature of a given Guile
-character.  [[This section is incomplete.]]
+character.  These are defined for any @code{scm_char_t} value.
 
-@deftypefn {Libguile Function} scm_char_isalnum   (scm_char_t @var{c})
+@deftypefn {Libguile Function} int scm_char_isalnum (scm_char_t @var{c})
 Return non-zero iff @var{c} is an alphabetic or numeric character.
 @end deftypefn
 
-@deftypefn {Libguile Function} scm_char_isalpha   (scm_char_t @var{c})
+@deftypefn {Libguile Function} int scm_char_is_alpha (scm_char_t @var{c})
 Return non-zero iff @var{c} is an alphabetic character.
 @end deftypefn
 
-@deftypefn {Libguile Function} scm_char_iscntrl   (scm_char_t @var{c})
+@deftypefn {Libguile Function} int scm_char_iscntrl (scm_char_t @var{c})
 Return non-zero iff @var{c} is a control character.
 @end deftypefn
 
-@deftypefn {Libguile Function} scm_char_isdigit   (scm_char_t @var{c})
+@deftypefn {Libguile Function} int scm_char_isdigit (scm_char_t @var{c})
 Return non-zero iff @var{c} is a digit.
 @end deftypefn
 
-@deftypefn {Libguile Function} scm_char_isgraph   (scm_char_t @var{c})
+@deftypefn {Libguile Function} int scm_char_isgraph (scm_char_t @var{c})
 Return non-zero iff @var{c} is a visible character.
 @end deftypefn
 
-@deftypefn {Libguile Function} scm_char_islower   (scm_char_t @var{c})
-Return non-zero iff @var{c} is 
+@deftypefn {Libguile Function} int scm_char_isupper (scm_char_t @var{c})
+Return non-zero iff @var{c} is an upper-case character.
 @end deftypefn
 
-@deftypefn {Libguile Function} scm_char_isprint   (scm_char_t @var{c})
-Return non-zero iff @var{c} is 
+@deftypefn {Libguile Function} int scm_char_islower (scm_char_t @var{c})
+Return non-zero iff @var{c} is a lower-case character.
 @end deftypefn
 
-@deftypefn {Libguile Function} scm_char_ispunct   (scm_char_t @var{c})
-Return non-zero iff @var{c} is 
+@deftypefn {Libguile Function} int scm_char_istitle (scm_char_t @var{c})
+Return non-zero iff @var{c} is a title-case character.  See the Unicode
+standard for an explanation of title case.
 @end deftypefn
 
-@deftypefn {Libguile Function} scm_char_isspace   (scm_char_t @var{c})
-Return non-zero iff @var{c} is 
+@deftypefn {Libguile Function} int scm_char_isprint (scm_char_t @var{c})
+Return non-zero iff @var{c} is a printable character.
 @end deftypefn
 
-@deftypefn {Libguile Function} scm_char_isupper   (scm_char_t @var{c})
-Return non-zero iff @var{c} is 
+@deftypefn {Libguile Function} int scm_char_ispunct (scm_char_t @var{c})
+Return non-zero iff @var{c} is a punctuation character.
 @end deftypefn
 
-@deftypefn {Libguile Function} scm_char_isxdigit  (scm_char_t @var{c})
-Return non-zero iff @var{c} is 
+@deftypefn {Libguile Function} int scm_char_isspace (scm_char_t @var{c})
+Return non-zero iff @var{c} is a whitespace character.
 @end deftypefn
 
-@deftypefn {Libguile Function} scm_char_istitle   (scm_char_t @var{c})
-Return non-zero iff @var{c} is 
+@deftypefn {Libguile Function} int scm_char_isxdigit (scm_char_t @var{c})
+Return non-zero iff @var{c} is a hexidecimal digit.
 @end deftypefn
 
-@deftypefn {Libguile Function} scm_char_isdefined (scm_char_t @var{c})
-Return non-zero iff @var{c} is 
+@deftypefn {Libguile Function} int scm_char_isdefined (scm_char_t @var{c})
+Return non-zero iff @var{c} is a valid character.
 @end deftypefn
 
+@deftypefn {Libguile Function} scm_char_t scm_char_toupper (scm_char_t @var{c})
+@deftypefnx {Libguile Function} scm_char_t scm_char_tolower (scm_char_t @var{c})
+@deftypefnx {Libguile Function} scm_char_t scm_char_totitle (scm_char_t @var{c})
+Convert @var{c} to upper, lower, or title case.  If @var{c} has no
+equivalent in the requested case, or is already in that case, return it
+unchanged.
+@end deftypefn
 
-[[More things to imitate, from libunicode:
-@example
-/* More <ctype.h> functions.  These convert between the three cases.
-   See the Unicode book to understand title case.  */
-unicode_char_t unicode_toupper (unicode_char_t c);
-unicode_char_t unicode_tolower (unicode_char_t c);
-unicode_char_t unicode_totitle (unicode_char_t c);
+@deftypefn {Libguile Function} in scm_char_digit_value (scm_char_t @var{c})
+If @var{c} is a hexidecimal digit (according to
+@code{scm_char_isxdigit}), then return its numeric value.  Otherwise
+return -1.
+@end deftypefn
 
-/* If C is a digit (according to `unicode_isdigit'), then return its
-   numeric value.  Otherwise return -1.  */
-int unicode_digit_value (unicode_char_t c);
+@deftypefn {Libguile Function} in scm_char_digit_value (scm_char_t @var{c})
+If @var{c} is a digit (according to @code{scm_char_isdigit}), then
+return its numeric value.  Otherwise return -1.
+@end deftypefn
 
-/* If C is a hex digit (according to `unicode_isxdigit'), then return
-   its numeric value.  Otherwise return -1.  */
-int unicode_xdigit_value (unicode_char_t c);
-@end example
-]]
 
 @node Exchanging Text With The Outside World, Multibyte Character Tables, Guile Character Properties, Functions for Operating on Multibyte Text
 @subsection Exchanging Text With The Outside World
@@ -447,7 +459,7 @@ iconv.]]
 set.]]
 
 
-@node Multibyte Text Processing Errors, Why Guile Doesn't Use a Fixed-Width Encoding, Functions for Operating on Multibyte Text, Working With Multibyte Strings in C
+@node Multibyte Text Processing Errors, Why Guile Does Not Use a Fixed-Width Encoding, Functions for Operating on Multibyte Text, Working With Multibyte Strings in C
 @section Multibyte Text Processing Errors
 
 This section describes error conditions which code can raise to indicate
@@ -467,11 +479,11 @@ inspecting, it should use @code{#f} for @var{object}.
 By calling @var{func}, the program attempted to interpret the text in
 @var{object}, but @var{object} contains a byte sequence which is not a
 valid encoding for any character.
+@end deffn
 
-[[invalid encoding error]]
 
-@node Why Guile Doesn't Use a Fixed-Width Encoding,  , Multibyte Text Processing Errors, Working With Multibyte Strings in C
-@section Why Guile Doesn't Use a Fixed-Width Encoding
+@node Why Guile Does Not Use a Fixed-Width Encoding,  , Multibyte Text Processing Errors, Working With Multibyte Strings in C
+@section Why Guile Does Not Use a Fixed-Width Encoding
 
 Multibyte encodings are clumsier to work with than encodings which use a
 fixed number of bytes for every character.  For example, we can extract
@@ -484,14 +496,16 @@ we wish to include, and also fit in a reasonable amount of space.
 Despite the Unicode standard's claims to the contrary, Unicode is not
 really a fixed-width encoding.  Unicode uses surrogate pairs to
 represent characters outside the 16-bit range; a surrogate pair must be
-treated as a single character, but occupies two 16-bit spaces.
-Three-byte encodings are impractical on most modern machines, because
-values will not usually be aligned for efficient access.  Four-byte
-encodings are too wasteful for a majority of Guile's users, who only
-need ASCII and a few accented characters.
+treated as a single character, but occupies two 16-bit spaces.  As of
+this writing, there are already plans to assign characters to the
+surrogate character codes.  Three-byte encodings are impractical on most
+modern machines, because values will not usually be aligned for
+efficient access.  Four-byte encodings are too wasteful for a majority
+of Guile's users, who only need ASCII and a few accented characters.
 
 Finally, Guile's multibyte encoding is not so bad.  Unlike a two- or
 four-byte encoding, it is efficient in space for American and European
 users.  Furthermore, the properties described above mean that many
 functions can be coded just as they would for a single-byte encoding.
 
+@bye
