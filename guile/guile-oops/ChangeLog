@@ -1,7 +1,27 @@
+1999-08-21  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
+
+	* goops.scm (class-slot-ref, class-slot-set!): New public procedures.
+	(make-get, make-set): Temporary hack until we get real method
+	compilation: Mark standard accessors so that the compiler doesn't
+	need to create the next-method.
+
+	* goops.c (scm_goops_version): Version information.
+
+	* versiondat.h.in: New file.
+
+	* Makefile.am: Install versiondat.h under $(includedir)/goops.
+
+	* goops.scm (goops-version): Exported.
+
+	* goops.scm, dispatch.scm, compile.scm: Removed debugging code and
+	disabled backtracing.
+
 1999-08-20  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
 	* goops.c (scm_add_slot): Conform to new-style methods (no
 	next-method argument).
+	(get_slot_value, set_slot_value): Expand bodies; Allow primitive
+	getters and setters.
 
 	* goops.scm (compute-slot-accessors): Use new-style standard
 	accessor forms when possible, otherwise use low-level getter or

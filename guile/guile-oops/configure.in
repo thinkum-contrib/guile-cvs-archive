@@ -30,6 +30,10 @@ case "$GCC" in
     CFLAGS="$CFLAGS -Wall -Wpointer-arith -Wmissing-prototypes" ;;
 esac
 
+AC_SUBST(GOOPS_MAJOR_VERSION)
+AC_SUBST(GOOPS_MINOR_VERSION)
+AC_SUBST(GOOPS_VERSION)
+
 CFLAGS="$CFLAGS $GUILE_CFLAGS"
 LIBS="$LIBS $GUILE_LDFLAGS"
 
@@ -40,7 +44,7 @@ LIBLOBJS="`echo ${LIBOBJS} | sed 's/\.o/.lo/g'`"
 
 AC_SUBST(LIBLOBJS)
 
-AC_OUTPUT(Makefile)
+AC_OUTPUT(Makefile versiondat.h)
 
 dnl Local Variables:
 dnl comment-start: "dnl "
