@@ -210,6 +210,40 @@ listify_strings (argc, argv)
 static int invoke_tcl_command (ClientData data, 
 			       Tcl_Interp *interp,
 			       int argc, char *argv[]);
+
+static void
+mask_signals (void *mask)
+{
+  int *m = (int *) mask;
+  *m = scm_mask_ints;
+  scm_mask_ints = 1;
+}
+
+static void
+revert_signals (void *mask)
+{
+  int *m = (int *) mask;
+  scm_mask_ints = *m;
+}
+
+static SCM
+inner_masked_apply (void *args)
+{
+  SCM a = (SCM) args;
+  return scm_apply (SCM_CAR (a), SCM_CDR (a), SCM_EOL);
+}
+
+static SCM
+masked_apply (SCM proc, SCM args)
+{
+  int old_mask;
+  return scm_internal_dynamic_wind (mask_signals,
+				    inner_masked_apply,
+				    revert_signals,
+				    scm_cons (proc, args),
+				    &old_mask);
+}
+
 static int
 invoke_tcl_command (data, interp, argc, argv)
      ClientData data;
@@ -219,24 +253,20 @@ invoke_tcl_command (data, interp, argc, argv)
 {
   SCM proc;
   SCM result;
-  int old_mask;
 
   proc = SCM_CAR ((SCM)data);
 
-  old_mask = scm_mask_ints;
-  scm_mask_ints = 1;  
   /* proc had better not longjmp past us -- see:
      with-tcl-error-handling in gtcltk/tcl.SCM */
   SCM_ALLOW_INTS;
 #ifdef USE_THREADS
   scm_mutex_unlock (&scm_tcl_mutex);
 #endif
-  result = scm_apply (proc, listify_strings (argc - 1, argv + 1), SCM_EOL);
+  result = masked_apply (proc, listify_strings (argc - 1, argv + 1));
 #ifdef USE_THREADS
   scm_mutex_lock (&scm_tcl_mutex);
 #endif
   SCM_DEFER_INTS;
-  scm_mask_ints = old_mask;
 
   if (SCM_NIMP (result) && SCM_ROSTRINGP (result))
     {
@@ -553,21 +583,16 @@ trace_variable (data, interp, name, name2, flags)
 {
   SCM proc;
   SCM result;
-  int old_mask;
 
   proc = (SCM)SCM_CAR (data);
-  old_mask = scm_mask_ints;
-  scm_mask_ints = 1;
   SCM_ALLOW_INTS;
-  result = scm_apply (proc,
-		      scm_listify (SCM_SELF_INTERP (interp),
-				   scm_makfrom0str (name),
-				   scm_makfrom0str_opt (name2),
-				   SCM_MAKINUM (flags),
-				   SCM_UNDEFINED),
-		      SCM_EOL);
+  result = masked_apply (proc,
+			 scm_listify (SCM_SELF_INTERP (interp),
+				      scm_makfrom0str (name),
+				      scm_makfrom0str_opt (name2),
+				      SCM_MAKINUM (flags),
+				      SCM_UNDEFINED));
   SCM_DEFER_INTS;
-  scm_mask_ints = old_mask;
   return ((result == SCM_BOOL_F)
 	  ? "Error from Scheme variable trace."
 	  : 0);
