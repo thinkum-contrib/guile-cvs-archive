@@ -11,7 +11,7 @@ EXTRA_libgtcltk_la_SOURCES = tclInt.h tclUnixPort.h tclUnixNotfy.c
 BUILT_SOURCES = guile-tcl.x guile-tk.x
 libgtcltk_la_DEPENDENCIES = @LIBLOBJS@
 libgtcltk_la_LIBADD = @LIBLOBJS@
-libgtcltk_la_LDFLAGS = -version-info 1:0
+libgtcltk_la_LDFLAGS = -version-info 1:0 -export-dynamic
 
 guile_tcltk_LDADD = libgtcltk.la
 
@@ -20,6 +20,14 @@ modinclude_HEADERS = guile-tcl.h guile-tk.h
 
 subpkgdatadir = @TCLTKDIR@
 subpkgdata_DATA = tcltk.scm hand.scm graph.scm breakout.scm
+
+install-exec-hook:
+	$(mkinstalldirs) $(subpkgdatadir)
+	(test ! -e $(libdir)/libgtcltk.so.1 \
+	 || (cd $(subpkgdatadir) \
+	     && rm -f libgtcltk.la libgtcltk.so.1 \
+	     && $(LN_S) $(libdir)/libgtcltk.la \
+	     && $(LN_S) $(libdir)/libgtcltk.so.1))
 
 EXTRA_DIST = license.terms $(subpkgdata_DATA)
 
