@@ -319,6 +319,7 @@ SCM_DEFINE (scm_drain_input, "drain-input", 1, 0, 0,
 #define FUNC_NAME s_scm_drain_input
 {
   SCM result;
+  char *data;
   scm_t_port *pt;
   long count;
 
@@ -329,9 +330,8 @@ SCM_DEFINE (scm_drain_input, "drain-input", 1, 0, 0,
   if (pt->read_buf == pt->putback_buf)
     count += pt->saved_read_end - pt->saved_read_pos;
 
-  result = scm_allocate_string (count);
-  scm_take_from_input_buffers (port, SCM_I_STRING_CHARS (result), count);
-
+  result = scm_c_make_string (count, &data);
+  scm_take_from_input_buffers (port, data, count);
   return result;
 }
 #undef FUNC_NAME
@@ -668,16 +668,22 @@ SCM_DEFINE (scm_set_port_revealed_x, "set-port-revealed!", 2, 0, 0,
  * See PORT FLAGS in scm.h
  */
 
+static long
+scm_i_mode_bits_n (const char *modes, size_t n)
+{
+  return (SCM_OPN
+	  | (memchr (modes, 'r', n) || memchr (modes, '+', n) ? SCM_RDNG : 0)
+	  | (   memchr (modes, 'w', n)
+	     || memchr (modes, 'a', n)
+	     || memchr (modes, '+', n) ? SCM_WRTNG : 0)
+	  | (memchr (modes, '0', n) ? SCM_BUF0 : 0)
+	  | (memchr (modes, 'l', n) ? SCM_BUFLINE : 0));
+}
+
 long
 scm_mode_bits (char *modes)
 {
-  return (SCM_OPN
-	  | (strchr (modes, 'r') || strchr (modes, '+') ? SCM_RDNG : 0)
-	  | (   strchr (modes, 'w')
-	     || strchr (modes, 'a')
-	     || strchr (modes, '+') ? SCM_WRTNG : 0)
-	  | (strchr (modes, '0') ? SCM_BUF0 : 0)
-	  | (strchr (modes, 'l') ? SCM_BUFLINE : 0));
+  return scm_i_mode_bits_n (modes, strlen (modes));
 }
 
 long
@@ -688,7 +694,8 @@ scm_i_mode_bits (SCM modes)
   if (!scm_is_string (modes))
     scm_wrong_type_arg_msg (NULL, 0, modes, "string");
 
-  bits = scm_mode_bits (SCM_I_STRING_CHARS (modes));
+  bits = scm_i_mode_bits_n (scm_i_string_chars (modes),
+			    scm_i_string_length (modes));
   scm_remember_upto_here_1 (modes);
   return bits;
 }
@@ -1322,7 +1329,7 @@ SCM_DEFINE (scm_unread_string, "unread-string", 2, 0, 0,
   else
     SCM_VALIDATE_OPINPORT (2, port);
 
-  scm_ungets (SCM_I_STRING_CHARS (str), SCM_I_STRING_LENGTH (str), port);
+  scm_ungets (scm_i_string_chars (str), scm_i_string_length (str), port);
   
   return str;
 }

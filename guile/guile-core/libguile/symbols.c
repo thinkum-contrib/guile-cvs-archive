@@ -186,8 +186,8 @@ SCM_DEFINE (scm_make_symbol, "make-symbol", 1, 0, 0,
 {
   SCM sym;
   SCM_VALIDATE_STRING (1, name);
-  sym = scm_mem2uninterned_symbol (SCM_I_STRING_CHARS (name),
-				   SCM_I_STRING_LENGTH (name));
+  sym = scm_mem2uninterned_symbol (scm_i_string_chars (name),
+				   scm_i_string_length (name));
   scm_remember_upto_here_1 (name);
   return sym;
 }
@@ -255,8 +255,8 @@ SCM_DEFINE (scm_string_to_symbol, "string->symbol", 1, 0, 0,
 {
   SCM sym;
   SCM_VALIDATE_STRING (1, string);
-  sym = scm_mem2symbol (SCM_I_STRING_CHARS (string),
-			SCM_I_STRING_LENGTH (string));
+  sym = scm_mem2symbol (scm_i_string_chars (string),
+			scm_i_string_length (string));
   scm_remember_upto_here_1 (string);
   return sym;
 }
@@ -287,10 +287,10 @@ SCM_DEFINE (scm_gensym, "gensym", 0, 1, 0,
   else
     {
       SCM_VALIDATE_STRING (1, prefix);
-      len = SCM_I_STRING_LENGTH (prefix);
+      len = scm_i_string_length (prefix);
       if (len > MAX_PREFIX_LENGTH)
 	name = scm_malloc (len + SCM_INTBUFLEN);
-      memcpy (name, SCM_I_STRING_CHARS (prefix), len);
+      memcpy (name, scm_i_string_chars (prefix), len);
       scm_remember_upto_here_1 (prefix);
     }
   {

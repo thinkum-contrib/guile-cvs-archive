@@ -278,7 +278,11 @@ scm_gc_mark_dependencies (SCM p)
 #endif
 #endif
     case scm_tc7_string:
-      break;
+      ptr = scm_i_string_mark (ptr);
+      goto gc_mark_loop;
+    case scm_tc7_stringbuf:
+      ptr = scm_i_stringbuf_mark (ptr);
+      goto gc_mark_loop;
 
     case scm_tc7_number:
       if (SCM_TYP16 (ptr) == scm_tc16_fraction)

@@ -1501,14 +1501,14 @@ SCM_DEFINE (scm_dirname, "dirname", 1, 0, 0,
 	    "component, @code{.} is returned.")
 #define FUNC_NAME s_scm_dirname
 {
-  char *s;
+  const char *s;
   long int i;
   unsigned long int len;
 
   SCM_VALIDATE_STRING (1, filename);
 
-  s = SCM_I_STRING_CHARS (filename);
-  len = SCM_I_STRING_LENGTH (filename);
+  s = scm_i_string_chars (filename);
+  len = scm_i_string_length (filename);
 
   i = len - 1;
 #ifdef __MINGW32__
@@ -1527,12 +1527,12 @@ SCM_DEFINE (scm_dirname, "dirname", 1, 0, 0,
 #else
       if (len > 0 && s[0] == '/')
 #endif /* ndef __MINGW32__ */
-	return scm_substring (filename, SCM_INUM0, scm_from_int (1));
+	return scm_c_substring (filename, 0, 1);
       else
 	return scm_dot_string;
     }
   else
-    return scm_substring (filename, SCM_INUM0, scm_from_int (i + 1));
+    return scm_c_substring (filename, 0, i + 1);
 }
 #undef FUNC_NAME
 
@@ -1544,20 +1544,20 @@ SCM_DEFINE (scm_basename, "basename", 1, 1, 0,
 	    "@var{basename}, it is removed also.")
 #define FUNC_NAME s_scm_basename
 {
-  char *f, *s = 0;
+  const char *f, *s = 0;
   int i, j, len, end;
 
   SCM_VALIDATE_STRING (1, filename);
-  f = SCM_I_STRING_CHARS (filename);
-  len = SCM_I_STRING_LENGTH (filename);
+  f = scm_i_string_chars (filename);
+  len = scm_i_string_length (filename);
 
   if (SCM_UNBNDP (suffix))
     j = -1;
   else
     {
       SCM_VALIDATE_STRING (2, suffix);
-      s = SCM_I_STRING_CHARS (suffix);
-      j = SCM_I_STRING_LENGTH (suffix) - 1;
+      s = scm_i_string_chars (suffix);
+      j = scm_i_string_length (suffix) - 1;
     }
   i = len - 1;
 #ifdef __MINGW32__
@@ -1581,12 +1581,12 @@ SCM_DEFINE (scm_basename, "basename", 1, 1, 0,
 #else
       if (len > 0 && f[0] == '/')
 #endif /* ndef __MINGW32__ */
-	return scm_substring (filename, SCM_INUM0, scm_from_int (1));
+	return scm_c_substring (filename, 0, 1);
       else
 	return scm_dot_string;
     }
   else
-    return scm_substring (filename, scm_from_int (i+1), scm_from_int (end+1));
+    return scm_c_substring (filename, i+1, end+1);
 }
 #undef FUNC_NAME
 

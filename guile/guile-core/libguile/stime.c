@@ -32,6 +32,7 @@
 #include "libguile/feature.h"
 #include "libguile/strings.h"
 #include "libguile/vectors.h"
+#include "libguile/dynwind.h"
 
 #include "libguile/validate.h"
 #include "libguile/stime.h"
@@ -480,7 +481,7 @@ bdtime2c (SCM sbd_time, struct tm *lt, int pos, const char *subr)
   if (scm_is_false (velts[10]))
     lt->tm_zone = NULL;
   else
-    lt->tm_zone  = SCM_STRING_CHARS (velts[10]);
+    lt->tm_zone  = scm_to_locale_string (velts[10]);
 #endif
 }
 
@@ -503,7 +504,10 @@ SCM_DEFINE (scm_mktime, "mktime", 1, 1, 0,
   char **oldenv;
   int err;
 
+  scm_frame_begin (0);
+
   bdtime2c (sbd_time, &lt, SCM_ARG1, FUNC_NAME);
+  scm_frame_free ((char *)lt.tm_zone);
 
   SCM_DEFER_INTS;
   oldenv = setzone (zone, SCM_ARG2, FUNC_NAME);
@@ -560,6 +564,8 @@ SCM_DEFINE (scm_mktime, "mktime", 1, 1, 0,
   SCM_ALLOW_INTS;
   if (zname)
     free (zname);
+
+  scm_frame_end ();
   return result;
 }
 #undef FUNC_NAME
@@ -594,15 +600,16 @@ SCM_DEFINE (scm_strftime, "strftime", 2, 0, 0,
 
   char *tbuf;
   int size = 50;
-  char *fmt, *myfmt;
+  const char *fmt;
+  char *myfmt;
   int len;
   SCM result;
 
   SCM_VALIDATE_STRING (1, format);
   bdtime2c (stime, &t, SCM_ARG2, FUNC_NAME);
 
-  fmt = SCM_STRING_CHARS (format);
-  len = SCM_STRING_LENGTH (format);
+  fmt = scm_i_string_chars (format);
+  len = scm_i_string_length (format);
 
   /* Ugly hack: strftime can return 0 if its buffer is too small,
      but some valid time strings (e.g. "%p") can sometimes produce
@@ -688,13 +695,13 @@ SCM_DEFINE (scm_strptime, "strptime", 2, 0, 0,
 #define FUNC_NAME s_scm_strptime
 {
   struct tm t;
-  char *fmt, *str, *rest;
+  const char *fmt, *str, *rest;
 
   SCM_VALIDATE_STRING (1, format);
   SCM_VALIDATE_STRING (2, string);
 
-  fmt = SCM_STRING_CHARS (format);
-  str = SCM_STRING_CHARS (string);
+  fmt = scm_i_string_chars (format);
+  str = scm_i_string_chars (string);
 
   /* initialize the struct tm */
 #define tm_init(field) t.field = 0

@@ -814,8 +814,8 @@ SCM_DEFINE (scm_string_to_obarray_symbol, "string->obarray-symbol", 2, 1, 0,
   else if (scm_is_eq (o, SCM_BOOL_T))
     o = SCM_BOOL_F;
     
-  vcell = scm_intern_obarray_soft (SCM_I_STRING_CHARS(s),
-				   SCM_I_STRING_LENGTH (s),
+  vcell = scm_intern_obarray_soft (scm_i_string_chars (s),
+				   scm_i_string_length (s),
 				   o,
 				   softness);
   if (scm_is_false (vcell))
@@ -1047,10 +1047,10 @@ SCM_DEFINE (scm_gentemp, "gentemp", 0, 2, 0,
   else
     {
       SCM_VALIDATE_STRING (1, prefix);
-      len = SCM_I_STRING_LENGTH (prefix);
+      len = scm_i_string_length (prefix);
       if (len > MAX_PREFIX_LENGTH)
 	name = SCM_MUST_MALLOC (MAX_PREFIX_LENGTH + SCM_INTBUFLEN);
-      strncpy (name, SCM_I_STRING_CHARS (prefix), len);
+      strncpy (name, scm_i_string_chars (prefix), len);
     }
 
   if (SCM_UNBNDP (obarray))
@@ -1112,7 +1112,7 @@ scm_c_string2str (SCM obj, char *str, size_t *lenp)
     {
       char *result = scm_to_locale_string (obj);
       if (lenp)
-	*lenp = SCM_I_STRING_LENGTH (obj);
+	*lenp = scm_i_string_length (obj);
       return result;
     }
   else

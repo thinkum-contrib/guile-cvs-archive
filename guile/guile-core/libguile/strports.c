@@ -79,8 +79,10 @@ static void
 st_resize_port (scm_t_port *pt, off_t new_size)
 {
   SCM old_stream = SCM_PACK (pt->stream);
-  SCM new_stream = scm_allocate_string (new_size);
-  unsigned long int old_size = SCM_I_STRING_LENGTH (old_stream);
+  const char *src = scm_i_string_chars (old_stream);
+  char *dst;
+  SCM new_stream = scm_c_make_string (new_size, &dst);
+  unsigned long int old_size = scm_i_string_length (old_stream);
   unsigned long int min_size = min (old_size, new_size);
   unsigned long int i;
 
@@ -89,14 +91,14 @@ st_resize_port (scm_t_port *pt, off_t new_size)
   pt->write_buf_size = new_size;
 
   for (i = 0; i != min_size; ++i)
-    SCM_I_STRING_CHARS (new_stream) [i] = SCM_I_STRING_CHARS (old_stream) [i];
+    dst[i] = src[i];
 
   scm_remember_upto_here_1 (old_stream);
 
   /* reset buffer. */
   {
     pt->stream = SCM_UNPACK (new_stream);
-    pt->read_buf = pt->write_buf = SCM_I_STRING_UCHARS (new_stream);
+    pt->read_buf = pt->write_buf = dst;
     pt->read_pos = pt->write_pos = pt->write_buf + index;
     pt->write_end = pt->write_buf + pt->write_buf_size;
     pt->read_end = pt->read_buf + pt->read_buf_size;
@@ -254,8 +256,8 @@ scm_mkstrport (SCM pos, SCM str, long modes, const char *caller)
   scm_t_port *pt;
   size_t str_len, c_pos;
 
-  SCM_ASSERT (SCM_I_STRINGP (str), str, SCM_ARG1, caller);
-  str_len = SCM_I_STRING_LENGTH (str);
+  SCM_ASSERT (scm_is_string (str), str, SCM_ARG1, caller);
+  str_len = scm_i_string_length (str);
   c_pos = scm_to_unsigned_integer (pos, 0, str_len);
 
   if (!((modes & SCM_WRTNG) || (modes & SCM_RDNG)))
@@ -266,7 +268,7 @@ scm_mkstrport (SCM pos, SCM str, long modes, const char *caller)
   pt = SCM_PTAB_ENTRY(z);
   SCM_SETSTREAM (z, SCM_UNPACK (str));
   SCM_SET_CELL_TYPE(z, scm_tc16_strport|modes);
-  pt->write_buf = pt->read_buf = SCM_I_STRING_UCHARS (str);
+  pt->write_buf = pt->read_buf = scm_i_string_writable_chars (str);
   pt->read_pos = pt->write_pos = pt->read_buf + c_pos;
   pt->write_buf_size = pt->read_buf_size = str_len;
   pt->write_end = pt->read_end = pt->read_buf + pt->read_buf_size;
@@ -286,11 +288,13 @@ SCM scm_strport_to_string (SCM port)
 {
   scm_t_port *pt = SCM_PTAB_ENTRY (port);
   SCM str;
-
+  char *dst;
+  
   if (pt->rw_active == SCM_PORT_WRITE)
     st_flush (port);
 
-  str = scm_mem2string ((char *) pt->read_buf, pt->read_buf_size);
+  str = scm_c_make_string (pt->read_buf_size, &dst);
+  memcpy (dst, (char *) pt->read_buf, pt->read_buf_size);
   scm_remember_upto_here_1 (port);
   return str;
 }

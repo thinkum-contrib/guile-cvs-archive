@@ -193,8 +193,10 @@ scm_i_sweep_card (scm_t_cell *  p, SCM *free_list, scm_t_heap_segment*seg)
             }
           break;
 	case scm_tc7_string:
-	  scm_gc_free (SCM_I_STRING_CHARS (scmptr), 
-		       SCM_I_STRING_LENGTH (scmptr) + 1, "string");
+	  scm_i_string_free (scmptr);
+	  break;
+	case scm_tc7_stringbuf:
+	  scm_i_stringbuf_free (scmptr);
 	  break;
 	case scm_tc7_symbol:
 	  scm_gc_free (SCM_SYMBOL_CHARS (scmptr), 

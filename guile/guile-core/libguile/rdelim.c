@@ -60,16 +60,16 @@ SCM_DEFINE (scm_read_delimited_x, "%read-delimited!", 3, 3, 0,
   size_t cstart;
   size_t cend;
   int c;
-  char *cdelims;
+  const char *cdelims;
   size_t num_delims;
 
   SCM_VALIDATE_STRING (1, delims);
-  cdelims = SCM_I_STRING_CHARS (delims);
-  num_delims = SCM_I_STRING_LENGTH (delims);
+  cdelims = scm_i_string_chars (delims);
+  num_delims = scm_i_string_length (delims);
 
   SCM_VALIDATE_STRING (2, str);
-  buf = SCM_I_STRING_CHARS (str);
-  scm_i_get_substring_spec (SCM_I_STRING_LENGTH (str),
+  buf = scm_i_string_writable_chars (str);
+  scm_i_get_substring_spec (scm_i_string_length (str),
 			    start, &cstart, end, &cend);
 
   if (SCM_UNBNDP (port))

@@ -80,12 +80,12 @@ gh_set_substr (char *src, SCM dst, long start, size_t len)
   char *dst_ptr;
   size_t dst_len;
 
-  SCM_ASSERT (SCM_I_STRINGP (dst), dst, SCM_ARG3, "gh_set_substr");
+  SCM_ASSERT (scm_is_string (dst), dst, SCM_ARG3, "gh_set_substr");
 
-  dst_ptr = SCM_I_STRING_CHARS (dst);
-  dst_len = SCM_I_STRING_LENGTH (dst);
+  dst_len = scm_i_string_length (dst);
   SCM_ASSERT (start + len <= dst_len, dst, SCM_ARG4, "gh_set_substr");
-  
+
+  dst_ptr = scm_i_string_writable_chars (dst);
   memmove (dst_ptr + start, src, len);
   scm_remember_upto_here_1 (dst);
 }
@@ -259,12 +259,12 @@ gh_scm2chars (SCM obj, char *m)
       break;
 #endif
     case scm_tc7_string:
-      n = SCM_I_STRING_LENGTH (obj);
+      n = scm_i_string_length (obj);
       if (m == 0)
 	m = (char *) malloc (n * sizeof (char));
       if (m == NULL)
 	return NULL;
-      memcpy (m, SCM_I_STRING_CHARS (obj), n * sizeof (char));
+      memcpy (m, scm_i_string_chars (obj), n * sizeof (char));
       break;
     default:
       scm_wrong_type_arg (0, 0, obj);
@@ -525,7 +525,7 @@ gh_scm2newstr (SCM str, size_t *lenp)
 
   ret_str = scm_to_locale_string (str);
   if (lenp)
-    *lenp = SCM_I_STRING_LENGTH (str);
+    *lenp = scm_i_string_length (str);
   return ret_str;
 }
 
@@ -540,11 +540,11 @@ void
 gh_get_substr (SCM src, char *dst, long start, size_t len)
 {
   size_t src_len, effective_length;
-  SCM_ASSERT (SCM_I_STRINGP (src), src, SCM_ARG3, "gh_get_substr");
+  SCM_ASSERT (scm_is_string (src), src, SCM_ARG3, "gh_get_substr");
 
-  src_len = SCM_I_STRING_LENGTH (src);
+  src_len = scm_i_string_length (src);
   effective_length = (len < src_len) ? len : src_len;
-  memcpy (dst + start, SCM_I_STRING_CHARS (src), effective_length * sizeof (char));
+  memcpy (dst + start, scm_i_string_chars (src), effective_length * sizeof (char));
   /* FIXME: must signal an error if len > src_len */
   scm_remember_upto_here_1 (src);
 }

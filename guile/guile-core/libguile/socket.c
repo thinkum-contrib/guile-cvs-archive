@@ -1134,6 +1134,8 @@ SCM_DEFINE (scm_recv, "recv!", 2, 1, 0,
   int rv;
   int fd;
   int flg;
+  char *dest;
+  size_t len;
 
   SCM_VALIDATE_OPFPORT (1, sock);
   SCM_VALIDATE_STRING (2, buf);
@@ -1143,9 +1145,9 @@ SCM_DEFINE (scm_recv, "recv!", 2, 1, 0,
     flg = scm_to_int (flags);
   fd = SCM_FPORT_FDES (sock);
 
-  SCM_SYSCALL (rv = recv (fd, 
-			  SCM_I_STRING_CHARS (buf), SCM_I_STRING_LENGTH (buf),
-			  flg));
+  dest = scm_i_string_writable_chars (buf);
+  len =  scm_i_string_length (buf);
+  SCM_SYSCALL (rv = recv (fd, dest, len, flg));
   if (rv == -1)
     SCM_SYSERROR;
 
@@ -1173,6 +1175,8 @@ SCM_DEFINE (scm_send, "send", 2, 1, 0,
   int rv;
   int fd;
   int flg;
+  const char *src;
+  size_t len;
 
   sock = SCM_COERCE_OUTPORT (sock);
   SCM_VALIDATE_OPFPORT (1, sock);
@@ -1183,10 +1187,9 @@ SCM_DEFINE (scm_send, "send", 2, 1, 0,
     flg = scm_to_int (flags);
   fd = SCM_FPORT_FDES (sock);
 
-  SCM_SYSCALL (rv = send (fd,
-			  SCM_I_STRING_CHARS (message),
-			  SCM_I_STRING_LENGTH (message),
-			  flg));
+  src = scm_i_string_writable_chars (message);
+  len = scm_i_string_length (message);
+  SCM_SYSCALL (rv = send (fd, src, len, flg));
   if (rv == -1)
     SCM_SYSERROR;
 
@@ -1233,8 +1236,8 @@ SCM_DEFINE (scm_recvfrom, "recvfrom!", 2, 3, 0,
   fd = SCM_FPORT_FDES (sock);
   
   SCM_VALIDATE_STRING (2, str);
-  buf = SCM_I_STRING_CHARS (str);
-  scm_i_get_substring_spec (SCM_I_STRING_LENGTH (str),
+  buf = scm_i_string_writable_chars (str);
+  scm_i_get_substring_spec (scm_i_string_length (str),
 			    start, &offset, end, &cend);
 
   if (SCM_UNBNDP (flags))
@@ -1301,8 +1304,8 @@ SCM_DEFINE (scm_sendto, "sendto", 4, 0, 1,
       flg = SCM_NUM2ULONG (5, SCM_CAR (args_and_flags));
     }
   SCM_SYSCALL (rv = sendto (fd,
-			    SCM_I_STRING_CHARS (message),
-			    SCM_I_STRING_LENGTH (message),
+			    scm_i_string_chars (message),
+			    scm_i_string_length (message),
 			    flg, soka, size));
   if (rv == -1)
     {

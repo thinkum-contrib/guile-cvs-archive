@@ -111,8 +111,8 @@ SCM_DEFINE (scm_read_string_x_partial, "read-string!/partial", 1, 3, 0,
     size_t last;
 
     SCM_VALIDATE_STRING (1, str);
-    dest = SCM_I_STRING_CHARS (str);
-    scm_i_get_substring_spec (SCM_I_STRING_LENGTH (str),
+    dest = scm_i_string_writable_chars (str);
+    scm_i_get_substring_spec (scm_i_string_length (str),
 			      start, &offset, end, &last);
     dest += offset;
     read_len = last - offset;
@@ -202,7 +202,7 @@ SCM_DEFINE (scm_write_string_partial, "write-string/partial", 1, 3, 0,
 	    "@end itemize")
 #define FUNC_NAME s_scm_write_string_partial
 {
-  char *src;
+  const char *src;
   long write_len;
   int fdes;
 
@@ -211,8 +211,8 @@ SCM_DEFINE (scm_write_string_partial, "write-string/partial", 1, 3, 0,
     size_t last;
 
     SCM_VALIDATE_STRING (1, str);
-    src = SCM_I_STRING_CHARS (str);
-    scm_i_get_substring_spec (SCM_I_STRING_LENGTH (str),
+    src = scm_i_string_chars (str);
+    scm_i_get_substring_spec (scm_i_string_length (str),
 			      start, &offset, end, &last);
     src += offset;
     write_len = last - offset;

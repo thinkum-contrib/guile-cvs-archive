@@ -59,16 +59,16 @@ SCM_DEFINE (scm_make_struct_layout, "make-struct-layout", 1, 0, 0,
   SCM_VALIDATE_STRING (1, fields);
 
   { /* scope */
-    char * field_desc;
+    const char * field_desc;
     size_t len;
     int x;
 
-    len = SCM_I_STRING_LENGTH (fields);
+    len = scm_i_string_length (fields);
     if (len % 2 == 1)
       SCM_MISC_ERROR ("odd length field specification: ~S", 
 		      scm_list_1 (fields));
 
-    field_desc = SCM_I_STRING_CHARS (fields);
+    field_desc = scm_i_string_chars (fields);
 
     for (x = 0; x < len; x += 2)
       {
@@ -240,12 +240,12 @@ SCM_DEFINE (scm_struct_vtable_p, "struct-vtable?", 1, 0, 0,
   layout = SCM_STRUCT_LAYOUT (x);
 
   if (SCM_SYMBOL_LENGTH (layout)
-      < SCM_I_STRING_LENGTH (required_vtable_fields))
+      < scm_i_string_length (required_vtable_fields))
     return SCM_BOOL_F;
 
   tmp = strncmp (SCM_SYMBOL_CHARS (layout),
-		 SCM_I_STRING_CHARS (required_vtable_fields),
-		 SCM_I_STRING_LENGTH (required_vtable_fields));
+		 scm_i_string_chars (required_vtable_fields),
+		 scm_i_string_length (required_vtable_fields));
   scm_remember_upto_here_1 (required_vtable_fields);
   if (tmp)
     return SCM_BOOL_F;

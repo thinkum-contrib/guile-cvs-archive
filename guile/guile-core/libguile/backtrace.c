@@ -401,18 +401,22 @@ display_frame_expr (char *hdr, SCM exp, char *tlr, int indentation, SCM sport, S
   string = scm_strport_to_string (sport);
   assert (scm_is_string (string));
 
-  /* Remove control characters */
-  for (i = 0; i < n; ++i)
-    if (iscntrl ((int) SCM_I_STRING_UCHARS (string)[i]))
-      SCM_I_STRING_UCHARS (string)[i] = ' ';
-  /* Truncate */
-  if (indentation + n > SCM_BACKTRACE_WIDTH)
-    {
-      n = SCM_BACKTRACE_WIDTH - indentation;
-      SCM_I_STRING_UCHARS (string)[n - 1] = '$';
-    }
+  {
+    char *data = scm_i_string_writable_chars (string);
+
+    /* Remove control characters */
+    for (i = 0; i < n; ++i)
+      if (iscntrl (data[i]))
+	data[i] = ' ';
+    /* Truncate */
+    if (indentation + n > SCM_BACKTRACE_WIDTH)
+      {
+	n = SCM_BACKTRACE_WIDTH - indentation;
+	data[n-1] = '$';
+      }
+  }
       
-  scm_lfwrite (SCM_I_STRING_CHARS (string), n, port);
+  scm_lfwrite (scm_i_string_chars (string), n, port);
   scm_remember_upto_here_1 (string);
 }
 

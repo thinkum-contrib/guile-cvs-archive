@@ -468,8 +468,11 @@ scm_array_fill_int (SCM ra, SCM fill, SCM ignore SCM_UNUSED)
       break;
     case scm_tc7_string:
       SCM_ASRTGO (SCM_CHARP (fill), badarg2);
-      for (i = base; n--; i += inc)
-	SCM_I_STRING_CHARS (ra)[i] = SCM_CHAR (fill);
+      {
+	char *data = scm_i_string_writable_chars (ra);
+	for (i = base; n--; i += inc)
+	  data[i] = SCM_CHAR (fill);
+      }
       break;
     case scm_tc7_byvect:
       if (SCM_CHARP (fill))
@@ -630,8 +633,12 @@ racp (SCM src, SCM dst)
     case scm_tc7_string:
       if (SCM_TYP7 (src) != scm_tc7_string)
 	goto gencase;
-      for (; n-- > 0; i_s += inc_s, i_d += inc_d)
-	SCM_I_STRING_CHARS (dst)[i_d] = SCM_I_STRING_CHARS (src)[i_s];
+      {
+	char *dst_data = scm_i_string_writable_chars (dst);
+	const char *src_data = scm_i_string_chars (src);
+	for (; n-- > 0; i_s += inc_s, i_d += inc_d)
+	  dst_data[i_d] = src_data[i_s];
+      }
       break;
     case scm_tc7_byvect:
       if (SCM_TYP7 (src) != scm_tc7_byvect)
@@ -1791,8 +1798,8 @@ raeql_1 (SCM ra0, SCM as_equal, SCM ra1)
       return 1;
     case scm_tc7_string:
       {
-	char *v0 = SCM_I_STRING_CHARS (ra0) + i0;
-	char *v1 = SCM_I_STRING_CHARS (ra1) + i1;
+	const char *v0 = scm_i_string_chars (ra0) + i0;
+	const char *v1 = scm_i_string_chars (ra1) + i1;
 	for (; n--; v0 += inc0, v1 += inc1)
 	  if (*v0 != *v1)
 	    return 0;
