@@ -1,3 +1,7 @@
+Fri Aug 15 13:08:07 1997  Jim Blandy  <jimb@totoro.red-bean.com>
+
+	* Makefile.in: Regenerated with automake 1.1p.
+
 Thu Aug 14 16:52:43 1997  Jim Blandy  <jimb@totoro.red-bean.com>
 
 	* aclocal.m4, configure: Regenerated with automake 1.1p.
