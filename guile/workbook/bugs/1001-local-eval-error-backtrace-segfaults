@@ -1,6 +1,9 @@
 summary: local-eval error bactrace segfaults
 reported: M Johnson <johns776@pilot.msu.edu>, 2002-02-12
 affects: HEAD
+see-also-dir: 1001.stuff
+test-case: segf-v1.scm
+test-case: segf-v2.scm (ignore for now)
 
 M Johnson sez:
 > I'm assuming that when (backtrace) seg-faults that that is a bug, no matter how screwed up my cod may be.
