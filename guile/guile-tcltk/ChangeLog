@@ -1,7 +1,8 @@
 1998-10-29  Jim Blandy  <jimb@zwingli.cygnus.com>
 
 	* guile-tcl.c (mark_interp): Assume that the caller has set the
-	mark bit, and we will only be called once.
+	mark bit, and we will only be called once.  (Thanks to John
+	Brodie.)
 
 1998-07-21  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
