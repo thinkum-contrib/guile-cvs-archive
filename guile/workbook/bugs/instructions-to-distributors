@@ -1,0 +1,5 @@
+summary: we need to properly instruct distributors how to package Guile
+reported: Neil Jerram, 2002
+
+Rob Browning will make Debian packages so he should know, and he says
+he will talk to the Redhat guys to make a proper Guile package.
