@@ -212,6 +212,7 @@ Part II: Guile Scheme
 * Debugging::                   Internal debugging interface.
 * Deprecated::                  Features that are planned to disappear.
 * Autoconf Support::            Guile-specific configure.in macros.
+* Miscellaneous Tools::         Snarfing, linting, etc.
 * Further Reading::             Where to find out more about Scheme programming.
 
 Part III: Guile Modules
@@ -291,6 +292,7 @@ Indices
 @include scheme-debug.texi
 @include deprecated.texi
 @include autoconf.texi
+@include tools.texi
 @include scheme-reading.texi
 @include scheme-indices.texi
 
