@@ -91,13 +91,13 @@
 
 (define (parse-form raw-data)
   ;; get-name and get-value are used to parse individual `name=value' pairs.
-  ;; Values are URL-encoded, so url-decode must be called on each one.
+  ;; Values are URL-encoded, so url:decode must be called on each one.
   (define (get-name pair)
     (let ((p (string-index pair #\=)))
       (and p (make-shared-substring pair 0 p))))
   (define (get-value pair)
     (let ((p (string-index pair #\=)))
-      (and p (url-decode (make-shared-substring pair (+ p 1))))))
+      (and p (url:decode (make-shared-substring pair (+ p 1))))))
   (for-each (lambda (pair)
 	      (let* ((name (get-name pair))
 		     (value (get-value pair))
@@ -109,23 +109,25 @@
 	    (separate-fields-discarding-char #\& raw-data)))
 
 (define (read-raw-form-data)
-  (and content-length (read-n-chars content-length)))
+  (and cgi-content-length (read-n-chars cgi-content-length)))
 
 (define (init-environment)
 
   ;; SERVER_SOFTWARE format: name/version
-  (let* ((server-software (getenv "SERVER_SOFTWARE"))
-	 (slash (string-index server-software #\/)))
-    (set! cgi-server-software-type    (substring server-software 0 slash))
-    (set! cgi-server-software-version (substring server-software (1+ slash))))
+  (let ((server-software (getenv "SERVER_SOFTWARE")))
+    (if server-software
+	(let ((slash (string-index server-software #\/)))
+	  (set! cgi-server-software-type    (substring server-software 0 slash))
+	  (set! cgi-server-software-version (substring server-software (1+ slash))))
 
   (set! cgi-server-hostname	   (getenv "SERVER_NAME"))
   (set! cgi-gateway-interface	   (getenv "GATEWAY_INTERFACE"));"CGI/revision"
 
-  (let* ((server-protocol (getenv "SERVER_PROTOCOL"))
-	 (slash (string-index server-protocol #\/)))
-    (set! cgi-server-protocol-name     (substring server-protocol 0 slash))
-    (set! cgi-server-protocol-version  (substring server-protocol (1+ slash))))
+  (let* ((server-protocol (getenv "SERVER_PROTOCOL")))
+    (if server-protocol
+	(let ((slash (string-index server-protocol #\/)))
+	  (set! cgi-server-protocol-name     (substring server-protocol 0 slash))
+	  (set! cgi-server-protocol-version  (substring server-protocol (1+ slash))))
 
   (let ((port (getenv "SERVER_PORT")))
     (set! cgi-server-port (and port (string->number port))))
@@ -142,9 +144,9 @@
   (set! cgi-content-type	   (getenv "CONTENT_TYPE"))
   (set! cgi-query-string	   (getenv "QUERY_STRING"))
 
-  (if (and cgi-query-string
-	   (= 0 (string-length cgi-query-string)))
-      (set! cgi-query-string #f))
+  (and cgi-query-string
+       (string-null? cgi-query-string)
+       (set! cgi-query-string #f))
 
   (let ((contlen (getenv "CONTENT_LENGTH")))
     (set! cgi-content-length (and contlen (string->number contlen))))
