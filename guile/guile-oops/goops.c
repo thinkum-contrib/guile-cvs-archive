@@ -1797,8 +1797,7 @@ void
 scm_init_goops (void)
 {
   SCM the_unbound_value = SCM_CAR (scm_intern0 ("the-unbound-value"));
-  SCM goops = SCM_CAR (scm_intern0 ("goops"));
-  SCM goops_module = scm_make_module (SCM_LIST2 (goops, goops));
+  SCM goops_module = scm_make_module (scm_read_0str ("(oop goops)"));
   SCM old_module = scm_select_module (goops_module);
   scm_goops_lookup_closure = scm_module_lookup_closure (goops_module);
 
@@ -1836,7 +1835,7 @@ scm_init_goops (void)
 }
 
 void
-scm_init_goops_goopscore_module ()
+scm_init_oop_goopscore_module ()
 {
-  scm_register_module_xxx ("goops goopscore", (void *) scm_init_goops);
+  scm_register_module_xxx ("oop goopscore", (void *) scm_init_goops);
 }
