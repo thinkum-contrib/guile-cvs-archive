@@ -398,10 +398,9 @@ Return a THUNK which can be called repeatedly like this:
 
   THUNK --> SCHEMECODE
 
-Each call will yield a new piece of scheme code.  #f is returned
-to signal the end of the stream of scheme expressions.  (Note that
-it isn't meaningful for THUNK to return immediates.  In fact, it's
-only meaningful to return expressions with side-effects.)
+Each call will yield a new piece of scheme code.  The THUNK signals
+end of translation by returning the unique value *end-of-translation*
+which can be tested using the predicate `end-of-translation?'.
 
 The optional argument ALIST provides compilation options for the
 translator:
