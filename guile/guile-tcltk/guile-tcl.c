@@ -812,7 +812,11 @@ scm_init_gtcl ()
 {
   scm_tc16_tcl_interp = scm_newsmob (&tcl_interp_smob);
 #ifdef USE_THREADS
+#ifdef SCM_MUTEX_INIT_TWO_ARGS
+  scm_mutex_init (&scm_tcl_mutex, NULL);
+#else
   scm_mutex_init (&scm_tcl_mutex);
+#endif
   scm_cond_init (&scm_tcl_condvar, NULL);
 #endif
 #include "guile-tcl.x"
