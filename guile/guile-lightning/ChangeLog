@@ -1,3 +1,18 @@
+2001-04-01  Marius Vollmer  <mvo@zagadka.ping.de>
+
+	* test.scm: Started new generation of tests, using the new calling
+	convention.
+	* test-old.scm: Renamed from test.scm.
+	
+	* lightning.c (code, codevector): Changed old `code' smob to the
+	name `codevector', which represents a closure template.  New smob
+	`code', which represents a closure (template + environment).
+	(call_tc, create_call_tc): Support for calling into the new
+	tail-callable calling convention.
+	(code_apply): Use it.
+	(scm_make_closure): New, exported to Scheme.
+	* lightning.scm (make-closure): Export.
+	
 2001-03-25  Marius Vollmer  <mvo@zagadka.ping.de>
 
 	* lightning.scm (asm-macros, register-asm-macro, get-asm-macro,

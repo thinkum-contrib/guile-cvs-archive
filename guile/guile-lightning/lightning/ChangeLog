@@ -1,0 +1,8 @@
+2001-04-01  Marius Vollmer  <mvo@zagadka.ping.de>
+
+	* i386/core.h (jit_callr): Added.
+
+	* core-common.h (jit_push_l, jit_pop_l, jit_pushr_l, jit_popr_l):
+	Changed "push" to "pushr" and "pop" to "popr".  Also in
+	definition.
+
