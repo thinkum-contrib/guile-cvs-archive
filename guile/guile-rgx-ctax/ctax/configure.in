@@ -1,8 +1,0 @@
-#
-# Process this file with autoconf to produce a configure script.
-#
-
-AC_INIT(lexer.scm)
-AM_INIT_GUILE_MODULE(ctax)
-AM_MAINTAINER_MODE
-AC_OUTPUT(Makefile)
