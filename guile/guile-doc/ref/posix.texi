@@ -53,6 +53,30 @@ pointer or through some other means are reported by raising a
 The value of the Unix @code{errno} variable is available
 in the data passed by the exception. 
 
+Here's an ad-hoc@footnote{This may be changed in the future; be prepared
+to rewrite this sort of code.} way to extract the @code{errno} value
+from an exception:
+
+@example
+(catch
+ 'system-error
+ (lambda ()
+   (mkdir "/this-ought-to-fail-if-I'm-not-root"))
+ (lambda stuff
+   (let ((errno (car (list-ref stuff 4))))
+     (cond
+      ((= errno EACCES)
+       (display "You're not allowed to do that."))
+      ((= errno EEXIST)
+       (display "Already exists."))
+      (#t
+       (display (strerror errno))))
+     (newline))))
+@end example
+
+The important thing to note is that the @code{errno} value can be
+extracted with @code{(car (list-ref stuff 4))}.
+
 @node Ports and File Descriptors
 @chapter Ports and File Descriptors
 
