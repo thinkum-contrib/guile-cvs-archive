@@ -1,3 +1,33 @@
+2001-04-09  Marius Vollmer  <mvo@zagadka.ping.de>
+
+	* lightning.c (nlistify, scm_invoke): Do not use va_lists to get
+	at the arguments.
+	(nlistify2): Removed.
+	(scm_disassemble): Disassemble corresponding codevector when
+	passed a code closure.
+
+	* Makefile.am: Install assembler.scm and compiler.scm.
+
+	* lightning.scm, assembler.scm: Renamed "lightning.scm" to
+	"assembler.scm".  Renamed module to (lightning assembler).
+	
+	* compiler.scm: New file.
+
+	* test.scm: Exercise the compiler some.
+
+2001-04-06  Marius Vollmer  <mvo@zagadka.ping.de>
+
+	* rod.scm: Handle "jmp" and "call" right with respect to registers
+	and immediates.
+
+	* lightning.ops (jit_callr): Added.
+
+	* lightning.c: Lotsa intricate stuff for efficiently invoking
+	arbitrary procedure objects from compiled code.
+
+	* test.scm: Readded old Fibonacci code, using more features, like
+	a slight integration with the module system.
+
 2001-04-01  Marius Vollmer  <mvo@zagadka.ping.de>
 
 	* test.scm: Started new generation of tests, using the new calling

@@ -1,3 +1,7 @@
+2001-04-06  Marius Vollmer  <mvo@zagadka.ping.de>
+
+	* i386/core.h (jit_return): Added.
+
 2001-04-01  Marius Vollmer  <mvo@zagadka.ping.de>
 
 	* i386/core.h (jit_callr): Added.
