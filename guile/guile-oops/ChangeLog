@@ -1,3 +1,9 @@
+1999-12-04  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
+
+	* dispatch.scm (cache-try-hash!): Bugfix: Measure max number of
+	cache misses for any method instead of the sum of cache misses for
+	all methods.
+
 1999-10-13  Christian Lynbech  <chl@tbit.dk>
 
 	* goops.scm (export): Added 'update-instance-for-different-class'.
