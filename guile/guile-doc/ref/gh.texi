@@ -121,7 +121,99 @@ This is the user's main program.  It will be invoked by
 @code{gh_enter()} after Guile has been started up.
 @end deftypefun
 
+Note that you can use @code{gh_repl} inside @code{gh_enter} if you want
+the program to be controled by a Scheme read--eval--print--loop.
+
 @end deftypefun
+
+@cindex read eval print loop -- from the gh_ interface
+@cindex REPL -- from the gh_ interface
+A convenience routine which enters the Guile interpreter with the
+standard Guile read--eval--print--loop (@dfn{REPL}) is:
+
+@deftypefun void gh_repl (int @var{argc}, char *@var{argv}[])
+Enters the Scheme interpreter giving control to the Scheme REPL.
+Arguments are processed as if the Guile program @file{guile} were being
+invoked.
+
+Note that @code{gh_repl} should be used @emph{inside} @code{gh_enter},
+since any Guile interpreter calls are meaningless unless they happen in
+the context of the interpreter.
+
+Also note that when you use @code{gh_repl}, your program will be
+controlled by Guile's REPL (which is written in Scheme and has many
+useful features).  Use straight C code inside @code{gh_enter} if you
+want to maintain execution control in your C program.
+@end deftypefun
+
+You will typically use @code{gh_enter} and @code{gh_repl()} when you
+want a Guile interpreter enhanced by your own libraries, but otherwise
+quite normal.  For example, to build a Guile--derived program that
+includes some random number routines @dfn{GSL} (GNU Scientific Library),
+you would write a C program that looks like this:
+
+@smallexample
+#include <guile/gh.h>
+#include <gsl_ran.h>
+
+/* random number suite */
+SCM gw_ran_seed(SCM s)
+@{
+  gsl_ran_seed(gh_scm2int(s));
+  return SCM_UNSPECIFIED;
+@}
+
+SCM gw_ran_random()
+@{
+  SCM x;
+
+  x = gh_ulong2scm(gsl_ran_random());
+  return x;
+@}
+
+SCM gw_ran_uniform()
+@{
+  SCM x;
+
+  x = gh_double2scm(gsl_ran_uniform());
+  return x;
+@}
+SCM gw_ran_max()
+@{
+  return gh_double2scm(gsl_ran_max());
+@}
+
+void
+init_gsl()
+@{
+  /* random number suite */
+  gh_new_procedure("gsl-ran-seed", gw_ran_seed, 1, 0, 0);
+  gh_new_procedure("gsl-ran-random", gw_ran_random, 0, 0, 0);
+  gh_new_procedure("gsl-ran-uniform", gw_ran_uniform, 0, 0, 0);
+  gh_new_procedure("gsl-ran-max", gw_ran_max, 0, 0, 0);
+@}
+
+void
+main_prog (int argc, char *argv[])
+@{
+  init_gsl();
+
+  gh_repl(argc, argv);
+@}
+
+int
+main (int argc, char *argv[])
+@{
+  gh_enter (argc, argv, main_prog);
+@}
+@end smallexample
+
+Then, supposing the C program is in @file{guile-gsl.c}, you could
+compile it with @kbd{gcc -o guile-gsl guile-gsl.c -lguile -lgsl}.
+
+The resulting program @file{guile-gsl} would have new primitive
+procedures @code{(gsl-ran-random)}, @code{(gsl-ran-gaussian)} and so
+forth.
 
 
 @page
