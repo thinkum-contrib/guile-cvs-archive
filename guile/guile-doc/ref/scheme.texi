@@ -3653,6 +3653,7 @@ in the @code{%load-path}, so we just use that for this example.
 
 @smallexample
 % mkdir maths
+% cd maths
 % ln -s ../libbessel.so .
 % cd ..
 % guile
