@@ -1,4 +1,0 @@
-;;;; This is just a dummy test file, so I have more than one to test
-;;;; the guile-test script with.
-
-(pass "mambo!")

@@ -1,7 +1,0 @@
-summary: gensym-creates-accessable-symbols
-reported: rlb, 2002-05-16
-affects: all
-
-gensym needs to generate symbols that can't be generated any other
-way.  Right now you can intentionally or accidentally shadow its
-output.
