@@ -1,3 +1,8 @@
+1999-09-06  James Blandy  <jimb@mule.m17n.org>
+
+	* mbapi.texi, mltext.texi: New files, describing interfaces for
+	dealing with multilingual code.
+
 1999-07-25  Gary Houston  <ghouston@easynet.co.uk>
 
 	* scheme.texi, posix.texi: updated for changes in the I/O system
