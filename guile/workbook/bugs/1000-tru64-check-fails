@@ -143,7 +143,7 @@ ttn sez:
 [ttn 2002/03/25 15:55:06] sez:
 > for guile-1.6, if HAVE_UINTPTR_T is not defined then `unsigned long' is used
 > to implement SCM in libguile/tags.h.  libguile/__scm.h has this comment:
-> 
+>
 >  * Guile as of today can only work on systems which fulfill at least the
 >  * following requirements:
 >  * - long ints have at least 32 bits.
@@ -158,6 +158,9 @@ ttn sez:
 >  *   The implementation of the bitwise scheme level operations is based on
 >  *   this assumption.
 >  * - ... add more
-> 
+>
 > perhaps these requirements can be codified into some test for configure.
 > i don't know how things have changed for HEAD branch.
+
+[ttn 2002/03/25 17:31:22] sez:
+> suspect a bug in srfi-4.c `make_uvec'.
