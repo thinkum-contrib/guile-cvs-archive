@@ -216,7 +216,8 @@ following ways:
   '(<variable pointing to the location of 'and> #t #f).  Then, after the
   memoization is performed and the memoized expression is to be executed,
   Guile looks into the content of the variable (or ILOC).  There it detects
-  the acro, macro or mmacro object.  The expression is passed to the 
+  the acro, macro or mmacro object.  The expression is passed to the
+  corresponding acro, macro or mmacro function.
 
   It should be noted, that the order in which memoization happens makes sure
   that in an expression '(a b c d) first 'a is memoized, then it is checked
@@ -278,12 +279,33 @@ couple of code optimizations that could be applied without changing the format
 of memoized code are not yet performed.
 
 
-3. Incremental changes for improving the evaluator
+3. Design decisions to be taken
+===============================
+
+I list a couple of design decisions.  These are still officially to be taken,
+but according to recent discussions there seems to be some consensus.  Thus, I
+do formulate the decisions as I assume that we will agree about.
+
+* Macro expansion should be performed after reading an expression, but before
+  executing it.  [FIXME:  This leaves open the question, whether macro
+  expansion and memoization/compilation should be separate phases.  However, I
+  tend to favor a separation.]
+
+* Redefinitions of macros shall not lead to automatic recompilation of code
+  that used the former definition.  Instead, the user would be required to
+  reload or recompile all affected files, if he so desires.  The system could
+  help by providing a list of affected files, thus allowing to reduce the
+  whole reloading/recompiling to a simple command.
+
+* It shall be possible to determine the list of imported bindings and their
+  respective modules statically.  When the user wants a changed export list to
+  take effect, it would be necessary to reload/recompile the affected files.
+
+
+4. Incremental changes for improving the evaluator
 ==================================================
 
-* [According to Marius, the following step should be performed first:]
-
-  revoke macro transformers from being stored in variables.  I.e.
+* revoke macro transformers from being stored in variables.  I.e.
     (define-macro (foo ...) ...)
     (define bar foo)
   will no longer work.  Instead, put macros into the toplevel by binding them
@@ -294,22 +316,20 @@ of memoized code are not yet performed.
       (module lookup)
     symbol ------> #<macro>
 
-  [I don't understand why not storing macro transformers in variables should
-  be helpful.  What would we gain if this was performed as a first step?  By
-  looking at the code, I could not see which particular problem would be
-  solved by this step, nor which further step would be simplified:  If macro
-  expansion was performed before execution, macros won't appear as first class
-  objects any more during execution anyway.  What am I missing here?  Maybe
-  Marius has a special implementation of memoization/compilation in mind that
-  I don't currently see...]
+  [FIXME:  I don't understand why not storing macro transformers in variables
+  should be helpful.  What would we gain if this was performed as a first
+  step?  By looking at the code, I could not see which particular problem
+  would be solved by this step, nor which further step would be simplified:
+  If macro expansion was performed before execution, macros won't appear as
+  first class objects any more during execution anyway.  What am I missing
+  here?  Maybe Marius has a special implementation of memoization/compilation
+  in mind that I don't currently see...]
 
-* [According to Marius, the next step should be:]
-
-  Make syntax-case use this arrangement, and make it work correctly with
+* Make syntax-case use this arrangement, and make it work correctly with
   modules in general.
 
-  [I think Marius refers to the following requirement about macros:  If a
-  macro introduces identifiers, their bindings have to come from the
+  [FIXME:  I think Marius refers to the following requirement about macros:
+  If a macro introduces identifiers, their bindings have to come from the
   environment where the macro was defined.  That is, somehow the relationship
   between the macro and its environment has to be retained.]
 
@@ -328,8 +348,22 @@ of memoized code are not yet performed.
   all any more.  In general, code that makes use of guile's built-in system to
   create acros, macros and mmacros may have problems.
 
+* Allow to write memoized code to disk and load it back in.
 
-4. Architectural Aspects
+* Make syntax-case our standard macro expander.
+
+* If loading time is improved, move GOOPS closer into the core.  Maybe even
+  throw out smobs.
+
+* Offer choice between the memoizer, byte code or machine code compilers.
+
+* Consider Hobbit:  Hobbit would enter quite late, and would not have to
+  handle macros at all.  It would get expanded code with certain additional
+  guarantees (i.e. unique variable names, correct syntax, only a few core
+  forms, maybe even some special language that isn't Scheme)
+
+
+5. Architectural Aspects
 ========================
 
 Data structures relevant for evaluation:
@@ -341,26 +375,36 @@ Data structures relevant for evaluation:
   relationship of the currently executed code to the originial input code, the
   syntax transformer as well as the memoizer/compiler will have to preserve
   the relationship.  The debugger finally will have to be able to use the
-  relationship to show debugging information to the user.
+  relationship to show debugging information to the user.  In particular,
+  breakpoint positions (and similar source related debugging information)
+  should be preserved as code is transformed.
+
 * code after syntax transformation - This is the interface between the syntax
   transformer and the memoizer/compiler.  Except for a limited set of built-in
   syntactic forms understood by the memoizer/compiler, all macro uses will be
-  expanded.
+  expanded.  Again, breakpoint positions (and similar source related debugging
+  information) should be preserved as code is transformed.
+
 * code after memoization - This is the interface between the memoizer/compiler
   and the executor.  There should also be some way to store memoized/compiled
   code and read it in later.  The format of the memoized code may also
   influence the layout of the stack/continuation data structure as well as the
   layout of the local environment data structure.
+
 * stack/continuation - This is an interface between the executor and the
   debugger.  In a 'stackless' execution model, scheme stacks and continuations
   will probably be quite similar data structures, if not even identical.
+
 * functions, closures, ... - This is an interface between the executor and a
   lot of other parts of guile.  The creation of functions and closures is part
   of guile's API.  The set of different possible function types influences the
   design of the executor.
+
 * top level environments - These are used during syntax transformation,
   memoization/compilation, execution and debugging.
+
 * local environments - These are used within the executor.  There may also be
   a need to examine them from the debugger.
+
 * debug information (breakpoints, trace points etc.) - This is an interface
   between the executor and the debugger.
