@@ -1,3 +1,12 @@
+1998-12-20  Mikael Djurfeldt  <mdj@barbara.nada.kth.se>
+
+	* goops.h, goops.c: Renamed classe --> class everywhere.  (ANSI C
+	differs between Class and class, so there'll be no conflict.)
+
+	* goops.c (scm_sys_prep_layout_x): Removed label exit_err.
+	(scm_basic_make_class): Removed setting of object accessors slot.
+	(That slot doesn't exist in Goops.)
+
 1998-12-15  Mikael Djurfeldt  <mdj@barbara.nada.kth.se>
 
 	* goops.h (scm_si_methods): Changed from 5 to 1.

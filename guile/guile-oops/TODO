@@ -1,18 +1,11 @@
-* Get rid of compler warning messages
-
-* Test, correct bugs
-
-* Get the autoload mechanism to work
-
-* Use the autoload mechanism to autoload `sort' from slib
-  so that apply-generic can begin to work.
+* Add sort.c to libguile
 
 * Fix some *fixme*'s
 
 * Make sure that all of Guile's primitive types are represented in the
   class hierarchy
 
-* Make sure that it isn't possible to create entities with too few slots.
+* Convert the code for STk's extended types to support for smobs.
 
 * README-file with "How to get started"
 
