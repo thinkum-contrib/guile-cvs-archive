@@ -20,6 +20,8 @@
 
 * Beta-release Goops 0.9!
 
+* with-slots, with-accessors
+
 * Optimize
 
 ** Free-list of next-methods (c.f. print-states in print.c)
