@@ -13,24 +13,36 @@ plug (simple, standard, widespread) is typically the goal.
 This file is a collection of plug-in architectures that we've encountered,
 and some notes about them, organized around these attributes:
 
- 00 -- namespace translation is 2 phase
- 01 -- namespace translation is 3 phase
- 02 -- has hook
- 03 -- is hooks based
+ 00 -- namespace translation is 2 phase (external to internal)
+ 01 -- namespace translation is 3 phase (external to user-map to internal)
+ 02 -- loading restricted to "init time"
+ 03 -- loading not time-restricted
  04 -- depends on env vars
  05 -- passes through env vars prefixing
  06 -- passes through env vars modifying in some weird way
  07 -- unloadable
  08 -- part of PROGRAM feature list
- 09 -- build plugin program available
+ 09 -- build plug-in program available
  0A -- requires filesystem direct mapping
  0B -- uses libltdl
+ 0C -- operation of plug-in is through callbacks/handlers (implies protocol)
+ 0D -- operation protocol "slices" or "merges" plug-ins
+ 0E -- operation of plug-in is freeform
+ 0F -- mem alloc by host
+ 10 -- mem alloc by plug-in
+ 11 -- can override host system variables
+ 12 -- plug-in machinery available to plug-ins
+ 13 -- plug-in machinery configurable
        [your attributes here]
 
 See last page for WWW links.
 
 
-- Apache
+- Apache [0]
+  - attributes: 13 11 10 0F 0D 0C 09 08 02 00
+  - Spinner server[1] does (12)
+  - compatible w/ NCSA 1.3 server
+  - has "starutp and tear-down hooks" (13)
 
 - Perl
 
@@ -49,3 +61,5 @@ See last page for WWW links.
 
 
 WWW links
+[0] http://modules.apache.org/reference
+[1] http://www5conf.inria.fr/fich_html/papers/P20/Overview.html#bib8
