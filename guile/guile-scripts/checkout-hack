@@ -1,6 +1,8 @@
 #! /bin/sh -x
 # Usage: checkout-hack
 #        checkout-hack -a       # "all" includes branches
+#
+# Env var: CVSROOT
 
 CVSROOT=${CVSROOT-':pserver:anoncvs@subversions.gnu.org:/cvsroot/guile'}
 export CVSROOT
