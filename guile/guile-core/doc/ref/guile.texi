@@ -223,11 +223,7 @@ Part III: Guile Modules
 * Pretty Printing::             Nicely formatting Scheme objects for output.
 * Formatted Output::            The @code{format} procedure.
 * Expect::			Controlling interactive programs with Guile.
-* The Scheme shell (scsh)::
-	The SCSH compatibility module has been made an
-	add-on, so maybe it shouldn't be documented here
-	(though it is nice to have a link from here to the
-	Guile-scsh manual, if one exists).
+* The Scheme shell (scsh)::     Using scsh interfaces in Guile.
 @c * Tcl/Tk Interface::
 
 Part IV: Guile Scripting
