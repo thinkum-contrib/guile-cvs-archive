@@ -1,4 +1,4 @@
-;;;; and-let*.scm --- and-let* syntactic form (draft SRFI-2) for Guile
+;;;; and-let-star.scm --- and-let* syntactic form (draft SRFI-2) for Guile
 ;;;; written by Michael Livshin <mike@olan.com>
 ;;;;
 ;;;; 	Copyright (C) 1999 Free Software Foundation, Inc.
@@ -18,7 +18,7 @@
 ;;;; the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
 ;;;; Boston, MA 02111-1307 USA
 
-(define-module (ice-9 and-let*))
+(define-module (ice-9 and-let-star))
 
 (defmacro and-let* (vars . body)
 
