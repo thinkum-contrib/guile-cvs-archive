@@ -1,3 +1,8 @@
+2000-06-30  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
+
+	* goops.c (scm_sys_invalidate_method_cache_x): Strip rest args
+	flag.  (Thanks to Nicolas Neuss.)
+
 2000-06-21  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 	
 	* goops.h (SCM_TOP_LEVEL_LOOKUP_CLOSURE): Conditionally provide
