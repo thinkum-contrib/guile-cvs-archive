@@ -1,3 +1,8 @@
+The following is by mvo, w/ editorial comments by by others.
+The latter can be identified by "[NAME: ....]".
+
+
+_________________________________________________________________
 Guile used to be able to automatically find and link a shared
 library to satisfy requests for a module.  For example, the module
 `(foo bar)' could be implemented by placing a shared library named
@@ -8,6 +13,9 @@ This has been found to be too tricky, and is no longer supported.  The
 shared libraries are now called "extensions".  You should now write a
 small Scheme file that calls `load-extension' to load the shared
 library and initialize it explicitely.
+
+[ttn: This decision to drop support applies to guile-1.6.x;
+      guile-1.4.x continues to support this.]
 
 
 Here is more about why "this has been found to be to tricky".  It is
@@ -31,12 +39,32 @@ shared library does not deal well with shared libraries that don't
 come from standard locations or are referenced by multiple names
 (symlinks).
 
+[ttn: Guile uses libtool and consequently libltdl, so it is possible
+      to use `lt_dlsetsearchpath' to alleviate (and actually bypass)
+      OS restrictions.  A scheme binding for `lt_dlsetsearchpath' is
+      also possible.  Thus, this argument against guile-1.4.x system
+      actually can be recast as an argument for providing access and
+      appropriate supporting protocol to `lt_dlsetsearchpath'.]
+
 Additionally, module boundaries are not necessarily language
 boundaries.  That is, a module can be a mix of Scheme and C (and one
 file might want to provide more than one module).  Therefore, we need
 a good way to load shared libraries independently from modules anyway.
 
+[ttn: In dynl.c there are several good ways already.  The guile-1.6.x
+      `load-extension' doesn't seem to be very much value-add over the
+      already provided and stable mechanisms.  There is no spec for it,
+      including failure modes.  There are plans to change its interface
+      incompatibly.  Its registry is opaque (and redundant).]
+
 Restricting module system operations and autoloading to Scheme code
 only provided an immediate and significant simplification, without
 much hassle to the user.  The simplified setup should also be easier
 to understand.
+
+[ttn: The "without much hassle" is unfounded, unfortunately.  The
+      guile-1.4.x system supports C++ encapsulation of a "module"
+      as a C++ object, and two-phase protocol for use: registration
+      before libguile is initialized, and then run-time loading as
+      described above.  Registry manipulation is supported.  None
+      of this is available w/ guile-1.6.x.]
