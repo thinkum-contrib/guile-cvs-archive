@@ -51,7 +51,6 @@
   - Make (ice-9 format) thread safe.  Other modules as well.
 
   - Gracefully cope with the situation that gc_os_dep.c doesn't compile.
-  - Make 1.8 backwards compatible again with 1.6. [mvo]
 
     This is some highly platform dependent code that regularily fails
     to compile as new versions of operating systems or new
@@ -60,6 +59,8 @@
     However, the services provided by gc_os_dep.c are optional.  So it
     would be good to just ignore it when it can't be compiled instead
     of letting the whole Guile build fail.
+
+  - Make 1.8 backwards compatible again with 1.6. [mvo]
 
   - Investigate performance drop from Dec. 8, 2002 to Dec. 12, 2000.
 
