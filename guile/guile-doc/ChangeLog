@@ -1,3 +1,8 @@
+2001-02-15  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* sources/data-rep.texi: Removed.  (ref/data-rep.texi is now the
+	current version of this essay.)
+
 2001-01-26  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* configure.in: Only check for `texi2html' program if HTML is
