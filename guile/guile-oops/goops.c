@@ -49,6 +49,7 @@
 
 #include <libguile.h>
 #include <libguile/objects.h>
+#include <libguile/modules.h>
 
 #include "goops.h"
 
@@ -98,7 +99,7 @@
 
 static char initialized	     = 0;
 
-static SCM Goops;
+static SCM scm_goops_lookup_closure;
 static SCM Top, Object, Class, Generic, Method, Simple_method, Accessor, 
   	   Procedure_class, Entity_class;
 static SCM Boolean, Char, Pair, Procedure, String, Symbol, Vector, Number, 
@@ -1725,12 +1726,6 @@ scm_sys_method_more_specific_p (SCM m1, SCM m2, SCM targs)
  *
  ******************************************************************************/
 
-#if 0
-static void select_STklos_module(void)
-{
-  STk_selected_module = STklos = STk_make_module(Intern("stklos"));
-}
-#endif
 
 static void
 make_stdcls (SCM *var, char *name, SCM meta, SCM super, SCM slots)
@@ -1845,7 +1840,13 @@ static void add_primitive(char *name, int type, void *fct_ptr)
 void
 scm_init_goops (void)
 {
+  SCM goops = SCM_CAR (scm_intern0 ("goops"));
+  SCM goops_module = scm_make_module (SCM_LIST2 (goops, goops));
+  SCM old_module = scm_select_module (goops_module);
+  scm_goops_lookup_closure = scm_module_lookup_closure (goops_module);
+  
 #include "goops.x"
+  
   scm_f_apply_next_method
     = scm_permanent_object (scm_make_subr (s_apply_next_method,
 					   scm_tc7_lsubr,
@@ -1871,10 +1872,12 @@ scm_init_goops (void)
 
   create_Top_Object_Class ();
   make_standard_classes ();
+
+  scm_select_module (old_module);
 }
 
 void
 scm_init_goops_goops_module ()
 {
-    scm_register_module_xxx ("goops goops", scm_init_goops);
+  scm_register_module_xxx ("goops goops", scm_init_goops);
 }
