@@ -1,7 +1,7 @@
 @c Original attribution:
 
 @c
-@c STk Reference manual (Appendix: An Introdution to STklos)
+@c STk Reference manual (Appendix: An Introduction to STklos)
 @c
 @c Copyright © 1993-1999 Erick Gallesio - I3S-CNRS/ESSI <eg@unice.fr>
 @c Permission to use, copy, modify, distribute,and license this
@@ -40,30 +40,26 @@ for the STk reference manual, and subsequently adapted to @goops{}.
 
 Original attribution:
 
-STk Reference manual (Appendix: An Introdution to STklos)
+STk Reference manual (Appendix: An Introduction to STklos)
 
-Copyright @copyright{} 1993,1994,1995 Erick Gallesio - I3S-CNRS/ESSI <eg@@unice.fr>
-
-Permission to use, copy, and/or distribute this software and its
-documentation for any purpose and without fee is hereby granted, provided
-that both the above copyright notice and this permission notice appear in
-all copies and derived works.  Fees for distribution or use of this
-software or derived works may only be charged with express written
-permission of the copyright holder.  
-This software is provided ``as is'' without express or implied warranty.
-
-          Author: Erick Gallesio [eg@@unice.fr]
-   Creation date: 22-May-1994 22:13
-Last file update: 22-Apr-1998 11:04
+Copyright © 1993-1999 Erick Gallesio - I3S-CNRS/ESSI <eg@@unice.fr>
+Permission to use, copy, modify, distribute,and license this
+software and its documentation for any purpose is hereby granted,
+provided that existing copyright notices are retained in all
+copies and that this notice is included verbatim in any
+distributions.  No written agreement, license, or royalty fee is
+required for any of the authorized uses.
+This software is provided ``AS IS'' without express or implied
+warranty.
 
 Adapted for use in Guile with the authors permission
 
 @node Intro, Class definition and instantiation, Copyright, Tutorial
 @section Introduction
 
-@goops{} is the object oriented extention to @guile{}. Its
+@goops{} is the object oriented extension to @guile{}. Its
 implementation is derived from @w{STk-3.99.3} by Erick Gallesio and
-version 1.3 of the Gregor Kickzales @cite{Tiny-Clos}.  It is very close
+version 1.3 of the Gregor Kiczales @cite{Tiny-Clos}.  It is very close
 to CLOS, the Common Lisp Object System (@cite{CLtL2}) but is adapted for
 the Scheme language.
 
@@ -274,7 +270,7 @@ Slots are:
 @c \label{slot-description}
 
 When specifying a slot, a set of options can be given to the
-system. Each option is specified with a keyword. The list of authorised
+system. Each option is specified with a keyword. The list of authorized
 keywords is given below:
 
 @cindex keyword
@@ -564,14 +560,7 @@ in class precedence list of @code{Z}.
 
 These two rules are not always enough to determine a unique order,
 however, but they give an idea of how things work.  Taking the @code{F}
-class shown in Figure@ 1, the @goops{} calculated class precedence list
-is
-
-@example
-(f d e a b c <object> <top>)
-@end example
-
-whereas it would be the following list with a CLOS-like algorithm:
+class shown in Figure@ 1, the class precedence list is
 
 @example
 (f d e a c b <object> <top>)
@@ -619,7 +608,7 @@ function, all the methods of this generic function will be grabbed and
 the most specific among them will be applied. We say that a method
 @var{M} is @emph{more specific} than a method @var{M'} if the class of
 its parameters are more specific than the @var{M'} ones.  To be more
-precise, when a generic funtion must be ``called'' the system will:
+precise, when a generic function must be ``called'' the system will:
 
 @cindex generic function
 @enumerate
