@@ -1,3 +1,8 @@
+1999-09-06  James Blandy  <jimb@mule.m17n.org>
+
+	* configure.in: Test for iconv.
+	* configure: Regenerate.
+
 1999-09-01  James Blandy  <jimb@mule.m17n.org>
 
 	* configure.in: Use AC_REPLACE_FUNCS to grab libguile/memmove.c if

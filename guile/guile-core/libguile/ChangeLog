@@ -1,5 +1,26 @@
 1999-09-06  James Blandy  <jimb@mule.m17n.org>
 
+	* mbconv.h (scm_mb_register_encoding): Add prototype for this.
+
+	* mbconv.h (enum scm_mb_iconv_result): Renamed from enum
+	scm_mb_iconv, because the compiler complained.  ???
+
+	* mbconv.c: Incomplete beginnings of converting input and output ports.
+	* mbconv.h: Declarations for same.
+	
+	* mbbasic.h (scm_init_mbbasic): Make this a prototype, not a K&R
+	style function declaration.
+
+	* mbbasic.c: Fix up ISO 8859 character set definitions.
+
+	* mbconv.h (struct scm_mb_encoding): Add `const' to inbuf argument
+	to the `write' function.
+
+	* mb.h (scm_mb_get, scm_mb_put, scm_mb_len, scm_mb_boundary_p):
+	Cast character arguments to unsigned char, so we don't get weird
+	behavior if the user passes in a signed char.
+	* mbemacs.h (IS_ASCII_CHAR): Same.
+
 	* mbbasic.c, mbbasic.h: New files.
 	* init.c: #include "mbbasic.h"
 	* Makefile.am (libguile_la_SOURCES, BUILT_SOURCES,
