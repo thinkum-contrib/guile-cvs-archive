@@ -109,6 +109,16 @@ fi
 
 AC_SUBST(GTCLTK)
 
+# If we're not going to use Tk, then we should disable the snarfer;
+# the dependency generation system insists on running it, but it may
+# choke if we don't have tk.h, etc. installed.
+if test -n "$GTCLTK"; then
+  SNARF=../libguile/guile-snarf
+else
+  SNARF=:
+fi
+AC_SUBST(SNARF)
+
 dnl Checks for library functions.
 AC_FUNC_ALLOCA
 AC_SUBST(TCL_EXTRA_LIBS)

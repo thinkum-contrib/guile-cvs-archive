@@ -73,6 +73,7 @@ libgtcltk_la_SOURCES = guile-tcl.c guile-tk.c guile-tcl.h guile-tk.h \
 libgtcltk_la_LDFLAGS = -version-info 0:0 -rpath $(libdir)
 
 SUFFIXES = .x
+SNARF=@SNARF@
 
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $(X_CFLAGS)
 
@@ -339,7 +340,7 @@ installdirs mostlyclean-generic distclean-generic clean-generic \
 maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
 .c.x:
-	../libguile/guile-snarf $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $(X_CFLAGS) $< > $@
+	$(SNARF) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $(X_CFLAGS) $< > $@
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

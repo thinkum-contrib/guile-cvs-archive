@@ -12,8 +12,9 @@ libgtcltk_la_SOURCES = guile-tcl.c guile-tk.c guile-tcl.h guile-tk.h \
 libgtcltk_la_LDFLAGS = -version-info 0:0 -rpath $(libdir)
 
 SUFFIXES = .x
+SNARF=@SNARF@
 .c.x:
-	../libguile/guile-snarf $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $(X_CFLAGS) $< > $@
+	$(SNARF) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $(X_CFLAGS) $< > $@
 
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $(X_CFLAGS)
 
