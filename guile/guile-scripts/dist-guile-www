@@ -34,7 +34,7 @@ part2 ()
 rm -rf /tmp/a/b/c
 test -d tmp/tmp/tmp/guile-www/
 mv tmp/tmp/tmp/guile-www/guile-www-*.tar.gz .
-rm -r tmp
+rm -rf tmp
 :
 : part2 done
 :
