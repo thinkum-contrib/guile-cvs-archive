@@ -1,3 +1,24 @@
+1998-11-29  Marius Vollmer  <mvo@zagadka.ping.de>
+
+	Using the dynlink approach from guile-gtk.
+	
+	* gtcltk.scm, dynlink.scm, guiledlopenhelper.c: New files.
+	
+	* configure.in: Do not add Guile libraries to $LIBS.  Instead, put
+	them in $GUILE_LIBS and AC_SUBST that.
+
+	* gtcltk-module.c (scm_init_gtcltk): Made non-static.
+	(scm_init_tcltk_gtcltk_module): Register as the magic "tcltk
+	%static-initfuncs% scm_init_gtcltk" module.
+
+	* Makefile.am (lib_LTLIBRARIES): Added libguiledlopenhelper.la
+	(guile_tcltk_LDADD): Added $(GUILE_LIBS).  They are no longer
+	contained in $(LIBS) because libgtcltk should not reference them.
+	(libguiledlopenhelper_la_SOURCES,
+	libguiledlopenhelper_la_LDFLAGS): New.
+	(subpkgdata_DATA): Added dynlink.scm and gtcltk.scm.
+	(install-exec-hook): Commented out; no longer needed.
+	
 1998-11-27  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* tcltk.scm: Export a widget command `top' for the top level
