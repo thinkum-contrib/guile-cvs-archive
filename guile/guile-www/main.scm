@@ -37,9 +37,7 @@
   (let ((url (url:parse url-str)))
     ;; get handler for this protocol
     (case (url:scheme url)
-      ((http) (let ((msg (http:get (url:host url)
-				     (url:port url)
-				     (url:path url))))
+      ((http) (let ((msg (http:get url)))
 		  (http:message-body msg)))
       (else
        (let ((handle (assq-ref dispatch-table (url:scheme url))))
