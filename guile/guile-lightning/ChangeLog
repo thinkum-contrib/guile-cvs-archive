@@ -1,3 +1,24 @@
+2001-03-25  Marius Vollmer  <mvo@zagadka.ping.de>
+
+	* lightning.scm (asm-macros, register-asm-macro, get-asm-macro,
+	asm-macroexpand, define-asm-macro): New, export
+	(register-asm-macro and define-asm-macro):
+	(assemble): Pass instructions thru asm-macroexpand before
+	assembling.
+	
+	* lightning.c:  Use "~S" instead of "~A" in error messages.
+	(scm_assemble): Allocate a JIT buffer based on the
+	number of instructions to assemble.
+	(imm2int): Do not prepend "scm_" for `subr' immediates.
+
+	* disassemble.c (disassemble): Use AT&Ts syntax, not Intels.
+
+2001-03-21  Marius Vollmer  <mvo@zagadka.ping.de>
+
+	* lightning.c (imm2int): Also accept immediates of the form
+	`(label ...)', returning the address of the label, which must
+	already be defined.  Take the label hash as a parameter for this.
+
 2001-03-20  Marius Vollmer  <mvo@zagadka.ping.de>
 
 	* lightning.ops (jit_retval_i): Changed to "jit_retval".
