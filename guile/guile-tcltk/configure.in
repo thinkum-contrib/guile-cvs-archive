@@ -10,10 +10,16 @@ AC_PROG_INSTALL
 dnl Checks for libraries.
 AC_PATH_XTRA
 
+### On some systems, the Tcl library contains references to
+### functions in the dynamic linker library, -ldl, so we may need
+### to include that.
+AC_CHECK_LIB(dl, dlopen, DL_LIBS='-ldl', DL_LIBS='')
+
 dnl Checks for header files.
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 
 dnl Checks for library functions.
 AC_FUNC_ALLOCA
+AC_SUBST(DL_LIBS)
 AC_OUTPUT(Makefile PLUGIN/guile.config)
