@@ -117,7 +117,7 @@
 
 (define connection-table '())
 (define (add-open-connection! host tcp-port port)
-  (setq connection-table
+  (set! connection-table
 	(assoc-set! connection-table (cons host tcp-port) port)))
 (define (get-open-connection host tcp-port)
   (assoc-ref connection-table (cons host tcp-port)))
@@ -128,12 +128,10 @@
 ;;;
 ;;; Common methods: GET, POST etc.
 
-(define-public (http:get host port document)
+(define-public (http:get url)
   ;; FIXME: if http:open returns an old connection that has been
   ;; closed remotely, this will fail.
-  (let ((p (http:open host (or port 80)))
-	(path (or document "/")))
-    (http:request p (string-append "GET " path " " http:version-string))))
+  (http:request "get" url))
 
 ;;; Connection-oriented functions:
 ;;;
@@ -143,7 +141,9 @@
 ;;;     a new socket.
 
 (define-public (http:open host . args)
-  (let ((port (if (null? args) 80 (car args))))
+  (let ((port (cond ((null? args) 80)
+		    ((not (car args)) 80)
+		    (else (car args)))))
     (or (get-open-connection host port)
 	(let* ((tcp (vector-ref (getproto "tcp") 2))
 	       (addr (car (vector-ref (gethost host) 4)))
@@ -153,8 +153,9 @@
 	  sock))))
 
 ;;; (http:request METHOD URL [HEADERS [BODY]])
-;;;	Submit an HTTP request.  METHOD is the name of some HTTP method
-;;;     (e.g. "GET" or "POST").  URL is a structure returned by url:parse.
+;;;	Submit an HTTP request.
+;;;     URL is a structure returned by url:parse.
+;;;     METHOD is the name of some HTTP method, e.g. "GET" or "POST".
 ;;;     The optional HEADERS and BODY arguments are lists of strings
 ;;;     which describe HTTP messages.  The `Content-Length' header
 ;;;     is calculated automatically and should not be supplied.
@@ -171,72 +172,75 @@
 ;;;			      "max_hits=50"))
 
 (define-public (http:request method url . args)
-  (let ((sock (http:open (url:host url) (url:port url)))
-	(request (string-append method " " (url:path url)))
-	(headers (if (pair? args) (car args) '()))
-	(body    (if (and (pair? args) (pair? (cdr args)))
-		     (cadr args)
-		     '())))
-    (let* ((content-length
-	    (apply +
-		   (map (lambda (line)
-			  (+ 2 (string-length line)))	; + 2 for CRLF
-			body)))
-	   (headers (if (positive? content-length)
-			(cons (string-append "Content-Length: "
-					     (number->string content-length))
-			      headers)
-			headers)))
+  (let ((host     (url:host url))
+	(tcp-port (or (url:port url) 80))
+	(path     (or (url:path url) "/")))
+    (let ((sock (http:open host tcp-port))
+	  (request (string-append method " " path " " http:version))
+	  (headers (if (pair? args) (car args) '()))
+	  (body    (if (and (pair? args) (pair? (cdr args)))
+		       (cadr args)
+		       '())))
+      (let* ((content-length
+	      (apply +
+		     (map (lambda (line)
+			    (+ 2 (string-length line)))	; + 2 for CRLF
+			  body)))
+	     (headers (if (positive? content-length)
+			  (cons (string-append "Content-Length: "
+					       (number->string content-length))
+				headers)
+			  headers)))
 
-      (with-output-to-port sock
-	(lambda ()
-	  (display-with-crlf request)
-	  (for-each display-with-crlf headers)
-	  (display "\r\n")
-	  (for-each display-with-crlf body)))
+	(with-output-to-port sock
+	  (lambda ()
+	    (display-with-crlf request)
+	    (for-each display-with-crlf headers)
+	    (display "\r\n")
+	    (for-each display-with-crlf body)))
 
-      ;; parse and add status line
-      ;; also cons up a list of response headers
-      (let* ((response-status-line (sans-trailing-whitespace
-				    (read-line sock 'trim)))
-	     (response-headers (let make-header-list ((ln (sans-trailing-whitespace
-							   (read-line sock 'trim)))
-						      (hlist '()))
-				 (if (= 0 (string-length ln))
-				     hlist
-				     (make-header-list (sans-trailing-whitespace
-							(read-line sock 'trim))
-						       (cons (http:header-parse ln)
-							     hlist)))))
-	     (response-status-fields (separate-fields-discarding-char
-				      #\space
-				      response-status-line))
-	     (response-version (car response-status-fields))
-	     (response-code    (cadr response-status-fields))
-	     (response-text    (caddr response-status-fields)))
+	;; parse and add status line
+	;; also cons up a list of response headers
+	(let* ((response-status-line (sans-trailing-whitespace
+				      (read-line sock 'trim)))
+	       (response-headers (let make-header-list ((ln (sans-trailing-whitespace
+							     (read-line sock 'trim)))
+							(hlist '()))
+				   (if (= 0 (string-length ln))
+				       hlist
+				       (make-header-list (sans-trailing-whitespace
+							  (read-line sock 'trim))
+							 (cons (http:header-parse ln)
+							       hlist)))))
+	       (response-status-fields (separate-fields-discarding-char
+					#\space
+					response-status-line))
+	       (response-version (car response-status-fields))
+	       (response-code    (cadr response-status-fields))
+	       (response-text    (caddr response-status-fields)))
 
-	;; signal error if HTTP status is invalid
-	(or (http:status-ok? response-code)
-	    (error 'http-status "HTTP server returned bad status" response-status-line))
+	  ;; signal error if HTTP status is invalid
+;	  (or (http:status-ok? response-code)
+	;      (error 'http-status "HTTP server returned bad status" response-status-line))
 
-	;; Get message body: if Content-Length header was supplied, read
-	;; that many chars.  Otherwise, read until EOF
-
-	(let ((content-length (http:fetch-header
-			       "content-length"
-			       response-headers)))
-	  (let ((response-body
-		 (if content-length
-		     (read-n-chars (string->number content-length) sock)
-		     (with-output-to-string
-		       (lambda ()
-			 (while (not (eof-object? (peek-char sock)))
-			   (display (read-char sock))))))))
-	    (http:make-message response-version
-			       response-code
-			       response-text
-			       response-headers
-			       response-body)))))))
+	  ;; Get message body: if Content-Length header was supplied, read
+	  ;; that many chars.  Otherwise, read until EOF
+	  
+	  (let ((content-length (http:fetch-header
+				 "content-length"
+				 response-headers)))
+	    (let ((response-body
+		   (if content-length
+		       (read-n-chars (string->number content-length) sock)
+		       (with-output-to-string
+			 (lambda ()
+			   (while (not (eof-object? (peek-char sock)))
+				  (display (read-char sock))))))))
+	      (http:make-message response-version
+				 response-code
+				 response-text
+				 response-headers
+				 response-body))))))))
 
 
 
@@ -252,9 +256,9 @@
 	((or (>= i num) (eof-object? ch)) s)
       (string-set! s i ch))))
 
-(define (display-with-crlf line p)
-  (display line p)
-  (display "\r\n" p))
+(define (display-with-crlf line . p)
+  (apply display line p)
+  (apply display "\r\n" p))
 
 ;;; (separate-fields-discarding-char CH STR)
 ;;; (sans-trailing-whitespace STR)

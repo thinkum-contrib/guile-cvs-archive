@@ -1,7 +1,13 @@
 Tue Jun 17 01:45:59 1997  Tim Pierce  <twp@twp.tezcat.com>
 
-	* http.scm (http:request): Change calling conventions to
-	accept a method and a URL rather than a port and request string.
+	* http.scm (http:request): Change calling conventions to accept a
+ 	method and a URL rather than a port and request string.  Do some
+	sanity checking on arguments.
+  	(http:get): Pass a single URL argument to http:request.
+	(http:open): Permit port argument to be #f in addition to '().
+	(display-with-crlf): Make port argument optional.
+	(add-open-connection!): Braino fix (set! for setq).
+
 	* Makefile: New file. (Oops.)
 
 Mon Jun 16 17:49:20 1997  Tim Pierce  <twpierce@bio-5.bsd.uchicago.edu>
