@@ -1,6 +1,16 @@
-Tue Oct 15 21:27:00 1996  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+Sat Nov  2 19:47:22 1996  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
-	* guile-tcl.c: #include "smob.h"
+*	* guile-tk.c (scm_tk_do_one_event): Renamed and moved to
+	guile-tcl.c.
+
+*	* guile-tcl.c (scm_tcl_defined_p): New function: Check if an
+	identifier exists in the namespace of an interpreter.
+	(scm_tcl_do_one_event): Renamed and moved from guile-tk.c.
+
+Thu Oct 24 22:34:09 1996  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* guile-tcl.c: #include "eval.h", #include "alist.h", #include
+ 	"smob.h"
 
 Thu Oct 10 14:30:41 1996  Jim Blandy  <jimb@totoro.cyclic.com>
 
