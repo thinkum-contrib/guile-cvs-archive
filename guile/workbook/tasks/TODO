@@ -29,6 +29,7 @@
 
 
 - Eventually
+  - write goops test cases in C
   - scan ideas web page and link to implementations
     - "find"
     - determine others
