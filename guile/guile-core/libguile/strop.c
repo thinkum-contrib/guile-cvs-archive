@@ -174,8 +174,8 @@ SCM_DEFINE (scm_substring_move_x, "substring-move!", 5, 0, 0,
   len = e - s1;
   s2 = scm_to_unsigned_integer (start2, 0, scm_i_string_length(str2)-len);
 
-  src = scm_i_string_chars (str2);
-  dst = scm_i_string_writable_chars (str1);
+  src = scm_i_string_chars (str1);
+  dst = scm_i_string_writable_chars (str2);
   SCM_SYSCALL (memmove (dst+s2, src+s1, len));
   scm_i_string_stop_writing ();
 
