@@ -88,7 +88,8 @@ AC_CHECK_LIB(nsl, main)
 AC_HAVE_HEADERS(unistd.h)
 
 ### Make sure Guile is installed.
-(build-guile link) >/dev/null 2>&1 || {
+AC_PATH_PROGS(GUILE_CONFIG, guile-config build-guile, no)
+(test ! "$GUILE_CONFIG" = no && $GUILE_CONFIG link) >/dev/null 2>&1 || {
     echo -n "the Guile library doesn't seem to be installed; this package " >&2
     echo "requires it" >&2
     exit 2
@@ -132,7 +133,7 @@ AC_TRY_COMPILE([#include "tcl.h"],[Tcl_File x;],,[
 ])
 
 ### Add the Guile libraries to the link command.
-LIBS="$LIBS `build-guile link`"
+LIBS="$LIBS `$GUILE_CONFIG link`"
 
 case "$LIBS" in
   *-lqthreads* )
@@ -145,7 +146,7 @@ case "$LIBS" in
 esac
 AC_SUBST(LIBLOBJS)
 
-TCLTKDIR="`build-guile info pkgdatadir`/tcltk"
+TCLTKDIR="`$GUILE_CONFIG info pkgdatadir`/tcltk"
 AC_SUBST(TCLTKDIR)
 
 dnl Checks for library functions.
