@@ -13,12 +13,15 @@ libgoopscore_la_LDFLAGS = -version-info 0:0 -export-dynamic
 BUILT_SOURCES = goops.x
 
 subpkgdatadir = $(datadir)/guile/oop
-subpkgdata_DATA = goops.scm describe.scm
+subpkgdata_DATA = goops.scm
+
+goopsdatadir = $(datadir)/guile/oop/goops
+goopsdata_DATA = describe.scm
 
 install-exec-hook:
-	$(mkinstalldirs) $(subpkgdatadir)
+	$(mkinstalldirs) $(goopsdatadir)
 	(test ! -r $(libdir)/libgoopscore.so.0 \
-	 || (cd $(subpkgdatadir) \
+	 || (cd $(goopsdatadir) \
 	     && rm -f libgoopscore.la libgoopscore.so.0 \
 	     && $(LN_S) $(libdir)/libgoopscore.la \
 	     && $(LN_S) $(libdir)/libgoopscore.so.0))

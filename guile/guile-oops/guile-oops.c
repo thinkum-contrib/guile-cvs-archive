@@ -58,7 +58,7 @@ static void
 inner_main (void *closure, int argc, char **argv)
 {
   /* module initializations go here */
-  scm_init_oop_goopscore_module ();
+  scm_init_oop_goops_goopscore_module ();
   scm_shell (argc, argv);
 }
 
