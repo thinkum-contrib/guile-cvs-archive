@@ -9,6 +9,8 @@
 @c magic value, according to C tradition, or should they signal a
 @c Guile exception?
 
+@c 
+
 
 @node Working With Multibyte Strings in C
 @chapter Working With Multibyte Strings in C
@@ -24,7 +26,7 @@ Instead, Guile uses a very large character set, and encodes each
 character as a sequence of one or more bytes.  We call this
 variable-width encoding a @dfn{multibyte} encoding.  Guile uses this
 single encoding internally for all strings, symbol names, error
-messages, etc., and performs appropriate conversions upon input or
+messages, etc., and performs appropriate conversions upon input and
 output.
 
 The use of this variable-width encoding is almost invisible to Scheme
@@ -43,14 +45,14 @@ multibyte text to make the job easier.  Furthermore, Guile makes some
 promises about the encoding which you can use in writing your own text
 processing code.
 
-While we discuss properties of Guile's encoding, and provide functions
-to operate on its character set, we do not actually specify either the
-character set or encoding here.  This is because we expect both of them
-to change in the future: currently, Guile uses the same encoding as GNU
-Emacs 20.4, but we hope to change Guile (and GNU Emacs as well) to use
-Unicode and UTF-8, with some extensions.  This will make it more
-comfortable to use Guile with other systems which use UTF-8, like the
-GTk user interface toolkit.
+While we discuss guaranteed properties of Guile's encoding, and provide
+functions to operate on its character set, we do not actually specify
+either the character set or encoding here.  This is because we expect
+both of them to change in the future: currently, Guile uses the same
+encoding as GNU Emacs 20.4, but we hope to change Guile (and GNU Emacs
+as well) to use Unicode and UTF-8, with some extensions.  This will make
+it more comfortable to use Guile with other systems which use UTF-8,
+like the GTk user interface toolkit.
 
 @menu
 * Multibyte String Terminology::  
@@ -75,7 +77,7 @@ interpretation.  So 65 is a byte, not a character.
 A @dfn{character} is a unit of text.  It has no inherent numeric value.
 @samp{A} and @samp{.} are characters, not bytes.  (This is different
 from the C language's definition of @dfn{character}; in this chapter, we
-will always use the phrase ``the C language's @code{char} type'' when
+will always use a phrase like ``the C language's @code{char} type'' when
 that's what we mean.)
 
 @item character set
@@ -130,13 +132,11 @@ character set and encoding together as an @dfn{encoding}.
 @node Promised Properties of the Guile Multibyte Encoding, Functions for Operating on Multibyte Text, Multibyte String Terminology, Working With Multibyte Strings in C
 @section Promised Properties of the Guile Multibyte Encoding
 
-Internally, Guile uses a single encoding for all text.  It is correct to
-write code which assumes that a string or symbol name uses this
-encoding; code which makes this assumption will be portable to all
+Internally, Guile a single encoding for all text --- symbols, strings,
+error messages, etc.  Here we list a number of helpful properties of
+Guile's encoding.  It is correct to write code which assumes these
+properties; code which uses these assumptions will be portable to all
 future versions of Guile, as far as we know.
-
-Guile's encoding has the following properties, which should make it
-easier to write code which operates on it.
 
 @b{Every @sc{ASCII} character is encoded as a single byte from 0 to 127, in
 the obvious way.}  This means that a standard C string containing only
@@ -203,6 +203,9 @@ Here are the essential types and functions for working with Guile text.
 Guile uses the C type @code{unsigned char *} to refer to text encoded
 with Guile's encoding.
 
+[[Should the really simple macros assume the text is valid, and just
+crash if it's not?]]
+
 Note that any operation marked here as a ``Libguile Macro'' might
 evaluate its argument multiple times.
 
@@ -216,7 +219,7 @@ Return the character whose encoding starts at @var{p}, or -1 if @var{p}
 does not point to a valid character encoding.
 @end deftypefn
 
-@deftypefn {Libguile Macro} int scm_mb_put (scm_char_t @var{c}, unsigned char *@var{p})
+@deftypefn {Libguile Macro} int scm_mb_put (unsigned char *@var{p}, scm_char_t @var{c})
 Place the encoded form of the Guile character @var{c} at @var{p}, and
 return its length in bytes.  If @var{c} is not the number of a Guile
 character, return 0.
@@ -232,14 +235,14 @@ If @var{b} is the first byte of a character's encoding, return the full
 length of the character's encoding, in bytes.
 @end deftypefn
 
-@deftypefn {Libguile Macro} int scm_mb_len_char (scm_char_t @var{c})
+@deftypefn {Libguile Macro} int scm_mb_char_len (scm_char_t @var{c})
 Return the length of the encoding of the character @var{c}, in bytes.
 @end deftypefn
 
 @deftypefn {Libguile Function} scm_char_t scm_mb_get_func (const unsigned char *@var{p})
-@deftypefnx {Libguile Function} int scm_mb_put_func (scm_char_t @var{c}, unsigned char *@var{p})
+@deftypefnx {Libguile Function} int scm_mb_put_func (unsigned char *@var{p}, scm_char_t @var{c})
 @deftypefnx {Libguile Function} int scm_mb_len_func (unsigned char @var{b})
-@deftypefnx {Libguile Function} int scm_mb_len_char_func (scm_char_t @var{c})
+@deftypefnx {Libguile Function} int scm_mb_char_len_func (scm_char_t @var{c})
 These are functions identical to the corresponding macros.  You can use
 them in situations where the overhead of a function call is acceptable,
 and the cleaner semantics of function application are desireable.
@@ -386,8 +389,11 @@ macro, so it may have less overhead than
 than once.
 
 Using @code{scm_mb_index_cached} or @code{scm_mb_index_cached_func}, you
-can scan a string from left to right in time proportional to the length
-of the string.
+can scan a string from left to right, or from right to left, in time
+proportional to the length of the string.  As long as each character
+fetched is less than some constant distance before or after the previous
+character fetched with @var{cache}, each access will require constant
+time.
 @end deftypefn
 
 Guile also provides functions to convert between an encoded sequence of
@@ -422,6 +428,10 @@ function will signal a @code{text:bad-encoding} error.
 
 @node Exchanging Guile Text With the Outside World in C, Implementing Your Own Text Conversions, Multibyte String Functions, Functions for Operating on Multibyte Text
 @subsection Exchanging Guile Text With the Outside World in C
+
+[[This is kind of a heavy-weight model, given that one end of the
+conversion is always going to be the Guile encoding.  Any way to shorten
+things a bit?]]
 
 Guile provides functions for converting between Guile's internal text
 representation and encodings popular in the outside world.  These
@@ -474,9 +484,12 @@ track of any information needed to handle stateful encodings.
 @deftypefn {Libguile Function} {struct scm_mb_iconv *} scm_mb_iconv_open (const char *@var{tocode}, const char *@var{fromcode})
 Return a pointer to a new @code{struct scm_mb_iconv} context object,
 ready to convert from the encoding named @var{fromcode} to the encoding
-named @var{tocode}.  For stateful encodings, the context object
-is in some appropriate initial state, ready for use with the
+named @var{tocode}.  For stateful encodings, the context object is in
+some appropriate initial state, ready for use with the
 @code{scm_mb_iconv} function.
+
+When you are done using a context object, you may call
+@code{scm_mb_iconv_close} to free it.
 
 If either @var{tocode} or @var{fromcode} is not the name of a known
 encoding, this function will signal the @code{text:unknown-conversion}
@@ -516,6 +529,9 @@ provide it here because it's trivial to support, and some people
 probably do have @samp{emacs-mule}-format files lying around.
 @end table
 
+[[Need an encoding which is Emacs-Mule-UCS-4, so people can do the
+equivalent of multibyte_to_fixed, but with their own buffers.]]
+
 (At the moment, this list doesn't include any character sets suitable for
 external use that can actually handle multilingual data; this is
 unfortunate, as it encourages users to write data in Emacs-Mule format,
@@ -523,6 +539,8 @@ which nobody but Emacs and Guile understands.  We hope to add support
 for Unicode in UTF-8 soon, which should solve this problem.)
 
 Case is not significant in encoding names.
+
+[[Need a function which reports whether a given encoding is available.]]
 
 You can define your own conversions; see @ref{Implementing Your Own Text
 Conversions}.
@@ -552,14 +570,14 @@ call to @code{scm_mb_iconv} to the next.  Thus, successive calls to
 @var{scm_mb_iconv} which use the same context object can convert a
 stream of data one chunk at a time.  
 
-If either @var{inbuf} or @code{*@var{inbuf}} is zero, then
-@code{scm_mb_iconv} will reset @var{context} to its initial state for
-both the input and output encodings.  If neither @var{outbuf} nor
-@code{*@var{outbuf}} are zero, then @code{scm_mb_iconv} will store a
-byte sequence to put the output string in its initial state.  If the
-output buffer is not large enough to hold this byte sequence,
-@var{scm_mb_iconv} will return @code{scm_mb_iconv_more_room}.  In this
-case, the shift states of @var{context}'s input and output encodings are
+If @var{inbuf} is zero or @code{*@var{inbuf}} is zero, then the call is
+taken as a request to reset the states of the input and the output
+encodings.  If @var{outbuf} is non-zero and @code{*@var{outbuf}} is
+non-zero, then @code{scm_mb_iconv} stores a byte sequence in the output
+buffer to put the output encoding in its initial state.  If the output
+buffer is not large enough to hold this byte sequence,
+@code{scm_mb_iconv} returns @code{scm_mb_iconv_too_big}, and leaves
+the shift states of @var{context}'s input and output encodings
 unchanged.
 
 The @code{scm_mb_iconv} function always consumes only complete
@@ -597,14 +615,14 @@ If the output buffer does not contain enough room to hold the converted
 form of the complete input text, @code{scm_mb_iconv} converts as much as
 it can, changes the input and output pointers to reflect the amount of
 text successfully converted, and then returns
-@code{scm_mb_iconv_more_room}.
+@code{scm_mb_iconv_too_big}.
 @end deftypefn
 
 Here are the status codes that might be returned by @code{scm_mb_iconv}.
 They are all negative integers.
 @table @code
 
-@item scm_mb_iconv_more_room
+@item scm_mb_iconv_too_big
 The conversion needs more room in the output buffer.  Some characters
 may have been consumed from the input buffer, and some characters may
 have been placed in the available space in the output buffer.
@@ -723,7 +741,7 @@ and @var{outbytesleft} should be handled just as for
 
 This function can return an @code{scm_mb_iconv_} error code
 (@pxref{Exchanging Guile Text With the Outside World in C}).  If it
-returns @code{scm_mb_iconv_more_room}, then the output buffer's shift
+returns @code{scm_mb_iconv_too_big}, then the output buffer's shift
 state must be left unchanged.
 
 Note that @code{reset} receives the cookie's value itself, not a pointer
@@ -815,7 +833,7 @@ function.  It has the following values:
 The write function was able to convert all the characters in @var{inbuf}
 successfully.
 
-@item scm_mb_write_more_room
+@item scm_mb_write_too_big
 The write function filled the output buffer, but there are still
 characters in @var{inbuf} left unconsumed; @var{inbuf} and
 @var{incharsleft} indicate the unconsumed portion of the input buffer.
@@ -923,10 +941,9 @@ really a fixed-width encoding.  Unicode uses surrogate pairs to
 represent characters outside the 16-bit range; a surrogate pair must be
 treated as a single character, but occupies two 16-bit spaces.  As of
 this writing, there are already plans to assign characters to the
-surrogate character codes.  Three-byte encodings are impractical on most
-modern machines, because values will not usually be aligned for
-efficient access.  Four-byte encodings are too wasteful for a majority
-of Guile's users, who only need @sc{ASCII} and a few accented characters.
+surrogate character codes.  Three- and four-byte encodings are
+too wasteful for a majority of Guile's users, who only need @sc{ASCII}
+and a few accented characters.
 
 Another alternative would be to have several different fixed-width
 string representations, each with a different element size.  For each
@@ -942,6 +959,9 @@ Most users will simply not bother.  Instead, they will write code which
 supports only one string size, leaving us back where we started.  By
 using a single internal representation, Guile makes it easier for users
 to write multilingual code.
+
+[[What about tagging each string with its encoding?
+"Every extension must be written to deal with every encoding"]]
 
 Finally, Guile's multibyte encoding is not so bad.  Unlike a two- or
 four-byte encoding, it is efficient in space for American and European
