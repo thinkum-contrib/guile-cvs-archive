@@ -158,6 +158,45 @@ g_private_get_guile_impl (GPrivate * private_key)
 }
 
 #ifdef HAVE_THREAD_CREATE
+struct spawn_data {
+  GThreadFunc func;
+  gpointer arg;
+  gpointer thread;
+};
+
+static SCM
+spawn (void *arg)
+{
+  struct spawn_data *data = (struct spawn_data *) arg;
+  * (coop_t **) data->thread = coop_global_curr;
+  data->func (data->arg);
+  return SCM_UNSPECIFIED;
+}
+
+static void
+g_thread_create_guile_impl (GThreadFunc thread_func, 
+			    gpointer arg, 
+			    gulong stack_size,
+			    gboolean joinable,
+			    gboolean bound,
+			    GThreadPriority priority,
+			    gpointer thread)
+{
+  struct spawn_data data;
+  data.func = thread_func;
+  data.arg = arg;
+  data.thread = thread;
+  scm_spawn_thread (spawn, &data, scm_handle_by_message_noexit, 0);
+}
+
+static void
+g_thread_join_guile_impl (gpointer thread)
+{
+  coop_join (* (coop_t **) thread);
+}
+
+extern void coop_abort (void);
+
 static void
 g_thread_set_priority_guile_impl (gpointer thread, GThreadPriority priority)
 {
@@ -166,6 +205,7 @@ g_thread_set_priority_guile_impl (gpointer thread, GThreadPriority priority)
 static void
 g_thread_self_guile_impl (gpointer thread)
 {
+  * (coop_t **) thread = coop_global_curr;
 }
 #endif /* HAVE_THREAD_CREATE */
 
@@ -186,11 +226,11 @@ static GThreadFunctions g_guile_thread_functions_for_glib =
   g_private_get_guile_impl,
   g_private_set_guile_impl
 #ifdef HAVE_THREAD_CREATE
-  , /*fixme* We should define these as well. */
-  NULL, /* g_thread_create_guile_impl */
-  NULL, /* g_thread_yield_guile_impl */
-  NULL, /* g_thread_join_guile_impl */
-  NULL, /* g_thread_exit_guile_impl */
+  ,
+  g_thread_create_guile_impl,
+  coop_yield,
+  g_thread_join_guile_impl,
+  coop_abort,
   g_thread_set_priority_guile_impl,
   g_thread_self_guile_impl
 #endif /* HAVE_THREAD_CREATE */
