@@ -107,6 +107,11 @@
   - Investigate performance drop from Dec. 8, 2002 to Dec. 12, 2000.
 
 
+- Guile 1.10.0
+
+  - Remove SCM_STRINGP, SCM_STRING_CHARS and SCM_STRING_LENGTH.
+    Activate read-only strings as per the comment in strings.c
+
 - Eventually
 
   - procprop.c: instead of using a stand-in value for everything
