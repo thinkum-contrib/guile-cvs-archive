@@ -9,9 +9,10 @@ scheme ()
 {
 $guile -c '(use-modules (ice-9 session)) (apropos ".")' \
     | grep ^.guile \
+    | tr -s '[:blank:]' ' ' \
     | sed 's/^.*: //g' \
-    | sort \
-    | awk '{print "(" $1 " " "\"" $2 "\"" ")"}'
+    | sed 's/^\([^ ]*\) *\(.*\)/(\1 "\2")/g' \
+    | sort
 }
 
 C ()
@@ -22,12 +23,13 @@ C ()
 nm $sofile \
     | grep ' [A-Z] ' \
     | grep -v ' [AU] ' \
-    | sed 's/^........ //g' \
-    | awk '{print "(" $2 " " $1 ")"}' \
+    | sed 's/^........ \(.\) \(.*\)/(\2 \1)/g' \
     | sort
 }
 
 echo ';; Generated' `date` 'by guile-scripts/scan-api -- do not edit!'
+echo ';; GUILE_LOAD_PATH:' $GUILE_LOAD_PATH
+echo ';; LTDL_LOAD_PATH:' $LTDL_LOAD_PATH
 echo ';; guile:' $guile
 echo ';; sofile:' $sofile
 echo
