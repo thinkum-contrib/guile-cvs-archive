@@ -156,9 +156,10 @@ strings, and use the traditional string-handling functions like
 @code{strlen}, @code{strstr}, and @code{strcat}.
 
 @b{You can always determine the full length of a character's encoding
-from its first byte.}  Guile provides a table mapping initial bytes onto
-character lengths.  Given the first rule, you can see that entries 0 to
-127 of this table must all be 1.
+from its first byte.}  Guile provides the macro @code{scm_mb_len} which
+computes the encoding's length from its first byte.  Given the first
+rule, you can see that @code{scm_mb_len (@var{b})}, for any @code{0 <=
+@var{b} <= 127}, returns 1.
 
 @b{Given an arbitrary byte position in a Guile string, you can always
 find the beginning and end of the character containing that byte without
@@ -206,7 +207,7 @@ Return the character whose encoding starts at @var{p}, or -1 if @var{p}
 does not point to a valid character encoding.
 @end deftypefn
 
-@deftypefn {Libguile Function} int scm_mb_put (scm_char_t @var{c}, unsigned char *@var{p})
+@deftypefn {Libguile Macro} int scm_mb_put (scm_char_t @var{c}, unsigned char *@var{p})
 Place the encoded form of the Guile character @var{c} at @var{p}, and
 return its length in bytes.  If @var{c} is not the number of a Guile
 character, return 0.
@@ -346,18 +347,22 @@ The index, in bytes, of the start of that character.
 
 @end table
 
-In other words, @var{byte} is the byte offset of the @var{character}'th
-character of the string.
+In other words, @code{byte} is the byte offset of the
+@code{character}'th character of the string.  Note that if @code{byte}
+and @code{character} are equal, then all characters before that point
+must have encodings exactly one byte long, and the string can be indexed
+normally.
 
-Both elements of a @code{struct scm_mb_cache} structure should be
+All elements of a @code{struct scm_mb_cache} structure should be
 initialized to zero before its first use, and whenever the string's text
 changes.
 @end deftp
 
-@deftypefn {Libguile Function} unsigned char *scm_mb_index_cached (const unsigned char *@var{p}, int @var{len}, int @var{i}, struct scm_mb_cache *@var{cache})
-This function is identical to @code{scm_mb_index}, except that it may
+@deftypefn {Libguile Macro} unsigned char *scm_mb_index_cached (const unsigned char *@var{p}, int @var{len}, int @var{i}, struct scm_mb_cache *@var{cache})
+This macro is identical to @code{scm_mb_index}, except that it may
 consult and update *@var{cache} in order to avoid scanning the string
-from the beginning.
+from the beginning.  And since it is a macro, it may evaluate its
+arguments more than once.
 
 Using @code{scm_mb_index_cached}, you can scan a string from left to
 right in time proportional to the length of the string.
@@ -416,19 +421,20 @@ encodings, a contiguous group of bytes from the sequence completely
 specifies a particular character; these are stateless encodings.
 However, some encodings require you to look back an unbounded number of
 bytes in the stream to assign a meaning to a particular byte sequence;
-such encodings are stateful.  For example, in the @samp{JUNET} encoding
-for Japanese text, the byte sequence @samp{27 36 66} indicates that
-subsequent bytes should be taken in pairs and interpreted as characters
-from the JIS-0208 character set.  An arbitrary number of byte pairs may
-follow this sequence.  The byte sequence @samp{27 40 66} indicates that
-subsequent bytes should be interpreted as @sc{ASCII}.  In this encoding,
-you cannot tell whether a given byte is an @sc{ASCII} character without
-looking back an arbitrary distance for the most recent escape sequence,
-so it is a stateful encoding.  In Guile, if a conversion involves a
-stateful encodings are stateful, the context object carries any
-necessary state.  Thus, you can have many independent conversions to or
-from stateful encodings taking place simultaneously, as long as each
-data stream uses its own context object for the conversion.
+such encodings are stateful.  For example, in the @samp{ISO-2022-JP}
+encoding for Japanese text, the byte sequence @samp{27 36 66} indicates
+that subsequent bytes should be taken in pairs and interpreted as
+characters from the JIS-0208 character set.  An arbitrary number of byte
+pairs may follow this sequence.  The byte sequence @samp{27 40 66}
+indicates that subsequent bytes should be interpreted as @sc{ASCII}.  In
+this encoding, you cannot tell whether a given byte is an @sc{ASCII}
+character without looking back an arbitrary distance for the most recent
+escape sequence, so it is a stateful encoding.  In Guile, if a
+conversion involves a stateful encodings are stateful, the context
+object carries any necessary state.  Thus, you can have many independent
+conversions to or from stateful encodings taking place simultaneously,
+as long as each data stream uses its own context object for the
+conversion.
 
 @deftp {Libguile Type} {struct scm_mb_iconv}
 This is the type for context objects, which represent the encodings and
