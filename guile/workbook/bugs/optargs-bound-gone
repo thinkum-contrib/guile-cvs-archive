@@ -3,31 +3,47 @@ reported: Steve Tell <tell@telltronics.org>, 2002-03-29
 affects: HEAD branch_release-1-6
 fixed: Marius Vollmer <mvo@zagadka.de>, 2002-02-22
 
-The macro 'bound?' has been removed from (ice-9 optargs) since it used
-the magical SCM_UNDEFINED value in a Scheme visible way.
+mvo sez:
 
-However, 'bound?' is a useful (but not critical) service provided by
-(ice-9 optargs) that should be reimplemented for 1.6.
+> The macro 'bound?' has been removed from (ice-9 optargs) since it used
+> the magical SCM_UNDEFINED value in a Scheme visible way.
+>
+> However, 'bound?' is a useful (but not critical) service provided by
+> (ice-9 optargs) that should be reimplemented for 1.6.
+>
+> We can just make a special, private value and use this for the default
+> default value, like
+>
+>     (define unbound-value (cons* 'unbound))
+>
+>     (define-public (bound? val)
+>       (eq? val unbound-value))
+>
+>     (define (let-o-k-template REST-ARG BINDINGS BODY let-type proc)
+>       (let ((bindings (map (lambda (x)
+> 			     (if (list? x)
+> 				 x
+> 				 (list x unbound-value)))
+> 			   BINDINGS)))
+> 	`(,let-type ,(map proc bindings) ,@BODY)))
+>
+> ---
+>
+> No, we can't make that fix.  We would be changing the default default
+> value from '#f' to something else.  That would be an unacceptable
+> interface change.  Since it is easy for the user to provide the
+> functionality on its own, we can just leave it as it is.
 
-We can just make a special, private value and use this for the default
-default value, like
+2002-04-24 ttn sez:
 
-    (define unbound-value (cons* 'unbound))
+> current state "fixed: Marius Vollmer <mvo@zagadka.de>, 2002-02-22"
+> does not address the problems of the bug reporter, whose
+> responsibilities in the process include closing it.  that hasn't
+> happened yet.
 
-    (define-public (bound? val)
-      (eq? val unbound-value))
+2002-04-24 rlb sez:
 
-    (define (let-o-k-template REST-ARG BINDINGS BODY let-type proc)
-      (let ((bindings (map (lambda (x)
-			     (if (list? x)
-				 x
-				 (list x unbound-value)))
-			   BINDINGS)))
-	`(,let-type ,(map proc bindings) ,@BODY)))
-
----
-
-No, we can't make that fix.  We would be changing the default default
-value from '#f' to something else.  That would be an unacceptable
-interface change.  Since it is easy for the user to provide the
-functionality on its own, we can just leave it as it is.
+> In the case of bound?, it was not quite right, was documented in NEWS
+> as something you shouldn't expect to stick around, and now it's going
+> away.  IMO, after we make sure we have an appropriate NEWS eulogy, we
+> can forget about it.
