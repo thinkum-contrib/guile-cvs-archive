@@ -23,10 +23,10 @@
   :use-module (oop goops internal)
   )
 
-(export save-objects restore
+(export save-objects load-objects restore make-unbound
 	enumerate! enumerate-component!
 	write-readably write-component write-circref
-	literal?)
+	literal? readable make-readable)
 
 ;;;
 ;;; save-objects ALIST PORT
@@ -102,6 +102,24 @@
 (define-method write-readably ((o <string>) file env) (write o file))
 (define-method write-readably ((o <keyword>) file env) (write o file))
 
+(if (or (not (defined? 'readables))
+	(not readables))
+    (define readables (make-weak-key-hash-table 61)))
+
+(define readable
+  (procedure->memoizing-macro
+    (lambda (exp env)
+      `(make-readable ,(cadr exp) ',(cadr exp)))))
+
+(define (make-readable obj expr)
+  (hashq-set! readables obj expr)
+  obj)
+
+(define (readable-expression obj)
+  (hashq-ref readables obj))
+
+(define readable? readable-expression)
+
 ;;;
 ;;; Vectors
 ;;;
@@ -155,8 +173,9 @@
 ;;;
 
 (define-method enumerate! ((o <pair>) env)
-  (and (enumerate-component! (car o) env)
-       (enumerate-component! (cdr o) env)))
+  (let ((literal? (enumerate-component! (car o) env)))
+    (and (enumerate-component! (cdr o) env)
+	 literal?)))
 
 (define-method write-readably ((o <pair>) file env)
   (let ((refs (ref-stack env))
@@ -204,26 +223,31 @@
 ;; Don't export this function!  This is all very temporary.
 ;;
 (define (get-set-for-each proc class)
-  (for-each (lambda (g-n-s)
+  (for-each (lambda (slotdef g-n-s)
 	      (let ((g-n-s (cddr g-n-s)))
-		(if (integer? g-n-s)
-		    (proc (standard-get g-n-s) (standard-set g-n-s))
-		    (proc (car g-n-s) (cadr g-n-s)))))
+		(cond ((integer? g-n-s)
+		       (proc (standard-get g-n-s) (standard-set g-n-s)))
+		      ((not (memq (slot-definition-allocation slotdef)
+				  '(#:class #:each-subclass)))
+		       (proc (car g-n-s) (cadr g-n-s))))))
+	    (class-slots class)
 	    (slot-ref class 'getters-n-setters)))
 
 (define (access-for-each proc class)
   (for-each (lambda (slotdef g-n-s)
 	      (let ((g-n-s (cddr g-n-s))
 		    (a (slot-definition-accessor slotdef)))
-		(if (integer? g-n-s)
-		    (proc (slot-definition-name slotdef)
-			  (and a (generic-function-name a))
-			  (standard-get g-n-s)
-			  (standard-set g-n-s))
-		    (proc (slot-definition-name slotdef)
-			  (and a (generic-function-name a))
-			  (car g-n-s)
-			  (cadr g-n-s)))))
+		(cond ((integer? g-n-s)
+		       (proc (slot-definition-name slotdef)
+			     (and a (generic-function-name a))
+			     (standard-get g-n-s)
+			     (standard-set g-n-s)))
+		      ((not (memq (slot-definition-allocation slotdef)
+				  '(#:class #:each-subclass)))
+		       (proc (slot-definition-name slotdef)
+			     (and a (generic-function-name a))
+			     (car g-n-s)
+			     (cadr g-n-s))))))
 	    (class-slots class)
 	    (slot-ref class 'getters-n-setters)))
 
@@ -237,7 +261,9 @@
 
 (define-method enumerate! ((o <object>) env)
   (get-set-for-each (lambda (get set)
-		      (enumerate-component! (get o) env))
+		      (let ((val (get o)))
+			(if (not (unbound? val))
+			    (enumerate-component! val env))))
 		    (class-of o))
   #f)
 
@@ -247,14 +273,18 @@
     (display (class-name class) file)
     (access-for-each (lambda (name aname get set)
 		       (display #\space file)
-		       (or (write-component (get o) file env)
-			   (write-circref o (get o)
-					  (lambda (o x)
-					    (if aname
-						`(set! (,aname o) ,x)
-						`(slot-set! o ',name
-							    ,x)))
-					  file env)))
+		       (let ((val (get o)))
+			 (if (unbound? val)
+			     (display '(make-unbound) file)
+			     (or (write-component val file env)
+				 (write-circref o val
+						(lambda (o x)
+						  (if aname
+						      `(set! (,aname ,o) ,x)
+						      `(slot-set! ,o
+								  ',name
+								  ,x)))
+						file env)))))
 		     class)
     (display #\) file)))
 
@@ -411,6 +441,7 @@
 (define (enumerate-component! o env)
   (cond ((immediate? o)
 	 (enumerate! o env))
+	((readable? o) #f)
 	((fixing-literals? env)
 	 (let ((entry (hashq-ref (hash-table env) o)))
 	   ;; handle vars
@@ -459,23 +490,28 @@
 	     literal?)))))
 
 (define (write-component o file env)
-  (if (immediate? o)
-      (write-readably o file env)
-      (let ((var (car (hashq-ref (hash-table env) o))))
-	(cond ((and var
-		    (not (null? (ref-stack env)))
-		    (or (eq? o (root env))
-			(not (assq o (top-level env)))))
-	       #f)
-	      ((or (boolean? var)
-		   (writing? var env))
-	       (push-ref! o env)
-	       (write-readably o file env)
-	       (pop-ref! env)
-	       #t)
-	      (else
-	       (display var file)
-	       #t)))))
+  (cond ((immediate? o)
+	 (write-readably o file env)
+	 #t)
+	((readable? o)
+	 (write (readable-expression o) file)
+	 #t)
+	(else
+	 (let ((var (car (hashq-ref (hash-table env) o))))
+	   (cond ((and var
+		       (not (null? (ref-stack env)))
+		       (or (eq? o (root env))
+			   (not (assq o (top-level env)))))
+		  #f)
+		 ((or (boolean? var)
+		      (writing? var env))
+		  (push-ref! o env)
+		  (write-readably o file env)
+		  (pop-ref! env)
+		  #t)
+		 (else
+		  (display var file)
+		  #t))))))
 
 (define (write-circref cont comp setexp file env)
   (display #f file)
@@ -485,8 +521,15 @@
 ;;; Main engine
 ;;;
 
-(define-method save-objects ((alist <pair>) file)
-  (let ((env (make-env)))
+(define-method save-objects ((alist <pair>) (file <string>) . rest)
+  (let ((port (open-output-file file)))
+    (apply save-objects alist port rest)
+    (close-port port)))
+
+(define-method save-objects ((alist <pair>) (file <output-port>) . rest)
+  (let ((excluded (if (>= (length rest) 1) (car rest) '()))
+	(uses     (if (>= (length rest) 2) (cadr rest) '()))
+	(env (make-env)))
     (for-each (lambda (pair)
 		(top-level-add! (car pair) (cdr pair) env)
 		(enumerate-component! (cdr pair) env))
@@ -495,6 +538,10 @@
     (for-each (lambda (pair)
 		(enumerate-component! (cdr pair) env))
 	      alist)
+    (if (not (null? uses))
+	(begin
+	  (write `(use-modules ,@uses) file)
+	  (newline file)))
     (clear-top-level! env)
     (let ((bindings (bindings env)))
       (let ((write-binding
@@ -502,7 +549,7 @@
 	       (top-level-add! (car binding) (cdr binding) env)
 	       (display "(" file)
 	       (display (car binding) file)
-	       (display #\space)
+	       (display #\space file)
 	       (if (literal? (cdr binding) env)
 		   (display #\' file))
 	       (write-component (cdr binding) file env)
@@ -560,3 +607,25 @@
 	      (write-definitions)
 	      (write-circref-patches)
 	      (display "  )\n" file)))))))
+
+(define-method load-objects ((file <string>))
+  (let* ((port (open-input-file file))
+	 (objects (load-objects port)))
+    (close-port port)
+    objects))
+
+(define-method load-objects ((file <input-port>))
+  (let ((m (make-module)))
+    (module-use! m the-scm-module)
+    (module-use! m %module-public-interface)
+    (save-module-excursion
+     (lambda ()
+       (set-current-module m)
+       (let loop ((sexp (read file)))
+	 (if (not (eof-object? sexp))
+	     (begin
+	       (eval-in-module sexp m)
+	       (loop (read file)))))))
+    (module-map (lambda (name var)
+		  (cons name (variable-ref var)))
+		m)))
