@@ -1,7 +1,13 @@
 2000-03-22  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
-
+	
 	* guile-tcl.c, guile-tk.c, guile-tk.h: Removed SCM_P macro
 	invocations.
+	
+	* guile-tcl.c (masked_apply): New function: Uses dynamic wind in
+	order not to clobber scm_mask_ints on error.
+
+	* guile-tk.c (main_loop_handler, io_loop_handler): Unmask signals
+	on exit from the handler.
 
 1999-12-18  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
