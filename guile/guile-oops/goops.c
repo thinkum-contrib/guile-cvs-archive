@@ -119,6 +119,8 @@
 #define SCM_GOOPS_UNBOUND scm_goops_the_unbound_value
 #define SCM_GOOPS_UNBOUNDP(x) ((x) == scm_goops_the_unbound_value)
 
+static int goops_loaded_p = 0;
+
 static SCM scm_goops_the_unbound_value;
 static SCM scm_goops_lookup_closure;
 
@@ -204,9 +206,15 @@ filter_cpl (SCM ls)
 static SCM
 compute_cpl (SCM class)
 {
-  SCM supers = SCM_SLOT (class, scm_si_direct_supers);
-  SCM ls = scm_append (scm_acons (class, supers, map (compute_cpl, supers)));
-  return scm_reverse_x (filter_cpl (ls), SCM_EOL);
+  if (goops_loaded_p)
+    return CALL_GF1 ("compute-cpl", class);
+  else
+    {
+      SCM supers = SCM_SLOT (class, scm_si_direct_supers);
+      SCM ls = scm_append (scm_acons (class, supers,
+				      map (compute_cpl, supers)));
+      return scm_reverse_x (filter_cpl (ls), SCM_EOL);
+    }
 }
 
 /******************************************************************************
@@ -1926,7 +1934,7 @@ make_stdcls (SCM *var, char *name, SCM meta, SCM super, SCM slots)
 }
 
 static void
-make_standard_classes (void)
+create_standard_classes (void)
 {
   SCM tmp0;
   SCM tmp1 = SCM_LIST3 (Intern ("generic-function"), 
@@ -2111,7 +2119,7 @@ make_extended_class (char *type_name)
 }
 
 static void
-make_smob_classes (void)
+create_smob_classes (void)
 {
   int i;
 
@@ -2129,11 +2137,11 @@ make_smob_classes (void)
 }
 
 static void
-local_make_port_classes (int ptobnum, char *type_name)
+make_port_classes (int ptobnum, char *type_name)
 {
-  SCM class = make_class_from_template ("<%s-port>",
-					type_name,
-					SCM_LIST1 (scm_class_port));
+  SCM c, class = make_class_from_template ("<%s-port>",
+					   type_name,
+					   SCM_LIST1 (scm_class_port));
   scm_port_class[SCM_IN_PCLASS_INDEX + ptobnum]
     = make_class_from_template ("<%s-input-port>",
 				type_name,
@@ -2143,14 +2151,18 @@ local_make_port_classes (int ptobnum, char *type_name)
 				type_name,
 				SCM_LIST2 (class, scm_class_output_port));
   scm_port_class[SCM_INOUT_PCLASS_INDEX + ptobnum]
+    = c
     = make_class_from_template ("<%s-input-output-port>",
 				type_name,
 				SCM_LIST2 (class,
 					   scm_class_input_output_port));
+  /* Patch cpl (since this tree is too complex for the C level compute-cpl) */
+  SCM_SLOT (c, scm_si_cpl)
+    = scm_cons2 (c, class, SCM_SLOT (scm_class_input_output_port, scm_si_cpl));
 }
 
 static void
-make_port_classes (void)
+create_port_classes (void)
 {
   int i;
 
@@ -2159,7 +2171,7 @@ make_port_classes (void)
     scm_port_class[i] = 0;
 
   for (i = 0; i < scm_numptob; ++i)
-    local_make_port_classes (i, SCM_PTOBNAME (i));
+    make_port_classes (i, SCM_PTOBNAME (i));
 }
 
 static SCM
@@ -2173,7 +2185,7 @@ make_struct_class (void *closure, SCM key, SCM data, SCM prev)
 }
 
 static void
-make_struct_classes (void)
+create_struct_classes (void)
 {
   scm_internal_hash_fold (make_struct_class, 0, SCM_BOOL_F, scm_struct_table);
 }
@@ -2184,8 +2196,6 @@ make_struct_classes (void)
  * C interface
  *
  **********************************************************************/
-
-static int goops_loaded_p = 0;
 
 void
 scm_load_goops ()
@@ -2370,6 +2380,15 @@ scm_add_method (SCM gf, SCM m)
 	     scm_goops_lookup_closure);
 }
 
+SCM_PROC (scm_sys_goops_loaded, "%goops-loaded", 0, 0, 0, sys_goops_loaded);
+
+static SCM
+sys_goops_loaded ()
+{
+  goops_loaded_p = 1;
+  return SCM_UNSPECIFIED;
+}
+
 void
 scm_init_goops (void)
 {
@@ -2407,18 +2426,16 @@ scm_init_goops (void)
 					   scm_tc7_lsubr_2,
 					   apply_generic_3));
   scm_make_extended_class = make_extended_class;
-  scm_make_port_classes = local_make_port_classes;
+  scm_make_port_classes = make_port_classes;
   scm_change_object_class = change_object_class;
 
   create_basic_classes ();
-  make_standard_classes ();
-  make_smob_classes ();
-  make_port_classes ();
-  make_struct_classes ();
+  create_standard_classes ();
+  create_smob_classes ();
+  create_struct_classes ();
+  create_port_classes ();
 
   scm_select_module (old_module);
-
-  goops_loaded_p = 1;
 }
 
 void

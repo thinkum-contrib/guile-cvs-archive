@@ -39,7 +39,7 @@
     define-accessor make-accessor ensure-accessor
     define-method make-method method add-method!
     object-eqv? object-equal?
-    write-object display-object Tk-write-object
+    write-object display-object
     slot-unbound slot-missing 
     slot-definition-name  slot-definition-options slot-definition-allocation
     slot-definition-getter slot-definition-setter slot-definition-accessor
@@ -63,7 +63,7 @@
 ;;; *fixme* Should go into goops.c
 
 (export
-    stklos-version instance?  slot-ref-using-class
+    instance?  slot-ref-using-class
     slot-set-using-class! slot-bound-using-class?
     slot-exists-using-class? slot-ref slot-set! slot-bound? class-of
     class-name class-direct-supers class-direct-subclasses
@@ -504,6 +504,7 @@
 				     (list *unspecified*)
 				     body))))))))
 
+;;;
 ;;; {add-method!}
 ;;;
 
@@ -725,12 +726,6 @@
 
 ;; Display (do the same thing as write by default)
 (define-method display-object (o file) 
-  (write-object o file))
-
-;; Tk-write-object is called when a STklos object is passed to a Tk-command.
-;; By default, we do the same job as write; but if an object is a <Tk-widget>
-;; we will pass it its Eid. The method for <Tk-widget> is defined elsewhere.
-(define-method Tk-write-object (o file)
   (write-object o file))
 
 ;;;
@@ -1378,3 +1373,10 @@
 (define (class-methods c)
   (list2set (mapappend class-direct-methods
 		       (cons c (class-subclasses c)))))
+
+;;;
+;;; {Final initialization}
+;;;
+
+;; Tell C code that the main bulk of Goops has been loaded
+(%goops-loaded)

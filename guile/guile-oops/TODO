@@ -1,4 +1,6 @@
-* New CPL computation code.
+* Implement top-sort and compute-std-cpl in C, use this during
+  bootstrapping and remove Scheme version of compute-std-cpl in
+  goops.scm.
 
 * Version information (also from Scheme level).
 
