@@ -3,8 +3,8 @@
 FTYPE
 NUM2FLOAT (SCM num, unsigned long int pos, const char *s_caller)
 {
-  if (SCM_INUMP (num))
-    return SCM_INUM (num);
+  if (SCM_I_INUMP (num))
+    return SCM_I_INUM (num);
   else if (SCM_BIGP (num))
     { /* bignum */
       FTYPE res = mpz_get_d (SCM_I_BIG_MPZ (num));

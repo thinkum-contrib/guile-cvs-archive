@@ -47,9 +47,9 @@
 ITYPE
 NUM2INTEGRAL (SCM num, unsigned long int pos, const char *s_caller)
 {
-  if (SCM_INUMP (num))
+  if (SCM_I_INUMP (num))
     { /* immediate */    
-      scm_t_signed_bits n = SCM_INUM (num);
+      scm_t_signed_bits n = SCM_I_INUM (num);
       
       if (UNSIGNED && (n < 0))
         scm_out_of_range (s_caller, num);
