@@ -74,7 +74,6 @@
 (define-method immediate? ((o <boolean>)) #t)
 (define-method immediate? ((o <symbol>)) #t)
 (define-method immediate? ((o <char>)) #t)
-(define-method immediate? ((o <string>)) #t)
 (define-method immediate? ((o <keyword>)) #t)
 
 ;;; enumerate! OBJECT ENVIRONMENT
@@ -109,6 +108,12 @@
   (hashq-ref readables obj))
 
 (define readable? readable-expression)
+
+;;;
+;;; Strings
+;;;
+
+(define-method enumerate! ((o <string>) env) #f)
 
 ;;;
 ;;; Vectors
@@ -255,7 +260,9 @@
 	 literal?)))
 
 (define-method write-readably ((o <pair>) file env)
-  (let ((proper? (list? o))
+  (let ((proper? (let loop ((ls o))
+		   (or (and (null? ls) (binding? ls env))
+		       (and (pair? ls) (loop (cdr ls))))))
 	(1? (or (not (pair? (cdr o)))
 		(binding? (cdr o) env)))
 	(literal? (literal? o env))
@@ -324,13 +331,16 @@
 	    (class-slots class)
 	    (slot-ref class 'getters-n-setters)))
 
-(define (restore class . values)
-  (let ((o (%allocate-instance class '())))
-    (get-set-for-each (lambda (get set)
-			(set o (car values))
-			(set! values (cdr values)))
-		      class)
-    o))
+(define restore
+  (procedure->macro
+    (lambda (exp env)
+      "(restore CLASS (SLOT-NAME1 ...) EXP1 ...)"
+      `(let ((o (,%allocate-instance ,(cadr exp) '())))
+	 (for-each (lambda (name val)
+		     (,slot-set! o name val))
+		   ',(caddr exp)
+		   (list ,@(cdddr exp)))
+	 o))))
 
 (define-method enumerate! ((o <object>) env)
   (get-set-for-each (lambda (get set)
@@ -344,16 +354,29 @@
   (let ((class (class-of o)))
     (display "(restore " file)
     (display (class-name class) file)
+    (display " (" file)
+    (let ((slotdefs (class-slots class)))
+      (if (not (null? slotdefs))
+	  (begin
+	    (display (slot-definition-name (car slotdefs)) file)
+	    (for-each (lambda (slotdef)
+			(display #\space file)
+			(display (slot-definition-name slotdef) file))
+		      (cdr slotdefs)))))
+    (display #\) file)
     (access-for-each (lambda (name aname get set)
 		       (display #\space file)
 		       (let ((val (get o)))
 			 (if (unbound? val)
 			     (display '(make-unbound) file)
-			     (write-component val
-					      (if aname
-						  `(set! (,aname ,o) ,val)
-						  `(slot-set! ,o ',name ,val))
-					      file env))))
+			     (begin
+			       (if (literal? val env)
+				   (display #\' file))
+			       (write-component val
+						(if aname
+						    `(set! (,aname ,o) ,val)
+						    `(slot-set! ,o ',name ,val))
+						file env)))))
 		     class)
     (display #\) file)))
 
@@ -690,7 +713,8 @@
 (define-method save-objects ((alist <pair>) (file <string>) . rest)
   (let ((port (open-output-file file)))
     (apply save-objects alist port rest)
-    (close-port port)))
+    (close-port port)
+    *unspecified*))
 
 (define-method save-objects ((alist <pair>) (file <output-port>) . rest)
   (let ((excluded (if (>= (length rest) 1) (car rest) '()))
