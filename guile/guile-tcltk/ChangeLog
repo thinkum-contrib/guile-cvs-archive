@@ -1,3 +1,9 @@
+Tue May  6 20:36:09 1997  Jim Blandy  <jimb@floss.cyclic.com>
+
+	* configure.in: Check for -lm, -ldl, -lsocket, -lnsl before
+	checking for -lguile.  Otherwise, the link will fail.
+	* configure: Regenerated.
+
 Mon May  5 17:25:25 1997  Jim Blandy  <jimb@floss.cyclic.com>
 
 	Make the Guile/Tcl/Tk glue library a separate module.
