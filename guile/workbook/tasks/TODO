@@ -37,39 +37,10 @@
 
 
 - Eventually
-  - fix bugs
-    - (debug-disable 'debug) has no effect if first form in ~/.guile
-    - embedded libltdl masks system version unconditionally
-    - (ice-9 optargs) #:rest arg polluted by keys/values
-    - goops class redefinition not signalling "no such accessor" error
-    - incorrect error reporting after stack overflow
-    - strange gc loop caused by trap misuse
-    - (expt 0 0) -> 0
-    - documentation mirroring not complete
-    - design decisions not recorded
-    - named-let transform evaluates initvalue in the wrong scope
-    - uniform vector read-hash "e" clashes w/ exactness specification
-    - exactness prefix doesn't do nothing gracefully
-    - readline configuration anomolies not handled gracefully
-    - install requires makeinfo
-    - sibling threads not infinite looping
-    - we need to properly instruct distributors how to package Guile
-    - dynamic-link can not request a specific interface number
-    - make check fails on Tru64 4.0F
-    - local-eval error bactrace segfaults
-    - guile-www does not support ssl
-    - all threads blocked on (accept socket)
-    - complex division sometimes overflows
-    - 'bound?' from (ice-9 optargs) has been removed but is useful.
-    - guile-snarf writes to $srcdir, which is not kosher
-    - interaction of dynamic-wind, call/cc, exceptions and/or handler causes segfault
-    - issues to resolve while adding gmp bignums
-    - possible goops class redefinition bug
-    - primitive thunk as goops #:init-thunk causes segv
-    - ipv6 in guile 1.5.6: configure bug and fix for NetBSD-1.5.2
-    - Loading a SLIB module with require does not shadow primitives
-    - SRFI-13 string-tokenize is wrong
-    - unhandled keywords to goops "make" (etc) should signal errors
+  - scan ideas web page and link to implementations
+    - "find"
+    - determine others
+  - move ideas web page data into workbook/ and generate the page
   + write ice-9/gap-buffer.scm [ttn]
   - write scripts/read-rfc822.scm [ttn]
   - write modules/arch-survey.text
@@ -168,6 +139,39 @@
     scm_must_realloc, scm_must_free, scm_done_malloc, scm_done_free,
     scm_must_strndup, scm_must_strdup.
   - change return types of smob and port free functions to void
+  - fix bugs
+    - (debug-disable 'debug) has no effect if first form in ~/.guile
+    - embedded libltdl masks system version unconditionally
+    - (ice-9 optargs) #:rest arg polluted by keys/values
+    - goops class redefinition not signalling "no such accessor" error
+    - incorrect error reporting after stack overflow
+    - strange gc loop caused by trap misuse
+    - (expt 0 0) -> 0
+    - documentation mirroring not complete
+    - design decisions not recorded
+    - named-let transform evaluates initvalue in the wrong scope
+    - uniform vector read-hash "e" clashes w/ exactness specification
+    - exactness prefix doesn't do nothing gracefully
+    - readline configuration anomolies not handled gracefully
+    - install requires makeinfo
+    - sibling threads not infinite looping
+    - we need to properly instruct distributors how to package Guile
+    - dynamic-link can not request a specific interface number
+    - make check fails on Tru64 4.0F
+    - local-eval error bactrace segfaults
+    - guile-www does not support ssl
+    - all threads blocked on (accept socket)
+    - complex division sometimes overflows
+    - 'bound?' from (ice-9 optargs) has been removed but is useful.
+    - guile-snarf writes to $srcdir, which is not kosher
+    - interaction of dynamic-wind, call/cc, exceptions and/or handler causes segfault
+    - issues to resolve while adding gmp bignums
+    - possible goops class redefinition bug
+    - primitive thunk as goops #:init-thunk causes segv
+    - ipv6 in guile 1.5.6: configure bug and fix for NetBSD-1.5.2
+    - Loading a SLIB module with require does not shadow primitives
+    - SRFI-13 string-tokenize is wrong
+    - unhandled keywords to goops "make" (etc) should signal errors
 
 
 
