@@ -5179,15 +5179,10 @@ are always called from first to last when they are invoked via
 When calling @code{hook->list}, the procedures in the resulting list are
 in the same order as they would have been called by @code{run-hook}.
 
-@deffn primitive make-hook-with-name name [n_args]
-Create a named hook with the name @var{name} for storing
-procedures of arity @var{n_args}.  @var{n_args} defaults to
-zero.
-@end deffn
-
 @deffn primitive make-hook [n_args]
-Create a hook for storing procedure of arity
-@var{n_args}.  @var{n_args} defaults to zero.
+Create a hook for storing procedure of arity @var{n_args}.
+@var{n_args} defaults to zero.  The returned value is a hook
+object to be used with the other hook procedures.
 @end deffn
 
 @deffn primitive hook? x
@@ -5202,21 +5197,24 @@ otherwise.
 @deffn primitive add-hook! hook proc [append_p]
 Add the procedure @var{proc} to the hook @var{hook}. The
 procedure is added to the end if @var{append_p} is true,
-otherwise it is added to the front.
+otherwise it is added to the front.  The return value of this
+procedure is not specified.
 @end deffn
 
 @deffn primitive remove-hook! hook proc
-Remove the procedure @var{proc} from the hook @var{hook}.
+Remove the procedure @var{proc} from the hook @var{hook}.  The
+return value of this procedure is not specified.
 @end deffn
 
 @deffn primitive reset-hook! hook
-Remove all procedures from the hook @var{hook}.
+Remove all procedures from the hook @var{hook}.  The return
+value of this procedure is not specified.
 @end deffn
 
 @deffn primitive run-hook hook . args
 Apply all procedures from the hook @var{hook} to the arguments
 @var{args}.  The order of the procedure application is first to
-last.
+last.  The return value of this procedure is not specified.
 @end deffn
 
 @deffn primitive hook->list hook
