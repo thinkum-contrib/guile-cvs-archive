@@ -54,13 +54,20 @@ uninstall:
 	-rmdir $(libdir)
 
 
-SUBDIR=.
-manifest:
-	srcdir=./$(SUBDIR) ; \
-	. $(SUBDIR)/PLUGIN/this.configure;  \
-	for file in $$scm_files $$aux_files ; \
-	  do echo $(SUBDIR)/$$file ; \
+# The `dist' target in the top-level Makefile uses this `dist-dir'
+# target to select the appropriate files for distribution from the
+# directory containing this Makefile.
+.PHONY: dist-dir
+dist-dir:
+	mkdir ${DISTDIR}
+	for file in ${scm_files} ${aux_files} ; do \
+	  ln ${srcdir}/$${file} ${DISTDIR}; \
 	done
+	mkdir ${DISTDIR}/PLUGIN
+	for file in REQ greet split.sed this.configure; do \
+	  ln ${srcdir}/PLUGIN/$${file} ${DISTDIR}/PLUGIN; \
+	done
+
 
 clean:
 
@@ -68,4 +75,3 @@ distclean:
 	-rm -f config.log config.status Makefile
 
 realclean:
-
