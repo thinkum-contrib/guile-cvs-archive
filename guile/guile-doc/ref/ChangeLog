@@ -1,3 +1,9 @@
+2000-12-07  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* scheme-data.texi (Booleans): Written.
+	(Numbers): Introduction written, primitives organized into
+	subsections.
+
 2000-12-06  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* scheme-data.texi (Generic Data Types): Added chapter

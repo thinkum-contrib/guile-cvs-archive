@@ -64,10 +64,69 @@ sections of this manual that cover them.
 @node Booleans
 @section Booleans
 
+The two boolean values are @code{#t} for true and @code{#f} for false.
+
+Boolean values are returned by predicate procedures, such as the general
+equality predicates @code{eq?}, @code{eqv?} and @code{equal?}
+(@pxref{Equality}) and numerical and string comparison operators like
+@code{string=?} (REFFIXME) and @code{<=} (REFFIXME).
+
+@lisp
+(<= 3 8)
+@result{}
+#t
+
+(<= 3 -3)
+@result{}
+#f
+
+(equal? "house" "houses")
+@result{}
+#f
+
+(eq? #f #f)
+@result{}
+#t
+@end lisp
+
+In test condition contexts like @code{if} (REFFIXME) and @code{cond}
+(REFFIXME), where a group of subexpressions will be evaluated only if a
+@var{condition} expression evaluates to ``true'', ``true'' means any
+value at all except @code{#f}.
+
+@lisp
+(if #t "yes" "no")
+@result{}
+"yes"
+
+(if 0 "yes" "no")
+@result{}
+"yes"
+
+(if #f "yes" "no")
+@result{}
+"no"
+@end lisp
+
+A result of this asymmetry is that typical Scheme source code more often
+uses @code{#f} explicitly than @code{#t}: @code{#f} is necessary to
+represent an @code{if} or @code{cond} false value, whereas @code{#t} is
+not necessary to represent an @code{if} or @code{cond} true value.
+
+It is important to note in this context that @code{#f} is @strong{not}
+equivalent to any other Scheme value.  In particular, @code{#f} is not
+the same as the number 0 (like in C and C++), and not the same as the
+``empty list'' (like in some Lisp dialects).
+
+The @code{not} procedure returns the boolean inverse of its argument:
+
 @c docstring begin (texi-doc-string "guile" "not")
 @deffn primitive not x
 Return @code{#t} iff @var{x} is @code{#f}, else return @code{#f}.
 @end deffn
+
+The @code{boolean?} procedure is a predicate that returns @code{#t} if
+its argument is one of the boolean values, otherwise @code{#f}.
 
 @c docstring begin (texi-doc-string "guile" "boolean?")
 @deffn primitive boolean? obj
@@ -78,62 +137,51 @@ Return @code{#t} iff @var{obj} is either @code{#t} or @code{#f}.
 @node Numbers
 @section Numbers
 
-@c docstring begin (texi-doc-string "guile" "exact?")
-@deffn primitive exact? x
-Return #t if X is an exact number, #f otherwise.
-@end deffn
+The Scheme standard supports a rich ``tower'' of numerical types ---
+integer, rational, real, complex and number --- and also the orthogonal
+concept of exactness.  For a full and well explained presentation of
+these, see @xref{Numbers,,,r5rs}.
 
-@c docstring begin (texi-doc-string "guile" "odd?")
-@deffn primitive odd? n
-Return #t if N is an odd number, #f otherwise.
-@end deffn
+Guile supports a subset of the full Scheme numerical tower, and in such
+a way that all instances of a given type of number are all either exact
+or inexact.  The supported number types are:
 
-@c docstring begin (texi-doc-string "guile" "even?")
-@deffn primitive even? n
-Return #t if N is an even number, #f otherwise.
-@end deffn
+@itemize @bullet
+@item
+arbitrary size integers, which are always exact
 
-@c begin (texi-doc-string "guile" "abs")
-@deffn primitive abs
-@end deffn
+@item
+limited precision real numbers, always inexact
 
-@c begin (texi-doc-string "guile" "quotient")
-@deffn primitive quotient
-@end deffn
+@item
+complex numbers with limited precision real and imaginary parts, always
+inexact.
+@end itemize
 
-@c begin (texi-doc-string "guile" "remainder")
-@deffn primitive remainder
-@end deffn
+R5RS requires that a calculation involving inexact numbers always
+produces an inexact result.  To meet this requirement, Guile
+distinguishes between an exact integer value such as @code{5} and the
+corresponding inexact real value which, to the limited precision
+available, has no fractional part, and is printed as @code{5.0}.  Guile
+will only convert the latter value to the former when forced to do so by
+an invocation of the @code{inexact->exact} procedure.
 
-@c begin (texi-doc-string "guile" "modulo")
-@deffn primitive modulo
-@end deffn
+@menu
+* Number Types::                Predicates for testing number type.
+* Exactness::                   Checking and modifying exactness.
+* Integer Operations::          Operations on integer values.
+* Comparison::                  Comparison predicates.
+* Conversion::                  Converting numbers to and from strings.
+* Complex::                     Complex number operations.
+* Arithmetic::                  Arithmetic functions.
+* Scientific::                  Scientific functions.
+* Bitwise Operations::          Logical AND, OR, NOT, and so on.
+* Random::                      Random number generation.
+@end menu
 
-@c begin (texi-doc-string "guile" "gcd")
-@deffn primitive gcd
-@end deffn
 
-@c begin (texi-doc-string "guile" "lcm")
-@deffn primitive lcm
-@end deffn
-
-@c docstring begin (texi-doc-string "guile" "number->string")
-@deffn primitive number->string n [radix]
-Return a string holding the external representation of the
-number N in the given RADIX.  If N is inexact, a radix of 10
-will be used.
-@end deffn
-
-@c docstring begin (texi-doc-string "guile" "string->number")
-@deffn primitive string->number string [radix]
-Returns a number of the maximally precise representation
-expressed by the given STRING. RADIX must be an exact integer,
-either 2, 8, 10, or 16. If supplied, RADIX is a default radix
-that may be overridden by an explicit radix prefix in STRING
-(e.g. "#o177"). If RADIX is not supplied, then the default
-radix is 10. If string is not a syntactically valid notation
-for a number, then `string->number' returns #f.  (r5rs)
-@end deffn
+@node Number Types
+@subsection Predicates for Testing Number Type
 
 @c docstring begin (texi-doc-string "guile" "number?")
 @deffn primitive number? x
@@ -169,10 +217,66 @@ integer number.
 Return #t if X is an integer number, #f else.
 @end deffn
 
+
+@node Exactness
+@subsection Checking and Modifying Exactness
+
+@c docstring begin (texi-doc-string "guile" "exact?")
+@deffn primitive exact? x
+Return #t if X is an exact number, #f otherwise.
+@end deffn
+
 @c docstring begin (texi-doc-string "guile" "inexact?")
 @deffn primitive inexact? x
 Return #t if X is an inexact number, #f else.
 @end deffn
+
+@c docstring begin (texi-doc-string "guile" "inexact->exact")
+@deffn primitive inexact->exact z
+Returns an exact number that is numerically closest to Z.
+@end deffn
+
+@c begin (texi-doc-string "guile" "exact->inexact")
+@deffn primitive exact->inexact
+@end deffn
+
+
+@node Integer Operations
+@subsection Operations on Integer Values
+
+@c docstring begin (texi-doc-string "guile" "odd?")
+@deffn primitive odd? n
+Return #t if N is an odd number, #f otherwise.
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "even?")
+@deffn primitive even? n
+Return #t if N is an even number, #f otherwise.
+@end deffn
+
+@c begin (texi-doc-string "guile" "quotient")
+@deffn primitive quotient
+@end deffn
+
+@c begin (texi-doc-string "guile" "remainder")
+@deffn primitive remainder
+@end deffn
+
+@c begin (texi-doc-string "guile" "modulo")
+@deffn primitive modulo
+@end deffn
+
+@c begin (texi-doc-string "guile" "gcd")
+@deffn primitive gcd
+@end deffn
+
+@c begin (texi-doc-string "guile" "lcm")
+@deffn primitive lcm
+@end deffn
+
+
+@node Comparison
+@subsection Comparison Predicates
 
 @c begin (texi-doc-string "guile" "=")
 @deffn primitive =
@@ -206,13 +310,62 @@ Return #t if X is an inexact number, #f else.
 @deffn primitive negative?
 @end deffn
 
-@c begin (texi-doc-string "guile" "max")
-@deffn primitive max
+
+@node Conversion
+@subsection Converting Numbers To and From Strings
+
+@c docstring begin (texi-doc-string "guile" "number->string")
+@deffn primitive number->string n [radix]
+Return a string holding the external representation of the
+number N in the given RADIX.  If N is inexact, a radix of 10
+will be used.
 @end deffn
 
-@c begin (texi-doc-string "guile" "min")
-@deffn primitive min
+@c docstring begin (texi-doc-string "guile" "string->number")
+@deffn primitive string->number string [radix]
+Returns a number of the maximally precise representation
+expressed by the given STRING. RADIX must be an exact integer,
+either 2, 8, 10, or 16. If supplied, RADIX is a default radix
+that may be overridden by an explicit radix prefix in STRING
+(e.g. "#o177"). If RADIX is not supplied, then the default
+radix is 10. If string is not a syntactically valid notation
+for a number, then `string->number' returns #f.  (r5rs)
 @end deffn
+
+
+@node Complex
+@subsection Complex Number Operations
+
+@c docstring begin (texi-doc-string "guile" "make-rectangular")
+@deffn primitive make-rectangular real imaginary
+Return a complex number constructed of the given REAL and
+IMAGINARY parts.
+@end deffn
+
+@c docstring begin (texi-doc-string "guile" "make-polar")
+@deffn primitive make-polar z1 z2
+Return the complex number Z1 * e^(i * Z2).
+@end deffn
+
+@c begin (texi-doc-string "guile" "real-part")
+@deffn primitive real-part
+@end deffn
+
+@c begin (texi-doc-string "guile" "imag-part")
+@deffn primitive imag-part
+@end deffn
+
+@c begin (texi-doc-string "guile" "magnitude")
+@deffn primitive magnitude
+@end deffn
+
+@c begin (texi-doc-string "guile" "angle")
+@deffn primitive angle
+@end deffn
+
+
+@node Arithmetic
+@subsection Arithmetic Functions
 
 @c begin (texi-doc-string "guile" "+")
 @deffn primitive +
@@ -230,16 +383,16 @@ Return #t if X is an inexact number, #f else.
 @deffn primitive /
 @end deffn
 
-@c begin (texi-doc-string "guile" "$asinh")
-@deffn primitive $asinh
+@c begin (texi-doc-string "guile" "abs")
+@deffn primitive abs
 @end deffn
 
-@c begin (texi-doc-string "guile" "$acosh")
-@deffn primitive $acosh
+@c begin (texi-doc-string "guile" "max")
+@deffn primitive max
 @end deffn
 
-@c begin (texi-doc-string "guile" "$atanh")
-@deffn primitive $atanh
+@c begin (texi-doc-string "guile" "min")
+@deffn primitive min
 @end deffn
 
 @c begin (texi-doc-string "guile" "truncate")
@@ -250,16 +403,28 @@ Return #t if X is an inexact number, #f else.
 @deffn primitive round
 @end deffn
 
-@c begin (texi-doc-string "guile" "exact->inexact")
-@deffn primitive exact->inexact
-@end deffn
-
 @c begin (texi-doc-string "guile" "floor")
 @deffn primitive floor
 @end deffn
 
 @c begin (texi-doc-string "guile" "ceiling")
 @deffn primitive ceiling
+@end deffn
+
+
+@node Scientific
+@subsection Scientific Functions
+
+@c begin (texi-doc-string "guile" "$asinh")
+@deffn primitive $asinh
+@end deffn
+
+@c begin (texi-doc-string "guile" "$acosh")
+@deffn primitive $acosh
+@end deffn
+
+@c begin (texi-doc-string "guile" "$atanh")
+@deffn primitive $atanh
 @end deffn
 
 @c begin (texi-doc-string "guile" "$sqrt")
@@ -321,43 +486,6 @@ Return #t if X is an inexact number, #f else.
 @c docstring begin (texi-doc-string "guile" "$atan2")
 @deffn primitive $atan2 z1 z2
 @end deffn
-
-@c docstring begin (texi-doc-string "guile" "make-rectangular")
-@deffn primitive make-rectangular real imaginary
-Return a complex number constructed of the given REAL and
-IMAGINARY parts.
-@end deffn
-
-@c docstring begin (texi-doc-string "guile" "make-polar")
-@deffn primitive make-polar z1 z2
-Return the complex number Z1 * e^(i * Z2).
-@end deffn
-
-@c begin (texi-doc-string "guile" "real-part")
-@deffn primitive real-part
-@end deffn
-
-@c begin (texi-doc-string "guile" "imag-part")
-@deffn primitive imag-part
-@end deffn
-
-@c begin (texi-doc-string "guile" "magnitude")
-@deffn primitive magnitude
-@end deffn
-
-@c begin (texi-doc-string "guile" "angle")
-@deffn primitive angle
-@end deffn
-
-@c docstring begin (texi-doc-string "guile" "inexact->exact")
-@deffn primitive inexact->exact z
-Returns an exact number that is numerically closest to Z.
-@end deffn
-
-@menu
-* Bitwise Operations::          Logical AND, OR, NOT, and so on.
-* Random::                      Random number generation.
-@end menu
 
 
 @node Bitwise Operations
