@@ -25,7 +25,7 @@
 
 (export save-objects load-objects restore make-unbound
 	enumerate! enumerate-component!
-	write-readably write-component write-circref
+	write-readably write-component write-component-procedure
 	literal? readable make-readable)
 
 ;;;
@@ -146,6 +146,81 @@
 				 file
 				 env))
 	      (display #\) file))))))
+
+
+;;;
+;;; Arrays
+;;;
+
+(define-method enumerate! ((o <array>) env)
+  (enumerate-component! (shared-array-root o) env))
+
+(define (make-mapper array)
+  (let* ((dims (array-dimensions array))
+	 (n (array-rank array))
+	 (indices (reverse (if (<= n 11)
+			       (list-tail '(t s r q p n m l k j i)  (- 11 n))
+			       (let loop ((n n)
+					  (ls '()))
+				 (if (zero? n)
+				     ls
+				     (loop (- n 1)
+					   (cons (gensym "i") ls))))))))
+    `(lambda ,indices
+       (+ ,(shared-array-offset array)
+	  ,@(map (lambda (ind dim inc)
+		   `(* ,inc ,(if (pair? dim) `(- ,ind ,(car dim)) ind)))
+		 indices
+		 (array-dimensions array)
+		 (shared-array-increments array))))))
+
+(define-method write-readably ((o <array>) file env)
+  (let ((root (shared-array-root o)))
+    (cond ((binding? root env)
+	   (display "(make-shared-array " file)
+	   (write-component root
+			    (goops-error "write-readably(<array>): internal error")
+			    file
+			    env)
+	   (display #\space file)
+	   (display (make-mapper o))
+	   (for-each (lambda (dim)
+		       (display #\space file)
+		       (display dim file))
+		     (array-dimensions o))
+	   (display #\) file))
+	  ((literal? o env)
+	   (write o file))
+	  (else
+	   (let ((dims (array-dimensions o)))
+	     (display "(list->uniform-array " file)
+	     (display dims file)
+	     (display " '() (list" file)
+	     (let loop ((dims dims)
+			(indices '()))
+	       (cond ((null? dims))
+		     ((null? (cdr dims))
+		      ;; inner loop
+		      (let ((n (car dims)))
+			(do ((i 0 (+ 1 i)))
+			    ((= i n))
+			  (display #\space file)
+			  (let ((indices (reverse (cons i indices))))
+			    (write-component
+			     (apply array-ref o indices)
+			     `(array-set! ,o
+					  ,(apply array-ref o indices)
+					  ,@indices)
+			     file
+			     env)))))
+		     (else
+		      (let ((n (car dims)))
+			(do ((i 0 (+ 1 i)))
+			    ((= i n))
+			  (display " (list" file)
+			  (loop (cdr dims) (cons i indices))
+			  (display #\) file)))))
+	       (display #\) file)))))))
 
 ;;;
 ;;; Pairs
