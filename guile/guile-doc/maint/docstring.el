@@ -470,4 +470,48 @@
             (reverse alist))))
 
 
+;;; guile-procedures-to-manual-docstring-comments
+;;;
+;;; Converts the contents of guile-procedures.txt into a set of
+;;; reference manual docstring comments.
+
+(defun guile-procedures-to-manual-docstring-comments ()
+  (interactive)
+  (let ((buf (get-buffer-create "*Manual Docstring Comments*"))
+        name
+        file
+        alist)
+    (goto-char (point-min))
+    (while (re-search-forward "\n(\\([^ )]+\\)" nil t)
+      (setq name (buffer-substring (match-beginning 1) (match-end 1)))
+      (re-search-forward "\\[\\([^:]+\\)")
+      (setq file (buffer-substring (match-beginning 1) (match-end 1)))
+      (setq alist (cons (cons file name) alist)))
+    (set-buffer buf)
+    (erase-buffer)
+    (mapcar (function (lambda (s)
+                        (insert "@c docstring begin (c-doc-string \""
+                                (car s)
+                                "\" \""
+                                (cdr s)
+				"\")\n\n")))
+            (reverse alist))
+    (goto-char (point-min))
+    (display-buffer buf)))
+
+;;; post-ediff-merge
+;;;
+;;; This function is useful in the following sequence of events:
+;;; (1) grep *.texi for c-doc-string, uniq and sort the output
+;;; (2) use guile-procedures-to-manual-docstring-comments to get the
+;;;     list of all docstring comments corresponding to guile-procedures.txt,
+;;;     sort the output
+;;; (3) use Ediff Merge Buffers to merge the results of (1) and (2)
+;;; (4) use post-ediff-merge to remove the bits that are common between
+;;;     the results of (1) and (2).
+
+(defun post-ediff-merge ()
+  (goto-char (point-min))
+  (query-replace-regexp "\\(end of combination\\)[^<]*\\(<<<<<<<\\)" "\\1\n\\2" nil))
+
 (provide 'docstring)

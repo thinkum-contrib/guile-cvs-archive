@@ -1,3 +1,9 @@
+2000-08-25  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* docstring.el (guile-procedures-to-manual-docstring-comments):
+	New function.
+	(post-ediff-merge): New function.
+
 2000-08-18  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* docstring.el (c-doc-string-data): Handle SCM_DEFINE1 forms.
