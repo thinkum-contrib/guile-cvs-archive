@@ -24,6 +24,9 @@
 
 #include <libguile.h>
 #include <glib.h>
+#ifndef HAVE_SGTK_GDK_THREADS_ENTER
+#include <gdk/gdk.h>
+#endif
 
 #include <unistd.h>
 
@@ -141,6 +144,28 @@ scm_gtkthreads_update ()
 }
 
 #endif /* GUILE_GTKTHREADS_UPDATE */
+
+#ifndef HAVE_SGTK_GDK_THREADS_ENTER
+
+SCM_PROC (s_gdk_threads_enter, "gdk-threads-enter", 0, 0, 0, sgtk_gdk_threads_enter);
+
+SCM
+sgtk_gdk_threads_enter ()
+{
+  gdk_threads_enter ();
+  return SCM_UNSPECIFIED;
+}
+
+SCM_PROC (s_gdk_threads_leave, "gdk-threads-leave", 0, 0, 0, sgtk_gdk_threads_leave);
+
+SCM
+sgtk_gdk_threads_leave ()
+{
+  gdk_threads_leave ();
+  return SCM_UNSPECIFIED;
+}
+
+#endif /* HAVE_SGTK_GDK_THREADS_ENTER */
 
 void
 scm_init_gtkthreads ()

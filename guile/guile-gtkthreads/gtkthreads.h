@@ -18,6 +18,11 @@
 
 extern SCM scm_gtkthreads_update (void);
 
+#ifndef HAVE_SGTK_GDK_THREADS_ENTER
+extern SCM sgtk_gdk_threads_enter (void);
+extern SCM sgtk_gdk_threads_leave (void);
+#endif
+
 extern void scm_init_gtkthreads (void);
 extern void scm_init_gthread (void);
 extern void scm_init_gtk_guilegtkthreads_module (void);
