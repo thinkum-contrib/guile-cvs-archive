@@ -31,6 +31,10 @@
 (define cmethod-code cdr)
 (define cmethod-environment car)
 
+;;;
+;;; Next methods
+;;;
+
 (define (make-final-make-next-method method)
   (lambda default-args
     (lambda args
@@ -54,12 +58,20 @@
 	    (set-cdr! vcell (make-final-make-next-method method))
 	    (@apply method (if (null? args) default-args args)))))))
 
+;;;
+;;; Method compilation
+;;;
+
+;;; NOTE: This section is far from finished.  It will finally be
+;;; implemented on C level.
+
 (define (compile-method methods types)
   (let* ((proc (method-procedure (car methods)))
 	 (src (procedure-source proc))
 	 (formals (source-formals src))
 	 (body (source-body src)))
-    (if (source-property (car body) 'standard-accessor-method)
+    (if (and (pair? (car body))
+	     (source-property (car body) 'standard-accessor-method))
 	(cons (procedure-environment proc)
 	      (cons formals
 		    body))
