@@ -184,6 +184,7 @@ by Free Software Foundation.
 Part I: Preliminaries
 
 * Introduction::
+* The Guile License::
 * Running Guile Interactively::
 * Guile Scripts::
 * Linking Programs With Guile::
