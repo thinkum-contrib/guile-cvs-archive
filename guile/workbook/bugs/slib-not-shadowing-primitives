@@ -1,0 +1,34 @@
+summary: Loading a SLIB module with require does not shadow primitives
+reported: Panagiotis Vossos <jacbre@internet.gr>, 2002-03-11
+
+Why does guile refuse to use slib's implementation of records and
+arrays?  Is anybody else having the same problem or have I done
+something wrong during slib installation?  Here's a sample session:
+
+guile> (version)
+"1.5.6"
+guile> (array? '(1 2 3))
+#t
+guile> (use-modules (ice-9 slib))
+guile> (require 'array)
+#t
+guile> (array? '(1 2 3))
+#t
+guile> (load "/usr/share/slib/record.scm")
+guile> (load "/usr/share/slib/array.scm")
+guile> (array? '(1 2 3))
+#f
+
+As you can see, when loading slib through the module system, guile
+continues to use the native version of array?.  However, when
+(load)ing the slib files directly everything works as expected.  Slib
+arrays are implemented as slib records, which (unlike guile native
+records) are disjoint with other data types.  I noticed this because
+some slib function relied on disjointness of types.
+
+I have slib 2d3, which was installed creating a symlink to
+/usr/share/slib in /usr/share/guile/site, and executing as root 
+'guile -c "(use-modules (ice-9 slib)) (require 'new-catalog)"'
+
+I have tested also UMB scheme with slib and (array? '(1 2 3)) gives #f
+as expected.

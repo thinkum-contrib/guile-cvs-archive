@@ -1,0 +1,38 @@
+summary: unhandled keywords to goops "make" (etc) should signal errors
+reported: "Neil W. Van Dyke" <nwv@neilvandyke.org>, 2002-03-09
+
+Currently (latest Guile 1.5.4 from CVS), keyword arguments to the Goops
+"make" method that are not handled do not generate errors.
+
+Unless I misunderstand the way that Goops is to be used, I think that
+the default behavior should be to consider unhandled keyword arguments
+invalid.
+
+Considering unhandled keyword arguments invalid would catch some serious
+programming errors, such as mistyped initializer keywords, and
+accidental neglect to define an initializer keyword for a slot.
+
+The example below illustrates an unhandled keyword being ignored.
+
+    (use-modules (oop goops)
+                 (oop goops describe))
+
+    (define-class <my-class> ()
+      (xxx #:init-value #f #:init-keyword #:foo)
+      (yyy #:init-value #f #:init-keyword #:bar))
+
+    (define obj (make <my-class> #:foo 42 #:xxxyyyzzz 69 #:bar 24))
+    ;;                                    ^^^^^^^^^^^
+    ;;                                    Unhandled keyword
+
+    (describe obj)
+
+When run, the above produces output something like the following, which
+shows that both xxx and yyy were set and that no error was generated.
+
+    #<<my-class> 8086bc0> is an instance of class <my-class>
+    Slots are: 
+         xxx = 42
+         yyy = 24
+
+Thank you for considering this suggestion.

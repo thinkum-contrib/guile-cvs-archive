@@ -1,0 +1,127 @@
+summary: primitive thunk as goops #:init-thunk causes segv
+reported: "Neil W. Van Dyke" <nwv@neilvandyke.org>, 2002-03-12
+
+Hi.  When using Goops from the latest 1.5.6 CVS, specifying a primitive
+thunk for the #:init-thunk slot property of a class causes a
+segmentation violation.
+
+The following Guile program demonstrates this.
+
+    (use-modules (oop goops))
+
+    ;; Guile considers these primitives to be thunks.
+    (format #t "(thunk? current-time) => ~S\n" (thunk? current-time))
+    ;(format #t "(thunk? environ)      => ~S\n" (thunk? environ))
+    ;(format #t "(thunk? gcd)          => ~S\n" (thunk? gcd))
+    ;(format #t "(thunk? uname)        => ~S\n" (thunk? uname))
+    ;(format #t "(thunk? version)      => ~S\n" (thunk? version))
+
+    (display "Defining <myclass>...\n")
+
+    (define-class <myclass> ()
+
+      ;; Primitives as init-thunk trigger SEGV.
+      (myslot #:init-thunk current-time)
+    ;  (myslot #:init-thunk environ)
+    ;  (myslot #:init-thunk gcd)
+    ;  (myslot #:init-thunk uname)
+    ;  (myslot #:init-thunk version)
+
+      ;; Wrapping primitives in lambda form works OK.
+    ;  (myslot #:init-thunk (lambda () (current-time)))
+
+      ;; Non-primitive thunk procedures work OK.
+    ;  (myslot #:init-thunk command-line)
+
+      )
+
+    (display "Defining myobj...\n")
+
+    (define myobj (make <myclass>))
+
+    (format #t "myobj                    => ~S\n" myobj)
+    (format #t "(slot-ref myobj 'myslot) => ~S\n" (slot-ref myobj 'myslot))
+
+When run, produces the output:
+
+    (thunk? current-time) => #t
+    Defining <myclass>...
+    Defining myobj...
+    Segmentation fault (core dumped)
+
+Traceback via GDB:
+
+#0  0x40050d68 in scm_sys_initialize_object (obj=0x8087df0, initargs=0x2974)
+    at goops.c:460
+#1  0x400419d0 in scm_ceval (x=0x2974, env=0x402544a0) at eval.c:3158
+#2  0x4003e952 in scm_ceval (x=0x402d2770, env=0x40260ab0) at eval.c:1999
+#3  0x4003bcc6 in scm_eval_car (pair=0x402d37f8, env=0x402d37f0) at eval.c:446
+#4  0x4003cab3 in scm_m_define (x=0x402d3838, env=0x402d37f0) at eval.c:880
+#5  0x4004233c in scm_apply (proc=0x806e020, arg1=0x402d3838, args=0x402d37e8)
+    at eval.c:3539
+#6  0x4004057e in scm_ceval (x=0x402d3838, env=0x402d37f0) at eval.c:2611
+#7  0x40042f81 in scm_i_eval_x (exp=0x402d3838, env=0x402d37f0) at eval.c:4010
+#8  0x40043033 in scm_primitive_eval_x (exp=0x402d3838) at eval.c:4028
+#9  0x4005cdb9 in load (data=0x40276bf0) at load.c:97
+#10 0x40036db6 in scm_internal_dynamic_wind (before=0x4005cd60 <swap_port>, 
+    inner=0x4005cd94 <load>, after=0x4005cd60 <swap_port>, 
+    inner_data=0x40276bf0, guard_data=0xbffff4c0) at dynwind.c:168
+#11 0x4005ceac in scm_primitive_load (filename=0x40276768) at load.c:126
+#12 0x400419d0 in scm_ceval (x=0x2974, env=0x40276b80) at eval.c:3158
+#13 0x40042fe5 in scm_i_eval (exp=0x8072810, env=0x40276b80) at eval.c:4017
+#14 0x40035ac6 in scm_start_stack (id=0x807e120, exp=0x8072810, env=0x40276b80)
+    at debug.c:529
+#15 0x40035b6f in scm_m_start_stack (exp=0x40276b88, env=0x40276b80)
+    at debug.c:545
+#16 0x4004233c in scm_apply (proc=0x806ee60, arg1=0x40276b88, args=0x40276b98)
+    at eval.c:3539
+#17 0x4004057e in scm_ceval (x=0x40276b88, env=0x40276b80) at eval.c:2611
+#18 0x400425a1 in scm_apply (proc=0x40276a18, arg1=0x2974, args=0x2974)
+    at eval.c:3605
+#19 0x40041b64 in scm_call_0 (proc=0x40276a30) at eval.c:3263
+#20 0x40036c95 in scm_dynamic_wind (in_guard=0x40276a78, thunk=0x40276a30, 
+    out_guard=0x40276a88) at dynwind.c:128
+#21 0x400419d0 in scm_ceval (x=0x40259a90, env=0x40276a70) at eval.c:3158
+#22 0x4003e8a3 in scm_ceval (x=0x40276780, env=0x402769d0) at eval.c:1971
+#23 0x40042f81 in scm_i_eval_x (exp=0x402769b0, env=0x402769d0) at eval.c:4010
+#24 0x40043033 in scm_primitive_eval_x (exp=0x402769b0) at eval.c:4028
+#25 0x40043112 in inner_eval_x (data=0x402769b0) at eval.c:4075
+#26 0x40036db6 in scm_internal_dynamic_wind (
+    before=0x4004308c <change_environment>, inner=0x400430f4 <inner_eval_x>, 
+    after=0x400430c0 <restore_environment>, inner_data=0x402769b0, 
+    guard_data=0x402769b8) at dynwind.c:168
+#27 0x40043185 in scm_eval_x (exp=0x402769b0, module=0x8084c20) at eval.c:4084
+#28 0x40076086 in scm_shell (argc=3, argv=0xbffffac4) at script.c:676
+#29 0x080488e4 in inner_main (closure=0x0, argc=3, argv=0xbffffac4)
+    at guile.c:78
+#30 0x40059bfa in invoke_main_func (body_data=0xbffffa1c) at init.c:636
+#31 0x40059bb0 in scm_boot_guile_1 (base=0xbffffa18, closure=0xbffffa1c)
+    at init.c:616
+#32 0x400598b4 in scm_boot_guile (argc=3, argv=0xbffffac4, 
+    main_func=0x80488d0 <inner_main>, closure=0x0) at init.c:440
+#33 0x08048914 in main (argc=3, argv=0xbffffac4) at guile.c:91
+#34 0x401466cf in __libc_start_main () from /lib/libc.so.6
+
+The SEGV occurs in function "scm_sys_initialize_object" of file
+"oops.scm", at the line indicated below:
+
+          /* set slot to its :init-form if it exists */
+          tmp = SCM_CADAR (get_n_set);
+          if (tmp != SCM_BOOL_F)
+            {
+              slot_value = get_slot_value (class, obj, SCM_CAR (get_n_set));
+              if (SCM_GOOPS_UNBOUNDP (slot_value))
+                {
+                  SCM env = SCM_EXTEND_ENV (SCM_EOL, SCM_EOL, SCM_ENV (tmp));
+    =>            set_slot_value (class,
+                                  obj,
+                                  SCM_CAR (get_n_set),
+                                  scm_eval_body (SCM_CDR (SCM_CODE (tmp)),
+                                                 env));
+                }
+            }
+
+I don't know Guile internals well enough to diagnose the root cause.
+
+(Platform: x86 Linux 2.2.20, GCC 2.95.4, glibc 2.2.5, Debian Sid)
+
