@@ -357,6 +357,6 @@ The behavior of the module system is therefore quite decoupled from
 the compiler.  Only the :module-barriers must be placed correctly and
 the rule that no binding can be changed once it has been added must be
 followed.  (It is allowed to remove a whole module and rebuild it from
-scratch, tho.  Also, we might allow modules that can change theri set
+scratch, tho.  Also, we might allow modules that can change their set
 of bindings freely, but a user can not assume that the compiler will
 respect that.)

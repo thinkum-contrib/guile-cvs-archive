@@ -1,27 +1,46 @@
-- Guile 1.4.2
-  - abstract access to libguilereadline, libqthreads
-    - write $w/modules/arch-survey.text [ttn]
-    - write $w/modules/compiled-modules.text
-  - integrate docs into distribution
-  - write 1.4-HEAD compatibility header
-  - determine/document policy on how/why/when of removing things
-  - back port :select and :renamer interface
-  - back port scripts/ and guile-tools
-  - add user-hooks to module-system interface resolution
-  - incorporate guile-rgx-ctax
-  - support guile-doc-snarf
-  - fix bugs
 
-
-- Guile 1.6.1 (branched: only modify items according to ../build/release.txt)
-  + call-with-output-string seg faults if its port is closed, eg.
-       (call-with-output-string close-port)
-    What should happen?  Should this be an error, or should it be
-    possible to get the string out of a closed string port?
-    [Same situation in the cvs head.]
-    [Done, throws an error.]
+- Guile 1.6.5 (stable: only modify items according to ../build/release.txt)
+  (NOTE: Please update NEWS if appropriate when finishing/removing an item.)
 
 - Guile 1.8.0
+  (NOTE: Please update NEWS if appropriate when finishing/removing an item.)
+
+  - consider letrec error msg bug report:
+
+    In addition to the following complaint, there's mention that guile
+    should better report *where* the error occurred.
+
+    From: Shriram Krishnamurthi (sk@cs.brown.edu)
+    Subject: Re: optional, rest, and keyword arguments
+    Newsgroups: comp.lang.scheme
+    Date: 2004-08-18 09:55:00 PST
+
+    Ray Dillinger <bear@sonic.net> writes:
+
+    > Shriram Krishnamurthi wrote:
+    > > Marcin 'Qrczak' Kowalczyk <qrczak@knm.org.pl> writes:
+    > > 
+    > >>guile> (letrec ((x x)) x)
+    > >>standard input:1:1: In expression (letrec (#) x):
+    > >>standard input:1:1: Unbound variable: x
+    > >>ABORT: (unbound-variable)
+    > > Per the scope rules of LETREC, this is a buggy error report.
+    > 
+    > 
+    > I do not see it so.  He referred to the value of a
+    > variable in its own initializer; the system is justified
+    > in complaining.
+
+    Read the error message.  It says X is not *bound*.  This contradicts
+    the scope rules of LETREC, according to which, in the expression
+    (letrec ((x x)) x), there are NO unbound references to X.
+
+    I have clarified in a separate message that I'm objecting not to the
+    system complaining, but to the prose of the error message.
+
+    Shriram
+
+  - fix srfi-4; rewrite similarly to new 1.6 version, but adjust for 1.7 config
 
   - stime.c should use a mutex on temporary changes to the TZ
     environment variable.  SCM_DEFER_INTS is not designed for such
@@ -42,8 +61,6 @@
     - Passing "/" to start from the root directory doesn't work, it
       looks like perhaps trailing slashes are stripped too agressively.
 
-  + Fix srfi-1:  provide a list-copy function that can copy improper lists.
-  - Finish and test GMP support for bignums.  If it works out, add it.
   - consider (and likely use) pkg-config for guile.
   - add support for srfi-30 (multi-line-comments) - follow std *carefully*.
 
