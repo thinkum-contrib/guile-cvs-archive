@@ -142,9 +142,9 @@
 	* debug.c (s_scm_make_gloc): Only allow proper variables, no
 	pairs.  Put the variable directly in the gloc.
 	(s_scm_gloc_p): Use `scm_tc3_cons_gloc' instead of the magic `1'.
-	(scm_init_debug): Use scm_define instead scm_sysintern.
+	(scm_init_debug): Use scm_c_define instead scm_sysintern.
 
-	* cpp_cnvt.awk: Emit "scm_define" instead of "scm_sysintern".
+	* cpp_cnvt.awk: Emit "scm_c_define" instead of "scm_sysintern".
 
 	* backtrace.h, backtrace.c (scm_the_last_stack_fluid): Renamed to
 	scm_the_last_stack_fluid_var.  It now points to a variable instead
@@ -155,6 +155,9 @@
 	* _scm.h: Include "variables.h" and "modules.h" since almost
 	everybody needs them now.
 
+	* root.h (scm_symhash, scm_symhash_vars): Removed.
+	* gc.c (scm_init_storage): Do not initialize them.
+	
 2001-05-09  Marius Vollmer  <mvo@zagadka.ping.de>
 
 	* eval.c (scm_i_eval): Copy expression before passing it to
