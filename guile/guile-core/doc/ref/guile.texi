@@ -91,7 +91,7 @@ by the Free Software Foundation.
 @c accessing Guile objects.
 
 @c Significant portions were contributed by Gary Houston (contributions
-@c to posix system calls and networking, expect, I/O internals and
+@c to POSIX system calls and networking, expect, I/O internals and
 @c extensions, slib installation, error handling) and Tim Pierce
 @c (sections on script interpreter triggers, alists, function tracing).
 
