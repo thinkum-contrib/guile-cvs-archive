@@ -43,7 +43,7 @@
     - determine others
   - move ideas web page data into workbook/ and generate the page
   + write ice-9/gap-buffer.scm [ttn]
-  - write scripts/read-rfc822.scm [ttn]
+  + write scripts/read-rfc822.scm [ttn]
   - write modules/arch-survey.text
   - use autoconf vars abs_top_* vars (but not w/ autoconf 2.53)
   - write render-bugs, add to mscripts or guile-tools
