@@ -304,8 +304,18 @@ According to my approach...
 
 * Resources
 
-Ken Raeburn's Guile Emacs page: ???
+** Ken Raeburn's Guile Emacs page
 
-Keisuke Nishida's Gemacs project: http://gemacs.sourceforge.net.
+http://www.mit.edu/~raeburn/guilemacs/
 
-Jim Blandy's nil/#f/() notes: ???
+** Keisuke Nishida's Gemacs project
+
+http://gemacs.sourceforge.net
+
+** Jim Blandy's nil/#f/() notes
+
+http://sanpietro.red-bean.com/guile/guile/old/3114.html
+
+** Mikael Djurfeldt's notes on translation
+
+See file guile-cvs/devel/translation/langtools.text in Guile CVS.

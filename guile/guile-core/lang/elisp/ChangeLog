@@ -1,3 +1,7 @@
+2001-11-03  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* README (Resources): Fill in missing URLs.
+
 2001-11-02  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* Makefile.am (elisp_sources): Added base.scm, example.el,
