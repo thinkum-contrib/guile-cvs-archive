@@ -1,3 +1,10 @@
+2000-04-12  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* save.scm (enumerate!): Bugfix: Make sure that enumeration of the
+	cdr happens!
+	(get-set-for-each, access-for-each): Exclude class slots.
+	(load-objects): New method.
+
 2000-04-12  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
 	* save.scm (write-readably): Make default behaviour be to write

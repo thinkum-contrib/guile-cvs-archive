@@ -1,3 +1,7 @@
+* Fix looking up procedure names in environment in backtraces
+
+* Implement srcprops using double cells
+
 * Use "real" procprops.
 
 * Add facilities for debugging Scheme programs.
