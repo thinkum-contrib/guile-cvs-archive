@@ -492,3 +492,41 @@ Internal GOOPS magic---don't use this function!
 @deffn primitive list*
 scm_cons_star
 @end deffn
+
+@deffn primitive set-current-module module
+Set the current module to @var{module} and return
+the previous current module.
+@end deffn
+
+@deffn primitive current-module
+Return the current module.
+@end deffn
+
+@deffn primitive c-clear-registered-modules
+Destroy the list of modules registered with the current Guile process.
+The return value is unspecified.  @strong{Warning:} this function does
+not actually unlink or deallocate these modules, but only destroys the
+records of which modules have been loaded.  It should therefore be used
+only by module bookkeeping operations.
+@end deffn
+
+@deffn primitive c-registered-modules
+Return a list of the object code modules that have been imported into
+the current Guile process.  Each element of the list is a pair whose
+car is the name of the module, and whose cdr is the function handle
+for that module's initializer function.  The name is the string that
+has been passed to scm_register_module_xxx.
+@end deffn
+
+@deffn primitive include-deprecated-features
+Return @code{#t} iff deprecated features should be included
+in public interfaces.
+@end deffn
+
+@deffn primitive issue-deprecation-warning . msgs
+Output @var{msgs} to @code{(current-error-port)} when this
+is the first call to @code{issue-deprecation-warning} with
+this specific @var{msg}.  Do nothing otherwise.
+The argument @var{msgs} should be a list of strings;
+they are printed in turn, each one followed by a newline.
+@end deffn

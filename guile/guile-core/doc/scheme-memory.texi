@@ -90,6 +90,7 @@ they constitute a doubly-weak table has to be used.
 Return a weak hash table with @var{size} buckets. As with any
 hash table, choosing a good size for the table requires some
 caution.
+
 You can modify weak hash tables in exactly the same way you
 would modify regular hash tables. (@pxref{Hash Tables})
 @end deffn
