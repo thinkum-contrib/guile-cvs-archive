@@ -15,7 +15,7 @@
   - convert bug tracking/summarization process
     +R define bugs db format (see bugs/README) [mvo]
     + import current BUGS [mvo]
-    - scan mailing list archives for bugs and add them [mvo]
+    - scan mailing list archives for bugs and add them
       + subject: Guile fails tests on Tru64 4.0F [ttn]
       + subject: failed backtrace [ttn]
       + subject: All thread blocked on (accept socket) [ttn]
