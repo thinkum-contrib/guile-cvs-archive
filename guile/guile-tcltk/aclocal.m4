@@ -1,4 +1,14 @@
-dnl aclocal.m4 generated automatically by aclocal 1.1p
+dnl aclocal.m4 generated automatically by aclocal 1.2a
+
+dnl Copyright (C) 1994, 1995, 1996, 1997 Free Software Foundation, Inc.
+dnl This Makefile.in is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+dnl This program is distributed in the hope that it will be useful,
+dnl but WITHOUT ANY WARRANTY, to the extent permitted by law; without
+dnl even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+dnl PARTICULAR PURPOSE.
 
 # Do all the work for Automake.  This macro actually does too much --
 # some checks are only needed if your package does certain things.
@@ -114,12 +124,14 @@ AC_DEFUN(AM_MAINTAINER_MODE,
 )
 
 
-# serial 7 AM_PROG_LIBTOOL
+# serial 11 AM_PROG_LIBTOOL
 AC_DEFUN(AM_PROG_LIBTOOL,
 [AC_REQUIRE([AC_CANONICAL_HOST])
-AC_REQUIRE([AC_PROG_CC])
 AC_REQUIRE([AC_PROG_RANLIB])
-AC_REQUIRE([AM_PATH_PROG_LD])
+AC_REQUIRE([AC_PROG_CC])
+AC_REQUIRE([AM_PROG_LD])
+AC_REQUIRE([AM_PROG_NM])
+AC_REQUIRE([AC_PROG_LN_S])
 
 # Always use our own libtool.
 LIBTOOL='$(top_builddir)/libtool'
@@ -128,28 +140,43 @@ AC_SUBST(LIBTOOL)
 dnl Allow the --disable-shared flag to stop us from building shared libs.
 AC_ARG_ENABLE(shared,
 [  --enable-shared         build shared libraries [default=yes]],
-test "$enableval" = no && libtool_shared=" --disable-shared",
-libtool_shared=)
+[if test "$enableval" = no; then
+  enable_shared=no
+else
+  enable_shared=yes
+fi])
+libtool_shared=
+test "$enable_shared" = no && libtool_shared=" --disable-shared"
 
 dnl Allow the --disable-static flag to stop us from building static libs.
 AC_ARG_ENABLE(static,
 [  --enable-static         build static libraries [default=yes]],
-test "$enableval" = no && libtool_static=" --disable-static",
-libtool_static=)
+[if test "$enableval" = no; then
+  enable_static=no
+else
+  enable_static=yes
+fi])
+libtool_static=
+test "$enable_static" = no && libtool_static=" --disable-static"
 
 libtool_flags="$libtool_shared$libtool_static"
 test "$silent" = yes && libtool_flags="$libtool_flags --silent"
 test "$ac_cv_prog_gcc" = yes && libtool_flags="$libtool_flags --with-gcc"
+test "$ac_cv_prog_gnu_ld" = yes && libtool_flags="$libtool_flags --with-gnu-ld"
 
 # Some flags need to be propagated to the compiler or linker for good
 # libtool support.
 [case "$host" in
 *-*-irix6*)
+  ac_save_CFLAGS="$CFLAGS"
+  # -n32 always needs to be added to the linker when using GCC.
+  test "$ac_cv_prog_gcc" = yes && CFLAGS="$CFLAGS -n32"
   for f in '-32' '-64' '-cckr' '-n32' '-mips1' '-mips2' '-mips3' '-mips4'; do
     if echo " $CC $CFLAGS " | egrep -e "[ 	]$f[	 ]" > /dev/null; then
       LD="${LD-ld} $f"
     fi
   done
+  CFLAGS="$ac_save_CFLAGS"
   ;;
 
 *-*-sco3.2v5*)
@@ -159,43 +186,67 @@ test "$ac_cv_prog_gcc" = yes && libtool_flags="$libtool_flags --with-gcc"
 esac]
 
 # Actually configure libtool.  ac_aux_dir is where install-sh is found.
-CC="$CC" CFLAGS="$CFLAGS" CPPFLAGS="$CPPFLAGS" LD="$LD" RANLIB="$RANLIB" \
+CC="$CC" CFLAGS="$CFLAGS" CPPFLAGS="$CPPFLAGS" \
+LD="$LD" NM="$NM" RANLIB="$RANLIB" LN_S="$LN_S" \
 ${CONFIG_SHELL-/bin/sh} $ac_aux_dir/ltconfig \
 $libtool_flags --no-verify $ac_aux_dir/ltmain.sh $host \
 || AC_MSG_ERROR([libtool configure failed])
 ])
 
-# AM_PATH_PROG_LD - find out which linker is being used by the C compiler
-AC_DEFUN(AM_PATH_PROG_LD,
-[AC_REQUIRE([AC_PROG_CC])
-AC_MSG_CHECKING([for ld used by the C compiler ($CC $CFLAGS $LDFLAGS)])
-AC_CACHE_VAL(am_cv_path_LD,
-[case "$LD" in
+# AM_PROG_LD - find the path to the GNU or non-GNU linker
+AC_DEFUN(AM_PROG_LD,
+[AC_ARG_WITH(gnu-ld,
+[  --with-gnu-ld           assume the C compiler uses GNU ld [default=no]],
+test "$withval" = no || with_gnu_ld=yes, with_gnu_ld=no)
+AC_REQUIRE([AC_PROG_CC])
+ac_prog=ld
+if test "$ac_cv_prog_gcc" = yes; then
+  # Check if gcc -print-prog-name=ld gives a path.
+  AC_MSG_CHECKING([for ld used by GCC])
+  ac_prog=`($CC -print-prog-name=ld) 2>&5`
+  case "$ac_prog" in
+  # Accept absolute paths.
+  /*) ;;
+  "")
+    # If it fails, then pretend we aren't using GCC.
+    ac_prog=ld
+    ;;
+  *)
+    # If it is relative, then search for the first ld in PATH.
+    with_gnu_ld=unknown
+    ;;
+  esac
+elif test "$with_gnu_ld" = yes; then
+  AC_MSG_CHECKING([for GNU ld])
+else
+  AC_MSG_CHECKING([for non-GNU ld])
+fi
+AC_CACHE_VAL(ac_cv_path_LD,
+[LD=${LD-$ac_prog}
+case "$LD" in
   /*)
-  am_cv_path_LD="$LD" # Let the user override the test with a path.
+  ac_cv_path_LD="$LD" # Let the user override the test with a path.
   ;;
   *)
   IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS="${IFS}:"
   for ac_dir in $PATH; do
     test -z "$ac_dir" && ac_dir=.
-    if test -f "$ac_dir/ld"; then
+    if test -f "$ac_dir/$ac_prog"; then
+      ac_cv_path_LD="$ac_dir/$ac_prog"
       # Check to see if the program is GNU ld.  I'd rather use --version,
       # but apparently some GNU ld's only accept -v.
-      if "$ac_dir/ld" -v 2>&1 < /dev/null | egrep '(GNU ld|with BFD)' > /dev/null; then
-        # If it was GNU ld, only accept it if we're using GCC.
-        am_cv_path_LD="$ac_dir/ld"
-	test "$ac_cv_prog_gcc" = yes && break
+      # Break only if it was the GNU/non-GNU ld that we prefer.
+      if "$ac_cv_path_LD" -v 2>&1 < /dev/null | egrep '(GNU|with BFD)' > /dev/null; then
+	test "$with_gnu_ld" != no && break
       else
-        # If it was not GNU ld, and we are not using GCC, then accept it.
-        am_cv_path_LD="$ac_dir/ld"
-        break
+        test "$with_gnu_ld" != yes && break
       fi
     fi
   done
   IFS="$ac_save_ifs"
   ;;
 esac])
-LD="$am_cv_path_LD"
+LD="$ac_cv_path_LD"
 if test -n "$LD"; then
   AC_MSG_RESULT($LD)
 else
@@ -203,5 +254,49 @@ else
 fi
 test -z "$LD" && AC_MSG_ERROR([no acceptable ld found in \$PATH])
 AC_SUBST(LD)
+AM_PROG_LD_GNU
+])
+
+AC_DEFUN(AM_PROG_LD_GNU,
+[AC_CACHE_CHECK([whether we are using GNU ld], ac_cv_prog_gnu_ld,
+[# I'd rather use --version here, but apparently some GNU ld's only accept -v.
+if $LD -v 2>&1 </dev/null | egrep '(GNU|with BFD)' > /dev/null; then
+  ac_cv_prog_gnu_ld=yes
+else
+  ac_cv_prog_gnu_ld=no
+fi])
+])
+
+# AM_PROG_NM - find the path to a BSD-compatible name lister
+AC_DEFUN(AM_PROG_NM,
+[AC_MSG_CHECKING([for BSD-compatible nm])
+AC_CACHE_VAL(ac_cv_path_NM,
+[case "$NM" in
+/*)
+  ac_cv_path_NM="$NM" # Let the user override the test with a path.
+  ;;
+*)
+  IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS="${IFS}:"
+  for ac_dir in /usr/ucb:$PATH:/bin; do
+    test -z "$ac_dir" && dir=.
+    if test -f $ac_dir/nm; then
+      # Check to see if the nm accepts a BSD-compat flag.
+      if ($ac_dir/nm -B /dev/null 2>&1; exit 0) | grep /dev/null >/dev/null; then
+        ac_cv_path_NM="$ac_dir/nm -B"
+      elif ($ac_dir/nm -p /dev/null 2>&1; exit 0) | grep /dev/null >/dev/null; then
+        ac_cv_path_NM="$ac_dir/nm -p"
+      else
+        ac_cv_path_NM="$ac_dir/nm"
+      fi
+      break
+    fi
+  done
+  IFS="$ac_save_ifs"
+  test -z "$ac_cv_path_NM" && ac_cv_path_NM=nm
+  ;;
+esac])
+NM="$ac_cv_path_NM"
+AC_MSG_RESULT([$NM])
+AC_SUBST(NM)
 ])
 
