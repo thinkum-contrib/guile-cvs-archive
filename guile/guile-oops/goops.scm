@@ -47,7 +47,7 @@
     slot-definition-init-thunk slot-definition-init-keyword 
     slot-init-function class-slot-definition
     method-source
-    compute-get-n-set
+    compute-cpl compute-get-n-set
     allocate-instance initialize make-instance make
     no-next-method  no-applicable-method no-method
     change-class 
@@ -878,21 +878,26 @@
 
 ;;; compute-cpl
 ;;;
-(define (compute-cpl class)
-  (letrec ((res  (list <object> <top>))
+(define-method (compute-cpl class)
+  
+  (define (filter-cpl class)
+    (let ((res  '()))
+      (for-each (lambda (item)
+		  (if (not (or (eq? item <object>) 
+			       (eq? item <top>) 
+			       (member item res)))
+		   (set! res (cons item res))))
+	      class)
+      res))
 
-	   (traverse
-	    (lambda (class)
-	      (if (memq class res)
-		  '()
-		  (begin
-		    (set! res (cons class res))
-		    (cons class
-			  (apply append!
-				 (map traverse
-				      (slot-ref class 'direct-supers)))))))))
-    
-    (traverse class)))
+  (let* ((supers   (slot-ref class 'direct-supers))
+	 (big-list (apply append
+			  (cons class supers)
+			  (map compute-cpl supers))))
+    (reverse (cons <top>
+		   (cons <object>
+			 (filter-cpl big-list))))))
+
 
 ;;; compute-get-n-set
 ;;;
