@@ -50,6 +50,7 @@
 #include <libguile.h>
 #include <libguile/objects.h>
 #include <libguile/modules.h>
+#include <guile/gh.h>
 
 #include "goops.h"
 
@@ -326,7 +327,7 @@ scm_sys_prep_layout_x (SCM class)
   int i, n;
   char* s;
   SCM nfields;
-  SCM layout;
+
   SCM_ASSERT (SCM_NIMP (class) && SCM_INSTANCEP (class),
 	      class,
 	      SCM_ARG1,
@@ -1330,7 +1331,7 @@ static SCM
 sort_applicable_methods(SCM method_list, int size, SCM *targs)
 {
   int i, j, incr;
-  SCM *v, vector;
+  SCM *v, vector = SCM_EOL;
   SCM buffer[BUFFSIZE];
   SCM save = method_list;
 
