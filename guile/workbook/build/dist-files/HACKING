@@ -77,6 +77,9 @@ generated files, all different.
 Here is the authoritative list of tool/version/platform tuples that
 have been known to cause problems, and a short description of the problem.
 
+- automake 1.4 adds extraneous rules to the top-level Makefile if
+  you specify specific Makefiles to rebuild on the command line.
+
 - automake 1.4-p4 (debian "1:1.4-p4-1.1") all platforms
   automake "include" facility does not recognize filenames w/ "-".
 
