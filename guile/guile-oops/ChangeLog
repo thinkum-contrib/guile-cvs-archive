@@ -1,4 +1,12 @@
 2000-06-21  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
+	
+	* goops.h (SCM_TOP_LEVEL_LOOKUP_CLOSURE): Conditionally provide
+	for backward compatibility.
+
+	* goops.c: Use SCM_TOP_LEVEL_LOOKUP_CLOSURE instead of
+	SCM_CDR	(scm_top_level_lookup_closure_var).
+
+2000-06-21  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
 	* Version 0.1.8 released.  (This is a quick release in order to
 	avoid lot's a bug-reports due to 0.1.6's incompatibility with
