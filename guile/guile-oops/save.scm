@@ -174,53 +174,71 @@
 		 (array-dimensions array)
 		 (shared-array-increments array))))))
 
+(define (write-array prefix o file env)
+  (letrec ((inner (lambda (n indices)
+		    (if (not (zero? n))
+			(let ((indices (reverse (cons 0 indices))))
+			  (write-component
+			   (apply array-ref o indices)
+			   `(array-set! ,o
+					,(apply array-ref o indices)
+					,@indices)
+			   file
+			   env)))
+		    (do ((i 1 (+ 1 i)))
+			((= i n))
+		      (display #\space file)
+		      (let ((indices (reverse (cons i indices))))
+			(write-component
+			 (apply array-ref o indices)
+			 `(array-set! ,o
+				      ,(apply array-ref o indices)
+				      ,@indices)
+			 file
+			 env))))))
+    (display prefix file)
+    (let loop ((dims (array-dimensions o))
+	       (indices '()))
+      (cond ((null? (cdr dims))
+	     (inner (car dims) indices))
+	    (else
+	     (let ((n (car dims)))
+	       (do ((i 0 (+ 1 i)))
+		   ((= i n))
+		 (if (> i 0)
+		     (display #\space file))
+		 (display prefix file)
+		 (loop (cdr dims) (cons i indices))
+		 (display #\) file))))))
+    (display #\) file)))
+
 (define-method write-readably ((o <array>) file env)
   (let ((root (shared-array-root o)))
-    (cond ((binding? root env)
+    (cond ((literal? o env)
+	   (if (not (vector? root))
+	       (write o file)
+	       (begin
+		 (display #\# file)
+		 (display (array-rank o) file)
+		 (write-array #\( o file env))))
+	  ((binding? root env)
 	   (display "(make-shared-array " file)
 	   (write-component root
 			    (goops-error "write-readably(<array>): internal error")
 			    file
 			    env)
 	   (display #\space file)
-	   (display (make-mapper o))
+	   (display (make-mapper o) file)
 	   (for-each (lambda (dim)
 		       (display #\space file)
 		       (display dim file))
 		     (array-dimensions o))
 	   (display #\) file))
-	  ((literal? o env)
-	   (write o file))
 	  (else
-	   (let ((dims (array-dimensions o)))
-	     (display "(list->uniform-array " file)
-	     (display dims file)
-	     (display " '() (list" file)
-	     (let loop ((dims dims)
-			(indices '()))
-	       (cond ((null? dims))
-		     ((null? (cdr dims))
-		      ;; inner loop
-		      (let ((n (car dims)))
-			(do ((i 0 (+ 1 i)))
-			    ((= i n))
-			  (display #\space file)
-			  (let ((indices (reverse (cons i indices))))
-			    (write-component
-			     (apply array-ref o indices)
-			     `(array-set! ,o
-					  ,(apply array-ref o indices)
-					  ,@indices)
-			     file
-			     env)))))
-		     (else
-		      (let ((n (car dims)))
-			(do ((i 0 (+ 1 i)))
-			    ((= i n))
-			  (display " (list" file)
-			  (loop (cdr dims) (cons i indices))
-			  (display #\) file)))))
-	       (display #\) file)))))))
+	   (display "(list->uniform-array " file)
+	   (display (array-rank o) file)
+	   (display " '() " file)
+	   (write-array "(list " o file env)))))
 
 ;;;
 ;;; Pairs
@@ -389,11 +407,13 @@
   (container-info #:accessor container-info)
   (objects	  #:accessor objects
 		  #:init-value '())
+  (pre-defines	  #:accessor pre-defines
+		  #:init-value '())
   (locals	  #:accessor locals
 		  #:init-value '())
   (stand-ins	  #:accessor stand-ins
 		  #:init-value '())
-  (definitions	  #:accessor definitions
+  (post-defines	  #:accessor post-defines
 		  #:init-value '())
   (patchers	  #:accessor patchers
 		  #:init-value '())
@@ -412,12 +432,17 @@
   (set! (patchers env) (cons patcher (patchers env))))
 
 (define-class <object-info> ()
-  (visiting? #:accessor visiting?
+  (visiting  #:accessor visiting
 	     #:init-value #f)
   (binding   #:accessor binding
 	     #:init-value #f)
   (literal?  #:accessor literal?)
   )
+
+(define visiting? visiting)
+
+(define-method (binding (info <boolean>))
+  #f)
 
 (define-method (binding o env)
   (binding (object-info o env)))
@@ -430,7 +455,9 @@
 (define-method (literal? o env)
   (or (immediate? o)
       (excluded? o env)
-      (literal? (object-info o env))))
+      (let ((info (object-info o env)))
+	(or (literal? info)
+	    (eq? (visiting info) #:pass-2)))))
 
 ;;;
 ;;; Enumeration
@@ -477,7 +504,7 @@
 	(else
 	 (let ((info (object-info o env)))
 	   (cond ((not (binding? info)) (write-readably o file env) #t)
-		 ((not (eq? (visiting? info) #:defined)) #f) ;forward reference
+		 ((not (eq? (visiting info) #:defined)) #f) ;forward reference
 		 (else (display (binding info) file) #t))))))
 
 ;;; write-component OBJECT PATCHER FILE ENV
@@ -517,48 +544,61 @@
 			  (binding-name b)))))
 	    alist)
   ;; Name rest of bindings and create stand-in and definition lists
-  (let loop ((ls (objects env))
-	     (i 0)
-	     (locs '())
-	     (sins '())
-	     (defs '()))
+  (let post-loop ((ls (objects env))
+		  (post-defs '()))
+    (cond ((or (null? ls)
+	       (eq? (binding (car ls) env) #t))
+	   (set! (post-defines env) post-defs)
+	   (set! (objects env) ls))
+	  ((not (binding (car ls) env))
+	   (post-loop (cdr ls) post-defs))
+	  (else
+	   (post-loop (cdr ls) (cons (car ls) post-defs)))))
+  (let pre-loop ((ls (reverse (objects env)))
+		 (i 0)
+		 (pre-defs '())
+		 (locs '())
+		 (sins '()))
     (if (null? ls)
 	(begin
-	  (set! (locals env) locs)
-	  (set! (stand-ins env) sins)
-	  (set! (definitions env) defs))
+	  (set! (pre-defines env) (reverse pre-defs))
+	  (set! (locals env) (reverse locs))
+	  (set! (stand-ins env) (reverse sins)))
 	(let ((info (object-info (car ls) env)))
 	  (cond ((not (binding? info))
-		 (loop (cdr ls) i locs sins defs))
+		 (pre-loop (cdr ls) i pre-defs locs sins))
 		((boolean? (binding info))
+		 ;; local
 		 (set! (binding info) (make-local i))
-		 (loop (cdr ls)
-		       (+ 1 i)
-		       (cons (car ls) locs)
-		       sins
-		       defs))
+		 (pre-loop (cdr ls)
+			   (+ 1 i)
+			   pre-defs
+			   (cons (car ls) locs)
+			   sins))
 		((null? locs)
-		 (loop (cdr ls)
-		       i
-		       locs
-		       sins
-		       (cons (car ls) defs)))
+		 (pre-loop (cdr ls)
+			   i
+			   (cons (car ls) pre-defs)
+			   locs
+			   sins))
 		(else
 		 (let ((real-name (binding info)))
 		   (set! (binding info) (make-local i))
-		   (loop (cdr ls)
-			 (+ 1 i)
-			 (cons (car ls) locs)
-			 (acons real-name (binding info) sins)
-			 defs))))))))
+		   (pre-loop (cdr ls)
+			     (+ 1 i)
+			     pre-defs
+			     (cons (car ls) locs)
+			     (acons (binding info) real-name sins)))))))))
 
 (define (pass-2! env)
   (set! (pass-2? env) #t)
   (for-each (lambda (o)
 	      (let ((info (object-info o env)))
 		(set! (literal? (object-info o env)) (enumerate! o env))
-		(set! (visiting? info) #:pass-2)))
-	    (append (locals env) (definitions env))))
+		(set! (visiting info) #:pass-2)))
+	    (append (pre-defines env)
+		    (locals env)
+		    (post-defines env))))
 
 (define (write-define! name val literal? file)
   (display "(define " file)
@@ -569,9 +609,12 @@
   (display ")\n" file))
 
 (define (write-empty-defines! file env)
+  (for-each (lambda (stand-in)
+	      (write-define! (cdr stand-in) #f #f file))
+	    (stand-ins env))
   (for-each (lambda (o)
 	      (write-define! (binding o env) #f #f file))
-	    (definitions env)))
+	    (post-defines env)))
 
 (define (write-definition! prefix o file env)
   (display prefix file)
@@ -580,45 +623,50 @@
     (display #\space file)
     (if (literal? info)
 	(display #\' file))
+    (set! (visiting info) #:defining)
     (write-readably o file env)
-    (set! (visiting? info) #:defined)
+    (set! (visiting info) #:defined)
     (display #\) file)))
 
 (define (write-let*-head! file env)
   (display "(let* (" file)
   (write-definition! "(" (car (locals env)) file env)
   (for-each (lambda (o)
-	      (write-definition! "\n(" o file env))
+	      (write-definition! "\n       (" o file env))
 	    (cdr (locals env)))
   (display ")\n" file))
 
 (define (write-stand-in-patches! file env)
   (for-each (lambda (patch)
 	      (display "  (set! " file)
-	      (display (car patch) file)
-	      (display #\space file)
 	      (display (cdr patch) file)
+	      (display #\space file)
+	      (display (car patch) file)
 	      (display ")\n" file))
 	    (stand-ins env)))
 
-(define (write-definitions! prefix file env)
+(define (write-definitions! selector prefix file env)
   (for-each (lambda (o)
 	      (write-definition! prefix o file env)
 	      (newline file))
-	    (definitions env)))
+	    (selector env)))
 
 (define (write-patches! prefix file env)
   (for-each (lambda (patch)
 	      (display prefix file)
 	      (display (let name-objects ((patcher patch))
-			 (cond ((object-info patcher env) => binding)
+			 (cond ((binding patcher env)
+				=> (lambda (name)
+				     (cond ((assq name (stand-ins env))
+					    => cdr)
+					   (else name))))
 			       ((pair? patcher)
 				(cons (name-objects (car patcher))
 				      (name-objects (cdr patcher))))
 			       (else patcher)))
 		       file)
 	      (newline file))
-	    (patchers env)))
+	    (reverse (patchers env))))
 
 (define (write-immediates! alist file)
   (for-each (lambda (b)
@@ -657,13 +705,14 @@
       (write-immediates! alist file)
       (if (null? (locals env))
 	  (begin
-	    (write-definitions! "(define " file env)
+	    (write-definitions! post-defines "(define " file env)
 	    (write-patches! "" file env))
 	  (begin
+	    (write-definitions! pre-defines "(define " file env)
 	    (write-empty-defines! file env)
 	    (write-let*-head! file env)
 	    (write-stand-in-patches! file env)
-	    (write-definitions! "  (set! " file env)
+	    (write-definitions! post-defines "  (set! " file env)
 	    (write-patches! "  " file env)
 	    (display "  )\n" file)))
       (write-readables! alist file))))
