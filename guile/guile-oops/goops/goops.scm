@@ -708,9 +708,9 @@
     (if (pair? l)
 	(let ((get (car l)) 
 	      (set (cadr l)))
-	  (unless (and (closure? get) (= (%procedure-arity get) 1))
+	  (unless (and (closure? get) (= (procedure-property get 'arity) 1))
 	    (error "Bad getter closure for slot `~S' in ~S: ~S" slot class get))
-	  (unless (and (closure? set) (= (%procedure-arity set) 2))
+	  (unless (and (closure? set) (= (procedure-property set 'arity) 2))
 	    (error "Bad setter closure for slot `~S' in ~S: ~S" slot class set)))))
 
   (map (lambda (s)
