@@ -1,19 +1,22 @@
 #!/bin/sh -x
-# usage: dist-guile TAG
+# usage: dist-guile TAG [START]
 #
 # This must be run in a branched top-level guile-core dir (so
 # that CVS/Tag looks something like: branch_release-X-Y).
 #
-# Description:
-# - check all files under cwd are unmodified (sync'ed w/ cvs repo)
-# - sh -x autogen.sh
-# - create distdir ../dist.$branch
-# - in $distdir do configure, make, make check
-# - in $distdir do make distcheck
-# - cvs tag TAG         (where TAG is $1)
+# Description of each step:
+#  0 - set vars and do other init
+#  1 - check all files under cwd are unmodified (sync'ed w/ cvs repo)
+#    - sh -x autogen.sh
+#  2 - create distdir ../dist.$branch
+#    - in $distdir do configure, make, make check
+#  3 - in $distdir do make distcheck
+#  4 - cvs tag TAG         (where TAG is $1)
+#
+# Optional arg START means start at that step (step 0 is always done).
+# This is useful for avoiding long rebuilds after fixing minor mishaps.
 #
 # TODO: Handle non-standard workbook location.
-#       Support skipping steps, for restarts.
 
 set -e
 
@@ -29,7 +32,7 @@ if [ x"$tag" = x ] ; then
     exit 1
 fi
 
-trap "cd $startdir ; cvs tag -d TEMP-$tag" 0 1 2 15
+#trap "cd $startdir ; cvs tag -d TEMP-$tag" 0 1 2 15
 
 set_branch_and_derived_vars ()
 {
@@ -72,11 +75,19 @@ cd $startdir
 cvs tag $tag
 }
 
-# todo: support command-line options to skip any of these steps
-set_branch_and_derived_vars
-check_unmodified_tag_and_autogen
-cd_distdir_configure_build_and_check
-cd_distdir_and_make_distcheck
-everything_works_so_tag_it_for_real     # do last
+#######################################################################
+# main
+
+set_branch_and_derived_vars             # always do step 0
+
+steps='1234'
+case x"$2" in x[234])
+  steps=`echo $steps | sed 's/.*\('$2'\)/\\1/g'` ;;
+esac
+
+case $steps in *1*) check_unmodified_tag_and_autogen     ;; esac
+case $steps in *2*) cd_distdir_configure_build_and_check ;; esac
+case $steps in *3*) cd_distdir_and_make_distcheck        ;; esac
+case $steps in *4*) everything_works_so_tag_it_for_real  ;; esac
 
 # dist-guile ends here
