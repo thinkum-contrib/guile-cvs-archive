@@ -367,6 +367,7 @@ struct jit_local_state {
 #define jit_callr(reg)	        CALLsr(reg)
 #define jit_patch(jump_pc)	(*_PSL((jump_pc) - 4) = _jit.pc - (jump_pc))
 #define jit_ret()		(POPLr(_EDI), POPLr(_ESI), POPLr(_EBX), POPLr(_EBP), RET())
+#define jit_return()            RET()
 
 /* Memory */
 #define jit_ldi_c(d, is)		jit_movbmr((is), 0,    0,    0, (d), jit_extr_c_i((d), (d)))
