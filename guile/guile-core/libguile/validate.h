@@ -283,7 +283,7 @@
 
 #define SCM_VALIDATE_SMOB(pos, obj, type) \
   do { \
-    SCM_ASSERT ((SCM_NIMP (obj) && SCM_TYP16 (obj) == scm_tc16_ ## type), \
+    SCM_ASSERT (SCM_TYP16_PREDICATE (scm_tc16_ ## type, obj), \
                 obj, pos, FUNC_NAME); \
   } while (0)
 
