@@ -27,7 +27,8 @@
 ;;;;
 
 (define-module (goops goops)
-  :use-module (goops goops))
+  :use-module (goops goops)
+  :use-module (goops compat))
 
 (export			  ; Define the exported symbols of this file
     find-class is-a?
@@ -68,38 +69,6 @@
  
 ;=============================================================================
 ;
-;			 C o m p a t i b i l i t y
-;
-;=============================================================================
-
-(define symbol-bound? defined?)
-
-(define lookup-symbol local-eval)
-
-(define (global-environment)
-  (list *top-level-lookup-closure*))
-
-(define-macro (when test . body)
-  `(if ,test ,@(if (= (length body) 1) body `((begin ,@body)))))
-
-(define-macro (unless test . body)
-  `(if (not ,test) ,@(if (= (length body) 1) body `((begin ,@body)))))
-
-(define (map* fn . l) 		; A map which accepts dotted lists (arg lists  
-  (cond 			; must be "isomorph"
-   ((null? (car l)) '())
-   ((pair? (car l)) (cons (apply fn      (map car l))
-			  (apply map* fn (map cdr l))))
-   (else            (apply fn l))))
-
-(define (for-each* fn . l) 	; A for-each which accepts dotted lists (arg lists  
-  (cond 			; must be "isomorph"
-   ((null? (car l)) '())
-   ((pair? (car l)) (apply fn (map car l)) (apply for-each* fn (map cdr l)))
-   (else            (apply fn l))))
-
-;=============================================================================
-;
 ;			      U t i l i t i e s
 ;
 ;=============================================================================
@@ -125,6 +94,7 @@
 ;(define (lookup-symbol symbol env)
 ;  (let ((module (%get-module env)))
 ;    (eval symbol (module-environment module))))
+(define lookup-symbol local-eval)
 
 (define make-closure local-eval)
 
