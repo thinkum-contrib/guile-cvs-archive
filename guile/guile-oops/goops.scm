@@ -754,7 +754,7 @@
   (goops-error "No next method when calling %S\nwith arguments %S" gf args))
 
 (define-method no-applicable-method ((gf <generic>) args)
-  (goops-error "No applicable method for %S\nin call %S"
+  (goops-error "No applicable method for %S in call %S"
 	       gf (cons (generic-function-name gf) args)))
 
 (define-method no-method ((gf <generic>) args)

@@ -37,14 +37,14 @@
 ;;;
 
 (define hashsets 8)
-(define hashset-index 10)
+(define hashset-index 7)
 
 (define hash-threshold 3)
 (define initial-hash-size 4) ;must be a power of 2 and >= hash-threshold
 
 (define initial-hash-size-1 (- initial-hash-size 1))
 
-(define the-list-of-#f '(#f))
+(define the-list-of-no-method '(no-method))
 
 ;;;
 ;;; Method cache
@@ -103,7 +103,8 @@
 
 (define (passed-hash-threshold? exp)
   (and (> (vector-length (method-cache-entries exp)) max-non-hashed-index)
-       (car (vector-ref (method-cache-entries exp) max-non-hashed-index))))
+       (struct? (car (vector-ref (method-cache-entries exp)
+				 max-non-hashed-index)))))
 
 ;;; Converting a method cache to hashed form
 
@@ -117,13 +118,15 @@
 
 (define (n-cache-methods entries)
   (do ((i (- (vector-length entries) 1) (- i 1)))
-      ((or (< i 0) (car (vector-ref entries i)))
+      ((or (< i 0) (struct? (car (vector-ref entries i))))
        (+ i 1))))
 
 (define (cache-methods entries)
   (do ((i (- (vector-length entries) 1) (- i 1))
        (methods '() (let ((entry (vector-ref entries i)))
-		      (if (car entry) (cons entry methods) methods))))
+		      (if (struct? (car entry))
+			  (cons entry methods)
+			  methods))))
       ((< i 0) methods)))
 
 ;;;
@@ -136,7 +139,7 @@
     (if (>= n (vector-length entries))
 	;; grow cache
 	(let ((new-entries (make-vector (* 2 (vector-length entries))
-					the-list-of-#f)))
+					the-list-of-no-method)))
 	  (do ((i 0 (+ i 1)))
 	      ((= i n))
 	    (vector-set! new-entries i (vector-ref entries i)))
@@ -158,7 +161,7 @@
 	   (best #f))
       (do ((hashset 0 (+ 1 hashset)))
 	  ((= hashset hashsets))
-	(let* ((test-cache (make-vector size the-list-of-#f))
+	(let* ((test-cache (make-vector size the-list-of-no-method))
 	       (misses (cache-try-hash! min-misses hashset test-cache entries)))
 	  (cond ((zero? misses)
 		 (set! min-misses 0)
@@ -194,7 +197,7 @@
 		 ((null? ls) misses)
 	       (do ((i (logand mask (cache-hashval hashset (car ls)))
 		       (logand mask (+ i 1))))
-		   ((not (car (vector-ref cache i)))
+		   ((not (struct? (car (vector-ref cache i))))
 		    (vector-set! cache i (car ls)))
 		 (set! misses (+ 1 misses))
 		 (if (>= misses min-misses)
