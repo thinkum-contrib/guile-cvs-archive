@@ -22,6 +22,13 @@
 
 - Guile 1.8.0
 
+  - stime.c should use a mutex on temporary changes to the TZ
+    environment variable.  SCM_DEFER_INTS is not designed for such
+    things.  scm_getenv and scm_putenv_getenv will need to use this
+    when getting or setting TZ too.  And it should probably be made
+    available to application C code, for when it uses the libc time or
+    environment functions.
+
   - ice-9/ftw.scm problems:
     - stat-dir-readable?-proc decides the readability of a directory
       by looking at "stat" information, but does so imperfectly.  It
