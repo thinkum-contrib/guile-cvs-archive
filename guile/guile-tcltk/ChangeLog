@@ -1,3 +1,16 @@
+Thu Aug 15 17:25:36 1996  Jim Blandy  <jimb@totoro.cyclic.com>
+
+	Rework the strategy for selectively omitting this subdir from the
+ 	build.  The old idea was to not configure it at all, but then
+	disties don't work.  See the top-level ChangeLog.
+	* PLUGIN/guile.inits, PLUGIN/guile.libs: Replace
+ 	PLUGIN/guile.inits.in and PLUGIN/guile.libs.in; they're constant,
+ 	and distributed as-is.  Not creating them was a kludge.
+	* configure.in (AC_OUTPUT): Don't create PLUGIN/guile.inits or
+	PLUGIN/guile.libs.
+	* Makefile.in (dist): Distribute PLUGIN/guile.inits and
+ 	PLUGIN/guile.libs.
+
 Thu Aug 15 03:29:58 1996  Jim Blandy  <jimb@floss.cyclic.com>
 
 	This subtree shouldn't participate in the build process at all if
@@ -37,9 +50,11 @@ Thu Feb 29 18:35:48 1996  Tom Lord  <lord@beehive>
 	(scm_tcl_get_int): not leaking result any more
 	(scm_tcl_get_double): not leaking result any more
 	(scm_tcl_get_boolean): not leaking result any more
-	(scm_tcl_split_list): not leaking result any more, defer/allow ints better
+	(scm_tcl_split_list): not leaking result any more, defer/allow
+	ints better
 	(scm_tcl_merge): defer/allow ints better
-	(scm_tcl_trace_var2): not leaking result any more, defer/allow ints better
+	(scm_tcl_trace_var2): not leaking result any more, defer/allow
+	ints better 
 	(scm_tcl_apply_command): handle ints/memory less spastically
 	(trace_variable): mask ints during trace
 
