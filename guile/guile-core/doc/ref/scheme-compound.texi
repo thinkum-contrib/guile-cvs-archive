@@ -6,7 +6,7 @@
 
 @page
 @node Compound Data Types
-@chapter Compound Data Types
+@section Compound Data Types
 
 This chapter describes Guile's compound data types.  By @dfn{compound}
 we mean that the primary purpose of these data types is to act as
@@ -25,12 +25,14 @@ values can be looked up within them.
 * Records::                     
 * Structures::                  
 * Arrays::                      Arrays of values.
-* Association Lists and Hash Tables::  Dictionary data types.
+* Dictionary Types::            About dictionary types in general.
+* Association Lists::           List-based dictionaries.
+* Hash Tables::                 Table-based dictionaries.
 @end menu
 
 
 @node Pairs
-@section Pairs
+@subsection Pairs
 @tpindex Pairs
 
 Pairs are used to combine two Scheme objects into one compound object.
@@ -134,7 +136,7 @@ by @code{set-cdr!} is unspecified.
 
 
 @node Lists
-@section Lists
+@subsection Lists
 @tpindex Lists
 
 A very important data type in Scheme---as well as in all other Lisp
@@ -173,7 +175,7 @@ or a pair which has a list in its cdr.
 @end menu
 
 @node List Syntax
-@subsection List Read Syntax
+@subsubsection List Read Syntax
 
 The syntax for lists is an opening parentheses, then all the elements of
 the list (separated by whitespace) and finally a closing
@@ -206,7 +208,7 @@ applications (@pxref{Simple Invocation}).
 
 
 @node List Predicates
-@subsection List Predicates
+@subsubsection List Predicates
 
 Often it is useful to test whether a given Scheme object is a list or
 not.  List-processing procedures could use this information to test
@@ -231,7 +233,7 @@ Return @code{#t} iff @var{x} is the empty list, else @code{#f}.
 @end deffn
 
 @node List Constructors
-@subsection List Constructors
+@subsubsection List Constructors
 
 This section describes the procedures for constructing new lists.
 @code{list} simply returns a list where the elements are the arguments,
@@ -293,7 +295,7 @@ list.  If you also need to copy the list elements (making a deep copy),
 use the procedure @code{copy-tree} (@pxref{Copying}).
 
 @node List Selection
-@subsection List Selection
+@subsubsection List Selection
 
 These procedures are used to get some information about a list, or to
 retrieve one or more elements of a list.
@@ -335,7 +337,7 @@ return it.
 @end deffn
 
 @node Append/Reverse
-@subsection Append and Reverse
+@subsubsection Append and Reverse
 
 @code{append} and @code{append!} are used to concatenate two or more
 lists in order to form a new list.  @code{reverse} and @code{reverse!}
@@ -393,7 +395,7 @@ mandatory, but can be @code{SCM_EOL} if no further tail is required.
 @end deffn
 
 @node List Modification
-@subsection List Modification
+@subsubsection List Modification
 
 The following procedures modify an existing list, either by changing
 elements of the list, or by changing the list structure itself.
@@ -478,7 +480,7 @@ the list elements is not specified.
 @end deffn
 
 @node List Searching
-@subsection List Searching
+@subsubsection List Searching
 
 The following procedures search lists for particular elements.  They use
 different comparison predicates for comparing list elements with the
@@ -521,7 +523,7 @@ empty list) is returned.
 
 
 @node List Mapping
-@subsection List Mapping
+@subsubsection List Mapping
 
 List processing is very convenient in Scheme because the process of
 iterating over the elements of a list can be highly abstracted.  The
@@ -554,7 +556,7 @@ return value is not specified.
 
 
 @node Vectors
-@section Vectors
+@subsection Vectors
 @tpindex Vectors
 
 Vectors are sequences of Scheme objects.  Unlike lists, the length of a
@@ -577,7 +579,7 @@ procedures operate happily on vectors (@pxref{Arrays}).
 
 
 @node Vector Syntax
-@subsection Read Syntax for Vectors
+@subsubsection Read Syntax for Vectors
 
 Vectors can literally be entered in source code, just like strings,
 characters or some of the other data types.  The read syntax for vectors
@@ -600,7 +602,7 @@ Like lists, vectors have to be quoted (REFFIXME):
 @end lisp
 
 @node Vector Creation
-@subsection Dynamic Vector Creation and Validation
+@subsubsection Dynamic Vector Creation and Validation
 
 Instead of creating a vector implicitly by using the read syntax just
 described, you can create a vector dynamically by calling one of the
@@ -666,7 +668,7 @@ Return @code{#t} if @var{obj} is a vector, otherwise return
 
 
 @node Vector Accessors
-@subsection Accessing and Modifying Vector Contents
+@subsubsection Accessing and Modifying Vector Contents
 
 @code{vector-length} and @code{vector-ref} return information about a
 given vector, respectively its size and the elements that are contained
@@ -748,7 +750,7 @@ same vector, @code{vector-move-right!} is usually appropriate when
 
 
 @node Records
-@section Records
+@subsection Records
 
 A @dfn{record type} is a first class object representing a user-defined
 data type.  A @dfn{record} is an instance of a record type.
@@ -839,7 +841,7 @@ created the type represented by @var{rtd}.
 
 
 @node Structures
-@section Structures
+@subsection Structures
 @tpindex Structures
 
 [FIXME: this is pasted in from Tom Lord's original guile.texi and should
@@ -860,7 +862,7 @@ In fact, in Guile Scheme, records are implemented using structures.
 @end menu
 
 @node  Structure Concepts
-@subsection Structure Concepts
+@subsubsection Structure Concepts
 
 A structure object consists of a handle, structure data, and a vtable.
 The handle is a Scheme value which points to both the vtable and the
@@ -895,7 +897,7 @@ instances.   Vtables can have additional, user-defined fields as well.
 
 
 @node  Structure Layout
-@subsection Structure Layout
+@subsubsection Structure Layout
 
 When a structure is created, a region of memory is allocated to hold its
 state.  The @dfn{layout} of the structure's type determines how that
@@ -1009,7 +1011,7 @@ indicate that the field is a tail-array.
 
 
 @node Structure Basics
-@subsection Structure Basics
+@subsubsection Structure Basics
 
 This section describes the basic procedures for creating and accessing
 structures.
@@ -1065,7 +1067,7 @@ integer value small enough to fit in one machine word.
 
 
 @node  Vtables
-@subsection Vtables
+@subsubsection Vtables
 
 Vtables are structures that are used to represent structure types.  Each
 vtable contains a layout specification in field
@@ -1170,7 +1172,7 @@ Return the vtable tag of the structure @var{handle}.
 
 
 @node Arrays
-@section Arrays
+@subsection Arrays
 @tpindex Arrays
 
 @menu
@@ -1181,7 +1183,7 @@ Return the vtable tag of the structure @var{handle}.
 @end menu
 
 @node Conventional Arrays
-@subsection Conventional Arrays
+@subsubsection Conventional Arrays
 
 @dfn{Conventional arrays} are a collection of cells organized into an
 arbitrary number of dimensions.  Each cell can hold any kind of Scheme
@@ -1446,7 +1448,7 @@ memory.
 @end deffn
 
 @node Array Mapping
-@subsection Array Mapping
+@subsubsection Array Mapping
 
 @c  FIXME: array-map! accepts no source arrays at all, and in that
 @c  case makes calls "(proc)".  Is that meant to be a documented
@@ -1519,7 +1521,7 @@ $\left(\matrix{%
 @end deffn
 
 @node Uniform Arrays
-@subsection Uniform Arrays
+@subsubsection Uniform Arrays
 @tpindex Uniform Arrays
 
 @noindent
@@ -1658,7 +1660,7 @@ omitted, in which case it defaults to the value returned by
 @end deffn
 
 @node Bit Vectors
-@subsection Bit Vectors
+@subsubsection Bit Vectors
 
 @noindent
 Bit vectors are a specific type of uniform array: an array of booleans
@@ -1750,18 +1752,6 @@ For example,
 @end example
 @end deffn
 
-
-@node Association Lists and Hash Tables
-@section Association Lists and Hash Tables
-
-This chapter discusses dictionary objects: data structures that are
-useful for organizing and indexing large bodies of information.
-
-@menu
-* Dictionary Types::            About dictionary types; what they're good for.
-* Association Lists::           List-based dictionaries.
-* Hash Tables::                 Table-based dictionaries.
-@end menu
 
 @node Dictionary Types
 @subsection Dictionary Types

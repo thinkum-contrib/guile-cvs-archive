@@ -6,95 +6,25 @@
 
 @page
 @node Memory Management
-@chapter Memory Management and Garbage Collection
+@section Memory Management and Garbage Collection
 
 Guile uses a @emph{garbage collector} to manage most of its objects.
-This means that the memory used to store a Scheme string, say, is
-automatically reclaimed when no one is using this string any longer.
-This can work because Guile knows enough about its objects at run-time
-to be able to trace all references between them.  Thus, it can find all
-'live' objects (objects that are still in use) by starting from a known
-set of 'root' objects and following the links that these objects have to
-other objects, and so on.  The objects that are not reached by this
-recursive process can be considered 'dead' and their memory can be
-reused for new objects.
+While the garbage collector is designed to be mostly invisible, you 
+sometimes need to interact with it explicitely.
+
+See @ref{Garbage Collection} for a general discussion of how garbage
+collection relates to using Guile from C.
 
 @menu
-* Garbage Collection::
+* Garbage Collection Functions::
 * Memory Blocks::
 * Weak References::
 * Guardians::
 @end menu
 
 
-@node Garbage Collection
-@section Garbage Collection
-
-The general process of collecting dead objects outlined above relies on
-the fact that the garbage collector is able to find all references to
-SCM objects that might be used by the program in the future.  When you
-are programming in Scheme, you don't need to worry about this: The
-collector is automatically aware of all objects in use by Scheme code.
-
-When programming in C, you must help the garbage collector a bit so that
-it can find all objects that are accessible from C.  You do this when
-writing a SMOB mark function, for example.  By calling this function,
-the garbage collector learns about all references that your SMOB has to
-other SCM objects.
-
-Other references to SCM objects, such as global variables of type SCM or
-other random data structures in the heap that contain fields of type
-SCM, can be made visible to the garbage collector by calling the
-functions @code{scm_gc_protect} or @code{scm_permanent_object}.  You
-normally use these funtions for long lived objects such as a hash table
-that is stored in a global variable.  For temporary references in local
-variables or function arguments, using these functions would be too
-expensive.
-
-These references are handled differently: Local variables (and function
-arguments) of type SCM are automatically visible to the garbage
-collector.  This works because the collector scans the stack for
-potential references to SCM objects and considers all referenced objects
-to be alive.  The scanning considers each and every word of the stack,
-regardless of what it is actually used for, and then decides whether it
-could possible be a reference to a SCM object.  Thus, the scanning is
-guaranteed to find all actual references, but it might also find words
-that only accidentally look like references.  These `false positives'
-might keep SCM objects alive that would otherwise be considered dead.
-While this might waste memory, keeping an object around longer than it
-strictly needs to is harmless.  This is why this technique is called
-``conservative garbage collection''.  In practice, the wasted memory
-seems to be no problem.
-
-The stack of every thread is scanned in this way and the registers of
-the CPU and all other memory locations where local variables or function
-parameters might show up are included in this scan as well.
-
-The consequence of the conservative scanning is that you can just
-declare local variables and function parameters of type SCM and be sure
-that the garbage collector will not free the corresponding objects.
-
-However, a local variable or function parameter is only protected as
-long as it is really on the stack (or in some register).  As an
-optimization, the C compiler might reuse its location for some other
-value and the SCM object would no longer be protected.  Normally, this
-leads to exactly the right behabvior: the compiler will only overwrite a
-reference when it is no longer needed and thus the object becomes
-unprotected precisely when the reference disappears, just as wanted.
-
-There are situations, however, where a SCM object needs to be around
-longer than its reference from a local variable or function parameter.
-This happens, for example, when you retrieve the array of characters
-from a Scheme string and work on that array directly.  The reference to
-the SCM string object might be dead after the character array has been
-retrieved, but the array itself is still in use and thus the string
-object must be protected.  The compiler does not know about this
-connection and might overwrite the SCM reference too early.
-
-To get around this problem, you can use @code{scm_remember_upto_here_1}
-and its cousins.  It will keep the compiler from overwriting the
-reference.  For an example of its use, see @ref{Remembering During
-Operations}.
+@node Garbage Collection Functions
+@subsection Function related to Garbage Collection
 
 @deffn {Scheme Procedure} gc
 @deffnx {C Function} scm_gc ()
@@ -151,11 +81,19 @@ this mechanism.
 Return an association list of statistics about Guile's current
 use of storage.
 
+@deftypefun void scm_gc_mark (SCM @var{x})
+Mark the object @var{x}, and recurse on any objects @var{x} refers to.
+If @var{x}'s mark bit is already set, return immediately.  This function
+must only be called during the mark-phase of garbage collection,
+typically from a smob @emph{mark} function.
+@end deftypefun
+
+
 @end deffn
 
 
 @node Memory Blocks
-@section Memory Blocks
+@subsection Memory Blocks
 
 In C programs, dynamic management of memory blocks is normally done
 with the functions malloc, realloc, and free.  Guile has additional
@@ -273,7 +211,7 @@ allocated.
 @end deffn
 
 
-@subsection Upgrading from scm_must_malloc et al.
+@subsubsection Upgrading from scm_must_malloc et al.
 
 Version 1.6 of Guile and earlier did not have the functions from the
 previous section.  In their place, it had the functions
@@ -337,7 +275,7 @@ The same reasoning applies to @code{scm_must_realloc} and
 
 
 @node Weak References
-@section Weak References
+@subsection Weak References
 
 [FIXME: This chapter is based on Mikael Djurfeldt's answer to a
 question by Michael Livshin. Any mistakes are not theirs, of course. ]
@@ -382,7 +320,7 @@ they constitute a doubly-weak table has to be used.
 
 
 @node Weak key hashes
-@subsection Weak key hashes
+@subsubsection Weak key hashes
 
 @deffn {Scheme Procedure} make-weak-key-hash-table size
 @deffnx {Scheme Procedure} make-weak-value-hash-table size
@@ -423,7 +361,7 @@ nor a weak value hash table.
 
 
 @node Weak vectors
-@subsection Weak vectors
+@subsubsection Weak vectors
 
 Weak vectors are mainly useful in Guile's implementation of weak hash
 tables.
@@ -453,7 +391,7 @@ weak hashes are also weak vectors.
 
 
 @node Guardians
-@section Guardians
+@subsection Guardians
 
 @deffn {Scheme Procedure} make-guardian [greedy?]
 @deffnx {C Function} scm_make_guardian (greedy_p)
@@ -504,7 +442,7 @@ Return @code{#t} if @var{guardian} has been destroyed, otherwise @code{#f}.
 
 @page
 @node Objects
-@chapter Objects
+@section Objects
 
 @deffn {Scheme Procedure} entity? obj
 @deffnx {C Function} scm_entity_p (obj)

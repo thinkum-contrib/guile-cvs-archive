@@ -6,7 +6,7 @@
 
 @page
 @node Read/Load/Eval
-@chapter Reading and Evaluating Scheme Code
+@section Reading and Evaluating Scheme Code
 
 This chapter describes Guile functions that are concerned with reading,
 loading and evaluating Scheme code at run time.
@@ -23,7 +23,7 @@ loading and evaluating Scheme code at run time.
 
 
 @node Scheme Syntax
-@section Scheme Syntax: Standard and Guile Extensions
+@subsection Scheme Syntax: Standard and Guile Extensions
 
 @menu
 * Expression Syntax::
@@ -36,7 +36,7 @@ loading and evaluating Scheme code at run time.
 
 
 @node Expression Syntax
-@subsection Expression Syntax
+@subsubsection Expression Syntax
 
 An expression to be evaluated takes one of the following forms.
 
@@ -171,7 +171,7 @@ inserted.
 
 
 @node Comments
-@subsection Comments
+@subsubsection Comments
 
 @c FIXME::martin: Review me!
 
@@ -199,7 +199,7 @@ convention is used when indenting code in Emacs' Scheme mode.
 
 
 @node Block Comments
-@subsection Block Comments
+@subsubsection Block Comments
 
 @c FIXME::martin: Review me!
 
@@ -226,7 +226,7 @@ More details on Guile scripting can be found in the scripting section
 
 
 @node Case Sensitivity
-@subsection Case Sensitivity
+@subsubsection Case Sensitivity
 
 @c FIXME::martin: Review me!
 
@@ -253,11 +253,11 @@ to use uppercase letters in their identifiers anyway.
 
 
 @node Keyword Syntax
-@subsection Keyword Syntax
+@subsubsection Keyword Syntax
 
 
 @node Reader Extensions
-@subsection Reader Extensions
+@subsubsection Reader Extensions
 
 @deffn {Scheme Procedure} read-hash-extend chr proc
 @deffnx {C Function} scm_read_hash_extend (chr, proc)
@@ -270,7 +270,7 @@ returned will be the return value of @code{read}.
 
 
 @node Scheme Read
-@section Reading Scheme Code
+@subsection Reading Scheme Code
 
 @rnindex read
 @deffn {Scheme Procedure} read [port]
@@ -317,7 +317,7 @@ this procedure directly, use the procedures @code{read-enable},
 
 
 @node Fly Evaluation
-@section Procedures for On the Fly Evaluation
+@subsection Procedures for On the Fly Evaluation
 
 @xref{Environments}.
 
@@ -401,7 +401,7 @@ the current module.
 
 
 @node Loading
-@section Loading Scheme Code from File
+@subsection Loading Scheme Code from File
 
 @rnindex load
 @deffn {Scheme Procedure} load filename
@@ -478,7 +478,7 @@ list @code{("" ".scm")}.
 
 
 @node Delayed Evaluation
-@section Delayed Evaluation
+@subsection Delayed Evaluation
 @cindex delayed evaluation
 @cindex promises
 
@@ -514,7 +514,7 @@ value.
 
 
 @node Local Evaluation
-@section Local Evaluation
+@subsection Local Evaluation
 
 [the-environment]
 
@@ -528,7 +528,7 @@ is implicit).
 
 
 @node Evaluator Behaviour
-@section Evaluator Behaviour
+@subsection Evaluator Behaviour
 
 @c FIXME::martin: Maybe this node name is bad, but the old name clashed with
 @c `Evaluator options' under `Options and Config'.

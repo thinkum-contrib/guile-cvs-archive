@@ -6,7 +6,7 @@
 
 @page
 @node Debugging Features
-@chapter Debugging Features
+@section Debugging Features
 
 Guile includes debugging tools to help you work out what is going wrong
 when a program signals an error or behaves differently to how you would
@@ -29,14 +29,14 @@ The details are more complex and more powerful @dots{}
 
 @menu
 * Debug Last Error::            Debugging the most recent error.
-* Breakpoints::                 Setting and manipulating breakpoints.
+* Intro to Breakpoints::        Setting and manipulating them.
 * Interactive Debugger::        Using the interactive debugger.
 * Tracing::                     Tracing program execution.
 @end menu
 
 
 @node Debug Last Error
-@section Debugging the Most Recent Error
+@subsection Debugging the Most Recent Error
 
 When an error is signalled, Guile remembers the execution context where
 the error occurred.  By default, Guile then displays only the most
@@ -54,19 +54,9 @@ Type "(backtrace)" to get more information or "(debug)" to enter the debugger.
 @end lisp
 
 @noindent
-However, as the message above says, you can obtain much more information
-about the context of the error by typing @code{(backtrace)} or
-@code{(debug)}:
-
-@deffn {Scheme Procedure} backtrace
-@deffnx {C Function} scm_backtrace ()
-Display a backtrace of the stack saved by the last error
-to the current output port.
-@end deffn
-
-@deffn {Scheme Procedure} debug
-Invoke the Guile debugger to explore the context of the last error.
-@end deffn
+However, as the message above says, you can obtain much more
+information about the context of the error by typing
+@code{(backtrace)} or @code{(debug)}.
 
 @code{(backtrace)} displays the Scheme call stack at the point where the
 error occurred:
@@ -118,11 +108,11 @@ in @ref{Interactive Debugger}.
 
 
 @node Backtrace Format
-@subsection How to Interpret a Backtrace
+@subsubsection How to Interpret a Backtrace
 
 
-@node Breakpoints
-@section Breakpoints
+@node Intro to Breakpoints
+@subsection Intro to Breakpoints
 
 If you are not already familiar with the concept of breakpoints, the
 first subsection below explains how they work are why they are useful.
@@ -171,7 +161,7 @@ You may like to add this to your @file{.guile} file.
 
 
 @node Breakpoints Overview
-@subsection How Breakpoints Work and Why They Are Useful
+@subsubsection How Breakpoints Work and Why They Are Useful
 
 Often, debugging the last error is not enough to tell you what went
 wrong.  For example, the root cause of the error may have arisen a long
@@ -211,7 +201,7 @@ Debugger}.
 
 
 @node Source Breakpoints
-@subsection Source Breakpoints
+@subsubsection Source Breakpoints
 
 A source breakpoint is a breakpoint that triggers whenever program
 execution hits a particular source location.  A source breakpoint can be
@@ -260,7 +250,7 @@ debug>
 
 
 @node Procedural Breakpoints
-@subsection Procedural Breakpoints
+@subsubsection Procedural Breakpoints
 
 A procedural breakpoint is a breakpoint that triggers whenever Guile is
 about to apply a specified procedure to its (already evaluated)
@@ -324,57 +314,40 @@ You may like to add this to your @file{.guile} file.
 
 
 @node Setting Breakpoints
-@subsection Setting Breakpoints
+@subsubsection Setting Breakpoints
 
 In general, that is.  We've already seen how to set source and
 procedural breakpoints conveniently in practice.  This section explains
 how those conveniences map onto a more general mechanism.
 
 The general mechanism for setting breakpoints is the generic function
-@code{set-breakpoint!}:
+@code{set-breakpoint!}.  Different kinds of breakpoints define
+subclasses of the class @code{<breakpoint>} and provide their own
+methods for @code{set-pbreakpoint!}.
 
-@deffn {Generic Function} set-breakpoint! behaviour . location-args
-Set a breakpoint with behaviour @var{behaviour} at the location
-specified by @var{location-args}.
-
-The form of the @var{location-args} depends upon what methods for
-@code{set-breakpoint!} have been provided by the implementations of
-subclasses of the @code{<breakpoint>} base class.
-@end deffn
-
-So, for example, @code{(ice-9 debugger breakpoints procedural)} implements the
-@code{<procedure-breakpoint>} subclass and provides a
+For example, @code{(ice-9 debugger breakpoints procedural)} implements
+the @code{<procedure-breakpoint>} subclass and provides a
 @code{set-breakpoint!} method that takes a procedure argument:
 
-@deffn {Method} set-breakpoint! behaviour (proc <procedure>)
-Set a breakpoint with behaviour @var{behaviour} before applications of
-the procedure @var{proc}.
-@end deffn
-
-@code{(ice-9 debugger breakpoints source)} implements the
-@code{<source-breakpoint>} subclass and provides a
-@code{set-breakpoint!} method that takes two arguments describing the
-source expression on which the breakpoint should be set:
-
-@deffn {Method} set-breakpoint! behaviour x-as-read (x-pairified <pair>)
-Set a breakpoint with behaviour @var{behaviour} on the source expression
-@var{x-pairified}, storing @var{x-as-read} for use in messages
-describing the breakpoint.
-@end deffn
+@smalllisp
+(set-breakpoint! @var{behavior} fact1)
+@print{}
+Set breakpoint 1: [fact1]
+@result{}
+#<<procedure-breakpoint> 808b0b0>
+@end smalllisp
 
 A non-type-specific @code{set-breakpoint!} method is provided by the
-generic module @code{(ice-9 debugger breakpoints)}.  It allows you to change the
-behaviour of an existing breakpoint that is identified by its breakpoint
-number:
+generic module @code{(ice-9 debugger breakpoints)}.  It allows you to
+change the behaviour of an existing breakpoint that is identified by
+its breakpoint number.
 
-@deffn {Method} set-breakpoint! behaviour (number <integer>)
-Change the behaviour of existing breakpoint number @var{number} to
-@var{behaviour}.
-@end deffn
-
+@smalllisp
+(set-breakpoint! @var{behavior} 1)
+@end smalllisp
 
 @node break! trace! trace-subtree!
-@subsection break! trace! trace-subtree!
+@subsubsection break! trace! trace-subtree!
 
 We have already talked above about the use of @code{break!},
 @code{trace!} and @code{trace-subtree!} for setting procedural
@@ -399,41 +372,27 @@ corresponding behaviours for any type of breakpoint for which a
 
 
 @node Accessing Breakpoints
-@subsection Accessing Breakpoints
+@subsubsection Accessing Breakpoints
 
 Information about the state and behaviour of a breakpoint is stored in
 an instance of the appropriate breakpoint class.  To access and change
 that information, therefore, you need to get hold of the desired
 breakpoint instance.
 
-The generic function @code{get-breakpoint} meets this need:
-
-@deffn {Generic Function} get-breakpoint . location-args
-Find and return the breakpoint instance at the location specified by
-@var{location-args}.
-
-The form of the @var{location-args} depends upon what methods for
-@code{get-breakpoint} have been provided by the implementations of
-subclasses of the @code{<breakpoint>} base class.
-@end deffn
-
-For every @code{set-breakpoint!} method there is a corresponding
-@code{get-breakpoint} method which interprets the @var{location-args} in
-the same way.  Since those interpretations are described above
-(@pxref{Setting Breakpoints}), we won't repeat them here, except to note
-again the useful type-independent case:
+The generic function @code{get-breakpoint} meets this need: For every
+@code{set-breakpoint!} method there is a corresponding
+@code{get-breakpoint} method.  Note especially the useful
+type-independent case:
 
 @smalllisp
-(get-breakpoint @var{number})
+(get-breakpoint 1)
+@result{}
+#<<procedure-breakpoint> 808b0b0>
 @end smalllisp
-
-@noindent
-returns the breakpoint instance for the existing breakpoint numbered
-@var{number}.
 
 
 @node Breakpoint Behaviours
-@subsection Breakpoint Behaviours
+@subsubsection Breakpoint Behaviours
 
 A breakpoint's @dfn{behaviour} determines what happens when that
 breakpoint is hit.  Several kinds of behaviour are generally useful.
@@ -486,19 +445,14 @@ Every breakpoint instance has a slot in which its behaviour is stored.
 If you have a breakpoint instance in hand, you can change its behaviour
 using the @code{bp-behaviour} accessor.
 
-@deffn {Accessor} bp-behaviour breakpoint
-Get or set the behaviour of the breakpoint instance @var{breakpoint}.
-@end deffn
-
-@noindent
-(An @dfn{accessor} supports the setting of a property like this:
+An @dfn{accessor} supports the setting of a property like this:
 
 @smalllisp
 (set! (bp-behaviour @var{breakpoint}) @var{new-behaviour})
 @end smalllisp
 
 @noindent
-See the GOOPS manual for further information on accessors.)
+See the GOOPS manual for further information on accessors.
 
 Alternatively, if you know how to specify the @var{location-args} for
 the breakpoint in question, you can change its behaviour using
@@ -548,7 +502,7 @@ thunk like this:
 
 
 @node Enabling and Disabling
-@subsection Enabling and Disabling
+@subsubsection Enabling and Disabling
 
 Independently of its behaviour, each breakpoint also keeps track of
 whether it is currently enabled.  This is a straightforward convenience
@@ -556,20 +510,15 @@ to allow breakpoints to be temporarily switched off without losing all
 their carefully constructed properties.
 
 If you have a breakpoint instance in hand, you can enable or disable it
-using the @code{bp-enabled?} accessor:
+using the @code{bp-enabled?} accessor.
 
-@deffn {Accessor} bp-enabled? breakpoint
-Get or set the enabled state of the specified @var{breakpoint}.
-@end deffn
+Alternatively, you can enable or disable a breakpoint via its location
+args by using @code{enable-breakpoint!} or @code{disable-breakpoint!}.
 
-Alternatively, you can enable or disable a breakpoint by its location
-args:
-
-@deffn {Procedure} enable-breakpoint! . location-args
-@deffnx {Procedure} disable-breakpoint! . location-args
-Enable or disable the breakpoint at the location specified by
-@var{location-args}.
-@end deffn
+@smalllisp
+(disable-breakpoint! fact1)     ; disable the procedural breakpoint on fact1
+(enable-breakpoint! 1)          ; enable breakpoint 1
+@end smalllisp
 
 @code{enable-breakpoint!} and @code{disable-breakpoint!} are implemented
 using @code{get-breakpoint} and @code{bp-enabled?}, so any
@@ -578,23 +527,17 @@ also for these procedures.
 
 
 @node Deleting Breakpoints
-@subsection Deleting Breakpoints
+@subsubsection Deleting Breakpoints
 
-Given a breakpoint instance in hand, you can deactivate it and remove it
-from the global list of current breakpoints by calling
-@code{bp-delete!}:
-
-@deffn {Generic Function} bp-delete! breakpoint
-Delete breakpoint @var{breakpoint}.  This means (1) doing whatever is
-needed to prevent the breakpoint from triggering again, and (2) removing
-it from the global list of current breakpoints.
-@end deffn
+Given a breakpoint instance in hand, you can deactivate it and remove
+it from the global list of current breakpoints by calling
+@code{bp-delete!}.
 
 Alternatively, you can delete a breakpoint by its location args:
 
-@deffn {Procedure} delete-breakpoint! . location-args
-Delete the breakpoint at the location specified by @var{location-args}.
-@end deffn
+@smalllisp
+(delete-breakpoint! 1)         ; delete breakpoint 1
+@end smalllisp
 
 @code{delete-breakpoint!} is implemented using @code{get-breakpoint} and
 @code{bp-delete!}, so any @var{location-args} that are valid for
@@ -606,48 +549,36 @@ rules.
 
 
 @node Breakpoint Information
-@subsection Breakpoint Information
+@subsubsection Breakpoint Information
 
 To get Guile to print a description of a breakpoint instance, use
 @code{bp-describe}:
 
 @smalllisp
-(bp-describe (get-breakpoint 1) #t)
+(bp-describe (get-breakpoint 1) #t)   ; #t specifies standard output
 @print{}
 Breakpoint 1: [fact1]
         enabled? = #t
         behaviour = #<procedure trace-here ()>
 @end smalllisp
 
-@deffn {Generic Function} bp-describe breakpoint port
-Print a description of @var{breakpoint} to the specified @var{port}.
-@var{port} can be @code{#t} for standard output, or else any output
-port.
-@end deffn
-
 Following the usual model, @code{describe-breakpoint} is also provided:
 
-@deffn {Procedure} describe-breakpoint . location-args
-Print (to standard output) a description of the breakpoint at location
-specified by @var{location-args}.
-@end deffn
+@smalllisp
+(describe-breakpoint 1)
+@print{}
+Breakpoint 1: [fact1]
+        enabled? = #t
+        behaviour = #<procedure trace-here ()>
+@end smalllisp
 
 Finally, two stragglers.  @code{all-breakpoints} returns a list of all
 current breakpoints.  @code{describe-all-breakpoints} combines
 @code{bp-describe} and @code{all-breakpoints} by printing a description
 of all current breakpoints to standard output.
 
-@deffn {Procedure} all-breakpoints
-Return a list of all current breakpoints, ordered by breakpoint number.
-@end deffn
-
-@deffn {Procedure} describe-all-breakpoints
-Print a description of all current breakpoints to standard output.
-@end deffn
-
-
 @node Other Breakpoint Types
-@subsection Other Breakpoint Types
+@subsubsection Other Breakpoint Types
 
 Besides source and procedural breakpoints, Guile includes an early
 implementation of a third class of breakpoints: @dfn{range} breakpoints.
@@ -671,7 +602,7 @@ impractical for performance reasons.
 
 
 @node Interactive Debugger
-@section Using the Interactive Debugger
+@subsection Using the Interactive Debugger
 
 Guile's interactive debugger is a command line application that accepts
 commands from you for examining the stack and, if at a breakpoint, for
@@ -708,7 +639,7 @@ detail in the following subsections.
 
 
 @node Display Backtrace
-@subsection Display Backtrace
+@subsubsection Display Backtrace
 
 The @code{backtrace} command, which can also be invoked as @code{bt} or
 @code{where}, displays the call stack (aka backtrace) at the point where
@@ -736,7 +667,7 @@ The format of the displayed backtrace is the same as for the
 
 
 @node Frame Selection
-@subsection Frame Selection
+@subsubsection Frame Selection
 
 A call stack consists of a sequence of stack @dfn{frames}, with each
 frame describing one level of the nested evaluations and applications
@@ -785,7 +716,7 @@ frame to select; it must be a stack-frame number.
 
 
 @node Frame Information
-@subsection Frame Information
+@subsubsection Frame Information
 
 [to be completed]
 
@@ -803,7 +734,7 @@ Display the position of the current expression.
 
 
 @node Frame Evaluation
-@subsection Frame Evaluation
+@subsubsection Frame Evaluation
 
 [to be completed]
 
@@ -815,7 +746,7 @@ however it may be continued over multiple lines.
 
 
 @node Single Stepping
-@subsection Single Stepping
+@subsubsection Single Stepping
 
 [to be completed]
 
@@ -829,7 +760,7 @@ Continue until entry to @var{n}th next frame in same file.
 
 
 @node Run To Frame Exit
-@subsection Run To Frame Exit
+@subsubsection Run To Frame Exit
 
 [to be completed]
 
@@ -844,7 +775,7 @@ Trace until evaluation of the current frame is complete.
 
 
 @node Continue Execution
-@subsection Continue Execution
+@subsubsection Continue Execution
 
 [to be completed]
 
@@ -854,7 +785,7 @@ Continue program execution.
 
 
 @node Leave Debugger
-@subsection Leave Debugger
+@subsubsection Leave Debugger
 
 [to be completed]
 
@@ -864,7 +795,7 @@ Exit the debugger.
 
 
 @node Tracing
-@section Tracing
+@subsection Tracing
 
 Tracing has already been described as a breakpoint behaviour
 (@pxref{Breakpoint Behaviours}), but we mention it again here because it
@@ -879,7 +810,7 @@ for tracing, and its worth clarifying the differences between them.
 
 
 @node Old Tracing
-@subsection Tracing Provided by @code{(ice-9 debug)}
+@subsubsection Tracing Provided by @code{(ice-9 debug)}
 
 The @code{(ice-9 debug)} module implements tracing of procedure
 applications.  When a procedure is @dfn{traced}, it means that every
@@ -993,7 +924,7 @@ iteration.  Tracing reveals this optimization in operation.
 
 
 @node New Tracing
-@subsection Breakpoint-based Tracing
+@subsubsection Breakpoint-based Tracing
 
 Guile's newer mechanism implements tracing as an optional behaviour for
 any kind of breakpoint.
@@ -1102,7 +1033,7 @@ Breakpoint 4: standard input:13:9: (= n 0)
 
 
 @node Tracing Compared
-@subsection Differences Between Old and New Tracing Mechanisms
+@subsubsection Differences Between Old and New Tracing Mechanisms
 
 The newer tracing mechanism is more general and so more powerful than
 the older one: it works for expressions as well as procedure

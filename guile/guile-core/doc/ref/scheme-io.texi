@@ -6,7 +6,7 @@
 
 @page
 @node Input and Output
-@chapter Input and Output
+@section Input and Output
 
 @menu
 * Ports::                       The idea of the port abstraction.
@@ -23,7 +23,7 @@
 
 
 @node Ports
-@section Ports
+@subsection Ports
 
 Sequential input/output in Scheme is represented by operations on a
 @dfn{port}.  This chapter explains the operations that Guile provides
@@ -89,7 +89,7 @@ Equivalent to @code{(or (input-port? @var{x}) (output-port?
 
 
 @node Reading
-@section Reading
+@subsection Reading
 
 [Generic procedures for reading from ports.]
 
@@ -209,7 +209,7 @@ Set the current column or line number of @var{port}.
 @end deffn
 
 @node Writing
-@section Writing
+@subsection Writing
 
 [Generic procedures for writing to ports.]
 
@@ -310,7 +310,7 @@ all open output ports.  The return value is unspecified.
 
 
 @node Closing
-@section Closing
+@subsection Closing
 
 @deffn {Scheme Procedure} close-port port
 @deffnx {C Function} scm_close_port (port)
@@ -344,7 +344,7 @@ open.
 
 
 @node Random Access
-@section Random Access
+@subsection Random Access
 
 @deffn {Scheme Procedure} seek fd_port offset whence
 @deffnx {C Function} scm_seek (fd_port, offset, whence)
@@ -396,7 +396,7 @@ position.  The return value is unspecified.
 @end deffn
 
 @node Line/Delimited
-@section Line Oriented and Delimited Text
+@subsection Line Oriented and Delimited Text
 
 The delimited-I/O module can be accessed with:
 
@@ -506,7 +506,7 @@ delimiter may be either a newline or the @var{eof-object}; if
 @end deffn
 
 @node Block Reading and Writing
-@section Block reading and writing
+@subsection Block reading and writing
 
 The Block-string-I/O module can be accessed with:
 
@@ -604,7 +604,7 @@ return 0 immediately if the request size is 0 bytes.
 @end deffn
 
 @node Default Ports
-@section Default Ports for Input, Output and Errors
+@subsection Default Ports for Input, Output and Errors
 
 @rnindex current-input-port
 @deffn {Scheme Procedure} current-input-port
@@ -654,7 +654,7 @@ initialized with the @var{port} argument.
 @end deftypefn
 
 @node Port Types
-@section Types of Port
+@subsection Types of Port
 
 [Types of port; how to make them.]
 
@@ -667,7 +667,7 @@ initialized with the @var{port} argument.
 
 
 @node File Ports
-@subsection File Ports
+@subsubsection File Ports
 
 The following procedures are used to open file ports.
 See also @ref{Ports and File Descriptors, open}, for an interface
@@ -807,7 +807,7 @@ Determine whether @var{obj} is a port that is related to a file.
 
 
 @node String Ports
-@subsection String Ports
+@subsubsection String Ports
 
 The following allow string ports to be opened by analogy to R4R*
 file port facilities:
@@ -872,7 +872,7 @@ but trying to extract the file descriptor number will fail.
 
 
 @node Soft Ports
-@subsection Soft Ports
+@subsubsection Soft Ports
 
 A @dfn{soft-port} is a port based on a vector of procedures capable of
 accepting or delivering characters.  It allows emulation of I/O ports.
@@ -927,7 +927,7 @@ For example:
 
 
 @node Void Ports
-@subsection Void Ports
+@subsubsection Void Ports
 
 This kind of port causes any data to be discarded when written to, and
 always returns the end-of-file object when read from.
@@ -942,7 +942,7 @@ documentation for @code{open-file} in @ref{File Ports}.
 
 
 @node I/O Extensions
-@section Using and Extending Ports in C
+@subsection Using and Extending Ports in C
 
 @menu
 * C Port Interface:: Using ports from C.
@@ -951,11 +951,11 @@ documentation for @code{open-file} in @ref{File Ports}.
 
 
 @node C Port Interface
-@subsection C Port Interface
+@subsubsection C Port Interface
 
 This section describes how to use Scheme ports from C.
 
-@subsubsection Port basics
+@subsubheading Port basics
 
 There are two main data structures.  A port type object (ptob) is of
 type @code{scm_ptob_descriptor}.  A port instance is of type
@@ -965,7 +965,7 @@ the corresponding C port object can be obtained using the
 @code{SCM_PTOBNUM} to give an index into the @code{scm_ptobs}
 global array.
 
-@subsubsection Port buffers
+@subsubheading Port buffers
 
 An input port always has a read buffer and an output port always has a
 write buffer.  However the size of these buffers is not guaranteed to be
@@ -976,7 +976,7 @@ example in the case of an fport, buffers may be allocated with malloc
 when the port is created, but in the case of an strport the underlying
 string is used as the buffer.
 
-@subsubsection The @code{rw_random} flag
+@subsubheading The @code{rw_random} flag
 
 Special treatment is required for ports which can be seeked at random.
 Before various operations, such as seeking the port or changing from
@@ -992,7 +992,7 @@ was never read.
 The special treatment must be performed if the @code{rw_random} flag in
 the port is non-zero.
 
-@subsubsection The @code{rw_active} variable
+@subsubheading The @code{rw_active} variable
 
 The @code{rw_active} variable in the port is only used if
 @code{rw_random} is set.  It's defined as an enum with the following
@@ -1009,7 +1009,7 @@ the write buffer may have unwritten data.
 neither the write nor the read buffer has data.
 @end table
 
-@subsubsection Reading from a port.
+@subsubheading Reading from a port.
 
 To read from a port, it's possible to either call existing libguile
 procedures such as @code{scm_getc} and @code{scm_read_line} or to read
@@ -1031,7 +1031,7 @@ the buffer.  Steps 2) and 3) may be repeated as many times as required.
 @item update the port's line and column counts.
 @end enumerate
 
-@subsubsection Writing to a port.
+@subsubheading Writing to a port.
 
 To write data to a port, calling @code{scm_lfwrite} should be sufficient for
 most purposes.  This takes care of the following steps:
@@ -1054,7 +1054,7 @@ is set.
 
 
 @node Port Implementation
-@subsection Port Implementation
+@subsubsection Port Implementation
 
 This section describes how to implement a new port type in C.
 

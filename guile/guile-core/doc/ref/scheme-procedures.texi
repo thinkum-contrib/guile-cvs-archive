@@ -6,7 +6,7 @@
 
 @page
 @node Procedures and Macros
-@chapter Procedures and Macros
+@section Procedures and Macros
 
 @menu
 * Lambda::                      Basic procedure creation using lambda.
@@ -22,7 +22,7 @@
 
 
 @node Lambda
-@section Lambda: Basic Procedure Creation
+@subsection Lambda: Basic Procedure Creation
 @cindex lambda
 
 @c FIXME::martin: Review me!
@@ -95,7 +95,7 @@ order when the procedure is invoked.
 @end deffn
 
 @node Primitive Procedures
-@section Primitive Procedures
+@subsection Primitive Procedures
 @cindex primitives
 @cindex primitive procedures
 
@@ -132,7 +132,7 @@ It is advisable to use the gsubr variants since they provide a
 slightly higher-level abstraction of the Guile implementation.
 
 @node Optional Arguments
-@section Optional Arguments
+@subsection Optional Arguments
 
 @c FIXME::martin: Review me!
 
@@ -167,7 +167,7 @@ you have to load the module @code{(ice-9 optargs)} with the statement:
 
 
 @node let-optional Reference
-@subsection let-optional Reference
+@subsubsection let-optional Reference
 
 @c FIXME::martin: Review me!
 
@@ -196,7 +196,7 @@ evaluated in order.
 
 
 @node let-keywords Reference
-@subsection let-keywords Reference
+@subsubsection let-keywords Reference
 
 @c FIXME::martin: Review me!
 
@@ -226,7 +226,7 @@ evaluated in order.
 
 
 @node lambda* Reference
-@subsection lambda* Reference
+@subsubsection lambda* Reference
 
 @c FIXME::martin: Review me!
 
@@ -315,7 +315,7 @@ for refugees from other Lisp dialects.
 
 
 @node define* Reference
-@subsection define* Reference
+@subsubsection define* Reference
 
 @c FIXME::martin: Review me!
 
@@ -370,7 +370,7 @@ semantics. Here is an example of a macro with an optional argument:
 
 
 @node Procedure Properties
-@section Procedure Properties and Meta-information
+@subsection Procedure Properties and Meta-information
 
 @c FIXME::martin: Review me!
 
@@ -489,7 +489,7 @@ Return the source property specified by @var{key} from
 
 
 @node Procedures with Setters
-@section Procedures with Setters
+@subsection Procedures with Setters
 
 @c FIXME::martin: Review me!
 
@@ -574,7 +574,7 @@ setter or an operator struct.
 
 
 @node Macros
-@section Lisp Style Macro Definitions
+@subsection Lisp Style Macro Definitions
 
 @cindex macros
 @cindex transformation
@@ -644,7 +644,7 @@ For example:
 
 
 @node Syntax Rules
-@section The R5RS @code{syntax-rules} System
+@subsection The R5RS @code{syntax-rules} System
 @cindex R5RS syntax-rules system
 
 R5RS defines an alternative system for macro and syntax transformations
@@ -699,11 +699,11 @@ declaration (@pxref{Creating Guile Modules}).
 
 
 @node Pattern Language
-@subsection The @code{syntax-rules} Pattern Language
+@subsubsection The @code{syntax-rules} Pattern Language
 
 
 @node Define-Syntax
-@subsection Top Level Syntax Definitions
+@subsubsection Top Level Syntax Definitions
 
 define-syntax:  The gist is
 
@@ -719,16 +719,16 @@ given by the <transformer-spec>.
 
 
 @node Let-Syntax
-@subsection Local Syntax Definitions
+@subsubsection Local Syntax Definitions
 
 
 @node Syntax Case
-@section Support for the @code{syntax-case} System
+@subsection Support for the @code{syntax-case} System
 
 
 
 @node Internal Macros
-@section Internal Representation of Macros and Syntax
+@subsection Internal Representation of Macros and Syntax
 
 Internally, Guile uses three different flavors of macros.  The three
 flavors are called @dfn{acro} (or @dfn{syntax}), @dfn{macro} and

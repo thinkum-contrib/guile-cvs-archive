@@ -6,7 +6,7 @@
 
 @page
 @node Deprecated
-@chapter Deprecated
+@section Deprecated
 
 The features and functions described in this chapter are considered
 obsolete and should not be used by new programs.  They're retained for

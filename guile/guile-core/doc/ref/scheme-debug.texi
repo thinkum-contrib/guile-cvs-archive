@@ -6,9 +6,11 @@
 
 @page
 @node Debugging
-@chapter Debugging Infrastructure
+@section Debugging Infrastructure
 
 @menu
+* Interactive Debugging::       Functions intended for interactive use.
+* Breakpoints::
 * Source Properties::           Remembering the source of an expression.
 * Using Traps::
 * Capturing the Stack or Innermost Stack Frame::
@@ -18,9 +20,102 @@
 * Starting a New Stack::
 @end menu
 
+@node Interactive Debugging
+@subsection Interactive Debugging
+
+@deffn {Scheme Procedure} backtrace
+@deffnx {C Function} scm_backtrace ()
+Display a backtrace of the stack saved by the last error
+to the current output port.
+@end deffn
+
+@deffn {Scheme Procedure} debug
+Invoke the Guile debugger to explore the context of the last error.
+@end deffn
+
+@node Breakpoints
+@subsection Breakpoints
+
+@deffn {Generic Function} set-breakpoint! behaviour . location-args
+Set a breakpoint with behaviour @var{behaviour} at the location
+specified by @var{location-args}.
+
+The form of the @var{location-args} depends upon what methods for
+@code{set-breakpoint!} have been provided by the implementations of
+subclasses of the @code{<breakpoint>} base class.
+@end deffn
+
+@deffn {Generic Function} get-breakpoint . location-args
+Find and return the breakpoint instance at the location specified by
+@var{location-args}.
+
+The form of the @var{location-args} depends upon what methods for
+@code{get-breakpoint} have been provided by the implementations of
+subclasses of the @code{<breakpoint>} base class.
+@end deffn
+
+@deffn {Method} set-breakpoint! behaviour (proc <procedure>)
+Set a breakpoint with behaviour @var{behaviour} before applications of
+the procedure @var{proc}.
+@end deffn
+
+@deffn {Method} set-breakpoint! behaviour x-as-read (x-pairified <pair>)
+Set a breakpoint with behaviour @var{behaviour} on the source expression
+@var{x-pairified}, storing @var{x-as-read} for use in messages
+describing the breakpoint.
+@end deffn
+
+@deffn {Method} set-breakpoint! behaviour (number <integer>)
+Change the behaviour of existing breakpoint number @var{number} to
+@var{behaviour}.
+@end deffn
+
+@deffn {Accessor} bp-behaviour breakpoint
+Get or set the behaviour of the breakpoint instance @var{breakpoint}.
+@end deffn
+
+@deffn {Accessor} bp-enabled? breakpoint
+Get or set the enabled state of the specified @var{breakpoint}.
+@end deffn
+
+@deffn {Procedure} enable-breakpoint! . location-args
+@deffnx {Procedure} disable-breakpoint! . location-args
+Enable or disable the breakpoint at the location specified by
+@var{location-args}.
+@end deffn
+
+@deffn {Generic Function} bp-delete! breakpoint
+Delete breakpoint @var{breakpoint}.  This means (1) doing whatever is
+needed to prevent the breakpoint from triggering again, and (2) removing
+it from the global list of current breakpoints.
+@end deffn
+
+@deffn {Procedure} delete-breakpoint! . location-args
+Delete the breakpoint at the location specified by @var{location-args}.
+@end deffn
+
+@deffn {Generic Function} bp-describe breakpoint port
+Print a description of @var{breakpoint} to the specified @var{port}.
+@var{port} can be @code{#t} for standard output, or else any output
+port.
+@end deffn
+
+@deffn {Procedure} describe-breakpoint . location-args
+Print (to standard output) a description of the breakpoint at location
+specified by @var{location-args}.
+@end deffn
+
+@deffn {Procedure} all-breakpoints
+Return a list of all current breakpoints, ordered by breakpoint number.
+@end deffn
+
+@deffn {Procedure} describe-all-breakpoints
+Print a description of all current breakpoints to standard output.
+@end deffn
+
 
 @node Source Properties
-@section Source Properties
+@subsection Source Properties
 
 @cindex source properties
 As Guile reads in Scheme code from file or from standard input, it
@@ -65,7 +160,7 @@ runs a script non-interactively.
 
 
 @node Using Traps
-@section Using Traps
+@subsection Using Traps
 
 @deffn {Scheme Procedure} with-traps thunk
 @deffnx {C Function} scm_with_traps (thunk)
@@ -79,7 +174,7 @@ Return @code{#t} if @var{obj} is a debug object.
 
 
 @node Capturing the Stack or Innermost Stack Frame
-@section Capturing the Stack or Innermost Stack Frame
+@subsection Capturing the Stack or Innermost Stack Frame
 
 When an error occurs in a running program, or the program hits a
 breakpoint, its state at that point can be represented by a @dfn{stack}
@@ -129,7 +224,7 @@ debug object or a continuation.
 
 
 @node Examining the Stack
-@section Examining the Stack
+@subsection Examining the Stack
 
 @deffn {Scheme Procedure} stack? obj
 @deffnx {C Function} scm_stack_p (obj)
@@ -162,7 +257,7 @@ which means that default values will be used.
 
 
 @node Examining Stack Frames
-@section Examining Stack Frames
+@subsection Examining Stack Frames
 
 @deffn {Scheme Procedure} frame? obj
 @deffnx {C Function} scm_frame_p (obj)
@@ -231,7 +326,7 @@ output.
 
 
 @node Decoding Memoized Source Expressions
-@section Decoding Memoized Source Expressions
+@subsection Decoding Memoized Source Expressions
 
 @deffn {Scheme Procedure} memoized? obj
 @deffnx {C Function} scm_memoized_p (obj)
@@ -250,7 +345,7 @@ Return the environment of the memoized expression @var{m}.
 
 
 @node Starting a New Stack
-@section Starting a New Stack
+@subsection Starting a New Stack
 
 @deffn {Scheme Syntax} start-stack id exp
 Evaluate @var{exp} on a new calling stack with identity @var{id}.  If

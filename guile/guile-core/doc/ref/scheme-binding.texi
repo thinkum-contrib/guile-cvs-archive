@@ -6,7 +6,7 @@
 
 @page
 @node Binding Constructs
-@chapter Definitions and Variable Bindings
+@section Definitions and Variable Bindings
 
 @c FIXME::martin: Review me!
 
@@ -24,7 +24,7 @@ and expressions.  This is important for modularity and data abstraction.
 
 
 @node Top Level
-@section Top Level Variable Definitions
+@subsection Top Level Variable Definitions
 
 @cindex variable definition
 
@@ -94,7 +94,7 @@ Attention: Scheme definitions inside local binding constructs
 
 
 @node Local Bindings
-@section Local Variable Bindings
+@subsection Local Variable Bindings
 
 @c FIXME::martin: Review me!
 
@@ -200,7 +200,7 @@ this form (the @dfn{named let}) is documented in the section about
 iteration (@pxref{while do, Iteration})
 
 @node Internal Definitions
-@section Internal definitions
+@subsection Internal definitions
 
 @c FIXME::martin: Review me!
 
@@ -266,7 +266,7 @@ with duplicate bindings.
 @c  @end lisp
 
 @node Binding Reflection
-@section Querying variable bindings
+@subsection Querying variable bindings
 
 Guile provides a procedure for checking whether a symbol is bound in the
 top level environment.

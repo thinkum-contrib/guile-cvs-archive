@@ -6,7 +6,7 @@
 
 @page
 @node Translation
-@chapter Support for Translating Other Languages
+@section Support for Translating Other Languages
 
 [Describe translation framework.]
 
@@ -16,7 +16,7 @@
 
 
 @node Emacs Lisp Support
-@section Emacs Lisp Support
+@subsection Emacs Lisp Support
 
 @deffn {Scheme Procedure} nil-car x
 @deffnx {C Function} scm_nil_car (x)

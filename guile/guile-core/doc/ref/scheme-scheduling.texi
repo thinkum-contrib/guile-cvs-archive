@@ -6,7 +6,7 @@
 
 @page
 @node Scheduling
-@chapter Threads, Mutexes, Asyncs and Dynamic Roots
+@section Threads, Mutexes, Asyncs and Dynamic Roots
 
 [FIXME: This is pasted in from Tom Lord's original guile.texi chapter
 plus the Cygnus programmer's manual; it should be *very* carefully
@@ -24,7 +24,7 @@ reviewed and largely reorganized.]
 
 
 @node Arbiters
-@section Arbiters
+@subsection Arbiters
 
 @cindex arbiters
 
@@ -59,7 +59,7 @@ arbiter was locked. Otherwise, return @code{#f}.
 
 
 @node Asyncs
-@section Asyncs
+@subsection Asyncs
 
 @cindex asyncs
 @cindex user asyncs
@@ -90,7 +90,7 @@ automatically.
 @end menu
 
 @node System asyncs
-@subsection System asyncs
+@subsubsection System asyncs
 
 To cause the future asynchronous execution of a procedure in a given
 thread, use @code{system-async-mark}.
@@ -167,7 +167,7 @@ level.
 @end deftypefn
 
 @node User asyncs
-@subsection User asyncs
+@subsubsection User asyncs
 
 A user async is a pair of a thunk (a parameterless procedure) and a
 mark.  Setting the mark on a user async will cause the thunk to be
@@ -194,7 +194,7 @@ Execute all thunks from the marked asyncs of the list @var{list_of_a}.
 
 
 @node Dynamic Roots
-@section Dynamic Roots
+@subsection Dynamic Roots
 @cindex dynamic roots
 
 A @dfn{dynamic root} is a root frame of Scheme evaluation.
@@ -302,7 +302,7 @@ The @code{#f} case has not been implemented.
 @end deffn
 
 @node Threads
-@section Threads
+@subsection Threads
 @cindex threads
 @cindex Guile threads
 @cindex POSIX threads
@@ -320,7 +320,7 @@ threads must rendezvous.
 
 
 @node Low level thread primitives
-@subsection Low level thread primitives
+@subsubsection Low level thread primitives
 
 @c NJFIXME no current mechanism for making sure that these docstrings
 @c are in sync.
@@ -419,7 +419,7 @@ Wake up all threads that are waiting for @var{cv}.
 @end deffn
 
 @node Higher level thread procedures
-@subsection Higher level thread procedures
+@subsubsection Higher level thread procedures
 
 @c new by ttn, needs review
 
@@ -457,7 +457,7 @@ which only ever executes on behalf of one process at any one time.
 @end deffn
 
 @node C level thread interface
-@subsection C level thread interface
+@subsubsection C level thread interface
 
 You can create and manage threads, mutexes, and condition variables
 with the C versions of the primitives above.  For example, you can
@@ -640,7 +640,7 @@ You should call it in preference to the system @code{select}.
 @end deftypefn
 
 @node Fluids
-@section Fluids
+@subsection Fluids
 
 @cindex fluids
 
@@ -736,7 +736,7 @@ initialized with the @var{val} argument.
 @end deftypefn
 
 @node Futures
-@section Futures
+@subsection Futures
 @cindex futures
 
 Futures are a convenient way to run a calculation in a new thread, and
@@ -766,7 +766,7 @@ yet finished executing then wait for it to do so.
 
 
 @node Parallel Forms
-@section Parallel forms
+@subsection Parallel forms
 @cindex parallel forms
 
 The functions described in this section are available from

@@ -6,7 +6,7 @@
 
 @page
 @node Modules
-@chapter Modules
+@section Modules
 @cindex modules
 
 When programs become large, naming conflicts can occur when a function
@@ -50,7 +50,7 @@ be used for interacting with the module system.
 @end menu
 
 @node provide and require
-@section provide and require
+@subsection provide and require
 
 Aubrey Jaffer, mostly to support his portable Scheme library SLIB,
 implemented a provide/require mechanism for many Scheme implementations.
@@ -78,7 +78,7 @@ When SLIB is used with Guile, provide and require can be used to access
 its facilities.
 
 @node Environments
-@section Environments
+@subsection Environments
 @cindex environment
 
 Scheme, as defined in R5RS, does @emph{not} have a full module system.
@@ -125,7 +125,7 @@ is unspecified.  Currently the environments specified by
 @end deffn
 
 @node The Guile module system
-@section The Guile module system
+@subsection The Guile module system
 
 The Guile module system extends the concept of environments, discussed
 in the previous section, with mechanisms to define, use and customise
@@ -155,7 +155,7 @@ there is still some flux.
 @end menu
 
 @node General Information about Modules
-@subsection General Information about Modules
+@subsubsection General Information about Modules
 
 A Guile module can be thought of as a collection of named procedures,
 variables and macros.  More precisely, it is a set of @dfn{bindings}
@@ -208,7 +208,7 @@ address these eventually.
 
 
 @node Using Guile Modules
-@subsection Using Guile Modules
+@subsubsection Using Guile Modules
 
 To use a Guile module is to access either its public interface or a
 custom interface (@pxref{General Information about Modules}).  Both
@@ -347,7 +347,7 @@ last resort.
 @end deffn
 
 @node Creating Guile Modules
-@subsection Creating Guile Modules
+@subsubsection Creating Guile Modules
 
 When you want to create your own modules, you have to take the following
 steps:
@@ -426,7 +426,7 @@ Equivalent to @code{(begin (define foo ...) (export foo))}.
 
 
 @node Module System Quirks
-@subsection Module System Quirks
+@subsubsection Module System Quirks
 
 Although the programming interfaces are relatively stable, the Guile
 module system itself is still evolving.  Here are some situations where
@@ -458,7 +458,7 @@ interfaces were added to the module system.)
 
 
 @node Included Guile Modules
-@subsection Included Guile Modules
+@subsubsection Included Guile Modules
 
 @c FIXME::martin: Review me!
 
@@ -537,7 +537,7 @@ package Jacal from Guile (@pxref{JACAL}).
 
 
 @node Accessing Modules from C
-@subsection Accessing Modules from C
+@subsubsection Accessing Modules from C
 
 The last sections have described how modules are used in Scheme code,
 which is the recommended way of creating and accessing modules.  You
@@ -634,7 +634,7 @@ of the current module.  The list of names is terminated by
 @end deftypefn
 
 @node Dynamic Libraries
-@section Dynamic Libraries
+@subsection Dynamic Libraries
 
 Most modern Unices have something called @dfn{shared libraries}.  This
 ordinarily means that they have the capability to share the executable
@@ -677,7 +677,7 @@ integrates dynamically linked libraries into the module system.
 @end menu
 
 @node Low level dynamic linking
-@subsection Low level dynamic linking
+@subsubsection Low level dynamic linking
 
 When using the low level procedures to do your dynamic linking, you have
 complete control over which library is loaded when and what gets done
@@ -808,7 +808,7 @@ can extend the Spartan functionality of @code{dynamic-call} and
 the Guile contrib archive to make @file{libffi} accessible from Guile.
 
 @node Compiled Code Modules
-@subsection Putting Compiled Code into Modules
+@subsubsection Putting Compiled Code into Modules
 
 The new primitives that you add to Guile with
 @code{scm_c_define_gsubr} (@pxref{Primitive Procedures}) or with any
@@ -833,7 +833,7 @@ Therefore, all we need to do is to make sure that the right module is
 current when calling @code{scm_c_define_gsubr} for our new primitives.
 
 @node Dynamic Linking and Compiled Code Modules
-@subsection Dynamic Linking and Compiled Code Modules
+@subsubsection Dynamic Linking and Compiled Code Modules
 
 The most interesting application of dynamically linked libraries is
 probably to use them for providing @emph{compiled code modules} to
@@ -957,7 +957,7 @@ guile> (apropos "j0")
 That's it!
 
 @node Variables
-@section Variables
+@subsection Variables
 @tpindex Variables
 
 Each module has its own hash table, sometimes known as an @dfn{obarray},
