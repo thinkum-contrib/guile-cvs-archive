@@ -244,11 +244,11 @@ To start with, here are some examples of invoking Guile directly:
 @table @code
 
 @item guile -- a b c
-Run Guile interactively; @code{(command-line)} will return
+Run Guile interactively; @code{(command-line)} will return @*
 @code{("/usr/local/bin/guile" "a" "b" "c")}.
 
 @item guile -s /u/jimb/ex2 a b c
-Load the file @file{/u/jimb/ex2}; @code{(command-line)} will return
+Load the file @file{/u/jimb/ex2}; @code{(command-line)} will return @*
 @code{("/u/jimb/ex2" "a" "b" "c")}.
 
 @item guile -c '(write %load-path) (newline)'
@@ -620,3 +620,7 @@ but provide more thorough access to Guile's internals.
 Finally, the appendices explain how to obtain the latest version of
 Guile, how to install it, where to find modules to work with Guile, and
 how to use the Guile debugger.
+
+@c Local Variables:
+@c TeX-master: "guile.texi"
+@c End:

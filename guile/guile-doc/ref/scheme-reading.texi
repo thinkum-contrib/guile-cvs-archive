@@ -1,0 +1,16 @@
+@page
+@node Further Reading
+@chapter Further Reading
+
+@itemize
+
+@item
+Dorai Sitaram's online Scheme tutorial, @dfn{Teach Yourself Scheme in
+Fixnum Days}, at
+http://www.cs.rice.edu/~dorai/t-y-scheme/t-y-scheme.html.  Includes a
+nice explanation of continuations.
+
+@item
+http://wombat.doc.ic.ac.uk/foldoc/
+
+@end itemize

@@ -1,3 +1,36 @@
+2000-10-27  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* scheme-reading.texi: New file.
+
+	* scheme-indices.texi: New file.
+
+	* intro.texi (Scripting Examples): Added @* to fix TeX overfull
+	hboxes (twice).
+	(end of file): Added Local Variables block for TeX-master
+	variable.
+
+	* scheme.texi (R4RS Scheme): Node changed to "Guile and R5RS
+	Scheme".  Content changed to indicate that we plan to document
+	both standard Scheme and Guile extensions.
+	(About Data, About Procedures, About Expressions): New Scheme
+	introductory material chapters.
+	(Options): Moved material on Options into its own chapter.
+	(Coding With Keywords): New subsection; extends material on use of
+	keywords to include examples of and references to (ice-9 optargs).
+	(passim): Change many uses of @example to @lisp, since the
+	formatting seems to come out better in TeX.
+	(Optional Arguments): New placeholder chapter (empty).
+	(end of file): Added Local Variables block for TeX-master
+	variable.
+
+	* guile.texi (Top): "R4RS Scheme" node changed to "Guile and R5RS
+	Scheme".  Added Scheme introductory chapters: About Data, About
+	Procedures and About Expressions.  New Options chapter for options
+	material.  New Optional Arguments chapter as placeholder for
+	(ice-9 optargs) material.  New chapter for "Further Reading".  New
+	chapters for indices showing what is standard Scheme and what is
+	Guile extension.
+
 2000-10-25  Mikael Djurfeldt  <mdj@linnaeus.mit.edu>
 
 	* Makefile.am: Added goops.texi and new files to dist_texis.

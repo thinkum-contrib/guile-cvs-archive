@@ -1,36 +1,289 @@
 @page
-@node R4RS Scheme
-@chapter R4RS Scheme
+@node Guile and R5RS Scheme
+@chapter Guile and R5RS Scheme
 
-Guile is an implementation of the Scheme language, which is defined by
-the @strong{Revised^4 Report on the Algorithmic Language Scheme}
-(@cite{r4rs}), commonly referred to as R4RS.  Most Scheme
-implementations conform to all the required features in R4RS as well as
-the optional ones.
+Guile's core language is Scheme, which is specified and described in the
+series of reports known as @dfn{RnRS}.  @dfn{RnRS} is shorthand for the
+@dfn{Revised^n Report on the Algorithmic Language Scheme}.  The current
+latest revision of RnRS is version 5 (@pxref{Top,R5RS,,r5rs}), and Guile 1.4
+is fully compliant with the Scheme specification in this revision.
 
-But most Scheme implementations go beyond R4RS in some ways, mostly
-because R4RS does not give specifications (or even recommendations)
-regarding some issues that are quite important in practical programming.
+But Guile, like most Scheme implementations, also goes beyond R5RS in
+many ways, because R5RS does not give specifications (or even
+recommendations) regarding many issues that are important in practical
+programming.  Some of the areas where Guile goes beyond R5RS are:
 
-[FIXME: hmm; what else goes in this chapter?  we have chapters for just
-about everything.  I'll put a reference to R4RS and leave it.]
+@itemize @bullet
+@item
+to be filled in
 
-The Scheme language implemented in Guile is R4RS compliant, so R4RS is a
-valid document describing the basic Guile language.  This part of the
-Guile Reference Manual describes the extensions to Scheme provided in
-Guile.
+@item
+in conjunction with creating
 
-In this chapter we describe some minor configurable differences from
-R4RS, mostly introduced to make eventual Emacs Lisp translation easier.
-Later chapters will introduce major extensions to Scheme.
+@item
+R5RS and non-R5RS indices.
+@end itemize
 
+This reference manual documents all of Guile's Scheme-level language and
+features in functionally-related groups.  Where a particular section of
+the manual includes both R5RS-compliant parts and Guile-specific
+extensions, the text indicates which parts of the documentation describe
+R5RS behaviour and which parts describe Guile extensions.
+
+For a breakdown of Guile's core language and features in terms of what
+is R5RS-compliant and what is Guile-specific, see the corresponding
+indices: @ref{R5RS Index} and @ref{Guile Extensions Index}.
+
+
+@page
+@node About Data
+@chapter Data Types, Values and Variables
+
+In this and the next few chapters, we begin by introducing the basic
+concepts of the Scheme language.  This chapter discusses the
+representation of data types and values, what it means for Scheme to be
+a @dfn{latently typed} language, and the role of variables.  We conclude
+by introducing the Scheme syntaxes for defining a new variable, and for
+changing the value of an existing variable.
+ 
 @menu
-* Guile options interface::
+* Latent Typing::               Scheme as a "latently typed" language.
+* Values and Variables::        About data types, values and variables.
+* Definition::                  Defining variables and setting their values.
 @end menu
 
-@node Guile options interface
-@section Guile options interface
-@cindex options interface
+
+@node Latent Typing
+@section Latent Typing
+
+The term @dfn{latent typing} is used to descibe a computer language,
+such as Scheme, for which you cannot, @emph{in general}, simply look at
+a program's source code and determine what type of data will be
+associated with a particular variable, or with the result of a
+particular expression.
+
+Sometimes, of course, you @emph{can} tell from the code what the type of
+an expression will be.  If you have a line in your program that sets the
+variable @code{x} to the numeric value 1, you can be certain that,
+immediately after that line has executed (and in the absence of multiple
+threads), @code{x} has the numeric value 1.  Or if you write a procedure
+that is designed to concatenate two strings, it is likely that the rest
+of your application will always invoke this procedure with two string
+parameters, and quite probable that the procedure would go wrong in some
+way if it was ever invoked with parameters that were not both strings.
+
+Nevertheless, the point is that there is nothing in Scheme which
+requires the procedure parameters always to be strings, or @code{x}
+always to hold a numeric value, and there is no way of declaring in your
+program that such constraints should always be obeyed.  In the same
+vein, there is no way to declare the expected type of a procedure's
+return value.
+
+Instead, the types of variables and expressions are only known - in
+general - at run time.  If you @emph{need} to check at some point that a
+value has the expected type, Scheme provides run time procedures that
+you can invoke to do so.  But equally, it can be perfectly valid for two
+separate invocations of the same procedure to specify arguments with
+different types, and to return values with different types.
+
+The next section explains what this means in practice, for the ways
+that Scheme programs use data types, values and variables.
+
+
+@node Values and Variables
+@section Values and Variables
+
+Scheme provides many data types that you can use to represent your data.
+Primitive types include characters, strings, numbers and procedures.
+Compound types, which allow a group of primitive and compound values to
+be stored together, include lists, pairs, vectors and multi-dimensional
+arrays.  In addition, Guile allows applications to define their own data
+types, with the same status as the built-in standard Scheme types.
+
+As a Scheme program runs, values of all types pop in and out of
+existence.  Sometimes values are stored in variables, but more commonly
+they pass seamlessly from being the result of one computation to being
+one of the parameters for the next.
+
+Consider an example.  A string value is created because the interpreter
+reads in a literal string from your program's source code.  Then a
+numeric value is created as the result of calculating the length of the
+string.  A second numeric value is created by doubling the calculated
+length.  Finally the program creates a list with two elements -- the
+doubled length and the original string itself -- and stores this list in
+a program variable.
+
+All of the values involved here -- in fact, all values in Scheme --
+carry their type with them.  In other words, every value ``knows,'' at
+runtime, what kind of value it is.  A number, a string, a list,
+whatever.
+
+A variable, on the other hand, has no fixed type.  A variable --
+@code{x}, say -- is simply the name of a location -- a box -- in which
+you can store any kind of Scheme value.  So the same variable in a
+program may hold a number at one moment, a list of procedures the next,
+and later a pair of strings.  The ``type'' of a variable -- insofar as
+the idea is meaningful at all -- is simply the type of whatever value
+the variable happens to be storing at a particular moment.
+
+
+@node Definition
+@section Defining and Setting Variables
+
+To define a new variable, you use Scheme's @code{define} syntax like
+this:
+
+@lisp
+(define @var{variable-name} @var{value})
+@end lisp
+
+This makes a new variable called @var{variable-name} and stores
+@var{value} in it as the variable's initial value.  For example:
+
+@lisp
+;; Make a variable `x' with initial numeric value 1.
+(define x 1)
+
+;; Make a variable `organization' with an initial string value.
+(define organization "Free Software Foundation")
+@end lisp
+
+(In Scheme, a semicolon marks the beginning of a comment that continues
+until the end of the line.  So the lines beginning @code{;;} are
+comments.)
+
+Changing the value of an already existing variable is very similar,
+except that @code{define} is replaced by the Scheme syntax @code{set!},
+like this:
+
+@lisp
+(set! @var{variable-name} @var{new-value})
+@end lisp
+
+Remember that variables do not have fixed types, so @var{new-value} may
+have a completely different type from whatever was previously stored in
+the location named by @var{variable-name}.  Both of the following
+examples are therefore correct.
+
+@lisp
+;; Change the value of `x' to 5.
+(set! x 5)
+
+;; Change the value of `organization' to the FSF's street number.
+(set! organization 545)
+@end lisp
+
+In these examples, @var{value} and @var{new-value} are literal numeric
+or string values.  In general, however, @var{value} and @var{new-value}
+can be any Scheme expression.  Even though we have not yet covered the
+forms that Scheme expressions can take (@pxref{About Expressions}), you
+can probably guess what the following @code{set!} example does@dots{}
+
+@lisp
+(set! x (+ x 1))
+@end lisp
+
+Note: this is not a complete description of @code{define} and
+@code{set!}, because we need to introduce some other aspects of Scheme
+before the missing pieces can be filled in.  If, however, you are
+already familiar with the structure of Scheme, you may like to read
+about those missing pieces immediately by jumping ahead to the following
+references.
+
+@itemize @bullet
+@item
+@ref{Internal Definitions}, to read about using @code{define} other than
+at top level in a Scheme program, including a discussion of when it
+works to use @code{define} rather than @code{set!} to change the value
+of an existing variable.
+
+@item
+@ref{Procedure Definitions}, to read about an alternative form of the
+@code{define} syntax that can be used when defining new procedures.
+
+@item
+@ref{Generalized set!}, to read about an alternative form of the
+@code{set!} syntax that helps with changing a single value in the depths
+of a compound data structure.
+@end itemize
+
+
+@page
+@node About Procedures
+@chapter The Representation and Use of Procedures
+
+@menu
+* Procedures as Values::        Procedures are values just like everything else.
+* Invoking a Procedure::        How to write a procedure invocation.
+@end menu
+
+
+@node Procedures as Values
+@section Procedures as Values
+
+One of the great simplifications of Scheme is that a procedure is just
+another type of value, and that procedure values can be passed around
+and stored in variables in exactly the same way as, for example, strings
+and lists.  When we talk about a built-in standard Scheme procedure such
+as @code{open-input-file}, what we actually mean is that there is a
+pre-defined top level variable called @code{open-input-file}, whose
+value is a procedure that implements what R5RS says that
+@code{open-input-file} should do.
+
+
+@node Invoking a Procedure
+@section Invoking a Procedure
+
+
+@page
+@node About Expressions
+@chapter About Expressions
+
+@menu
+* Evaluating::                  Results and side effects of Scheme expressions.
+* Internal Definitions::
+* Procedure Definitions::
+* Generalized set!::
+@end menu
+
+
+@node Evaluating
+@section Evaluating Expressions
+
+
+@node Internal Definitions
+@section Internal Definitions
+
+Somewhere here, we need to cover the difference between
+
+@lisp
+(define a 1)
+(let () (define a 4) a)
+a
+@end lisp
+
+and
+
+@lisp
+(define a 1)
+(let () (set! a 4) a)
+a
+@end lisp
+
+--- this is referenced from @xref{Definition}.
+
+
+@node Procedure Definitions
+@section Procedure Definitions
+
+
+@node Generalized set!
+@section Generalized set!
+
+
+@page
+@node Options
+@chapter Options
 
 Guile's behaviour can be modified by setting options.  For example, is
 the language that Guile accepts case sensitive, or should the debugger
@@ -54,12 +307,12 @@ configure @emph{reading}, @emph{printing}, @emph{debugging} or
 @end menu
 
 @node General option interface
-@subsection General option interface
+@section General option interface
 
 We will use the expression @code{<group>} to represent @code{read},
 @code{print}, @code{debug} or @code{evaluator}.
 
-@subsubheading Low level
+@subheading Low level
 
 @c NJFIXME
 @deffn primitive <group>-options-interface
@@ -78,7 +331,7 @@ and documentation string.
 @end deffn
 
 
-@subsubheading User level
+@subheading User level
 
 @c @deftp {Data type} scm_option
 @c @code{scm_option} is used to represent run time options.  It can be a
@@ -142,7 +395,7 @@ These functions set a non-boolean @var{option-symbol} to the specified
 
 
 @node Reader options
-@subsection Reader options
+@section Reader options
 @cindex options - read
 @cindex read options
 
@@ -166,7 +419,7 @@ To make Guile case insensitive, you can type
 @end smalllisp
 
 @node Printing options
-@subsection Printing options
+@section Printing options
 
 Here is the list of print options generated by typing
 @code{(print-options 'full)} in Guile.  You can also see the default
@@ -178,7 +431,7 @@ closure-hook    #f      Hook for printing closures.
 
 
 @node Evaluator options
-@subsection Evaluator options
+@section Evaluator options
 
 Here is the list of print options generated by typing
 @code{(traps 'full)} in Guile.  You can also see the default
@@ -191,7 +444,7 @@ enter-frame     no      Trap when eval enters new frame.
 
 
 @node Debugger options
-@subsection Debugger options
+@section Debugger options
 
 Here is the list of print options generated by typing
 @code{(debug-options 'full)} in Guile.  You can also see the default
@@ -213,7 +466,7 @@ cheap           yes     *Flyweight representation of the stack at traps.
 
 
 @node Examples of option use
-@subsection Examples of option use
+@section Examples of option use
 
 Here is an example of a session in which some read and debug option
 handling procedures are used.  In this example, the user
@@ -318,6 +571,7 @@ syntax extension to permit keywords to begin with @code{:} as well as
 
 @menu
 * Why Use Keywords?::
+* Coding With Keywords::
 * Keyword Read Syntax::
 * Keyword Primitives::
 @end menu
@@ -354,39 +608,47 @@ pass in a value for each possible argument, remembering the correct
 argument order and using a special value to indicate the default value
 for that argument:
 
-@example
+@lisp
 (make-window 'default              ;; Colour depth
              'default              ;; Background colour
              800                   ;; Width
              100                   ;; Height
              @dots{})                  ;; More make-window arguments
-@end example
+@end lisp
 
 With keywords, on the other hand, defaulted arguments are omitted, and
 non-default arguments are clearly tagged by the appropriate keyword.  As
 a result, the invocation becomes much clearer:
 
-@example
+@lisp
 (make-window #:width 800 #:height 100)
-@end example
+@end lisp
 
 On the other hand, for a simpler procedure with few arguments, the use
 of keywords would be a hindrance rather than a help.  The primitive
 procedure @code{cons}, for example, would not be improved if it had to
 be invoked as
 
-@example
+@lisp
 (cons #:car x #:cdr y)
-@end example
+@end lisp
 
 So the decision whether to use keywords or not is purely pragmatic: use
 them if they will clarify the procedure invocation at point of call.
 
-A procedure that supports keywords should take a rest argument and use a
-procedure like @code{get-keyword-value} below to extract individual
-arguments from the rest argument.  For example:
+@node Coding With Keywords
+@subsection Coding With Keywords
 
-@example
+If a procedure wants to support keywords, it should take a rest argument
+and then use whatever means is convenient to extract keywords and their
+corresponding arguments from the contents of that rest argument.
+
+The following example illustrates the principle: the code for
+@code{make-window} uses a helper procedure called
+@code{get-keyword-value} to extract individual keyword arguments from
+the rest argument.
+
+@lisp
 (define (get-keyword-value args keyword default)
   (let ((kv (memq keyword args)))
     (if (and kv (>= (length kv) 2))
@@ -400,7 +662,39 @@ arguments from the rest argument.  For example:
         (height (get-keyword-value args #:height 100))
         @dots{})
     @dots{}))
-@end example
+@end lisp
+
+But you don't need to write @code{get-keyword-value}.  The @code{(ice-9
+optargs)} module provides a set of powerful macros that you can use to
+implement keyword-supporting procedures like this:
+
+@lisp
+(use-modules (ice-9 optargs))
+
+(define (make-window . args)
+  (let-keywords args #f ((depth  screen-depth)
+                         (bg     "white")
+                         (width  800)
+                         (height 100))
+    ...))
+@end lisp
+
+Or, even more economically, like this:
+
+@lisp
+(use-modules (ice-9 optargs))
+
+(define* (make-window #:key (depth  screen-depth)
+                            (bg     "white")
+                            (width  800)
+                            (height 100))
+  ...)
+@end lisp
+
+For further details on @code{let-keywords}, @code{define*} and other
+facilities provided by the @code{(ice-9 optargs)} module, @ref{Optional
+Arguments}.
+
 
 @node Keyword Read Syntax
 @subsection Keyword Read Syntax
@@ -475,6 +769,11 @@ Returns @code{#t} if the argument @var{obj} is a keyword, else @code{#f}.
 Return the dash symbol for @var{keyword}.
 This is the inverse of @code{make-keyword-from-dash-symbol}.
 @end deffn
+
+
+@page
+@node Optional Arguments
+@chapter Optional Arguments
 
 
 @page
@@ -569,7 +868,6 @@ involves a block copy of the stack.
 Instead of using @code{call-with-current-continuation}, the exception
 primitives are implemented as built-ins that take advantage of the
 @emph{upward only} nature of exceptions.
-
 
 
 @page
@@ -2516,7 +2814,8 @@ replacing an entry like this is to @code{set!} the variable to the
 returned value:
 
 @example
-(set! address-list (assoc-set! address-list "bob" "11 Newington Avenue"))
+(set! address-list
+      (assoc-set! address-list "bob" "11 Newington Avenue"))
 address-list
 @result{}
 (("bob" . "11 Newington Avenue") ("mary" . "34 Elm Road")
@@ -6055,7 +6354,7 @@ vanilla Guile interpreter and activated by calling its initialization
 function.  That function would add all the new types and primitives to
 the Guile interpreter that it has to offer.
 
->From this setup the next logical step is to integrate these glue
+From this setup the next logical step is to integrate these glue
 libraries into the module system of Guile so that you can load new
 primitives into a running system just as you can load new Scheme code.
 
@@ -7462,3 +7761,7 @@ For complete documentation on Jacal, please read the Jacal manual.  If
 it has been installed on line, you can look at @ref{Top, , Jacal, jacal,
 The SLIB Manual}.  Otherwise you can find it on the web at
 @url{http://www-swiss.ai.mit.edu/~jaffer/JACAL.html}
+
+@c Local Variables:
+@c TeX-master: "guile.texi"
+@c End:

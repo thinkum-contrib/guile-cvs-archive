@@ -213,8 +213,13 @@ Part I: An Introductory Tour
 
 Part II: Guile Scheme
 
-* R4RS Scheme::                 Guile as an extended implementation of R4RS Scheme.
+* Guile and R5RS Scheme::       Guile as an extended implementation of R5RS Scheme.
+* About Data::                  Latent typing, data types, values and variables.
+* About Procedures::            The representation and use of procedures.
+* About Expressions::
+* Options::                     How to query and set Guile's runtime options.
 * Read Syntax Extensions::      Block comments, interpreter triggers, etc.
+* Optional Arguments::          Handling keyword, optional and rest arguments.
 * Exceptions::                  Signalling and handling fatal errors.
 * Modules::                     Designing reusable code libraries.
 * Evaluation::                  Running and evaluating code on the fly.
@@ -257,6 +262,9 @@ Part II: Guile Scheme
 	(though it is nice to have a link from here to the
 	Guile-scsh manual, if one exists).
 * Tcl/Tk Interface::
+* Further Reading::             Where to find out more about Scheme programming.
+* R5RS Index::
+* Guile Extensions Index::
 
 Part III: Guile Scripting
 
@@ -330,6 +338,8 @@ Indices
 @include expect.texi
 @include scsh.texi
 @include tcltk.texi
+@include scheme-reading.texi
+@include scheme-indices.texi
 
 @c Guile as an scripting language
 @iftex
