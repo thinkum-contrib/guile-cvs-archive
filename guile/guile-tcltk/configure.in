@@ -133,9 +133,10 @@ AC_TRY_COMPILE([#include "tcl.h"],[Tcl_File x;],,[
 ])
 
 ### Add the Guile libraries to the link command.
-LIBS="$LIBS `$GUILE_CONFIG link`"
+GUILE_LIBS="`$GUILE_CONFIG link`"
+AC_SUBST(GUILE_LIBS)
 
-case "$LIBS" in
+case "$GUILE_LIBS" in
   *-lqthreads* )
     LIBOBJS="tclUnixNotfy.o $LIBOBJS"
     ## If we're creating a shared library (using libtool!), then we'll

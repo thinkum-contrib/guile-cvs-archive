@@ -2,7 +2,7 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-lib_LTLIBRARIES = libgtcltk.la
+lib_LTLIBRARIES = libgtcltk.la libguiledlopenhelper.la
 bin_PROGRAMS = guile-tcltk
 
 libgtcltk_la_SOURCES = \
@@ -13,21 +13,25 @@ libgtcltk_la_DEPENDENCIES = @LIBLOBJS@
 libgtcltk_la_LIBADD = @LIBLOBJS@
 libgtcltk_la_LDFLAGS = -version-info 1:0 -export-dynamic
 
-guile_tcltk_LDADD = libgtcltk.la
+guile_tcltk_LDADD = libgtcltk.la $(GUILE_LIBS)
+
+libguiledlopenhelper_la_SOURCES = guiledlopenhelper.c
+libguiledlopenhelper_la_LDFLAGS = -version-info 0:0:0 -export-dynamic
 
 modincludedir = $(includedir)/guile-tcltk
 modinclude_HEADERS = guile-tcl.h guile-tk.h
 
 subpkgdatadir = @TCLTKDIR@
-subpkgdata_DATA = tcltk.scm hand.scm graph.scm breakout.scm
+subpkgdata_DATA = tcltk.scm dynlink.scm gtcltk.scm \
+	          hand.scm graph.scm breakout.scm
 
-install-exec-hook:
-	$(mkinstalldirs) $(subpkgdatadir)
-	(test ! -r $(libdir)/libgtcltk.so.1 \
-	 || (cd $(subpkgdatadir) \
-	     && rm -f libgtcltk.la libgtcltk.so.1 \
-	     && $(LN_S) $(libdir)/libgtcltk.la \
-	     && $(LN_S) $(libdir)/libgtcltk.so.1))
+# install-exec-hook:
+# 	$(mkinstalldirs) $(subpkgdatadir)
+# 	(test ! -r $(libdir)/libgtcltk.so.1 \
+# 	 || (cd $(subpkgdatadir) \
+# 	     && rm -f libgtcltk.la libgtcltk.so.1 \
+# 	     && $(LN_S) $(libdir)/libgtcltk.la \
+# 	     && $(LN_S) $(libdir)/libgtcltk.so.1))
 
 EXTRA_DIST = license.terms $(subpkgdata_DATA)
 
