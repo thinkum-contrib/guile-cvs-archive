@@ -1,3 +1,8 @@
+Wed Sep  4 01:24:36 1996  Jim Blandy  <jimb@floss.cyclic.com>
+
+	* configure.in: Include $(srcdir)/.. in the header search path, so
+	we can find libguile headers under the name <libguile/MUMBLE.h>.
+
 Fri Aug 30 16:05:56 1996  Jim Blandy  <jimb@floss.cyclic.com>
 
 	* Makefile.in (bindir, libdir, includedir, infodir): Use the
@@ -34,7 +39,8 @@ Tue Jun 18 11:44:46 1996  Tom Lord  <lord@beehive>
 
 Thu Jun 13 11:18:25 1996  Tom Lord  <lord@beehive>
 
-	* rxspencer.c etc. (rx_next_solution et al.): remove all traces of rx_maybe
+	* rxspencer.c etc. (rx_next_solution et al.): remove all traces of
+	rx_maybe
 
 Wed May 22 12:28:22 1996  Tom Lord  <lord@beehive>
 

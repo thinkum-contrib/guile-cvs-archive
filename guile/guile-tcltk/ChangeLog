@@ -1,3 +1,16 @@
+Wed Sep  4 00:47:01 1996  Jim Blandy  <jimb@floss.cyclic.com>
+
+	* Makefile.in (ALL_CFLAGS): Don't search $(srcdir)/../gtcl or
+	$(srcdir)/../gtk; they don't exist any more.
+
+	* Makefile.in (pkgincludedir): Variable deleted.
+	(install): Don't create $(pkgincludedir); instead, install
+	guile-tcl.h and guile-tk.h directly in $(includedir).
+	(uninstall): Changed to match.
+
+	* Makefile.in (ALL_CFLAGS): Check for headers in $(srcdir)/.., to
+	accomodate the new libguile header file arrangement.
+
 Fri Aug 30 15:34:06 1996  Jim Blandy  <jimb@floss.cyclic.com>
 
 	* PLUGIN/guile.config.in (xtra_cflags): Remove references to gtcl
