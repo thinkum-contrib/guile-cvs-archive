@@ -1,11 +1,9 @@
 Part of the release process: record the API.
 
-To do this, try something like:
+To do this, in top-level builddir, do:
 
-  cd ~/build/tmp/.tmp-1.6
-  ~/build/.gnu/guile-scripts/scan-api \
-    "/home/ttn/build/.gnu/guile-core-1.6/pre-inst-guile ." \
-    libguile/.libs/libguile.so.10.0.0 \
-    > ~/build/.gnu/guile-core-1.6/doc/guile-api.alist
+  $mscripts/update-guile-api.alist
 
-Note that the guile-api.alist location is fixed (other tools depend on it).
+This checks out $top_srcdir/doc/guile-api.alist,
+     runs $mscripts/scan-api to update it,
+     and finally commits the new file.
