@@ -2,15 +2,16 @@
 
 	The concept of vcells has been removed from Guile.  With it,
 	explicit obarrays and associated operations are gone.  Use
-	hashtables insteadof obarrays.
+	hashtables instead of obarrays.
 	
 	Throughout: use scm_sym2var instead of scm_sym2vcell and treat
 	result as variable instead of vcell.  Glocs no longer point to a
-	vcell but to a variable.  Use scm_define instead of scm_sysintern
-	and treat the result as a variable (which it is), not a vcell.
+	vcell but to a variable.  Use scm_c_define instead of
+	scm_sysintern and treat the result as a variable (which it is),
+	not a vcell.
 	
 	* variable.c, variable.h (SCM_VARVCELL, SCM_UDVARIABLEP,
-	SCM_DEFVARIABLEP): Removed.
+	SCM_DEFVARIABLEP): Deprecated.
 	(SCM_VARIABLE_REF, SCM_VARIABLE_SET, SCM_VARIABLE_LOC): New.
 	(variable_print): Do not print name of variable.
 	(variable_equalp): Compare values, not vcells.
@@ -21,7 +22,7 @@
 	hint parameter.
 	(scm_variable_ref): Check for SCM_UNDEFINED and throw "unbound"
 	error in that case.
-	(scm_builtin_variable): Removed.
+	(scm_builtin_variable): Deprecated.
 
 	* symbols.c, symbols.h (scm_sym2vcell, scm_sym2ovcell_soft,
 	scm_sym2ovcell, scm_intern_obarray_soft, scm_intern_obarray,
@@ -29,11 +30,12 @@
 	scm_sysintern, scm_sysintern0, scm_symbol_value0,
 	scm_string_to_obarray_symbol, scm_intern_symbol,
 	scm_unintern_symbol, scm_symbol_binding, scm_symbol_interned,
-	scm_symbol_bound_p, scm_symbol_set_x, copy_and_prune_obarray,
-	scm_builtin_bindings, scm_gentmp, gentmp_counter): Removed.
+	scm_symbol_bound_p, scm_symbol_set_x, scm_gentmp, gentmp_counter):
+	Deprecated.
+	(copy_and_prune_obarray, scm_builtin_bindings): Removed.
 	
 	* snarf.h (SCM_VCELL, SCM_GLOBAL_VCELL, SCM_VCELL_INIT,
-	SCM_GLOBAL_VCELL_INIT): Removed.
+	SCM_GLOBAL_VCELL_INIT): Deprecated.
 	(SCM_VARIABLE, SCM_GLOBAL_VARIABLE, SCM_VARIABLE_INIT,
 	SCM_GLOBAL_VARIABLE_INIT): New, as replacement.  Changed all uses.
 	
@@ -70,10 +72,11 @@
 	`interface' flag is set.
 	(scm_standard_interface_eval_closure): New.
 	(scm_pre_modules_obarray, scm_sym2var, scm_module_lookup,
-	scm_lookup, scm_module_define, scm_define,
+	scm_lookup, scm_module_define, scm_define, scm_c_module_lookup,
+	scm_c_lookup, scm_c_module_define, scm_c_define,
 	scm_module_reverse_lookup, scm_get_pre_modules_obarray,
 	scm_modules_prehistory): New.
-	(scm_post_boot_init_modules): Use scm_define and scm_lookup
+	(scm_post_boot_init_modules): Use scm_c_define and scm_c_lookup
 	instead of scm_intern0.
 	
 	* macros.c (scm_make_synt): Return SCM_UNSPECIFIED instead of the
