@@ -875,6 +875,12 @@ if @var{x} is not a symbol or string, respectively.
 There are also a few magic values stuffed into memory before a symbol's
 characters, but you don't want to know about those.  What cruft!
 
+Note that @code{SCM_VECTOR_BASE}, @code{SCM_STRING_CHARS} and
+@code{SCM_SYMBOL_CHARS} return pointers to data within the respective
+object.  Care must be taken that the object is not garbage collected
+while that data is still being accessed.  This is the same as for a
+smob, @xref{Remembering During Operations}.
+
 
 @node Procedures
 @subsubsection Procedures
