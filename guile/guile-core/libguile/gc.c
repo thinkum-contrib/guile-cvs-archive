@@ -2620,10 +2620,6 @@ scm_init_storage ()
   scm_nullstr = scm_allocate_string (0);
   scm_nullvect = scm_c_make_vector (0, SCM_UNDEFINED);
 
-#define DEFAULT_SYMHASH_SIZE 277
-  scm_symhash = scm_c_make_hash_table (DEFAULT_SYMHASH_SIZE);
-  scm_symhash_vars = scm_c_make_hash_table (DEFAULT_SYMHASH_SIZE);
-
   scm_stand_in_procs = SCM_EOL;
   scm_permobjs = SCM_EOL;
   scm_protects = scm_c_make_hash_table (31);
