@@ -109,7 +109,7 @@ Accessing Cell Entries
 
 For a non immediate scheme object x, the object type can be determined by
 reading the cell type entry using the SCM_CELL_TYPE macro.  For the different
-types of cells it is know which cell entry holds scheme objects and which cell
+types of cells it is known which cell entry holds scheme objects and which cell
 entry holds raw C data.  To access the different cell entries appropriately,
 the following macros are provided:
 
