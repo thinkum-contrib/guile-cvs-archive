@@ -83,17 +83,12 @@ AC_CHECK_LIB(dl, dlopen)
 AC_CHECK_LIB(socket, main)
 AC_CHECK_LIB(nsl, main)
 
-### Find libguile.
-AC_CHECK_LIB(qt, main)
-AC_CHECK_LIB(guile, scm_shell)
-case "$LIBS" in
-  *"-lguile"* ) ;;
-  * )
+### Make sure Guile is installed.
+(build-guile link) >/dev/null 2>&1 || {
     echo -n "the Guile library doesn't seem to be installed; this package " >&2
     echo "requires it" >&2
     exit 2
-  ;;
-esac
+}
 
 ### Use gtcltk-lib only if we seem to have Tcl installed on the
 ### system.  We really should check for Tk as well, but that involves
@@ -120,6 +115,9 @@ case "$LIBS" in
     exit 2
   ;;
 esac
+
+### Add the Guile libraries to the link command.
+LIBS="$LIBS `build-guile link`"
 
 dnl Checks for library functions.
 AC_SUBST(TCL_EXTRA_LIBS)
