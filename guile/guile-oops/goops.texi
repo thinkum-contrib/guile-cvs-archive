@@ -7,7 +7,7 @@
 @paragraphindent 0
 @c %**end of header
 
-@set VERSION 0.1
+@set VERSION 0.2
 
 @dircategory Scheme Programming
 @direntry
