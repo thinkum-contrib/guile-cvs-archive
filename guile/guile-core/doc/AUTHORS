@@ -29,6 +29,12 @@
 @c with snarfed libguile docstrings, and reorganized the structure so as
 @c to accommodate docstrings for all Guile's primitives.
 
+@c Martin Grabmueller has made substantial contributions throughout the
+@c reference manual in preparation for the Guile 1.6 release, including
+@c filling out a lot of the documentation of Scheme data types, control
+@c mechanisms and procedures.  In addition, he wrote the documentation
+@c for Guile's SRFI modules and modules associated with the Guile REPL.
+
 @author Mark Galassi
 @author Cygnus Solution and Los Alamos National Laboratory
 @author @email{rosalia@@cygnus.com}
@@ -45,6 +51,9 @@
 @author
 @author Neil Jerram
 @author @email{neil@@ossau.uklinux.net}
+@author
+@author Martin Grabmueller
+@author @email{mgrabmue@@cs.tu-berlin.de}
 
 @end ifset
 
