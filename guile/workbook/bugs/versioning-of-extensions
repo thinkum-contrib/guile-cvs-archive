@@ -33,6 +33,16 @@ With respect to (1)
 
 With respect to (2)
 
+  Current assumptions (though likely open to debate):
+
+  (1) Guile shared libs, even ones supporting modules may need to be
+      directly linked into applications via -l.  For example, if you
+      want to call scm_make_u8vector from srfi-4 in your scheme code,
+      you will need to be able to "-l link" against
+      libguile-srfi-srfi-4 (or whatever lib contains that function).
+      This requirement places certain restrictions on the possible
+      solutions we might design.
+
   A proposal:
 
   (1) Write our own lt_dlopen(char *name, unsigned int interface)
