@@ -167,42 +167,42 @@ refer to text encoded with Guile's encoding.
 @node Basic Multibyte Character Processing, Finding Character Encoding Boundaries, Functions for Operating on Multibyte Text, Functions for Operating on Multibyte Text
 @subsection Basic Multibyte Character Processing
 
-@deftp {Libguile Type} scm_char_t
+@deftp {Libguile Type} scm_mb_char_t
 This is a signed integral type large enough to hold any character in
 Guile's character set.  All character numbers are positive.
 @end deftp
 
-@deftypefn {Libguile Function} scm_char_t scm_char_get (unsigned char *@var{p})
+@deftypefn {Libguile Function} scm_mb_char_t scm_mb_get (unsigned char *@var{p})
 Return the character whose encoding starts at @var{p}, or -1 if @var{p}
 does not point to a valid character encoding.
 
-Note that @code{scm_char_get} may be implemented as a macro, and its
+Note that @code{scm_mb_get} may be implemented as a macro, and its
 argument may be evaluated several times.
 @end deftypefn
 
-@deftypefn {Libguile Function} int scm_char_put (scm_char_t @var{c}, unsigned char *@var{p})
+@deftypefn {Libguile Function} int scm_mb_put (scm_mb_char_t @var{c}, unsigned char *@var{p})
 Place the encoded form of the Guile character @var{c} at @var{p}, and
 return its length in bytes.
 @end deftypefn
 
-@deftypevr {Libguile Constant} int scm_char_max_len
+@deftypevr {Libguile Constant} int scm_mb_max_len
 The maximum length of any character's encoding, in bytes.  You may
 assume this is relatively small --- less than a dozen or so.
 @end deftypevr
 
 
-@deftypefn {Libguile Function} int scm_char_len (scm_char_t @var{c})
+@deftypefn {Libguile Function} int scm_mb_len (scm_mb_char_t @var{c})
 Return the length of the encoding of the character @var{c}, in bytes.
 
-Note that @code{scm_char_len} may be implemented as a macro, and it may
+Note that @code{scm_mb_len} may be implemented as a macro, and it may
 evaluate its argument several times.
 @end deftypefn
 
-@deftypefn {Libguile Function} int scm_char_len_leading (unsigned char @var{b})
+@deftypefn {Libguile Function} int scm_mb_len_leading (unsigned char @var{b})
 If @var{b} is the first byte of a character's encoding, return the full
 length of the character's encoding, in bytes.
 
-Note that @code{scm_char_len_leading} may be implemented as a macro, and
+Note that @code{scm_mb_len_leading} may be implemented as a macro, and
 it may evaluate its argument several times.
 @end deftypefn
 
@@ -213,12 +213,12 @@ it may evaluate its argument several times.
 These are functions for finding the boundaries between characters in
 multibyte text.
 
-@deftypefn {Libguile Function} int scm_char_boundary_p (unsigned char *@var{p})
+@deftypefn {Libguile Function} int scm_mb_boundary_p (unsigned char *@var{p})
 Return non-zero iff @var{p} points to the start of a character in
 multibyte text.
 @end deftypefn
 
-@deftypefn {Libguile Function} {unsigned char *} scm_char_floor (unsigned char *@var{p})
+@deftypefn {Libguile Function} {unsigned char *} scm_mb_floor (unsigned char *@var{p})
 ``Round'' @var{p} to the previous character boundary.  That is, if
 @var{p} points to the middle of the encoding of a Guile character,
 return a pointer to the first byte of the encoding.  If @var{p} points
@@ -226,7 +226,7 @@ to the start of the encoding of a Guile character, return @var{p}
 unchanged.
 @end deftypefn
 
-@deftypefn {libguile Function} {unsigned char *} scm_char_ceiling (unsigned char *@var{p})
+@deftypefn {libguile Function} {unsigned char *} scm_mb_ceiling (unsigned char *@var{p})
 ``Round'' @var{p} to the next character boundary.  That is, if @var{p}
 points to the middle of the encoding of a Guile character, return a
 pointer to the first byte of the encoding of the next character.  If
@@ -250,39 +250,39 @@ offset.  @xref{Multibyte Text Processing Errors}.
 These functions allow you to operate on multibyte strings: sequences of
 character encodings.
 
-@deftypefn {Libguile Function} int scm_char_count (unsigned char *@var{p}, int @var{len})
+@deftypefn {Libguile Function} int scm_mb_count (unsigned char *@var{p}, int @var{len})
 Return the number of Guile characters encoded by the @var{len} bytes at
 @var{p}.  Return -1 if the sequence contains any invalid character
 encodings, or if the last character encoding is incomplete.
 @end deftypefn
 
-@deftypefn {Libguile Function} scm_char_t scm_char_walk (unsigned char **@var{pp})
+@deftypefn {Libguile Function} scm_mb_char_t scm_mb_walk (unsigned char **@var{pp})
 Return the character whose encoding starts at @code{*@var{pp}}, and
 advance @code{*@var{pp}} to the start of the next character.  Return -1
 if @code{*@var{pp}} does not point to a valid character encoding.
 @end deftypefn
 
-@deftypefn {Libguile Function} {unsigned char *} scm_char_prev (unsigned char *@var{p})
+@deftypefn {Libguile Function} {unsigned char *} scm_mb_prev (unsigned char *@var{p})
 If @var{p} points to the middle of the encoding of a Guile character,
 return a pointer to the first byte of the encoding.  If @var{p} points
 to the start of the encoding of a Guile character, return the start of
 the previous character's encoding.
 
-This is like @code{scm_char_floor}, but the returned pointer will always
+This is like @code{scm_mb_floor}, but the returned pointer will always
 be before @var{p}.  If you use this function to drive an iteration, it
 guarantees backward progress.
 @end deftypefn
 
-@deftypefn {Libguile Function} {unsigned char *} scm_char_next (unsigned char *@var{p})
+@deftypefn {Libguile Function} {unsigned char *} scm_mb_next (unsigned char *@var{p})
 If @var{p} points to the encoding of a Guile character, return a pointer
 to the first byte of the encoding of the next character.
 
-This is like @code{scm_char_ceiling}, but the returned pointer will always
+This is like @code{scm_mb_ceiling}, but the returned pointer will always
 be after @var{p}.  If you use this function to drive an iteration, it
 guarantees forward progress.
 @end deftypefn
 
-@deftypefn {Libguile Function} unsigned char *scm_char_index (unsigned char *@var{p}, int @var{len}, int @var{i})
+@deftypefn {Libguile Function} unsigned char *scm_mb_index (unsigned char *@var{p}, int @var{len}, int @var{i})
 Assuming that the @var{len} bytes starting at @var{p} are a
 concatenation of valid character encodings, return a pointer to the
 start of the @var{i}'th character encoding in the sequence.
@@ -297,13 +297,13 @@ character encoding as a single character, for purposes of the count.
 @end deftypefn
 
 It is common to process the characters in a string from left to right.
-However, if you fetch each character using @code{scm_char_index}, each
+However, if you fetch each character using @code{scm_mb_index}, each
 call will scan the text from the beginning, so your loop will require
 time proportional to at least the square of the length of the text.  To
-avoid this poor performance, you can use a @code{scm_char_cache}
-structure and the @code{scm_char_index_cached} function.
+avoid this poor performance, you can use a @code{scm_mb_cache}
+structure and the @code{scm_mb_index_cached} function.
 
-@deftp {Libguile Type} struct scm_char_cache
+@deftp {Libguile Type} struct scm_mb_cache
 This structure holds information that allows a string indexing operation
 to remember the result of a previous scan of the string.  It has the
 following members:
@@ -320,26 +320,26 @@ The index, in bytes, of the start of that character.
 In other words, @var{byte} is the byte offset of the @var{character}'th
 character of the string.
 
-Both elements of a @code{struct scm_char_cache} structure should be
+Both elements of a @code{struct scm_mb_cache} structure should be
 initialized to zero before its first use, and whenever the string's text
 changes.
 @end deftp
 
-@deftypefn {Libguile Function} unsigned char *scm_char_index_cached (unsigned char *@var{p}, int @var{len}, int @var{i}, struct scm_char_cache *@var{cache})
-This function is identical to @code{scm_char_index}, except that it may
+@deftypefn {Libguile Function} unsigned char *scm_mb_index_cached (unsigned char *@var{p}, int @var{len}, int @var{i}, struct scm_mb_cache *@var{cache})
+This function is identical to @code{scm_mb_index}, except that it may
 consult and update *@var{cache} in order to avoid scanning the string
 from the beginning.
 
-Using @code{scm_char_index_cached}, you can scan a string from left to
+Using @code{scm_mb_index_cached}, you can scan a string from left to
 right in time proportional to the length of the string.
 @end deftypefn
 
 Guile also provides functions to convert between an encoded sequence of
-characters, and an array of @code{scm_char_t} objects.
+characters, and an array of @code{scm_mb_char_t} objects.
 
-@deftypefn {Libguile Function} scm_char_t *scm_char_multibyte_to_fixed (unsigned char *@var{p}, int @var{len}, int *@var{result_len})
+@deftypefn {Libguile Function} scm_mb_char_t *scm_mb_multibyte_to_fixed (unsigned char *@var{p}, int @var{len}, int *@var{result_len})
 Convert the variable-width text in the @var{len} bytes at @var{p}
-to an array of @code{scm_char_t} values.  Return a pointer to the array,
+to an array of @code{scm_mb_char_t} values.  Return a pointer to the array,
 and set @code{*@var{result_len}} to the number of elements it contains.
 The returned array is allocated with @code{malloc}, and it is the
 caller's responsibility to free it.
@@ -350,8 +350,8 @@ sequences.  This function should take another argument of that type.]]
 @end deftypefn
 
 @deftypefn {Libguile Function} unsigned char
-*scm_char_fixed_to_multibyte (scm_char_t *@var{fixed}, int @var{len}, int *@var{result_len})
-Convert the array of @code{scm_char_t} values to a sequence of
+*scm_mb_fixed_to_multibyte (scm_mb_char_t *@var{fixed}, int @var{len}, int *@var{result_len})
+Convert the array of @code{scm_mb_char_t} values to a sequence of
 variable-width character encodings.  Return a pointer to the array of
 bytes, and set @code{*@var{result_len}} to its length, in bytes.  The
 returned byte sequence is allocated with @code{malloc}; it is the
@@ -363,77 +363,77 @@ caller's responsibility to free it.
 @subsection Guile Character Properties
 
 These functions give information about the nature of a given Guile
-character.  These are defined for any @code{scm_char_t} value.
+character.  These are defined for any @code{scm_mb_char_t} value.
 
-@deftypefn {Libguile Function} int scm_char_isalnum (scm_char_t @var{c})
+@deftypefn {Libguile Function} int scm_mb_isalnum (scm_mb_char_t @var{c})
 Return non-zero iff @var{c} is an alphabetic or numeric character.
 @end deftypefn
 
-@deftypefn {Libguile Function} int scm_char_is_alpha (scm_char_t @var{c})
+@deftypefn {Libguile Function} int scm_mb_is_alpha (scm_mb_char_t @var{c})
 Return non-zero iff @var{c} is an alphabetic character.
 @end deftypefn
 
-@deftypefn {Libguile Function} int scm_char_iscntrl (scm_char_t @var{c})
+@deftypefn {Libguile Function} int scm_mb_iscntrl (scm_mb_char_t @var{c})
 Return non-zero iff @var{c} is a control character.
 @end deftypefn
 
-@deftypefn {Libguile Function} int scm_char_isdigit (scm_char_t @var{c})
+@deftypefn {Libguile Function} int scm_mb_isdigit (scm_mb_char_t @var{c})
 Return non-zero iff @var{c} is a digit.
 @end deftypefn
 
-@deftypefn {Libguile Function} int scm_char_isgraph (scm_char_t @var{c})
+@deftypefn {Libguile Function} int scm_mb_isgraph (scm_mb_char_t @var{c})
 Return non-zero iff @var{c} is a visible character.
 @end deftypefn
 
-@deftypefn {Libguile Function} int scm_char_isupper (scm_char_t @var{c})
+@deftypefn {Libguile Function} int scm_mb_isupper (scm_mb_char_t @var{c})
 Return non-zero iff @var{c} is an upper-case character.
 @end deftypefn
 
-@deftypefn {Libguile Function} int scm_char_islower (scm_char_t @var{c})
+@deftypefn {Libguile Function} int scm_mb_islower (scm_mb_char_t @var{c})
 Return non-zero iff @var{c} is a lower-case character.
 @end deftypefn
 
-@deftypefn {Libguile Function} int scm_char_istitle (scm_char_t @var{c})
+@deftypefn {Libguile Function} int scm_mb_istitle (scm_mb_char_t @var{c})
 Return non-zero iff @var{c} is a title-case character.  See the Unicode
 standard for an explanation of title case.
 @end deftypefn
 
-@deftypefn {Libguile Function} int scm_char_isprint (scm_char_t @var{c})
+@deftypefn {Libguile Function} int scm_mb_isprint (scm_mb_char_t @var{c})
 Return non-zero iff @var{c} is a printable character.
 @end deftypefn
 
-@deftypefn {Libguile Function} int scm_char_ispunct (scm_char_t @var{c})
+@deftypefn {Libguile Function} int scm_mb_ispunct (scm_mb_char_t @var{c})
 Return non-zero iff @var{c} is a punctuation character.
 @end deftypefn
 
-@deftypefn {Libguile Function} int scm_char_isspace (scm_char_t @var{c})
+@deftypefn {Libguile Function} int scm_mb_isspace (scm_mb_char_t @var{c})
 Return non-zero iff @var{c} is a whitespace character.
 @end deftypefn
 
-@deftypefn {Libguile Function} int scm_char_isxdigit (scm_char_t @var{c})
+@deftypefn {Libguile Function} int scm_mb_isxdigit (scm_mb_char_t @var{c})
 Return non-zero iff @var{c} is a hexidecimal digit.
 @end deftypefn
 
-@deftypefn {Libguile Function} int scm_char_isdefined (scm_char_t @var{c})
+@deftypefn {Libguile Function} int scm_mb_isdefined (scm_mb_char_t @var{c})
 Return non-zero iff @var{c} is a valid character.
 @end deftypefn
 
-@deftypefn {Libguile Function} scm_char_t scm_char_toupper (scm_char_t @var{c})
-@deftypefnx {Libguile Function} scm_char_t scm_char_tolower (scm_char_t @var{c})
-@deftypefnx {Libguile Function} scm_char_t scm_char_totitle (scm_char_t @var{c})
+@deftypefn {Libguile Function} scm_mb_char_t scm_mb_char_toupper (scm_mb_char_t @var{c})
+@deftypefnx {Libguile Function} scm_mb_char_t scm_mb_char_tolower (scm_mb_char_t @var{c})
+@deftypefnx {Libguile Function} scm_mb_char_t scm_mb_char_totitle (scm_mb_char_t @var{c})
 Convert @var{c} to upper, lower, or title case.  If @var{c} has no
 equivalent in the requested case, or is already in that case, return it
 unchanged.
 @end deftypefn
 
-@deftypefn {Libguile Function} in scm_char_digit_value (scm_char_t @var{c})
+@deftypefn {Libguile Function} in scm_mb_digit_value (scm_mb_char_t @var{c})
 If @var{c} is a hexidecimal digit (according to
-@code{scm_char_isxdigit}), then return its numeric value.  Otherwise
+@code{scm_mb_isxdigit}), then return its numeric value.  Otherwise
 return -1.
 @end deftypefn
 
-@deftypefn {Libguile Function} in scm_char_digit_value (scm_char_t @var{c})
-If @var{c} is a digit (according to @code{scm_char_isdigit}), then
+@deftypefn {Libguile Function} in scm_mb_digit_value (scm_mb_char_t @var{c})
+If @var{c} is a digit (according to @code{scm_mb_isdigit}), then
 return its numeric value.  Otherwise return -1.
 @end deftypefn
 
