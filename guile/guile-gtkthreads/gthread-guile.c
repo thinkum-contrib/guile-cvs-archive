@@ -157,6 +157,18 @@ g_private_get_guile_impl (GPrivate * private_key)
   return scm_getspecific (*(scm_key_t *) private_key);
 }
 
+#ifdef HAVE_THREAD_CREATE
+static void
+g_thread_set_priority_guile_impl (gpointer thread, GThreadPriority priority)
+{
+}
+
+static void
+g_thread_self_guile_impl (gpointer thread)
+{
+}
+#endif /* HAVE_THREAD_CREATE */
+
 static GThreadFunctions g_guile_thread_functions_for_glib =
 {
   g_mutex_new_guile_impl,
@@ -173,6 +185,15 @@ static GThreadFunctions g_guile_thread_functions_for_glib =
   g_private_new_guile_impl,
   g_private_get_guile_impl,
   g_private_set_guile_impl
+#ifdef HAVE_THREAD_CREATE
+  , /*fixme* We should define these as well. */
+  NULL, /* g_thread_create_guile_impl */
+  NULL, /* g_thread_yield_guile_impl */
+  NULL, /* g_thread_join_guile_impl */
+  NULL, /* g_thread_exit_guile_impl */
+  g_thread_set_priority_guile_impl,
+  g_thread_self_guile_impl
+#endif /* HAVE_THREAD_CREATE */
 };
 
 void
