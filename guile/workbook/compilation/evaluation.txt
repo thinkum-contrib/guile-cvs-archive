@@ -363,6 +363,14 @@ do formulate the decisions as I assume that we will agree about.
   according to the iloc data.  This, however, only applies to the first lookup
   of a local variable.
 
+* separate the tasks of the built-in syntactic forms into a part to be
+  executed during macro expansion, and a part to be performed during
+  memoization.  For some of the built-in syntactic forms, however, there is
+  not much to do during macro expansion:  For example, the 'if' form won't be
+  transformed into a different syntactic form.  Still, even for these forms
+  there is some syntax checking to be done.  This is the least that has to be
+  done during macro expansion.
+
 * revoke macro transformers from being stored in variables.  I.e.
     (define-macro (foo ...) ...)
     (define bar foo)
