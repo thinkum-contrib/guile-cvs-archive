@@ -412,7 +412,7 @@ problem.  The alternative, an explicitly maintained list of local
 variable addresses, is effectively much less reliable, due to programmer
 error.
 
-To accomodate this technique, data must be represented so that the
+To accommodate this technique, data must be represented so that the
 collector can accurately determine whether a given stack word is a
 pointer or not.  Guile does this as follows:
 @itemize @bullet
