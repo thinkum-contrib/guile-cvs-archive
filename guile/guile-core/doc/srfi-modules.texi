@@ -486,6 +486,25 @@ Creates the tail of the list; defaults to @code{(lambda (x) '())}.
 
 @end deffn
 
+@deffn procedure map f lst1 lst2 @dots{}
+Map the procedure over the list(s) @var{lst1}, @var{lst2}, @dots{} and
+return a list containing the results of the procedure applications.
+This procedure is extended with respect to R5RS, because the argument
+lists may have different lengths.  The result list will have the same
+length as the shortest argument lists.  The order in which @var{f}
+will be applied to the list element(s) is not specified.
+@end deffn
+
+@deffn procedure for-each f lst1 lst2 @dots{}
+Apply the procedure @var{f} to each pair of corresponding elements of
+the list(s) @var{lst1}, @var{lst2}, @dots{}.  The return value is not
+specified.  This procedure is extended with respect to R5RS, because
+the argument lists may have different lengths.  The shortest argument
+list determines the number of times @var{f} is called.  @var{f} will
+be applied to tge list elements in left-to-right order.
+
+@end deffn
+
 @deffn procedure append-map f lst1 lst2 @dots{}
 @deffnx procedure append-map! f lst1 lst2 @dots{}
 Equivalent to 
