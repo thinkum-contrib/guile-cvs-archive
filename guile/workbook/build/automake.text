@@ -1,0 +1,36 @@
+We use Automake but Automake has some quirks so this is the place share tips
+and tricks on using this tremendous tool.
+
+
+* In maintainer-dirs.text, there is mention of "this causes some versions of
+  automake to choke", referring to using "if MAINTAINER_MODE" in an "include"d
+  file where the include directive is also inside "if MAINTAINER_MODE".  The
+  fix (required for 1.4-p-something but not for 1.5) was to remove the
+  internal "if MAINTAINER_MODE".
+
+  Here are some notes from the ensuing bugfix discussion:
+
+  ttn sez:
+  > the mechanisms and times are as follows:
+  >
+  > * automake scanning happens at autogen.sh time.  automake instantiates a
+  >   Makefile.in from templates, handling "include" directives by diverting
+  >   (recursively) scanning to the included file and omitting the directive
+  >   in the output, and handling "if MAINTAINER_MODE" sections by prefixing
+  >   "@MAINTAINER_MODE_TRUE@" to makefile var definitions (and using other
+  >   generally portable constructs).
+  >
+  > * expansion of @MAINTAINER_MODE_TRUE@ happens at configure time.
+  >   configure creates portable Makefile from portable Makefile.in, etc.
+  >
+  > * execution of Makefile actions happens at make time by whichever
+  >   make(1) is either available on the system or specified by the user.
+  >
+  > here, the root cause of the bug seems to lie in how automake handles
+  > nested "if MAINTAINER_MODE" sections.
+  >
+  > because we see different behaviors in different versions of automake and
+  > because the documentation does not explicitly support our funky usage, i
+  > figured that the most slackful fix would be to "don't do that"; the
+  > nature of the fix is to fall back on well-supported (documented, stable)
+  > automake features and avoid conflating them.
