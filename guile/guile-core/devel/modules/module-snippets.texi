@@ -109,7 +109,7 @@ type @code{module}.  Thus we will first see what this data type looks
 like and what operations are defined on it.
 
 Modules in Guile are instances of a data type @code{module}.  A module
-has the following fields.
+is a record with the following fields.
 
 @table @var
 @item obarray
@@ -171,7 +171,7 @@ will get.  It is incremented each time a weak observer is added.
 * Module Hierarchy::            The currently implemented hierarchy.
 * Modules and Interfaces::      How modules implement different scopes.
 * Modules and Environments::    Relation between modules and environments.
-* Modules Miscallenea::         Miscellaneous module procedures.
+* Modules Miscellanea::         Miscellaneous module procedures.
 @end menu
 
 
@@ -256,7 +256,7 @@ I will not go into details here.  This section rather contains the
 underlying mechanisms, on which @code{use-modules} is built.
 
 Normally, you will not need to create new modules explicitly, adding
-definitions to it manually.  For more often, you will want to load some
+definitions to it manually.  Far more often, you will want to load some
 Scheme code from a file, and install its definitions into a module, only
 exporting the public bits.  This is what the procedure
 @code{resolve-module} is for.
@@ -307,8 +307,16 @@ property, so we state these properties without qualification as in:
 locally in module @var{m2} which is a member of the uses list of
 @var{m}.''
 
+@c
+@c I hope this clarifies the term `well-defined'.
+@c 'martin, 2001-05-08
+@c
+In the descriptions below, the term ``well-defined'' means: Any other
+value than the special object @code{SCM_UNDEFINED}, which is used
+internally for marking undefined locations.
+
 @deffn procedure module-locally-bound? module sym
-Test if @var{sym} is bound in @var{module} directly, e.g. it does not
+Test if @var{sym} is bound in @var{module} directly, i.e. it does not
 suffice that @var{sym} is bound in one of the used modules of
 @var{module}.  @dfn{Bound} means that the symbol is interned and bound
 to some well-defined value.
@@ -322,7 +330,7 @@ some well-defined value.
 @end deffn
 
 @deffn procedure module-symbol-locally-interned? module sym
-Test if @var{sym} is interned in @var{module} directly, e.g. it does not
+Test if @var{sym} is interned in @var{module} directly, i.e. it does not
 suffice that @var{sym} is bound in one of the used modules of
 @var{module}.  Unlike @code{module-locally-bound}, the symbol is not
 required to be bound to a well-defined value.
@@ -370,6 +378,8 @@ If @var{symbol} is already defined in @var{module}, nothing happens.
 
 @deffn procedure module-add! module symbol var
 Add the variable @var{var} to @var{module} under the name @var{symbol}.
+@var{var} must be of type @code{variable}, for example a value returned
+by @code{make-variable} or @code{make-undefined-variable}.
 @end deffn
 
 @deffn procedure module-remove! module symbol
@@ -389,13 +399,17 @@ Remove all bindings from @var{module}.
 
 @deffn procedure module-for-each proc module
 Apply @var{proc} to every binding in @var{module}.  @var{proc} is called
-with two parameters, the name and variable for each binding.
+with two parameters, the name and variable for each binding.  @var{proc}
+is only applied to the local bindings of @var{module}, not to possible
+bindings in its uses list.
 @end deffn
 
 @deffn procedure module-map proc module
 Apply @var{proc} to every binding in @var{module} and return a list of
 the results of all applications of @var{proc}.  @var{proc} is called
-with two parameters, the name and variable for each binding.
+with two parameters, the name and variable for each binding.  @var{proc}
+is only applied to the local bindings of @var{module}, not to possible
+bindings in its uses list.
 @end deffn
 
 
@@ -422,8 +436,11 @@ The name of the searched symbol.
 
 @item define?
 @code{#t} if the binding should be defined, @code{#f} otherwise.
-@end table
 
+If @code{define} is true, no recursion occurs, as the binding either
+exists in the first level module, or is created in the first level
+module.
+@end table
 
 @c ===================================================================
 
@@ -471,7 +488,7 @@ Signal a modification of module @var{m} to all associated observers.
 For all evaluations, Guile maintains a so-called @dfn{current
 module}.@footnote{A current module does not exist until Guile has been
 completely booted, that means until @file{boot-9.scm} has been loaded.
-But this should be no issue unless you are doing weird things withe the
+But this should be no issue unless you are doing weird things with the
 module system, which might be a bad idea, but YMMV.}  This is used for
 all top-level definitions and variable lookups.  When the current module
 changes, new definitions will go to the new module.  The procedures in
@@ -513,9 +530,15 @@ quoted).
 
 @deffn procedure module-ref module name [default]
 Return the value of a variable called @var{name} in @var{module} or any
-of its used modules.  If there is no such variable, then if the optional
-third argument @var{default} is present, it is returned; otherwise an
-error is signaled.
+of its used modules.  If there is no such variable (or the variable is
+not boudn to a well-defined value), then if the optional third argument
+@var{default} is present, it is returned; otherwise an error is
+signaled.  
+
+The difference between this procedure and @code{module-symbol-binding}
+(@pxref{Modules and Variables}) is that the latter may return an
+undefined value, whereas the former will throw an exception in that
+case.
 @end deffn
 
 @deffn procedure module-set! module name value
@@ -566,6 +589,14 @@ successively nested modules.
 <value of a variable named baz in the module bound to bar in
 the module bound to foo in some-root-module>
 @end example
+
+When an invalid module path is given, @code{nested-ref} and
+@code{local-ref} silently return @code{#f}, and the other procedures
+simply fail without an error.
+
+Nested references can start in any module, so you can even pass your own
+modules as the @var{root} parameter to the @code{nested-*} procedures
+below.
 
 @deffn procedure nested-ref root names
 Look up the variable identified by the symbol list @var{names}, starting
@@ -624,6 +655,13 @@ User modules which are loaded into Guile as well as the modules shipped
 with the Guile distribution are installed under @code{(app modules)} as
 well.
 
+NJFIXME - so why do module install directories not include "app/modules"
+in their path? - or is that a silly question?
+
+MGFIXME - Honestly, I don't have a clue.  I think that the (app modules)
+internal module name prefix was once introduced to make other module
+name spaces possible.  Maybe (app core ...) or something.
+
 
 @c ===================================================================
 
@@ -657,7 +695,7 @@ Set the public interface of the module @var{m} to @var{i}.
 
 @c ===================================================================
 
-@node Modules and Environments, Modules Miscallenea, Modules and Interfaces, Module Data Type
+@node Modules and Environments, Modules Miscellanea, Modules and Interfaces, Module Data Type
 @section Modules and Environments
 
 An environment belongs to a specific module, which can be determined by
@@ -669,8 +707,8 @@ calling @code{environment-module}.
 
 @c ===================================================================
 
-@node Modules Miscallenea,  , Modules and Environments, Module Data Type
-@section Modules Miscallenea
+@node Modules Miscellanea,  , Modules and Environments, Module Data Type
+@section Modules Miscellanea
 
 This chapter contains all miscellaneous information and procedure
 documentation which I have not been able to include elsewhere.  If
@@ -679,8 +717,8 @@ welcome.
 
 @deffn procedure set-system-module! m s
 Set the @code{system-module} property of the module @var{m} to @var{s}.
-@var{s} should be a module telling whehter @var{m} is a system module or
-not.  System modules are treated specially in some cases, for example
+@var{s} should be a boolean telling whether @var{m} is a system module
+or not.  System modules are treated specially in some cases, for example
 procedures defined in system modules are excluded from backtraces.
 FIXME: Is this last sentence true?
 @end deffn
