@@ -1,0 +1,7 @@
+This is the developer's TODO file.  Add entries here when you realize
+that some problem should be addressed.  Mark an entry with your name
+and commit this file to the repository when you start working on the
+problem.  Always make sure that the problem you're working on is
+represented in this file.
+
+* Make configuration of Tcl and Tk subdirectories work.
