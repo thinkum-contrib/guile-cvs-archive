@@ -36,7 +36,7 @@ The table of contents for this chapter
 @ifhtml
 The following table of contents
 @end ifhtml
-show the data types that are documented in this chapter.  The final
+shows the data types that are documented in this chapter.  The final
 section of this chapter lists all the core Guile data types that are not
 documented here, and provides links to the ``functionality-centric''
 sections of this manual that cover them.
@@ -113,10 +113,10 @@ uses @code{#f} explicitly than @code{#t}: @code{#f} is necessary to
 represent an @code{if} or @code{cond} false value, whereas @code{#t} is
 not necessary to represent an @code{if} or @code{cond} true value.
 
-It is important to note in this context that @code{#f} is @strong{not}
-equivalent to any other Scheme value.  In particular, @code{#f} is not
-the same as the number 0 (like in C and C++), and not the same as the
-``empty list'' (like in some Lisp dialects).
+It is important to note that @code{#f} is @strong{not} equivalent to any
+other Scheme value.  In particular, @code{#f} is not the same as the
+number 0 (like in C and C++), and not the same as the ``empty list''
+(like in some Lisp dialects).
 
 The @code{not} procedure returns the boolean inverse of its argument:
 
@@ -175,6 +175,7 @@ an invocation of the @code{inexact->exact} procedure.
 * Complex::                     Complex number operations.
 * Arithmetic::                  Arithmetic functions.
 * Scientific::                  Scientific functions.
+* Primitive Numerics::          Primitive numeric functions.
 * Bitwise Operations::          Logical AND, OR, NOT, and so on.
 * Random::                      Random number generation.
 @end menu
@@ -182,6 +183,60 @@ an invocation of the @code{inexact->exact} procedure.
 
 @node Number Types
 @subsection Predicates for Testing Number Type
+
+Scheme's numerical ``tower'' consists of the following categories of
+numbers:
+
+@itemize
+@item
+integers (whole numbers)
+
+@item
+rationals (the set of numbers that can be expressed as P/Q where P and Q
+are integers)
+
+@item
+real numbers (the set of numbers that describes all possible positions
+along a one dimensional line)
+
+@item
+complex numbers (the set of numbers that describes all possible
+positions in a two dimensional space)
+@end itemize
+
+It is called a tower because each category ``sits on'' the one that
+follows it, in the sense that every integer is also a rational, every
+rational is also real, and every real number is also a complex number
+(but with zero imaginary part).
+
+Of these, Guile implements integers, reals and complex numbers.
+Integers can be arbitrarily big, as in the following example.
+
+@lisp
+(define (factorial n)
+  (let loop ((n n) (product 1))
+    (if (= n 0)
+        product
+        (loop (- n 1) (* product n)))))
+
+(factorial 3)
+@result{}
+6
+
+(factorial 20)
+@result{}
+2432902008176640000
+
+(- (factorial 45))
+@result{}
+-119622220865480194561963161495657715064383733760000000000
+@end lisp
+
+Real numbers have limited precision similar to the precision of the
+@code{double} type in C.  A consequence of the limited precision is that
+all real numbers in Guile are also rational, since any number R with a
+limited number of decimal places, say N, can be made into an integer by
+multiplying by 10^N.
 
 @c docstring begin (texi-doc-string "guile" "number?")
 @deffn primitive number? x
@@ -415,76 +470,194 @@ Return the complex number Z1 * e^(i * Z2).
 @node Scientific
 @subsection Scientific Functions
 
-@c begin (texi-doc-string "guile" "$asinh")
-@deffn primitive $asinh
+The following procedures accept any kind of number as arguments,
+including complex numbers.
+
+@c begin (texi-doc-string "guile" "sqrt")
+@deffn procedure sqrt z
+Return the square root of @var{z}.
 @end deffn
 
-@c begin (texi-doc-string "guile" "$acosh")
-@deffn primitive $acosh
+@c begin (texi-doc-string "guile" "expt")
+@deffn procedure expt z1 z2
+Return @var{z1} raised to the power of @var{z2}.
 @end deffn
 
-@c begin (texi-doc-string "guile" "$atanh")
-@deffn primitive $atanh
+@c begin (texi-doc-string "guile" "sin")
+@deffn procedure sin z
+Return the sine of @var{z}.
+@end deffn
+
+@c begin (texi-doc-string "guile" "cos")
+@deffn procedure cos z
+Return the cosine of @var{z}.
+@end deffn
+
+@c begin (texi-doc-string "guile" "tan")
+@deffn procedure tan z
+Return the tangent of @var{z}.
+@end deffn
+
+@c begin (texi-doc-string "guile" "asin")
+@deffn procedure asin z
+Return the arcsine of @var{z}.
+@end deffn
+
+@c begin (texi-doc-string "guile" "acos")
+@deffn procedure acos z
+Return the arccosine of @var{z}.
+@end deffn
+
+@c begin (texi-doc-string "guile" "atan")
+@deffn procedure atan z
+Return the arctangent of @var{z}.
+@end deffn
+
+@c begin (texi-doc-string "guile" "exp")
+@deffn procedure exp z
+Return e to the power of @var{z}, where e is the base of natural
+logarithms (2.71828@dots{}).
+@end deffn
+
+@c begin (texi-doc-string "guile" "log")
+@deffn procedure log z
+Return the natural logarithm of @var{z}.
+@end deffn
+
+@c begin (texi-doc-string "guile" "log10")
+@deffn procedure log10 z
+Return the base 10 logarithm of @var{z}.
+@end deffn
+
+@c begin (texi-doc-string "guile" "sinh")
+@deffn procedure sinh z
+Return the hyperbolic sine of @var{z}.
+@end deffn
+
+@c begin (texi-doc-string "guile" "cosh")
+@deffn procedure cosh z
+Return the hyperbolic cosine of @var{z}.
+@end deffn
+
+@c begin (texi-doc-string "guile" "tanh")
+@deffn procedure tanh z
+Return the hyperbolic tangent of @var{z}.
+@end deffn
+
+@c begin (texi-doc-string "guile" "asinh")
+@deffn procedure asinh z
+Return the hyperbolic arcsine of @var{z}.
+@end deffn
+
+@c begin (texi-doc-string "guile" "acosh")
+@deffn procedure acosh z
+Return the hyperbolic arccosine of @var{z}.
+@end deffn
+
+@c begin (texi-doc-string "guile" "atanh")
+@deffn procedure atanh z
+Return the hyperbolic arctangent of @var{z}.
+@end deffn
+
+
+@node Primitive Numerics
+@subsection Primitive Numeric Functions
+
+Many of Guile's numeric procedures which accept any kind of numbers as
+arguments, including complex numbers, are implemented as Scheme
+procedures that use the following real number-based primitives.  These
+primitives signal an error if they are called with complex arguments.
+
+@c begin (texi-doc-string "guile" "$abs")
+@deffn primitive $abs x
+Return the absolute value of @var{x}.
 @end deffn
 
 @c begin (texi-doc-string "guile" "$sqrt")
-@deffn primitive $sqrt
-@end deffn
-
-@c begin (texi-doc-string "guile" "$abs")
-@deffn primitive $abs
-@end deffn
-
-@c begin (texi-doc-string "guile" "$exp")
-@deffn primitive $exp
-@end deffn
-
-@c begin (texi-doc-string "guile" "$log")
-@deffn primitive $log
-@end deffn
-
-@c begin (texi-doc-string "guile" "$sin")
-@deffn primitive $sin
-@end deffn
-
-@c begin (texi-doc-string "guile" "$cos")
-@deffn primitive $cos
-@end deffn
-
-@c begin (texi-doc-string "guile" "$tan")
-@deffn primitive $tan
-@end deffn
-
-@c begin (texi-doc-string "guile" "$asin")
-@deffn primitive $asin
-@end deffn
-
-@c begin (texi-doc-string "guile" "$acos")
-@deffn primitive $acos
-@end deffn
-
-@c begin (texi-doc-string "guile" "$atan")
-@deffn primitive $atan
-@end deffn
-
-@c begin (texi-doc-string "guile" "$sinh")
-@deffn primitive $sinh
-@end deffn
-
-@c begin (texi-doc-string "guile" "$cosh")
-@deffn primitive $cosh
-@end deffn
-
-@c begin (texi-doc-string "guile" "$tanh")
-@deffn primitive $tanh
+@deffn primitive $sqrt x
+Return the square root of @var{x}.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "$expt")
-@deffn primitive $expt z1 z2
+@deffn primitive $expt x1 x2
+Return @var{x1} raised to the power of @var{x2}.
+@end deffn
+
+@c begin (texi-doc-string "guile" "$sin")
+@deffn primitive $sin x
+Return the sine of @var{x}.
+@end deffn
+
+@c begin (texi-doc-string "guile" "$cos")
+@deffn primitive $cos x
+Return the cosine of @var{x}.
+@end deffn
+
+@c begin (texi-doc-string "guile" "$tan")
+@deffn primitive $tan x
+Return the tangent of @var{x}.
+@end deffn
+
+@c begin (texi-doc-string "guile" "$asin")
+@deffn primitive $asin x
+Return the arcsine of @var{x}.
+@end deffn
+
+@c begin (texi-doc-string "guile" "$acos")
+@deffn primitive $acos x
+Return the arccosine of @var{x}.
+@end deffn
+
+@c begin (texi-doc-string "guile" "$atan")
+@deffn primitive $atan x
+Return the arctangent of @var{x} in the range -PI/2 to PI/2.
 @end deffn
 
 @c docstring begin (texi-doc-string "guile" "$atan2")
-@deffn primitive $atan2 z1 z2
+@deffn primitive $atan2 y x
+Return the arctangent of @var{y}/@var{x}, using the signs of @var{x} and
+@var{y} to determine the quadrant of the result.
+@end deffn
+
+@c begin (texi-doc-string "guile" "$exp")
+@deffn primitive $exp x
+Return e to the power of @var{x}, where e is the base of natural
+logarithms (2.71828@dots{}).
+@end deffn
+
+@c begin (texi-doc-string "guile" "$log")
+@deffn primitive $log x
+Return the natural logarithm of @var{x}.
+@end deffn
+
+@c begin (texi-doc-string "guile" "$sinh")
+@deffn primitive $sinh x
+Return the hyperbolic sine of @var{x}.
+@end deffn
+
+@c begin (texi-doc-string "guile" "$cosh")
+@deffn primitive $cosh x
+Return the hyperbolic cosine of @var{x}.
+@end deffn
+
+@c begin (texi-doc-string "guile" "$tanh")
+@deffn primitive $tanh x
+Return the hyperbolic tangent of @var{x}.
+@end deffn
+
+@c begin (texi-doc-string "guile" "$asinh")
+@deffn primitive $asinh x
+Return the hyperbolic arcsine of @var{x}.
+@end deffn
+
+@c begin (texi-doc-string "guile" "$acosh")
+@deffn primitive $acosh x
+Return the hyperbolic arccosine of @var{x}.
+@end deffn
+
+@c begin (texi-doc-string "guile" "$atanh")
+@deffn primitive $atanh x
+Return the hyperbolic arctangent of @var{x}.
 @end deffn
 
 
@@ -649,7 +822,7 @@ Example:
 
 
 @node Random
-@subsection Random
+@subsection Random Number Generation
 
 @c docstring begin (texi-doc-string "guile" "copy-random-state")
 @deffn primitive copy-random-state [state]

@@ -1,3 +1,11 @@
+2000-12-12  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* scheme-data.texi (Numbers): Documentation added for scientific
+	functions.
+
+	* Makefile.am (dist_texis): Updated following split of scheme.texi
+	into per-chapter files.
+
 2000-12-07  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* scheme-data.texi (Booleans): Written.

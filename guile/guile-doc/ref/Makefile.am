@@ -20,8 +20,14 @@ info_TEXINFOS = guile.texi r4rs.texi r5rs.texi goops.texi
 #	contributors.texi	slib.texi		strings.texi \
 #	unix-other.texi		guile-scheme.texi
 
-dist_texis = guile.texi goops.texi intro.texi scheme.texi posix.texi \
-	expect.texi scsh.texi tcltk.texi scripts.texi gh.texi scm.texi \
+dist_texis = guile.texi goops.texi intro.texi scheme-intro.texi \
+	scheme-ideas.texi scheme-data.texi scheme-procedures.texi \
+	scheme-utility.texi scheme-binding.texi scheme-control.texi \
+	scheme-io.texi scheme-evaluation.texi scheme-exceptions.texi \
+	scheme-memory.texi scheme-modules.texi scheme-scheduling.texi \
+	scheme-options.texi scheme-translation.texi scheme-debug.texi \
+	slib.texi posix.texi deprecated.texi expect.texi scsh.texi tcltk.texi \
+	scheme-reading.texi scheme-indices.texi scripts.texi gh.texi scm.texi \
 	goops-tutorial.texi hierarchy.eps hierarchy.txt \
 	appendices.texi indices.texi
 
