@@ -21,7 +21,7 @@
 ;;
 ;; - (make-closure TEMPLATE ENV)
 ;;
-;;   Make a closure form a closure template and an environment.  A
+;;   Make a closure from a closure template and an environment.  A
 ;;   closure can be invoked.  ENV can be anything.
 ;;
 ;; - (if TEST THEN ELSE)
@@ -35,12 +35,12 @@
 ;; - (local SYMBOL)
 ;;
 ;;   Retrieve the value of the local variable SYMBOL, as established
-;;   by LOCALS or LAMBDA-TEMPLATE.
+;;   by LABELS, FUNCTIONS or LAMBDA-TEMPLATE.
 ;;
 ;; - (set-local SYMBOL VAL)
 ;;
 ;;   Set the value of the local variable SYMBOL, as established
-;;   by LOCALS or LAMBDA-TEMPLATE.
+;;   by LABELS, FUNCTIONS or LAMBDA-TEMPLATE.
 ;;
 ;;   Note that SET-LOCAL does not interact correctly with call/cc.
 ;;   The values of locals are copied by call/cc and any changes to
@@ -49,7 +49,7 @@
 ;;  
 ;; - (global SYMBOL)
 ;;
-;;   Retrieve the value of the global variable that is named by symbol
+;;   Retrieve the value of the global variable that is named by SYMBOL
 ;;   in the current module.  (Current at the time of linking.)
 ;;
 ;; - (invoke PROC ARGS...)
@@ -102,7 +102,7 @@
 ;; A `functions' form where all `calls' appear in tail positions is
 ;; semantically equivalent to a `labels' form, but the compiler
 ;; doesn't detect this.  It still emits code to handle the general
-;; code.  You have to help it by explicitely using a `labels' form
+;; case.  You have to help it by explicitely using a `labels' form
 ;; when possible.  This might change in the future, but right now,
 ;; `functions' isn't even implemented at all.
 ;;
@@ -125,17 +125,17 @@
 
 ;; TODO:
 ;;
-;; - register allocation
+;; - take preference strength into account for register allocation
 ;; - find common tails in `labels'
-;; - tail calling
 ;; - rest args
 ;; - inline ops
-;; - peephole optimizer
+;; - continuously extend peephole optimizer
 
 (read-set! keywords 'prefix)
 
 (define-module (lightning compiler)
   :use-module (lightning assembler)
+  :use-module (lightning peephole)
   :use-module (oop goops)
   :use-module (ice-9 receive)
   :use-module (ice-9 common-list))
@@ -193,10 +193,10 @@
 ;;; The compilation environment
 
 ;; The environment describes the stack at a certain point in the code.
-;; It includes the value of the stack pointer and the locations of the
-;; local variables (stack offset or register).  It also includes
-;; information about labels so that the stack can be correctly unwound
-;; when jumping to a label.
+;; It includes the locations of the local variables (stack offset or
+;; register) and where the various registers have been spilled.  It
+;; also includes information about labels so that the stack can be
+;; correctly unwound when jumping to a label.
 
 (define (make-empty-env)
   '())
@@ -214,29 +214,115 @@
 (define (env-push env)
   (env-push-local #f env))
 
-(define (env-stack-depth target? env)
+;; We have allocated a variable to a register
+;;
+(define (env-alloc-reg var reg env)
+  (extend-env `(reg ,var ,reg) env))
+
+;; We have spilled a register to the stack
+;;
+(define (env-spill-reg reg env)
+  ;; There must be at most one spill frame per register allocation and
+  ;; each spill frame must have a register allocation.
+  (define (find-reg env)
+    (cond ((or (null? env)
+	       (and (form? 'spill (car env))
+		    (eq? (caddr (cadr (car env))) reg)))
+	   (pk 'nope)
+	   #f)
+	  ((and (form? 'reg (car env))
+		(eq? (caddr (car env)) reg))
+	   (car env))
+	  (else
+	   (find-reg (cdr env)))))
+  (pk 'spilling reg)
+  (let ((alloc-frame (find-reg env)))
+    (if alloc-frame
+	(extend-env `(spill ,alloc-frame) env)
+	env)))
+
+(define (env-stack-depth frame env)
   (let loop ((e env)
 	     (offset 0))
-    (cond ((target? e)
+    (cond ((eq? frame e)
 	   offset)
 	  ((form? 'push (car e))
-	   (loop (cdr e) (+ offset 4)))
+	   (loop (cdr e) (+ offset 1)))
+	  ((form? 'reg (car e))
+	   (loop (cdr e) offset))
+	  ((form? 'spill (car e))
+	   (loop (cdr e) (+ offset 1)))
 	  ((form? 'labels (car e))
 	   (loop (cdr e) offset))
 	  (else
 	   (error "unsupported environment frame:" (car e))))))
 
-(define (lookup-local var env)
-  (env-stack-depth (lambda (e)
-		     (and (form? 'push (car e))
-			  (eq? (cadr (car e)) var)))
-		   env))
+;; Lookup the local variable VAR.  VAR can be a symbol, in which case
+;; we look for the most recent `push' or `reg' frame.  When VAR is
+;; defined in a `reg' frame we will defer to its spill frame, if any.
+;; VAR can also be a frame, in which case we find the variable defined
+;; by that frame.  This function returns the part of the environment
+;; beginning with the frame defining VAR.
 
-(define (unwind-env target-env env)
-  (let ((offset (env-stack-depth (lambda (e)
-				   (eq? e target-env))
-				 env)))
-    `((add sp sp ,offset))))
+(define (lookup-local-frame var env)
+  (let loop ((e env)
+	     (spill-e #f))
+    (cond ((null? e)
+	   (error "undefined local variable:" var))
+	  ((form? 'push (car e))
+	   (if (or (eq? var (car e))
+		   (eq? (cadr (car e)) var))
+	       e
+	       (loop (cdr e) spill-e)))
+	  ((form? 'reg (car e))
+	   (if (or (eq? var (car e))
+		   (eq? (cadr (car e)) var))
+	       (if (and spill-e (eq? (cadr (car spill-e)) (car e)))
+		   spill-e
+		   e)
+	       (loop (cdr e) spill-e)))
+	  ((form? 'spill (car e))
+	   (if (or (eq? var (cadr (car e)))
+		   (eq? (cadr (cadr (car e))) var))
+	       (loop (cdr e) e)
+	       (loop (cdr e) spill-e)))
+	  ((form? 'labels (car e))
+	   (loop (cdr e) spill-e))
+	  (else
+	   (error "unsupported environment frame:" (car e))))))
+
+;; Lookup the local variable defined by VAR, as explained above.
+;; Return its palcement, which is either a stack offset or a register
+;; name.
+
+(define (lookup-local var env)
+  (let ((frame (lookup-local-frame var env)))
+    (if (form? 'reg (car frame))
+	(caddr (car frame))
+	(env-stack-depth frame env))))
+
+;; Lookup the variable that is in register REG and is not spilled.
+;; Return the part of the environment that starts with the defining
+;; frame.
+
+(define (lookup-register-frame reg env)
+  (let loop ((e env))
+    (cond ((null? e)
+	   #f)
+	  ((form? 'push (car e))
+	   (loop (cdr e)))
+	  ((form? 'reg (car e))
+	   (if (eq? (caddr (car e)) reg)
+	       e
+	       (loop (cdr e))))
+	  ((form? 'spill (car e))
+	   (if (eq? (caddr (cadr (car e))) reg)
+	       #f
+	       (loop (cdr e))))
+	  ((form? 'labels (car e))
+	   (loop (cdr e)))
+	  (else
+	   (error "unsupported environment frame:" (car e))))))
 
 (define invoke-code
   (assemble `(  (bms l0 r0 6)
@@ -266,9 +352,8 @@
       (string->symbol (string-append "l" (number->string seqno))))))
 
 (define (compile-with-return exp env)
-  `(,@(compile-expression exp env 'r0)
-    ,@(compile-expression '(local :ret) env 'r2)
-    ,@(unwind-env '() env)
+  (pk 'return)
+  `(,@(compile-tail-args `((r0 . ,exp) (r2 . (local :ret))) base-env env)
     (mov r1 4)
     (jmp r2)))
 
@@ -287,12 +372,17 @@
 ;;   (name label args)
 ;;
 ;; where NAME is the label from the statement, LABEL is a generated
-;; unique assembler label, ARGS is the list of arguments of this
-;; label.
+;; unique assembler label, ARGS is the list of arguments and their
+;; placements in the form
+;;
+;;   ((PLACE . NAME) ...)
+;;
+;; A place of `stack' denotes stack passing, else it names a register.
 
-(define (make-labels-frame labels)
+(define (make-labels-frame labels env)
   `(labels ,@(map (lambda (l)
-		    (list (car l) (genlabel) (cadr l)))
+		    (list (car l) (genlabel)
+			  (allocate-places (cadr l) env)))
 		  labels)))
 
 (define (find-labels-frame target env)
@@ -304,6 +394,36 @@
 	   e)
 	  (else
 	   (loop (cdr e))))))
+
+;; Register allocation
+
+(define (allocate-places args env)
+
+  (define (get-reg-pref a)
+    (let ((pref-opt (and (pair? a) (memq :reg a))))
+      (if pref-opt
+	  (cadr pref-opt)
+	  0)))
+
+  (define (get-arg-name a)
+    (if (pair? a) (car a) a))
+
+  (let loop ((available-regs non-volatile-regs)
+	     (a args)
+	     (res '()))
+    (cond ((null? a)
+	   (reverse! res))
+	  ((or (null? available-regs)
+	       (zero? (get-reg-pref (car a))))
+	   (loop available-regs
+		 (cdr a)
+		 (cons (cons 'stack (get-arg-name (car a)))
+		       res)))
+	  (else
+	   (loop (cdr available-regs)
+		 (cdr a)
+		 (cons (cons (car available-regs) (get-arg-name (car a)))
+		       res))))))
 
 ;; Find the free locals in EXP
 
@@ -320,7 +440,7 @@
    ((form? 'local exp)
     (list (cadr exp)))
    ((form? 'set-local exp)
-    (list (cadr exp)))
+    (union (list (cadr exp)) (free-locals (caddr exp))))
    ((form? 'invoke exp)
     (union-map free-locals (cdr exp)))
    ((form? 'if exp)
@@ -343,20 +463,47 @@
    (else
     (error "unsupported form:" exp))))
 
+;; Find the registers clobbered by exp
+
+(define (clobbered-regs exp)
+  (cond
+   ((form? 'global exp)
+    '())
+   ((form? 'quote exp)
+    '())
+   ((form? 'local exp)
+    '())
+   ((form? 'set-local exp)
+    (clobbered-regs (caddr exp)))
+   ((form? 'invoke exp)
+    volatile-regs)
+   ((form? 'if exp)
+    (union-map clobbered-regs (cdr exp)))
+   ((form? 'begin exp)
+    (union-map clobbered-regs (cdr exp)))
+   ((form? 'goto exp)
+    '())
+   ((form? 'labels exp)
+    volatile-regs)
+   (else
+    (error "unsupported form:" exp))))
+
+
 (define-struct arg-node ()
   exp slot (conflicts '()) (id #f) (comp-id #f))
 
 (define volatile-regs '(r0 r1 r2))
+(define non-volatile-regs '(v0 v1 v2))
 
 ;; Generate code for pushing ARGS and simultanously unwinding the
 ;; stack to TARGET-ENV.
 
-;; REG-ARGS is a list of (reg . exp) pairs, where REG is a symbol and
-;; EXP is the expression that computes the value for that argument.
-;; STACK-ARGS is just a list of expressions that will be pushed in
-;; reverse order.
+;; ARGS is a list of (reg . exp) pairs, where REG is a symbol and EXP
+;; is the expression that computes the value for that argument.  When
+;; REG is the symbol `stack', the argument will be passed on the
+;; stack, else it will be passed in the register denoted by REG.
 
-(define (compile-tail-args reg-args stack-args target-env env)
+(define (compile-tail-args args target-env env)
 
   ;; We partition the arguments into `easy' and `tough'.  An easy
   ;; argument is one that is in a stack slot above the current stack
@@ -371,6 +518,19 @@
   ;; Cycles in the graph are broken by selecting one node from the
   ;; strongly connected component, pushing it, and replacing it with
   ;; an expression that retrieves the pushed value.
+
+  ;; We also deal with register spilling here.  For each argument that
+  ;; is to be passed in a non-volatile register, we spill that
+  ;; register into a stack slot.  The value spilled will be the one
+  ;; that is live in the register at the target env, but will be found
+  ;; using the current env.  The non-volatile registers that are not
+  ;; used to pass arguments are directly loaded with the value live in
+  ;; the target env, using the current env to find that value.
+
+  ;; This spilling is implemented by creating addition arguments that
+  ;; describe the spill slots, and register values.  This might seem
+  ;; to lead to a lot of overhead, but one should realize that most of
+  ;; these additional arguments lead to noops in typical loops.
 
   (define (push-conflict node conf)
     (set! (arg-node-conflicts node)
@@ -400,12 +560,11 @@
 		  nodes))
       (for-each (lambda (n)
 		  (for-each (lambda (l)
-			      (update-conflicts  n 
-						 (/ (lookup-local l env) 4)))
+			      (update-conflicts n (lookup-local l env)))
 			    (free-locals (arg-node-exp n)))
 		  (for-each (lambda (r)
 			      (update-conflicts n r))
-			    volatile-regs))
+			    (adjoin 'r1 (clobbered-regs (arg-node-exp n)))))
 		nodes)
       nodes))
 
@@ -468,20 +627,17 @@
   (define (schedule-strongly-connected comp)
     (let* ((arg (car comp))
 	   (slot (arg-node-slot arg))
-	   (target (if (number? slot) 'r0 slot))
+	   (target (if (number? slot) 'r1 slot))
 	   (store-code (if (number? slot)
-			   `((stx ,(+ tough-offset (* 4 slot)) sp r0))
+			   `((stx ,(* 4 (+ tough-offset slot)) sp r1)
+			     (die r1))
 			   `())))
-      (set! tough-code
-	    `(,@tough-code
-	      ,@(compile-expression (arg-node-exp arg) tough-env target)))
       (cond ((null? (cdr comp))
-	     ;; XXX - special casing this ought to be unnecessary when
-	     ;; the peephole optimizer removes empty push/pop
-	     ;; sequences.
 	     (pk 'storing (arg-node-slot (car comp)))
 	     (set! tough-code
 		   `(,@tough-code
+		     ,@(compile-expression (arg-node-exp arg)
+					   tough-env target)
 		     ,@store-code)))
 	    (else
 	     (pk 'pushing (arg-node-slot (car comp)))
@@ -489,8 +645,11 @@
 		   (offset tough-offset))
 	       (set! tough-code
 		     `(,@tough-code
-		       (push r0)))
-	       (set! tough-offset (+ 4 tough-offset))
+		       ,@(compile-expression (arg-node-exp arg)
+					     tough-env 'r1)
+		       (push r1)
+		       (die r1)))
+	       (set! tough-offset (+ 1 tough-offset))
 	       (set! tough-env (env-push tough-env))
 	       (set! comp-id (1+ comp-id))
 	       (schedule-component (cdr comp) comp-id)
@@ -512,12 +671,77 @@
       (schedule-component nodes comp-id)
       tough-code))
 
-  (let* ((n-stack-args (length stack-args))
+  (define (pick-stack-args args)
+    (let loop ((a args)
+	       (s '()))
+      (cond ((null? a)
+	     (reverse! s))
+	    ((eq? (car (car a)) 'stack)
+	     (loop (cdr a) (cons (cdr (car a)) s)))
+	    (else
+	     (loop (cdr a) s)))))
+
+  (define (pick-reg-args args)
+    (let loop ((a args)
+	       (r '()))
+      (cond ((null? a)
+	     (reverse! r))
+	    ((eq? (car (car a)) 'stack)
+	     (loop (cdr a) r))
+	    (else
+	     (loop (cdr a) (cons (car a) r))))))
+
+  ;; Construct a `(local ...)' expression that refers to the variable
+  ;; that is stored in REG in TARGET-ENV.  Return #f when the register
+  ;; is not allocated in TARGET-ENV.
+  ;;
+  (define (make-register-value-expression reg)
+    (if (memq reg non-volatile-regs)
+	(let ((frame (lookup-register-frame reg target-env)))
+	  (if frame
+	      `(local ,(car frame))
+	      #f))
+	#f))
+
+  ;; Make the stack-args that will spill the used registers.
+  ;;
+  (define (make-spill-args reg-args)
+    (pk 'spill-args reg-args
+    (let loop ((sa '())
+	       (ra reg-args))
+      (cond ((null? ra)
+	     sa)
+	    (else
+	     (let* ((reg (car (car ra)))
+		    (exp (make-register-value-expression reg)))
+	       (if exp
+		   (loop (cons exp sa) (cdr ra))
+		   (loop sa (cdr ra)))))))))
+
+  ;; Make the reg-args that will load the unused registers.
+  ;;
+  (define (make-unspill-args reg-args)
+    (pk 'unspill-args reg-args
+    (let loop ((ua '())
+	       (regs (set-difference non-volatile-regs
+				     (map car reg-args))))
+      (cond ((null? regs)
+	     ua)
+	    (else
+	     (let* ((reg (car regs))
+		    (exp (make-register-value-expression reg)))
+	       (if exp
+		   (loop (cons (cons reg exp) ua) (cdr regs))
+		   (loop ua (cdr regs)))))))))
+
+  (let* ((reg-args-1 (pick-reg-args args))
+	 (stack-args (append! (pick-stack-args args)
+			      (make-spill-args reg-args-1)))
+	 (reg-args (append! reg-args-1
+			    (make-unspill-args reg-args-1)))
+	 (n-stack-args (length stack-args))
 	 (n-reg-args (length reg-args))
-	 (n-stack-slots (/ (env-stack-depth (lambda (e)
-					      (eq? e target-env))
-					    env)
-			   4))
+	 (n-stack-slots (env-stack-depth target-env env))
 	 (n-tough (min n-stack-args n-stack-slots))
 	 (n-easy (- n-stack-args n-tough)))
     (pk 'tail-args
@@ -542,7 +766,45 @@
 		   (env-push env)
 		   `(,@code
 		     ,@(compile-expression (car rev-args) env 'r0)
-		     (push r0))))))))
+		     (push r0)
+		     (die r0))))))))
+
+(define (stackify args)
+  (map (lambda (a) (cons 'stack a)) args))
+
+(define (splice-places places args)
+  (map (lambda (p a) (cons (car p) a)) places args))
+
+(define (env-for-args args env)
+  (pk 'for-args args
+      (let loop ((a args)
+		 (env env))
+    (cond ((null? a)
+	   (let loop ((rev-args (reverse args))
+		      (env env))
+	     (cond ((null? rev-args)
+		    env)
+		   (else
+		    (loop (cdr rev-args)
+			  (if (eq? (car (car rev-args)) 'stack)
+			      (env-push-local (cdr (car rev-args)) env)
+			      (env-alloc-reg (cdr (car rev-args))
+					     (car (car rev-args)) env)))))))
+	  ((memq (car (car a)) non-volatile-regs)
+	   (loop (cdr a)
+		 (env-spill-reg (car (car a)) env)))
+	  (else
+	   (loop (cdr a)
+		 env))))))
+
+(define (env-alloc-non-volatile-regs env)
+  (let loop ((regs non-volatile-regs)
+	     (env env))
+    (cond ((null? regs)
+	   env)
+	  (else
+	   (loop (cdr regs)
+		 (env-alloc-reg #f (car regs) env))))))
 
 (define (compile-expression exp env target)
   (cond
@@ -556,19 +818,27 @@
       (else
        (let ((acc (lookup-local (cadr exp) env)))
 	  (cond ((number? acc)
-		 `((ldx ,target sp ,acc)))
+		 `((ldx ,target sp ,(* 4 acc))))
 		(else
-		 (error "unsupported access method:" acc)))))))
+		 `((mov ,target ,acc))))))))
 
    ((form? 'set-local exp)
     (let ((acc (lookup-local (cadr exp) env))
 	  (val (caddr exp)))
-      `(,@(compile-expression val env 'r0)
-	,@(cond ((number? acc)
-		 `((stx sp ,acc r0)))
-		(else
-		 (error "unsupported access method:" acc)))
-	,@(compile-expression (cadr exp) env target))))
+      (case target
+	((:tail)
+	 (compile-with-return exp env))
+	(else
+	 `(,@(compile-expression val env 'r0)
+	   ,@(cond ((number? acc)
+		    `((stx ,(* 4 acc) sp r0)
+		      (die r0)))
+		   (else
+		    `((mov ,acc r0)
+		      (die r0))))
+	   ,@(if (not (eq? target :none))
+		 `((mov ,target (scm ,(if #f #f))))
+		 '()))))))
 
    ((form? 'quote exp)
     (case target
@@ -591,44 +861,21 @@
 	     `((ld ,target (var ,var)))
 	     (error "undefined global variable:" (cadr exp)))))))
 
-;    ((form? 'invoke exp)
-;     (if (eq? target :tail)
-; 	(begin
-; 	  (display ";;; no tail-calls yet.\n")
-; 	  (compile-with-return exp env))
-; 	;; push args in reverse order
-; 	(let loop ((args (reverse (cddr exp)))
-; 		   (env env)
-; 		   (code '()))
-; 	  (cond ((not (null? args))
-; 		 (loop (cdr args)
-; 		       (env-push env)
-; 		       (append! code
-; 				`(,@(compile-expression (car args)
-; 							env 'r0)
-; 				  (push r0)))))
-; 		(else
-; 		 ;; load argument count into r1,
-; 		 ;; load proc into r0 and jump to "invoke"
-; 		 (append! code
-; 			  `(
-; 			    ,@(compile-expression (cadr exp) env 'r0)
-; 			    (mov r1 ,(* 4 (length (cddr exp))))
-; 			    (call (code ,invoke-code))
-; 			    (mov ,target r0))))))))
-
    ((form? 'invoke exp)
     (let ((proc (cadr exp))
 	  (args (cddr exp)))
       (cond ((eq? target :tail)
-	     `(,@(compile-tail-args (list (cons 'r0 proc))
-				    (cons '(local :ret) args)
-				    '() env)
+	     `(,@(compile-tail-args (list* (cons 'r0 proc)
+					   (stackify
+					    (cons '(local :ret)
+						  args)))
+				    base-env env)
 	       (mov r1 ,(* 4 (length args)))
 	       (jmp (code ,invoke-code))))
 	    (else
-	     `(,@(compile-tail-args (list (cons 'r0 proc))
-				    args env env)
+	     `(,@(compile-tail-args (list* (cons 'r0 proc)
+					   (stackify args))
+				    env env)
 	       (mov r1 ,(* 4 (length args)))
 	       (call (code ,invoke-code))
 	       ,@(if (not (eq? target :none))
@@ -666,7 +913,7 @@
     (let* ((labels (cadr exp))
 	   (bodies (map cddr labels))
 	   (body (cons 'begin (cddr exp)))
-	   (frame (make-labels-frame labels))
+	   (frame (make-labels-frame labels env))
 	   (env (extend-env frame env))
 	   (end-label (genlabel)))
       `(,@(compile-expression body env target)
@@ -674,18 +921,12 @@
 	,@(apply append!
 		 (map (lambda (l b)
 			(let ((label (cadr l))
-			      (body (cons 'begin b)))
-			(let loop ((rev-args (reverse (caddr l)))
-				   (inner-env env))
-			  (cond ((null? rev-args)
-				 `(,label
-				   ,@(compile-expression body inner-env target)
-				   ,@(unwind-env env inner-env)
-				   (b ,end-label)))
-				(else
-				 (loop (cdr rev-args)
-				       (env-push-local (car rev-args)
-						       inner-env)))))))
+			      (body (cons 'begin b))
+			      (inner-env (env-for-args (caddr l) env)))
+			  `(,label
+			    ,@(compile-expression body inner-env target)
+			    ,@(compile-tail-args '() env inner-env)
+			    (b ,end-label))))
 		      (cdr frame) bodies))
 	,end-label)))
 
@@ -699,36 +940,35 @@
       (if (not (= (length args) (length target-args)))
 	  (error "wrong number of arguments in goto:" exp))
       (pk 'goto label target-label)
-      `(,@(compile-tail-args '() args target-env env)
+      `(,@(compile-tail-args (splice-places target-args args) target-env env)
 	(b ,target-label))))
 
    (else
     (error "unsupported form:" exp))))
 
-(define (compile-to-asm form)
+(define base-env (env-alloc-non-volatile-regs (make-empty-env)))
+
+(define (compile-to-asm form . opt-nopeep)
   (if (or (not (list? form)) (not (eq? (car form) 'lambda-template)))
       (error "only lambda-templates can be compiled"))
-  (let* ((rev-args (reverse (cadr form)))
-	 (nargs (length rev-args)))
-    (let loop ((a rev-args)
-	       (env '()))
-      (cond ((not (null? a))
-	     (loop (cdr a)
-		   (env-push-local (car a) env)))
-	    (else
-	     (let ((env (env-push-local :ret env))
-		   (argsok (genlabel)))
-	       `(  (beq ,argsok r1 ,(* 4 nargs))
+  (let* ((args (cadr form))
+	 (nargs (length args))
+	 (env (env-push-local :ret (env-for-args (stackify args) base-env)))
+	 (argsok (genlabel))
+	 (code `(  (beq ,argsok r1 ,(* 4 nargs))
 		   (prepare 1)
 		   (mov r0 "some procedure")
 		   (pusharg r0)
 		   (finish (subr "scm_error_num_args_subr"))
 		 ,argsok
 		   ,@(compile-expression `(begin ,@(cddr form))
-					 env :tail))))))))
+					 env :tail))))
+    (if (or (null? opt-nopeep) (car opt-nopeep))
+	(peephole-optimize code)
+	code)))
 
 (define (compile form)
   (make-closure (assemble (compile-to-asm form)) #f))
 
-(define (compile-show form)
-  (display-asm (compile-to-asm form)))
+(define (compile-show form . opt-no-peep)
+  (display-asm (apply compile-to-asm form opt-no-peep)))
