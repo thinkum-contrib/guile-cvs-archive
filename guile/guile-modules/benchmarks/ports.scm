@@ -105,7 +105,7 @@
 		   (let ((line (read-line data-2)))
 		     (if (eof-object? line) lines
 			 (loop (cons line lines)))))))
-	(sink (open-output-file "/home/jimb/foo")))
+	(sink (open-output-file "/dev/null")))
     (time-thunk-repeated 
      'write-lines 500
      (lambda ()
