@@ -1,0 +1,33 @@
+summary: imaginary minus zero is dropped
+reported: Marius Vollmer <mvo@zagadka.de>
+
+"John W. Eaton" <jwe@bevo.che.wisc.edu> writes:
+
+> | However, imaginary parts are omitted when they are zero:
+> | 
+> |     guile> 1-0.0i
+> |     1.0
+> | 
+> | Is that a problem?  It might be that Guile assumes that no complex
+> | number has a zero imaginary part, we would have to check this when
+> | allowing a negative zero in a complex number.
+> 
+> I think the answer depends on how you expect numbers to
+> behave. [...]  But maybe it is not appropriate for Scheme to do
+> these sorts of narrowing type conversions automatically?
+
+I'd say that such an automatic narrowing fits Scheme perfectly.  I'm
+only worried about losing information when dropping a negative zero.
+Numerical people seem to make a fuss about the sign of zero, so I
+figured it might be important to be able to distinguish between
+"0.0+0.0i" and "0.0-0.0i".  When dropping the imaginary part when it
+is zero, you can't make that distinction.
+
+(This is not only a problem when inputting numbers, but also when
+computing:
+
+    guile> (/ -1-1i +inf.0)
+    -0.0
+
+but one might expect "-0.0-0.0i".)
+
