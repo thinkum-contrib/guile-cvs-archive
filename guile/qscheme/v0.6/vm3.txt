@@ -1,0 +1,273 @@
+-*- tab-width:4; -*-
+
+
+This is a brief description of the VM3 engine
+
+* REGISTERS
+
+	SP
+		Points to the next avalable cell on the stack. Unlike in vm2,
+		stack grows from down to upper memory addresses.
+	
+	TOS 
+		Holds the current content of the top of the stack. This is
+		only a cache register
+
+	ENV
+		points to the current dynamic environment chain. Env chain is
+		kept on the stack as long as no closure is stored or returned.
+
+	AP
+		the argument pointer. Arguments when calling functions are
+		somewhere between AP and SP.
+
+	IP
+		the Interpret Pointer: points to the next vm instruction to
+		execute.
+
+* EXECUTION DYNAMICS
+
+The ENV always points to a valid environment chain. When the current
+environement is the toplevel, the ENV is NULL.
+
+			|       |
+			+-------+
+			+---+---+
+			|   +---+
+			+---+   |
+			|   |   |
+			+---+---+
+
+* CLOSURE CALL
+
+** PREPARATION OF CLOSURE CALL
+
+Before pushing arguments for closure, we first push a CONT and an
+environment header. After that, we push the arguments and then the
+function.
+
+The Stack just before calling the function looks like:
+
+			+-------+
+	SP  --->|       |
+			+-------+
+			| func  |
+			+-------+
+			| arg2  |
+			+-------+
+	 		| arg1  |
+			+-------+
+			|   ?   | env.nslots
+			+-------+
+	ENV --->|   +---+-----> <next env>
+			+-------+
+			|       | .env
+			+-------+
+			|       | .ip
+			+-------+
+	CONT -->|       | .next_cont
+			+-------+
+
+** CALLING CLOSURE
+
+1 - the ENV and IP register are saved to the CONT. The content is
+	restored when the closure returns.
+
+2 - pop the closure pointer off the stack.
+
+3 - the closure's env pointer is stored in the ENV->next pointer.
+
+4 - the number of slots is adjusted.
+
+			+-------+
+	SP  --->|       |
+			+-------+
+			| arg2  |
+			+-------+
+	 		| arg1  |
+			+-------+
+			|   2   | .nslots
+			+-------+
+	ENV --->|   +---+-----> <closure env>
+			+-------+
+			|   +---+-----> <next env>    	.env
+			+-------+
+	        |   +---+-----> <old ip>  		.ip
+			+-------+
+	CONT -->|       | .next_cont
+			+-------+
+
+** RETURNING FROM CLOSURE
+
+1 - save the result
+2 - restore registers as saved in struct pointed by CONT
+3 - set SP to CONT
+4 - CONT = CONT->next
+5 - *sp++ = result;
+
+** ASM
+
+(define (func x y) (+ x y))
+(func 10 20)
+
+(define func
+  (asm
+   (pushl0 0)
+   (pushl0 1)
+   (add2)
+   (return)))
+
+(asm
+ (prepcall)
+ (pushq 10)
+ (pushq 20)
+ (pushv func)
+ (callclos))
+
+
+* LET STRUCTURE
+
+** PREPARATION OF LET STRUCTURE
+
+Just allocate space for ENVFRAME header on stack. After that, we eval
+the binding values, pushing each result to the stack. The ENV still
+points outside the let env. When binding is done, the LETBODY
+instruction permits to locate and fill the ENVFRAME header (that's why
+we need the number of element for the LETBODY instruction).
+
+** ASM
+
+(let ((x 10) (y 20)) ...)
+
+(asm
+ (letstart)
+ (pushq 10)
+ (pushq 20)
+ (letbody 2)
+ ...
+ (letend)
+)
+
+* LET* and LETREC STRUCTURE
+
+letrec needs that binding is effectuated in order and that the
+environment is available during binding.
+
+(letrec ((x 10) (y 20)) ... )
+
+(asm
+ (letrec 2)
+ (push 10)
+ (push 20)
+ ...
+ (letend)
+)
+ 
+
+Structures
+
+	EnvFrame { env-next, nslots, slot#1 ... slot#nslots }
+
+		structure to store a group of environemnt variable values.
+
+
+	ContFrame { }
+
+		contains the state of the VM. The register have reserved place
+		to save them.
+
+Scheme construct mapping:
+
+	let family:
+
+		push a new EnvFrame to hold the local variable values. At end
+		of the let, pops the EnvFrame. The value returned by the let
+		is pushed on the stack in place of the EnvFrame.
+
+	func call:
+	
+		func and arguments are pushed from left to right:
+		(func arg1 arg2) => push func, arg1, arg2
+		
+
+* OPEN QUESTIONS
+
+** pushenv
+
+2 possible syntax for pushenv:
+
+  First:
+  (pushenv)			create the env header (only fill env->next)
+  (pushlit 10)
+  (pushlit 20)
+  (closenv)			set env->nslots which is sp - env->slot
+
+  2nd:
+  (pushenv 2)		create the env header, fill env->next and env->nslots
+  (pushlit 10)
+  (pushlit 20)
+
+The question resumes to: "when do i pushenv ?". If pushenv is only
+used in a context where the number of slots is always known, there is
+no reason not to use the 2nd version.
+
+If pushenv is used in a context where the number of slots is not known
+the first is the good one.
+
+With current version of comp.scm, the pushenv is used:
+
+	* for primitive and cprimitive with variable number of arguments
+
+When compiling the prim/cprim call, the number of pushed arguments is
+known. But the number of slot is not used, because it can be
+calculated. (SP - env->slot).
+
+
+***********************************
+What will cost merging cont and env
+***********************************
+
+
+
+
+
+********************************
+VM / Code generation
+********************************
+There are some problems with current machine:
+
+* prim and cprim should also be tail-recursive.
+
+	(define (range n) (if (eq? n 0) '() (cons n (range (- n 1)))))
+	(range 50000)
+
+  is not properly tail-recursive (and can't be).
+
+* Need better debugging informations.
+
+
+
+********************************
+Code inlining
+********************************
+
+Code inlining implies the creation of 2 arrays:
+
+	- inline_code: to hold the inlined code,
+
+	- inline_lits: one to hold the "literals" (what is stored after
+	  the opcodes in a normal context).
+
+Assembly of an inline code:
+
+	- copy code for successive opcodes in the inline_code: 
+
+	- when opcodes has more followers, store the followers in the
+	  inline_lits.
+
+	- opcodes that manipulates the IP (branches, etc...) should have
+      special treatments.
+
+
+	
+

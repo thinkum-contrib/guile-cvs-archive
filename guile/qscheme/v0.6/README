@@ -1,0 +1,34 @@
+	   QScheme - a fast implementation of the Scheme language. 
+
+		 Copyright (C) 1998-1999 Daniel Crettol <dan@sof.ch>
+
+
+What's QScheme ?
+
+  QScheme is a fast implementation of the Scheme language, as defined
+  in the R5RS document. This is not a full implementation yet.
+
+  The documentation is not completed yet. See the doc directory.
+  
+  Read the INSTALL file to install this.
+
+Goals
+
+  QScheme is here to be fast and easely extendable. I hope you will
+  enjoy it.
+
+Licence
+
+  QScheme is distributed under the term of the Gnu Public Licence. See
+  the file LICENCE for details.
+
+Author
+
+  I'm Daniel Crettol and you can email me to dan@sof.ch.
+
+  News and announce can be found at http://www.sof.ch/dan
+
+Final word
+
+  Don't expect too much and have fun.
+

@@ -1,0 +1,99 @@
+Opcodes
+
+Opcode			argument
+------------------------------------------------------------------------
+end
+dolet
+dolet*
+endlet-jump
+drop
+push			<number> | <symbol> | <local-symbol>
+mark
+mkclosure
+
+endlet
+return
+
+call			<symbol> | <expr> 
+------------------------------------------------------------------------
+
+
+Assembler directives:
+
+(env sym...)
+
+	* add symbols to list of current compilation environement. The new
+environement is dropped by the end-env instruction
+
+(end-env)
+
+(label nnn)
+(brt nnn)
+(bra nnn)
+(brf nnn)
+
+Example of compilation
+----------------------
+
+(quote x)
+	=>
+	(pushq x)
+
+(set! SYM ARG)
+
+	(push ARG)
+	(pushq SYM)
+	(store)
+
+(if TEST TRUE FALSE)
+
+	TEST
+	(brf 0)
+	TRUE
+	(bra 1)
+	(label 0)
+	FALSE
+	(label 1)
+
+(begin E1 E2 ..)
+
+	E1
+	(drop)
+	E2
+	(drop)
+	...
+
+(lambda FORMAL BODY)
+
+	(mkenv FORMAL)
+	BODY
+	(return)
+
+
+(let ((SYM VAL)) BODY)
+	
+	(push VAL)
+	(env BINDING)
+	BODY
+	(end-let)
+
+(let* ((SYM VAL)) BODY)
+	
+	(env BINDING)
+	(dolet* (length binding))
+	(push VAL)
+	(pushq VAR)
+	(store)
+	BODY
+	(end-let)
+
+(and E1 E2)
+
+	E1
+	(brf 0)
+	E2
+	(brf 0)
+	E3
+	...
+	(label 0)
+	

@@ -1,0 +1,1330 @@
+================================================================
+DEVEL VERSION 0.5.2
+================================================================
+1.8.2000
+* corrected port_string_output_string: badly terminated strings
+* comp.scm: let implemented
+
+12.7.2000
+* first run of the VM3 engine. Ready to test code inlining.
+
+10.7.2000
+* (primitive-address PRIM)
+
+9.7.2000
+* some work on comp.scm.
+* fix source where hash-ref and hash-search were used, because
+  hash-ref|search returns #f on failure.
+* (unbound) added
+
+8.7.2000
+* modif of vm3 to support future code inlining.
+
+7.7.2000
+* (display ...) and (object->string ...) now support circ lists.
+
+6.7.2000
+* New string system. Now string use SCM_STRBUF.
+* char IO speedup. Now QScheme is a little faster than perl for
+  IO. This is a big progress.
+
+3.7.2000
+* changed scm_asprintf -> scm_sprintf
+* new scm_asprintf(char *fmt, ...) => char * , malloced
+
+25.6.200
+* configure.in: change test for dlopen because dlopen may be in libc
+
+23.6.2000
+* Work on comp.scm
+* Fix in Makefile.am
+
+================================================================
+VERSION 0.5.1
+================================================================
+22.6.2000
+* Fix in the Makefile.am, includes were not correct.
+
+21.6.2000
+* New predicates.
+* Added make-symbol symbol-name symbol-value
+* Fix for solaris in unix.c
+* Fix for alpha
+* Try fix the sproto.h problem in Makefile.am
+
+20.6.2000
+* start coding vm3.c
+* start coding comp.scm
+
+15.6.2000
+* start working on vm3
+
+================================================================
+VERSION 0.5.0
+================================================================
+12.6.2000
+* Thinking of a new vm.
+* Preparing distribution of qscheme-0.5.0
+* Removed port sweeping message.
+
+9.6.2000
+* shellsort and qsort on arrays. Semi stable.
+
+8.6.2000
+* implementation of unix.c: continued
+* replaced unnecessary scm_reverse by double pointer trick.
+
+6.6.2000
+* start implementation of unix.c: system getuid getgid getcwd access
+  symlink readlink link unlink rmdir mkdir
+* SCM_ERR: tries to recompose scheme function name from the
+  __FUNCTION__ string. Seems to work most of the time.
+
+2.6.2000
+* Changes in port.c: trying to have better perfs.
+  * big speedup of readline function. Better optimization of many
+    funcs. Now speed is comparable to perl.
+* new func: port_read, port_write, port_getline, port_putline
+* scheme (read-line STRING PORT) => boolean: syntax change
+
+31.5.2000
+* until implemented
+
+30.5.2000
+* Documentation upgrade.
+* Removed debugging messages from thread.c and heap.c
+* random number
+
+29.5.2000
+* scheme semaphore implemented.
+
+28.5.2000
+* scheme thread procedure implemented.
+* thread cancelation support.
+* mutex procedure implemented.
+
+26.5.2000
+* THREADS ARE WORKING!!!
+
+22.5.2000
+* errjmp moved to SCM_VMD
+* First real thread test
+* Crash because GC occurs before thread context is established
+  => Thread context must be allocated in the parent thread.
+  OR
+  => heap must be lock to prevent GC before new thread context is
+     established. 
+
+15.5.2000
+* Starting to play with multithread context.
+
+13.5.2000
+* SCM_HEAP_LOCK/UNLOCK to lock the heap
+* Fixed argument depth in asm.c
+
+1.5.2000
+* autoconf: --enable-threads define SCM_WITH_THREADS when threading is
+  wanted.
+
+30.4.2000
+* QS_LIB many pathes, delimited with ':'.
+* Default library search path follows installation path. see
+  SCM_DEFAULT_LIB_PATH in configure.in and config.h
+
+29.4.2000
+* autoconf
+  * make distcheck is now working. (no warranty)
+
+28.4.2000
+* autoconf
+  * test for computed gotos, test for __FUNCTION__
+  * new rules for building sproto.h, does not need c-extensions.h
+	anymore.
+  * make distcheck is yet fully operationnal
+
+27.4.2000
+* autoconf/automake:
+  * libavcall, libpcre and libgmp correcty exported to Makefile
+  * rules for .so objects
+  * install of .so and .scm objects to
+    $(prefix)/share/qscheme/$(VERSION)
+
+26.4.2000
+* autoconf/automake adapt.
+  * configure.in rules for libavcall, libpcre and libgmp.
+
+24.4.2000
+* scm_vm:
+  * pass ptr to SCM_VM struct.
+  * removed scm_start_engine
+  * SCM_PRIM_TABLE is a const struct. I hope this will help the linker
+    to generate correct addresses.
+  * l_end: pop the result off the stack.
+  * scm_apply, scm_apply_v, scm_apply0, scm_apply2, scm_apply2,
+	scm_apply3 uses alloca to build code.
+
+21.4.2000
+* Goal of this version is to support native multithreading, and
+  possibliy a new vm engine with a vm stack growing up.
+
+================================================================
+VERSION 0.3.4
+================================================================
+21.4.2000
+* nasty bug in named let compilation fixed.
+
+17.4.2000
+* process.c: atom_pipe and atom_null were badly constructed.
+* socket.c: rewrite, tested
+* str.c:	read_line now skips the \r in lines
+
+10.4.2000
+* callcX till 10 args
+* lot of work on sgtk and gseq
+
+29.3.2000
+* make-hash: was declared as cprim 1: now cprim -1
+* alias vref and vset! for vector-ref and vector-set!
+* #{ (key . val) } and #{ k v k v } syntax
+
+28.3.2000
+* asprintf does not exist on Solaris. Reverting cformat to use
+  vsnprintf.
+
+27.3.2000
+* (string ...) now accepts CHAR|INUM|STR
+
+26.3.2000
+* scm_module_wparse: fixed possible buffer overflow
+* cformat
+
+25.3.2000
+* (* 1 2 0) caused float execption. fixed.
+
+20.3.2000
+* gseq work.
+
+================================================================
+VERSION 0.3.3
+================================================================
+19.3.2000
+* added tab-width header to c&h files
+* fix: short and long are now accepted as return for ffi function.
+
+18.3.2000
+* fix char octal char display
+* Variable accepts byte as type
+
+16.3.2000
+* cleanup of gc messages: (gc-verbosity N)
+* port_putd: buffer overflow, because of %e format. Now convert with a
+  %g format.
+* (set-prompt STR)
+
+15.3.2000
+* Detected a bug in the scm_assemble logic.  mkproc called
+  scm_assemble recursively and causes loss of label tables.
+
+13.3.2000
+* (define (tst) (print x)) : if x is not defined, create an
+  unbounded symbol.
+* %pushv: generate an error when value is #unbound.
+* cleanup in scm_compile_obj
+* test with libglade-0.12. Bug corrected.
+
+================================================================
+VERSION 0.3.2
+================================================================
+* 2 bug important fixes: thanks Juan Pablo Romero <rm@infomex.com.mx>
+  - extfunc returning double was broken
+  - (* x 0) failed.
+
+================================================================
+VERSION 0.3.1
+================================================================
+4.3.2000
+* unix.scm getcwd chdir
+* fix in struct_get
+* Web site polishing
+* Publish
+
+3.3.2000
+* struct->list struct-at-get struct-at-set
+
+2.3.2000
+* External struct interface works. Now high level function now.
+
+28.2.2000
+* new align field in SCM_VarAux
+* struct object are now aligned. Test is ok.
+* SCM_ALIGN_OFS, SCM_ALIGN_PTR, SCM_ALIGNOF macros
+
+27.2.2000
+* struct implemented. support a mixture of native scheme object and
+  also foreign objects
+
+23.2.2000
+* struct.c: use SCM_VAR to point to object.
+
+22.2.2000
+* hash:
+  - make-symbol-hash, make-generic-hash, make-atom-hash
+  - documentation update
+  - hash-stat prints % info.
+  - hash->list: symbol and atom hash now all returns a dotted pair
+	list (alist).
+
+* struct.c:	  work.
+
+21.2.2000
+
+* Bugchase: fix in libglade-0.11. Submitted a patch. Now events are
+  correctly handled.
+* include *.glade in snapshot.
+* start of structure definition.
+* New type: GdkVisual 
+* Fix in make-gtk-proto
+
+19.2.2000
+* libglade: autoconnect implemented
+* module:
+  * (module X ...) define X as global symbol whose value is the module X
+  * fix in scm_syntax_module: SCM_SYM_VALUE obsolete
+
+18.2.2000
+* error handing: use of memcpy to save/restore err handler.
+
+17.2.2000
+* sglade.so detached from sgtk. 
+
+16.2.2000
+* Rework 0.3.1 dist rule
+* Cleanup of version 0.3.1 installation script
+
+14.2.2000
+* make-gtk-proto : uses gtk.defs to differenciate the enums and the
+  flags. gtk.defs is generated from the makeenums.pl utility in the
+  gtk source directory.
+* string are allocated by fixed sized block multiple of SCM_STR_QTUM.
+* string-concat!.
+
+13.2.2000
+* implemented string-unpack, string-pack 'p' and 'P'.
+* added string-resize!
+
+12.2.2000
+* start to write string-unpack.
+* added scm_uint2num(unsigned long n);
+
+11.2.2000
+* str.c
+  - parsing of string octal and hex escape was incorrect.
+  - implemented (string-pack FMT STR...)
+
+10.2.2000
+* sgtk: added gtk-flags-get
+* sgtk: correction of enum_get and flag_get.
+
+9.2.2000
+* Site relook. Preparing for a new distribution.
+
+8.2.2000
+* whatis redaction more or less finished.
+* removal of SOBJ_T_EXTVAR and related. Use SOBJ_T_VAR in place.
+
+6.2.2000
+* Completing glade bindings.
+* whatis function and mkwhatis and whatis documentation started.
+
+5.2.2000
+* new flag scm_in_gc
+* SCM_OBJTYPE modified to cache the SCM_GCMARK bit because otherwise
+  it's not really possible to use functions that test argument type
+  during the gc. The problem surfaced when using the hash_remove during gc.
+* glade bindings are more or less working
+* gtk / gdk binding seems to be ok
+* Rework of make-gtk-proto. Now can output C code
+* gtkdefs.so and gdkdefs.so modules generated (based on gtk-1.2.6)
+
+30.01.00
+* pointer.c: scm_pointer_write && scm_pointer_compare
+* sgtk: func_hash and obj_cache
+* sgtk: support for idle and timeout funcs.
+
+29.01.00
+* list-remove!, list-replace!, hash-remove!
+
+28.01.00
+* fixed old keyword format in variable.c
+* sgtk: gtk-idle-add: crash when closure.
+* sgtk: protect callbacks from GC.
+
+27.01.00
+* fix egtk.scm to new bindings
+* prim2.i: added unbound-object? and undefined-object? predicates
+* s.scm: added needs for conditionnal loading
+* remove sgtk/s.scm and set QS_LIB to correct directory
+
+26.01.00
+* make-gtk-proto: renamed from mkproto: directly read gtk sources
+  to extract prototypes. needs some real test now
+
+21.01.00
+* new apply: scm_apply_v(SOBJ func, int nargs, SOBJ arg[])
+* better argument passing in sgtk_callback_marshall.
+
+20.01.00
+* sgtk: debugging of sgtk_callback_marshall.
+* qscheme makefile fix. Compiles without changes on Solaris or Linux
+
+19.01.00
+* sgtk / mkproto work. Automatic external type correction requires
+  type caster functions. :)
+
+17.01.00
+
+* open-port works. string can be open with append-mode.
+
+12.10.99 - 17.01.00
+
+* I forgot to upgrade this file. A lot of things have changed, mainly:
+  * object interface
+  * bugfixes
+  * docs
+  * sgtk
+
+12.10.99
+
+* fixed remainder/modulo error for bignumber
+* fixed last of ` bug
+
+11.10.99
+
+* call-with-input-file, call-with-output-file
+* call-with-input-string, call-with-output-string
+* local define seems to work everywhere
+* string->number returns #f on error except for a wrong base
+* fix gc of chars
+* #\Space == #\space
+* input-port? output-port? fixed.
+* correct port flags for scm_(in|out|err)_port
+
+10.10.99
+
+* lot of work. 
+  - apply bug
+  - append fixed
+  - do fixed: first compute step value then replace binding
+  - modules: module and <module>::<var> fixed.
+  - gensym generates symbol names that can't be read
+  - local define in let.
+
+* version 3.74 checkin
+
+7.10.99
+* named let implemented
+
+6.10.99
+* changed string-index definition (compatible with guile)
+* solved the named let problem. Too late to write code now.
+* (define (tst) (print tst)) failed. Fixed.
+
+27.9.99
+* port_seek
+* load also can load .so libs.
+
+26.9.99
+* cond with => now works. Added:
+  - new opcode: save_r0, load_r0
+  - new optimizer: strip (save-r0) (load-r0) sequence
+* (gensym [prefix])
+* fix in backquote. `(,x) is equiv `((unquote x))
+* case implemented
+
+22.9.99
+* some suppl support for finalizers: null-aux? clear-aux! get-aux
+  set-aux!.
+
+* Documentation upgrade.
+
+21.9.99
+* finalizers: ok, but may enter endless loop
+
+20.9.99
+* number->string: base limited to 1..36
+* FFI
+================================================================
+VERSION 0.3.0
+================================================================
+16.9.99
+* Keywords syntax fix. Now accept the following forms: :<word>,
+  <word>: and #!<word>.  Note that (eq? #!ake :ake) => #t. The
+  (keyword-display-type N) function change the way keywords are displayed.
+
+* y2k bug now included... :)
+
+* Script ready yet. Argv contains only script arguments now. For
+  example: 
+
+    qscheme -- ake tut
+	> argv
+	#("ake" "tut")
+
+  Also when used in a script context, it's now perfectly quiet.
+
+* Documenation update
+
+* Released 0.3.0
+
+13.9.99
+
+* quasiquote, unquote and unquote-splicing are read as atom
+  now. backquotify is coherent yet, either with ` , ,@ or the
+  quasiquote, unquote and unqutoe-splicing syntax.
+
+12.9.99
+
+* Fixed backquote problems. Not yet consistent when quasiquoting
+  arrays.
+
+8.9.99
+
+* (cond (1) (else "error")) => 1
+* new opc: br_cond and br_while. br_while not used yet...
+* started to fix quasiquote.
+
+6.9.99
+
+* Version is displayed during startup
+* Vorbid redefinition of syntax objects
+* equal? now works on arrays
+* ARGH. bugfix of bugfix in cstr2number.
+* +1 is now read as number
+* # in number for inexact
+
+2.9.99
+
+* added predicates: procedure? environment? closure? primitive?
+  cprimitive?
+
+* '(', ')' and ';' are breaking chars during read
+
+* dyn.c: dlsym: only check return value. Works on Solaris now.
+
+1.9.99
+
+* Commit 3.72
+* Letrec is working correctly.
+* Moved current autoconf stuff to autoconf directory
+
+28.8.99
+
+* more bug chase (thanks Roger and Oleg Tolmatcev)
+  - mkclosure now always copies the env chain
+  - letrec is more or less working now
+  - (list? 2) crashed.
+  - the exl function now works
+
+* Adapted to autoconf. Nearly perfect.
+
+================================================================
+VERSION 0.2.2
+================================================================
+
+19.8.99 - 20.8.99
+
+* heavy debugging on bugs reported by Roger. Success. 
+  => mkclosure now really copy environement to heap.
+  => setting of ip was missing in l_jump: (vm2.c)
+
+* Changed to pcre-2.07. Fixed a stupid include in regex.c.
+  New extra argument in pcre_exec.
+
+* Commit. (3.70?)
+
+* Release qscheme-0.2.2.
+
+16.8.99
+* work on sgtk
+
+15.8.99
+* Cleanup of unix.scm
+
+14.8.99
+
+* New pcre version (2.07)
+* New opcodes: setl0drop. Used in do.
+* Makefile updated. qscheme linked with -rdynamic option
+
+13.8.99
+
+* apropos: returns a list
+* implemented do
+* process is working
+* fix: assq, assv, assoc now does not throw error when no assoc is
+  found. 
+
+6.8.99
+
+* scm_add_cvar now adds to scm_gc_protected.
+* scm_gc_protect: test if location is already protected
+
+30.7.99
+* port: flush-output file-position
+* string: string-split string-join string-upper string-lower,
+  scm_str_alloc 
+
+29.7.99
+
+* scm_init_pointer: pointer? null-pointer?
+* string-index, string-chop. Not convinced by the string-index
+  argument ordering, but I want to keep compat with STk.
+* when FFI returns a null and expected type is a string return
+  NIL. Can use ffi with string as arguments. See cat function in the
+  unix.scm file.
+* massive documentation update
+
+28.7.99
+
+* experimentations with pipes. Nearly ready to include a process
+  extension (a la STk). 
+* Decided to use STk extensions and syntax when possible. Try to keep
+  compatibility.
+* h2scm changes. handles better __const and const declaration
+* Generated unix.scm.
+
+26.7.99
+
+* scm_init now pack all init stuff.
+* cleanup. remove all #ifdef OLD_COMPILER | UNUSED | OLD
+* SOBJ scm_loadstr(char *) and SOBJ scm_evalstr(char *)
+* with-input-from-string and with-output-to-string implemented. Doc
+  update
+
+25.7.99
+
+* Support for new external variables: string and string-buffer.
+* current version is now 0.2.2
+* checkin of version 3.67
+
+22.7.99
+
+* checkin 3.66
+
+* fixed the sgtk makefile. Does not link with libqs.so but with old
+  libs.so
+
+* open-input-string, open-output-string, get-output-string. close-port
+  now returns a string if it's an output-string port. Don't know if
+  it's a good idea yet, bcz it makes closing relatively costly.
+
+21.7.99
+
+* generic port redirection routine. adapted with-input-from-file and
+  with-output-to-file.
+
+20.7.99
+
+* changes in the compile-qscheme script. Now expects the version
+  number as argument
+
+* obj->type now have a circbit. This limits the number of types
+  supported to 16384.
+
+* scm_list_length now does not loop forever when circular list is
+  given. (Thanks <puech@bruyeres.cea.fr>). Should investigate for more
+  circular list trick.
+
+================================================================
+VERSION 0.2.1
+================================================================
+
+18.7.99
+
+* scm_inp, scm_outp, scm_errp changed to SCM_INP, SCM_OUTP, SCM_ERRP
+  macros.
+
+* added primitives: with-input-from-file, with-output-to-file,
+  close-input-port, close-output-port. Doc updated.
+
+* scm_apply[0-4]() functions.
+
+* Checkin of version 0.2.1
+
+17.7.99
+
+* SCM_HASH_T_GEN, SCM_HASH_T_SYMBOL, SCM_HASH_T_ATOM defs in s.scm
+  (Thanks brandon@alpha.badmoon.com)
+
+* (open-input-file xxx) and (open-output-file xxx) now throws an error
+  when open failed, as in R5RS. Doc updated. (Thanks brandon@alpha.badmoon.com)
+
+* doc: catch/throw correctly documented.
+
+14.7.99
+
+* First public release. Publication on sof.ch/dan/qscheme. Announce on
+  freshmeat
+
+* Checkin
+
+13.7.99
+
+* err() now throws an exception with 'error tag. Note that compile
+  time exceptions are not yet catched. I should have a special hook to
+  handle compile time exceptions because the vm is not supposed to run
+  during compilation.
+
+3.7.99
+
+* Changed heap allocation scheme. Now we have a pool of heap bocks
+  that are allocated. Memory will never overflow again except when
+  virtual memory is really exhausted. Cool is not it.
+
+* Changed the gc algorithm. Needs less gc now. Memory should stabilize
+  around 80% of used cells.
+
+* Better pointer checking
+
+* Heap is forced to be aligned now.
+
+24.6.99
+
+* Some fixes in h2scm. Currently imports translates all gtk.h. The
+  problem I have now is that some declarations cannot be found in the
+  libraries. I have 7 of this sort now. Not too much.
+
+* generated and hacked the sgtk.defs. Commented 7 definitions. Loading
+  is really fast on my machine. Compilation of ~2000 external
+  functions declaration takes about 0.5 secs.
+
+* Fixed bug around extended lambda and define syntax. Keywords were
+  not reconized correctly.
+
+23.6.99
+
+* sgtk: first hello world is working.
+
+22.6.99
+
+* Gtk start working. Signal callback to scheme are working
+  (+-good). Current test is only a simple hello world. errjump is
+  rather destructive currently. Have to buid an environment around the
+  gtk-main to properly destroy things.
+
+* dyn.c: now pass pointers without further thinking... :)
+
+================================================================
+VERSION 0.2
+================================================================
+
+21.6.99
+
+* commit and new distribution version (qscheme-0.2)
+* item is an alias of static-ptr
+* try to output what object is unbound when call to unbound. Should
+  work sometimes
+
+17.6.99
+
+* changes in extfunc and extvar. Now uses keyword to map foreign
+  types. Same change applies to variable.c
+
+* Distribution now includes the sources of the regex module and of the
+  tstlib module.
+
+16.6.99
+
+* extfunc write does not write anything
+
+15.6.99
+
+* regex options (untested) and minimal documentation.
+
+14.6.99
+
+* regex now installs in the regex module.
+
+13.6.99
+
+* perl regex module partially implemented.
+
+3.6.99
+
+* changed scm_read to accept a PORT * argument
+* creconize, cparse, wreconize, wparse also receive a PORT argument
+
+31.5.99
+
+* port.c: port? input-port? output-port? current-input-port
+  current-output-port current-error-port open-input-file
+  open-output-file close-port read-char peek-char eof-object?
+  char-ready? read-line
+
+* fix: scm_compile_obj does not want to compile array literals
+
+* scm_array_reconize scm_array_parse: parsing of array is now
+implemented as extension.
+
+30.5.99
+
+* lot of docu fixes
+* scm_load: uses env variable QS_LIB to search for files.
+* string.c: scm_string_append2: (string-append2 str1 str2)
+* makefile in the doc directory
+
+27.5.99
+
+* documentation
+* fix scm_compile_obj: do not want to interpret :keyword
+
+
+26.5.99
+
+* updatedb documentation on hashes
+* fixed a bug in the hash-ref (scm_equal badly used)
+* argv array
+* env hash (string-hash)
+
+22.5.99
+
+* heavy work on h2scm
+
+17.5.99
+
+* Syntaxic sugar: <module>::<symbol> implemented
+
+14.5.99
+
+* GC causes crash because newcell was called without sresync() in prim2.i
+
+13.5.99
+
+* Fix double optimization which causes problems
+
+12.5.99
+
+* fix module syntax: (define-module X ...) to (module X ...)
+* code cleanup
+  - remove add / sub operations
+  - new files: env.c and lsym.c
+
+* prefix scm_ in all asm.c
+
+* new comments '#!'
+
+10.5.99
+
+* map and for-each
+* fix a nasty bug in mul2 (multiply by zero failed)
+* fix bad mapping of macro + to the mulv function... :)))
+
+9.5.99
+
+* checkin 
+
+* local definition supported. We convert define to lambda with local
+  form.
+
+
+7.5.99
+
+* additionnal lambda syntax in nasm. Supports local variables.
+  (lambda (x y :opt z :local a b c) ...)
+
+4.5.99
+
+* letrec
+* first step in local define
+
+3.5.99
+
+* SOBJ_T_VAR defined:
+
+  - works with extern-char/short/long/float/double
+  - also with cscheme
+
+  !!!! REALLY COOL !!!!
+
+30.4.99
+
+* extvar defined
+* cleanup of extfunc print
+
+29.4.99
+
+* Apply to macro does not work (and should not). now issues error message.
+
+  After thinking, it should be preferable to separate pure macros from
+  macros being used for optimisation purpose (such as +). Macro used
+  in optimization which should be applied have to provide a generic
+  function. This function is attached to the macro with the
+  (macro-set-func! <macro> <func>) function.
+
+  The compiler should generate different code when macro is an object
+  or macro is used as a function. Typically:
+
+  (macro 1 2 3) => execute macro (print macro) => if macro-func is
+  defined push macro-func else push macro
+
+27.4.99
+
+* apply corrected
+
+* catch/throw now works...
+
+* cleanup of machine dep definitions in vm2.h. After some tries, use
+  %g6 for SP and %g7 for TOS on sparc. S seem's to work correctly for
+  sparc and i386 now.
+
+26.4.99
+
+* throw as a cprim. catch compiler works.
+
+23.4.99
+
+* scm_catch_list, scm_thrown_tag/msg moved to catch.c
+
+19.4.99
+
+18.4.99
+
+* does not need scm_syntax_macro anymore
+
+16.4.99
+
+* missing: 
+  - letrec, do, named let, force, delay,
+  - internal define (ie define not in top level),
+  - define-syntax, map, force, delay
+  - call-with-current-continuation
+
+* bug track:
+  - atan: should support 1 | 2 arguments
+
+* bug fixes:
+  - vm2.c: l_jump: sp was not modified has it should be.
+  - asm.c: (or) returned #t. changed to #f
+  - s.scm: (*) returned 0, changed to 1
+  - number.c: number->string base problems
+  - s.h: SCM_SYMBOLP(x)  now considers also ATOM as valid symbols.
+
+15.4.99
+
+* fix: branch optimization: don't remove label before it not used anymore
+* compiler for: and or cond while
+* removed the dup_brf primitive, because it was the same as br_and.
+* changed brif to brf. Added brt
+
+14.4.99
+
+* quasiquote, unquote, unquote-splicing works.
+
+13.4.99
+
+* most of the new assembler works now. I had to fight with extfunc and
+  vmfunc type but now it works.
+
+* As result, assembly code is sligthly more compact and run a little
+  faster. Optimization is a little better too.
+
+1.4.99
+
+* I have change my job. Since 1.3 I'm working at UBS zurich. Nothing
+  to do, just changing tapes. Lot of time to devellop.
+
+* new compiler: seems to work nearly perfect after a big reorg.
+
+* new script 'mkvm' to generate macro usable in a future version of
+  scheme->c compiler. Also written a test to check how fast it will
+  be. With more or less a direct generation, I could expect 5 time
+  perf. see the cgen directory for check.
+
+* Portability fixes. Now S also runs on solaris. (Yeah...) The current
+  solaris version does not have register allocation in vm. I will try
+  to ask an expert which one to use.
+
+22.2.99
+* compiler: (define (var formal) body)
+* icode_to_proc
+* optimize: call return to jump
+* optimize: call endlet return -> endlet jump
+* split of compile_lambda (compile_lambda2) and compile_set (compile_set2)
+* fixed: set! does not compile expr.. :(
+
+6.1.99
+
+* new compiler: set!, let and let* works now
+
+4.1.99
+
+* compilation now works for begin, if and define.
+
+* assembler starts to work. I have now nasm to assemble and ncomp to
+  compile.
+
+  read --> ncomp --> nasm will produce an array of code which has to
+  be executed by the vm to complete.
+
+
+14.12.98
+
+* assembler urgently needed. starting to write it...
+
+13.12.98
+
+* cleanup set! definition. Only accept to set if symbol is defined.
+
+11.12.98
+
+* modules now works more or less. Implemented (module..).
+
+3.12.98
+
+* Fix to hashes. Now works fine. I have also a new version of define-macro
+
+26.11.98
+
+* Added hash types
+
+18.11.98
+
+* Now symbols and keywords values are atoms.
+* start working with modules
+
+17.11.98
+
+* New type: atom. used to store unique strings
+
+16.11.98
+
+* new hash type. Defined: make-hash hash-set! hash-ref hash->list
+  list->hash.
+
+
+13.11.98
+
+* catch / throw implemented. Not perfect yet, must also be able to
+  catch non-throwed errors (segv etc...)
+
+* vmfunc implemented. Now external C function is able to control the
+  vm engine. Of course it's slower than internal instruction. Example
+  of a vmfunc is scm_throw.
+
+22.10.98
+
+* added symbol type
+* ffi seems to work
+
+21.10.98
+
+* start implementation of the (external-call ..) function using the
+  ffcall library. Seems to work really fine
+
+* found ffcall library. Decided to use it for ffi (the avcall part).
+
+19.10.98
+
+* string->number and number->string
+
+18.10.98
+
+* implementation of number procedure completed ! (no complex and no
+  rational)
+
+13.10.98
+
+* syntax: cond
+* macro.scm: fixed some errors
+
+11.10.98
+
+* syntax: and, or
+
+9.10.98
+
+* changed the macro format to STk
+* apply written
+* fixed bug in (pair?)
+* better error messages
+* error during initial load correctly trapped.
+
+7.10.98
+
+* have the macro ok.
+* var args for (make-string length [ char ])
+* scm_string_write: local buffer overflow fixed
+
+14.9.98
+
+* changed order of initialisation. Functions in virtual machine (prim)
+  overwrite functions in module (cprim).
+
+* mkinit: generate init function
+
+9.9.98
+
+* vector fully implemented
+
+8.9.98
+
+* r5rs vector implementation. Missing #( .. ) parser.
+
+2.9.98
+
+* times for loop.scm on t747q: s=1.73 scm=6.77 snow=18.82
+
+* Read reconizes ; comments now
+
+* I have a rudimentary macro system now. Seems to work pretty well.
+  (define 1+ (make-macro (lambda (form) `(+ 1 ,(car (cdr f))))))
+
+* Fixed reading of number: 1+ is now a symbol.
+
+* (load "filename") works (wonder of eval).
+
+31.8.98
+
+* quasiquote, unquote, unquote-splicing works. Ready to play with
+  macros.
+
+* new gc stats: number of allocated cells between collections
+
+28.8.98
+
+* new type SOBJ_T_SYNTAX. compile-time words (if, set!, define,
+  etc...) are now member of this type. compile_pair adjusted...
+
+25.8.98
+
+* env is now on the stack
+* correct support for closure return
+* lambda with var arg
+* let with uninitialized vars was broken. corrected
+
+11.8.98
+
+* Try to move env_heap to stack: test with let. perf from 3.38 -> 3.06
+  on tst1.scm. 10 %. quite good. Propagating this to lambda.
+
+* Removed a bug on compilation of let
+
+* GC of proc node without code dropped the env. corrected.
+
+10.8.98
+
+* let compiler works.
+
+5.8.98
+
+* the new vm is working. Cannot return closure now.
+
+30.7.98
+
+* new vm: in vm2.c : uses ContFrame and EnvFrame.
+* new structures: SCM_EnvFrame, SCM_Code, SCM_ContFrame;
+* new type: SOBJ_T_LSYMBOL. for local variables
+* new environment: level list contanint list of lsymbols, example:
+	  ( ((x . 0) (y . 1)) ((a . 0) (b . 1)) )
+* drop opcode OP_CALL. Will not use it anymore (I think)
+
+
+13.7.98
+
+* apply. fixed some bugs in callv.
+
+8.7.98
+
+* fixed scm_compile.
+* gc now collects the vm stacks, also the cstack and the registers.
+* fixed a bug in the heap initialisation. The heap was to small
+  because I was allocating with size of SOBJ, not size of
+  Sobject. Electric Fence was really helpfull.
+
+6.7.98
+
+* added (compile...) and (execute...)
+* bug with code compiled by scm_compile (something around op_return)
+
+5.7.98
+
+* nouveau type: SOBJ_T_CODE.
+* scm_compile() => SOBJ_T_CODE et scm_execute(SOBJ_T_CODE) => result
+  implementes
+
+1.7.98
+
+* (code ...) implemented
+
+26.6.98
+
+* String implemented
+
+20.6.98
+
+* char fully implemented
+
+16.6.98
+
+* quote implemented
+* boolean?, not
+
+14.6.98
+
+* better generic type
+* start implementing chr type
+
+11.6.98
+
+* string implemented with type hook to detect and parse object.
+* ports implemented and operationnal
+
+26.5.98
+
+* start implement ports. because I want to solve the problem of type
+  extension and I need the final code to handle IO
+
+25.5.98
+
+* start implementing string
+
+* let* implemented : new opcode OP_LETSTAR, OP_ALLOC
+
+* tail recurse when (let..).
+
+* optimizer isolated yet
+
+* register forced now
+
+
+19.5.98
+
+* started with pragmatic code level optimizer
+
+* let re-implemented
+
+* big changes on vm: the new vm uses two stacks, S and R. The S stack
+  is for data and the R stack is for runtime context saving. As
+  consequent, I removed the LINK/UNLINK instruction and replace them
+  by a MARK instruction, which pushes the sp on the R stack.
+
+  The PRIM nodes now points to the SCM_PRIM_TABLE entry for the
+  instruction. The prim_table now has the number of arguments
+  inside. When the nargs is < 0, I assume variable number of
+  arguments. When calling a primitive with variable number of
+  arguments, I will first compile and OP_MARK, which means that the
+  called function has to pop the R stack to know how many arguments
+  where pushed.
+
+
+11.5.98
+
+* work on compile_let
+
+7.5.98
+
+* define implemented
+
+6.5.98
+
+* computed calls are now working
+  ((if #t + -) 1 2): Segmentation fault (core dumped)
+
+5.5.98
+
+* number conversion and add
+
+3.5.98
+
+* starting implementing bignum and boolean
+
+1.5.98
+
+* added gc_protect
+
+* added new types: boolean with scm_true and scm_false, undefined with
+  scm_undefined, unbound with scm_unbound
+
+* added a new type prim and rename current PRIM to CPRIM. The PRIM type
+  is a goto in the vm, while the CPRIM is a call to a c-function.
+
+  - initialize: create symbols with value SOBJ_T_PRIM pointing to
+  function. Example:
+  
+      [ . | . ]<symbol>
+		|	|
+		|	+------>[ . | 2 ]<pair>
+		|			  |
+		v			  v
+	   cons		   l_cons:
+  
+
+
+30.4.98
+
+* compile lambda with optionnal.
+
+* runtime to implement optionnal arguments (lambda (x . opts)...)
+  Compilation of optionnals not done yet...
+
+* removed the gcmark field in SOBJ. Now mark is the msb of the type
+  field.
+
+* fixed a bug in the gc which cause incorrect cell to be garbage
+  collected. The code is now so simple that it seems that no bugs more
+  is hidden here.
+
+29.4.98
+
+v Generic type integrated in gc
+
+v Change scm_disassemble : from code
+
+v Primitive stack check implemented
+
+v Structure for code header. code length is stored in header
+
+v GC now collect lambda code
+
+28.4.98
+
+v implement direct threaded machine instead of case interpreter: this
+  will speedup things very much.
+  See http://www.complang.tuwien.ac.at/forth/threading/
+  
+  successfull, speed now twice the speed of sick ( no stack checks )
+
+
+27.04.98
+	* tail recursion implemented
+
+	* added opcode CALLC0 .. CALLC4: - call primitive with fixed number
+	  of args. May be it's not a good idea...
+
+	* remove compilation of opcode unlink: calls have to do implicit
+	  unlink
+
+
+25.04.98
+	* BUG: compile_set: reference the symbol node, not the variable node.
+
+24.04.98
+    * change lambda code.
+
+23.04.98
+	* implement exception handling (restart interpreter)
+
+BEFORE
+	* change compile if: (if <test> <true-part>) pushes nil if not
+	  true. this will keep the track balanced.
+
+	v fix bra and brif when copying code 
+
+	v define (lambda <formal> <body>)
+
+	v change the way to find symbols. *the-env* when define must be
+	  searched for symbols. symbols found in *the-env* are local and
+	  special code must be compiled which accesses local symbols value.
+
+	v stack get desynchronized when returnv
+

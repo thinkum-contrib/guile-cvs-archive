@@ -1,0 +1,252 @@
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(smain.c)
+AM_CONFIG_HEADER(config.h)
+
+dnl QScheme version has to be modified here
+AM_INIT_AUTOMAKE(qscheme,0.5.1)
+
+dnl Checks for programs.
+AC_PROG_CC
+AC_PROG_LN_S
+AC_PROG_MAKE_SET
+AC_PROG_INSTALL
+AC_PROG_RANLIB
+
+dnl Check for perl5, warn if not here
+AC_PATH_PROG(PERL,perl,no)
+if test "$PERL" = "no" ; then 
+	AC_MSG_WARN(Qscheme needs perl5 to rebuild sgtk interface from scratch)
+fi
+
+dnl Check stack direction
+AC_MSG_CHECKING([for stack growing direction])
+stackdir=down
+AC_TRY_RUN([void *start;
+	void check_stack() { char mark; exit(start < (void*)&mark); }
+	int main() { char mark; start = (void*)&mark; check_stack(); }
+	], 
+	AC_DEFINE(STACK_GROWS_DOWN, 1, [Stack goes from high to low addresses])
+	AC_MSG_RESULT(down),
+
+	AC_DEFINE(STACK_GROWS_UP,	1, [Stack goes from low to high addresses])
+	AC_MSG_RESULT(up),
+
+	AC_MSG_ERROR(no cross compilation support))
+
+dnl Check for computed gotoes
+AC_MSG_CHECKING(for computed gotos)
+AC_TRY_RUN([
+	int main() {	void *p = &&lab;  goto *p; lab: return(0); }
+	],AC_DEFINE(HAVE_CGOTO,1,compiler supports computed gotos)
+	  AC_MSG_RESULT(yes),
+	AC_MSG_RESULT(no),
+	AC_MSG_ERROR(no cross compilation support))
+
+dnl Check for __FUNCTION__
+AC_MSG_CHECKING(for __FUNCTION__ string)
+AC_TRY_RUN([int strlen();
+	int main() { int x=strlen(__FUNCTION__); return(x == 0); } ],
+	AC_DEFINE(HAVE_FUNC_STR,1,compiler has __FUNCTION__ string)
+	AC_MSG_RESULT(yes),
+	AC_MSG_RESULT(no),
+	AC_MSG_ERROR(no cross compilation support))
+
+dnl Checks for libraries.
+
+AC_MSG_CHECKING(for dlopen in libc)
+AC_TRY_LINK_FUNC(dlopen,dlfound=y,dlfound=n)
+if test $dlfound = y; then
+	AC_MSG_RESULT(yes)
+else
+	AC_MSG_RESULT(no)
+	AC_CHECK_LIB(dl,dlopen,,AC_MSG_ERROR(needs libdl))
+fi
+
+AC_CHECK_LIB(m,atan,,AC_MSG_ERROR(needs libm))
+AC_CHECK_LIB(pthread,pthread_create)
+
+dnl AC_CHECK_LIB(avcall,__builtin_avcall,,AC_MSG_ERROR(needs libavcall))
+dnl AC_CHECK_LIB(pcre,pcre_compile,,AC_MSG_ERROR(needs libpcre))
+
+dnl Checks for header files.
+AC_HEADER_STDC
+AC_HEADER_SYS_WAIT
+AC_CHECK_HEADERS(fcntl.h limits.h unistd.h)
+
+dnl AC_CHECK_HEADER(avcall.h,,needs avcall.h)
+dnl AC_CHECK_HEADER(pcre.h,,needs pcre.h)
+
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_C_INLINE
+
+dnl Checks for library functions.
+AC_FUNC_ALLOCA
+AC_FUNC_MEMCMP
+AC_CHECK_FUNCS(socket strdup strerror strstr strtol)
+
+
+dnl specify library pathes
+dnl ================================
+dnl    --x-libraries=DIR       X library files are in DIR
+
+
+dnl ================================
+dnl Check for pcre
+dnl ================================
+
+AC_ARG_WITH(pcre_dir,
+	[  --with-pcre-dir=DIR     dir containing libpcre.a ])
+AC_ARG_WITH(pcre_inc,
+	[  --with-pcre-inc=DIR     dir containing pcre.h ])
+
+old_cflags="$CFLAGS" ; old_ldflags="$LDFLAGS" ; old_libs="$LIBS"
+
+if test "$with_pcre_dir" != "" ;then
+	PCRE_DIR="$with_pcre_dir" ; LDFLAGS="-L$with_pcre_dir $LDFLAGS"
+fi
+if test "$with_pcre_inc" != "" ; then
+	PCRE_INC="$with_pcre_inc" ;	CFLAGS="-I$with_pcre_inc $CFLAGS"
+fi
+LIBS="-lpcre $LIBS"
+AC_MSG_CHECKING(for libpcre)
+AC_TRY_LINK([
+#include <stdio.h>
+#include <pcre.h>
+],[
+	pcre *pattern;
+	char *error;
+	int errptr;
+	pattern = pcre_compile("abcd",0,&error,&errptr,NULL);
+],,AC_MSG_ERROR(cannot link with pcre))
+
+CFLAGS="$old_cflags" ; LDFLAGS="$old_ldflags" ; LIBS="$old_libs"
+
+if test "$PCRE_DIR" = "" ; then
+	PCRE_LIB="-lpcre"
+else
+	PCRE_LIB="$PCRE_DIR/libpcre.a"
+fi
+
+test "$PCRE_INC" = "" && PCRE_INC="."
+
+AC_SUBST(PCRE_LIB)
+AC_SUBST(PCRE_INC)
+AC_SUBST(PCRE_DIR)
+AC_MSG_RESULT(yes)
+
+
+dnl ================================
+dnl Test for avcall
+dnl ================================
+
+AC_ARG_WITH(avcall_dir,
+	[  --with-avcall-dir=DIR   dir containing libavcall.a ])
+AC_ARG_WITH(avcall_inc,
+	[  --with-avcall-inc=DIR   dir containing avcall.h ])
+
+old_cflags="$CFLAGS"; old_ldflags="$LDFLAGS"; old_libs="$LIBS"
+
+if test "$with_avcall_dir" != "" ;then
+	AVCALL_DIR="$with_avcall_dir" ; LDFLAGS="-L$with_avcall_dir $LDFLAGS"
+fi
+if test "$with_avcall_inc" != "" ; then
+	AVCALL_INC="$with_avcall_inc" ; CFLAGS="-I$with_avcall_inc $CFLAGS"
+fi
+LIBS="-lavcall $LIBS"
+
+AC_MSG_CHECKING(for libavcall)
+AC_TRY_LINK([
+#include <stdio.h>
+#include <avcall.h>
+],[
+	av_alist alist;
+	int c;
+	av_start_int(alist,&fgetc,&c);
+],,AC_MSG_ERROR(cannot link with avcall))
+
+CFLAGS="$old_cflags" ; LDFLAGS="$old_ldflags" ; LIBS="$old_libs"
+
+if test "$AVCALL_DIR" = "" ; then
+	AVCALL_LIB="-lavcall"
+else
+	AVCALL_LIB="$AVCALL_DIR/libavcall.a"
+fi
+
+AC_SUBST(AVCALL_LIB)
+AC_SUBST(AVCALL_INC)
+AC_SUBST(AVCALL_DIR)
+AC_MSG_RESULT(yes)
+
+
+dnl ================================
+dnl Test for gmp
+dnl ================================
+
+AC_ARG_WITH(gmp_dir,
+	[  --with-gmp-dir=DIR      dir containing libgmp.a ])
+AC_ARG_WITH(gmp_inc,
+	[  --with-gmp-inc=DIR      dir containing gmp.h ])
+
+old_cflags="$CFLAGS" ; old_ldflags="$LDFLAGS" ; old_libs="$LIBS"
+
+if test "$with_gmp_dir" != "" ;then
+	GMP_DIR="$with_gmp_dir" ; LDFLAGS="-L$with_gmp_dir $LDFLAGS"
+fi
+if test "$with_gmp_inc" != "" ; then
+	GMP_INC="$with_gmp_inc" ; CFLAGS="-I$with_gmp_inc $CFLAGS"
+fi
+LIBS="-lgmp $LIBS"
+
+AC_MSG_CHECKING(for libgmp)
+AC_TRY_LINK([
+#include <gmp.h>
+],[
+	mpz_t i;
+	mpz_init(i);
+	mpz_clear(i);
+],,AC_MSG_ERROR(cannot link with gmp))
+
+CFLAGS="$old_cflags" ; LDFLAGS="$old_ldflags" ; LIBS="$old_libs"
+
+if test "$GMP_DIR" = "" ; then
+	GMP_LIB="-lgmp"
+else
+	GMP_LIB="$GMP_DIR/libgmp.a"
+fi
+
+test "$GMP_INC" = "" && GMP_INC="."
+
+AC_SUBST(GMP_LIB)
+AC_SUBST(GMP_INC)
+AC_SUBST(GMP_DIR)
+AC_MSG_RESULT(yes)
+
+dnl Threading options
+AC_ARG_ENABLE(threads,
+	[  --enable-threads      compile suppport for threading (default yes) ],
+	:,enableval=yes)
+
+if test "x$enableval" = xyes; then
+	if test "x$ac_cv_lib_pthread_pthread_create" = xyes; then
+		AC_DEFINE(SCM_WITH_THREADS, 1, [support for multi threading])
+		AC_DEFINE(_REENTRANT,1, [use threading])
+		AC_DEFINE(_GNU_SOURCE,1, [use gnu source])
+	else
+		AC_MSG_ERROR(threading requires POSIX threads library)
+	fi
+fi
+
+dnl export the default lib path, based on datadir
+if test $prefix = NONE ; then
+	SCM_DEFAULT_LIB_PATH=$ac_default_prefix/share/$PACKAGE/$VERSION
+else
+	eval SCM_DEFAULT_LIB_PATH=$datadir/$PACKAGE/$VERSION
+fi
+
+AC_DEFINE_UNQUOTED(SCM_DEFAULT_LIB_PATH,
+		  "$SCM_DEFAULT_LIB_PATH",
+		  [the default path where to search for libs])
+
+AC_OUTPUT(Makefile tst/Makefile doc/Makefile sgtk/Makefile)

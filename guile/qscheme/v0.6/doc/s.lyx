@@ -1,0 +1,10496 @@
+#LyX 1.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 2.15
+\textclass article
+\language american
+\inputencoding default
+\fontscheme default
+\graphics default
+\float_placement htb
+\paperfontsize 10
+\spacing single 
+\papersize Default
+\paperpackage a4wide
+\use_geometry 0
+\use_amsmath 0
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation skip
+\defskip medskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle headings
+
+\layout Title
+
+QScheme Documentation
+\layout Author
+
+Daniel Crettol
+\layout Date
+
+
+\latex latex 
+
+\backslash 
+today
+\layout Abstract
+
+This is my small Scheme interpreter.
+ The goal of this work is to provide a really fast and portable implementation
+ of the Scheme language.
+ My Scheme should also be easy to use by itself or linked with any program
+ needing an embedded language.
+\layout Standard
+\pagebreak_bottom 
+
+\begin_inset LatexCommand \tableofcontents{}
+
+\end_inset 
+
+
+\layout Section
+
+Preamble
+\layout Standard
+
+This is an evolving work document.
+ As such, it is not too well written and structured, it is far from complete
+ and may even contain inaccurate information.
+ Please read it with the caution warranted by this introductory warning.
+\layout Standard
+
+The documentation is interspersed with special tags that are primarily reminders
+ for me - you may ignore them :
+\layout Description
+
+*THINK* something I should think about
+\layout Description
+
+*INCOMPLETE* something incomplete
+\layout Description
+
+*REVIEW* something I should review
+\layout Subsection
+
+Notation conventions
+\layout Standard
+\added_space_top 0.3cm \added_space_bottom 0.3cm \align center \LyXTable
+multicol5
+4 2 0 0 -1 -1 -1 -1
+1 1 0 0
+1 0 0 0
+1 1 0 0
+0 1 0 0
+2 1 0 "" ""
+2 1 1 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 2 1 0 0 0 0 "" ""
+0 2 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+
+Notation example
+\newline 
+Description
+\newline 
+
+\emph on 
+<type>
+\emph default 
+
+\newline 
+represents a Scheme object of family type
+\newline 
+
+\family typewriter 
+define
+\family default 
+
+\newline 
+represents a name in the Scheme name space
+\newline 
+
+\emph on 
+expr
+\emph default 
+
+\newline 
+represents some kind of Scheme object or list - with a possibly meaningful
+ value
+\layout Section
+
+Introduction
+\layout Subsection
+
+History
+\layout Standard
+
+I started to write QScheme because I wanted to write a midi sequencer for
+ Linux.
+ I had already written a sequencer about ten years ago, for the popular
+ Atari ST, based upon an optimizing subroutine-threaded Forth.
+ My idea was to use an embedded language in the sequencer, in which I could
+ code most of the GUI and which could offer the user access to all the functions
+ of the sequencer.
+\layout Standard
+
+SIOD was the first embedded language I looked at.
+ SIOD has good interfacing capabilities with the C language.
+ This looked promising.
+ I also decided to use the Tk toolkit for the GUI.
+ Nice base to start with.
+ I began to code a prototype which worked more or less satisfactorily.
+ The main problem I faced was that SIOD seemed far too slow.
+ It didn't seem feasible to let the user write MIDI sample handling functions
+ in or with SIOD.
+ And even less possible to code the entire GUI using SIOD - it would also
+ have been too slow.
+\layout Standard
+
+So I looked at the other Scheme implementations available, with emphasis
+ on speed and easy interfacing.
+ I considered SCM, Bigloo, Gambit, STk, Rscheme, Sick and many others.
+ Some were fast but difficult to embed, some were slow but easy to interface,
+ others were just compilers and I did not want to waste time with compilations.
+ After a good deal of searching I had not found a fast and embeddable Scheme.
+ That's why I finally decided to write one.
+\layout Standard
+
+So, from the outset my goal was to have a fast Scheme, with good C interfacing
+ and painless embedding facilities.
+ My Scheme has these features and I'm proud of it.
+ Now, it's not yet perfect, but it is good enough for my projects.
+\layout Standard
+
+I should emphasize: QScheme is a really 
+\emph on 
+fast
+\emph default 
+ intepreter.
+ My current benchmarks (** 
+\series bold 
+\emph on 
+Table missing
+\series default 
+\emph default 
+ **) show it is 2 to 10 times faster than other Scheme interpreters
+\begin_float footnote 
+\layout Standard
+
+The best factor I have is agains osm-1.2, which is a commercial product.
+ I win with a factor 70!!! How can they sell this...
+\end_float 
+, and just a little slower than Bigloo, which compiles to C.
+ On most of the benchmarks, QScheme beats Perl and other scripting languages
+ by a factor of 2 and is also faster than Java, without compilation.
+ Yes - it's good enough for me.
+\layout Subsection
+
+Goodies
+\layout Standard
+
+QScheme comes with support for modules, dynamic libraries, foreign function
+ calls and foreign variable sharing.
+\layout Standard
+
+It should be easy to add new types.
+ In fact the 
+\emph on 
+string 
+\emph default 
+type is already written as a pure extension.
+ New types not only specify how to handle objects but also how to 
+\emph on 
+recognize
+\emph default 
+ them during parsing (read).
+\layout Standard
+
+It also should be easy to add new syntactic constructs, because the syntax
+ is table driven.
+ As a general design rule, I used tables as often as possible.
+ This should lead to better flexibility.
+\layout Subsection
+
+Limitations
+\layout Standard
+
+Unfortunately the world is bad and QScheme is not perfect.
+ One important limitation being that 
+\layout Itemize
+
+QScheme should be compiled with GCC., because it uses some specific features
+ of the GCC compiler (specifically the computed gotos).
+ Sorry, but QScheme will not compile with a compiler lacking support for
+ this feature.
+ 
+\layout Standard
+
+This also means that 
+\layout Itemize
+
+QScheme is not quite as portable as other Scheme implementations.
+ It is currently known to run on Linux (i386 and Sparc) and Solaris (2.6).
+\layout Standard
+
+But I don't think it would be difficult to port QScheme to other Unices,
+ as long as GCC is available.
+\layout Subsection
+
+Deviations from R5RS
+\layout Standard
+
+QScheme is mostly R5RS compliant, but not all required features are currently
+ implemented.
+ Other possibly significant deviations from the R5RS specs include :
+\layout Itemize
+
+QScheme is case-sensitive.
+\layout Itemize
+
+
+\family typewriter 
+(set! ...)
+\family default 
+ does not implicitly 
+\family typewriter 
+(define ...)
+\family default 
+ at the top level.
+\layout Itemize
+
+The 
+\family typewriter 
+call/cc
+\family default 
+ is not currently implemented (most of the code is here, but not debugged
+ and tested).
+ In replacement, you can use the 
+\family typewriter 
+(catch...) (throw) 
+\family default 
+mechanism which is sufficient is most cases.
+\layout Standard
+
+Refer to section 
+\begin_inset LatexCommand \ref{Qscm_ext_dev}
+
+\end_inset 
+
+ for additional information.
+\layout Subsection
+
+Design principle
+\layout Standard
+
+The only way I found to speed up the execution of Scheme code is to compile
+ Scheme expressions to instructions for a virtual machine.
+ The challenge was to create a virtual machine which would be really fast
+ at interpreting code.
+ I chose a Forth-like engine, because I wrote Forth interpreters before
+ and because GCC provides nice features to implement this kind of engine
+ in a very efficient way.
+\layout Standard
+
+QScheme is fast because it compiles input to a pseudo code and lets the
+ 
+\emph on 
+virtual machine 
+\emph default 
+execute it.
+ The virtual machine is a stack based engine.
+ It is fast, because it's hopefully well designed and because it builds
+ on specific GCC features (computed gotos) that allow to create a fast interpret
+er.
+\layout Standard
+
+One drawback of this design is that the code generated for the 
+\emph on 
+virtual machine 
+\emph default 
+pseudo code is relatively large compared to other pseudo-codes.
+ This being a case of trading space for speed I think it's acceptable anyway.
+\layout Subsection
+
+References
+\layout Standard
+
+The Revised^5 Report on the Algorithmic Language Scheme (R5RS) document
+ can be found online at: 
+\layout Standard
+
+
+\family typewriter 
+http://www-swiss.ai.mit.edu/~jaffer/Scheme.html
+\layout Standard
+
+You may also find many interesting article on Scheme at the Scheme repository:
+ 
+\layout Standard
+
+
+\family typewriter 
+http://www.cs.indiana.edu/scheme-repository/
+\layout Standard
+
+Another interesting resource is Schemers.org which can be found at: 
+\layout Standard
+
+
+\family typewriter 
+http://www.schemers.org/
+\layout Section
+
+How it works
+\layout Standard
+
+This section gives some technical informations about QScheme.
+\layout Subsection
+
+The Read/Eval/Print Loop
+\layout Standard
+
+A classical Scheme interpreter works in a loop, the famous REPL, which stands
+ for 
+\begin_inset Quotes eld
+\end_inset 
+
+Read, Eval, Print Loop
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ My Scheme largely conforms to this.
+ In order to achieve speed and flexibility, the REPL has been slightly changed.
+\layout Standard
+
+\begin_float tab 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 74 138
+file repl.eps
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+The Read/Eval/Print Loop
+\end_float 
+\layout Standard
+
+The simple 
+\family typewriter 
+eval
+\family default 
+ procedure has been split in 4 parts, namely 
+\family typewriter 
+compile optimize assemble execute
+\family default 
+.
+ 
+\layout Standard
+
+The compile phase transforms the list given by the 
+\family typewriter 
+read
+\family default 
+ procedure into an intermediate code (
+\emph on 
+icode
+\emph default 
+)
+\emph on 
+ 
+\emph default 
+representation.
+ This code is stored in a standard array and can be manipulated with the
+ standard Scheme procedures.The 
+\emph on 
+icode
+\emph default 
+ is describe hereafter.
+\layout Standard
+
+The optimizer transforms the 
+\emph on 
+icode
+\emph default 
+ generated by the compiler, mainly to implement tail recursion.
+\layout Standard
+
+The assembler transforms the 
+\emph on 
+icode 
+\emph default 
+to a code which can be executed by the virtual machine.
+ The 
+\emph on 
+vmcode
+\emph default 
+ is an internal code.
+ It cannot be changed from the Scheme interpreter.
+ It only can be printed for debugging purpose, see the 
+\family typewriter 
+disasm
+\family default 
+ function.
+\layout Standard
+
+With this design, the compiler and the optimizer can be written in Scheme
+ itself.
+\layout Subsubsection
+
+The compiler
+\layout Standard
+
+The 
+\emph on 
+compiler
+\emph default 
+ takes a list as input and generates an 
+\emph on 
+icode
+\emph default 
+ array.
+ The input list is typically delivered by the 
+\family typewriter 
+read
+\family default 
+ function.
+\layout Standard
+
+When the compiler encounters a symbol which is bound to a macro, the macro
+ code is evaluated and the result of this evaluation replaces the original
+ form.
+\layout Standard
+
+After compilation, the 
+\emph on 
+icode
+\emph default 
+ array contains assembly instructions.
+ See table 
+\begin_inset LatexCommand \ref{asminstr_table}
+
+\end_inset 
+
+.
+\layout Standard
+
+\begin_float tab 
+\layout Standard
+\align center \LyXTable
+multicol5
+34 3 0 0 -1 -1 -1 -1
+1 1 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 1 0 0
+0 1 0 0
+0 1 0 0
+0 1 0 0
+0 1 0 0
+0 1 0 0
+0 1 0 0
+0 1 0 0
+0 1 0 0
+0 1 0 0
+0 1 0 0
+0 1 0 0
+0 1 0 0
+0 1 0 0
+0 1 0 0
+0 1 0 0
+0 1 0 0
+0 1 0 0
+0 1 0 0
+2 1 0 "" ""
+2 1 0 "" ""
+2 1 1 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 2 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 2 1 0 0 0 0 "" ""
+0 2 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+
+Instruction
+\newline 
+Argument
+\newline 
+Description
+\newline 
+nop
+\newline 
+-
+\newline 
+no operation
+\newline 
+end
+\newline 
+-
+\newline 
+terminate
+\newline 
+dolet
+\newline 
+-
+\newline 
+start of a let
+\newline 
+dolet*
+\newline 
+nvars
+\newline 
+start of a let*
+\newline 
+end-letjump
+\newline 
+-
+\newline 
+tail optimization 
+\newline 
+endlet-return
+\newline 
+-
+\newline 
+tail optimization
+\newline 
+drop
+\newline 
+-
+\newline 
+forget top of stack value
+\newline 
+pushq
+\newline 
+lit
+\newline 
+push lit 
+\newline 
+pushv
+\newline 
+sym
+\newline 
+push value of symbol
+\newline 
+pushl
+\newline 
+var# depth
+\newline 
+push local variable
+\newline 
+store
+\newline 
+-
+\newline 
+store to symbol
+\newline 
+store-evar
+\newline 
+evar
+\newline 
+store to extern variable
+\newline 
+setl
+\newline 
+varnum depth
+\newline 
+set local variable
+\newline 
+getvar
+\newline 
+-
+\newline 
+get value of a variable
+\newline 
+setvar
+\newline 
+-
+\newline 
+set value of a variable
+\newline 
+mark
+\newline 
+-
+\newline 
+push a partial continuation
+\newline 
+mkclosure
+\newline 
+-
+\newline 
+pack a closure
+\newline 
+mkproc
+\newline 
+varlist #args #local optarg? code
+\newline 
+create a procedure
+\newline 
+mkcode
+\newline 
+-
+\newline 
+unused yet
+\newline 
+endlet
+\newline 
+-
+\newline 
+terminate let clause
+\newline 
+return
+\newline 
+-
+\newline 
+terminate procedure
+\newline 
+callp
+\newline 
+prim
+\newline 
+call primitive
+\newline 
+callc
+\newline 
+cfunc
+\newline 
+call c function
+\newline 
+call
+\newline 
+-
+\newline 
+general call
+\newline 
+jump
+\newline 
+-
+\newline 
+general jump
+\newline 
+br-and
+\newline 
+#label
+\newline 
+branch for and
+\newline 
+br-or
+\newline 
+#label
+\newline 
+branch for or
+\newline 
+bra
+\newline 
+#label
+\newline 
+branch always
+\newline 
+brf
+\newline 
+#label
+\newline 
+branch if false
+\newline 
+brt
+\newline 
+#label
+\newline 
+branch if true
+\newline 
+catch
+\newline 
+#label
+\newline 
+catch
+\newline 
+uncatch
+\newline 
+-
+\newline 
+uncatch
+\newline 
+label
+\newline 
+#label
+\newline 
+generate lab for branching
+\layout Caption
+
+
+\begin_inset LatexCommand \label{asminstr_table}
+
+\end_inset 
+
+Assembly instructions
+\end_float 
+\layout Subsubsection
+
+The optimizer
+\layout Standard
+
+The 
+\emph on 
+optimizer
+\emph default 
+ transforms the 
+\emph on 
+icode
+\emph default 
+.
+ The main optimizations are:
+\layout Itemize
+
+branch to a return is changed to return.
+ For example the sequence: 
+\family typewriter 
+...
+ (bra 10) ...
+ (label 10) (return) 
+\family default 
+is transformed to: 
+\family typewriter 
+...
+ (return) ...
+ (label 10) (return).
+\layout Itemize
+
+transforms 
+\family typewriter 
+(endlet) (return)
+\family default 
+ to 
+\family typewriter 
+(endlet-return
+\family default 
+)
+\layout Itemize
+
+transforms 
+\family typewriter 
+(call) (return)
+\family default 
+ to 
+\family typewriter 
+(jump)
+\layout Itemize
+
+transforms 
+\family typewriter 
+(call) (endlet-return)
+\family default 
+ to 
+\family typewriter 
+(endlet-jump)
+\layout Standard
+
+The optimization process is not really very optimized.
+ It just iterates through the 
+\emph on 
+icode
+\emph default 
+ until no further optimization can be done.
+\layout Subsubsection
+
+The assembler
+\layout Standard
+
+The assembler transforms the
+\emph on 
+ intermediate code 
+\emph default 
+to real 
+\emph on 
+virtual machine code
+\emph default 
+.
+ During this transformation, the 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+nop
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+ 
+\emph on 
+icodes
+\emph default 
+ generated during optimization are ignored and the labels are mapped to
+ actual addresses.
+\layout Subsection
+
+Where in the source ?
+\layout Standard
+
+The compiler/assembler is implemented in the 
+\family typewriter 
+asm.c
+\family default 
+ source file.
+ There you can find the complete list of opcodes.
+\layout Standard
+
+The 
+\family typewriter 
+execute
+\family default 
+ and 
+\family typewriter 
+read 
+\family default 
+functions are located in the 
+\family typewriter 
+s.c
+\family default 
+ file.
+ I'm not totally happy with this and may move these functions elsewhere.
+\layout Section
+
+Ignore this
+\layout Standard
+
+
+\series bold 
+\emph on 
+(*** pourquoi ne pas l'éliminer ? ***)
+\layout Standard
+
+This is just a layout section.
+\layout Standard
+
+Note: indentation 0.4cm for Scheme definitions paragraph.
+ Sample here:
+\layout Standard
+
+
+\family typewriter 
+(func 
+\family default 
+\emph on 
+arg1 arg2 ...
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+ret
+\layout Standard
+\pextra_type 1 \pextra_width 0.4cm
+
+Function description.
+\layout Standard
+
+
+\family typewriter 
+(func 
+\family default 
+\emph on 
+arg1 arg2 ...
+\family typewriter 
+\emph default 
+)
+\family default 
+ 
+\emph on 
+
+\hfill 
+arg1 arg2 -- result
+\layout Standard
+\pextra_type 1 \pextra_width 0.4cm
+
+Function description.
+\layout Section
+
+QScheme extensions and deviations 
+\begin_inset LatexCommand \label{Qscm_ext_dev}
+
+\end_inset 
+
+
+\layout Subsection
+
+Comments
+\layout Standard
+
+QScheme accepts the standard '
+\family typewriter 
+;
+\family default 
+' character as standard comment marker.
+ Anything following the ';' character on the line is ignored.
+\layout Standard
+
+QScheme also reconizes '#!' followed by anything except a letter as comment.
+ For example:
+\layout LyX-Code
+
+#! This is a valid comment
+\layout LyX-Code
+
+#!/this also
+\layout LyX-Code
+
+#!This not
+\layout Standard
+
+This extension is used to permit QScheme scripting.
+\layout Subsection
+
+Case sensitivity
+\layout Standard
+
+QScheme is case sensitive: 
+\family typewriter 
+define
+\family default 
+ is not the same as 
+\family typewriter 
+DEFINE
+\family default 
+.
+ Generally this should not be a problem.
+ At a certain level, QScheme has to be case sensitive - when referencing
+ entities defined in external libraries, for instance.
+ It is for this reason that I chose to make QScheme globally case sensitive.
+ If this causes too much trouble, contact me.
+ It should be possible to write a compatibility mode.
+\layout Subsection
+
+Keywords 
+\begin_inset LatexCommand \label{Qscm_keywords}
+
+\end_inset 
+
+
+\layout Standard
+
+QScheme recognizes the following tokens as valid keywords:
+\layout Itemize
+
+
+\family typewriter 
+:keyword
+\family default 
+ - the prefered QScheme form
+\layout Itemize
+
+
+\family typewriter 
+keyword:
+\family default 
+ - alternative syntax, you may find in other Scheme implementations.
+\layout Itemize
+
+
+\family typewriter 
+#!keyword
+\family default 
+ - the DSSL syntax
+\layout Standard
+
+These different spellings all represent the 
+\emph on 
+same
+\emph default 
+ keyword.
+\layout LyX-Code
+
+> (eq? :ake #!ake) 
+\newline 
+#t
+\layout Standard
+
+By default, keywords are printed out in the first form.
+ You can change this with the 
+\family typewriter 
+keyword-display-type
+\family default 
+ function.
+ 
+\layout Standard
+
+
+\family typewriter 
+(keyword-display-type
+\family default 
+ 
+\emph on 
+n
+\family typewriter 
+\emph default 
+) 
+\family default 
+--> 
+\emph on 
+n
+\newline 
+
+\emph default 
+Change the way keywords are displayed.
+ For example:
+\layout LyX-Code
+
+> (keyword-display-type 0) :ake
+\layout LyX-Code
+
+> :ake
+\layout LyX-Code
+
+> (keyword-display-type 1) :ake
+\layout LyX-Code
+
+> #!ake
+\layout LyX-Code
+
+> (keyword-display-type 2) :ake
+\layout LyX-Code
+
+> ake:
+\layout Subsection
+
+
+\family typewriter 
+lambda
+\family default 
+ and 
+\family typewriter 
+define
+\family default 
+ syntax
+\layout Standard
+
+QScheme introduce a new form of the 
+\family typewriter 
+lambda
+\family default 
+ and 
+\family typewriter 
+define
+\family default 
+ syntax:
+\layout Standard
+\pextra_type 1 \pextra_width 0.4cm
+
+
+\family typewriter 
+(lambda (
+\family default 
+\emph on 
+formal [
+\family typewriter 
+\emph default 
+:rest
+\family default 
+\emph on 
+ var ] [
+\family typewriter 
+\emph default 
+:local
+\family default 
+\emph on 
+ local-vars]
+\family typewriter 
+\emph default 
+)
+\family default 
+\emph on 
+body
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<procedure>
+\layout Standard
+\align left \pextra_type 1 \pextra_width 0.4cm
+
+
+\family typewriter 
+(define (
+\family default 
+\emph on 
+func formal [
+\family typewriter 
+\emph default 
+:rest
+\family default 
+\emph on 
+ var ] [
+\family typewriter 
+\emph default 
+:local
+\family default 
+\emph on 
+ local-vars]
+\family typewriter 
+\emph default 
+)
+\family default 
+\emph on 
+body
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\family typewriter 
+#undefined
+\layout Standard
+
+The 
+\emph on 
+formal
+\emph default 
+ parameters are just like in standard Scheme.
+ The optional part '
+\family typewriter 
+:rest
+\family default 
+\emph on 
+ var
+\emph default 
+' can be used to introduce an optional variable and the '
+\family typewriter 
+:local
+\family default 
+\emph on 
+ local-vars
+\emph default 
+' part is used to create local variables.
+ For example: 
+\layout Standard
+\align left \pextra_type 1 \pextra_width 0.4cm
+
+
+\family typewriter 
+(lambda (x y :rest z) ...)
+\family default 
+ is equivalent to 
+\family typewriter 
+(lambda (x y .
+ z) ...)
+\family default 
+ 
+\layout Standard
+
+and 
+\layout Standard
+\pextra_type 1 \pextra_width 0.4cm
+
+
+\family typewriter 
+(lambda (x y :rest a b)...)
+\family default 
+ is equivalent to 
+\family typewriter 
+(lambda (x y) (let ((a) (b)) ...)
+\layout Standard
+
+The 
+\family typewriter 
+define
+\family default 
+ special form uses the same conventions, so you should be able to say:
+\layout LyX-Code
+
+(define (tst x y :local sum) (set! sum (+ x y)) sum)
+\layout LyX-Code
+
+(tst 10 20)
+\layout LyX-Code
+
+=> 30
+\layout Description
+
+Note: Please don't use this extension if you want your code to run on other
+ Scheme implementations.
+\layout Subsection
+
+Top-level 
+\family typewriter 
+set!
+\begin_inset LatexCommand \label{Qscm_topl_setq}
+
+\end_inset 
+
+
+\layout Standard
+
+QScheme makes a strong distinction between 
+\family typewriter 
+define
+\family default 
+ and 
+\family typewriter 
+set!
+\family default 
+.
+ 
+\family typewriter 
+define
+\family default 
+ creates a new symbol in the current environment and binds a value to it;
+ 
+\family typewriter 
+set!
+\family default 
+ never creates any symbol.
+ Setting a value to an undefined symbol will cause an error.
+ This distinction is needed especially for the external variables.
+ There, you have to use 
+\family typewriter 
+define
+\family default 
+ to create a new symbol and bind the symbol to the external variable location
+ and 
+\family typewriter 
+set!
+\family default 
+ to assign a new value to the external variable.
+ Example:
+\layout LyX-Code
+
+(define testvar-b (extern-var *lib* "extern-char"
+\protected_separator 
+ "testvar_b"))
+\layout LyX-Code
+
+testvar-b
+\layout LyX-Code
+
+=> 10
+\layout LyX-Code
+
+(set! testvar-b 20) testvar-b
+\layout LyX-Code
+
+=> 20
+\layout Standard
+
+In this case, the 
+\family typewriter 
+define
+\family default 
+ variable 
+\family typewriter 
+testvar-b
+\family default 
+ is bound to an 
+\emph on 
+external variable object
+\emph default 
+.
+ References to this variable will return the value of the object, not the
+ binding.
+ Set! will modify the value of the 
+\emph on 
+external variable
+\emph default 
+, not the binding.
+ This behaviour should be compatible with the R5RS specs.
+\layout Section
+
+Expressions
+\layout Subsection
+
+Primitive expressions types
+\layout Standard
+
+These comply- with the one exception noted below - with the R5RS specification.
+\layout Standard
+
+
+\family typewriter 
+(quote (
+\family default 
+\emph on 
+datum
+\family typewriter 
+\emph default 
+))
+\family default 
+ --> 
+\emph on 
+<list>
+\family typewriter 
+\emph default 
+
+\newline 
+'(
+\family default 
+\emph on 
+datum
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<list>
+\emph default 
+ 
+\layout Standard
+
+
+\family typewriter 
+(
+\family default 
+\emph on 
+operator operand1 ...
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<object>
+\emph default 
+ 
+\layout Standard
+
+
+\family typewriter 
+(lambda 
+\family default 
+\emph on 
+formals body
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<procedure>
+\newline 
+
+\family typewriter 
+\emph default 
+(define (
+\family default 
+\emph on 
+name arg ...) body
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\family typewriter 
+#undefined 
+\layout Standard
+
+
+\family typewriter 
+(define 
+\family default 
+\emph on 
+variable expr
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\family typewriter 
+#undefined
+\newline 
+(set! 
+\family default 
+\emph on 
+variable expr
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\family typewriter 
+#undefined
+\layout Standard
+\pextra_type 1 \pextra_width 4mm
+
+Refer to the discussion at 
+\begin_inset LatexCommand \ref{Qscm_topl_setq}
+
+\end_inset 
+
+
+\layout Standard
+
+
+\family typewriter 
+(if 
+\family default 
+\emph on 
+test when-true when-false
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<object>
+\family typewriter 
+\emph default 
+
+\newline 
+(if 
+\family default 
+\emph on 
+test when-true
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<object>
+\layout Standard
+
+
+\family typewriter 
+(while 
+\family default 
+\emph on 
+test body
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<object>
+\emph default 
+
+\newline 
+Evaluate 
+\emph on 
+body
+\emph default 
+ while 
+\emph on 
+test
+\emph default 
+ returns 
+\family typewriter 
+#t
+\family default 
+.
+\layout Standard
+
+
+\family typewriter 
+(until 
+\family default 
+\emph on 
+test body
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<object>
+\emph default 
+
+\newline 
+Evaluate 
+\emph on 
+body
+\emph default 
+ while 
+\emph on 
+test
+\emph default 
+ returns 
+\family typewriter 
+#f
+\family default 
+.
+\layout Standard
+
+
+\family typewriter 
+(begin 
+\family default 
+\emph on 
+expr ...
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<object>
+\layout Standard
+\pextra_type 1 \pextra_width 0.4cm
+
+See R5RS.
+\layout Subsection
+
+Derived expressions
+\layout Standard
+
+
+\family typewriter 
+(cond 
+\family default 
+\emph on 
+clause1 clause2 ...
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<object>
+\emph default 
+ 
+\family typewriter 
+
+\newline 
+(case
+\family default 
+\emph on 
+ key clause1 clause2 ...
+\family typewriter 
+\emph default 
+)
+\newline 
+(and 
+\family default 
+\emph on 
+test1 ...
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<object>
+\emph default 
+ 
+\family typewriter 
+
+\newline 
+(or 
+\family default 
+\emph on 
+test1 ...
+ 
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<object>
+\layout Standard
+\pextra_type 1 \pextra_width 0.4cm
+
+See R5RS.
+\layout Standard
+
+
+\family typewriter 
+(case 
+\family default 
+\emph on 
+key clause1 clause2 ...
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<object>
+\layout Standard
+\pextra_type 1 \pextra_width 0.4cm
+
+Not implemented yet .
+\layout Standard
+
+
+\family typewriter 
+(let 
+\family default 
+\emph on 
+binding body
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<object>
+\emph default 
+ 
+\family typewriter 
+
+\newline 
+(let* 
+\family default 
+\emph on 
+binding body
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<object>
+\emph default 
+ 
+\family typewriter 
+
+\newline 
+(letrec 
+\family default 
+\emph on 
+binding body
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<object>
+\layout Standard
+\pextra_type 1 \pextra_width 0.4cm
+
+See R5RS.
+\layout Standard
+
+
+\family typewriter 
+(begin 
+\family default 
+\emph on 
+expr1 expr2 ...
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<object>
+\family typewriter 
+\emph default 
+
+\newline 
+(do ((
+\family default 
+\emph on 
+var1 init1 step1 
+\family typewriter 
+\emph default 
+) 
+\family default 
+\emph on 
+...
+
+\emph default 
+ 
+\family typewriter 
+)
+\family default 
+ 
+\family typewriter 
+(
+\family default 
+\emph on 
+test expr ...
+
+\emph default 
+ 
+\family typewriter 
+)
+\family default 
+ 
+\emph on 
+command ...
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<object>
+\layout Standard
+\pextra_type 1 \pextra_width 0.4cm
+
+See R5RS.
+\layout Standard
+
+
+\family typewriter 
+(let 
+\family default 
+\emph on 
+var bindings body
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<object>
+\layout Standard
+\pextra_type 1 \pextra_width 0.4cm
+
+Not implemented yet
+\layout Standard
+
+
+\family typewriter 
+(delay 
+\family default 
+\emph on 
+expr
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<object>
+\layout Standard
+\pextra_type 1 \pextra_width 0.4cm
+
+Not implemented yet.
+\layout Standard
+
+
+\family typewriter 
+(quasiquote (
+\family default 
+\emph on 
+template
+\family typewriter 
+\emph default 
+))
+\family default 
+ --> 
+\emph on 
+<object>
+\emph default 
+ 
+\family typewriter 
+
+\newline 
+`(
+\family default 
+\emph on 
+template
+\family typewriter 
+\emph default 
+))
+\family default 
+ --> 
+\emph on 
+<object>
+\layout Standard
+\pextra_type 1 \pextra_width 0.4cm
+
+See R5RS
+\layout Section
+
+QScheme procedures
+\layout Standard
+
+In this section I give a list of native QScheme types and of procedures
+ operating on this types.
+ Most of the types are described in the R5RS document and hence documented
+ very briefly here.
+ New types are described in greater detail.
+ 
+\layout Subsection
+
+Atom
+\layout Standard
+
+Atoms are unique strings collected in a hash, the atom hash.
+ They are used anywhere we need unique strings.
+ Symbol names and keywords are examples of atoms
+\newline 
+
+\layout Standard
+
+
+\family typewriter 
+(atom-hash)
+\family default 
+ --> 
+\emph on 
+hash
+\layout Standard
+\pextra_type 1 \pextra_width 0.4cm
+
+Returns a pointer to the hash table containing all atoms.
+\layout Standard
+
+
+\family typewriter 
+(string->atom 
+\family default 
+\emph on 
+str
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+atom
+\layout Standard
+\pextra_type 1 \pextra_width 0.4cm
+
+Creates an atom from the string given as argument.
+\layout Standard
+
+
+\family typewriter 
+(atom->string 
+\family default 
+\emph on 
+atom
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+str
+\layout Standard
+\pextra_type 1 \pextra_width 0.4cm
+
+Creates a new string from the atom.
+\layout Subsection
+
+Symbol
+\layout Standard
+
+A symbol has a name and a value.
+ The name of a symbol is an 
+\emph on 
+atom
+\emph default 
+, it's value may be any valid Scheme object.
+ New symbols are created by the 
+\family typewriter 
+(define
+\family default 
+ 
+\emph on 
+sym value
+\family typewriter 
+\emph default 
+)
+\family default 
+ special form.
+\layout Standard
+
+
+\family typewriter 
+(symbol? 
+\family default 
+\emph on 
+obj 
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> <boolean>
+\layout Standard
+
+
+\family typewriter 
+(symbol->string 
+\family default 
+\emph on 
+symbol 
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> <string>
+\layout Standard
+\pextra_type 1 \pextra_width 0.4cm
+
+See R5RS.
+\layout Standard
+
+*THINK*: should we provide a way to undefine a symbol ?
+\layout Subsection
+
+Keyword
+\layout Standard
+
+Keywords are special symbols that evaluate to themselves.
+ The keywords are recognized by the 
+\family typewriter 
+read 
+\family default 
+procedure.
+ A keyword usually starts with a ':' - refer to 
+\begin_inset LatexCommand \ref{Qscm_keywords}
+
+\end_inset 
+
+.
+ Example:
+\layout LyX-Code
+
+:test -> :test
+\layout Subsection
+
+Pair
+\layout Standard
+
+A pair consists of two pointers to other Scheme objects.
+ The name of the pointers are 
+\family typewriter 
+CAR
+\family default 
+ and 
+\family typewriter 
+CDR
+\family default 
+ for historical reasons.
+ Here I refer to them as the car and cdr field of the pair.
+ The procedures dealing with pairs all comply with the R5RS specification.
+ They are:
+\layout Standard
+
+
+\family typewriter 
+(pair? 
+\family default 
+\emph on 
+object
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\layout Standard
+\pextra_type 1 \pextra_width 0.4cm
+
+Returns #t if object is a pair.
+\layout Standard
+
+
+\family typewriter 
+(cons 
+\family default 
+\emph on 
+arg1 arg2
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<pair>
+\layout Standard
+\pextra_type 1 \pextra_width 0.4cm
+
+Creates a new pair whose CAR is 
+\emph on 
+arg1
+\emph default 
+ and CDR is 
+\emph on 
+arg2.
+\layout Standard
+
+
+\family typewriter 
+(car 
+\family default 
+\emph on 
+pair
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<object>
+\layout Standard
+\pextra_type 1 \pextra_width 0.4cm
+
+Returns the content of the car field of the 
+\emph on 
+pair.
+\layout Standard
+
+
+\family typewriter 
+(cdr 
+\family default 
+\emph on 
+pair
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<object>
+\layout Standard
+\pextra_type 1 \pextra_width 0.4cm
+
+Returns the content of the cdr field.
+\layout Standard
+
+
+\family typewriter 
+(caar 
+\family default 
+\emph on 
+pair
+\family typewriter 
+\emph default 
+) 
+\newline 
+(cadr 
+\family default 
+\emph on 
+pair
+\family typewriter 
+\emph default 
+) 
+\newline 
+...
+ 
+\newline 
+(cdddar 
+\family default 
+\emph on 
+pair
+\family typewriter 
+\emph default 
+) 
+\newline 
+(cddddr 
+\family default 
+\emph on 
+pair
+\family typewriter 
+\emph default 
+)
+\layout Standard
+\pextra_type 1 \pextra_width 0.4cm
+
+Successive composition of 
+\family typewriter 
+car
+\family default 
+ and 
+\family typewriter 
+cdr
+\family default 
+ function, up to 4 level deep.
+\layout Standard
+
+
+\family typewriter 
+(cdr 
+\family default 
+\emph on 
+pair
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<object>
+\layout Standard
+\pextra_type 1 \pextra_width 0.4cm
+
+Returns the content of the cdr field.
+\layout Standard
+
+
+\family typewriter 
+(set-car! 
+\family default 
+\emph on 
+pair object
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\family typewriter 
+#undefined
+\layout Standard
+\pextra_type 1 \pextra_width 0.4cm
+
+Sets the content of the car field of the pair to object.
+\layout Standard
+
+
+\family typewriter 
+(set-cdr! 
+\family default 
+\emph on 
+pair object
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\family typewriter 
+#undefined
+\layout Standard
+\pextra_type 1 \pextra_width 0.4cm
+
+Sets the content of the cdr field of the pair to object.
+\layout Standard
+
+
+\family typewriter 
+(null? 
+\family default 
+\emph on 
+obj
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\layout Standard
+\pextra_type 1 \pextra_width 0.4cm
+
+Returns #t if obj is the empty list, #f otherwise.
+\layout Subsection
+
+List
+\layout Standard
+
+All procedures of R5RS are implemented.
+\layout Standard
+
+
+\family typewriter 
+(list? 
+\family default 
+\emph on 
+obj
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\emph default 
+ 
+\layout Standard
+
+Function description.
+\layout Standard
+
+
+\family typewriter 
+(length 
+\family default 
+\emph on 
+list
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\layout Standard
+
+Function description.
+\layout Standard
+
+
+\family typewriter 
+(append 
+\family default 
+\emph on 
+list ...
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<list>
+\emph default 
+ 
+\layout Standard
+
+Function description.
+\layout Standard
+
+
+\family typewriter 
+(reverse 
+\family default 
+\emph on 
+list
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<list>
+\emph default 
+ 
+\layout Standard
+
+Function description.
+\layout Standard
+
+
+\family typewriter 
+(list-tail 
+\family default 
+\emph on 
+list n
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<object>
+\emph default 
+ 
+\layout Standard
+
+Returns a sublist of 
+\emph on 
+list
+\emph default 
+ omitting the first 
+\emph on 
+n
+\emph default 
+ elements.
+\layout Standard
+
+
+\family typewriter 
+(list-ref 
+\family default 
+\emph on 
+list n
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<object>
+\emph default 
+ 
+\layout Standard
+
+Returns the nth element of list
+\newline 
+
+\layout Standard
+
+
+\family typewriter 
+(memq 
+\family default 
+\emph on 
+obj list
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<list>
+\newline 
+
+\family typewriter 
+\emph default 
+(memv 
+\family default 
+\emph on 
+obj list
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<list>
+\newline 
+
+\family typewriter 
+\emph default 
+(member 
+\family default 
+\emph on 
+obj list
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<list>
+\emph default 
+ 
+\layout Standard
+
+Returns the first sublist where car is 
+\emph on 
+obj 
+\emph default 
+.
+ 
+\family typewriter 
+memq
+\family default 
+ uses 
+\family typewriter 
+eq?
+\family default 
+ to compare elements, 
+\family typewriter 
+memv
+\family default 
+ uses 
+\family typewriter 
+eqv?
+\family default 
+ and 
+\family typewriter 
+member
+\family default 
+ uses 
+\family typewriter 
+equal?
+\family default 
+.
+\newline 
+
+\layout Standard
+
+
+\family typewriter 
+(assq 
+\family default 
+\emph on 
+obj alist
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<list>
+\newline 
+
+\family typewriter 
+\emph default 
+(assv 
+\family default 
+\emph on 
+obj alist
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<list>
+\newline 
+
+\family typewriter 
+\emph default 
+(assoc 
+\family default 
+\emph on 
+obj alist
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<list>
+\emph default 
+ 
+\layout Standard
+
+See R5RS 
+\layout Standard
+
+
+\family typewriter 
+(for-each 
+\family default 
+\emph on 
+func list
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> #undefined 
+\family typewriter 
+
+\newline 
+(map 
+\family default 
+\emph on 
+func list
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<list>
+\emph default 
+ 
+\layout Standard
+
+See R5RS
+\layout Subsection
+
+Character
+\layout Standard
+
+Characters are used - as the name tells - to represent printed characters.
+ Character uses the notation 
+\family typewriter 
+#
+\backslash 
+<character>
+\family default 
+ or 
+\family typewriter 
+#
+\backslash 
+<character name>
+\family default 
+, see R5RS and table 
+\begin_inset LatexCommand \ref{char_name}
+
+\end_inset 
+
+ for more details.
+\begin_float tab 
+\layout Standard
+\added_space_top 0.3cm \added_space_bottom 0.3cm \align center \LyXTable
+multicol5
+10 3 0 0 -1 -1 -1 -1
+1 1 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 1 0 0
+2 1 0 "" ""
+2 1 1 "" ""
+8 0 1 "" ""
+0 2 1 0 0 0 0 "" ""
+0 2 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+
+Character name
+\newline 
+Character
+\newline 
+ASCII (decimal)
+\newline 
+
+\family typewriter 
+#
+\backslash 
+null
+\family default 
+
+\newline 
+'
+\backslash 
+0', the NUL character
+\newline 
+0
+\newline 
+
+\family typewriter 
+#
+\backslash 
+bell
+\family default 
+
+\newline 
+'
+\backslash 
+t' , the character ringing the bell
+\newline 
+7
+\newline 
+
+\family typewriter 
+#
+\backslash 
+backspace
+\family default 
+
+\newline 
+the backspace
+\newline 
+8
+\newline 
+
+\family typewriter 
+#
+\backslash 
+tab
+\family default 
+
+\newline 
+horizontal tab
+\newline 
+9
+\newline 
+
+\family typewriter 
+#
+\backslash 
+newline
+\family default 
+
+\newline 
+newline
+\newline 
+10
+\newline 
+
+\family typewriter 
+#
+\backslash 
+vtab
+\family default 
+
+\newline 
+vertical tab
+\newline 
+11
+\newline 
+
+\family typewriter 
+#
+\backslash 
+formfeed
+\family default 
+
+\newline 
+formfeed
+\newline 
+12
+\newline 
+
+\family typewriter 
+#
+\backslash 
+return
+\family default 
+
+\newline 
+return
+\newline 
+13
+\newline 
+
+\family typewriter 
+#
+\backslash 
+space
+\family default 
+
+\newline 
+space
+\newline 
+32
+\layout Caption
+
+
+\begin_inset LatexCommand \label{char_name}
+
+\end_inset 
+
+Character name
+\end_float 
+.
+\layout Standard
+
+The procedures handling characters are R5RS-compliant.
+ They are: 
+\layout Standard
+
+
+\family typewriter 
+(char? 
+\family default 
+\emph on 
+obj
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\emph default 
+ 
+\layout Standard
+
+Return 
+\family typewriter 
+#t
+\family default 
+ if object is a character
+\layout Standard
+
+
+\family typewriter 
+(char=? 
+\family default 
+\emph on 
+char1 char2
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\newline 
+
+\family typewriter 
+\emph default 
+(char<? 
+\family default 
+\emph on 
+char1 char2
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\newline 
+
+\family typewriter 
+\emph default 
+(char>? 
+\family default 
+\emph on 
+char1 char2
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\newline 
+
+\family typewriter 
+\emph default 
+(char<=? 
+\family default 
+\emph on 
+char1 char2
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\newline 
+
+\family typewriter 
+\emph default 
+(char>=? 
+\family default 
+\emph on 
+char1 char2
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\newline 
+
+\family typewriter 
+\emph default 
+(char-ci=? 
+\family default 
+\emph on 
+char1 char2
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\newline 
+
+\family typewriter 
+\emph default 
+(char-ci<? 
+\family default 
+\emph on 
+char1 char2
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\newline 
+
+\family typewriter 
+\emph default 
+(char-ci>? 
+\family default 
+\emph on 
+char1 char2
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\newline 
+
+\family typewriter 
+\emph default 
+(char-ci<=? 
+\family default 
+\emph on 
+char1 char2
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\newline 
+
+\family typewriter 
+\emph default 
+(char-ci>=? 
+\family default 
+\emph on 
+char1 char2
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\emph default 
+ 
+\layout Standard
+
+Character comparison, See R5RS
+\layout Standard
+
+
+\family typewriter 
+(char-alphabetic? 
+\family default 
+\emph on 
+char
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\emph default 
+ 
+\family typewriter 
+
+\newline 
+(char-numeric? 
+\family default 
+\emph on 
+char
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\newline 
+
+\family typewriter 
+\emph default 
+(char-whitespace? 
+\family default 
+\emph on 
+char
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\newline 
+
+\family typewriter 
+\emph default 
+(char-upper-case? 
+\family default 
+\emph on 
+char
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\newline 
+
+\family typewriter 
+\emph default 
+(char-lower-case? 
+\family default 
+\emph on 
+char
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\emph default 
+ 
+\layout Standard
+
+Character classification tests.
+ See R5RS
+\layout Standard
+
+
+\family typewriter 
+(char->integer 
+\family default 
+\emph on 
+char
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\newline 
+
+\family typewriter 
+\emph default 
+(integer->char 
+\family default 
+\emph on 
+number
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<char>
+\emph default 
+ 
+\layout Standard
+
+Character conversion.
+ See R5RS
+\layout Standard
+
+
+\family typewriter 
+(char-upcase 
+\family default 
+\emph on 
+char
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<char>
+\newline 
+
+\family typewriter 
+\emph default 
+(char-downcase 
+\family default 
+\emph on 
+char
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<char>
+\emph default 
+ 
+\layout Standard
+
+Character conversion.
+ See R5RS 
+\layout Subsection
+
+String
+\layout Standard
+
+The string procedures are mostly compatible with R5RS.
+\layout Standard
+
+
+\family typewriter 
+(string?
+\family default 
+\emph on 
+ object
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\emph default 
+ 
+\newline 
+Returns 
+\family typewriter 
+#t
+\family default 
+ if object is a string.
+\layout Standard
+
+
+\family typewriter 
+(make-string
+\family default 
+\emph on 
+ size [char]
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<string>
+\emph default 
+ 
+\newline 
+Creates a new string from 
+\emph on 
+size 
+\emph default 
+chars, optionally filled with 
+\emph on 
+char
+\emph default 
+.
+ If 
+\emph on 
+char
+\emph default 
+ is not specified, the string is filled with the character 
+\family typewriter 
+#
+\backslash 
+null
+\family default 
+.
+\layout Standard
+
+
+\family typewriter 
+(string
+\family default 
+\emph on 
+ char ...
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<string>
+\emph default 
+ 
+\newline 
+Creates a new string from the characters given as argument.
+\layout Standard
+
+
+\family typewriter 
+(string-length
+\family default 
+\emph on 
+ str
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\newline 
+Returns the current length of the string.
+\layout Standard
+
+
+\family typewriter 
+(string-ref
+\family default 
+\emph on 
+ str k
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<char>
+\emph default 
+ 
+\newline 
+Returns the kth character of string.
+ The indexing is 0-based.
+\layout Standard
+
+
+\family typewriter 
+(string-set!
+\family default 
+\emph on 
+ str k char
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\newline 
+Changes the kth character of string.
+ 
+\layout Standard
+
+
+\family typewriter 
+(string=?
+\family default 
+\emph on 
+ str1 str2
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\newline 
+
+\family typewriter 
+\emph default 
+(string<?
+\family default 
+\emph on 
+ str1 str2
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\newline 
+
+\family typewriter 
+\emph default 
+(string>?
+\family default 
+\emph on 
+ str1 str2
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\newline 
+
+\family typewriter 
+\emph default 
+(string<=?
+\family default 
+\emph on 
+ str1 str2
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\newline 
+
+\family typewriter 
+\emph default 
+(string>=?
+\family default 
+\emph on 
+ str1 str2
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\emph default 
+ 
+\newline 
+String comparison.
+\layout Standard
+
+
+\family typewriter 
+(string-ci=?
+\family default 
+\emph on 
+ str1 str2
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\family typewriter 
+\emph default 
+
+\newline 
+(string-ci<?
+\family default 
+\emph on 
+ str1 str2
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\newline 
+
+\family typewriter 
+\emph default 
+(string-ci>?
+\family default 
+\emph on 
+ str1 str2
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\newline 
+
+\family typewriter 
+\emph default 
+(string-ci<=?
+\family default 
+\emph on 
+ str1 str2
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\newline 
+
+\family typewriter 
+\emph default 
+(string-ci>=?
+\family default 
+\emph on 
+ str1 str2
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\emph default 
+ 
+\newline 
+ Case insensitive string comparison
+\layout Standard
+
+
+\family typewriter 
+(substring
+\family default 
+\emph on 
+ str start end
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<string>
+\emph default 
+ 
+\newline 
+Returns the substring of 
+\emph on 
+str
+\emph default 
+, starting at position 
+\emph on 
+start
+\emph default 
+ and terminating at position 
+\emph on 
+end
+\emph default 
+.
+ See R5RS
+\layout Standard
+
+
+\family typewriter 
+(string-length
+\family default 
+\emph on 
+ str
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\newline 
+Returns the length of the string 
+\emph on 
+str
+\emph default 
+.
+ 
+\layout Standard
+
+
+\family typewriter 
+(string-append
+\family default 
+\emph on 
+ str ...
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<str>
+\emph default 
+ 
+\newline 
+Returns the length of the string 
+\emph on 
+str
+\emph default 
+.
+ 
+\layout Standard
+
+
+\family typewriter 
+(string->list
+\family default 
+\emph on 
+ str
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<list>
+\emph default 
+ 
+\newline 
+Returns a list consisting of the chars contained in string 
+\emph on 
+str
+\emph default 
+.
+ 
+\layout Standard
+
+
+\family typewriter 
+(list->string
+\family default 
+\emph on 
+ list
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<string>
+\emph default 
+ 
+\newline 
+Builds a string from a list of chars.
+ 
+\layout Standard
+
+
+\family typewriter 
+(string-copy
+\family default 
+\emph on 
+ str
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<string>
+\emph default 
+ 
+\newline 
+Returns a fresh copy of a string.
+ 
+\layout Standard
+
+
+\family typewriter 
+(-fill!
+\family default 
+\emph on 
+ str char
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\family typewriter 
+#undefined
+\family default 
+ 
+\newline 
+Replaces all character of str by 
+\emph on 
+char.
+
+\emph default 
+ 
+\layout Standard
+
+
+\family typewriter 
+(string-append2
+\family default 
+\emph on 
+ str1 str2
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<string>
+\emph default 
+ 
+\newline 
+Returns the concatenation of 
+\emph on 
+str1 
+\emph default 
+and 
+\emph on 
+str2
+\emph default 
+.
+\layout Standard
+
+
+\family typewriter 
+(string-index
+\family default 
+\emph on 
+ string search
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number> 
+\emph default 
+| 
+\family typewriter 
+#f
+\family default 
+ 
+\newline 
+Returns the index in 
+\emph on 
+string
+\emph default 
+ where 
+\emph on 
+search
+\emph default 
+ appears first.
+ The 
+\emph on 
+search 
+\emph default 
+argument can be either a 
+\emph on 
+<character>
+\emph default 
+ or a 
+\emph on 
+<string>
+\emph default 
+.
+ Returns 
+\family typewriter 
+#f
+\family default 
+ if the string 
+\emph on 
+search
+\emph default 
+ cannot be found.
+ This is an extension to R5RS.
+\layout Standard
+
+
+\family typewriter 
+(string-chop
+\family default 
+\emph on 
+ obj
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+obj
+\emph default 
+ 
+\newline 
+If 
+\emph on 
+obj
+\emph default 
+ is a string, the size of the string is shortened to exclude the first newline
+ if any.
+ If 
+\emph on 
+obj
+\emph default 
+ is not a string, 
+\emph on 
+obj
+\emph default 
+ is left unchanged.
+ Note that the allocated size
+\begin_float footnote 
+\layout Standard
+
+The allocated size is the size of the memory reserved to hold the string.
+ The procedure 
+\family typewriter 
+(make-string
+\family default 
+ 
+\emph on 
+n
+\family typewriter 
+\emph default 
+)
+\family default 
+ create a string which allocated size is 
+\emph on 
+n
+\emph default 
+.
+\end_float 
+ of the string is not changed.
+ Only the apparent length of the string is changed.
+ This is an extension to R5RS.
+\layout LyX-Code
+
+> (string-chop "Hello world
+\backslash 
+n
+\backslash 
+nI said...
+\backslash 
+n")
+\layout LyX-Code
+
+"Hello world"
+\layout Standard
+
+
+\family typewriter 
+(string-split
+\family default 
+\emph on 
+ delim str
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<list>
+\emph default 
+ 
+\newline 
+Returns a list of the substrings of 
+\emph on 
+str
+\emph default 
+ that are delimited by one of the characters in the 
+\emph on 
+delim
+\emph default 
+ string.
+ Example:
+\layout LyX-Code
+
+> (string-split "
+\backslash 
+t " "Hello world")
+\layout LyX-Code
+
+("Hello" "world")
+\layout LyX-Code
+
+> (string-split ":" (hash-ref environ "PATH") )
+\layout LyX-Code
+
+("/usr/bin" "/bin" "/usr/bin/X11" "/usr/games" "/usr/local/bin" ".")
+\layout LyX-Code
+
+> (string-split "/" "/usr/local/bin")
+\layout LyX-Code
+
+("" "usr" "local" "bin")
+\layout Standard
+
+
+\family typewriter 
+(string-join
+\family default 
+\emph on 
+ sep list
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+string
+\emph default 
+ 
+\newline 
+Is the inverse transformation of 
+\family typewriter 
+string-split
+\family default 
+.
+ It takes a list of string and returns a new string composed of all string
+ of list separated with 
+\emph on 
+sep
+\emph default 
+.
+ Example:
+\layout LyX-Code
+
+> (string-join "|" (string-split ":" (hash-ref environ "PATH")))
+\layout LyX-Code
+
+"/usr/bin|/bin|/usr/bin/X11|/usr/games|/usr/local/bin|."
+\layout LyX-Code
+
+> (string-join "<sep>" (string-split "/:" (hash-ref environ "PATH")))
+\layout LyX-Code
+
+"<sep>usr<sep>bin<sep>bin<sep>usr<sep>bin<sep>X11<sep>usr<sep>games<sep>usr<sep>
+local<sep>bin<sep>."
+\layout Standard
+
+
+\family typewriter 
+(string-translate
+\family default 
+\emph on 
+ strimg from repl
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+string
+\emph default 
+ 
+\newline 
+Returns a new string, substituting the characters of 
+\emph on 
+string 
+\emph default 
+matching characters in the 
+\emph on 
+from
+\emph default 
+ string to the corresponding character in the 
+\emph on 
+repl
+\emph default 
+ string.
+ Example:
+\layout LyX-Code
+
+> (string-translate "Hello World" "HWo" "hwO")
+\layout LyX-Code
+
+"hellO wOrld"
+\layout Standard
+
+
+\family typewriter 
+(string-pack
+\family default 
+\emph on 
+ template obj ...
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+string
+\emph default 
+ 
+\newline 
+Creates a binary structure and returns it as 
+\emph on 
+string
+\emph default 
+.
+ The various 
+\emph on 
+obj 
+\emph default 
+arguments are placed successively in the target string by following the
+ specifications of the 
+\emph on 
+template
+\emph default 
+ string.
+ The template string defines a sequence of fields, where each field is described
+ by a one-character type and an optional length.
+ The type characters have the following meaning:
+\layout Standard
+\added_space_top 0.3cm \added_space_bottom 0.3cm \align center \LyXTable
+multicol5
+25 2 0 0 -1 -1 -1 -1
+1 1 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 1 0 0
+8 1 0 "" ""
+2 1 1 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 2 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+
+Character
+\newline 
+Description
+\newline 
+a
+\newline 
+A string with arbitrary binary data, will be null padded.
+\newline 
+A
+\newline 
+An ASCII string, will be padded with spaces and null.
+\newline 
+Z
+\newline 
+An ASCII string, will be padded with nulls.
+\newline 
+b
+\newline 
+A bit string (ascending bit order).
+\newline 
+B
+\newline 
+A bit string (descending bit order).
+\newline 
+h
+\newline 
+A hex string (low nibble first).
+\newline 
+H
+\newline 
+A hex string (high nibble first).
+\newline 
+c
+\newline 
+A signed char value.
+\newline 
+C
+\newline 
+An unsigned char value.
+\newline 
+s
+\newline 
+A signed short value (16 bits).
+\newline 
+S
+\newline 
+An unsigned short value (16 bits).
+\newline 
+i
+\newline 
+A signed integer value (at least 32 bits).
+\newline 
+I
+\newline 
+An unsigned integer value (at least 32 bits).
+\newline 
+L
+\newline 
+A signed long value.
+\newline 
+n
+\newline 
+A short in "network" (big-endian) order.
+\newline 
+N
+\newline 
+A long in "network" (big-endian) order.
+\newline 
+v
+\newline 
+A short in "VAX" (little-endian) order.
+\newline 
+V
+\newline 
+A long in "VAX" (little-endian) order.
+\newline 
+f
+\newline 
+A single-precision float in the native format.
+\newline 
+d
+\newline 
+A double-precision float in the native format.
+\newline 
+p
+\newline 
+A pointer-to-string in the native format.
+\newline 
+P
+\newline 
+A pointer-to-structure in the native format.
+\newline 
+x
+\newline 
+A null byte.
+\newline 
+X
+\newline 
+Remove byte.
+\layout Standard
+
+The following rules apply:
+\layout Itemize
+
+Each letter may optionally be followed by a number giving a repeat count.
+ With all types except "a", "A", "Z", "b", "B", "h", "H", and "P" the 
+\family typewriter 
+string-pack
+\family default 
+ function will consume up that many values from the 
+\emph on 
+obj
+\emph default 
+ parameters.
+ A 
+\begin_inset Quotes eld
+\end_inset 
+
+ *
+\begin_inset Quotes erd
+\end_inset 
+
+ for the repeat count means to use however many parameters are left.
+\layout Itemize
+
+The "a", "A", and "Z" types consume just one value, but pack it as a string
+ of length count, padding with nulls or spaces as necessary.
+ When unpacking, "A" strips trailing spaces and nulls, "Z" strips everything
+ after the first null, and "a" returns data verbatim.
+\layout Itemize
+
+Likewise, the "b" and "B" fields pack 
+\emph on 
+one
+\emph default 
+ string that many bits long.
+\layout Itemize
+
+The "h" and "H" fields pack 
+\emph on 
+one
+\emph default 
+ string that many nibbles long.
+\layout Itemize
+
+The "p" type packs a pointer to a null-terminated string.
+ You are responsible for ensuring the string is not a temporary value (which
+ can potentially get deallocated before you get around to using the packed
+ result).
+ The "P" type packs a pointer to a structure of the size indicated by the
+ length.
+ A NULL pointer is created if the corresponding value for "p" or "P" is
+ '().
+\layout Description
+
+Note: the 
+\family typewriter 
+string-pack
+\family default 
+ was inspired from the PERL language.
+ It has more or less the same syntax.
+\layout Standard
+
+
+\family typewriter 
+(string-unpack
+\family default 
+\emph on 
+ template string
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+list
+\emph default 
+ 
+\newline 
+Extracts the fields contained in the 
+\emph on 
+string
+\emph default 
+ according to the specifications of the 
+\emph on 
+template
+\emph default 
+ string.
+ The extracted elements are returned in order in a list.
+ See 
+\family typewriter 
+string-pack
+\family default 
+ for a description of the 
+\emph on 
+template
+\emph default 
+.
+\layout Standard
+
+
+\family typewriter 
+(string-resize!
+\family default 
+\emph on 
+ string len
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+string
+\emph default 
+ 
+\newline 
+Changes the length of the string 
+\emph on 
+string
+\emph default 
+ to length 
+\emph on 
+len
+\emph default 
+.
+ If the string expands, the added characters will be filled with random
+ data.
+\layout Subsection
+
+Vector
+\layout Standard
+
+All procedures of R5RS are implemented.
+\layout Standard
+
+
+\family typewriter 
+(vector?
+\family default 
+\emph on 
+ object
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\emph default 
+ 
+\newline 
+Returns 
+\family typewriter 
+#t
+\family default 
+ if 
+\emph on 
+obj
+\emph default 
+ is a vector.
+\layout Standard
+
+
+\family typewriter 
+(make-vector
+\family default 
+\emph on 
+ k [fill]
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<vector>
+\emph default 
+ 
+\newline 
+Returns 
+\family typewriter 
+#t
+\family default 
+ if 
+\emph on 
+obj
+\emph default 
+ is a vector.
+\layout Standard
+
+
+\family typewriter 
+(vector
+\family default 
+\emph on 
+ obj ...
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<vector>
+\emph default 
+ 
+\newline 
+Returns a newly allocated vector whose elements are the given arguments.
+\layout Standard
+
+
+\family typewriter 
+(vector-length
+\family default 
+\emph on 
+ vector
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\newline 
+Returns the number of elements in 
+\emph on 
+vector
+\emph default 
+.
+ 
+\layout Standard
+
+
+\family typewriter 
+(vector-ref
+\family default 
+\emph on 
+ vector k
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<object>
+\emph default 
+ 
+\newline 
+Returns the 
+\emph on 
+k
+\emph default 
+th element of the vector.
+ 
+\layout Standard
+
+
+\family typewriter 
+(vector-set!
+\family default 
+\emph on 
+ vector k obj
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\family typewriter 
+#undefined
+\family default 
+ 
+\newline 
+Sets the 
+\emph on 
+k
+\emph default 
+th element of the vector to 
+\emph on 
+obj
+\emph default 
+.
+ 
+\layout Standard
+
+
+\family typewriter 
+(vector->list
+\family default 
+\emph on 
+ vector
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<list>
+\newline 
+
+\family typewriter 
+\emph default 
+(list->vector
+\family default 
+\emph on 
+ list
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<vector>
+\emph default 
+ 
+\newline 
+Converts a vector to a list and vice versa.
+\layout Standard
+
+
+\family typewriter 
+(vector-fill!
+\family default 
+\emph on 
+ vector obj
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<vector>
+\emph default 
+ 
+\newline 
+Changes all elements of 
+\emph on 
+vector
+\emph default 
+ to object 
+\emph on 
+obj
+\emph default 
+.
+\layout Standard
+
+
+\family typewriter 
+(vector-resize
+\family default 
+\emph on 
+ vector newsize
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<vector>
+\emph default 
+ 
+\newline 
+Changes the size of a vector to 
+\emph on 
+newsize.
+
+\emph default 
+ 
+\layout Standard
+
+
+\family typewriter 
+(vector-append
+\family default 
+\emph on 
+ v1 v2
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<vector>
+\emph default 
+ 
+\newline 
+Creates a new vector which is composed of all elements of 
+\emph on 
+v1
+\emph default 
+ and of 
+\emph on 
+v2, 
+\emph default 
+appending 
+\emph on 
+v2
+\emph default 
+ to 
+\emph on 
+v1.
+\layout Subsection
+
+Hash
+\layout Standard
+
+\begin_float fig 
+\layout Standard
+\align center 
+
+\begin_inset Figure size 330 272
+file hashes.eps
+flags 9
+
+\end_inset 
+
+
+\layout Caption
+
+The various hash type
+\end_float 
+\layout Standard
+
+A hash is a data structure used to store key/value pairs for fast access.
+ The keys are assumed to be unique.
+ The acceptable key type depends on the hash type.
+ For a generic type, any key may be used.
+ For symbol hashes, only atoms or strings are acceptable.
+ Atom hash is very special because 
+\emph on 
+no value can be associated with key
+\emph default 
+.
+ You can use atom hash only for setting keys and testing existence of keys.
+\layout Standard
+
+
+\family typewriter 
+(make-hash
+\family default 
+\emph on 
+ [type]
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<hash>
+\emph default 
+ 
+\newline 
+Creates a hash.
+ Hash types are:
+\family typewriter 
+ SCM_HASH_T_GEN
+\family default 
+ for generic (normal) hashes, 
+\family typewriter 
+SCM_HASH_T_SYMBOL
+\family default 
+ for symbol hash and 
+\family typewriter 
+SCM_HASH_T_ATOM
+\family default 
+ for atom hash.
+ If no type argument is given, a generic hash is created.
+\layout Standard
+
+
+\family typewriter 
+(make-symbol-hash)
+\family default 
+ --> 
+\emph on 
+<hash>
+\emph default 
+ 
+\newline 
+Creates a symbol hash.
+\layout Standard
+
+
+\family typewriter 
+(make-atom-hash)
+\family default 
+ --> 
+\emph on 
+<hash>
+\emph default 
+ 
+\newline 
+Creates an atom hash.
+ Atom hash has no value associated with key.
+\layout Standard
+
+
+\family typewriter 
+(hash? 
+\family default 
+\emph on 
+hash
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\emph default 
+ 
+\newline 
+Returns 
+\family typewriter 
+#t 
+\family default 
+if it's a hash, 
+\family typewriter 
+#f
+\family default 
+ otherwise.
+ 
+\layout Standard
+
+
+\family typewriter 
+(atom-hash? 
+\family default 
+\emph on 
+hash
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\emph default 
+ 
+\newline 
+Returns 
+\family typewriter 
+#t 
+\family default 
+if it's an atom hash, 
+\family typewriter 
+#f
+\family default 
+ otherwise.
+ 
+\layout Standard
+
+
+\family typewriter 
+(symbol-hash? 
+\family default 
+\emph on 
+hash
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\emph default 
+ 
+\newline 
+Returns 
+\family typewriter 
+#t 
+\family default 
+if it's a symbol hash, 
+\family typewriter 
+#f
+\family default 
+ otherwise.
+ 
+\layout Standard
+
+
+\family typewriter 
+(generic-hash? 
+\family default 
+\emph on 
+hash
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\emph default 
+ 
+\newline 
+Returns 
+\family typewriter 
+#t 
+\family default 
+if it's a generic hash, 
+\family typewriter 
+#f
+\family default 
+ otherwise.
+ 
+\layout Standard
+
+
+\family typewriter 
+(hash-set! 
+\family default 
+\emph on 
+hash key value
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<hash>
+\emph default 
+ 
+\newline 
+Creates/changes the value associated with 
+\emph on 
+key.
+
+\emph default 
+ 
+\layout Standard
+
+
+\family typewriter 
+(hash-ref 
+\family default 
+\emph on 
+hash key
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<value>
+\emph default 
+ 
+\newline 
+Returns the value associated with the key or 
+\family typewriter 
+#undefined
+\family default 
+ if not found.
+ 
+\layout Standard
+
+
+\family typewriter 
+(hash-stat 
+\family default 
+\emph on 
+hash
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\family typewriter 
+#undefined
+\family default 
+ 
+\newline 
+Prints the statistics for the hash.
+ Useful for hash optimization.
+\layout Standard
+
+
+\family typewriter 
+(hash->list 
+\family default 
+\emph on 
+hash
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<list>
+\emph default 
+ 
+\newline 
+Returns a list containing all elements of the 
+\emph on 
+hash.
+ 
+\emph default 
+Elements are association pairs where car is the key and cdr is the value.
+ 
+\layout Standard
+
+
+\family typewriter 
+(list->hash
+\family default 
+\emph on 
+ list
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<hash>
+\emph default 
+ 
+\newline 
+Builds a hash from an association list.
+ 
+\layout Subsection
+
+Number
+\layout Standard
+
+The documentation is again very skinny here ...
+ refer to R5RS.
+\layout Standard
+
+
+\family typewriter 
+(number?
+\family default 
+\emph on 
+ obj
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\emph default 
+ 
+\newline 
+
+\family typewriter 
+(integer?
+\family default 
+\emph on 
+ obj
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\emph default 
+ 
+\newline 
+
+\family typewriter 
+(real?
+\family default 
+\emph on 
+ obj
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\emph default 
+ 
+\newline 
+
+\family typewriter 
+(exact?
+\family default 
+\emph on 
+ obj
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\emph default 
+ 
+\newline 
+
+\family typewriter 
+(inexact?
+\family default 
+\emph on 
+ obj
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\emph default 
+ 
+\newline 
+Type predicates.
+ 
+\layout Standard
+
+
+\family typewriter 
+(<
+\family default 
+\emph on 
+ n1 n2 ...
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\emph default 
+ 
+\emph on 
+
+\newline 
+
+\family typewriter 
+\emph default 
+(<=
+\family default 
+\emph on 
+ n1 n2...
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\emph default 
+ 
+\emph on 
+
+\newline 
+
+\family typewriter 
+\emph default 
+(>=
+\family default 
+\emph on 
+ n1 n2 ...
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\emph default 
+ 
+\newline 
+
+\family typewriter 
+(>
+\family default 
+\emph on 
+ n1 n2 ...
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\emph default 
+ 
+\newline 
+(=
+\emph on 
+ n1 n2 ...
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\newline 
+
+\emph default 
+Numeric comparisons.
+\layout Standard
+
+
+\family typewriter 
+(zero?
+\family default 
+\emph on 
+ number
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\emph default 
+ 
+\family typewriter 
+
+\newline 
+(positive?
+\family default 
+\emph on 
+ number
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\emph default 
+ 
+\family typewriter 
+
+\newline 
+(negative?
+\family default 
+\emph on 
+ number
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\emph default 
+ 
+\family typewriter 
+
+\newline 
+(odd?
+\family default 
+\emph on 
+ number
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\emph default 
+ 
+\family typewriter 
+
+\newline 
+(even?
+\family default 
+\emph on 
+ number
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\emph default 
+ 
+\newline 
+Number classes.
+\layout Standard
+
+
+\family typewriter 
+(min
+\family default 
+\emph on 
+ n1 n2 ...
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\newline 
+
+\family typewriter 
+(max
+\family default 
+\emph on 
+ n1 n2 ...
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\newline 
+Returns the smallest, respectively the largest number of the given arguments.
+\layout Standard
+
+
+\family typewriter 
+(+
+\family default 
+\emph on 
+ n1 n2 ...
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\newline 
+
+\family typewriter 
+(-
+\family default 
+\emph on 
+ n1 n2 ...
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\newline 
+
+\family typewriter 
+(*
+\family default 
+\emph on 
+ n1 n2 ...
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\emph on 
+
+\newline 
+
+\family typewriter 
+\emph default 
+(/
+\family default 
+\emph on 
+ n1 n2 ...
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\emph on 
+
+\newline 
+
+\emph default 
+Arithmetic operations.
+\layout Standard
+
+
+\family typewriter 
+(abs 
+\family default 
+\emph on 
+n
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\newline 
+Absolute value.
+\layout Standard
+
+
+\family typewriter 
+(quotient
+\family default 
+\emph on 
+ n1 n2
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\emph on 
+
+\newline 
+
+\family typewriter 
+\emph default 
+(remainder
+\family default 
+\emph on 
+ n1 n2
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\newline 
+
+\family typewriter 
+(modulo
+\family default 
+\emph on 
+ n1 n2
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\newline 
+Integer division and modulo operations.
+\layout Standard
+
+
+\family typewriter 
+(gcd
+\family default 
+\emph on 
+ n1 n2 ...
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\emph on 
+
+\newline 
+
+\family typewriter 
+\emph default 
+(lcm
+\family default 
+\emph on 
+ n1 n2 ...
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\emph on 
+
+\newline 
+
+\emph default 
+Gcd and lcm of numbers.
+\layout Standard
+
+
+\family typewriter 
+(floor
+\family default 
+\emph on 
+ n
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\family typewriter 
+
+\newline 
+(ceil
+\family default 
+\emph on 
+ n
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\newline 
+
+\family typewriter 
+(truncate
+\family default 
+\emph on 
+ n
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\newline 
+
+\family typewriter 
+(round
+\family default 
+\emph on 
+ n
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\newline 
+Rounding operations.
+\layout Standard
+
+
+\family typewriter 
+(exp
+\family default 
+\emph on 
+ n
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\newline 
+
+\family typewriter 
+(log
+\family default 
+\emph on 
+ n
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\newline 
+
+\family typewriter 
+(log10
+\family default 
+\emph on 
+ n
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\newline 
+
+\family typewriter 
+(sin
+\family default 
+\emph on 
+ n
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\newline 
+
+\family typewriter 
+(cos
+\family default 
+\emph on 
+ n
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\newline 
+
+\family typewriter 
+(tan
+\family default 
+\emph on 
+ n
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\newline 
+
+\family typewriter 
+(asin
+\family default 
+\emph on 
+ n
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\newline 
+
+\family typewriter 
+(acos
+\family default 
+\emph on 
+ n
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\newline 
+
+\family typewriter 
+(atan
+\family default 
+\emph on 
+ n1 n2
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\newline 
+
+\family typewriter 
+(sqrt
+\family default 
+\emph on 
+ n
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\newline 
+
+\family typewriter 
+(expt
+\family default 
+\emph on 
+ n1 n2
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\newline 
+Mathematical functions.
+\layout Standard
+
+
+\family typewriter 
+(random)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\newline 
+Generates a random number in range 0.0-1.0 exclusive.
+ Maximum precision is 48 bits.
+\layout Standard
+
+
+\family typewriter 
+(exact->inexact
+\family default 
+\emph on 
+ n
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\newline 
+
+\family typewriter 
+(inexact->exact
+\family default 
+\emph on 
+ n
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\newline 
+Type conversions 
+\layout Standard
+
+
+\family typewriter 
+(number->string
+\family default 
+\emph on 
+ number [base]
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<string>
+\emph default 
+ 
+\newline 
+
+\family typewriter 
+(string->number
+\family default 
+\emph on 
+ string [base]
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+
+\newline 
+Convert to/from string.
+\layout Standard
+
+
+\family typewriter 
+(1+
+\family default 
+\emph on 
+ n
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\newline 
+
+\family typewriter 
+(2+
+\family default 
+\emph on 
+ n
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\newline 
+
+\family typewriter 
+(1-
+\family default 
+\emph on 
+ n
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\newline 
+
+\family typewriter 
+(2-
+\family default 
+\emph on 
+ n
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number>
+\emph default 
+ 
+\newline 
+ Speedy increments and decrements.
+\layout Standard
+
+
+\family typewriter 
+(float-precision
+\family default 
+\emph on 
+ digits
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+old
+\emph default 
+ 
+\newline 
+Set the number of digits after the '
+\family typewriter 
+.
+\family default 
+' to display when printing a float number.
+\layout Standard
+
+
+\family typewriter 
+pi
+\newline 
+
+\family default 
+The number PI.
+\layout Subsection
+
+Input / output
+\layout Standard
+
+Input-output in Scheme is based on the concept of port.
+ Refer to 6.6.1 in R5RS.
+\layout Standard
+
+
+\family typewriter 
+(port? 
+\family default 
+\emph on 
+obj
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\emph default 
+ 
+\newline 
+Returns 
+\family typewriter 
+#t
+\family default 
+ if 
+\emph on 
+obj 
+\emph default 
+is a valid port object.
+ 
+\layout Standard
+
+
+\family typewriter 
+(input-port? 
+\family default 
+\emph on 
+obj
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\emph default 
+ 
+\newline 
+Returns 
+\family typewriter 
+#t
+\family default 
+ if 
+\emph on 
+obj 
+\emph default 
+is a valid input port object.
+ 
+\layout Standard
+
+
+\family typewriter 
+(output-port? 
+\family default 
+\emph on 
+obj
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\emph default 
+ 
+\newline 
+Returns 
+\family typewriter 
+#t
+\family default 
+ if 
+\emph on 
+obj 
+\emph default 
+is a valid output port object.
+ 
+\layout Standard
+
+
+\family typewriter 
+(current-input-port)
+\family default 
+ --> 
+\emph on 
+<port>
+\newline 
+
+\family typewriter 
+\emph default 
+(current-output-port)
+\family default 
+ --> 
+\emph on 
+<port>
+\newline 
+
+\family typewriter 
+\emph default 
+(current-error-port)
+\family default 
+ --> 
+\emph on 
+<port>
+\emph default 
+ 
+\newline 
+Returns the current port for the default input / output / error stream.
+ 
+\layout Standard
+
+
+\family typewriter 
+(with-input-from-file 
+\family default 
+\emph on 
+str thunk
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<anything>
+\newline 
+
+\family typewriter 
+\emph default 
+(with-output-to-file 
+\family default 
+\emph on 
+str thunk
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<anything>
+\emph default 
+ 
+\newline 
+Redirects standard input or output to/from the file named by 
+\emph on 
+str
+\emph default 
+.
+ 
+\emph on 
+thunk
+\emph default 
+ is a procedure without any arguments.
+ The value returned is the value returned by the 
+\emph on 
+thunk
+\emph default 
+.
+\layout Standard
+
+Example of redirections with 
+\family typewriter 
+with-output-to-file
+\family default 
+ and 
+\family typewriter 
+with-input-from-file
+\family default 
+:
+\layout LyX-Code
+
+> (with-output-to-file "/tmp/tst" (lambda () (write 123) (newline)))
+\layout LyX-Code
+
+#undefined
+\layout LyX-Code
+
+> (system "cat /tmp/tst")
+\layout LyX-Code
+
+123
+\layout LyX-Code
+
+0
+\layout LyX-Code
+
+> (with-input-from-file "/tmp/tst" (lambda () (read)))
+\layout LyX-Code
+
+123
+\layout Standard
+
+
+\family typewriter 
+(with-input-from-string 
+\family default 
+\emph on 
+str thunk
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<anything>
+\newline 
+
+\family typewriter 
+\emph default 
+(with-output-to-string 
+\family default 
+\emph on 
+thunk
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<string>
+\emph default 
+ 
+\newline 
+Redirects the standard input or output to/from 
+\emph on 
+string
+\emph default 
+.
+ 
+\emph on 
+thunk
+\emph default 
+ is a procedure without any arguments.
+ The value returned by 
+\family typewriter 
+with-input-from-string
+\family default 
+ is the value returned by the 
+\emph on 
+thunk
+\emph default 
+.
+ The value returned by 
+\family typewriter 
+with-output-to-string
+\family default 
+ is the entire string built in 
+\emph on 
+thunk.
+\layout Standard
+
+For example:
+\layout LyX-Code
+
+> (with-output-to-string (lambda () (write "Hello world") (write 123)))
+\layout LyX-Code
+
+"
+\backslash 
+"Hello world
+\backslash 
+"123"
+\layout Standard
+
+
+\family typewriter 
+(open-input-file 
+\family default 
+\emph on 
+string
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<port> 
+\family typewriter 
+\emph default 
+
+\newline 
+(open-output-file 
+\family default 
+\emph on 
+string
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<port>
+\emph default 
+ 
+\newline 
+Opens the file named by 
+\emph on 
+string 
+\emph default 
+for reading respectively writing.
+ An error exception is thrown if the file cannot be opened.
+\layout Standard
+
+
+\family typewriter 
+(open-input-string 
+\family default 
+\emph on 
+string
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<port> 
+\family typewriter 
+\emph default 
+
+\newline 
+(open-output-string)
+\family default 
+ --> 
+\emph on 
+<port>
+\emph default 
+ 
+\layout Standard
+
+**** Open file for reading respectively writing.
+ An error exception is thrown when file cannot be opened.
+ ****
+\layout Standard
+
+
+\family typewriter 
+(get-output-string
+\family default 
+\emph on 
+ <output-string-port>
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<string>
+\emph default 
+ 
+\newline 
+Returns the string currently built at the 
+\emph on 
+output-string-port
+\emph default 
+.
+\layout Standard
+
+
+\family typewriter 
+(close-port 
+\family default 
+\emph on 
+port
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean> 
+\emph default 
+|
+\emph on 
+ <string>
+\newline 
+
+\family typewriter 
+\emph default 
+(close-input-port 
+\family default 
+\emph on 
+port
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean> 
+\emph default 
+|
+\emph on 
+ <string>
+\newline 
+
+\family typewriter 
+\emph default 
+(close-output-port 
+\family default 
+\emph on 
+port
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean> 
+\emph default 
+|
+\emph on 
+ <string>
+\emph default 
+ 
+\newline 
+These functions close an open port.
+ If 
+\emph on 
+port
+\emph default 
+ is an output string port, the string output is returned.
+ ****
+\layout Standard
+
+
+\family typewriter 
+(read-char [
+\family default 
+\emph on 
+port
+\family typewriter 
+\emph default 
+])
+\family default 
+ --> 
+\emph on 
+<char> | #eof
+\newline 
+
+\family typewriter 
+\emph default 
+(peek-char [
+\family default 
+\emph on 
+port
+\family typewriter 
+\emph default 
+])
+\family default 
+ --> 
+\emph on 
+<char> | #eof
+\emph default 
+ 
+\newline 
+Reads a character from the port passed as an argument.
+ If no port argument is given, the 
+\family typewriter 
+current-input-port
+\family default 
+ is used as input port.
+
+\family typewriter 
+ peek-char
+\family default 
+ does not advance the character position of the port.
+\layout Standard
+
+
+\family typewriter 
+(read-line [
+\family default 
+\emph on 
+port
+\family typewriter 
+\emph default 
+])
+\family default 
+ --> 
+\emph on 
+<string> | #eof
+\newline 
+
+\emph default 
+ Reads a line from the port passed as an argument.
+ If no port argument is given, the 
+\family typewriter 
+current-input-port
+\family default 
+ is used as the input port.
+\layout Standard
+
+
+\family typewriter 
+(eof-object? 
+\family default 
+\emph on 
+obj
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\emph default 
+ 
+\newline 
+Returns 
+\family typewriter 
+#t
+\family default 
+ if 
+\emph on 
+obj 
+\emph default 
+is a 
+\family typewriter 
+#eof.
+\layout Standard
+
+
+\family typewriter 
+(char-ready? 
+\family default 
+\emph on 
+port
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\emph default 
+ 
+\newline 
+
+\series bold 
+Not implemented.
+
+\series default 
+ I'm sorry, but I don't see why you want to use this function in a Unix
+ environment.
+\layout Standard
+
+
+\family typewriter 
+(flush-output [
+\family default 
+\emph on 
+port
+\family typewriter 
+\emph default 
+] )
+\family default 
+ --> 
+\family typewriter 
+#t
+\family default 
+
+\newline 
+Flushes the port.
+ If no port is given, the default output port is flushed.
+ 
+\layout Standard
+
+
+\family typewriter 
+(file-position 
+\family default 
+\emph on 
+port [pos]
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+position
+\emph default 
+
+\newline 
+Gets or sets the current position on a file port.
+ If no position is given the current position is returned.
+ Otherwise, the current file position is set to the 
+\emph on 
+pos
+\emph default 
+ value.
+\layout Subsection
+
+Error handling
+\layout Standard
+
+The error handling is implemented by two functions: 
+\family typewriter 
+catch
+\family default 
+ and 
+\family typewriter 
+throw
+\family default 
+.
+ The 
+\family typewriter 
+catch
+\family default 
+ form defines a context where errors are trapped and a function to handle
+ the errors occurring in that context.
+ The 
+\family typewriter 
+throw
+\family default 
+ function signals an error of a specific type and provides a description
+ of the error in a string.
+ The error signal is sent to the 
+\family typewriter 
+catch
+\family default 
+ having the same 
+\family typewriter 
+tag
+\family default 
+ or to the innermost resp.
+ top-level
+\family typewriter 
+ catch 
+\family default 
+if the tag is
+\family typewriter 
+ #f 
+\family default 
+resp.
+ 
+\family typewriter 
+#t
+\family default 
+.
+ When a match is found, the handler is called with the tag and the string
+ thrown as arguments.
+ When the handler terminates, the execution resumes after the catch form
+ and the value returned by the handler will be returned by the catch form.
+\layout Standard
+
+When throwing, the tag 
+\family typewriter 
+#t
+\family default 
+ can be used to force a top-level error with no resume, some kind of abort.
+\layout Standard
+
+
+\family typewriter 
+(catch 
+\family default 
+\emph on 
+taglist
+\emph default 
+ 
+\emph on 
+handler expr
+\family typewriter 
+\emph default 
+ ...
+\family default 
+) 
+\newline 
+The 
+\family typewriter 
+catch
+\family default 
+ construct traps exceptions occurring during the execution of the expressions.
+ The 
+\emph on 
+taglist
+\family typewriter 
+ 
+\family default 
+\emph default 
+is a list of tags being caught.
+ The 
+\emph on 
+handler
+\emph default 
+ function takes 2 arguments, a 
+\emph on 
+tag
+\emph default 
+ and a 
+\emph on 
+message
+\emph default 
+.
+ The 
+\emph on 
+handler
+\emph default 
+ function is called when an exception matching one of the tags has been
+ thrown from inside the 
+\emph on 
+expr
+\emph default 
+.
+ If no exceptions occur, the catch construct returns the value of the last
+ expression.
+ If an exception is trapped, the value returned is the value returned by
+ the handler function, if any.
+\layout Standard
+
+
+\family typewriter 
+(throw 
+\family default 
+\emph on 
+tag string
+\family typewriter 
+\emph default 
+)
+\family default 
+ 
+\newline 
+Sends an exception to the first catch matching the 
+\emph on 
+tag
+\emph default 
+.
+ The 
+\emph on 
+tag 
+\emph default 
+and 
+\emph on 
+string
+\emph default 
+ are passed to the 
+\emph on 
+handler
+\emph default 
+ function for display purposes.
+ If 
+\emph on 
+tag
+\emph default 
+ is 
+\family typewriter 
+#t
+\family default 
+ the top-level catch is activated.
+ If the 
+\emph on 
+tag
+\emph default 
+ is 
+\family typewriter 
+#f
+\family default 
+ the handler of the enclosing catch is activated.
+\layout Standard
+
+Example of a throw to an enclosing catch:
+\layout LyX-Code
+
+> (catch (a b) (lambda (t m)
+\layout LyX-Code
+
+
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+(display "handler: catch: ") (display t) 
+\layout LyX-Code
+
+
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+(display " msg: ") (print m) #f)
+\layout LyX-Code
+
+
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+(throw 'a "ERROR A"))
+\layout LyX-Code
+
+*** throw: tag=a msg=ERROR A
+\layout LyX-Code
+
+*** catch: scm_catch_list=()
+\layout LyX-Code
+
+handler: catch: a msg: ERROR A
+\layout LyX-Code
+
+#f
+\layout Standard
+
+Example of a 
+\emph on 
+throw
+\emph default 
+ to first enclosing catch:
+\layout LyX-Code
+
+> (catch (a b) (lambda (t m)
+\layout LyX-Code
+
+
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+(display "handler: catch: ") (display t) 
+\layout LyX-Code
+
+
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+(display " msg: ") (print m) #f)
+\layout LyX-Code
+
+
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+(throw #f "ERROR A"))
+\layout LyX-Code
+
+*** throw: tag=#f msg=ERROR A
+\layout LyX-Code
+
+*** catch: scm_catch_list=()
+\layout LyX-Code
+
+handler: catch: #f msg: ERROR A
+\layout LyX-Code
+
+#f
+\layout Standard
+
+Example of a throw to top-level catch:
+\layout LyX-Code
+
+> (catch (a b) (lambda (t m)
+\layout LyX-Code
+
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+ (display "handler: catch: ") (display t) 
+\layout LyX-Code
+
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+ (display " msg: ") (print m) #f)
+\layout LyX-Code
+
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+ (throw #t "TOPLEVEL ERROR"))
+\layout LyX-Code
+
+*** throw: tag=#t msg=TOPLEVEL ERROR
+\layout LyX-Code
+
+toplevel restart: k=1
+\layout Subsection
+
+Module
+\layout Standard
+
+The module system implements private name spaces in different level.
+ It provides a way to control what names may be used from outside the module.
+ This is a small example of module definitions:
+\layout LyX-Code
+
+(module A
+\layout LyX-Code
+
+
+\protected_separator 
+ (export x)
+\layout LyX-Code
+
+
+\protected_separator 
+ (define x 10))
+\layout LyX-Code
+
+
+\protected_separator 
+
+\layout LyX-Code
+
+(module B
+\layout LyX-Code
+
+
+\protected_separator 
+ (export x)
+\layout LyX-Code
+
+
+\protected_separator 
+ (define x 20))
+\layout LyX-Code
+
+
+\protected_separator 
+
+\layout LyX-Code
+
+(module C
+\layout LyX-Code
+
+
+\protected_separator 
+ (import A B)
+\layout LyX-Code
+
+
+\protected_separator 
+ (print x))
+\layout LyX-Code
+
+
+\protected_separator 
+
+\layout LyX-Code
+
+=> 10
+\layout Standard
+
+I have a syntactic sugar notation: to access objects of a modules you can
+ use the module::symbol notation.
+ Example: 
+\layout LyX-Code
+
+(print A::x)
+\layout LyX-Code
+
+=> 10
+\layout Standard
+
+
+\series bold 
+Note: 
+\series default 
+the default module which holds all the Scheme definitions is the 
+\family typewriter 
+global
+\family default 
+\emph on 
+ 
+\emph default 
+module.
+\newline 
+
+\layout Standard
+
+
+\family typewriter 
+(module 
+\family default 
+\emph on 
+module expr...
+\emph default 
+) 
+\newline 
+Creates or reuses a module.
+ Every module uses a separate symbol hash to hold the definitions it contains.
+ Definitions occurring in a module will not conflict with definitions in
+ other modules.
+\layout Standard
+
+
+\family typewriter 
+(export 
+\family default 
+\emph on 
+symbol1 symbol2 ...
+\emph default 
+) 
+\newline 
+Gives a list of symbols that can be used outside of this module.
+\layout Standard
+
+
+\family typewriter 
+(import 
+\family default 
+\emph on 
+module1 module2 ...
+\emph default 
+) 
+\newline 
+Imports all the exported symbols of the modules listed here.
+ The list of modules is searched from left to right.
+\layout Standard
+
+
+\family typewriter 
+(current-module) 
+\family default 
+--> 
+\emph on 
+module
+\emph default 
+ 
+\newline 
+Returns the current module.
+\layout Standard
+
+
+\family typewriter 
+(set-current-module 
+\family default 
+\emph on 
+module
+\emph default 
+) 
+\newline 
+Sets the current module 
+\layout Standard
+
+
+\family typewriter 
+(make-module 
+\family default 
+\emph on 
+name
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\emph on 
+module
+\emph default 
+ 
+\newline 
+Creates a new module.
+ If a module of that name already exists, the module associated with name
+ is returned.
+\layout Standard
+
+
+\family typewriter 
+module-hash
+\family default 
+ --> 
+\emph on 
+hash
+\emph default 
+ 
+\newline 
+Returns the hash associating names to modules.
+\layout Standard
+
+
+\family typewriter 
+(module-exports 
+\family default 
+\emph on 
+module
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\emph on 
+list
+\emph default 
+ 
+\newline 
+Returns the list of exported symbols.
+ 
+\layout Standard
+
+
+\family typewriter 
+(module-imports 
+\family default 
+\emph on 
+module
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\emph on 
+list
+\emph default 
+ 
+\newline 
+Returns the list of imported symbols.
+ 
+\layout Standard
+
+
+\family typewriter 
+(module-symbols 
+\family default 
+\emph on 
+module
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\emph on 
+hash
+\emph default 
+ 
+\newline 
+Returns a hash containing the symbol list.
+ 
+\layout Standard
+
+
+\family typewriter 
+(find-module 
+\family default 
+\emph on 
+name
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\emph on 
+module
+\emph default 
+ 
+\newline 
+Searches a module in module hash and returns a module or #f if not found.
+ 
+\layout Standard
+
+*REVIEW*
+\layout Subsection
+
+Pointer
+\layout Standard
+
+Pointers are used to pass opaque types.
+ You will receive pointers when you use the 
+\family typewriter 
+:item
+\family default 
+ keyword in the foreign function interface.
+\layout Standard
+
+
+\family typewriter 
+(pointer? 
+\family default 
+\emph on 
+obj
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\emph on 
+<boolean>
+\emph default 
+
+\newline 
+Returns 
+\family typewriter 
+#t
+\family default 
+ when obj is a pointer 
+\family typewriter 
+#f
+\family default 
+ otherwise.
+\layout Standard
+
+
+\family typewriter 
+(null-pointer? 
+\family default 
+\emph on 
+obj
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\emph on 
+<boolean>
+\emph default 
+
+\newline 
+Returns 
+\family typewriter 
+#t
+\family default 
+ when obj is a null pointer 
+\family typewriter 
+#f
+\family default 
+ otherwise.
+\layout Subsection
+
+Process
+\layout Standard
+
+QScheme supports process forking and piping.
+ The interface is described hereafter.
+\layout Standard
+
+
+\family typewriter 
+(make-process 
+\family default 
+\emph on 
+in out err string ...
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\emph on 
+<process>
+\emph default 
+ 
+\newline 
+
+\family typewriter 
+(make-process 
+\family default 
+\emph on 
+in out err list
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\emph on 
+<process>
+\emph default 
+
+\newline 
+
+\family typewriter 
+(make-process 
+\family default 
+\emph on 
+in out err vector
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\emph on 
+<process>
+\emph default 
+
+\newline 
+Creates a new process.
+ The values allowed for 
+\emph on 
+in
+\emph default 
+, 
+\emph on 
+out
+\emph default 
+ and 
+\emph on 
+err
+\emph default 
+ are given in the table 
+\begin_inset LatexCommand \ref{make_process_port_type}
+
+\end_inset 
+
+
+\begin_float tab 
+\layout Standard
+\align center \LyXTable
+multicol5
+6 2 0 0 -1 -1 -1 -1
+1 1 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 1 0 0
+2 1 0 "" ""
+2 1 1 "" ""
+0 2 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 2 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+
+Type
+\newline 
+Description
+\newline 
+
+\family typewriter 
+:null
+\family default 
+
+\newline 
+Nothing connected here
+\newline 
+
+\family typewriter 
+:pipe
+\family default 
+
+\newline 
+Create a pipe
+\newline 
+
+\emph on 
+string
+\emph default 
+
+\newline 
+Open a file and redirect from/to it
+\newline 
+
+\emph on 
+port
+\emph default 
+
+\newline 
+Use an already opened port
+\newline 
+
+\emph on 
+number
+\emph default 
+
+\newline 
+Redirect to an already opened slot
+\layout Caption
+
+
+\begin_inset LatexCommand \label{make_process_port_type}
+
+\end_inset 
+
+Allowed values for make-process 
+\emph on 
+in out
+\emph default 
+ and 
+\emph on 
+err
+\end_float 
+.
+ After this call, a new process is created and a process descriptor is returned.
+ If anything goes wrong, an error will be generated.
+ 
+\layout Standard
+
+The command specification string can be provided to 
+\family typewriter 
+make-process
+\family default 
+ in three different ways, namely as as in-lined strings or as a list of
+ strings or an array of strings .
+ Example of such variations are given here:
+\layout LyX-Code
+
+(make-process :null :pipe :pipe "ls" "-al" "/tmp")
+\layout LyX-Code
+
+(make-process :null :pipe :pipe '("ls" "-al" "/tmp"))
+\layout LyX-Code
+
+(make-process :null :pipe :pipe #("ls" "-al" "/tmp"))
+\layout Standard
+
+The first string argument is the full path of the command to execute and
+ is also the 
+\family typewriter 
+argv[0]
+\family default 
+ of the command.
+\layout Standard
+
+
+\family typewriter 
+(process? 
+\family default 
+\emph on 
+obj
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\emph on 
+<boolean>
+\emph default 
+
+\newline 
+Returns 
+\family typewriter 
+#t
+\family default 
+ when obj is a process 
+\family typewriter 
+#f
+\family default 
+ otherwise.
+\layout Standard
+
+
+\family typewriter 
+(process-pid 
+\family default 
+\emph on 
+proc
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\emph on 
+pid
+\emph default 
+
+\newline 
+Returns the process id (pid) of the process.
+\layout Standard
+
+
+\family typewriter 
+(process-input 
+\family default 
+\emph on 
+proc
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\emph on 
+<port
+\emph default 
+>
+\newline 
+
+\family typewriter 
+(process-output 
+\family default 
+\emph on 
+proc
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\emph on 
+<port
+\emph default 
+>
+\newline 
+
+\family typewriter 
+(process-error 
+\family default 
+\emph on 
+proc
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\emph on 
+<port
+\emph default 
+>
+\newline 
+Returns the port corresponding to the process input, output and error stream.
+ You can use these ports to write or read data to/from the process.
+\layout Standard
+
+
+\family typewriter 
+(process-status 
+\family default 
+\emph on 
+proc
+\emph default 
+) --> 
+\emph on 
+status
+\newline 
+
+\emph default 
+Returns the status of a process.
+\layout Standard
+
+
+\family typewriter 
+(process-wait 
+\family default 
+\emph on 
+proc
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\emph on 
+status
+\emph default 
+
+\newline 
+Waits for a process to terminate.
+ If 
+\emph on 
+proc
+\emph default 
+ is 
+\family typewriter 
+#t
+\family default 
+, waits for any process to terminate.
+ Returns the exit status of the process.
+ After a 
+\family typewriter 
+process-wait
+\family default 
+ completes
+\emph on 
+,
+\emph default 
+ the process does not exist anymore and the ports are closed.
+ You could also access the status of the process with the 
+\family typewriter 
+process-status
+\family default 
+ function.
+\layout Standard
+
+
+\family typewriter 
+(process-use-execv 
+\family default 
+\emph on 
+flag
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\emph on 
+oldvalue
+\emph default 
+
+\newline 
+Determines if processes are created with 
+\family typewriter 
+execv
+\family default 
+ or 
+\family typewriter 
+execvp
+\family default 
+.
+ When execv is used, first argument must be the full path to the command.
+ When 
+\family typewriter 
+execvp
+\family default 
+ is used, the 
+\family typewriter 
+PATH
+\family default 
+ environment variable is search to find the command.
+ Returns the value of the flag before the call.
+ 
+\layout Description
+
+Note: By default, 
+\family typewriter 
+execvp
+\family default 
+ is used.
+\layout Subsection
+
+Threads
+\layout Standard
+
+
+\family typewriter 
+(thread 
+\family default 
+\emph on 
+thunk
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\emph on 
+thread
+\emph default 
+
+\newline 
+Invoke 
+\emph on 
+thunk
+\emph default 
+ with no arguments in a new thread.
+ Returns 
+\emph on 
+thread
+\emph default 
+, a thread descriptor.
+ When execution of 
+\emph on 
+thunk 
+\emph default 
+returns, the thread created to invoque 
+\emph on 
+thunk 
+\emph default 
+terminates.
+\layout Standard
+
+
+\family typewriter 
+(thread? 
+\family default 
+\emph on 
+obj
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\emph on 
+boolean
+\emph default 
+
+\newline 
+Returns 
+\family typewriter 
+#t
+\family default 
+ if 
+\emph on 
+obj
+\emph default 
+ is a thread descriptor, 
+\family typewriter 
+#f
+\family default 
+ otherwise.
+\layout Standard
+
+
+\family typewriter 
+(thread-id 
+\family default 
+\emph on 
+thread
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\emph on 
+number
+\emph default 
+
+\newline 
+ Returns the 
+\emph on 
+pthread id
+\emph default 
+ associated with 
+\emph on 
+thread.
+\layout Standard
+
+
+\family typewriter 
+(current-thread)
+\family default 
+--> 
+\emph on 
+thread
+\emph default 
+
+\newline 
+Returns the 
+\emph on 
+thread
+\emph default 
+ descriptor for current thread.
+\layout Standard
+
+
+\family typewriter 
+(thread-running? 
+\family default 
+\emph on 
+thread
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\emph on 
+boolean
+\emph default 
+
+\newline 
+Returns 
+\family typewriter 
+#t
+\family default 
+ if thread is currently running, 
+\family typewriter 
+#f 
+\family default 
+otherwise.
+\layout Standard
+
+
+\family typewriter 
+(thread-wait 
+\family default 
+\emph on 
+thread
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\family typewriter 
+#undefined
+\family default 
+
+\newline 
+Wait until 
+\emph on 
+thread
+\emph default 
+ terminates.
+ 
+\layout Standard
+
+
+\family typewriter 
+(thread-kill 
+\family default 
+\emph on 
+thread
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\family typewriter 
+#undefined
+\family default 
+
+\newline 
+Terminate 
+\emph on 
+thread.
+\layout Standard
+
+
+\family typewriter 
+(thread-exit 
+\family default 
+\emph on 
+thread
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\family typewriter 
+#undefined
+\family default 
+
+\newline 
+Terminates current 
+\emph on 
+thread
+\emph default 
+.
+ This function never returns.
+\layout Standard
+
+
+\family typewriter 
+(thread-dump 
+\family default 
+\emph on 
+thread
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\family typewriter 
+#undefined 
+\family default 
+
+\newline 
+Dump the content of a thread.
+ Mostly for debugging purpose.
+\layout Subsection
+
+Mutexes
+\layout Standard
+
+A mutex is a MUTual EXclusion device, and is useful for protecting shared
+ data structures from concurrent modifications, and implementing critical
+ sections and monitors.
+\layout Standard
+
+A mutex has two possible states: 
+\emph on 
+unlocked
+\emph default 
+ and 
+\emph on 
+locked
+\emph default 
+.
+ A mutex can never be owned by two different threads simultaneously.
+ A thread attempting to lock a mutex that is already locked by another thread
+ is suspended until the owning thread unlocks the mutex first.
+\layout Standard
+
+
+\family typewriter 
+(make-mutex)
+\family default 
+ --> 
+\emph on 
+mutex
+\emph default 
+
+\newline 
+Create a new 
+\emph on 
+mutex
+\layout Standard
+
+
+\family typewriter 
+(mutex? 
+\family default 
+\emph on 
+obj
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+boolean
+\emph default 
+ 
+\newline 
+Returns 
+\family typewriter 
+#t
+\family default 
+ if obj is a 
+\emph on 
+mutex
+\emph default 
+, 
+\family typewriter 
+#f
+\family default 
+ otherwise
+\layout Standard
+
+
+\family typewriter 
+(mutex-lock
+\family default 
+ mutex
+\family typewriter 
+)
+\family default 
+ -->
+\family typewriter 
+ #undefined
+\family default 
+
+\newline 
+Lock 
+\emph on 
+mutex
+\emph default 
+.
+ If 
+\emph on 
+mutex
+\emph default 
+ is already locked, thread execution is suspended until 
+\emph on 
+mutex
+\emph default 
+ is unlocked
+\layout Standard
+
+
+\family typewriter 
+(mutex-try-lock
+\family default 
+ 
+\emph on 
+mutex
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+boolean
+\emph default 
+
+\newline 
+Try to lock 
+\emph on 
+mutex
+\emph default 
+.
+ If 
+\emph on 
+mutex
+\emph default 
+ is already locked, 
+\family typewriter 
+#f
+\family default 
+ is returned immediately, otherwise the 
+\emph on 
+mutex
+\emph default 
+ is locked and 
+\family typewriter 
+#t
+\family default 
+ is returned.
+\layout Standard
+
+
+\family typewriter 
+(mutex-unlock
+\family default 
+ 
+\emph on 
+mutex
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\family typewriter 
+#undefined
+\family default 
+
+\newline 
+Unlock 
+\emph on 
+mutex
+\layout Subsection
+
+Semaphores
+\layout Standard
+
+Semaphores are counters for resources shared between threads.
+ The basic operations on semaphores are: increment the counter atomically,
+ and wait until the counter is non-null and decrement it atomically.
+\layout Standard
+
+
+\family typewriter 
+(make-semaphore 
+\family default 
+\emph on 
+[value]
+\emph default 
+) --> 
+\emph on 
+semaphore
+\newline 
+
+\emph default 
+Create a new 
+\emph on 
+semaphore
+\emph default 
+ object.
+\layout Standard
+
+
+\family typewriter 
+(semaphore? 
+\family default 
+\emph on 
+object
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+boolean
+\emph default 
+ 
+\newline 
+Returns 
+\family typewriter 
+#t
+\family default 
+ if 
+\emph on 
+object
+\emph default 
+ is a semaphore, 
+\family typewriter 
+#f
+\family default 
+ otherwise.
+\layout Standard
+
+
+\family typewriter 
+(semaphore-wait
+\family default 
+ 
+\emph on 
+semaphore
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\family typewriter 
+#undefined
+\layout Standard
+
+Suspend the calling thread until 
+\emph on 
+semaphore
+\emph default 
+ has non-zero count, then decrease the semaphore count.
+\layout Standard
+
+
+\family typewriter 
+(semaphore-try-wait
+\family default 
+ 
+\emph on 
+semaphore
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+boolean
+\emph default 
+ 
+\newline 
+Non blocking variant of 
+\family typewriter 
+semaphore-wait
+\family default 
+.
+ If 
+\emph on 
+semaphore
+\emph default 
+ has non-zero count, the count is atomically decreased and 
+\family typewriter 
+#t
+\family default 
+ is returned.
+ If 
+\emph on 
+semaphore
+\emph default 
+ count is zero, 
+\family typewriter 
+#f
+\family default 
+ is returned.
+\layout Standard
+
+
+\family typewriter 
+(semaphore-post
+\family default 
+ 
+\emph on 
+semaphore
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\family typewriter 
+#undefined
+\family default 
+ 
+\newline 
+Atomically increases the count of 
+\emph on 
+semaphore
+\emph default 
+.
+\layout Standard
+
+
+\family typewriter 
+(semaphore-get-value
+\family default 
+ 
+\emph on 
+semaphore
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+number
+\emph default 
+ 
+\newline 
+Return the count assiociated to the 
+\emph on 
+semaphore
+\emph default 
+.
+\layout Subsection
+
+Miscellaneous
+\layout Standard
+
+
+\family typewriter 
+(apropos 
+\family default 
+\emph on 
+string
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\emph on 
+list
+\emph default 
+
+\newline 
+Returns a list of known symbols that contains the 
+\emph on 
+string.
+\layout Standard
+
+
+\family typewriter 
+(whatis 
+\family default 
+\emph on 
+string
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\family typewriter 
+#undefined
+\family default 
+
+\newline 
+Searches the 
+\family typewriter 
+whatis.qs
+\family default 
+ file and displays the definitions of the words matching 
+\emph on 
+string
+\emph default 
+.
+ The 
+\family typewriter 
+whatis.qs
+\family default 
+ file is built with the 
+\family typewriter 
+mkwhatis
+\family default 
+ script.
+ The string 
+\emph on 
+string
+\emph default 
+ may end with a wild card character (#
+\backslash 
+~), in which case all entries beginning with the significant part of 
+\emph on 
+string
+\emph default 
+ will be returned.
+\layout Standard
+
+Example of 
+\family typewriter 
+whatis 
+\family default 
+usage :
+\layout LyX-Code
+
+> (whatis "set~") 
+\layout LyX-Code
+
+(set! VAR EXPR) => VALUE 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ [SYNTAX] 
+\layout LyX-Code
+
+
+\protected_separator 
+ Evaluates EXPR and stores the resulting value in 
+\layout LyX-Code
+
+
+\protected_separator 
+ the location to which VAR is bound.
+\layout LyX-Code
+
+(set-car! PAIR OBJ) => #undefined 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ [ R5RS] 
+\layout LyX-Code
+
+
+\protected_separator 
+ Stores OBJ in the car field of PAIR.
+\layout LyX-Code
+
+(set-cdr! PAIR OBJ) => #undefined 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+[R5RS] 
+\newline 
+
+\protected_separator 
+ Stores OBJ in the cdr field of PAIR.
+\layout LyX-Code
+
+(set-current-module MODULE) => MODULE 
+\protected_separator 
+ 
+\protected_separator 
+ [QScheme] 
+\layout LyX-Code
+
+
+\protected_separator 
+ Set MODULE as current module for symbol search.
+\layout LyX-Code
+
+(set-aux! OBJ VAL) => NULL 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+ 
+\protected_separator 
+[QScheme] 
+\layout LyX-Code
+
+
+\protected_separator 
+ Associate a value to the aux pointer of object.
+ 
+\layout LyX-Code
+
+
+\protected_separator 
+ THIS IS A DANGEROUS FUNCTION.
+\layout Section
+
+Foreign function interface
+\layout Standard
+
+QScheme provides a way to dynamically load dynamic libraries, to call functions
+ of that library and to share variables with libraries.
+\layout Subsection
+
+Loading a dynamic library 
+\begin_inset LatexCommand \label{Qscm_loadlib}
+
+\end_inset 
+
+
+\layout Standard
+
+
+\family typewriter 
+(load-library 
+\family default 
+\emph on 
+name
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\emph on 
+<boolean>
+\emph default 
+ 
+\newline 
+Attempts to load la dynamic library.
+ If the dynamic linkage succeeds and the library contains a function named
+\family typewriter 
+ scm_init_
+\family default 
+\emph on 
+name 
+\emph default 
+QScheme will call this function to initialize the module.
+ (See 
+\family typewriter 
+scm_init_regex
+\family default 
+ in 
+\family typewriter 
+regex.c
+\family default 
+ for an example.)
+\layout Subsection
+
+Calling a foreign function
+\layout Standard
+
+To call a foreign function, you have to declare it first.
+ As an example, here is the declaration of the 
+\family typewriter 
+system
+\family default 
+ and 
+\family typewriter 
+printf
+\family default 
+ functions from 
+\family typewriter 
+libc
+\family default 
+:
+\layout LyX-Code
+
+(define system (make-extfunc *lib* :int "system" '(:string)))
+\layout LyX-Code
+
+(define printf (make-extfunc *lib* :void "printf" '(:string .
+ :any)))
+\layout Standard
+
+After that, you can use 
+\family typewriter 
+system
+\family default 
+ and 
+\family typewriter 
+printf
+\family default 
+ just as is they were part of QScheme:
+\layout LyX-Code
+
+> (printf "May I ? %d %s
+\backslash 
+nIt works...
+\backslash 
+n" 10 "hello world") 
+\layout LyX-Code
+
+May I ? 10 hello world It works...
+\layout LyX-Code
+
+>
+\layout Standard
+
+
+\family typewriter 
+(make-extfunc 
+\family default 
+\emph on 
+libname ret-type ext-name arglist
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\emph on 
+<extfunc>
+\emph default 
+ 
+\newline 
+Creates a new Scheme object which can be used to call the foreign function
+ 
+\emph on 
+ext-name
+\layout Standard
+
+You can pass strings as arguments to a foreign function.
+ The string is passed to the function as is.
+ If the size of the string should be adjusted, this may be done with the
+ 
+\emph on 
+string-
+\emph default 
+ functions.
+ For instance, this QScheme function lists the contents of a file using
+ the 
+\emph on 
+stdio
+\emph default 
+ functions:
+\layout LyX-Code
+
+(define (type file)
+\layout LyX-Code
+
+
+\protected_separator 
+ (let ((fd) (buf) (bufsize 256))
+\layout LyX-Code
+
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+ (set! fd (fopen file "r"))
+\layout LyX-Code
+
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+ (if (not (null-pointer? fd))
+\layout LyX-Code
+
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+(begin
+\layout LyX-Code
+
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+ (while 
+\layout LyX-Code
+
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+ (not (null? 
+\layout LyX-Code
+
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+ (fgets
+\layout LyX-Code
+
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+ (set! buf (make-string bufsize #
+\backslash 
+space))
+\layout LyX-Code
+
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+ bufsize
+\layout LyX-Code
+
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+ fd)))
+\layout LyX-Code
+
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+ (printf "%s
+\backslash 
+n" (string-chop buf)))
+\layout LyX-Code
+
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+ (fclose fd))
+\layout LyX-Code
+
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+
+\protected_separator 
+(printf "cannot open file %s" file))))
+\layout Standard
+
+Note how we pass the 
+\family typewriter 
+buf
+\family default 
+ to the 
+\family typewriter 
+fgets
+\family default 
+ function and how we use it afterwards.
+ 
+\layout Subsection
+
+Using a foreign variable
+\layout Standard
+
+QScheme can also access variables defined in dynamic libraries.
+ (see 
+\family typewriter 
+load-library
+\family default 
+: 
+\begin_inset LatexCommand \ref{Qscm_loadlib}
+
+\end_inset 
+
+).
+ 
+\layout Standard
+
+
+\family typewriter 
+(make-extern-variable 
+\family default 
+\emph on 
+libname type name
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\emph on 
+<external-variable>
+\emph default 
+ 
+\newline 
+Creates an external variable.
+ 
+\emph on 
+libname
+\emph default 
+ is a string containing the path to the dynamically loaded library.
+ The library will be loaded on demand.
+ The 
+\emph on 
+type
+\emph default 
+ is a keyword as described in the table 
+\begin_float tab 
+\layout Standard
+\added_space_top 0.3cm \added_space_bottom 0.3cm \align center \LyXTable
+multicol5
+10 3 0 0 -1 -1 -1 -1
+1 1 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 1 0 0
+2 1 0 "" ""
+2 1 0 "" ""
+2 1 1 "" ""
+0 8 1 0 0 0 0 "" ""
+0 2 1 0 0 0 0 "" ""
+0 2 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 2 1 0 0 0 0 "" ""
+0 2 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 2 1 0 0 0 0 "" ""
+0 2 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+
+Type
+\newline 
+C type
+\newline 
+Description
+\newline 
+
+\family typewriter 
+:char
+\newline 
+char 
+\family default 
+
+\newline 
+a character
+\newline 
+
+\family typewriter 
+:short
+\newline 
+short
+\family default 
+
+\newline 
+a short integer
+\newline 
+
+\family typewriter 
+:long
+\newline 
+long
+\family default 
+
+\newline 
+a long integer
+\newline 
+
+\family typewriter 
+:float
+\newline 
+float
+\family default 
+
+\newline 
+a float number
+\newline 
+
+\family typewriter 
+:double
+\newline 
+double
+\family default 
+
+\newline 
+a double float number
+\newline 
+
+\family typewriter 
+:string
+\newline 
+char *
+\family default 
+
+\newline 
+a 
+\family typewriter 
+malloc
+\family default 
+-ed string.
+\newline 
+
+\family typewriter 
+:string-buffer
+\newline 
+char *
+\family default 
+
+\newline 
+a pointer to a char buffer
+\newline 
+
+\family typewriter 
+:scheme
+\family default 
+
+\newline 
+
+\family typewriter 
+SOBJ
+\family default 
+
+\newline 
+a pointer to a Scheme object
+\newline 
+
+\newline 
+
+\newline 
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{extvar_type}
+
+\end_inset 
+
+Type of external variables
+\end_float 
+
+\begin_inset LatexCommand \ref{extvar_type}
+
+\end_inset 
+
+.
+ The 
+\emph on 
+name
+\emph default 
+ is a string containing the name of the variable as defined in the module.
+ 
+\layout Standard
+
+The type of external strings is specified according to the string allocation
+ scheme.
+ We have to deal with the following cases: 
+\layout Itemize
+
+the string is stored in a static array of characters.
+\layout Itemize
+
+the string is dynamically allocated with 
+\family typewriter 
+malloc
+\family default 
+.
+ 
+\layout Standard
+
+When referring to a dynamically allocated string, you have to use the 
+\family typewriter 
+:string
+\family default 
+ type.
+ Changing such a string from QScheme will first free the memory then 
+\emph on 
+malloc
+\emph default 
+ a fresh copy of the string.
+\layout Standard
+
+When referring to a string stored in a static character buffer, you must
+ use the 
+\family typewriter 
+:string-buffer
+\family default 
+ type.
+ In this case the value is just copied in the buffer.
+ Beware that no range check occurs.
+ From QScheme, don't try to assign a string bigger than the static buffer
+ size.
+ 
+\layout Standard
+
+Look at 
+\family typewriter 
+tstlib.c
+\family default 
+ and 
+\family typewriter 
+tstlib.defs
+\family default 
+ for an example that uses static and dynamic strings in a dynamic library.
+\layout Subsection
+
+A trivial example
+\layout Standard
+
+Here is an example of how to share variable values between C and QScheme.
+ In your C code, you have the following:
+\layout LyX-Code
+
+int shared_var;
+\layout LyX-Code
+
+
+\protected_separator 
+
+\layout LyX-Code
+
+void test_func() {
+\layout LyX-Code
+
+
+\protected_separator 
+ printf("shared_var = %d
+\backslash 
+n", testvar_w);
+\layout LyX-Code
+
+}
+\layout Standard
+
+To access the variable 
+\family typewriter 
+shared_var
+\family default 
+ and the function 
+\family typewriter 
+test_func
+\family default 
+ from Qscheme, you may use the following definitions:
+\layout LyX-Code
+
+(define *lib* "./tstlib.so")
+\layout LyX-Code
+
+(define shared-var (make-extern-variable *lib* :int "shared_var")
+\layout LyX-Code
+
+(define test-func (make-extfunc *lib* :void "test_func" '())
+\layout Standard
+
+Then you can get and set values like this:
+\layout LyX-Code
+
+> (set! shared-var 100)
+\layout LyX-Code
+
+> (test-func)
+\layout LyX-Code
+
+shared_var = 100
+\layout LyX-Code
+
+> (display shared-var) (newline)
+\layout LyX-Code
+
+100
+\layout LyX-Code
+
+>
+\layout Description
+
+Warning: You must use 
+\family typewriter 
+define
+\family default 
+ to bind a symbol to an external variable and 
+\family typewriter 
+set!
+\family default 
+ to modify directly the value of the variable.
+\layout Subsection
+
+Declaring and using foreign types
+\layout Standard
+
+QScheme can create new Scheme object types at run-time.
+ 
+\layout Standard
+
+
+\family typewriter 
+(make-type 
+\family default 
+\emph on 
+name
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\emph on 
+<type-number>
+\emph default 
+ 
+\newline 
+Creates a new type of Scheme object.
+ The number returned is the internal type number.
+\layout Standard
+
+
+\family typewriter 
+(define-type 
+\family default 
+\emph on 
+<keyword> | <string> | <symbol>
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\family typewriter 
+#undefined
+\family default 
+
+\newline 
+Creates a new type of Scheme object.
+ This is just a wrapper around the 
+\family typewriter 
+make-type
+\family default 
+ function.
+\layout Standard
+
+
+\family typewriter 
+(internal-type-list)
+\family default 
+ --> 
+\emph on 
+<list>
+\newline 
+
+\emph default 
+Returns a list of strings representing the know types.
+\layout Standard
+
+
+\family typewriter 
+(get-aux 
+\family default 
+\emph on 
+obj
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\emph on 
+<obj>
+\emph default 
+ 
+\family typewriter 
+
+\newline 
+(set-aux! 
+\family default 
+\emph on 
+obj value
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\family typewriter 
+#undefined 
+\newline 
+(clear-aux! 
+\family default 
+\emph on 
+obj
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\family typewriter 
+#undefined
+\family default 
+ 
+\newline 
+
+\family typewriter 
+(null-aux? 
+\family default 
+\emph on 
+obj
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\emph on 
+<boolean>
+\newline 
+
+\emph default 
+These functions test and change the 
+\emph on 
+aux
+\emph default 
+ field of an object.
+ The 
+\emph on 
+aux
+\emph default 
+ field is large enough to store a pointer.
+\layout Description
+
+Warning: the 
+\family typewriter 
+set-aux!
+\family default 
+ and 
+\family typewriter 
+clear-aux!
+\family default 
+ do 
+\series bold 
+not
+\series default 
+ check the type of object.
+ You may alter whatever Scheme object you want, and this may lead to regrettably
+ unpredictable results.
+ You should not modify the 
+\emph on 
+aux
+\emph default 
+ field of ordinary Scheme objects, because this field may be used for specific
+ purpose.
+ (for example, the 
+\emph on 
+aux
+\emph default 
+ field of a pair is the 
+\emph on 
+car
+\emph default 
+ field).
+\layout Standard
+
+
+\family typewriter 
+(add-type-finalizer 
+\family default 
+\emph on 
+type proc
+\family typewriter 
+\emph default 
+)
+\family default 
+--> 
+\family typewriter 
+#undefined
+\family default 
+ 
+\emph on 
+
+\newline 
+
+\emph default 
+Defines a procedure to be executed when an object of this 
+\emph on 
+type
+\emph default 
+ is released by the garbage collector.
+ When called the 
+\emph on 
+proc
+\emph default 
+ is a given the object to be destroyed as argument.
+\layout Description
+
+Note: the 
+\emph on 
+proc
+\emph default 
+ is a procedure which is executed in the top-level context, which means
+ the procedure 
+\emph on 
+should not use any local references!
+\emph default 
+ 
+\layout Standard
+
+A new type maybe used in conjunction with the 
+\family typewriter 
+make-extfunc
+\family default 
+ procedure.
+ For example:
+\layout LyX-Code
+
+(define-type :file)
+\layout LyX-Code
+
+
+\protected_separator 
+
+\layout LyX-Code
+
+(define fopen
+\layout LyX-Code
+
+
+\protected_separator 
+ (make-extfunc "" :file "fopen" '(:string :string)))
+\layout LyX-Code
+
+
+\protected_separator 
+
+\layout LyX-Code
+
+(define fprintf
+\layout LyX-Code
+
+
+\protected_separator 
+ (make-extfunc "" :void "fprintf" '(:file :string .
+ :any)))
+\layout LyX-Code
+
+
+\protected_separator 
+
+\layout LyX-Code
+
+(define _fclose (make-extfunc "" :void "fclose" '(:file)))
+\layout LyX-Code
+
+
+\protected_separator 
+
+\layout LyX-Code
+
+(define (fclose x)
+\layout LyX-Code
+
+
+\protected_separator 
+ (if (not (null-aux? x)) (_fclose x))
+\layout LyX-Code
+
+
+\protected_separator 
+ (clear-aux! x))
+\layout LyX-Code
+
+
+\protected_separator 
+
+\layout LyX-Code
+
+(add-type-finalizer 
+\layout LyX-Code
+
+
+\protected_separator 
+"file"
+\layout LyX-Code
+
+
+\protected_separator 
+(lambda (x) (fclose x)))
+\layout Standard
+
+In this example, the 
+\emph on 
+finalizer
+\emph default 
+ procedure closes the file.
+ This guarantees that the file will not stay open when the Scheme objects
+ that were using it have all vanished.
+\layout Section
+
+Running QScheme
+\layout Subsection
+
+Syntax
+\layout LyX-Code
+
+qscheme [options] [file] [--] [argument ...]
+\layout Subsection
+
+Options
+\layout Description
+
+
+\family typewriter 
+-hs=
+\family default 
+\emph on 
+N
+\emph default 
+
+\protected_separator 
+
+\family typewriter 
+--heap-size=
+\family default 
+\emph on 
+N
+\emph default 
+ the heap block size.
+ The number of objects that can be stored in a heap block is 
+\emph on 
+N
+\emph default 
+*1024, and the number of block heaps we can use is only limited by the virtual
+ memory of the computer.
+\layout Description
+
+
+\family typewriter 
+-ds=
+\family default 
+\emph on 
+N
+\emph default 
+
+\protected_separator 
+
+\family typewriter 
+--stack-size=
+\family default 
+\emph on 
+N
+\emph default 
+ the stack size.
+ The number of object references that can be stored on the stack.
+ 
+\emph on 
+N
+\emph default 
+ is a number of kilobytes.
+\layout Description
+
+
+\family typewriter 
+-ni
+\family default 
+
+\protected_separator 
+
+\family typewriter 
+--no-init
+\family default 
+ do not read the initial file.
+\layout Description
+
+
+\family typewriter 
+-i
+\family default 
+
+\protected_separator 
+
+\family typewriter 
+--interractive
+\family default 
+ Force interactive mode.
+ If 
+\family typewriter 
+file
+\family default 
+ are specified, they are loaded first.
+\layout Description
+
+Note: The heap block size does not seem to have big impact on then performance
+ yet.
+ The default value is 32k now which seems to be a good value.
+\layout Subsection
+
+Environment
+\layout Standard
+
+During the initialization of QScheme, the interpreter tries to load a file
+ named 
+\family typewriter 
+s.scm.
+
+\family default 
+ The initialization file will be looked for in the following directories:
+\layout Itemize
+
+in the current directory
+\layout Itemize
+
+in the directories designated by the 
+\family typewriter 
+QS_LIB
+\family default 
+ environment variable.
+ You can specify as many directories as you want by just delimiting them
+ with the '
+\family typewriter 
+:
+\family default 
+' character.
+ For example:
+\layout LyX-Code
+
+QS_LIB=/usr/local/share/qscheme:$HOME/qscheme
+\layout LyX-Code
+
+export QS_LIB
+\layout Standard
+
+The search order is as indicated above.
+\layout Subsection
+
+Scripting
+\layout Standard
+
+You can also use QScheme in a standard Unix script context.
+ For example
+\layout LyX-Code
+
+#!/usr/local/bin/qscheme -ni -ds=128
+\layout LyX-Code
+
+(display "Hello world")
+\layout LyX-Code
+
+(newline)
+\layout Standard
+
+will produce the expected outpout:
+\layout LyX-Code
+
+Hello world
+\layout Standard
+
+Easy, isn't it...
+\layout Section
+
+Data types *REVIEW*
+\layout Subsection
+
+Built-in data types
+\layout Standard
+
+The table 
+\begin_inset LatexCommand \ref{type_table}
+
+\end_inset 
+
+
+\begin_float tab 
+\layout Standard
+\added_space_top 0.3cm \added_space_bottom 0.3cm \align center \LyXTable
+multicol5
+37 3 0 0 -1 -1 -1 -1
+1 1 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 1 0 0
+0 1 0 0
+0 1 0 0
+0 1 0 0
+0 1 0 0
+0 1 0 0
+0 1 0 0
+0 1 0 0
+0 1 0 0
+0 1 0 0
+0 1 0 0
+0 1 0 0
+2 1 0 "" ""
+2 1 1 "" ""
+2 0 1 "" ""
+0 2 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 2 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 2 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 2 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+
+Type
+\newline 
+Description
+\newline 
+Example
+\newline 
+SOBJ_T_VOID
+\newline 
+when returned by eval no print occurs
+\newline 
+
+\newline 
+SOBJ_T_PAIR
+\newline 
+result of a cons
+\newline 
+(cons 1 2) => (1 .
+ 2)
+\newline 
+SOBJ_T_INUM
+\newline 
+small integer number.
+ 31 bits
+\newline 
+123
+\newline 
+SOBJ_T_FNUM
+\newline 
+double
+\newline 
+1.2
+\newline 
+SOBJ_T_BNUM
+\newline 
+big integer number
+\newline 
+108230980172834891
+\newline 
+SOBJ_T_ATOM
+\newline 
+an atom
+\newline 
+'a
+\newline 
+SOBJ_T_KEYWORD
+\newline 
+starts with ':' and evaluates to itself
+\newline 
+:keyword
+\newline 
+SOBJ_T_SYMBOL
+\newline 
+a symbol
+\newline 
+symbol
+\newline 
+SOBJ_T_LSYMBOL
+\newline 
+local symbol
+\newline 
+x
+\newline 
+SOBJ_T_LABEL
+\newline 
+label for named let
+\newline 
+
+\newline 
+SOBJ_T_MODULE
+\newline 
+module description
+\newline 
+
+\newline 
+SOBJ_T_CHAR
+\newline 
+a character
+\newline 
+#
+\backslash 
+space
+\newline 
+SOBJ_T_STRING
+\newline 
+a string
+\newline 
+
+\begin_inset Quotes eld
+\end_inset 
+
+Hello world
+\begin_inset Quotes erd
+\end_inset 
+
+
+\newline 
+SOBJ_T_PRIM
+\newline 
+internal VM primitive
+\newline 
+%push
+\newline 
+SOBJ_T_CPRIM
+\newline 
+primitive coded in C
+\newline 
+display
+\newline 
+SOBJ_T_SYNTAX
+\newline 
+syntax object
+\newline 
+define
+\newline 
+SOBJ_T_CODE
+\newline 
+code without parameter
+\newline 
+
+\newline 
+SOBJ_T_PROC
+\newline 
+procedure: has parameter(s)
+\newline 
+
+\newline 
+SOBJ_T_ENV
+\newline 
+environment
+\newline 
+
+\newline 
+SOBJ_T_CLOSURE
+\newline 
+closure
+\newline 
+
+\newline 
+SOBJ_T_MACRO
+\newline 
+macro
+\newline 
+
+\newline 
+SOBJ_T_PORT
+\newline 
+port
+\newline 
+
+\newline 
+SOBJ_T_BOOLEAN
+\newline 
+#t or #f
+\newline 
+
+\newline 
+SOBJ_T_UNBOUND
+\newline 
+value of an unbound symbol
+\newline 
+
+\newline 
+SOBJ_T_UNDEFINED
+\newline 
+value of an undefined value
+\newline 
+
+\newline 
+SOBJ_T_EOF
+\newline 
+the EOF value
+\newline 
+
+\newline 
+SOBJ_T_CONT
+\newline 
+continuation
+\newline 
+
+\newline 
+SOBJ_T_ARRAY
+\newline 
+array
+\newline 
+
+\newline 
+SOBJ_T_HASH
+\newline 
+hash
+\newline 
+
+\newline 
+SOBJ_T_POINTER
+\newline 
+generic pointer
+\newline 
+
+\newline 
+SOBJ_T_EXTFUNC
+\newline 
+external function, dynamically loaded
+\newline 
+
+\newline 
+SOBJ_T_EXTVAR
+\newline 
+reference to an external variable
+\newline 
+
+\newline 
+SOBJ_T_VAR
+\newline 
+reference to an external variable
+\newline 
+
+\newline 
+SOBJ_T_VMFUNC
+\newline 
+VM extension functions
+\newline 
+
+\newline 
+SOBJ_T_CCNTXT
+\newline 
+catch context
+\newline 
+
+\newline 
+SOBJ_T_USER
+\newline 
+user-defined types
+\newline 
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{type_table}
+
+\end_inset 
+
+Builtin Scheme object type
+\end_float 
+ describes the currently defined Scheme object types.
+\layout Subsection
+
+Adding new Scheme object types from C
+\layout Standard
+
+The built-in data types can be extended by user defined data types.
+ New user types can be registered using the following structures and API.
+\layout Standard
+
+
+\family typewriter 
+SOBJ_TYPE_DESCR
+\family default 
+ 
+\layout Standard
+\pextra_type 1 \pextra_width 0.4cm
+
+This is the structure describing a type.
+ See the definitions in file 
+\family typewriter 
+s.h
+\family default 
+ 
+\layout Standard
+
+
+\family typewriter 
+SOBJ_TYPE_DESCR scm_type_hook[SOBJ_T_MAX]
+\layout Standard
+\pextra_type 1 \pextra_width 0.4cm
+
+This is the global type structure\SpecialChar \@.
+ You don't have to manipulate directly
+ this table.
+ 
+\layout Standard
+
+
+\family typewriter 
+int scm_add_type(SOBJ_TYPE_DESCR *type)
+\layout Standard
+\pextra_type 1 \pextra_width 0.4cm
+
+This function adds a new type to the 
+\family typewriter 
+scm_type_hook[]
+\family default 
+ array.
+ The integer returned is the type descriptor.
+\layout Standard
+
+To add a new Scheme object type, you have to go through the following steps:
+\layout Itemize
+
+Write code to mark and sweep this new type of object
+\layout Itemize
+
+Write code to display this new type of object 
+\layout Itemize
+
+Fill out a 
+\family typewriter 
+SOBJ_TYPE_DESCR
+\family default 
+ structure with the functions you just wrote
+\layout Itemize
+
+call 
+\family typewriter 
+scm_add_type
+\family default 
+ and remember the value returned.
+ This is your new type descriptor.
+\layout Itemize
+
+That's all.
+\layout Standard
+
+A real and non-trivial working example of how to build a new Scheme object
+ type can be found in the 
+\family typewriter 
+regex.c
+\family default 
+ file.
+ 
+\layout Description
+
+Note: The 
+\family typewriter 
+dyntype.c
+\family default 
+ file can be use as prototype to build a new type from the C language.
+ Just copy it and rename the 
+\begin_inset Quotes eld
+\end_inset 
+
+xxx
+\begin_inset Quotes erd
+\end_inset 
+
+ string with the name of your new type.
+\layout Section
+
+Internal representation of QScheme objects
+\layout Standard
+
+Every QScheme object is either a pointer to a cell or an immediate small
+ integer.
+ 
+\layout Subsection
+
+QScheme cells
+\layout Standard
+
+All non immediate QScheme objects are stored in a heap, which is simply
+ an array of 
+\family typewriter 
+Sobject
+\layout Standard
+
+structure.
+ A 
+\family typewriter 
+Sobject
+\family default 
+ structure contains the following fields:
+\layout Itemize
+
+a type field, describing the type of Scheme object.
+\layout Itemize
+
+enough bytes to store 2 pointers.
+\layout Standard
+
+QScheme expects that following assumptions are strictly verified:
+\layout Enumerate
+
+The size of the Sobject structure must be a multiple of 2.
+ 
+\layout Enumerate
+
+The heap starts on an address which is a multiple of 2.
+\layout Standard
+
+Because of this, the pointers to Scheme object are always even, which means
+ that bit 0 is always 0.
+ 
+\layout Standard
+
+If a type needs more data than the 2 pointers space provided by a cell,
+ it has to allocate more space in the system heap by using the 
+\family typewriter 
+scm_must_alloc
+\family default 
+ and 
+\family typewriter 
+scm_free
+\family default 
+ functions.
+\layout Subsection
+
+Immediate small integers
+\layout Standard
+
+Immediate small integers have bit 0 set to 1.
+ The other bits of the word contain the true integer value.
+ So on a machine where pointer are on 32 bits, the immediate number are
+ coded on 31 bits.
+\layout Subsection
+
+Other Objects
+\layout Subsubsection
+
+Procedures
+\layout Standard
+
+A procedure is implemented as follow:
+\layout LyX-Code
+
+<proc> 
+\protected_separator 
+ 
+\protected_separator 
+ = [ <envFrame> | <code> ]
+\layout LyX-Code
+
+<envFrame> = <next> <nslots> <bindings>
+\layout LyX-Code
+
+<code> 
+\protected_separator 
+ 
+\protected_separator 
+ = <envList> <size> <nargs> <optargs> <code-slot> ...
+\layout Standard
+
+The 
+\family typewriter 
+envFrame
+\family default 
+ pointer points to an Environment Frame which is cloned at runtime to contain
+ the current bindings.
+\layout Standard
+
+The 
+\family typewriter 
+envList
+\family default 
+ is a pointer to the symbolic representation of the environment as built
+ at compilation time.
+ The compile-time environment is a list of 
+\family typewriter 
+localvar 
+\family default 
+symbols.
+ 
+\layout LyX-Code
+
+<localvar> = [ <symbol> | <depth> <ofs> ]
+\layout Subsubsection
+
+Numbers
+\layout Standard
+
+*REVIEW* 
+\layout Standard
+
+*** Yes, numbers ...
+ ***
+\layout Section
+
+Virtual Machine
+\layout Subsection
+
+Introduction
+\layout Standard
+
+The virtual machine consists of a set of registers and a stack.
+ See table 
+\begin_inset LatexCommand \ref{vm_registers}
+
+\end_inset 
+
+
+\begin_float tab 
+\layout Standard
+\align center \LyXTable
+multicol5
+6 2 0 0 -1 -1 -1 -1
+1 1 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 1 0 0
+2 1 1 "" ""
+2 0 1 "" ""
+0 2 1 1 0 0 0 "" ""
+0 2 1 1 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+
+Register
+\newline 
+Description
+\newline 
+ip
+\newline 
+the instruction pointer
+\newline 
+sp
+\newline 
+the stack pointer
+\newline 
+TOS
+\newline 
+the top of stack register.
+ You can consider TOS as a cache.
+\newline 
+cont
+\newline 
+the pointer to the current continuation frame.
+\newline 
+env
+\newline 
+the pointer to the current dynamic environment
+\layout Caption
+
+
+\begin_inset LatexCommand \label{vm_registers}
+
+\end_inset 
+
+Virtual Machine registers
+\end_float 
+\layout Standard
+
+The stack is used both at compile-time and at run-time.
+ 
+\layout Standard
+
+At compilation time, QScheme uses the stack as temporary workspace to generate
+ code.
+ This is done to limit the number of cells created and as consequence the
+ number of GCs (garbage collections).
+\layout Standard
+
+At run time, QScheme uses the stack to store function arguments, runtime
+ environment, catches and partial continuations\SpecialChar \@.
+
+\layout Standard
+
+The default stack size is 32000 pointers..
+ This default can be changed on the command line.
+ 
+\layout Standard
+
+Presently, stack overflow and underflow conditions are not caught during
+ execution, to avoid the related execution overhead and raise the performance
+ of the VM - speed matters.
+\layout Standard
+
+The virtual machine is in the file 
+\family typewriter 
+vm2.c
+\family default 
+ file.
+\layout Subsection
+
+Internal opcodes
+\layout Standard
+
+The internal opcodes are stored in the table 
+\family typewriter 
+symbols
+\family default 
+ local to the function 
+\family typewriter 
+scm_vm()
+\family default 
+ in the file 
+\family typewriter 
+vm2.c
+\family default 
+ .
+\layout Standard
+
+A pointer to this table is provided during initialization of the virtual
+ machine.
+ 
+\layout Subsection
+
+Various things to know
+\layout Standard
+
+Things to know
+\layout Itemize
+
+during the sweep phase, all accessible cells have the gc mark bit set.
+ Because I don't want to mask to obtain the true type, you will have to
+ cope with the fact that the primitive testing the type will be fooled.
+ (the 
+\family typewriter 
+scm_display
+\family default 
+ function is anyway GC-proof (for debugging))
+\layout Itemize
+
+the nargs field in the code header is the number of arguments expected 
+\emph on 
+including
+\emph default 
+ the optional argument.
+ This means that nargs is the number of argument slots a function will receive.
+\layout Section
+
+QScheme libraries
+\layout Subsection
+
+Perl regular expressions - regex.so
+\layout Standard
+
+The Perl regular expression module is a really good example of an extension
+ module (a module that you can load while QScheme is running).
+ This is an interesting example, because it dynamically adds a new syntactic
+ token.
+ 
+\layout Standard
+
+All the functions of this library will be added in the module 
+\family typewriter 
+regex.
+\layout Standard
+
+The new syntaxic token 
+\family typewriter 
+#/
+\family default 
+\emph on 
+regex
+\family typewriter 
+\emph default 
+/
+\family default 
+\emph on 
+opts
+\emph default 
+ compiles a new regular expression.
+ The options are:
+\layout Standard
+\added_space_top 0.3cm \added_space_bottom 0.3cm \align center \LyXTable
+multicol5
+8 2 0 0 -1 -1 -1 -1
+1 1 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+1 1 0 0
+8 1 0 "" ""
+2 1 1 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 2 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+0 8 1 0 0 0 0 "" ""
+
+Options
+\newline 
+Description
+\newline 
+a
+\newline 
+anchored.
+ Just like if re was enclosed between ^ and 
+\family typewriter 
+$
+\family default 
+
+\newline 
+i
+\newline 
+ignore case
+\newline 
+s
+\newline 
+.
+ matches also newlines
+\newline 
+m
+\newline 
+multi-line
+\newline 
+x
+\newline 
+extended
+\newline 
+U
+\newline 
+ungreedy
+\newline 
+X
+\newline 
+extra
+\layout Standard
+
+Look at the 
+\family typewriter 
+pcre
+\family default 
+ manual page for more informations.
+\layout Standard
+
+The following functions deal with regular expressions:
+\layout Standard
+
+
+\family typewriter 
+(regex::isa?
+\family default 
+\emph on 
+ obj
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<boolean>
+\layout Standard
+\pextra_type 1 \pextra_width 0.4cm
+
+Returns true when 
+\emph on 
+obj
+\emph default 
+ is a compiled regular expression.
+\layout Standard
+
+
+\family typewriter 
+(regex::match
+\family default 
+\emph on 
+ re string
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<number> | #f
+\layout Standard
+\pextra_type 1 \pextra_width 0.4cm
+
+Returns the number of match found or #f if no match occurred.
+\layout Standard
+
+
+\family typewriter 
+(regex::sub
+\family default 
+\emph on 
+ n
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<string> 
+\family typewriter 
+\emph default 
+| #f
+\layout Standard
+\pextra_type 1 \pextra_width 0.4cm
+
+Returns the value of last nth sub-match.
+\layout Standard
+
+
+\family typewriter 
+(regex::$
+\family default 
+\emph on 
+n
+\family typewriter 
+\emph default 
+)
+\family default 
+ --> 
+\emph on 
+<string> 
+\family typewriter 
+\emph default 
+| #f
+\layout Standard
+\pextra_type 1 \pextra_width 0.4cm
+
+Equivalent to 
+\family typewriter 
+(regex::sub 
+\family default 
+\emph on 
+n
+\family typewriter 
+\emph default 
+)
+\family default 
+, where n is a number from 0 to 9.
+ 
+\the_end

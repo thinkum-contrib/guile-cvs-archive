@@ -1,0 +1,19 @@
+Multi thread gc
+===============
+
+When a thread needs a GC:
+
+	- send signal to suspend all other threads.
+	- wait for all thread to be stopped:sem_wait(&GC_suspend_ack_sem);
+	- make the gc
+	- send signal to resume all other threads.
+
+
+suspend handler for threads:
+
+	* save system sp to SCM_VMD struct
+	* sem_post(&GC_suspend_ack_sem);
+	* wait for resume
+	
+
+
