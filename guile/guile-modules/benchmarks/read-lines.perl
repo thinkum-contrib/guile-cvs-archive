@@ -2,7 +2,7 @@
 use Benchmark;
 
 $t = timeit (100, '
-    open (data2, "port-data-2");
+    open (data2, "ports-data-2");
     $total=0;
     while (<data2>) {
 	$total += length ($_);
