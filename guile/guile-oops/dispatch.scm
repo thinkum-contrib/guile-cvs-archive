@@ -219,24 +219,34 @@
 			 %compute-applicable-methods
 			 compute-applicable-methods)
 		     gf args)))
-    (cond ((not applicable)
-	   (if (null? args)
-	       (lookup-create-cmethod no-applicable-method (list gf '()))
-	       (begin
-		 ;; Mutate arglist to fit no-applicable-method
-		 (set-cdr! args (list (cons (car args) (cdr args))))
-		 (set-car! args gf)
-		 (lookup-create-cmethod no-applicable-method args))))
-	  ((method-cache-hashed? exp)
-	   (method-cache-install! hashed-method-cache-insert!
-				  exp args applicable))
-	  ((passed-hash-threshold? exp)
-	   (method-cache-install! hashed-method-cache-insert!
-				  (method-cache->hashed! exp)
-				  args
-				  applicable))
+    (cond (applicable
+	   ;; *fixme* dispatch.scm needs rewriting Since the current
+	   ;; code mutates the method cache, we have to work on a
+	   ;; copy.  Otherwise we might disturb another thread
+	   ;; currently dispatching on the cache.  (No need to copy
+	   ;; the vector.)
+	   (let* ((new (list-copy exp))
+		  (res
+		   (cond ((method-cache-hashed? new)
+			  (method-cache-install! hashed-method-cache-insert!
+						 new args applicable))
+			 ((passed-hash-threshold? new)
+			  (method-cache-install! hashed-method-cache-insert!
+						 (method-cache->hashed! new)
+						 args
+						 applicable))
+			 (else
+			  (method-cache-install! method-cache-insert!
+						 new args applicable)))))
+	     (set-cdr! (cdr exp) (cddr new))
+	     res))
+	  ((null? args)
+	   (lookup-create-cmethod no-applicable-method (list gf '())))
 	  (else
-	   (method-cache-install! method-cache-insert! exp args applicable)))))
+	   ;; Mutate arglist to fit no-applicable-method
+	   (set-cdr! args (list (cons (car args) (cdr args))))
+	   (set-car! args gf)
+	   (lookup-create-cmethod no-applicable-method args)))))
 
 (set-procedure-property! memoize-method! 'system-procedure #t)
 
