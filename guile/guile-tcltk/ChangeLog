@@ -1,3 +1,7 @@
+1998-04-14  Mikael Djurfeldt  <mdj@nada.kth.se>
+
+	* Makefile.am (BUILT_SOURCES): Added.  Used to build .x-files.
+
 1998-04-12  Mikael Djurfeldt  <mdj@kenneth>
 
 	* guile-tcl.c, guile-tcl.h, guile-tcltk.c, guile-tk.c, guile-tk.h:
