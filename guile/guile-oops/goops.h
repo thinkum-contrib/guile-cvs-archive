@@ -53,7 +53,7 @@
 
 #define STKLOS_VERSION	"3.99.1"
 
-#define SCM_METACLASS_GOOPS_LAYOUT "pwpwpopopopopwpwpwpwpwpwpwpwpwuwuwuwuwuwuwuwuw"
+#define SCM_METACLASS_GOOPS_LAYOUT "pwpwpopopopopopwpwpwpwpwpwpwpwpwuwuwuwuwuwuwuwuw"
 struct scm_metaclass_goops {
   SCM layout;
   SCM vcell;
@@ -63,6 +63,7 @@ struct scm_metaclass_goops {
   SCM proc1;
   SCM proc2;
   SCM proc3;
+  SCM setter;
   SCM name;
   SCM direct_supers;
   SCM direct_slots;
@@ -103,7 +104,8 @@ typedef struct scm_method_t {
 
 #define SCM_CLASSF_INHERIT	 (~(SCM_CLASSF_PURE_GENERIC \
 				    | SCM_CLASSF_SIMPLE_METHOD \
-				    | SCM_CLASSF_ACCESSOR) \
+				    | SCM_CLASSF_ACCESSOR \
+				    | SCM_STRUCTF_LIGHT) \
 				  & SCM_CLASSF_MASK)
 
 #define SCM_INST(x)	       SCM_STRUCT_DATA (x)
@@ -130,22 +132,22 @@ typedef struct scm_method_t {
 
 #define scm_si_layout		  0	/* the struct layout */
 #define scm_si_print		  3	/* the struct print closure */
-#define scm_si_name 		  8 	/* a symbol */
-#define scm_si_direct_supers 	  9 	/* (class ...) */
-#define scm_si_direct_slots	 10 	/* ((name . options) ...) */
-#define scm_si_direct_subclasses 11	/* (class ...) */
-#define scm_si_direct_methods	 12	/* (methods ...) */
-#define scm_si_cpl		 13 	/* (class ...) */
-#define scm_si_slots		 14	/* ((name . options) ...) */
-#define scm_si_nfields		 15	/* an integer */
-#define scm_si_getters_n_setters 16	/* ((slot getter setter) ...) */
+#define scm_si_name 		  9 	/* a symbol */
+#define scm_si_direct_supers 	 10 	/* (class ...) */
+#define scm_si_direct_slots	 11 	/* ((name . options) ...) */
+#define scm_si_direct_subclasses 12	/* (class ...) */
+#define scm_si_direct_methods	 13	/* (methods ...) */
+#define scm_si_cpl		 14 	/* (class ...) */
+#define scm_si_slots		 15	/* ((name . options) ...) */
+#define scm_si_nfields		 16	/* an integer */
+#define scm_si_getters_n_setters 17	/* ((slot getter setter) ...) */
 /* Also defined in libguile/objects.c: */
-#define scm_si_redefined	 17	/* The class to which class was redefined. */
-#define scm_si_environment	 18	/* The environme in which class is built  */
-#define scm_si_hashsets		 19
-#define SCM_N_CLASS_SLOTS	 27
+#define scm_si_redefined	 18	/* The class to which class was redefined. */
+#define scm_si_environment	 19	/* The environme in which class is built  */
+#define scm_si_hashsets		 20
+#define SCM_N_CLASS_SLOTS	 28
 
-#define scm_si_methods		  1	/* offset of methods slot in a <generic> */
+#define scm_si_methods		  0	/* offset of methods slot in a <generic> */
 
 #define scm_si_generic_function	  0	/* offset of gf    slot in a <method> */
 #define scm_si_specializers	  1	/* offset of spec. slot in a <method> */
@@ -158,6 +160,7 @@ SCM scm_basic_make_class (SCM class, SCM name, SCM dsupers, SCM dslots);
 
 /* Primitives exported */
 SCM scm_sys_allocate_instance (SCM class);
+SCM scm_sys_set_object_setter_x (SCM obj, SCM setter);
 SCM scm_slot_ref (SCM obj, SCM slot_name);
 SCM scm_slot_set_x (SCM obj, SCM slot_name, SCM value);
 
@@ -194,6 +197,7 @@ SCM scm_slot_exists_using_class_p(SCM class, SCM obj, SCM slot_name);
 SCM scm_slot_bound_p(SCM obj, SCM slot_name); 
 SCM scm_slots_exists_p(SCM obj, SCM slot_name); 
 SCM scm_sys_modify_instance(SCM old, SCM new); 
+SCM scm_sys_modify_class(SCM old, SCM new); 
 SCM stklos_version(void); 
 SCM scm_make(SCM args); 
 SCM scm_find_method(SCM l); 
