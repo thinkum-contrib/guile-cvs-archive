@@ -8,5 +8,6 @@ AC_PROG_CPP
 
 LIGHTNING_CONFIGURE
 
-AC_OUTPUT(Makefile)
+AC_OUTPUT(Makefile
+          lightning/Makefile)
 
