@@ -1,8 +1,11 @@
 #!/bin/sh
-# Usage: update-guile-api.alist
+# Usage: update-guile-api.alist [-n]
 #
 # You need to be in top-level guile-core build dir.
 # You need to build guile first!
+#
+# Flag "-n" (no-commit) means print the guile-api.alist to stdout
+# and skip the cvs edit and cvs commit steps.
 #
 # Env var: GUILE_MAINTAINER_SCRIPTS
 
@@ -30,6 +33,18 @@ fi
 alistdir=${srcdir}/doc
 alist=guile-api.alist
 
+do_the_scan ()
+{
+$scan pre-inst-guile \
+    libguile/.libs/libguile.so.[0-9]*.* \
+    $srcdir/doc/groupings.alist
+}
+
+if [ x"$1" = x-n ] ; then
+    do_the_scan
+    exit $?
+fi
+
 set -ex
 :
 : checkout
@@ -38,10 +53,7 @@ set -ex
 :
 : munge
 :
-  $scan pre-inst-guile \
-        libguile/.libs/libguile.so.[0-9]*.* \
-        $srcdir/doc/groupings.alist \
-      > $alistdir/$alist
+  do_the_scan > $alistdir/$alist
 :
 : commit
 :
