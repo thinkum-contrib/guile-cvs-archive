@@ -3,6 +3,9 @@
 	* configure.in: Update copyright.
 	Bump version to 1.1.1 for release.
 
+	* README: Update version.
+	Mention examples/ subdir.
+
 2002-04-26  Thien-Thi Nguyen  <ttn@giblet.glug.org>
 
 	* cgi.scm: Update copyright.
