@@ -1,3 +1,4 @@
+-*-text-*-
 This directory is the Guile bug data base.
 
 It contains one file per bug with a simple, mail-message like format.
@@ -29,6 +30,10 @@ except when noted.
     release-critical-1.6).  Tags can be used to collect bugs into
     ad-hoc groups.  See the file TAGS for a list of active tags and
     their meaning.
+
+    NOTE: Don't add or remove release-critical tags without
+    authorization if the release has been branched in CVS -- see
+    ../build/release.txt for details.
 
   Reported: mailbox, yyyy-mm-dd
 

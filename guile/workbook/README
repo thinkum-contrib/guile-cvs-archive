@@ -1,0 +1,14 @@
+
+Workbook purpose
+----------------
+
+  The Guile workbook collects project releated information which doesn't
+  belong in any particular guile release.  This includes the bug
+  database, the tasks list, which includes the release-gating TODO file,
+  etc.
+
+Project organization
+--------------------
+
+  Maintainer committee:
+    Marius Vollmer
