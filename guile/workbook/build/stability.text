@@ -1,2 +1,31 @@
 This file tries to define what we mean when we say Guile is "stable",
 since stability is widely held to be a useful pre-condition for release.
+
+Basically, stability is a measure of change, so we need to distinguish the
+types of changes that can occur if we want to have fine-grained insight into
+stability.
+
+The type of any particular change is composed of its attributes, which can be
+inferred mostly from "location" and "scope".  Here's a list:
+
+  - process
+  - interface
+  - internal
+  - documentation
+  - code
+  - addition
+  - removal
+  - re-ordering (e.g., procedure args)
+  - renaming
+  - part-of-LARGER-CHANGE
+  - omission
+  - commission
+  - requires-OTHER-CHANGE
+  - [add here]
+
+So for example, writing this document is a change that could be called (typed)
+"addition of process documentation, part of being-more-careful", and we can
+judge how it affects Guile's stability either wholistically ("no worries, let
+the fool blather on -- my program still works") or by examining how certain
+attributes generally affect stability ("no worries, i don't care about process
+anyway").
