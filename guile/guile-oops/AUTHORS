@@ -11,4 +11,7 @@ Mikael Djurfeldt:
 ported STKlos to Guile and made extensive changes.
 
 Christian Lynbech:
-ported STKlos and documentation to Guile.
+ported STKlos and documentation and prepared the GOOPS tutorial.
+
+Neil Jerram:
+wrote the GOOPS reference manual.

@@ -1,3 +1,7 @@
+2000-01-11  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
+
+	* goops.texi: Updated reference manual with Neil's work.
+
 2000-01-10  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
 	* goops.scm (make-generic-bound-check-getter): Inserted missing
