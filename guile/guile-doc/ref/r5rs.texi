@@ -2204,11 +2204,7 @@ define mutually recursive procedures.
 
 
 @format
-@t{@c (letrec ((x 2) (y 3))
-@c   (letrec ((foo (lambda (z) (+ x y z))) (x 7))
-@c     (foo 4)))                   \ev  14
-
-(letrec ((even?
+@t{(letrec ((even?
           (lambda (n)
             (if (zero? n)
                 #t
@@ -7314,7 +7310,6 @@ language: @t{[ ] @{ @} |}
 <digit> --> 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 <special subsequent> --> + | - | .@: | @@
 <peculiar identifier> --> + | - | ...
-@c \| 1+ \| -1+
 <syntactic keyword> --> <expression keyword>
 @cindex @w{syntactic keyword}
 @cindex @w{keyword}
@@ -7333,9 +7328,6 @@ language: @t{[ ] @{ @} |}
 <character> --> #\ <any character>
      | #\ <character name>
 <character name> --> space | newline
-@c @ignore todo
-@c Explain what happens in the ambiguous case.
-@c @end ignore
 
 <string> --> " <string element>* "
 <string element> --> <any character other than " or \>

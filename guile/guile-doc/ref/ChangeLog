@@ -1,3 +1,17 @@
+2001-01-27  Neil Jerram  <neil@ossau.uklinux.net>
+
+	Further changes to get everything to build to dvi with the latest
+	texinfo.tex.
+
+	* texinfo.tex: Replaced by latest version from ftp.gnu.org.
+	
+	* r5rs.texi (Binding constructs): Remove @c inside @t{...} at
+	lines 2207-2209.
+	(Lexical structure): Remove @c inside @t{...} at line 7517.
+
+	* r4rs.texi (Example): Remove @c inside @t{...} at lines 6557 and
+	6569.
+
 2001-01-26  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* scm.texi (Handling Errors): Improved markup.

@@ -6554,7 +6554,6 @@ produces a new system state.
                                (*2 k1)
                                (*2 k2)
                                k3))))))))
-@c |--------------------------------------------------|
 
 (define elementwise
   (lambda (f)
@@ -6566,7 +6565,6 @@ produces a new system state.
                  (map (lambda (v) (vector-ref  v i))
                       vectors)))))))
 
-@c |--------------------------------------------------|
 (define generate-vector
   (lambda (size proc)
     (let ((ans (make-vector size)))

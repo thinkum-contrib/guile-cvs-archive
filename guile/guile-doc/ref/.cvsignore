@@ -16,4 +16,5 @@ stamp-vti
 *.vrs
 *.ps
 *.info*
+*.html
 version.texi
