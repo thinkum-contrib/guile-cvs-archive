@@ -1,5 +1,24 @@
 [ Author: mvo@zagadka.de; Status: very preliminary. ]
 
+ISSUES:
+
+ - Should declarations be on variables or on bindings?  Putting them
+   on bindings is way more flexible and allows things like read-only
+   import and things like no-inline. (Bindings are copied on import so
+   they can get additional declarations in the importing module.)
+
+ - Adding to declarations.  There is likely no simply rule what kind
+   of declarations can safely be added when importing a binding.
+
+ - Definitions inside top-level conditionals.  Should we allow things like
+
+     (if ...
+       (define ...))
+
+   where the define is on the top-level, but not always executed?  I
+   think this relatively easy to do and people seem to use it.
+
+
 0. Introduction
 ---------------
 
