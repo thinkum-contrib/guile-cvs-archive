@@ -1,27 +1,88 @@
+[ This proposal should improve upon the existing situation by being
+
+  - thread safe (true concurrency)
+  - more consistent
+  - allowing sophisticated internal data representation (for example
+    for copy-on-write substrings, Unicode, etc.)
+  - making binary compatability easier to maintain
+]
+
 One important part of the Guile API is concerned with the conversion
 between Scheme values and C values.  The functions that perform these
 conversions follow a common pattern.
 
+* Type predicates
+
+Type predicates for C code are named like this
+
+    int scm_is_<type> (SCM val);
+
+They return 0 or 1. 
+
+There are also the usual predicates that return a Scheme boolean, such
+as scm_string_p.
+
 * Conversion from C to Scheme
 
 For a C type <type>, the function that converts it into a Scheme value
-has the prototype
+looks like
 
-    SCM scm_from_<type> (<type> val);
+    SCM scm_from_<type> (<type> val, ...);
 
-No error will be signalled, except when not enough memory is
+This function could be pronounced as "make Scheme from <type>" to
+remember that the conversion is from <type> to a Scheme object.
+No error will usually be signalled, except when not enough memory is
 available.
+
+Sometimes a function named
+
+    SCM scm_take_<type> (<type> val, ...);
+
+is provided.  ("let Scheme take <type>".)  This function works like
+scm_from_<type> but the memory associated with VAL will be taken over
+by Guile.
 
 * Conversion from Scheme to C
 
-    <type> scm_to_<type> (SCM val, <additional constraints>);
+    <type> scm_to_<type> (SCM val, ...);
 
-When VAL is not representable as a <type> or the <additional
-constraints> are not satisfied, an error is signalled.
+("convert Scheme to <type>".)  When VAL is not representable as a
+<type> or additional constraints are not satisfied, an error is
+signalled.
 
-* Concrete conversion functions
+* Concrete functions
+
+** Booleans
+
+Although the two boolean values are a datatype of their own, you
+should normally use scm_is_true or scm_is_false to test for trueness
+or falseness.  This is because all values except SCM_BOOL_F are
+normally treated as true.
+
+  - int scm_is_bool (SCM val);
+
+  Return 1 when val is either SCM_BOOL_F or SCM_BOOL_T.
+
+  - SCM scm_from_bool (int val);
+
+    Return SCM_BOOL_T when val is non-zero, else return SCM_BOOL_F.
+
+  - int scm_to_bool (SCM);
+  - int scm_is_true (SCM);
+
+    Return 0 when SCM is SCM_BOOL_F, else return 1.
+
+  - int scm_is_false (SCM);
+
+    Return 1 when SCM is SCM_BOOL_F, else return 0.
 
 ** Integers
+
+  - int scm_is_integer (SCM val);
+
+  Determine whether VAL is an integer, exact or inexact.  Note that
+  the number 3.0 is an inexact integer although it is stored as a
+  double.
 
   - SCM scm_from_signed_integer (scm_t_intmax val);
   - SCM scm_from_unsigned_integer (scm_t_uintmax val);
@@ -31,12 +92,13 @@ constraints> are not satisfied, an error is signalled.
 
   - scm_t_intmax scm_to_signed_integer (SCM val,
                                         scm_t_intmax min, scm_t_intmax max);
-  - scm_t_uintmax scm_to_unsigned_integer (SCM val, scm_t_uintmax max);
+  - scm_t_uintmax scm_to_unsigned_integer (SCM val,
+                                      scm_t_uintmax min, scm_t_uintmax max);
     
     Convert the SCM value VAL to a C integer when it is representable
-    and when it is between min and max inclusive, or between 0 and max
-    inclusive.  Signal an error when it isn't.  The SCM value can be
-    exact or inexact, but it must be an integer.  That is,
+    and when it is between min and max inclusive.  Signal an error
+    when it isn't.  The SCM value can be exact or inexact, but it must
+    be an integer.  That is,
 
        scm_to_signed_integer (scm_from_double (3.0), -100, +100)
 
@@ -62,20 +124,20 @@ constraints> are not satisfied, an error is signalled.
   - SCM scm_from_size (size_t val);
     ...
 
-  - signed char        scm_from_char (SCM);
-  - short              scm_from_short (SCM);
-  - int                scm_from_int (SCM);
-  - long               scm_from_long (SCM);
-  - long long          scm_from_longlong (SCM);
-  - ssize_t            scm_from_ssize (SCM);
+  - signed char        scm_to_char (SCM);
+  - short              scm_to_short (SCM);
+  - int                scm_to_int (SCM);
+  - long               scm_to_long (SCM);
+  - long long          scm_to_longlong (SCM);
+  - ssize_t            scm_to_ssize (SCM);
     ...
 
-  - unsigned char      scm_from_uchar (SCM);
-  - unsigned short     scm_from_ushort (SCM);
-  - unsigned int       scm_from_uint (SCM);
-  - unsigned long      scm_from_ulong (SCM);
-  - unsigned long long scm_from_ulonglong (SCM);
-  - size_t             scm_from_size (SCM);
+  - unsigned char      scm_to_uchar (SCM);
+  - unsigned short     scm_to_ushort (SCM);
+  - unsigned int       scm_to_uint (SCM);
+  - unsigned long      scm_to_ulong (SCM);
+  - unsigned long long scm_to_ulonglong (SCM);
+  - size_t             scm_to_size (SCM);
     ...
 
     Convert from/to the indicated integral types, signalling errors
@@ -99,6 +161,12 @@ constraints> are not satisfied, an error is signalled.
 We don't go to such a great length to cover all possible types
 here. "double" ought to be enough, no?
 
+  - int scm_is_real (SCM val);
+
+  Determine whether VAL is a real number, inexact or exact.  Note that
+  a number such as 1/3 or 0 is real, although it is not stored as a
+  double.
+
   - SCM scm_from_double (double val);
 
     Return the SCM value corresponding to VAL.  The SCM value will be
@@ -113,10 +181,16 @@ here. "double" ought to be enough, no?
   - double scm_to_double (SCM);
 
     Convert VAL to the closest number representable as a double.
-    Numbers that are outside the representable range of a double are
-    converted into +Inf or -Inf, respectively.
+    Numbers that are too large or too small are converted into +Inf or
+    -Inf, respectively.
 
 ** Complex numbers
+
+  - int scm_is_complex (SCM val);
+
+  Determine whether VAL is a complex number, inexact or exact.  Note
+  that a number such as 1/3 is complex, although it is not stored as
+  two doubles.
 
 Complex numbers can be regarded as a compound type and need no
 dedicated conversion functions.  For example, you can do
@@ -146,19 +220,40 @@ needed.
 
 A Scheme character in Guile is equivalent to a Unicode code point.
 
-  - long scm_to_unicode (SCM ch);
-  - SCM  scm_from_unicode (long code);
+  - int scm_is_character (SCM val);
+  - unsigned long scm_to_unicode (SCM ch);
+  - SCM  scm_from_unicode (unsigned long code);
 
 ** Strings
 
 Strings present the new problem that memory needs to be allocated or
 found for storing the result.  Also, when new memory has been
 allocated, one needs to make sure that it isn't leaked in the case of
-non-local exits (like from errors in subsequent conversions).  such a
+non-local exits (like from errors in subsequent conversions).  Such a
 cleanup action can be registered with scm_frame_unwind_handler, which
 see.
 
-  - unsigned char *scm_to_locale_string (SCM str);
+  - int scm_is_string (SCM val);
+
+  - SCM scm_from_locale_string (unsigned char *str, size_t len);
+
+  Return a new Scheme string initialized with STR, a string encoded
+  according to the current locale.  When LEN is (size_t) -1, STR must
+  be zero-terminated and its length is found that way.  Otherwise LEN
+  gives the length of STR.
+
+  - SCM scm_from_utf8_string (unsigned char *str, size_t len);
+
+  Same as above, but STR is encoded in UTF-8.  Future versions of
+  Guile will use UTF-8 internally and then this function will not need
+  to perform any conversions at all.
+
+  - SCM scm_take_utf8_string (unsigned char *str, size_t len);
+
+  Same as above, but the memory for STR is taken over by Guile.  It
+  will eventually be freed using libc 'free'.
+
+  - unsigned char *scm_to_locale_string (SCM str, size_t *lenp);
 
   Convert STR into a C string that is encoded as specified by the
   current locale.  Memory is allocated for the C string that can be
@@ -166,35 +261,106 @@ see.
 
   When the current locale can not encode STR, an error is signalled.
 
-  - unsigned char *scm_to_locale_string_buf (SCM str,
-                                             unsigned char *buf,
-					     size_t buflen);
+  When LENP is not NULL, the number of bytes contained in the returned
+  string is stored in *LENP.  The string is zero-terminated, but it
+  might contain zero characters in the middle.
 
-  Convert STR into a C string that is encoded as specified by the
-  current locale.  Either the provided buffer is used to hold the
-  result, or new memory is allocated.  The buffer is used when BUFLEN
-  is large enough; in this case BUF is returned.  When the buffer is
-  not large enough, new memory is allocated that needs to be freed
-  eventually.
+  When LENP is NULL and the string does indeed contain a zero
+  character, it is not encodable and an error is signalled.
 
-  For example:
-
-    unsigned char buf[100];
-    unsigned char *str = scm_to_locale_string_buf (arg, buf, 100);
-    
-    if (str != buf)
-      scm_frame_unwind_handler (free, str);
-
-  - unsigned char *scm_to_utf8_string (SCM str);
-  - unsigned char *scm_to_utf8_string_buf (SCM str,
-                                           unsigned char *buf,
-				           size_t *buflen);
+  - unsigned char *scm_to_utf8_string (SCM str, size_t *lenp);
 
   Same as above but returns a UTF-8 encoded string.  This will always
-  work.
+  work when LENP is non-NULL.
 
-  [ More encodings can be specified later.  The above two, locale and
-    utf8, are needed for transitioning Guile to Unicode.  Right now,
-    strings are in the locale encoding but in the future they will be
-    in UTF-8. 
-  ]
+  [ More encodings can be specified later, for example by just
+    referring to the character sets supported by 'iconv'.  The above
+    two, locale and utf8, are needed for transitioning Guile to
+    Unicode.  Right now, strings are in the locale encoding but in the
+    future they will be in UTF-8. ]
+
+The above functions always return newly allocated memory.  When that
+is deemed too expensive, the following functions can be used instead.
+However, care must be taken to use them correctly and reasonably.
+
+  - scm_lock_heap ();
+  - scm_unlock_heap ();
+
+  These two functions lock and unlock all SCM objects (the heap).  The
+  heap should not be locked for long periods of time and no calls to
+  'normal' libguile functions are allowed while it is locked.  A
+  function is 'normal' unless it is specifically documented to be
+  useable with a locked heap.  (Indeed, most 'unnormal' functions can
+  _only_ be used while the heap is locked.)
+
+  You can not lock the heap twice.  Calling scm_lock_heap while the
+  heap is already locked results in undefined behavior.  Likewise,
+  calling scm_unlock_heap when the heap is not locked is verboten.
+
+  - const unsigned char *scm_l_get_utf8_string_mem (SCM str);
+
+  Return a pointer to the internal UTF-8 bytes of STR.  This function
+  can only be called while the heap is locked and the returned pointer
+  becomes invalid when the heap is unlocked later on.  The string is
+  _not_ guaranteed to be zero-terminated, you _must_ use
+  scm_l_get_utf8_string_len (see below).
+
+  You are not allowed to modify the string contents.
+
+  (The "scm_l_" prefix denotes a function that must be called with a
+  locked heap.)
+
+  - size_t scm_l_get_utf8_string_len (SCM str);
+
+  Return the length in bytes of STR.  Heap must be locked.
+
+** Symbols
+  
+Symbols have strings as their names and you can get that name via
+scm_symbol_to_string.  However, it is more efficient to convert
+to/from a symbol directly.
+
+  - int scm_is_symbol (SCM val);
+  - SCM scm_from_locale_symbol (unsigned char *str, ssize_t len);
+  - SCM scm_from_utf8_symbol (unsigned char *str, ssize_t len);
+  - SCM scm_take_utf8_symbol (unsigned char *str, ssize_t len);
+  - unsigned char *scm_to_locale_symbol (SCM str, size_t *lenp);
+  - unsigned char *scm_to_utf8_symbol (SCM str, size_t *lenp);
+  - const unsigned char *scm_l_get_utf8_symbol_mem (SCM str);
+  - size_t scm_l_get_utf8_symbol_len (SCM str);
+
+** Uniform vectors
+
+[ Uniform vectors should get the same kind of support as strings, but
+without the encoding business of course. ]
+
+  - int scm_is_u8vector (SCM val);
+  - SCM scm_from_u8vector (unsigned char *vec, size_t len);
+  - SCM scm_take_u8vector (unsigned char *vec, size_t len);
+  - unsigned char *scm_to_u8vector (SCM vec, sizte_t *lenp);
+  - unsigned char *scm_l_get_u8vector_mem (SCM vec);
+  - size_t scm_l_get_u8vector_len (SCM vec);
+
+  etc.
+
+** Compound types
+
+  - int scm_is_pair (SCM val);
+  - SCM scm_car (SCM pair);
+  - SCM scm_cdr (SCM pair);
+
+  - int scm_is_list (SCM val);
+  - SCM scm_c_list_ref (SCM list, size_t idx);
+  - SCM scm_c_list_set (SCM list, size_t idx, SCM val);
+  - size_t scm_c_list_length (SCM list);
+
+  - int scm_is_vector (SCM val);
+  - SCM scm_c_vector_ref (SCM vec, size_t idx);
+  - SCM scm_c_vector_set (SCM vec, size_t idx, SCM val);
+  - int scm_c_vector_length (SCM vec);
+
+Additional types can be handled with code like
+
+  if (scm_is_true (scm_procedure_p (val)))
+    ...
+
