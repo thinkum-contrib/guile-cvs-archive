@@ -101,7 +101,7 @@ scm_regex_error (subr, code)
      char *subr;
      int code;
 {
-  lgh_error (scm_regex_error_key,
+  scm_error (scm_regex_error_key,
 	     subr,
 	     "%s",
 	     scm_listify (scm_makfrom0str (rx_error_msg [code]),
