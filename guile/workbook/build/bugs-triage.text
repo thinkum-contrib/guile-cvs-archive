@@ -22,3 +22,32 @@ should block (gate) release R.  The blocking indicates the status quo is
 unacceptable in some way.  How to judge this depends on the severity and scope
 of the bug, and ability of the programmers on hand to fix the bug.  Overall
 stability is desirable (see stability.text).
+
+
+When to call a bug Release Critical
+-----------------------------------
+
+mvo sez:
+
+> I can explain the criteria for each bug specifically, but I wouldn't feel
+> comfortable to do this generally.  One fundamental criterium, however, is that
+> the fix does not affect people who are not also affected by the bug.  When the
+> fix is also short and well localized, and the bug is relatively severe (i.e.,
+> making Guile fail to compile on a not-really-obscure platform), I'm tempted to
+> make it release critical.
+
+ttn sez:
+
+> when the bug is internal, to some extent guile developers can emulate
+> the user response by running "make check" or whatever to ensure that the
+> fix does not upset the user experience, and fulfill the closure.
+>
+> when the bug has to do w/ user-visible interface (as is the case here),
+> this emulation is insufficient because the likely outcome is that this
+> or some other user will complain, placing developers in a defensive
+> position, which is not fun for anyone.  there is also the clear message
+> that spreads into the community that developers are not responsive to
+> user concerns.  this is plain uncool.
+>
+> all this suggests that one of the criteria for application of
+> release-critical tag is "does this bug involve user-visible interface?".
