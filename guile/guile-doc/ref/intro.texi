@@ -1,3 +1,5 @@
+@c $Header$
+
 @node Introduction
 @chapter Introduction
 
