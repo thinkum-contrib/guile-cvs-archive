@@ -57,7 +57,9 @@ shift
 if [ x"$GUILE_LOAD_PATH" = x ] ; then
     GUILE_LOAD_PATH="${top_srcdir}"
 else
-    case "$GUILE_LOAD_PATH" in *${top_srcdir}*) ;;
+    # This hair prevents double inclusion.
+    # The ":" prevents prefix aliasing.
+    case x"$GUILE_LOAD_PATH" in x*${top_srcdir}:*) ;;
       *) GUILE_LOAD_PATH="${top_srcdir}:$GUILE_LOAD_PATH" ;;
     esac
 fi
