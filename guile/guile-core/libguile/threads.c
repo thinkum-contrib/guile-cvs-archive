@@ -443,8 +443,8 @@ scm_i_init_thread_for_guile (SCM_STACKITEM *base, SCM parent)
     }
 }
 
-#ifdef SCM_HAVE_PTHREAD_ATTR_GETSTACK
-#ifdef SCM_HAVE___LIBC_STACK_END
+#ifdef HAVE_PTHREAD_ATTR_GETSTACK
+#ifdef HAVE_LIBC_STACK_END
 
 extern void *__libc_stack_end;
 

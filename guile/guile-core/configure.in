@@ -1008,9 +1008,7 @@ case "$with_threads" in
 
     old_CFLAGS="$CFLAGS"
     CFLAGS="$PTHREAD_CFLAGS $CFLAGS"
-    AC_CHECK_FUNC(pthread_attr_getstack,
-                  AC_DEFINE(SCM_HAVE_PTHREAD_ATTR_GETSTACK, 1, 
-		            [Define if you have the pthread_attr_getstack function]))
+    AC_CHECK_FUNCS(pthread_attr_getstack)
     CFLAGS="$old_CFLAGS"
 
     # On Solaris, sched_yield lives in -lrt.
