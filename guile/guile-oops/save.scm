@@ -259,6 +259,18 @@
     (display #\) file)))
 
 ;;;
+;;; Classes
+;;;
+
+;;; Currently, we son't support reading in class objects
+;;;
+
+(define-method enumerate! ((o <class>) env) #t)
+
+(define-method write-readably ((o <class>) file env)
+  (display (class-name o) file))
+
+;;;
 ;;; Environments
 ;;;
 ;;; ENVIRONMENT = (HASH-TABLE REFSTACK TOP-LEVEL BINDING-WRITTEN . BINDINGS)
