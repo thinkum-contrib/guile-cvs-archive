@@ -1,0 +1,13 @@
+Jim Blandy's design documents for internationalization of Guile:
+
+  guile-core/doc/mbapi.texi  --- Multibyte API
+  guile-core/doc/mltext.texi --- Working with Multilingual Text
+
+Debian reference for writing internationalized code:
+(contains a multitude of info and links)
+
+  http://www.debian.org/doc/manuals/intro-i18n/
+
+A paper on Python internationalization:
+
+  http://www.python.org/workshops/1997-10/proceedings/loewis.html

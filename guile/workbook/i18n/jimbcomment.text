@@ -1,0 +1,55 @@
+Re: about strings, symbols and chars.
+From: 	Jim Blandy
+Subject: 	Re: about strings, symbols and chars.
+Date: 	29 Nov 2000 16:32:09 -0500
+
+In August 1999 I set up a plan to add multilingual text support to
+Guile.  The plan was intended to allow Guile to arbitrarily mix text
+from different languages in strings.
+
+In general, C code needs to be able to directly inspect string
+contents.  It's difficult to imagine any functional interface
+providing one-character-at-a-time access efficiently enough to be
+practical.  C code wants, and needs, direct access to string contents.
+So whatever representation Guile uses for multi-lingual text will be
+revealed by the C API --- we can't conceal it from C code.
+
+There are two possible interesting encodings:
+- UTF-8.  This is pretty much what the world is settling on.  GTK uses
+  it; XML uses it; and so on.
+- The MULE (MUlti-Lingual Emacs) encoding.  One of Stallman's primary
+  goals for Guile is to replace the Emacs Lisp interpreter, and I
+  *don't* think that Emacs buffers and strings should use different
+  encodings.  In MULE, each character specifies a character set, and
+  then an index into that character set.
+
+But the really fascinating thing is, you don't actually need to
+choose.  Both these encodings have all the nice properties you need to
+manipulate them easily in C code:
+
+- You can use them both in null-terminated strings.  strcpy and strlen
+  work.
+- You can use strchr and memchr to scan them for ASCII characters.
+- You can use strstr to search them for arbitrary substrings, even
+  substrings containing multi-byte characters.
+- You never need to maintain "state" while scanning a string; you can
+  always find character boundaries in finite time, just given a
+  pointer into the middle of a string.
+- You can tell how many bytes a character's encoding takes by looking
+  at the first byte alone.
+
+So, if you've got C code that works for one encoding, you can almost
+always turn it into C code that works for the other just by dropping
+in new lookup tables and constants.  This is a happy coincidence.
+
+As far as the SCM_STRING_CHARS macro is concerned, this means that
+eventually it will be providing access to the raw encoding.  I've
+found it more convenient to use `unsigned char' in code which works
+with encodings.
+
+Since we don't have any real concept of encoding in Guile at the
+moment, I don't think it's appropriate to specify that strings contain
+Latin-1 characters or some such --- it's just whatever bytes that came
+in on the port.  Yes, this is looser than one might want, but to solve
+the problem properly requires some framework like the above applied
+throughout Guile.
