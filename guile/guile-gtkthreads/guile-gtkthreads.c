@@ -1,4 +1,4 @@
-/*	Copyright (C) 1996, 1997, 1998, 2000 Free Software Foundation, Inc.
+/*	Copyright (C) 2000 Free Software Foundation, Inc.
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@
  * If you do not wish that, delete this exception notice.  
  */
 
-/* This is the 'main' function for the `guile-oops' executable.
+/* This is the 'main' function for the `guile-gtkthreads' executable.
 
    Eventually, we hope this file will be automatically generated,
    based on the list of installed, statically linked libraries on the
