@@ -1,3 +1,18 @@
+2000-10-29  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* scheme.texi (About Expressions, About Closure): Placeholder
+	structure for remaining introductory Scheme material.
+
+	* guile.texi (Top): Shorten some menu item lines to fit on a
+	single console line.
+
+2000-10-28  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* scheme-indices.texi (R5RS Index, Guile Extensions Index): Print
+	new indices.
+
+	* guile.texi: Define new R5RS and Guile extension indices.
+
 2000-10-27  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* scheme.texi (Guile and R5RS Scheme): Filled in examples of Guile

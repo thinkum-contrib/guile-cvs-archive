@@ -92,6 +92,12 @@
 @c
 @c Thanks. -twp
 
+@c Define indices that are used in the Guile Scheme part of the
+@c reference manual to group stuff according to whether it is R5RS or a
+@c Guile extension.
+@defcodeindex r5
+@defcodeindex ge
+
 @include version.texi
 
 @c @iftex
@@ -213,10 +219,11 @@ Part I: An Introductory Tour
 
 Part II: Guile Scheme
 
-* Guile and R5RS Scheme::       Guile as an extended implementation of R5RS Scheme.
-* About Data::                  Latent typing, data types, values and variables.
+* Guile and R5RS Scheme::       Guile as an extended implementation of Scheme.
+* About Data::                  Latent typing, types, values and variables.
 * About Procedures::            The representation and use of procedures.
-* About Expressions::
+* About Expressions::           All kinds of expressions and their meaning.
+* About Closure::               Closure, scoping and environments.
 * Options::                     How to query and set Guile's runtime options.
 * Read Syntax Extensions::      Block comments, interpreter triggers, etc.
 * Optional Arguments::          Handling keyword, optional and rest arguments.

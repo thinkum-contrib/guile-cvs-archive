@@ -198,7 +198,7 @@ works to use @code{define} rather than @code{set!} to change the value
 of an existing variable.
 
 @item
-@ref{Procedure Definitions}, to read about an alternative form of the
+@ref{Lambda Alternatives}, to read about an alternative form of the
 @code{define} syntax that can be used when defining new procedures.
 
 @item
@@ -221,8 +221,8 @@ shorthand forms of @code{define} that can be used instead of writing an
 explicit @code{lambda} expression.
 
 @menu
-* Procedures as Values::        Procedures are values just like everything else.
-* Simple Invocation::           How to write a straightforward procedure invocation.
+* Procedures as Values::        Procedures are values like everything else.
+* Simple Invocation::           How to write a simple procedure invocation.
 * Creating a Procedure::        How to create your own procedures.
 * Lambda Alternatives::         Other ways of writing procedure definitions.
 @end menu
@@ -264,7 +264,7 @@ value to the more convenient name @code{call/cc}.
 (define call/cc call-with-current-continuation)
 @end lisp
 
-Let's undertand exactly how this works.  The definition creates a new
+Let's understand exactly how this works.  The definition creates a new
 variable @code{call/cc}, and then sets its value to the value of the
 variable @code{call-with-current-continuation}; the latter value is a
 procedure that implements the behaviour that R5RS specifies under the
@@ -284,10 +284,6 @@ procedure in your program rather than @code{call/cc}.  For example:
 Or you could just leave @code{call-with-current-continuation} as it was.
 It's perfectly fine for more than one variable to hold the same
 procedure value.
-
-Another benefit of Scheme's approach to procedure values is that it
-simplifies the rules for creating new procedures and writing procedure
-invocations, as explained in the following sections.
 
 
 @node Simple Invocation
@@ -485,16 +481,46 @@ subsequently read input.)
 @node About Expressions
 @chapter About Expressions
 
+We have already met some of the possible types of Scheme expression in
+the preceding chapters, and talked somewhat vaguely about the ``value''
+of an expression.  This chapter clarifies what we mean by an
+expression's value, by introducing the idea of @dfn{evaluation}, and
+discusses the side effects that evaluation can have.  It also lists all
+the valid Scheme expression types and, very briefly, summarizes all
+Scheme's standard syntactic expressions.
+
 @menu
 * Evaluating::                  Results and side effects of Scheme expressions.
-* Internal Definitions::
-* Procedure Definitions::
-* Generalized set!::
+* The REPL::                    Interacting with the Guile interpreter.
+* Expression Types::            The different types of expressions.
+* Syntax Summary::              Standard syntactic expressions -- in brief.
 @end menu
 
 
 @node Evaluating
 @section Evaluating Expressions
+
+
+@node The REPL
+@section The REPL
+
+
+@node Expression Types
+@section Scheme Expression Types
+
+
+@node Syntax Summary
+@section Summary of Standard Syntax
+
+
+@page
+@node About Closure
+@chapter The Concept of Closure
+
+@menu
+* Internal Definitions::
+* Generalized set!::
+@end menu
 
 
 @node Internal Definitions
@@ -517,10 +543,6 @@ a
 @end lisp
 
 --- this is referenced from @xref{Definition}.
-
-
-@node Procedure Definitions
-@section Procedure Definitions
 
 
 @node Generalized set!
@@ -2943,9 +2965,6 @@ procedures for manipulating them.
 
 @node Alist Key Equality
 @subsubsection Alist Key Equality
-@findex assq
-@findex assv
-@findex assoc
 
 All of Guile's dedicated association list procedures, apart from
 @code{acons}, come in three flavours, depending on the level of equality
@@ -2978,6 +2997,9 @@ lists which do not require their entries' keys to be unique.
 @findex assq-set!
 @findex assv-set!
 @findex assoc-set!
+@r5index assq-set!
+@r5index assv-set!
+@r5index assoc-set!
 
 @code{acons} adds a new entry to an association list and returns the
 combined association list.  The combined alist is formed by consing the
@@ -3109,6 +3131,12 @@ association list.
 @findex assq-ref
 @findex assv-ref
 @findex assoc-ref
+@r5index assq
+@r5index assv
+@r5index assoc
+@r5index assq-ref
+@r5index assv-ref
+@r5index assoc-ref
 
 @code{assq}, @code{assv} and @code{assoc} take an alist and a key as
 arguments and return the entry for that key if an entry exists, or
