@@ -677,11 +677,18 @@ all-redirect all-am all installdirs mostlyclean-generic \
 distclean-generic clean-generic maintainer-clean-generic clean \
 mostlyclean distclean maintainer-clean
 
+	$(LIBTOOL) --mode=install $(INSTALL) libgoopscore.la \
+		$(goopsdatadir)/libgoopscore.la
 
 install-exec-hook:
 	$(mkinstalldirs) $(goopsdatadir)
-	$(LIBTOOL) --mode=install $(INSTALL) libgoopscore.la \
-		$(goopsdatadir)/libgoopscore.la
+	(. ./libgoopscore.la; \
+	 test -z "$$dlname" \
+	 || test ! -r $(libdir)/$$dlname \
+	 || (cd $(goopsdatadir) \
+	     && rm -f libgoopscore.la $$dlname \
+	     && $(LN_S) $(libdir)/libgoopscore.la \
+	     && $(LN_S) $(libdir)/$$dlname))
 
 dist-hook: goops.ps
 	cp -p $(top_builddir)/goops.ps $(distdir)
