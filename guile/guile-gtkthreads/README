@@ -35,26 +35,35 @@ Known problems
 --------------
 
 If the gtk commands above are placed after the handler thread is
-started, nothing happens.  The reason is that the handler thread is
-waiting for events inside a `select'.  Executing gtk commands won't
-kick it out of this select.
+started, nothing happens.  The reason probably is that the handler
+thread is waiting for events inside a `select'.  Executing gtk
+commands won't kick it out of this select.
 
 guile-gtkthreads will be upgraded to handle such situations better:
 
-The handler thread will be split in two: one event loop and one io
-listener.  The io listener sits in a select and signals a condition
-variable to get the event loop to handle events.  Every gtk command
-will also signal the event loop.
+The handler thread could be split in two: one event loop and one io
+listener.  The io listener would sit in a select and signals a
+condition variable to get the event loop to handle events.  Every gtk
+command would also signal the event loop.
 
-There will still be the problem that a gtk command can set up new io
+There would still be the problem that a gtk command can set up new io
 sources.  The io loop won't know until it has processed next event
-among the "old" io sources.  If you can think of a solution to this
-problem, I'm very interested (mailto:djurfeldt@nada.kth.se).
+among the "old" io sources.
+
+GLIB seems to solve this problem using the static function
+gmain.c:g_main_wakeup.  The polling function listens to a special
+wakeup pipe and g_main_wakeup writes to this.  Functions such as
+g_source_add and g_main_add_poll_unlocked calls g_main_wakeup.
+
+Thus, in principle, things should work as they are right now, but they
+don't...
 
 Until these problems has been fixed, guile-gtkthreads is still useful
 if you make sure to start the handler late enough and make sure
 yourself to call gtk to process any new events originating in new gtk
 command calls.
+
+Suggestions and solutions are welcome (mailto:djurfeldt@nada.kth.se).
 
 
 Bug reports
