@@ -9,7 +9,7 @@ libguile_lightning_la_SOURCES = lightning.c \
                                 disassemble.c \
                                 i386-dis.c
 
-BUILT_SOURCES = lightning.x assemble-ops.c
+BUILT_SOURCES = assemble-ops.c lightning.x
 CLEANFILE = lightning.x
 
 SUFFIXES = .x
