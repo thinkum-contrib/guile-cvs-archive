@@ -36,7 +36,7 @@ aux_files="	COPYING \
 		PLUGIN \
 		Makefile.in \
 		configure \
-		configure.in
+		configure.in \
 		../doc/lang.texi"
 
 
