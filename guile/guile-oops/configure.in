@@ -12,6 +12,11 @@ if test "$enable_fdi_example" = y || test "$enable_fdi_example" = yes; then
   LIBOBJS="fdi.o $LIBOBJS"
 fi
 
+GUILE_FLAGS
+if test "`guile -c '(display (string>=? (version) "1.3.2"))'`" != "#t"; then
+  AC_MSG_ERROR([Your Guile is too old.  You need guile-core-1.3.2 or later.])
+fi
+
 AC_PROG_CC
 AC_PROG_LN_S
 AM_PROG_LIBTOOL
@@ -25,8 +30,8 @@ case "$GCC" in
     CFLAGS="$CFLAGS -Wall -Wpointer-arith -Wmissing-prototypes" ;;
 esac
 
-### Add the Guile libraries to the link command.
-LIBS="$LIBS `guile-config link`"
+CFLAGS="$CFLAGS $GUILE_CFLAGS"
+LIBS="$LIBS $GUILE_LDFLAGS"
 
 ## If we're creating a shared library (using libtool!), then we'll
 ## need to generate a list of .lo files corresponding to the .o files
