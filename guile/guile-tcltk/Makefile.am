@@ -15,6 +15,9 @@ libgtcltk_la_LDFLAGS = -version-info 1:0
 
 guile_tcltk_LDADD = libgtcltk.la
 
+modincludedir = $(includedir)/guile-tcltk
+modinclude_HEADERS = guile-tcl.h guile-tk.h
+
 subpkgdatadir = @TCLTKDIR@
 subpkgdata_DATA = tcltk.scm hand.scm graph.scm breakout.scm
 

@@ -89,6 +89,9 @@ libgtcltk_la_LDFLAGS = -version-info 1:0
 
 guile_tcltk_LDADD = libgtcltk.la
 
+modincludedir = $(includedir)/guile-tcltk
+modinclude_HEADERS = guile-tcl.h guile-tk.h
+
 subpkgdatadir = @TCLTKDIR@
 subpkgdata_DATA = tcltk.scm hand.scm graph.scm breakout.scm
 
@@ -126,6 +129,8 @@ LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CF
 LINK = $(LIBTOOL) --mode=link $(CC) $(CFLAGS) $(LDFLAGS) -o $@
 DATA =  $(subpkgdata_DATA)
 
+HEADERS =  $(modinclude_HEADERS)
+
 DIST_COMMON =  README COPYING ChangeLog INSTALL Makefile.am Makefile.in \
 THANKS aclocal.m4 config.guess config.sub configure configure.in \
 install-sh ltconfig ltmain.sh mdate-sh missing mkinstalldirs
@@ -140,7 +145,7 @@ DEP_FILES =  .deps/gtcltk-module.P .deps/guile-tcl.P .deps/guile-tcltk.P \
 SOURCES = $(libgtcltk_la_SOURCES) $(EXTRA_libgtcltk_la_SOURCES) guile-tcltk.c
 OBJECTS = $(libgtcltk_la_OBJECTS) guile-tcltk.o
 
-all: Makefile $(LTLIBRARIES) $(PROGRAMS) $(DATA)
+all: Makefile $(LTLIBRARIES) $(PROGRAMS) $(DATA) $(HEADERS)
 
 .SUFFIXES:
 .SUFFIXES: .S .c .lo .o .s .x
@@ -267,6 +272,21 @@ uninstall-subpkgdataDATA:
 	  rm -f $(DESTDIR)$(subpkgdatadir)/$$p; \
 	done
 
+install-modincludeHEADERS: $(modinclude_HEADERS)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(modincludedir)
+	@list='$(modinclude_HEADERS)'; for p in $$list; do \
+	  if test -f "$$p"; then d= ; else d="$(srcdir)/"; fi; \
+	  echo " $(INSTALL_DATA) $$d$$p $(DESTDIR)$(modincludedir)/$$p"; \
+	  $(INSTALL_DATA) $$d$$p $(DESTDIR)$(modincludedir)/$$p; \
+	done
+
+uninstall-modincludeHEADERS:
+	@$(NORMAL_UNINSTALL)
+	list='$(modinclude_HEADERS)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(modincludedir)/$$p; \
+	done
+
 tags: TAGS
 
 ID: $(HEADERS) $(SOURCES) $(LISP)
@@ -371,19 +391,19 @@ installcheck:
 install-exec: install-libLTLIBRARIES install-binPROGRAMS
 	@$(NORMAL_INSTALL)
 
-install-data: install-subpkgdataDATA
+install-data: install-subpkgdataDATA install-modincludeHEADERS
 	@$(NORMAL_INSTALL)
 
 install: install-exec install-data all
 	@:
 
-uninstall: uninstall-libLTLIBRARIES uninstall-binPROGRAMS uninstall-subpkgdataDATA
+uninstall: uninstall-libLTLIBRARIES uninstall-binPROGRAMS uninstall-subpkgdataDATA uninstall-modincludeHEADERS
 
 install-strip:
 	$(MAKE) INSTALL_PROGRAM='$(INSTALL_PROGRAM) -s' INSTALL_SCRIPT='$(INSTALL_PROGRAM)' install
 installdirs:
 	$(mkinstalldirs)  $(DATADIR)$(libdir) $(DATADIR)$(bindir) \
-		$(DATADIR)$(subpkgdatadir)
+		$(DATADIR)$(subpkgdatadir) $(DATADIR)$(modincludedir)
 
 
 mostlyclean-generic:
@@ -431,7 +451,8 @@ mostlyclean-libtool distclean-libtool clean-libtool \
 maintainer-clean-libtool mostlyclean-binPROGRAMS distclean-binPROGRAMS \
 clean-binPROGRAMS maintainer-clean-binPROGRAMS uninstall-binPROGRAMS \
 install-binPROGRAMS uninstall-subpkgdataDATA install-subpkgdataDATA \
-tags mostlyclean-tags distclean-tags clean-tags maintainer-clean-tags \
+uninstall-modincludeHEADERS install-modincludeHEADERS tags \
+mostlyclean-tags distclean-tags clean-tags maintainer-clean-tags \
 distdir mostlyclean-depend distclean-depend clean-depend \
 maintainer-clean-depend info dvi installcheck install-exec install-data \
 install uninstall all installdirs mostlyclean-generic distclean-generic \
