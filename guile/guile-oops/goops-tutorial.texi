@@ -73,8 +73,8 @@ the Scheme language.
 
 Briefly stated, the @goops{} extension gives the user a full object
 oriented system with multiple inheritance and generic functions with
-multi-method dispatch.  Furthermore, the whole implementation relies on
-a true meta object protocol, in the spirit of the one defined for CLOS
+multi-method dispatch.  Furthermore, the implementation relies on a true
+meta object protocol, in the spirit of the one defined for CLOS
 (@cite{Gregor Kiczales: A Metaobject Protocol}).
 
 The purpose of this tutorial is to introduce briefly the @goops{}

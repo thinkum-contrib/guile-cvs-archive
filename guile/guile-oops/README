@@ -10,9 +10,9 @@ Object System but is adapted for the Scheme language.
 
 Briefly stated, the GOOPS extension gives the user a full object
 oriented system with multiple inheritance and generic functions with
-multi-method dispatch.  Furthermore, the whole implementation relies
-on a true meta object protocol, in the spirit of the one defined for
-CLOS (Gregor Kiczales: A Metaobject Protocol).
+multi-method dispatch.  Furthermore, the implementation relies on a
+true meta object protocol, in the spirit of the one defined for CLOS
+(Gregor Kiczales: A Metaobject Protocol).
 
 
 Getting started ======================================================
