@@ -1,3 +1,14 @@
+1998-07-07  Mikael Djurfeldt  <mdj@barbara.nada.kth.se>
+
+	* guile-tcl.c (scm_tcl_global_eval, scm_tcl_create_command,
+	scm_tcl_delete_command, scm_tcl_get_int, scm_tcl_get_double,
+	scm_tcl_get_boolean, scm_tcl_trace_var2, scm_tcl_untrace_var2,
+	scm_tcl_set_var2, scm_tcl_get_var2): Use SCM_COERCE_SUBSTR instead
+	of repeating code.
+	(scm_tcl_trace_var2, scm_tcl_untrace_var2, scm_tcl_set_var2,
+	scm_tcl_get_var2): Bugfix: Test for NIMP before coercing.  (Index
+	can be SCM_BOOL_F.)
+
 1998-06-28  Mikael Djurfeldt  <mdj@kenneth>
 
 	* tcltk.scm (tcl-type-converters): Added `string' to set of type

@@ -147,8 +147,7 @@ scm_tcl_global_eval (tobj, script)
   SCM_ASSERT (SCM_NIMP (script) && SCM_ROSTRINGP (script), script, SCM_ARG2,
 	      s_tcl_global_eval);
   
-  if (SCM_SUBSTRP (script))
-    script = scm_makfromstr (SCM_ROCHARS (script), SCM_ROLENGTH (script), 0);
+  SCM_COERCE_SUBSTR (script);
 
 #ifdef USE_THREADS
   scm_mutex_lock (&scm_tcl_mutex);
@@ -305,8 +304,7 @@ scm_tcl_create_command (tobj, name, proc)
   SCM_ASSERT (scm_procedure_p (proc) == SCM_BOOL_T, proc, SCM_ARG3, 
 	      s_tcl_create_command);
   SCM_PROPS (tobj) = scm_acons (proc, tobj, SCM_PROPS (tobj));
-  if (SCM_SUBSTRP (name))
-    name = scm_makfromstr (SCM_ROCHARS (name), SCM_ROLENGTH (name), 0);
+  SCM_COERCE_SUBSTR (name);
 #ifdef USE_THREADS
   scm_mutex_lock (&scm_tcl_mutex);
 #endif
@@ -334,8 +332,7 @@ scm_tcl_delete_command (tobj, name)
 	      s_tcl_delete_command);
   SCM_ASSERT (SCM_NIMP (name) && SCM_ROSTRINGP(name), name, SCM_ARG2,
 	      s_tcl_delete_command);
-  if (SCM_SUBSTRP (name))
-    name = scm_makfromstr (SCM_ROCHARS (name), SCM_ROLENGTH (name), 0);
+  SCM_COERCE_SUBSTR (name);
 #ifdef USE_THREADS
   scm_mutex_lock (&scm_tcl_mutex);
 #endif
@@ -365,8 +362,7 @@ scm_tcl_get_int (tobj, name)
 	  && SCM_ROSTRINGP (name),
 	  name, SCM_ARG2, s_tcl_get_int);
 
-  if (SCM_SUBSTRP (name))
-    name = scm_makfromstr (SCM_ROCHARS (name), SCM_ROLENGTH (name), 0);
+  SCM_COERCE_SUBSTR (name);
 
 #ifdef USE_THREADS
   scm_mutex_lock (&scm_tcl_mutex);
@@ -396,8 +392,7 @@ scm_tcl_get_double (tobj, name)
   SCM_ASSERT (SCM_NIMP (name)
 	  && SCM_STRINGP (name),
 	  name, SCM_ARG2, s_tcl_get_double);
-  if (SCM_SUBSTRP (name))
-    name = scm_makfromstr (SCM_ROCHARS (name), SCM_ROLENGTH (name), 0);
+  SCM_COERCE_SUBSTR (name);
 #ifdef USE_THREADS
   scm_mutex_lock (&scm_tcl_mutex);
 #endif
@@ -427,8 +422,7 @@ scm_tcl_get_boolean (tobj, name)
   SCM_ASSERT (SCM_NIMP (name)
 	  && SCM_ROSTRINGP (name),
 	  name, SCM_ARG2, s_tcl_get_boolean);
-  if (SCM_SUBSTRP (name))
-    name = scm_makfromstr (SCM_ROCHARS (name), SCM_ROLENGTH (name), 0);
+  SCM_COERCE_SUBSTR (name);
 #ifdef USE_THREADS
   scm_mutex_lock (&scm_tcl_mutex);
 #endif
@@ -601,14 +595,13 @@ scm_tcl_trace_var2 (tobj, name, index, flags, thunk)
   SCM_ASSERT (SCM_NIMP (name)
 	  && SCM_ROSTRINGP (name),
 	  name, SCM_ARG2, s_tcl_trace_var2);
-  if (SCM_SUBSTRP (name))
-    name = scm_makfromstr (SCM_ROCHARS (name), SCM_ROLENGTH (name), 0);
+  SCM_COERCE_SUBSTR (name);
   SCM_ASSERT ((SCM_BOOL_F == index)
 	  || (SCM_NIMP (index)
 	      && SCM_ROSTRINGP (index)),
 	  index, SCM_ARG3, s_tcl_trace_var2);
-  if (SCM_SUBSTRP (index))
-    index = scm_makfromstr (SCM_ROCHARS (index), SCM_ROLENGTH (index), 0);
+  if (SCM_NIMP (index))
+    SCM_COERCE_SUBSTR (index);
   SCM_ASSERT (SCM_INUMP (flags), flags, SCM_ARG4, s_tcl_trace_var2);
   SCM_ASSERT (scm_procedure_p (thunk), thunk, SCM_ARG5, s_tcl_trace_var2);
   SCM_PROPS (tobj) = scm_acons (thunk, SCM_EOL, SCM_PROPS (tobj));
@@ -650,14 +643,13 @@ scm_tcl_untrace_var2 (tobj, name, index, flags, thunk)
 	      s_tcl_untrace_var2);
   SCM_ASSERT ((SCM_NIMP (name) && SCM_ROSTRINGP (name)),
 	  name, SCM_ARG2, s_tcl_untrace_var2);
-  if (SCM_SUBSTRP (name))
-    name = scm_makfromstr (SCM_ROCHARS (name), SCM_ROLENGTH (name), 0);
+  SCM_COERCE_SUBSTR (name);
   SCM_ASSERT ((SCM_BOOL_F == index)
 	  || (SCM_NIMP (index)
 	      && SCM_ROSTRINGP (index)),
 	  index, SCM_ARG3, s_tcl_untrace_var2);
-  if (SCM_SUBSTRP (index))
-    index = scm_makfromstr (SCM_ROCHARS (index), SCM_ROLENGTH (index), 0);
+  if (SCM_NIMP (index))
+    SCM_COERCE_SUBSTR (index);
   SCM_ASSERT (SCM_INUMP (flags), flags, SCM_ARG4, s_tcl_untrace_var2);
   SCM_ASSERT (scm_procedure_p (thunk), thunk, SCM_ARG5, s_tcl_untrace_var2);
 
@@ -713,18 +705,16 @@ scm_tcl_set_var2 (tobj, name, index, value, flags)
 	      s_tcl_set_var2);
   SCM_ASSERT ((SCM_NIMP (name) && SCM_ROSTRINGP (name)),
 	  name, SCM_ARG2, s_tcl_set_var2);
-  if (SCM_SUBSTRP (name))
-    name = scm_makfromstr (SCM_ROCHARS (name), SCM_ROLENGTH (name), 0);
+  SCM_COERCE_SUBSTR (name);
   SCM_ASSERT ((SCM_BOOL_F == index)
 	  || (SCM_NIMP (index)
 	      && SCM_ROSTRINGP (index)),
 	  index, SCM_ARG3, s_tcl_set_var2);
-  if (SCM_SUBSTRP (index))
-    index = scm_makfromstr (SCM_ROCHARS (index), SCM_ROLENGTH (index), 0);
+  if (SCM_NIMP (index))
+    SCM_COERCE_SUBSTR (index);
   SCM_ASSERT (SCM_NIMP (value) && SCM_ROSTRINGP (value),
 	  value, SCM_ARG4, s_tcl_set_var2);
-  if (SCM_SUBSTRP (value))
-    value = scm_makfromstr (SCM_ROCHARS (value), SCM_ROLENGTH (value), 0);
+  SCM_COERCE_SUBSTR (value);
   SCM_ASSERT (SCM_INUMP (flags), flags, SCM_ARG5, s_tcl_set_var2);
 
   SCM_DEFER_INTS;
@@ -752,14 +742,13 @@ scm_tcl_get_var2 (tobj, name, index, flags)
 	      s_tcl_get_var2);
   SCM_ASSERT ((SCM_NIMP (name) && SCM_ROSTRINGP (name)),
 	  name, SCM_ARG2, s_tcl_set_var2);
-  if (SCM_SUBSTRP (name))
-    name = scm_makfromstr (SCM_ROCHARS (name), SCM_ROLENGTH (name), 0);
+  SCM_COERCE_SUBSTR (name);
   SCM_ASSERT ((SCM_BOOL_F == index)
 	  || (SCM_NIMP (index)
 	      && SCM_ROSTRINGP (index)),
 	  index, SCM_ARG3, s_tcl_set_var2);
-  if (SCM_SUBSTRP (index))
-    index = scm_makfromstr (SCM_ROCHARS (index), SCM_ROLENGTH (index), 0);
+  if (SCM_NIMP (index))
+    SCM_COERCE_SUBSTR (index);
   SCM_ASSERT (SCM_INUMP (flags), flags, SCM_ARG4, s_tcl_get_var2);
 
   SCM_DEFER_INTS;
