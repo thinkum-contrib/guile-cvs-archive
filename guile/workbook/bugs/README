@@ -65,4 +65,10 @@ should be put into files that start with a upper case letter.
 ----------------------------------------------------------------------
 fyi, ttn's bug-naming convention:
 NUMBER-NP-VP (noun phrase, verb-phrase), NUMBER starts at 1000.
-also, i like to put related files in subdir NUMBER.stuff/.
+also, i like to put related files in subdir NUMBER.stuff/
+and include (as a reminder) the header: "see-also-dir: NUMBER.stuff".
+i've also started to use header "test-case: PROG (COMMENT)" -- one
+or more -- to name files in NUMBER.stuff/ that may be used for testing.
+FOO's extension means:
+      .scm		run it like: "guile -s FOO"
+      .sh		file is shell script, chmod +x, just run it
