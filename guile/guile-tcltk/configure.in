@@ -95,6 +95,16 @@ AC_PATH_PROGS(GUILE_CONFIG, guile-config build-guile, no)
     exit 2
 }
 
+AC_CACHE_CHECK(for two argument scm_mutex_init,
+ac_cv_func_scm_mutex_init_two_args,
+AC_TRY_COMPILE([#include <libguile.h>],[scm_mutex_init (NULL, NULL);],
+ac_cv_func_scm_mutex_init_two_args=yes,
+ac_cv_func_scm_mutex_init_two_args=no))
+if test "$ac_cv_func_scm_mutex_init_two_args" = "yes"; then
+  AC_DEFINE(SCM_MUTEX_INIT_TWO_ARGS, 1,
+	    [define if scm_mutex_init takes two arguments])
+fi
+
 if test -n "$with_tcl"; then
   TCLNAME=$with_tcl
   AC_CHECK_LIB($TCLNAME, Tcl_CreateInterp)
