@@ -6,11 +6,16 @@ lib_LTLIBRARIES = libgoopscore.la
 bin_PROGRAMS = guile-oops
 
 guile_oops_SOURCES = guile-oops.c
-guile_oops_LDADD = libgoopscore.la
+guile_oops_DEPENDENCIES = @LIBLOBJS@
+guile_oops_LDADD = @LIBLOBJS@ libgoopscore.la
 
-libgoopscore_la_SOURCES = goops.c
+libgoopscore_la_SOURCES = goops.c goops.h goops-snarf.h
 libgoopscore_la_LDFLAGS = -version-info 0:0 -export-dynamic
-BUILT_SOURCES = goops.x
+BUILT_SOURCES = goops.x fdi.x
+
+EXTRA_guile_oops_SOURCES = fdi.c
+
+include_HEADERS = goops.h goops-snarf.h
 
 subpkgdatadir = $(datadir)/guile/oop
 subpkgdata_DATA = goops.scm
