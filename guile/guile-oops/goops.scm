@@ -1288,9 +1288,9 @@
 			       slot
 			       (apply init '()))))))
 	      (map slot-definition-name (class-slots new-class)))
-    ;; Exchange old and new instance in place to keep pointers valids
+    ;; Exchange old and new instance in place to keep pointers valid
     (%modify-instance old-instance new-instance)
-    ;; Allow class specific updates of instances (which now is swapped)
+    ;; Allow class specific updates of instances (which now are swapped)
     (update-instance-for-different-class new-instance old-instance)
     old-instance))
 
@@ -1301,7 +1301,6 @@
   ;;not really important what we do, we just need a default method
   new-instance)
 
-;; *fixme* Doesn't class-of cause an implicit call to change-object-class?
 (define-method change-class ((old-instance <object>) (new-class <class>))
   (change-object-class old-instance (class-of old-instance) new-class))
 

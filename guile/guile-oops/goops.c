@@ -2584,7 +2584,7 @@ scm_init_goops (void)
 
   hell = scm_must_malloc (hell_size, "hell");
 #ifdef USE_THREADS
-  scm_mutex_init (&hell_mutex, NULL);
+  scm_mutex_init (&hell_mutex);
 #endif
 
   scm_make_extended_class = make_extended_class;
