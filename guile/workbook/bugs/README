@@ -1,0 +1,49 @@
+This directory is the Guile bug data base.
+
+It contains one file per bug with a simple, mail-message like format.
+Each file starts with a number of header lines in the form
+
+     field-name: field-value
+
+where 'field-name' contains no whitespace and is compared
+case-insensitive.  'field-value' can be continued in the next line by
+using a '\' as the last character of the current line.  The header is
+separated from the body by a blank line.  The body is the rest of the
+file.  There is no limit on the length of a line.
+
+The following header fields are defined.  They are optional except
+when noted.
+
+  Summary: <text>
+
+    A one-line summary of the bug.  Mandatory
+
+  Tags: tag1, tag2, ...  
+
+    A comma separated list of symbolic tag names (for example
+    release-critical-1.6).  Tags can be used to collect bugs into
+    ad-hoc groups.
+
+  Reported-By: mail address
+    
+    The mail address of the reporter, in RFC822 format.
+  
+  Reported-Date: yyyy-mm-dd [hh:mm:ss UTC]
+
+    The date the bug was first reported, in ISO format.  Time is
+    optional.
+
+If you need more header fields, please document them here.
+
+The names of the bug files can be chosen almost arbitrarily.  They
+must start with a lower case letter and must not contain a "."
+character.  If you don't want to use a symbolic name, use a name of
+the form "bug-<n>" where <n> is the next unused number.  These names
+are used to refer to bugs from within the description of other bugs,
+and in discussions, so it helps to use mildly descriptive names.
+Files that are related to a bug, like test programs that invoke the
+bug, should get the name of the bug plus a "."-separated extension,
+like "bug-1.scm".
+
+Meta information about the bug tracking system (like this README file)
+should be put into files that start with a upper case letter.
