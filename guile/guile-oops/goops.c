@@ -118,13 +118,19 @@
 #define NXT_MTHD_METHODS(m)	(SCM_VELTS (m)[1])
 #define NXT_MTHD_ARGS(m)	(SCM_VELTS (m)[2])
 
+#ifdef SCM_UNBOUND
+#define SCM_GOOPS_UNBOUND SCM_UNBOUND
+#else
 #define SCM_GOOPS_UNBOUND scm_goops_the_unbound_value
-#define SCM_GOOPS_UNBOUNDP(x) ((x) == scm_goops_the_unbound_value)
+#endif
+#define SCM_GOOPS_UNBOUNDP(x) ((x) == SCM_GOOPS_UNBOUND)
 
 static int goops_loaded_p = 0;
 static scm_rstate *goops_rstate;
 
+#ifndef SCM_UNBOUND
 static SCM scm_goops_the_unbound_value;
+#endif
 static SCM scm_goops_lookup_closure;
 
 /* Some classes are defined in libguile/objects.c. */
@@ -2495,9 +2501,14 @@ sys_goops_loaded ()
 void
 scm_init_goops (void)
 {
-  SCM the_unbound_value = SCM_CAR (scm_intern0 ("the-unbound-value"));
   SCM goops_module = scm_make_module (scm_read_0str ("(oop goops)"));
   SCM old_module = scm_select_module (goops_module);
+#ifndef SCM_UNBOUND
+  SCM the_unbound_value = SCM_CAR (scm_intern0 ("the-unbound-value"));
+  scm_goops_the_unbound_value
+    = scm_permanent_object (scm_cons (the_unbound_value, SCM_EOL));
+#endif
+  
   scm_goops_lookup_closure = scm_module_lookup_closure (goops_module);
 
   scm_components = scm_permanent_object (scm_make_weak_key_hash_table
@@ -2508,10 +2519,7 @@ scm_init_goops (void)
 #include "goops.x"
 
   list_of_no_method = scm_permanent_object (SCM_LIST1 (sym_no_method));
-  
-  scm_goops_the_unbound_value
-    = scm_permanent_object (scm_cons (the_unbound_value, SCM_EOL));
-  
+
   scm_make_extended_class = make_extended_class;
   scm_make_port_classes = make_port_classes;
   scm_change_object_class = change_object_class;
