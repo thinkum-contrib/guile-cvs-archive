@@ -151,7 +151,7 @@ by the Free Software Foundation.
 @author @email{jimb@@red-bean.com}
 @author
 @author Gary Houston
-@author @email{ghouston@@actrix.gen.nz}
+@author @email{ghouston@@arglist.com}
 @author
 @author Tim Pierce
 @author @email{twp@@skepsis.com}
