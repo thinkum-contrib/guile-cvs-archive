@@ -620,8 +620,7 @@ coop_create (coop_userf_t *f, void *pu)
   else
 #endif
     {
-      t = scm_malloc (sizeof (coop_t), "coop");
-
+      t = scm_malloc (sizeof (coop_t));
       t->specific = NULL;
       t->n_keys = 0;
 #ifdef GUILE_PTHREAD_COMPAT
