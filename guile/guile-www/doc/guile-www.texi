@@ -20,7 +20,7 @@
 @ifinfo
 This file is the Guile-WWW Modules Reference
 
-Copyright @copyright{} 2001,2002 Free Software Foundation, Inc.
+Copyright @copyright{} 2001,2002,2004 Free Software Foundation, Inc.
 
 Permission is granted to make and distribute verbatim copies of this
 manual provided the copyright notice and this permission notice are
@@ -75,6 +75,20 @@ translation approved by the Free Software Foundation.
 
 @end titlepage
 
+@c  @nicode{S} is plain S in info, or @code{S} elsewhere.  This can be
+@c  used when the quotes that @code{} gives in info aren't wanted, but
+@c  the fontification in tex or html is wanted.
+@ifinfo
+@macro nicode {S}
+\S\
+@end macro
+@end ifinfo
+@ifnotinfo
+@macro nicode {S}
+@code{\S\}
+@end macro
+@end ifnotinfo
+
 @c ---------------------------------------------------------------------------
 @node Top
 @top  Guile-WWW
@@ -126,6 +140,14 @@ This module exports the following variables and procedures:
    (http:open host . args)
    (http:request method url . args)
 @end example
+
+@defvar http:user-agent
+A string @nicode{"GuileHTTP/0.1"} indicating the version of Guile-WWW
+in use.  An application can add this to its own version indication
+when constructing a User-Agent header.  See RFC 1945 sections 3.7 and
+10.15 for details.
+@end defvar
+
 
 @c ---------------------------------------------------------------------------
 @node    url
