@@ -1,11 +1,3 @@
-- bugs
-  + give input on "render-bugs" to Evan Prodromou
-  - add "render-bugs" to guile-tools
-  - if no-one else takes it, do archive diving for more bugs to add
-  - write tests for each bug
-  - encourage specification: criticality, etc.
-  - test elisp translator against rfc822.el
-
 - testing framework
   - shell scripts (already done?)
   - C programs
@@ -19,10 +11,6 @@
   - rationalize / integrate various scripts
   - document
   - re-enable install
-
-- website
-  - move {ideas, news, faq} under workbook / write renderer
-  - add documentation (mark as work-in-progress)
 
 - write
   - scripts/find
