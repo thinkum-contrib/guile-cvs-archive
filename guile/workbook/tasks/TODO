@@ -28,7 +28,7 @@
   +R factor RELEASE (prefer 1-6) into build/release.text [ttn]
   + show news on guile webpage [ttn]
   - write build/bugs-triage.text
-  - complete build/stability.text [ttn]
+  + complete build/stability.text [ttn]
   - make sure all bugs have required headers
 
 
