@@ -1,3 +1,8 @@
+2000-08-26  Mikael Djurfeldt  <mdj@linnaeus.mit.edu>
+
+	* goops.c (create_basic_classes): Pass a string, not a symbol, to
+	scm_make_vtbale_vtable.
+
 2000-08-09  Mikael Djurfeldt  <mdj@linnaeus.mit.edu>
 
 	* goops.c (scm_sys_modify_instance, scm_sys_modify_class):
