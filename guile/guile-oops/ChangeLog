@@ -1,5 +1,8 @@
 2000-04-12  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
+	* save.scm (write-readably): Make default behaviour be to write
+	the object using `write'.
+
 	* goops.scm (define-method): Added new, alternative, syntax which
 	probably will supercede the old.  [This is added so that people
 	can experiment with it a little.]
