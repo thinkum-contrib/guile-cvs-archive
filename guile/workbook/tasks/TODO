@@ -4,7 +4,8 @@
   + back port ice-9/and-let*.scm naming fix [ttn]
   + write TODO summarizer [ttn]
   - include group membership attributes in guile-api.alist
-    - add filter hook to (mscripts) scan-api [ttn]
+    - make scan-api output express Scheme/C as a priori groups [ttn]
+    - add filter hook to update-guile-api.alist [ttn]
     - write grouping attributes filter [ttn]
     - add doc/Makefile.am MAINTAINER_MODE rule for guile-api.alist
     - regen guile-api.alist all branches
