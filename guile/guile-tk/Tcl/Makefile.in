@@ -5,9 +5,12 @@
 # such as hash tables, regexp, unix utilities
 #
 
-include ../config.make
+#include ../config.make
+srcdir = @srcdir@
+VPATH = @srcdir@
 
-CFLAGS = $(STKCFLAGS) $(DFLGS) -I. -I.. @DEFS@
+#CFLAGS = $(STKCFLAGS) $(DFLGS) -I. -I.. @DEFS@
+CFLAGS = -g -O -DSTk_CODE -I$(srcdir) -I$(srcdir)/.. @DEFS@
 OBJ    = panic.o tclHash.o tclGet.o regexp.o tclAsync.o tclUtil.o \
 	 tclNotify.o @LIBOBJS@
 EVOBJ  = tclEvent.o tclUnixNotfy.o tclUnixTime.o  tclPreserve.o
@@ -17,21 +20,21 @@ all: libtcl.a libevtcl.a
 libtcl.a: $(OBJ) 
 	rm -f libtcl.a
 	ar q libtcl.a $(OBJ)
-	$(RANLIB) libtcl.a
+	@RANLIB@ libtcl.a
 
 libevtcl.a: $(EVOBJ) 
 	rm -f libevtcl.a
 	ar q libevtcl.a $(EVOBJ)
-	$(RANLIB) libevtcl.a
+	@RANLIB@ libevtcl.a
 
 install: all
 
 install.libs: install
 	-if [ ! -d $(execdir) ] ; then mkdir -p $(execdir); fi 
 	$(CP) libtcl.a $(execdir)
-	$(RANLIB) $(execdir)/libtcl.a
+	@RANLIB@ $(execdir)/libtcl.a
 	$(CP) libevtcl.a $(execdir)
-	$(RANLIB) $(execdir)/libevtcl.a
+	@RANLIB@ $(execdir)/libevtcl.a
 	-if [ ! -d $(incdir) ] ; then mkdir -p $(incdir); fi
 	$(CP) tcl.h tclInt.h tclRegexp.h $(incdir)
 

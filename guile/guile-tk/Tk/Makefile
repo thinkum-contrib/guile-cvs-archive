@@ -6,7 +6,10 @@
 # Last file update: 24-Jul-1996 15:00
 #
 
-include ../config.make
+#include ../config.make
+FLAVOR=unix
+
+all: libtk.a
 
 libtk.a:
 	(cd $(FLAVOR); $(MAKE) libtk.a)

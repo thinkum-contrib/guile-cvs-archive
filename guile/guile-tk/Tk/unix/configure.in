@@ -5,6 +5,7 @@ AC_INIT(../generic/tk.h)
 
 # @(#) configure.in 1.27 95/10/01 13:54:35
 
+AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_RANLIB
 AC_PREFIX_PROGRAM(wish)
@@ -321,7 +322,6 @@ fi
 #	Makefile.
 #--------------------------------------------------------------------
 
-AC_SUBST(CC)
 AC_SUBST(SHLIB_CFLAGS)
 AC_SUBST(SHLIB_LD)
 AC_SUBST(SHLIB_SUFFIX)

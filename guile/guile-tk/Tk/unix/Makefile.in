@@ -9,7 +9,9 @@
 
 # Current Tk version;  used in various names.
 
-include ../../config.make
+#include ../../config.make
+srcdir = @srcdir@
+VPATH = @srcdir@
 
 VERSION 	= 4.1
 
@@ -186,9 +188,9 @@ VPATH =			@srcdir@/..
 
 
 CC =		@CC@
-CC_SWITCHES =	$(STKCFLAGS) $(DFLGS) $(ALLOC) ${CFLAGS} -I${UNIX_DIR} \
+CC_SWITCHES =	-DSTk_CODE $(ALLOC) ${CFLAGS} -I${UNIX_DIR} \
 		-I${GENERIC_DIR} \
-		-I../../Tcl -I../../Src -I${BMAP_DIR} ${X11_INCLUDES} \
+		-I$(srcdir)/../../Tcl -I$(srcdir)/../../Src -I${BMAP_DIR} ${X11_INCLUDES} \
 		${AC_FLAGS} ${PROTO_FLAGS} ${SECURITY_FLAGS} ${MEM_DEBUG_FLAGS} \
 		${KEYSYM_FLAGS}
 
