@@ -23,13 +23,13 @@
 ;  :no-backtrace
   )
 
-(export compile-method code-code code-environment)
+(export compile-method cmethod-code cmethod-environment)
 
 (define source-formals cadr)
 (define source-body cddr)
 
-(define code-code cdr)
-(define code-environment car)
+(define cmethod-code cdr)
+(define cmethod-environment car)
 
 (define (make-final-make-next-method method)
   (lambda default-args
@@ -49,8 +49,8 @@
 	    (set-cdr! vcell (make-final-make-no-next-method gf))
 	    (no-next-method gf (if (null? args) default-args args)))
 	  (let* ((code (compile-method methods types))
-		 (method (local-eval (cons 'lambda (code-code code))
-				     (code-environment code))))
+		 (method (local-eval (cons 'lambda (cmethod-code code))
+				     (cmethod-environment code))))
 	    (set-cdr! vcell (make-final-make-next-method method))
 	    (@apply method (if (null? args) default-args args)))))))
 
