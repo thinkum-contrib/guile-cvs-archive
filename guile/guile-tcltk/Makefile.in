@@ -47,7 +47,6 @@ headers=guile-tcl.h guile-tk.h
 ancillary= .cvsignore \
 	   COPYING \
 	   ChangeLog \
-	   GUILE.vars.in \
 	   Makefile.in \
 	   configure \
 	   configure.in
@@ -112,7 +111,7 @@ dist-dir:
 	  ln ${srcdir}/$$f ${DISTDIR}; \
 	done
 	mkdir ${DISTDIR}/PLUGIN
-	for f in REQ greet guile.config guile.inits guile.libs; do \
+	for f in REQ greet guile.config.in guile.inits.in guile.libs.in; do \
 	  ln ${srcdir}/PLUGIN/$$f ${DISTDIR}/PLUGIN; \
 	done
 
