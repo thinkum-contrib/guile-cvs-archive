@@ -34,8 +34,15 @@ Language Scheme'', so we have included the report in the Guile
 distribution (@pxref{Top, Revised(4) Report on the Algorithmic Language
 Scheme, , r4rs}).  This will also be installed in your info directory.
 
+@page
+@node Reporting Bugs
+@appendix Reporting Bugs
+
 Any problems with the installation should be reported to
 @email{bug-guile@@gnu.ai.mit.edu}
+
+[[how about an explanation of what makes a good bug report?]]
+[[don't complain to us about problems with contributed modules?]]
 
 @page
 @node debugger user interface

@@ -111,7 +111,7 @@ by Free Software Foundation.
 @end ifinfo
 
 @menu
-Preliminary
+Part I: Preliminaries
 
 * Introduction::
 * Running Guile Interactively::
@@ -119,7 +119,7 @@ Preliminary
 * Linking Programs With Guile::
 * Writing Guile Modules::
 
-Part I: Guile Scheme
+Part II: Guile Scheme
 
 * R4RS Scheme as a starting point::
 * Block comments and interpreter triggers::
@@ -148,7 +148,7 @@ Part I: Guile Scheme
 * Module Internals::
 * Internal Debugging Interface::
 
-Part II: Using Scheme with C --- a Portable Interface
+Part III: Using Scheme with C --- a Portable Interface
 
 * A Portable C to Scheme Interface::
 * gh preliminaries::
@@ -164,7 +164,7 @@ Part II: Using Scheme with C --- a Portable Interface
 * Calling Scheme procedures from C::
 * Mixing gh and scm APIs::
 
-Part III: Using Scheme with C --- Guile's Interface
+Part IV: Using Scheme with C --- Guile's Interface
 
 * Scheme data representation::
 * Relationship between Scheme and C functions::
@@ -175,9 +175,8 @@ Part III: Using Scheme with C --- Guile's Interface
 Appendices and Indices
 
 * Obtaining and Installing Guile::
+* Reporting Bugs::
 * debugger user interface::
-* Indices::
-
 * Concept Index::
 * Procedure Index::
 * Variable Index::
@@ -188,7 +187,7 @@ Appendices and Indices
 @c preliminary
 @iftex
 @page
-@unnumbered{Preliminary Information}
+@unnumbered{Part I: Preliminaries}
 @end iftex
 
 @include intro.texi
@@ -196,7 +195,7 @@ Appendices and Indices
 @c programming in Scheme
 @iftex
 @page
-@unnumbered{Part I: Guile Scheme}
+@unnumbered{Part II: Guile Scheme}
 @end iftex
 
 @include scheme.texi
@@ -204,14 +203,14 @@ Appendices and Indices
 @c Hybrid programming -- C and Scheme
 @iftex
 @page
-@unnumbered{Part II: Using Scheme with C --- a Portable Interface}
+@unnumbered{Part III: Using Scheme with C --- a Portable Interface}
 @end iftex
 
 @include gh.texi
 
 @iftex
 @page
-@unnumbered{Part III: Using Scheme with C --- Guile's Interface}
+@unnumbered{Part IV: Using Scheme with C --- Guile's Interface}
 @end iftex
 
 @include scm.texi
