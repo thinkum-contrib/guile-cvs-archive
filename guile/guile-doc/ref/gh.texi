@@ -581,7 +581,7 @@ respectively.
 @deftypefunx SCM gh_vector (SCM @var{ls})
 @deftypefunx SCM gh_vector_ref (SCM @var{v}, SCM @var{i})
 @deftypefunx SCM gh_vector_set (SCM @var{v}, SCM @var{i}, SCM @var{val})
-@deftypefunx SCM gh_vector_length (SCM @var{v})
+@deftypefunx {unsigned long} gh_vector_length (SCM @var{v})
 @deftypefunx SCM gh_list_to_vector (SCM @var{ls})
 These correspond to the Scheme @code{(make-vector n fill)},
 @code{(vector a b c ...)} @code{(vector-ref v i)} @code{(vector-set v i
@@ -590,7 +590,13 @@ value)} @code{(vector-length v)} @code{(list->vector ls)} procedures.
 The correspondence is not perfect for @code{gh_vector}: this routine
 taks a list @var{ls} instead of the individual list elements, thus
 making it identical to @code{gh_list_to_vector}.
+
+There is also a difference in gh_vector_length: the value returned is a
+C @code{unsigned long} instead of an SCM object.
 @end deftypefun
+
+
+@heading Procedures
 
 @deftypefun SCM gh_make_subr (SCM (*@var{fn})(), int @var{req}, int @var{opt}, int @var{varp}, char *@var{doc})
 Creates a new Scheme procedure; corresponds to @code{(lambda (...)

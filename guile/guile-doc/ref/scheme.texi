@@ -1,54 +1,46 @@
 @node R4RS Scheme as a starting point
 @chapter R4RS Scheme as a starting point
 
+@c  with
+@c  enhancements to support 
+@c 
+@c 
+@c an extended version of the Scheme programming language,
+@c as defined in the @c ite{Revised^4 Report on the Algorithmic Language
+@c Scheme}, or @dfn{R4RS}.  In addition to the features described in R4RS,
+@c Guile provides the following enhancements:
+@c 
+@c @table @asis
+@c 
+@c @item system call access
+@c Guile provides full access to the POSIX system calls.
+@c 
+@c @item scripting support
+@c To help you write scripts in Scheme, Guile adopts some minor
+@c modifications to the Scheme syntax.  
+@c 
+@c @end table
+@c 
+@c That specification is freely available via the
+@c Internet; to get a copy, see @ref{Obtaining and Installing Guile}.
+@c 
+@c 
+@c 
+@c Guile also provides the following extensions to
+@c R4RS:
+@c 
+@c @table @asis
+@c 
+@c @item Unix support
+@c 
+@c @end table
+@c 
+@c 
+@c , with many extensions.
+@c 
+@c 
+@c To get a copy of @xref{Obtaining and Installing Guile}, 
 
-
-
-
-with
-enhancements to support 
-
-
-an extended version of the Scheme programming language,
-as defined in the @cite{Revised^4 Report on the Algorithmic Language
-Scheme}, or @dfn{R4RS}.  In addition to the features described in R4RS,
-Guile provides the following enhancements:
-
-@table @asis
-
-@item system call access
-Guile provides full access to the POSIX system calls.
-
-@item scripting support
-To help you write scripts in Scheme, Guile adopts some minor
-modifications to the Scheme syntax.  
-
-@end table
-
-That specification is freely available via the
-Internet; to get a copy, see @ref{Obtaining and Installing Guile}.
-
-
-
-Guile also provides the following extensions to
-R4RS:
-
-@table @asis
-
-@item Unix support
-
-@end table
-
-
-, with many extensions.
-
-
-To get a copy of @xref{Obtaining and Installing Guile}, 
-
-
-
-
-[FIXME: this is babbling to fill it somewhat; should be reviewed]
 
 The current ``standard'' for the Scheme language is the
 @strong{Revised^4 Report on the Algorithmic Language Scheme}
