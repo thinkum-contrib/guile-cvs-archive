@@ -2,14 +2,14 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-lib_LTLIBRARIES = libgoops.la
+lib_LTLIBRARIES = libgoopscore.la
 bin_PROGRAMS = guile-oops
 
 guile_oops_SOURCES = guile-oops.c
-guile_oops_LDADD = libgoops.la
+guile_oops_LDADD = libgoopscore.la
 
-libgoops_la_SOURCES = goops.c
-libgoops_la_LDFLAGS = -version-info 0:0 -export-dynamic
+libgoopscore_la_SOURCES = goops.c
+libgoopscore_la_LDFLAGS = -version-info 0:0 -export-dynamic
 BUILT_SOURCES = goops.x
 
 subpkgdatadir = $(datadir)/guile
@@ -19,11 +19,11 @@ goopsdir = $(subpkgdatadir)/goops
 
 install-exec-hook:
 	$(mkinstalldirs) $(goopsdir)
-	(test ! -r $(libdir)/libgoops.so.0 \
+	(test ! -r $(libdir)/libgoopscore.so.0 \
 	 || (cd $(goopsdir) \
-	     && rm -f libgoops.la libgoops.so.0 \
-	     && $(LN_S) $(libdir)/libgoops.la \
-	     && $(LN_S) $(libdir)/libgoops.so.0))
+	     && rm -f libgoopscore.la libgoopscore.so.0 \
+	     && $(LN_S) $(libdir)/libgoopscore.la \
+	     && $(LN_S) $(libdir)/libgoopscore.so.0))
 
 SUFFIXES = .x
 ## We assume the user has already installed Guile.

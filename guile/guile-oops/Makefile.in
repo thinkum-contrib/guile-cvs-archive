@@ -72,14 +72,14 @@ VERSION = @VERSION@
 
 AUTOMAKE_OPTIONS = foreign
 
-lib_LTLIBRARIES = libgoops.la
+lib_LTLIBRARIES = libgoopscore.la
 bin_PROGRAMS = guile-oops
 
 guile_oops_SOURCES = guile-oops.c
-guile_oops_LDADD = libgoops.la
+guile_oops_LDADD = libgoopscore.la
 
-libgoops_la_SOURCES = goops.c
-libgoops_la_LDFLAGS = -version-info 0:0 -export-dynamic
+libgoopscore_la_SOURCES = goops.c
+libgoopscore_la_LDFLAGS = -version-info 0:0 -export-dynamic
 BUILT_SOURCES = goops.x
 
 subpkgdatadir = $(datadir)/guile
@@ -101,12 +101,12 @@ DEFS = @DEFS@ -I. -I$(srcdir)
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
-libgoops_la_LIBADD = 
-libgoops_la_OBJECTS =  goops.lo
+libgoopscore_la_LIBADD = 
+libgoopscore_la_OBJECTS =  goops.lo
 PROGRAMS =  $(bin_PROGRAMS)
 
 guile_oops_OBJECTS =  guile-oops.o
-guile_oops_DEPENDENCIES =  libgoops.la
+guile_oops_DEPENDENCIES =  libgoopscore.la
 guile_oops_LDFLAGS = 
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
@@ -125,8 +125,8 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 TAR = tar
 GZIP = --best
 DEP_FILES =  .deps/goops.P .deps/guile-oops.P
-SOURCES = $(libgoops_la_SOURCES) $(guile_oops_SOURCES)
-OBJECTS = $(libgoops_la_OBJECTS) $(guile_oops_OBJECTS)
+SOURCES = $(libgoopscore_la_SOURCES) $(guile_oops_SOURCES)
+OBJECTS = $(libgoopscore_la_OBJECTS) $(guile_oops_OBJECTS)
 
 all: Makefile $(LTLIBRARIES) $(PROGRAMS) $(DATA)
 
@@ -204,8 +204,8 @@ distclean-libtool:
 
 maintainer-clean-libtool:
 
-libgoops.la: $(libgoops_la_OBJECTS) $(libgoops_la_DEPENDENCIES)
-	$(LINK) -rpath $(libdir) $(libgoops_la_LDFLAGS) $(libgoops_la_OBJECTS) $(libgoops_la_LIBADD) $(LIBS)
+libgoopscore.la: $(libgoopscore_la_OBJECTS) $(libgoopscore_la_DEPENDENCIES)
+	$(LINK) -rpath $(libdir) $(libgoopscore_la_LDFLAGS) $(libgoopscore_la_OBJECTS) $(libgoopscore_la_LIBADD) $(LIBS)
 
 mostlyclean-binPROGRAMS:
 
@@ -430,11 +430,11 @@ maintainer-clean
 
 install-exec-hook:
 	$(mkinstalldirs) $(goopsdir)
-	(test ! -r $(libdir)/libgoops.so.0 \
+	(test ! -r $(libdir)/libgoopscore.so.0 \
 	 || (cd $(goopsdir) \
-	     && rm -f libgoops.la libgoops.so.0 \
-	     && $(LN_S) $(libdir)/libgoops.la \
-	     && $(LN_S) $(libdir)/libgoops.so.0))
+	     && rm -f libgoopscore.la libgoopscore.so.0 \
+	     && $(LN_S) $(libdir)/libgoopscore.la \
+	     && $(LN_S) $(libdir)/libgoopscore.so.0))
 .c.x:
 	$(SNARF) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $< > $@
 

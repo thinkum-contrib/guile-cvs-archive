@@ -27,7 +27,7 @@
 ;;;;
 
 (define-module (goops goops)
-  :use-module (goops core)
+  :use-module (goops goopscore)
   :use-module (goops compat))
 
 (export			  ; Define the exported symbols of this file

@@ -149,6 +149,6 @@ SCM scm_class_of (SCM obj);
 
 SCM scm_compute_applicable_methods (SCM gf, SCM args, int len, int scm_find_method);
 SCM scm_apply_next_method(SCM args);
-extern void scm_init_goops_core_module (void);
+extern void scm_init_goops_goopscore_module (void);
 
 #endif /* GOOPSH */
