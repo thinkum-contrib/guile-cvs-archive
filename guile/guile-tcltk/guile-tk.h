@@ -44,11 +44,11 @@
  * If you do not wish that, delete this exception notice.  */
 
 
-extern SCM scm_tk_init_main_window SCM_P ((SCM tobj, SCM display, SCM name, SCM class));
-extern SCM scm_tk_main_loop SCM_P ((void));
+extern SCM scm_tk_init_main_window (SCM tobj, SCM display, SCM name, SCM class);
+extern SCM scm_tk_main_loop (void);
 #ifdef USE_THREADS
-extern SCM scm_tk_num_main_windows SCM_P ((void));
-extern SCM scm_tk_loop_p SCM_P ((void));
+extern SCM scm_tk_num_main_windows (void);
+extern SCM scm_tk_loop_p (void);
 #endif
 
 #endif  /* GUILE_TKH */

@@ -50,7 +50,7 @@
 
 
 SCM_PROC(s_tk_init_main_window, "tk-init-main-window", 4, 0, 0, scm_tk_init_main_window);
-SCM scm_tk_init_main_window SCM_P ((SCM tobj, SCM display, SCM name, SCM class));
+SCM scm_tk_init_main_window (SCM tobj, SCM display, SCM name, SCM class);
 SCM
 scm_tk_init_main_window (tobj, display, name, class)
      SCM tobj;
@@ -168,7 +168,7 @@ Please send a bug-report to bug-guile@gnu.org\n", scm_cur_errp);
 #endif /* USE_THREADS */
 
 SCM_PROC(s_tk_main_loop, "tk-main-loop", 0, 0, 0, scm_tk_main_loop);
-SCM scm_tk_main_loop SCM_P ((void));
+SCM scm_tk_main_loop (void);
 SCM
 scm_tk_main_loop ()
 {
@@ -198,7 +198,7 @@ scm_tk_main_loop ()
 
 
 SCM_PROC(s_tk_num_main_windows, "tk-num-main-windows", 0, 0, 0, scm_tk_num_main_windows);
-SCM scm_tk_num_main_windows SCM_P ((void));
+SCM scm_tk_num_main_windows (void);
 SCM
 scm_tk_num_main_windows ()
 {
@@ -214,7 +214,7 @@ scm_tk_num_main_windows ()
 }
 
 
-void scm_init_gtk SCM_P ((void));
+void scm_init_gtk (void);
 void
 scm_init_gtk ()
 {

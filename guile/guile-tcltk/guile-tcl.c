@@ -55,7 +55,7 @@ scm_cond_t scm_tcl_condvar;
 int scm_tcl_handle_event_p;
 #endif
 
-static scm_sizet free_interp SCM_P ((SCM obj));
+static scm_sizet free_interp (SCM obj);
 static scm_sizet
 free_interp (obj)
      SCM obj;
@@ -65,7 +65,7 @@ free_interp (obj)
   return 0;
 }
 
-static SCM mark_interp SCM_P ((SCM obj));
+static SCM mark_interp (SCM obj);
 static SCM
 mark_interp (obj)
      SCM obj;
@@ -73,7 +73,7 @@ mark_interp (obj)
   return SCM_PROPS (obj); 
 }
 
-static int print_interp SCM_P ((SCM exp, SCM port, scm_print_state *pstate));
+static int print_interp (SCM exp, SCM port, scm_print_state *pstate);
 static int
 print_interp (exp, port, pstate)
      SCM exp;
@@ -99,7 +99,7 @@ int scm_tc16_tcl_interp;
 
 SCM_PROC(s_tcl_create_interp, "tcl-create-interp", 0, 0, 0, scm_tcl_create_interp);
 
-SCM scm_tcl_create_interp SCM_P ((void));
+SCM scm_tcl_create_interp (void);
 SCM
 scm_tcl_create_interp ()
 {
@@ -130,7 +130,7 @@ scm_tcl_create_interp ()
 
 
 SCM_PROC(s_tcl_global_eval, "tcl-global-eval", 2, 0, 0, scm_tcl_global_eval);
-SCM scm_tcl_global_eval SCM_P ((SCM tobj, SCM script));
+SCM scm_tcl_global_eval (SCM tobj, SCM script);
 SCM
 scm_tcl_global_eval (tobj, script)
      SCM tobj;
@@ -173,7 +173,7 @@ scm_tcl_global_eval (tobj, script)
 
 
 
-static SCM listify_strings SCM_P ((int argc, char * argv[]));
+static SCM listify_strings (int argc, char * argv[]);
 static SCM
 listify_strings (argc, argv)
      int argc;
@@ -207,9 +207,9 @@ listify_strings (argc, argv)
    takes care of removing the (CLOSURE INTERP) pair from the
    interpreter, so the closure can be GC'd.  */
 
-static int invoke_tcl_command SCM_P ((ClientData data, 
-				     Tcl_Interp *interp,
-				     int argc, char *argv[]));
+static int invoke_tcl_command (ClientData data, 
+			       Tcl_Interp *interp,
+			       int argc, char *argv[]);
 static int
 invoke_tcl_command (data, interp, argc, argv)
      ClientData data;
@@ -267,7 +267,7 @@ invoke_tcl_command (data, interp, argc, argv)
     }
 }
 
-static void delete_tcl_command SCM_P ((ClientData data));
+static void delete_tcl_command (ClientData data);
 static void
 delete_tcl_command (data)
      ClientData data;
@@ -286,7 +286,7 @@ delete_tcl_command (data)
 
 
 SCM_PROC(s_tcl_create_command, "tcl-create-command", 3, 0, 0, scm_tcl_create_command);
-SCM scm_tcl_create_command SCM_P ((SCM tobj, SCM name, SCM proc));
+SCM scm_tcl_create_command (SCM tobj, SCM name, SCM proc);
 SCM
 scm_tcl_create_command (tobj, name, proc)
      SCM tobj;
@@ -318,7 +318,7 @@ scm_tcl_create_command (tobj, name, proc)
 
 
 SCM_PROC(s_tcl_delete_command, "tcl-delete-command", 2, 0, 0, scm_tcl_delete_command);
-SCM scm_tcl_delete_command SCM_P ((SCM tobj, SCM name));
+SCM scm_tcl_delete_command (SCM tobj, SCM name);
 SCM
 scm_tcl_delete_command (tobj, name)
      SCM tobj;
@@ -344,7 +344,7 @@ scm_tcl_delete_command (tobj, name)
 
 
 SCM_PROC(s_tcl_get_int, "tcl-get-int", 2, 0, 0, scm_tcl_get_int);
-SCM scm_tcl_get_int SCM_P ((SCM tobj, SCM name));
+SCM scm_tcl_get_int (SCM tobj, SCM name);
 SCM
 scm_tcl_get_int (tobj, name)
      SCM tobj;
@@ -375,7 +375,7 @@ scm_tcl_get_int (tobj, name)
 }
 
 SCM_PROC(s_tcl_get_double, "tcl-get-double", 2, 0, 0, scm_tcl_get_double);
-SCM scm_tcl_get_double SCM_P ((SCM tobj, SCM name));
+SCM scm_tcl_get_double (SCM tobj, SCM name);
 SCM
 scm_tcl_get_double (tobj, name)
      SCM tobj;
@@ -405,7 +405,7 @@ scm_tcl_get_double (tobj, name)
 
 
 SCM_PROC(s_tcl_get_boolean, "tcl-get-boolean", 2, 0, 0, scm_tcl_get_boolean);
-SCM scm_tcl_get_boolean SCM_P ((SCM tobj, SCM name));
+SCM scm_tcl_get_boolean (SCM tobj, SCM name);
 SCM
 scm_tcl_get_boolean (tobj, name)
      SCM tobj;
@@ -436,7 +436,7 @@ scm_tcl_get_boolean (tobj, name)
 
 
 SCM_PROC(s_tcl_split_list, "tcl-split-list", 2, 0, 0, scm_tcl_split_list);
-SCM scm_tcl_split_list SCM_P ((SCM tobj, SCM name));
+SCM scm_tcl_split_list (SCM tobj, SCM name);
 SCM
 scm_tcl_split_list (tobj, name)
      SCM tobj;
@@ -475,7 +475,7 @@ scm_tcl_split_list (tobj, name)
 }
 
 SCM_PROC(s_tcl_merge, "tcl-merge", 2, 0, 0, scm_tcl_merge);
-SCM scm_tcl_merge SCM_P ((SCM tobj, SCM args));
+SCM scm_tcl_merge (SCM tobj, SCM args);
 SCM
 scm_tcl_merge (tobj, args)
      SCM tobj;
@@ -686,8 +686,7 @@ scm_tcl_untrace_var2 (tobj, name, index, flags, thunk)
 
 
 SCM_PROC(s_tcl_set_var2, "tcl-set-var2", 5, 0, 0, scm_tcl_set_var2);
-SCM scm_tcl_set_var2 SCM_P ((SCM tobj, SCM name, SCM index, SCM value,
-			    SCM flags));
+SCM scm_tcl_set_var2 (SCM tobj, SCM name, SCM index, SCM value, SCM flags);
 SCM
 scm_tcl_set_var2 (tobj, name, index, value, flags)
      SCM tobj;
@@ -725,7 +724,7 @@ scm_tcl_set_var2 (tobj, name, index, value, flags)
 
 
 SCM_PROC(s_tcl_get_var2, "tcl-get-var2", 4, 0, 0, scm_tcl_get_var2);
-SCM scm_tcl_get_var2 SCM_P ((SCM tobj, SCM name, SCM index, SCM flags));
+SCM scm_tcl_get_var2 (SCM tobj, SCM name, SCM index, SCM flags);
 SCM
 scm_tcl_get_var2 (tobj, name, index, flags)
      SCM tobj;
@@ -758,7 +757,7 @@ scm_tcl_get_var2 (tobj, name, index, flags)
 
 
 SCM_PROC (s_tcl_defined_p, "tcl-defined?", 2, 0, 0, scm_tcl_defined_p);
-SCM scm_tcl_defined_p SCM_P ((SCM tobj, SCM name));
+SCM scm_tcl_defined_p (SCM tobj, SCM name);
 SCM
 scm_tcl_defined_p (tobj, name)
      SCM tobj;
@@ -783,7 +782,7 @@ scm_tcl_defined_p (tobj, name)
 
 
 SCM_PROC(s_tcl_do_one_event, "tcl-do-one-event", 1, 0, 0, scm_tcl_do_one_event);
-SCM scm_tcl_do_one_event SCM_P ((SCM flags));
+SCM scm_tcl_do_one_event (SCM flags);
 SCM
 scm_tcl_do_one_event (flags)
      SCM flags;
@@ -806,7 +805,7 @@ scm_tcl_do_one_event (flags)
 
 
 
-void scm_init_gtcl SCM_P ((void));
+void scm_init_gtcl (void);
 void
 scm_init_gtcl ()
 {
