@@ -712,6 +712,12 @@ and standards for contributed modules.]
 
 @end deffn
 
+@c docstring begin (c-doc-string "modules.c" "interaction-environment")
+@c docstring md5 "71c1f0cddb6ff8139ad3fbf29af205f0"
+@deffn primitive interaction-environment
+This procedure returns a specifier for the environment thatcontains implementation-defined bindings, typically a superset ofthose listed in the report.  The intent is that this procedurewill return the environment in which the implementation wouldevaluate expressions dynamically typed by the user.
+@end deffn
+
 Some modules are included in the Guile distribution; here are references
 to the entries in this manual which describe them in more detail:
 @table @strong
@@ -1153,6 +1159,40 @@ A list of default file extensions for files containing Scheme code.
 a file to load.  By default, @code{%load-extensions} is bound to the
 list @code{("" ".scm")}.
 @end defvar
+
+
+@page
+@node Pairs
+@chapter Pairs
+
+@c docstring begin (c-doc-string "pairs.c" "cons")
+@c docstring md5 "63f0e16d88d920b8e3be7e2137b02aed"
+@deffn primitive cons x y
+Returns a newly allocated pair whose car is @var{x} and whose cdr is
+@var{y}.  The pair is guaranteed to be different (in the sense of
+@code{eqv?}) from every previously existing object.
+@end deffn
+
+@c docstring begin (c-doc-string "pairs.c" "pair?")
+@c docstring md5 "b71204dbf80371e04a12617e1daaee38"
+@deffn primitive pair? x
+Returns @code{#t} if @var{x} is a pair; otherwise returns @code{#f}.
+@end deffn
+
+@c docstring begin (c-doc-string "pairs.c" "set-car!")
+@c docstring md5 "1e126129e9900b15271c633464ddb3b0"
+@deffn primitive set-car! pair value
+Stores @var{value} in the car field of @var{pair}.  The value returned
+by @code{set-car!} is unspecified.
+@end deffn
+
+@c docstring begin (c-doc-string "pairs.c" "set-cdr!")
+@c docstring md5 "f4fdbbfb9d189cccb9305a52421a97bc"
+@deffn primitive set-cdr! pair value
+Stores @var{value} in the cdr field of @var{pair}.  The value returned
+by @code{set-cdr!} is unspecified.
+@end deffn
+
 
 @page
 @node Lists
@@ -3979,6 +4019,73 @@ documentation for @code{open-file} in @ref{File Ports}.
 This section describes port maintainence procedures
 which are not specific to a single port type.
 
+@c docstring begin (c-doc-string "ports.c" "eof-object?")
+@c docstring md5 "9be47ac1e75831b3ccde0f7e3080e617"
+@deffn primitive eof-object? x
+Returns @code{#t} if @var{x} is an end-of-file object; otherwise
+returns @code{#f}.
+@end deffn
+
+@c docstring begin (c-doc-string "ports.c" "char-ready?")
+@c docstring md5 "45a815264717d4dd56be81d7a6ec3581"
+@deffn primitive char-ready? [port]
+Returns @code{#t} if a character is ready on input @var{port} and
+returns @code{#f} otherwise.  If @code{char-ready?} returns @code{#t}
+then the next @code{read-char} operation on @var{port} is
+guaranteed not to hang.  If @var{port} is a file port at end of
+file then @code{char-ready?} returns @code{#t}.
+@footnote{@code{char-ready?} exists to make it possible for a
+program to accept characters from interactive ports without getting
+stuck waiting for input.  Any input editors associated with such ports
+must make sure that characters whose existence has been asserted by
+@code{char-ready?} cannot be rubbed out.  If @code{char-ready?} were to
+return @code{#f} at end of file, a port at end of file would be
+indistinguishable from an interactive port that has no ready
+characters.}
+@end deffn
+
+@c docstring begin (c-doc-string "ports.c" "read-char")
+@c docstring md5 "a7b0a9710b5d9d038be5a05e7e9a51d1"
+@deffn primitive read-char [port]
+Returns the next character available from @var{port}, updating
+@var{port} to point to the following character.  If no more
+characters are available, an end-of-file object is returned.
+@end deffn
+
+@c docstring begin (c-doc-string "ports.c" "peek-char")
+@c docstring md5 "fa35db0422d032a2d1bb7d987ed007ef"
+@deffn primitive peek-char [port]
+Returns the next character available from @var{port},
+@emph{without} updating @var{port} to point to the following
+character.  If no more characters are available, an end-of-file object
+is returned.@footnote{The value returned by a call to @code{peek-char}
+is the same as the value that would have been returned by a call to
+@code{read-char} on the same port.  The only difference is that the very
+next call to @code{read-char} or @code{peek-char} on that
+@var{port} will return the value returned by the preceding call to
+@code{peek-char}.  In particular, a call to @code{peek-char} on an
+interactive port will hang waiting for input whenever a call to
+@code{read-char} would have hung.}
+@end deffn
+
+@c docstring begin (c-doc-string "ports.c" "unread-char")
+@c docstring md5 "91964be137b84ba6bc72e79047edace9"
+@deffn primitive unread-char cobj port
+Place @var{char} in @var{port} so that it will be read by the
+next read operation.  If called multiple times, the unread characters
+will be read again in last-in first-out order.  If @var{port} is
+not supplied, the current input port is used.
+@end deffn
+
+@c docstring begin (c-doc-string "ports.c" "unread-string")
+@c docstring md5 "7b185a3d540acdf2ec7f6b114c6c3c80"
+@deffn primitive unread-string str port
+Place the string @var{str} in @var{port} so that its characters will be
+read in subsequent read operations.  If called multiple times, the
+unread characters will be read again in last-in first-out order.  If
+@var{port} is not supplied, the current-input-port is used.
+@end deffn
+
 @c docstring begin (c-doc-string "ports.c" "close-port")
 @c docstring md5 "57df6bf58a9ac90f2cfa0d455c7fd5fb"
 @deffn primitive close-port port
@@ -4012,10 +4119,49 @@ See also @ref{Ports and File Descriptors, close}, for a procedure
 which can close file descriptors.
 @end deffn
 
+@c docstring begin (c-doc-string "ports.c" "input-port?")
+@c docstring md5 "fdb784176469883b2336520d8dba706e"
+@deffn primitive input-port? x
+Returns @code{#t} if @var{x} is an input port, otherwise returns
+@code{#f}.  Any object satisfying this predicate also satisfies
+@code{port?}.
+@end deffn
+
+@c docstring begin (c-doc-string "ports.c" "output-port?")
+@c docstring md5 "2bcb4b3057317aa6989dd6d65a7415e0"
+@deffn primitive output-port? x
+Returns @code{#t} if @var{x} is an output port, otherwise returns
+@code{#f}.  Any object satisfying this predicate also satisfies
+@code{port?}.
+@end deffn
+
 @c docstring begin (c-doc-string "ports.c" "port-closed?")
 @c docstring md5 "4f1a004d7627e50605933386d457660f"
 @deffn primitive port-closed? port
 Returns @code{#t} if @var{port} is closed or @code{#f} if it is open.
+@end deffn
+
+@c docstring begin (c-doc-string "ports.c" "current-input-port")
+@c docstring md5 "51b0cc701f084a13243e0534dd88281c"
+@deffn primitive current-input-port
+Returns the current input port.  This is the default port used by many
+input procedures.  Initially, @code{current-input-port} returns the
+value of @code{???}.
+@end deffn
+
+@c docstring begin (c-doc-string "ports.c" "current-load-port")
+@c docstring md5 "1fcbcd51296ea3bc4618e77e38c5f569"
+@deffn primitive current-load-port
+Return the current-load-port.
+The load port is used internally by `primitive-load'.
+@end deffn
+
+@c docstring begin (c-doc-string "ports.c" "current-output-port")
+@c docstring md5 "f5ef4b321862fb51ed1fdf0e156d252c"
+@deffn primitive current-output-port
+Returns the current output port.  This is the default port used by many
+output procedures.  Initially, @code{current-output-port} returns the
+value of @code{???}.
 @end deffn
 
 @c docstring begin (c-doc-string "ports.c" "current-error-port")
@@ -4033,6 +4179,18 @@ Return the port to which errors and warnings should be sent (the
 Change the ports returned by @code{current-input-port},
 @code{current-output-port} and @code{current-error-port}, respectively,
 so that they use the supplied @var{port} for input or output.
+@end deffn
+
+@c docstring begin (c-doc-string "ports.c" "set-current-output-port")
+@c docstring md5 "a403bcc46697a537db2c1db2d3b1ea12"
+@deffn primitive set-current-output-port port
+Set the current default output port to PORT.
+@end deffn
+
+@c docstring begin (c-doc-string "ports.c" "set-current-error-port")
+@c docstring md5 "cb9950f5398adb9ca4cb64db4bc4b1e7"
+@deffn primitive set-current-error-port port
+Set the current default error port to PORT.
 @end deffn
 
 @findex fflush
@@ -4175,11 +4333,24 @@ what non-programmers will find most natural.)
 
 @c ARGFIXME port/input-port
 @c docstring begin (c-doc-string "ports.c" "set-port-column!")
-@c docstring md5 "f1223e46a2e22b01ed06429d062a449b"
+@c docstring md5 "902062f2633ffe4ba8d39e01be17e909"
 @deffn primitive set-port-column! port column
-@deffnx primitive set-port-column! [input-port] column
-Set the current column or line number of @var{input-port}, using the
+@deffnx primitive set-port-line! port line
+Set the current column or line number of @var{port}, using the
 current input port if none is specified.
+@end deffn
+
+@c docstring begin (c-doc-string "ports.c" "port-revealed")
+@c docstring md5 "1b7c38c06c8f072cdafa2710b72f7f3b"
+@deffn primitive port-revealed port
+Returns the revealed count for @var{port}.
+@end deffn
+
+@c docstring begin (c-doc-string "ports.c" "set-port-revealed!")
+@c docstring md5 "84596c3911799dc63419755ab4a79901"
+@deffn primitive set-port-revealed! port rcount
+Sets the revealed count for a port to a given value.
+The return value is unspecified.
 @end deffn
 
 @node Extended I/O
@@ -6369,6 +6540,103 @@ its arguments while @code{list->weak-vector} uses its only argument
 @deffn primitive weak-vector? x
 Return @var{#t} if @var{obj} is a weak vector. Note that all weak
 hashes are also weak vectors.
+@end deffn
+
+
+@page
+@node Objects
+@chapter Objects
+
+@c docstring begin (c-doc-string "objects.c" "entity?")
+@c docstring md5 "f76399dd479f4d3ef7bc435a8d7dd6d2"
+@deffn primitive entity? obj
+
+@end deffn
+
+@c docstring begin (c-doc-string "objects.c" "operator?")
+@c docstring md5 "3061a1fbaa789faf774ca3b4e3c63620"
+@deffn primitive operator? obj
+
+@end deffn
+
+@c docstring begin (c-doc-string "objects.c" "set-object-procedure!")
+@c docstring md5 "48d04baad3f104bd24a77a62b25856d0"
+@deffn primitive set-object-procedure! obj proc
+
+@end deffn
+
+@c docstring begin (c-doc-string "objects.c" "make-class-object")
+@c docstring md5 "28bcb1c0a9e15634e04cb652970e2b74"
+@deffn primitive make-class-object metaclass layout
+
+@end deffn
+
+@c docstring begin (c-doc-string "objects.c" "make-subclass-object")
+@c docstring md5 "33b0bc13201c5fb35dbb50e9530ec120"
+@deffn primitive make-subclass-object class layout
+
+@end deffn
+
+
+@page
+@node Guardians
+@chapter Guardians
+
+@c docstring begin (c-doc-string "guardians.c" "make-guardian")
+@c docstring md5 "f7554a368a7aa230dd7ea8ff47e79def"
+@deffn primitive make-guardian
+Create a new guardian.
+A guardian protects a set of objects from garbage collection,
+allowing a program to apply cleanup or other actions.
+
+make-guardian returns a procedure representing the guardian.
+Calling the guardian procedure with an argument adds the
+argument to the guardian's set of protected objects.
+Calling the guardian procedure without an argument returns
+one of the protected objects which are ready for garbage
+collection or @code{#f} if no such object is available.
+Objects which are returned in this way are removed from
+the guardian.
+
+See R. Kent Dybvig, Carl Bruggeman, and David Eby (1993)
+"Guardians in a Generation-Based Garbage Collector".
+ACM SIGPLAN Conference on Programming Language Design
+and Implementation, June 1993.
+@end deffn
+
+
+@page
+@node Emacs Lisp Support
+@chapter Emacs Lisp Support
+
+@c docstring begin (c-doc-string "lang.c" "nil-car")
+@c docstring md5 "f08e967ae611b6abc349bdcf602de6bb"
+@deffn primitive nil-car x
+
+@end deffn
+
+@c docstring begin (c-doc-string "lang.c" "nil-cdr")
+@c docstring md5 "b8fb5d157185772760eb7886b65e20a1"
+@deffn primitive nil-cdr x
+
+@end deffn
+
+@c docstring begin (c-doc-string "lang.c" "nil-cons")
+@c docstring md5 "70e95e2d843d3960ed3674b0742299c1"
+@deffn primitive nil-cons x y
+
+@end deffn
+
+@c docstring begin (c-doc-string "lang.c" "nil-eq")
+@c docstring md5 "9a200f946397d21fa530bcec6330e3ea"
+@deffn primitive nil-eq x y
+
+@end deffn
+
+@c docstring begin (c-doc-string "lang.c" "null")
+@c docstring md5 "97ab2113d5ac36592a3bce4cbe29bec5"
+@deffn primitive null x
+
 @end deffn
 
 

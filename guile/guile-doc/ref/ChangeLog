@@ -1,5 +1,10 @@
 2000-08-25  Neil Jerram  <neil@ossau.uklinux.net>
 
+	* scheme.texi: Lots more docstrings added.
+
+	* guile.texi (Top): More new chapters: Pairs, Objects, Guardians,
+	Emacs Lisp Support.
+
 	* scheme.texi (Numbers): New chapter containing docs (many still
 	empty right now) for numerical primitives.
 

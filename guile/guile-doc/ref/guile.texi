@@ -218,6 +218,7 @@ Part II: Guile Scheme
 * Exceptions::                  Signalling and handling fatal errors.
 * Modules::                     Designing reusable code libraries.
 * Evaluation::                  Running and evaluating code on the fly.
+* Pairs::                       Scheme's basic building block.
 * Lists::                       Special list functions supported by Guile.
 * Data Structures::		Records, hash tables, etc.
 * Booleans::                    True/false values.
@@ -234,6 +235,9 @@ Part II: Guile Scheme
 * Dynamic Wind::
 * Threads and Dynamic Roots::
 * Weak References::
+* Objects::                     Low level object orientation support.
+* Guardians::                   Guardians.
+* Emacs Lisp Support::          Helper primitives for translating Emacs Lisp.
 * Garbage Collection::
 * Configuration Data::		Version info, library directories, etc.
 * Internal Debugging Interface::
