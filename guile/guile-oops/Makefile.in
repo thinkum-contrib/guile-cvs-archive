@@ -96,19 +96,22 @@ EXTRA_guile_oops_SOURCES = fdi.c
 
 include_HEADERS = goops.h goops-snarf.h
 
-pkginclude_HEADERS = versiondat.h
+modincludedir = $(includedir)/goops
+modinclude_DATA = versiondat.h
 
 subpkgdatadir = $(datadir)/guile/oop
 subpkgdata_DATA = goops.scm
 
-goopsdatadir = $(datadir)/guile/oop/goops
-goopsdata_DATA = dispatch.scm compile.scm util.scm 		 describe.scm internal.scm active-slot.scm composite-slot.scm
+goops_sources = dispatch.scm compile.scm util.scm stklos.scm 		describe.scm internal.scm active-slot.scm composite-slot.scm
 
+
+goopsdatadir = $(datadir)/guile/oop/goops
+goopsdata_DATA = $(goops_sources)
 
 info_TEXINFOS = goops.texi
 goops_TEXINFOS = goops-tutorial.texi hierarchy.eps hierarchy.txt
 
-EXTRA_DIST = ANON-CVS COPYRIGHTS GOOPS-VERSION HACKING SNAPSHOTS TAGS TODO              mop.text
+EXTRA_DIST = ANON-CVS COPYRIGHTS GOOPS-VERSION HACKING SNAPSHOTS TAGS TODO              goops.scm $(goops_sources) mop.text
 
 
 SUFFIXES = .x
@@ -140,9 +143,9 @@ TEXI2DVI = texi2dvi
 INFO_DEPS = goops.info
 DVIS = goops.dvi
 TEXINFOS = goops.texi
-DATA =  $(goopsdata_DATA) $(subpkgdata_DATA)
+DATA =  $(goopsdata_DATA) $(modinclude_DATA) $(subpkgdata_DATA)
 
-HEADERS =  $(include_HEADERS) $(pkginclude_HEADERS)
+HEADERS =  $(include_HEADERS)
 
 DIST_COMMON =  README $(goops_TEXINFOS) AUTHORS COPYING ChangeLog \
 INSTALL Makefile.am Makefile.in NEWS THANKS TODO aclocal.m4 \
@@ -403,6 +406,25 @@ uninstall-goopsdataDATA:
 	  rm -f $(DESTDIR)$(goopsdatadir)/$$p; \
 	done
 
+install-modincludeDATA: $(modinclude_DATA)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(modincludedir)
+	@list='$(modinclude_DATA)'; for p in $$list; do \
+	  if test -f $(srcdir)/$$p; then \
+	    echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(modincludedir)/$$p"; \
+	    $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(modincludedir)/$$p; \
+	  else if test -f $$p; then \
+	    echo " $(INSTALL_DATA) $$p $(DESTDIR)$(modincludedir)/$$p"; \
+	    $(INSTALL_DATA) $$p $(DESTDIR)$(modincludedir)/$$p; \
+	  fi; fi; \
+	done
+
+uninstall-modincludeDATA:
+	@$(NORMAL_UNINSTALL)
+	list='$(modinclude_DATA)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(modincludedir)/$$p; \
+	done
+
 install-subpkgdataDATA: $(subpkgdata_DATA)
 	@$(NORMAL_INSTALL)
 	$(mkinstalldirs) $(DESTDIR)$(subpkgdatadir)
@@ -435,21 +457,6 @@ uninstall-includeHEADERS:
 	@$(NORMAL_UNINSTALL)
 	list='$(include_HEADERS)'; for p in $$list; do \
 	  rm -f $(DESTDIR)$(includedir)/$$p; \
-	done
-
-install-pkgincludeHEADERS: $(pkginclude_HEADERS)
-	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(pkgincludedir)
-	@list='$(pkginclude_HEADERS)'; for p in $$list; do \
-	  if test -f "$$p"; then d= ; else d="$(srcdir)/"; fi; \
-	  echo " $(INSTALL_DATA) $$d$$p $(DESTDIR)$(pkgincludedir)/$$p"; \
-	  $(INSTALL_DATA) $$d$$p $(DESTDIR)$(pkgincludedir)/$$p; \
-	done
-
-uninstall-pkgincludeHEADERS:
-	@$(NORMAL_UNINSTALL)
-	list='$(pkginclude_HEADERS)'; for p in $$list; do \
-	  rm -f $(DESTDIR)$(pkgincludedir)/$$p; \
 	done
 
 tags: TAGS
@@ -581,8 +588,8 @@ install-exec-am: install-libLTLIBRARIES install-binPROGRAMS
 install-exec: install-exec-am
 
 install-data-am: install-info-am install-goopsdataDATA \
-		install-subpkgdataDATA install-includeHEADERS \
-		install-pkgincludeHEADERS
+		install-modincludeDATA install-subpkgdataDATA \
+		install-includeHEADERS
 install-data: install-data-am
 
 install-am: all-am
@@ -590,8 +597,8 @@ install-am: all-am
 install: install-am
 uninstall-am: uninstall-libLTLIBRARIES uninstall-binPROGRAMS \
 		uninstall-info uninstall-goopsdataDATA \
-		uninstall-subpkgdataDATA uninstall-includeHEADERS \
-		uninstall-pkgincludeHEADERS
+		uninstall-modincludeDATA uninstall-subpkgdataDATA \
+		uninstall-includeHEADERS
 uninstall: uninstall-am
 all-am: Makefile $(INFO_DEPS) $(LTLIBRARIES) $(PROGRAMS) $(DATA) \
 		$(HEADERS)
@@ -601,8 +608,8 @@ install-strip:
 installdirs:
 	$(mkinstalldirs)  $(DESTDIR)$(libdir) $(DESTDIR)$(bindir) \
 		$(DESTDIR)$(infodir) $(DESTDIR)$(goopsdatadir) \
-		$(DESTDIR)$(subpkgdatadir) $(DESTDIR)$(includedir) \
-		$(DESTDIR)$(pkgincludedir)
+		$(DESTDIR)$(modincludedir) $(DESTDIR)$(subpkgdatadir) \
+		$(DESTDIR)$(includedir)
 
 
 mostlyclean-generic:
@@ -657,11 +664,11 @@ maintainer-clean-libtool mostlyclean-binPROGRAMS distclean-binPROGRAMS \
 clean-binPROGRAMS maintainer-clean-binPROGRAMS uninstall-binPROGRAMS \
 install-binPROGRAMS install-info-am uninstall-info mostlyclean-aminfo \
 distclean-aminfo clean-aminfo maintainer-clean-aminfo \
-uninstall-goopsdataDATA install-goopsdataDATA uninstall-subpkgdataDATA \
-install-subpkgdataDATA uninstall-includeHEADERS install-includeHEADERS \
-uninstall-pkgincludeHEADERS install-pkgincludeHEADERS tags \
-mostlyclean-tags distclean-tags clean-tags maintainer-clean-tags \
-distdir mostlyclean-depend distclean-depend clean-depend \
+uninstall-goopsdataDATA install-goopsdataDATA uninstall-modincludeDATA \
+install-modincludeDATA uninstall-subpkgdataDATA install-subpkgdataDATA \
+uninstall-includeHEADERS install-includeHEADERS tags mostlyclean-tags \
+distclean-tags clean-tags maintainer-clean-tags distdir \
+mostlyclean-depend distclean-depend clean-depend \
 maintainer-clean-depend info-am info dvi-am dvi check check-am \
 installcheck-am installcheck install-exec-am install-exec \
 install-data-am install-data install-am install uninstall-am uninstall \
