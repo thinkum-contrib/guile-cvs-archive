@@ -1,3 +1,7 @@
+Thu Oct 10 17:50:24 1996  Jim Blandy  <jimb@totoro.cyclic.com>
+
+	* Makefile.in (headers): Include rgx.h in the distribution.
+
 Sun Oct  6 06:20:46 1996  Gary Houston  <ghouston@actrix.gen.nz>
 
 	* rgx.c (scm_regexec): Changed the default return type to be
