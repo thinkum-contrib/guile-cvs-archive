@@ -1,6 +1,7 @@
 1998-10-29  Jim Blandy  <jimb@zwingli.cygnus.com>
 
-	* scheme.texi: Corrected shell commands in example.
+	* scheme.texi: Corrected shell commands in example.  (Thanks to
+	Chris Bitmead.)
 
 1998-10-25  Mikael Djurfeldt  <mdj@barbara.nada.kth.se>
 
