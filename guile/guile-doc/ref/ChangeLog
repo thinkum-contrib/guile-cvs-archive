@@ -1,3 +1,8 @@
+1997-10-19  Mark Galassi  <rosalia@cygnus.com>
+
+	* gh.texi (Calling Scheme procedures from C): added many routines
+	as I go through R4RS and try to complete the gh_ interface.
+
 Wed Oct  8 04:51:54 1997  Gary Houston  <ghouston@actrix.gen.nz>
 
 	*  scheme.texi (Dynamic Roots): added batch mode procedures.

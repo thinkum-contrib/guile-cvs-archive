@@ -534,6 +534,7 @@ packge Jacal from Guile (@pxref{JACAL}).
 
 
 
+
 @defun catch key thunk handler
 Invoke @var{thunk} in the dynamic context of @var{handler} for
 exceptions matching @var{key}.  If thunk throws to the symbol @var{key},

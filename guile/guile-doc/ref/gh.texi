@@ -63,32 +63,10 @@ source:
 @end smallexample
 @cindex gh - headers
 
-When you link, you will have to add at least @code{-lgh -lguile} to the
-list of libraries.  If you are using more of Guile than the basic Scheme
+When you link, you will have to add at least @code{-lguile} to the list
+of libraries.  If you are using more of Guile than the basic Scheme
 interpreter, you will have to add more libraries.
 @cindex gh - linking
-
-@itemize @bullet
-@item
-If you use the @emph{Tk toolkit}, add @code{-lgtcltk -ltk -ltcl -lX11}.
-
-@item
-If you use the posix library @emph{goonix}, add @code{-lgoonix} [NOTE:
-currently goonix is bundled with @code{-lguile}, but they will be split
-eventually].
-
-@item
-If you use the @emph{C syntax for Scheme}, add @code{-lctax}.
-
-@item
-If you use the @emph{threads package}, add @code{-lthreads}.
-
-@end itemize
-
-If you use these extra packages, make sure you look at @ref{Starting and
-controlling the interpreter}: it will show you what startup code you
-need to initialize each of these extra libraries.  [NOTE: this is in a
-state of flux right now.]
 
 
 @page
@@ -120,6 +98,9 @@ tend to just type @code{if (boolean_function()) @{ ... @}}
 @end defvr
 
 @defvr Constant SCM_UNSPECIFIED
+This is an SCM object which does not correspond to any legal Scheme
+value.  It can be used in C to terminate functions with variable numbers
+of arguments, such as @code{gh_list()}.
 @end defvr
 
 @page
@@ -162,8 +143,8 @@ Once you have an interpreter running, you can ask it to evaluate Scheme
 code.  There are two calls that implement this:
 
 @deftypefun SCM gh_eval_str (char *@var{scheme_code})
-This asks the interpreter to evaluate a single line of Scheme code, and
-returns the result of the last expression evaluated.
+This asks the interpreter to evaluate a single string of Scheme code,
+and returns the result of the last expression evaluated.
 
 Note that the line of code in @var{scheme_code} must be a well formed
 Scheme expression.  If you have many lines of code before you balance
@@ -172,9 +153,15 @@ parentheses, you must either concatenate them into one string, or use
 @end deftypefun
 
 @deftypefun SCM gh_eval_file (char *@var{fname})
-Completely analogous to @code{gh_eval_str()}, except that a whole file
-is evaluated instead of a string.  Returns the result of the last
-expression evaluated.
+@deftypefunx SCM gh_load (char *@var{fname})
+@code{gh_eval_file} is completely analogous to @code{gh_eval_str()},
+except that a whole file is evaluated instead of a string.  Returns the
+result of the last expression evaluated.
+
+@code{gh_load} is identical to @code{gh_eval_file} (it's a macro that
+calls @code{gh_eval_file} on its argument).  It is provided to start
+making the @code{gh_} interface match the R4RS Scheme procedures
+closely.
 @end deftypefun
 
 
@@ -360,6 +347,15 @@ caller is responsible for freeing it.
 @node Type predicates
 @chapter Type predicates
 
+These C functions mirror Scheme's type predicate procedures with one
+important difference.  The C routines return C boolean values (0 and 1)
+instead of @code{SCM_BOOL_T} and @code{SCM_BOOL_F}.
+
+The Scheme notational convention of putting a @code{?} at the end of
+predicate procedure names is mirrored in C by placing @code{_p} at the
+end of the procedure.  For example, @code{(pair? ...)} maps to
+@code{gh_pair_p(...)}.
+
 @deftypefun int gh_boolean_p (SCM @var{val})
 Returns 1 if @var{val} is a boolean, 0 otherwise.
 @end deftypefun
@@ -401,6 +397,15 @@ Returns 1 if @var{val} is an exact number, 0 otherwise.
 @node Equality predicates
 @chapter Equality predicates
 
+These C functions mirror Scheme's equality predicate procedures with one
+important difference.  The C routines return C boolean values (0 and 1)
+instead of @code{SCM_BOOL_T} and @code{SCM_BOOL_F}.
+
+The Scheme notational convention of putting a @code{?} at the end of
+predicate procedure names is mirrored in C by placing @code{_p} at the
+end of the procedure.  For example, @code{(equal? ...)} maps to
+@code{gh_equal_p(...)}.
+
 @deftypefun int gh_eq_p (SCM x, SCM y)
 Returns 1 if @var{x} and @var{y} are equal in the sense of Scheme's
 @code{eq?} predicate, 0 otherwise.
@@ -414,6 +419,14 @@ Returns 1 if @var{x} and @var{y} are equal in the sense of Scheme's
 @deftypefun int gh_equal_p (SCM x, SCM y)
 Returns 1 if @var{x} and @var{y} are equal in the sense of Scheme's
 @code{equal?} predicate, 0 otherwise.
+@end deftypefun
+
+@deftypefun int gh_string_equal_p (SCM @var{s1}, SCM @var{s2})
+Returns 1 if the strings @var{s1} and @var{s2} are equal, 0 otherwise.
+@end deftypefun
+
+@deftypefun int gh_null_p (SCM @var{l})
+Returns 1 if @var{l} is an empty list or pair; 0 otherwise.
 @end deftypefun
 
 
@@ -444,21 +457,18 @@ r4rs, R4RS}.  But I will point out that when a procedure takes a
 variable number of arguments (such as @code{gh_list}), you should pass
 the constant @var{SCM_EOL} from C to signify the end of the list.
 
-@deftypefun SCM gh_define (char *name, SCM @var{val})
+@deftypefun SCM gh_define (char *@var{name}, SCM @var{val})
 Corresponds to the Scheme @code{(define name val)}: it binds a value to
 the given name (which is a C string).  Returns the new object.
 @end deftypefun
 
+@heading Pairs and lists
 
-@deftypefun SCM gh_cons (SCM a, SCM b)
-@end deftypefun
-@defmac SCM gh_list (SCM l0, SCM l1, ... , GH_EOL_MARKER)
+@deftypefun SCM gh_cons (SCM @var{a}, SCM @var{b})
+@deftypefunx SCM gh_list (SCM l0, SCM l1, ... , SCM_UNDEFINED)
 These correspond to the Scheme @code{(cons a b)} and @code{(list l0 l1
-...)} procedures.
-@end defmac
-
-@deftypefun SCM gh_ilength (SCM ls)
-Returns the length of the list.
+...)} procedures.  Note that @code{gh_list()} is a C macro that invokes
+@code{scm_listify()}.
 @end deftypefun
 
 @deftypefun SCM gh_set_car (SCM @var{obj}, SCM @var{val})
@@ -476,18 +486,110 @@ These correspond to the Scheme @code{(set-car! ...)} and @code{(set-cdr!
 These correspond to the Scheme @code{(caadar ls)} procedures etc @dots{}
 @end deftypefun
 
+@deftypefun SCM gh_set_car_x(SCM @var{pair}, SCM @var{value})
+Modifies the CAR of @var{pair} to be @var{value}.  This is equivalent to
+the Scheme procedure @code{(set-car! ...)}.
+@end deftypefun
+
+@deftypefun SCM gh_set_cdr_x(SCM @var{pair}, SCM @var{value})
+Modifies the CDR of @var{pair} to be @var{value}.  This is equivalent to
+the Scheme procedure @code{(set-cdr! ...)}.
+@end deftypefun
+
+@deftypefun {unsigned long} gh_length (SCM @var{ls})
+Returns the length of the list.
+@end deftypefun
+
+@deftypefun SCM gh_append (SCM @var{args})
+@deftypefunx SCM gh_append2 (SCM @var{l1}, SCM @var{l2})
+@deftypefunx SCM gh_append3 (SCM @var{l1}, SCM @var{l2}, @var{l3})
+@deftypefunx SCM gh_append4 (SCM @var{l1}, SCM @var{l2}, @var{l3}, @var{l4})
+@code{gh_append()} takes @var{args}, which is a list of lists
+@code{(list1 list2 ...)}, and returns a list containing all the elements
+of the individual lists.
+
+A typical invocation of @code{gh_append()} to append 5 lists together
+would be
+@smallexample
+  gh_append(gh_list(l1, l2, l3, l4, l5, SCM_UNDEFINED));
+@end smallexample
+
+The functions @code{gh_append2()}, @code{gh_append2()},
+@code{gh_append3()} and @code{gh_append4()} are convenience routines to
+make it easier for C programs to form the list of lists that goes as an
+argument to @code{gh_append()}.
+@end deftypefun
+
+@deftypefun SCM gh_reverse (SCM @var{ls})
+Returns a new list that has the same elements as @var{ls} but in the
+reverse order.  Note that this is implemented as a macro which calls
+@code{scm_reverse()}.
+@end deftypefun
+
+@deftypefun SCM gh_list_tail (SCM @var{ls}, SCM @var{k})
+Returns the sublist of @var{ls} with the last @var{k} elements.
+@end deftypefun
+
+@deftypefun SCM gh_list_ref (SCM @var{ls}, SCM @var{k})
+Returns the @var{k}th element of the list @var{ls}.
+@end deftypefun
+
+@deftypefun SCM gh_memq (SCM @var{x}, SCM @var{ls})
+@deftypefunx SCM gh_memv (SCM @var{x}, SCM @var{ls})
+@deftypefunx SCM gh_member (SCM @var{x}, SCM @var{ls})
+These functions return the first sublist of @var{ls} whose CAR is
+@var{x}.  They correspond to @code{(memq x ls)}, @code{(memv x ls)} and
+@code{(member x ls)}, and hence use (respectively) @code{eq?},
+@code{eqv?} and @code{equal?} to do comparisons.
+
+If @var{x} does not appear in @var{ls}, the value @code{SCM_BOOL_F} (not
+the empty list) is returned.
+
+Note that these functions are implemented as macros which call
+@code{scm_memq()}, @code{scm_memv()} and @code{scm_member()}
+respectively.
+@end deftypefun
+
+@deftypefun SCM gh_assq (SCM @var{x}, SCM @var{alist})
+@deftypefunx SCM gh_assv (SCM @var{x}, SCM @var{alist})
+@deftypefunx SCM gh_assoc (SCM @var{x}, SCM @var{alist})
+These functions search an @dfn{association list} (list of pairs)
+@var{alist} for the first pair whose CAR is @var{x}, and they return
+that pair.
+
+If no pair in @var{alist} has @var{x} as its CAR, the value
+@code{SCM_BOOL_F} (not the empty list) is returned.
+
+Note that these functions are implemented as macros which call
+@code{scm_assq()}, @code{scm_assv()} and @code{scm_assoc()}
+respectively.
+@end deftypefun
+
+
+@heading Symbols
+
 @c @deftypefun SCM gh_symbol (SCM str, SCM len)
 @c @deftypefunx SCM gh_tmp_symbol (SCM str, SCM len)
 @c Takes the given string @var{str} of length @var{len} and returns a
 @c symbol corresponding to that string.
 @c @end deftypefun
 
-@deftypefun SCM gh_vector (SCM @var{n}, SCM @var{fill})
-@deftypefunx SCM gh_vref (SCM @var{v}, SCM @var{i})
-@deftypefunx SCM gh_vset (SCM @var{v}, SCM @var{i}, SCM @var{val})
+
+@heading Vectors
+
+@deftypefun SCM gh_make_vector (SCM @var{n}, SCM @var{fill})
+@deftypefunx SCM gh_vector (SCM @var{ls})
+@deftypefunx SCM gh_vector_ref (SCM @var{v}, SCM @var{i})
+@deftypefunx SCM gh_vector_set (SCM @var{v}, SCM @var{i}, SCM @var{val})
 @deftypefunx SCM gh_vector_length (SCM @var{v})
-These correspond to the Scheme @code{(vector n fill)}, @code{(vref v i)}
-and @code{(vset v i value)} @code{(vector-length v)} procedures.
+@deftypefunx SCM gh_list_to_vector (SCM @var{ls})
+These correspond to the Scheme @code{(make-vector n fill)},
+@code{(vector a b c ...)} @code{(vector-ref v i)} @code{(vector-set v i
+value)} @code{(vector-length v)} @code{(list->vector ls)} procedures.
+
+The correspondence is not perfect for @code{gh_vector}: this routine
+taks a list @var{ls} instead of the individual list elements, thus
+making it identical to @code{gh_list_to_vector}.
 @end deftypefun
 
 @deftypefun SCM gh_make_subr (SCM (*@var{fn})(), int @var{req}, int @var{opt}, int @var{varp}, char *@var{doc})
