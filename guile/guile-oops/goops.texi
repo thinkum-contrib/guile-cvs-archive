@@ -94,10 +94,9 @@ The GOOPS tutorial
 
 @goops{} is the object oriented extention to @guile{}. Its
 implementation is derived from @w{STk-3.99.3} by Erick Gallesio and
-version 1.3 of the Gregor Kickzales Tiny Clos package@ @cite{Tiny-Clos}.
-However, it has been extended with ideas from CLOS, the Common Lisp
-Object System (@cite{CLtL2}) and Dylan or SOS.
-@c @cite{Dylan}  @cite{SOS}
+version 1.3 of the Gregor Kickzales @cite{Tiny-Clos}.  It is very close
+to CLOS, the Common Lisp Object System (@cite{CLtL2}) but is adapted for
+the Scheme language.
 
 Briefly stated, the @goops{} extension gives the user a full object
 oriented system with multiple inheritance and generic functions with
