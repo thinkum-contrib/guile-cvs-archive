@@ -27,3 +27,5 @@
 	(cond ((vector? array) (vector-ref array idx))
 	      ((string? array) (char->integer (string-ref array idx)))
 	      (else (wta 'arrayp array 1)))))
+
+(fset 'stringp string?)

@@ -4,3 +4,5 @@
 ;; Purification, unexec etc. are not yet implemented...
 
 (fset 'purecopy identity)
+
+(define-public purify-flag #f)

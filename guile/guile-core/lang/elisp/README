@@ -7,6 +7,48 @@ This directory holds the Scheme side of a translator for Emacs Lisp.
 Please note that this is work in progress; the translator is
 incomplete and not yet widely tested.
 
+** Trying to load a complete Emacs environment.
+
+To try this, type `(use-modules (lang elisp emacs))'.  The following
+output shows how far I get when I try this.
+
+guile> (use-modules (lang elisp emacs))
+Calling loadup.el to clothe the bare Emacs...
+Loading /usr/share/emacs/20.7/lisp/loadup.el...
+Using load-path ("/usr/share/emacs/20.7/lisp/" "/usr/share/emacs/20.7/lisp/emacs-lisp/")
+Loading /usr/share/emacs/20.7/lisp/byte-run.el...
+Loading /usr/share/emacs/20.7/lisp/byte-run.el...done
+Loading /usr/share/emacs/20.7/lisp/subr.el...
+Loading /usr/share/emacs/20.7/lisp/subr.el...done
+Loading /usr/share/emacs/20.7/lisp/version.el...
+Loading /usr/share/emacs/20.7/lisp/version.el...done
+Loading /usr/share/emacs/20.7/lisp/map-ynp.el...
+Loading /usr/share/emacs/20.7/lisp/map-ynp.el...done
+Loading /usr/share/emacs/20.7/lisp/widget.el...
+Loading /usr/share/emacs/20.7/lisp/emacs-lisp/cl.el...
+Loading /usr/share/emacs/20.7/lisp/emacs-lisp/cl.el...done
+Loading /usr/share/emacs/20.7/lisp/widget.el...done
+Loading /usr/share/emacs/20.7/lisp/custom.el...
+Loading /usr/share/emacs/20.7/lisp/custom.el...done
+Loading /usr/share/emacs/20.7/lisp/cus-start.el...
+Note, built-in variable `abbrev-all-caps' not bound
+  ... [many other variable not bound messages] ...
+Loading /usr/share/emacs/20.7/lisp/cus-start.el...done
+Loading /usr/share/emacs/20.7/lisp/international/mule.el...
+<unnamed port>: In procedure make-char-table in expression (@fop make-char-table (# #)):
+<unnamed port>: Symbol's function definition is void
+ABORT: (misc-error)
+
+Type "(backtrace)" to get more information or "(debug)" to enter the debugger.
+guile> 
+
+That's 3279 lines ("wc -l") of Elisp code already, which isn't bad!
+
+I think that progress beyond this point basically means implementing
+multilingual and multibyte strings properly for Guile.  Which is a
+_lot_ of work and requires IMO a very clear plan for Guile's role with
+respect to Emacs.
+
 * Design
 
 When thinking about how to implement an Elisp translator for Guile, it

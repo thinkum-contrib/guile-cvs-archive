@@ -8,6 +8,8 @@
 	    interactive-specification
 	    not-subr?))
 
+(define the-variables-module (resolve-module '(lang elisp variables)))
+
 ;; By default, Guile GC's unreachable symbols.  So we need to make
 ;; sure they stay reachable!
 (define syms '())
@@ -17,17 +19,42 @@
 (define (fset sym proc)
   (or (memq sym syms)
       (set! syms (cons sym syms)))
-  (let ((vcell (symbol-fref sym)))
+  (let ((vcell (symbol-fref sym))
+	(vsym #f))
+    ;; Playing around with variables and name properties...  For the
+    ;; reasoning behind this, see the commentary in (lang elisp
+    ;; variables).
+    (cond ((procedure? proc)
+	   ;; A procedure created from Elisp will already have a name
+	   ;; property attached, with value of the form
+	   ;; <elisp-defun:NAME> or <elisp-lambda>.  Any other
+	   ;; procedure coming through here must be an Elisp primitive
+	   ;; definition, so we give it a name of the form
+	   ;; <elisp-subr:NAME>.
+	   (or (procedure-name proc)
+	       (set-procedure-property! proc
+					'name
+					(symbol-append '<elisp-subr: sym '>)))
+	   (set! vsym (procedure-name proc)))
+	  ((macro? proc)
+	   ;; Macros coming through here must be defmacros, as all
+	   ;; primitive special forms are handled directly by the
+	   ;; transformer.
+	   (set-procedure-property! (macro-transformer proc)
+				    'name
+				    (symbol-append '<elisp-defmacro: sym '>))
+	   (set! vsym (procedure-name (macro-transformer proc))))
+	  (else
+	   ;; An alias symbol.
+	   (set! vsym (symbol-append '<elisp-defalias: sym '>))))
+    ;; This is the important bit!
     (if (variable? vcell)
 	(variable-set! vcell proc)
-	(symbol-fset! sym (make-variable proc)))
-    (if (procedure? proc)
-	(or (procedure-property proc 'name)
-	    (set-procedure-property! proc
-				     'name
-				     (symbol-append '<elisp-subr:
-						    sym
-						    '>))))))
+	(let ((vcell (make-variable proc)))
+	  (symbol-fset! sym vcell)
+	  ;; Playing with names and variables again - see above.
+	  (module-add! the-variables-module vsym vcell)
+	  (module-export! the-variables-module (list vsym))))))
 
 ;; Retrieve the procedure or macro stored in SYM's function slot.
 ;; Note the asymmetry w.r.t. fset: if fref finds an alias symbol, it

@@ -36,3 +36,5 @@
 (fset 'local-variable-if-set-p
       (lambda* (variable #:optional buffer)
 	#f))
+
+(fset 'symbol-name symbol->string)

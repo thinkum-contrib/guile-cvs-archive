@@ -38,3 +38,5 @@
 				(ash (logand num most-positive-fixnum) 1))
 			(- shift 1))))))
 	lsh))
+
+(fset 'numberp number?)

@@ -1,3 +1,8 @@
+2001-10-28  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* eval.c (scm_m_atfop): When generating a "function definition is
+	void" error, pass the relevant symbol name as the `subr' arg.
+
 2001-10-26  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* eval.c (scm_m_if): Use s_if rather than making another string

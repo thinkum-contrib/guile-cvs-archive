@@ -1045,14 +1045,22 @@ scm_m_atfop (SCM xorig, SCM env SCM_UNUSED)
   SCM x = SCM_CDR (xorig), var;
   SCM_ASSYNT (scm_ilength (x) >= 1, scm_s_expression, "@fop");
   var = scm_symbol_fref (SCM_CAR (x));
+  /* Passing the symbol name as the `subr' arg here isn't really
+     right, but without it it can be very difficult to work out from
+     the error message which function definition was missing.  In any
+     case, we shouldn't really use SCM_ASSYNT here at all, but instead
+     something equivalent to (signal void-function (list SYM)) in
+     Elisp. */
   SCM_ASSYNT (SCM_VARIABLEP (var),
-	      "Symbol's function definition is void", NULL);
+	      "Symbol's function definition is void",
+	      SCM_SYMBOL_CHARS (SCM_CAR (x)));
   /* Support `defalias'. */
   while (SCM_SYMBOLP (SCM_VARIABLE_REF (var)))
     {
       var = scm_symbol_fref (SCM_VARIABLE_REF (var));
       SCM_ASSYNT (SCM_VARIABLEP (var),
-		  "Symbol's function definition is void", NULL);
+		  "Symbol's function definition is void",
+		  SCM_SYMBOL_CHARS (SCM_CAR (x)));
     }
   /* Use `var' here rather than `SCM_VARIABLE_REF (var)' because the
      former allows for automatically picking up redefinitions of the

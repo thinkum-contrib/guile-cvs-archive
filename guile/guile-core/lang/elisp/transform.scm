@@ -48,14 +48,28 @@
 	   ((defvar) (m-defvar x '()))
 	   ((defconst) (m-defconst x '()))
 	   ((interactive) (fluid-set! interactive-spec x) #f)
+	   ((unwind-protect) (m-unwind-protect x '()))
 	   (else (transform-application x))))
 	(else (syntax-error x))))
 
+(define (m-unwind-protect exp env)
+  (trc 'unwind-protect (cadr exp))
+  `(let ((%--throw-args #f))
+     (catch #t
+	    (lambda ()
+	      ,(transformer (cadr exp)))
+	    (lambda args
+	      (set! %--throw-args args)))
+     ,@(transform-list (cddr exp))
+     (if %--throw-args
+	 (apply throw %--throw-args))))
+
 (define (m-quasiquote exp env)
-  (cons 'quote
+  (cons 'quasiquote
 	(map transform-inside-qq (cdr exp))))
 
 (define (transform-inside-qq x)
+  (trc 'transform-inside-qq x)
   (cond ((not (pair? x)) x)
 	((symbol? (car x))
 	 (case (car x)
@@ -175,7 +189,7 @@
 							 (list-tail %--args
 								    ,(+ num-required
 									num-optional))
-							 #f)))
+							 '())))
 					'()))
 			   ,@(transform-list (cddr exp)))))))
 	))))
@@ -227,7 +241,7 @@
 									      (list-tail %--args
 											 ,(+ num-required
 											     num-optional))
-									      #f)))
+									      '())))
 							     '()))
 						,@(transform-list (cdddr exp)))))))))))))))
 

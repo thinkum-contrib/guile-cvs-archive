@@ -27,7 +27,8 @@ SUBDIRS = internals primitives
 
 elisp_sources = \
 	emacs.scm \
-	transform.scm
+	transform.scm \
+	variables.scm
 
 subpkgdatadir = $(pkgdatadir)/$(VERSION)/lang/elisp
 subpkgdata_DATA = $(elisp_sources)
