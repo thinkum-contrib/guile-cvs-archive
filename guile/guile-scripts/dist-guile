@@ -1,5 +1,5 @@
 #!/bin/sh -x
-# usage: dist-guile
+# usage: dist-guile TAG
 #
 # This must be run in a branched top-level guile-core dir (so
 # that CVS/Tag looks something like: branch_release-X-Y).
@@ -7,12 +7,12 @@
 # Behavior:
 # - check all files under cwd are unmodified (sync'ed w/ cvs repo)
 # - sh -x autogen.sh
-# - cvs tag release_X-Y
+# - cvs tag release_TAG         (where TAG is $1)
 # - create distdir ../dist.$branch
 # - in $distdir do configure, make, make check
 # - in $distdir do make distcheck
 #
-# TODO: Handle non-standard workbook location (pass $1 to autogen.sh).
+# TODO: Handle non-standard workbook location.
 #       Support skipping steps, for restarts.
 
 set -e
@@ -21,7 +21,13 @@ me=`basename $0`
 startdir=`pwd`
 branch=""
 distdir=""
-tag=""
+tag=$1          # see $workbook/build/dist-files/HACKING
+
+if [ x"$tag" = x ] ; then
+    echo Usage: $me TAG
+    echo where TAG is something like release_1-4-1
+    exit 1
+fi
 
 set_branch_and_derived_vars ()
 {
@@ -35,9 +41,6 @@ fi
 
 # must be peer w/ startdir
 distdir="../dist.$branch"
-
-# see $w/build/dist-files/HACKING
-tag=`echo $branch | sed s/^branch_release-/release_/g`
 
 }
 
