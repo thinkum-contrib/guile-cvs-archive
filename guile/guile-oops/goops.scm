@@ -59,7 +59,6 @@
     compute-applicable-methods %compute-applicable-methods
     method-more-specific? sort-applicable-methods
     class-subclasses class-methods
-    slot-value
     goops-error
 )
 
