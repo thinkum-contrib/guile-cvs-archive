@@ -25,20 +25,7 @@
   - convert bug tracking/summarization process
     +R define bugs db format (see bugs/README) [mvo]
     + import current BUGS [mvo]
-    - scan mailing list archives for bugs and add them
-      + subject: Guile fails tests on Tru64 4.0F [ttn]
-      + subject: failed backtrace [ttn]
-      + subject: All thread blocked on (accept socket) [ttn]
-      + subject: avoid potential overflow in complex division [ttn]
-      - by date
-        - 2000-06 through 2001-06
-        - 2001-07 through 2001-09 [ttn]
-        - 2001-10 through 2001-12
-        - 2002-01
-        - 2002-02
-        - 2002-03
-        - 2002-04
-    - write render-bugs, add to mscripts or guile-tools [evan:ttn]
+    + write stub for render-bugs [ttn]
     - write dist-hook to call render-bugs to create BUGS
     - delete HEAD and branch_release-1-6 BUGS files
   +R factor guile-core/ administration files [ttn]
@@ -50,6 +37,20 @@
 
 
 - Eventually
+  - write render-bugs, add to mscripts or guile-tools [evan:ttn]
+  - scan mailing list archives for bugs and add them
+    + subject: Guile fails tests on Tru64 4.0F [ttn]
+    + subject: failed backtrace [ttn]
+    + subject: All thread blocked on (accept socket) [ttn]
+    + subject: avoid potential overflow in complex division [ttn]
+    - by date
+      - 2000-06 through 2001-06
+      - 2001-07 through 2001-09 [ttn]
+      - 2001-10 through 2001-12
+      - 2002-01
+      - 2002-02
+      - 2002-03
+      - 2002-04
   - write maintainer script dist-guile
   - write why-not-release? scanner
   - forward port guile-1.6.x stuff
