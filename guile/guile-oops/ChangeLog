@@ -1,4 +1,16 @@
+1999-03-18  Mikael Djurfeldt  <mdj@barbara.nada.kth.se>
+
+	* goops.c (create_basic_classes): Renamed from
+	create_Top_Object_class.
+	(scm_basic_make_class, create_basic_classes): Use maplist.
+	(compute_getters_n_setters): Assume alist slot lists.
+	(scm_get_keyword): Improved error messages.
+
 1999-03-18  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* goops.c (maplist): Utility used to construct slot lists.
+	(remove_duplicate_slots, scm_sys_initialize_object): Simplify by
+	assuming that slot lists are proper alists.
 
 	* goops.scm (compute-std-cpl): Compute a CLOS-style cpl.
 	(define-class): Bugfix: Added `new' as alternative in the
