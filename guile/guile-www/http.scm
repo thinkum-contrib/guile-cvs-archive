@@ -23,6 +23,12 @@
 ;;;; Boston, MA 02111-1307 USA
 ;;;; 
 
+;;; Compatibility
+
+(or (defined? 'read-line)
+    (use-modules (ice-9 rdelim)))
+
+
 ;;; Variables that affect HTTP usage.
 
 (define-public http:version "HTTP/1.0")  ; bump up to 1.1 when ready
