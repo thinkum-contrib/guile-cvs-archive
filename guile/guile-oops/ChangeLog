@@ -1,5 +1,8 @@
 1999-07-25  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
+	* goops.scm (compute-std-cpl): Compute cpl correctly.
+	(Topological sort from tiny clos.)
+
 	* goops.c (scm_class_port, scm_class_input_port,
 	scm_class_output_port, scm_class_input_output_port): Added.
 	(make_standard_classes): Initialize new classes.
