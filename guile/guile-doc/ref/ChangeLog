@@ -1,5 +1,18 @@
 2000-12-01  Neil Jerram  <neil@ossau.uklinux.net>
 
+	* guile.texi (Top), scheme-ideas.texi: Demote everything one level
+	so that previous chapters About Data, About Procedures, About
+	Expressions and About Closure are now combined into a single
+	Scheme Ideas chapter.  Add overall chapter introduction.  Fix up
+	top level nodes accordingly.
+
+	* guile.texi (Top), scheme.texi, scheme-data.texi: Gather material
+	for Generic Data Types chapter into a new file
+	(scheme-data.texi).  @include new file in guile.texi.  Fix up top
+	level nodes accordingly.  (This changes demotes all the affected
+	material by one level, except for that which was already grouped
+	together under the Data Structures node.)
+	
 	* guile.texi (Top): @include new files.
 
 	* scheme-intro.texi, scheme-ideas.texi: New files.

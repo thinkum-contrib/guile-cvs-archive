@@ -220,34 +220,21 @@ Part I: An Introductory Tour
 Part II: Guile Scheme
 
 * Guile and R5RS Scheme::       Guile as an extended implementation of Scheme.
-* About Data::                  Latent typing, types, values and variables.
-* About Procedures::            The representation and use of procedures.
-* About Expressions::           All kinds of expressions and their meaning.
-* About Closure::               Closure, scoping and environments.
+* Scheme Ideas::                Introduction to basic Scheme ideas.
+* Generic Data Types::          Data types for generic use.
 * Options::                     How to query and set Guile's runtime options.
 * Read Syntax Extensions::      Block comments, interpreter triggers, etc.
 * Optional Arguments::          Handling keyword, optional and rest arguments.
 * Exceptions::                  Signalling and handling fatal errors.
 * Modules::                     Designing reusable code libraries.
 * Evaluation::                  Running and evaluating code on the fly.
-* Pairs::                       Scheme's basic building block.
-* Lists::                       Special list functions supported by Guile.
-* Data Structures::		Records, hash tables, etc.
-* Booleans::                    True/false values.
 * Equality::                    When are two values `the same'?
-* Strings::                     Special things about strings.
-* Characters::			New character names.
-* Hooks::                       User-customizable event lists.
 * Procedures::                  Procedure types and properties.
 * Property Lists::              Managing metainformation about Scheme objects.
 * Primitive Properties::        A modern low-level interface to object properties.
 * Ports::                       I/O in Scheme.
 * Reading and Writing::         Reading and writing.
-* Numbers::                     Numerical operations.
-* Random::                      Random number generation.
 * Sorting::                     Sort utility procedures.
-* Bitwise Operations::          Logical AND, OR, NOT, and so on.
-* Regular Expressions::         Pattern matching and substitution.
 * Dynamic Linking from Marius::
 * Dynamic Wind::
 * Threads and Dynamic Roots::
@@ -255,7 +242,6 @@ Part II: Guile Scheme
 * Objects::                     Low level object orientation support.
 * Guardians::                   Guardians.
 * Emacs Lisp Support::          Helper primitives for translating Emacs Lisp.
-* Symbols and Variables::       Symbols and variables.
 * Garbage Collection::
 * Configuration Data::		Version info, library directories, etc.
 * Internal Debugging Interface::
@@ -334,6 +320,7 @@ Indices
 
 @include scheme-intro.texi
 @include scheme-ideas.texi
+@include scheme-data.texi
 @include scheme.texi
 
 @c Unix system interface

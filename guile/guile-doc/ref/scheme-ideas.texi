@@ -1,13 +1,36 @@
 @page
-@node About Data
-@chapter Data Types, Values and Variables
+@node Scheme Ideas
+@chapter Basic Ideas in Scheme
 
-In this and the next few chapters, we begin by introducing the basic
-concepts of the Scheme language.  This chapter discusses the
-representation of data types and values, what it means for Scheme to be
-a @dfn{latently typed} language, and the role of variables.  We conclude
-by introducing the Scheme syntaxes for defining a new variable, and for
-changing the value of an existing variable.
+In this chapter, we introduce the basic concepts that underpin the
+elegance and power of the Scheme language.
+
+Readers who already possess a background knowledge of Scheme may happily
+skip this chapter.  For the reader who is new to the language, however,
+the following discussions on data, procedures, expressions and closure
+are designed to provide a minimum level of Scheme understanding that is
+more or less assumed by the reference chapters that follow.
+
+The style of this introductory material aims about halfway between the
+terse precision of R5RS and the discursive randomness of a Scheme
+tutorial.
+
+@menu
+* About Data::                  Latent typing, types, values and variables.
+* About Procedures::            The representation and use of procedures.
+* About Expressions::           All kinds of expressions and their meaning.
+* About Closure::               Closure, scoping and environments.
+@end menu
+
+
+@node About Data
+@section Data Types, Values and Variables
+
+This section discusses the representation of data types and values, what
+it means for Scheme to be a @dfn{latently typed} language, and the role
+of variables.  We conclude by introducing the Scheme syntaxes for
+defining a new variable, and for changing the value of an existing
+variable.
  
 @menu
 * Latent Typing::               Scheme as a "latently typed" language.
@@ -17,7 +40,7 @@ changing the value of an existing variable.
 
 
 @node Latent Typing
-@section Latent Typing
+@subsection Latent Typing
 
 The term @dfn{latent typing} is used to descibe a computer language,
 such as Scheme, for which you cannot, @emph{in general}, simply look at
@@ -49,12 +72,12 @@ you can invoke to do so.  But equally, it can be perfectly valid for two
 separate invocations of the same procedure to specify arguments with
 different types, and to return values with different types.
 
-The next section explains what this means in practice, for the ways
+The next subsection explains what this means in practice, for the ways
 that Scheme programs use data types, values and variables.
 
 
 @node Values and Variables
-@section Values and Variables
+@subsection Values and Variables
 
 Scheme provides many data types that you can use to represent your data.
 Primitive types include characters, strings, numbers and procedures.
@@ -91,7 +114,7 @@ the variable happens to be storing at a particular moment.
 
 
 @node Definition
-@section Defining and Setting Variables
+@subsection Defining and Setting Variables
 
 To define a new variable, you use Scheme's @code{define} syntax like
 this:
@@ -171,11 +194,10 @@ structure.
 @end itemize
 
 
-@page
 @node About Procedures
-@chapter The Representation and Use of Procedures
+@section The Representation and Use of Procedures
 
-This chapter introduces the basics of using and creating Scheme
+This section introduces the basics of using and creating Scheme
 procedures.  It discusses the representation of procedures as just
 another kind of Scheme value, and shows how procedure invocation
 expressions are constructed.  We then explain how @code{lambda} is used
@@ -192,7 +214,7 @@ explicit @code{lambda} expression.
 
 
 @node Procedures as Values
-@section Procedures as Values
+@subsection Procedures as Values
 
 One of the great simplifications of Scheme is that a procedure is just
 another type of value, and that procedure values can be passed around
@@ -251,7 +273,7 @@ procedure value.
 
 
 @node Simple Invocation
-@section Simple Procedure Invocation
+@subsection Simple Procedure Invocation
 
 A procedure invocation in Scheme is written like this:
 
@@ -308,7 +330,7 @@ its arguments.)
 
 
 @node Creating a Procedure
-@section Creating and Using a New Procedure
+@subsection Creating and Using a New Procedure
 
 Scheme has lots of standard procedures, and Guile provides all of these
 via predefined top level variables.  All of these standard procedures
@@ -343,10 +365,11 @@ expression might look like this:
   (string-append "Name=" name ":Address=" address))
 @end lisp
 
-We noted in the previous section that the @var{procedure} part of a
+We noted in the previous subsection that the @var{procedure} part of a
 procedure invocation expression can be any Scheme expression whose value
 is a procedure.  But that's exactly what a lambda expression is!  So we
-can use a lambda expression directly in a procedure invocation, like this:
+can use a lambda expression directly in a procedure invocation, like
+this:
 
 @lisp
 ((lambda (name address)
@@ -381,7 +404,7 @@ same ways.
 
 
 @node Lambda Alternatives
-@section Lambda Alternatives
+@subsection Lambda Alternatives
 
 Since it is so common in Scheme programs to want to create a procedure
 and then store it in a variable, there is an alternative form of the
@@ -403,7 +426,7 @@ is exactly equivalent to the longer form
 @end lisp
 
 So, for example, the definition of @code{make-combined-string} in the
-previous section could equally be written:
+previous subsection could equally be written:
 
 @lisp
 (define (make-combined-string name address)
@@ -441,9 +464,8 @@ arbitrary syntactic transformations at run time, which can be applied to
 subsequently read input.)
 
 
-@page
 @node About Expressions
-@chapter Expressions and Evaluation
+@section Expressions and Evaluation
 
 So far, we have met expressions that @emph{do} things, such as the
 @code{define} expressions that create and initialize new variables, and
@@ -459,11 +481,11 @@ this procedure invocation to be reduced to its ``value'', or how the
 processing of such expressions relates to the execution of a Scheme
 program as a whole.
 
-This chapter clarifies what we mean by an expression's value, by
+This section clarifies what we mean by an expression's value, by
 introducing the idea of @dfn{evaluation}.  It discusses the side effects
 that evaluation can have, explains how each of the various types of
 Scheme expression is evaluated, and describes the behaviour and use of
-the Guile REPL as a mechanism for exploring evaluation.  The chapter
+the Guile REPL as a mechanism for exploring evaluation.  The section
 concludes with a very brief summary of Scheme's common syntactic
 expressions.
 
@@ -475,7 +497,7 @@ expressions.
 
 
 @node Evaluating
-@section Evaluating Expressions and Executing Programs
+@subsection Evaluating Expressions and Executing Programs
 
 In Scheme, the process of executing an expression is known as
 @dfn{evaluation}.  Evaluation has two kinds of result:
@@ -544,7 +566,7 @@ is evaluated.
 @end menu
 
 @node Eval Literal
-@subsection Evaluating Literal Data
+@subsubsection Evaluating Literal Data
 
 When a literal data expression is evaluated, the value of the expression
 is simply the value that the expression describes.  The evaluation of a
@@ -579,7 +601,7 @@ using the shorthand form of @code{define} (@pxref{Lambda Alternatives}).
 
 
 @node Eval Variable
-@subsection Evaluating a Variable Reference
+@subsubsection Evaluating a Variable Reference
 
 When an expression that consists simply of a variable name is evaluated,
 the value of the expression is the value of the named variable.  The
@@ -605,7 +627,7 @@ variable reference expression signals an error.
 
 
 @node Eval Procedure
-@subsection Evaluating a Procedure Invocation Expression
+@subsubsection Evaluating a Procedure Invocation Expression
 
 This is where evaluation starts getting interesting!  As already noted,
 a procedure invocation expression has the form
@@ -695,7 +717,7 @@ numeric value that is the length of the argument string, which is 12.
 
 
 @node Eval Special
-@subsection Evaluating Special Syntactic Expressions
+@subsubsection Evaluating Special Syntactic Expressions
 
 When a procedure invocation expression is evaluated, the procedure and
 @emph{all} the argument expressions must be evaluated before the
@@ -739,7 +761,7 @@ syntax, see @xref{Syntax Summary}.
 
 
 @node The REPL
-@section Using the Guile REPL
+@subsection Using the Guile REPL
 
 If you start Guile without specifying a particular program for it to
 execute, Guile enters its standard Read Evaluate Print Loop --- or
@@ -748,7 +770,7 @@ Scheme expression that the user types, evaluates it, and prints the
 resulting value.
 
 The REPL is a useful mechanism for exploring the evaluation behaviour
-described in the previous section.  If you type @code{string-append},
+described in the previous subsection.  If you type @code{string-append},
 for example, the REPL replies @code{#<primitive-procedure
 string-append>}, illustrating the relationship between the variable
 @code{string-append} and the procedure value stored in that variable.
@@ -767,12 +789,12 @@ REPL and checking that it gives the expected @var{result}.
 
 
 @node Syntax Summary
-@section Summary of Common Syntax
+@subsection Summary of Common Syntax
 
-This section lists the most commonly used Scheme syntactic expressions,
-simply so that you will recognize common special syntax when you see it.
-For a full description of each of these syntaxes, follow the appropriate
-reference.
+This subsection lists the most commonly used Scheme syntactic
+expressions, simply so that you will recognize common special syntax
+when you see it.  For a full description of each of these syntaxes,
+follow the appropriate reference.
 
 @code{if} (REFFIXME) and @code{cond} (REFFIXME) provide conditional
 evaluation of argument expressions depending on whether one or more
@@ -810,9 +832,8 @@ either there are no expressions left, or one of them evaluates to
 ``true''.
 
 
-@page
 @node About Closure
-@chapter The Concept of Closure
+@section The Concept of Closure
 
 @cindex closure
 
@@ -822,7 +843,7 @@ point where the lambda expression occurs.  The procedure created by the
 lambda expression can refer to and mutate the captured bindings, and the
 values of those bindings persist between procedure calls.
 
-This chapter explains and explores the various parts of this idea in
+This section explains and explores the various parts of this idea in
 more detail.
 
 @menu
@@ -838,7 +859,7 @@ more detail.
 @end menu
 
 @node About Environments
-@section Names, Locations, Values and Environments
+@subsection Names, Locations, Values and Environments
 
 @cindex location
 @cindex environment
@@ -882,11 +903,11 @@ supplied by standard Scheme.
 It is also possible to create environments other than the top level one,
 and to create variable bindings, or name-location associations, in those
 environments.  This ability is a key ingredient in the concept of
-closure; the next section shows how it is done.
+closure; the next subsection shows how it is done.
 
 
 @node Local Variables
-@section Local Variables and Environments
+@subsection Local Variables and Environments
 
 @cindex local variable
 @cindex variable, local
@@ -927,12 +948,12 @@ expression, and therefore the value of the variable @code{area}.
 
 
 @node Chaining
-@section Environment Chaining
+@subsection Environment Chaining
 
 @cindex shadowing an imported variable binding
 @cindex chaining environments
 
-In the example of the previous section, we glossed over an important
+In the example of the previous subsection, we glossed over an important
 point.  The body of the @code{let} expression in that example refers not
 only to the local variable @code{s}, but also to the top level variables
 @code{a}, @code{b}, @code{c} and @code{sqrt}.  (@code{sqrt} is the
@@ -954,8 +975,8 @@ identifier or exhausts the chain.
 
 This description also determines what happens when there is more than
 one variable binding with the same name.  Suppose, continuing the
-example of the previous section, that there was also a pre-existing top
-level variable @code{s} created by the expression:
+example of the previous subsection, that there was also a pre-existing
+top level variable @code{s} created by the expression:
 
 @lisp
 (define s "Some beans, my lord!")
@@ -978,10 +999,10 @@ level environment.
 
 
 @node Lexical Scope
-@section Lexical Scope
+@subsection Lexical Scope
 
 The rules that we have just been describing are the details of how
-Scheme implements ``lexical scoping''.  This section takes a brief
+Scheme implements ``lexical scoping''.  This subsection takes a brief
 diversion to explain what lexical scope means in general and to present
 an example of non-lexical scoping.
 
@@ -1015,7 +1036,7 @@ corresponding lexically scoped code.
 
 
 @node Scoping Example
-@subsection An Example of Non-Lexical Scoping
+@subsubsection An Example of Non-Lexical Scoping
 
 To demonstrate that non-lexical scoping does exist and can be useful, we
 present the following example from Emacs Lisp, which is a ``dynamically
@@ -1120,7 +1141,7 @@ this identifier refer to the top level variable.
 
 
 @node Closure
-@section Closure
+@subsection Closure
 
 Consider a @code{let} expression that doesn't contain any
 @code{lambda}s:
@@ -1182,12 +1203,12 @@ procedure body within the context of that environment.
 The result is that the procedure body is always evaluated in the context
 of the environment that was current when the procedure was created.
 
-This is what is meant by @dfn{closure}.  The next few sections present
-examples that explore the usefulness of this concept.
+This is what is meant by @dfn{closure}.  The next few subsections
+present examples that explore the usefulness of this concept.
 
 
 @node Serial Number
-@section Example 1: A Serial Number Generator
+@subsection Example 1: A Serial Number Generator
 
 This example uses closure to create a procedure with a variable binding
 that is private to the procedure, like a local variable, but whose value
@@ -1229,7 +1250,7 @@ object with an association to this environment.
 
 
 @node Shared Variable
-@section Example 2: A Shared Persistent Variable
+@subsection Example 2: A Shared Persistent Variable
 
 This example uses closure to create two procedures, @code{get-balance}
 and @code{deposit}, that both refer to the same captured local
@@ -1280,7 +1301,7 @@ would not be accessible at top level.
 
 
 @node Callback Closure
-@section Example 3: The Callback Closure Problem
+@subsection Example 3: The Callback Closure Problem
 
 A frequently used programming model for library code is to allow an
 application to register a callback function for the library to call when
@@ -1338,7 +1359,7 @@ correctly.
 
 
 @node OO Closure
-@section Example 4: Object Orientation
+@subsection Example 4: Object Orientation
 
 Closure is the capture of an environment, containing persistent variable
 bindings, within the definition of a procedure or a set of related
