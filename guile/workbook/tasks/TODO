@@ -28,7 +28,7 @@
     - scan mailing list archives for bugs and add them
       + subject: Guile fails tests on Tru64 4.0F [ttn]
       + subject: failed backtrace [ttn]
-      - starting from the oldest
+      - starting from the oldest [ttn]
       - starting form the newest
     - write render-bugs, add to devel scripts/ [evan:ttn]
     - use render-bugs in dist-hook to create BUGS from db
