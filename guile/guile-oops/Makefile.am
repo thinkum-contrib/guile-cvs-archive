@@ -24,10 +24,10 @@ goopsdatadir = $(datadir)/guile/oop/goops
 goopsdata_DATA = describe.scm internal.scm active-slot.scm composite-slot.scm
 
 info_TEXINFOS = goops.texi
-goops_TEXINFOS = goops.texi goops-tutorial.texi
+goops_TEXINFOS = goops-tutorial.texi hierarchy.eps hierarchy.txt
 
 EXTRA_DIST = ANON-CVS COPYRIGHTS GOOPS-VERSION HACKING SNAPSHOTS TAGS TODO \
-             hierarchy.eps hierarchy.txt mop.text
+             mop.text
 
 install-exec-hook:
 	$(mkinstalldirs) $(goopsdatadir)

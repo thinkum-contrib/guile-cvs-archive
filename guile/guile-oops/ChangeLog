@@ -1,5 +1,8 @@
 1999-07-25  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
+	* goops.c (prep_hashsets): Added.
+	(scm_sys_inherit_magic): Call prep_hashsets.
+
 	* goops.scm (compute-std-cpl): Compute cpl correctly.
 	(Topological sort from tiny clos.)
 

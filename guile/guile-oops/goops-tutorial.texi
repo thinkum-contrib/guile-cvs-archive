@@ -3,6 +3,16 @@
 @c
 @c STk Reference manual (Appendix: An Introdution to STklos)
 @c
+@c Copyright (C) 1993,1994,1995 Erick Gallesio - I3S-CNRS/ESSI <eg@unice.fr>
+@c
+@c Permission to use, copy, and/or distribute this software and its
+@c documentation for any purpose and without fee is hereby granted, provided
+@c that both the above copyright notice and this permission notice appear in
+@c all copies and derived works.  Fees for distribution or use of this
+@c software or derived works may only be charged with express written
+@c permission of the copyright holder.  
+@c This software is provided ``as is'' without express or implied warranty.
+@c
 @c           Author: Erick Gallesio [eg@unice.fr]
 @c    Creation date: 22-May-1994 22:13
 @c Last file update: 22-Apr-1998 11:04
@@ -22,13 +32,35 @@ This is chapter was originally written by Erick Gallesio as an appendix
 for the STk reference manual, and subsequently adapted to @goops{}.
 
 @menu
+* Copyright::
 * Introduction::                
 * Class definition and instantiation::  
 * Inheritance::                 
 * Generic functions::           
 @end menu
 
-@node Introduction, Class definition and instantiation, Tutorial, Tutorial
+@node Copyright, Introduction, Tutorial, Tutorial
+Original attribution:
+
+STk Reference manual (Appendix: An Introdution to STklos)
+
+Copyright @copyright{} 1993,1994,1995 Erick Gallesio - I3S-CNRS/ESSI <eg@@unice.fr>
+
+Permission to use, copy, and/or distribute this software and its
+documentation for any purpose and without fee is hereby granted, provided
+that both the above copyright notice and this permission notice appear in
+all copies and derived works.  Fees for distribution or use of this
+software or derived works may only be charged with express written
+permission of the copyright holder.  
+This software is provided ``as is'' without express or implied warranty.
+
+          Author: Erick Gallesio [eg@@unice.fr]
+   Creation date: 22-May-1994 22:13
+Last file update: 22-Apr-1998 11:04
+
+Adapted for use in Guile with the authors permission
+
+@node Introduction, Class definition and instantiation, Copyright, Tutorial
 @section Introduction
 
 @goops{} is the object oriented layer of @guile{}. Its implementation is

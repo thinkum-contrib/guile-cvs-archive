@@ -1,35 +1,26 @@
-% Original attribution:
-
-%
-% STk Reference manual (Appendix: An Introdution to STklos)
-%
-%           Author: Erick Gallesio [eg@unice.fr]
-%    Creation date: 22-May-1994 22:13
-% Last file update: 22-Apr-1998 11:04
-%
-
-% Adapted for use in Guile with the authors permission
-
 \input texinfo
 @c -*-texinfo-*-
 @c %**start of header
-@paragraphindent 0pt
 @setfilename goops.info
 @settitle Goops Manual
 @setchapternewpage odd
+@paragraphindent 0
 @c %**end of header
 
 @dircategory Scheme Programming
 @direntry
-* goops: (goops).        The GOOPS reference manual.
+* goops: (goops).          The GOOPS reference manual.
 @end direntry
 
 @ifinfo
-This file documents goops, an Object Oriented extension for Guile.
+This file documents GOOPS, an object oriented extension for Guile.
 
-Copyright 1998 Erick Gallesio
+Copyright (C) 1999 Free Software Foundation
 
-Permission is granted to ...
+Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+
 @end ifinfo
 
 @c  This title page illustrates only one of the
@@ -37,50 +28,47 @@ Permission is granted to ...
 
 @titlepage
 @title Goops Manual
-@author Erick Gallesio
+@author Christian Lynbech
 
 @c  The following two commands
 @c  start the copyright page.
 @page
 @vskip 0pt plus 1filll
-Copyright @copyright{} 1998 Erick Gallesio
+Copyright @copyright{} 1999 Free Software Foundation
 
-Published by GoopsBumps Publishing
+Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
 
-Permission is granted to ...
 @end titlepage
 
-@node Top, Tutorial, (dir), (dir)
-
-@ifinfo
-This document describes ...
-
-This document applies to version ...
-of the program named ...
-@end ifinfo
+@node Top, Getting Started, (dir), (dir)
 
 @menu
-* Tutorial::                    
+* Getting Started::
 * Reference Manual::            
 * MOP specification::           
+* Tutorial::                    
 * Index::                       
 * Concept Index::               
 * Function and Variable Index::  
 @end menu
 
-@node Tutorial, Reference Manual, Top, Top
-@chapter Tutorial
-@include goops-tutorial.texi
+@node Getting Started, Reference Manual, Top, Top
 
-@node Reference Manual, MOP specification, Tutorial, Top
+@node Reference Manual, MOP specification, Getting Started, Top
 @chapter Reference Manual
 [TO BE WRITTEN]
 
-@node MOP specification, Index, Reference Manual, Top
+@node MOP specification, Tutorial, Reference Manual, Top
 @chapter MOP specification
 [TO BE WRITTEN]
 
-@node Index, Concept Index, MOP specification, Top
+@node Tutorial, Index, MOP specification, Top
+@chapter Tutorial
+@include goops-tutorial.texi
+
+@node Index, Concept Index, Tutorial, Top
 @chapter Index
 @page
 @node     Concept Index, Function and Variable Index, Index, Top
