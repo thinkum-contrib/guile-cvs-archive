@@ -460,3 +460,7 @@
 
 /* Define if you have the socket library (-lsocket).  */
 #undef HAVE_LIBSOCKET
+
+/* define if compiled symbols have a leading underscore */
+#undef WITH_SYMBOL_UNDERSCORE
+

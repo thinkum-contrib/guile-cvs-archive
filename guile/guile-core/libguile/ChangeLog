@@ -1,3 +1,23 @@
+1999-03-21  Mikael Djurfeldt  <mdj@barbara.nada.kth.se>
+
+	* Makefile.am: Added lang.c.
+
+	* lang.c: New file: Beginning of multi-language support.
+	
+	* init.c (scm_boot_guile_1): Added call to scm_init_lang ().
+
+	* dynwind.c (scm_dowinds): Removed obsolete wind_key #f case.
+	(scm_dynamic_wind): Added argument checking for the after guard so
+	that we don't add garbage on the dynwind chain.
+
+	* tags.h (SCM_IM_NIL_COND, SCM_IM_NIL_IFY, SCM_IM_T_IFY,
+	SCM_IM_0_COND, SCM_IM_0_IFY, SCM_IM_1_IFY), print.c
+	(scm_isymnames): New isyms for multi-language support.
+	
+ 	* eval.c (scm_nil, scm_t): New symbols.
+	(nil-cond, nil-ify, t-ify, 0-cond, 0-ify, 1-ify): New special
+	forms for multi-language support.
+
 1999-03-21  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* print.c (scm_isymnames): Added #@dispatch and #@hash-dispatch.
@@ -1776,11 +1796,13 @@ Sat Jul 11 22:08:21 1998  Mikael Djurfeldt  <mdj@totoro.red-bean.com>
 
 1998-04-25  Mikael Djurfeldt  <mdj@kenneth>
 
-	* scmsigs.c: Declare usleep as returning void on some systems.
-	(scm_usleep): Return SCM_INUM0 on those systems. (Thanks to Julian
-	Satchell.)
+	* tags.h (SCM_IM_NIL_COND, SCM_IM_NIL_IFY, SCM_IM_T_IFY,
+	SCM_IM_0_COND, SCM_IM_0_IFY, SCM_IM_1_IFY), print.c
+	(scm_isymnames): New isyms for multi-language support.
 
-	* coop.c (usleep): Return void on some systems.
+ 	* eval.c (scm_nil, scm_t): New symbols.
+	(nil-cond, nil-ify, t-ify, 0-cond, 0-ify, 1-ify): New special
+	forms for multi-language support.
 
 1998-04-20  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
