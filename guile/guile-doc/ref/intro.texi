@@ -1,17 +1,24 @@
-@c $Header$
+@c $Id$
 
 @node Introduction
 @chapter Introduction
 
 Guile is an interpreter for the Scheme programming language, packaged
-for use in a wide variety of applications.  Guile implements Scheme as
-described in the Revised^4 Report on the Algorithmic Language Scheme
-(usually known as R4RS), providing clean and general data and control
-structures.  Guile goes beyond the rather austere language presented in
-R4RS, extending it with a module system, full access to POSIX system
-calls, networking support, multiple threads, dynamic linking, a foreign
-function call interface, powerful string processing, and many other
-features needed for programming in the real world.
+for use in a wide variety of environments.  Guile implements Scheme as
+described in the
+@iftex
+Revised$^4$
+@end iftex
+@ifinfo
+Revised^4
+@end ifinfo
+Report on the Algorithmic Language Scheme (usually known as R4RS),
+providing clean and general data and control structures.  Guile goes
+beyond the rather austere language presented in R4RS, extending it with
+a module system, full access to POSIX system calls, networking support,
+multiple threads, dynamic linking, a foreign function call interface,
+powerful string processing, and many other features needed for
+programming in the real world.
 
 Like a shell, Guile can run interactively, reading expressions from the
 user, evaluating them, and displaying the results, or as a script
@@ -529,11 +536,10 @@ into applications using Scheme as a configuration or extension
 language.  This chapter covers the mechanics of linking your program
 with Guile on a typical POSIX system.
 
-Parts III and IV of this manual describe the C functions Guile provides
-(see @ref{Part III: Using Scheme with C --- a Portable Interface}, and
-@ref{Part IV: Using Scheme with C --- Guile's Interface}).  Furthermore,
-any Scheme function described in this manual as a ``Primitive'' is also
-callable from C; see @ref{Relationship between Scheme and C functions}.
+Parts III and IV of this manual describe the C functions Guile provides.
+Furthermore, any Scheme function described in this manual as a
+``Primitive'' is also callable from C; see @ref{Relationship between
+Scheme and C functions}.
 
 The header file @code{<libguile.h>} provides declarations for all of
 Guile's functions and constants.  You should @code{#include} it at the
@@ -548,7 +554,7 @@ QuickThreads library, @code{-lqt}.
 
 @menu
 * Guile Initialization Functions::  What to call first.
-* Example: The Guile Main Program:: Sources and makefiles.
+* A Sample Guile Main Program::  Sources and makefiles.
 @end menu
 
 @node Guile Initialization Functions
@@ -610,13 +616,12 @@ application-specific initialization before calling this function.
 
 If you do not use this function to start Guile, you are responsible for
 making sure Guile's usual initialization files, @file{init.scm} and
-@file{ice-9/boot-9.scm}, get loaded.  This will change in a future
-version of Guile.
+@file{ice-9/boot-9.scm}, get loaded.  This will change soon.
 @end deftypefun
 
 
-@node Example: The Guile Main Program
-@section Example: The Guile Main Program
+@node A Sample Guile Main Program
+@section A Sample Guile Main Program
 
 Here is @file{simple-guile.c}, source code for a @code{main} and an
 @code{inner_main} function that will produce a complete Guile
@@ -661,9 +666,9 @@ CFLAGS=-I/usr/local/include -L/usr/local/lib
 LIBS=-lguile -lqt -lrx -lm
 
 simple-guile: simple-guile.o
-	${CC} ${CFLAGS} simple-guile.o ${LIBS} -o simple-guile
+	$@{CC@} $@{CFLAGS@} simple-guile.o $@{LIBS@} -o simple-guile
 simple-guile.o: simple-guile.c
-	${CC} -c ${CFLAGS} simple-guile.c
+	$@{CC@} -c $@{CFLAGS@} simple-guile.c
 @end example
 
 If you are using the GNU Autoconf package to make your application more
@@ -692,14 +697,14 @@ Here is a @code{Makefile.in} template, from which the @code{configure}
 script produces a Makefile customized for the host system:
 @example
 # The configure script fills in these values.
-CC=@CC@
-CFLAGS=@CFLAGS@
-LIBS=@LIBS@
+CC=@@CC@@
+CFLAGS=@@CFLAGS@@
+LIBS=@@LIBS@@
 
 simple-guile: simple-guile.o
-	${CC} ${CFLAGS} simple-guile.o ${LIBS} -o simple-guile
+	$@{CC@} $@{CFLAGS@} simple-guile.o $@{LIBS@} -o simple-guile
 simple-guile.o: simple-guile.c
-	${CC} -c ${CFLAGS} simple-guile.c
+	$@{CC@} -c $@{CFLAGS@} simple-guile.c
 @end example
 
 The developer should use Autoconf to generate the @file{configure}
