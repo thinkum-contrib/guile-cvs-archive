@@ -838,6 +838,21 @@ modern machines, because values will not usually be aligned for
 efficient access.  Four-byte encodings are too wasteful for a majority
 of Guile's users, who only need @sc{ASCII} and a few accented characters.
 
+Another alternative would be to have several different fixed-width
+string representations, each with a different element size.  For each
+string, Guile would use the smallest element size capable of
+accomodating the string's text.  This would allow users of English and
+the Western European languages to use the traditional memory-efficient
+encodings.  However, if Guile has @var{n} string representations, then
+users must write @var{n} versions of any code which manipulates text
+directly --- one for each element size.  And if a user wants to operate
+on two strings simultaneously, and wants to avoid testing the string
+sizes within the loop, she must make @var{n}*@var{n} copies of the loop.
+Most users will simply not bother.  Instead, they will write code which
+supports only one string size, leaving us back where we started.  By
+using a single internal representation, Guile makes it easier for users
+to write multilingual code.
+
 Finally, Guile's multibyte encoding is not so bad.  Unlike a two- or
 four-byte encoding, it is efficient in space for American and European
 users.  Furthermore, the properties described above mean that many
