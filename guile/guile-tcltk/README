@@ -44,7 +44,9 @@ reports (and fixes!) to bug-guile@prep.ai.mit.edu.
 
 About This Distribution ==============================================
 
-Building and installing this distribution gives you:
+To build this package (the Guile Tcl/Tk interface), you must have
+already built installed the Guile core.  Building and installing this
+distribution gives you:
 
 guile-tcltk --- a stand-alone interpreter for Guile with the Tcl/Tk
 	interface linked in, usually installed in /usr/local/bin.
