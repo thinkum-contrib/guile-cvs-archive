@@ -1,0 +1,4 @@
+goops-doc_0.1.6-5_all.deb doc optional
+libgoops2_0.1.6-5_i386.deb libs optional
+goops_0.1.6-5_i386.deb interpreters optional
+libgoops2-dev_0.1.6-5_i386.deb devel optional
