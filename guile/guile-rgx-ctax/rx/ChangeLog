@@ -1,3 +1,8 @@
+Tue Sep 10 16:56:33 1996  Jim Blandy  <jimb@floss.cyclic.com>
+
+	* rgx.c: #include smob.h, mallocs.h, and chars.h.  Use
+	<libguile/MUMBLE> whenever #including Guile headers.
+
 Wed Sep  4 01:24:36 1996  Jim Blandy  <jimb@floss.cyclic.com>
 
 	* configure.in: Include $(srcdir)/.. in the header search path, so
