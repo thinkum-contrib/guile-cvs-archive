@@ -1,3 +1,5 @@
+* Invalidate generic function caches when classes are redefined
+
 * Remove assumption of single-symbol slot definitions from goops.c.
 
 * Add sort.c to libguile
