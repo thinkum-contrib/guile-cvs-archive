@@ -16,14 +16,14 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "gtkthreads.h"
-
 #include <glib.h>
 #include <libguile.h>
 
 #include <errno.h>
 #include <stdlib.h>
 #include <stdio.h>
+
+#include "gtkthreads.h"
 
 #define guile_print_error( name, num )                          \
   g_error( "file %s: line %d (%s): error %s during %s",         \
