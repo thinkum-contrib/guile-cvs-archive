@@ -41,7 +41,7 @@
   (make-number-element-generator *max-elem*))
 
 (define random-list
-  (lambda* (#&optional (generate-size default-size-generator)
+  (lambda* (#:optional (generate-size default-size-generator)
                        (generate-element default-element-generator)
                        (save? default-save?-function))
            (let* ((size (generate-size))
@@ -73,7 +73,7 @@
     (= 0 (remainder (random (+ x 1)) 2))))
 
 (define do-randomlist-stuff
-  (lambda* (#&key (count *iterations*) (save? default-save?-function)
+  (lambda* (#:key (count *iterations*) (save? default-save?-function)
                   (element-size default-size-generator)
                   (element-generator default-element-generator)
                   (munge-list (lambda (x) x)))
