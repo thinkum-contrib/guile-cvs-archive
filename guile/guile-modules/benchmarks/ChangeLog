@@ -1,3 +1,7 @@
+1999-12-22  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* eval1.scm: New file: Testing evaluator performance.
+
 1999-09-15  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
 	* gc.scm: New file: Testing GC performance.
