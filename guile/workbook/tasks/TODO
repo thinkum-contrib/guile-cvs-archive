@@ -1,4 +1,5 @@
 - Guile 1.4.2
+  - abstract access to libguilereadline, libqthreads
   - integrate docs into distribution
   - write 1.4-1.6 compatibility header
   - determine/document policy on how/why/when of removing things
