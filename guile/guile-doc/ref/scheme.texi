@@ -2217,17 +2217,45 @@ the same regular expression is used several times (for example, in a
 loop).  For better performance, you can compile a regular expression in
 advance and then match strings against the compiled regexp.
 
-@defun make-regexp str
+@defun make-regexp str [flag @dots{}]
 Compile the regular expression described by @var{str}, and return the
 compiled regexp structure.  If @var{str} does not describe a legal
 regular expression, @code{make-regexp} throws a
 @code{regular-expression-syntax} error.
 
-Guile does not yet support the POSIX compilation flags for regular
-expressions, i.e. @code{REG_ICASE} or @code{REG_NEWLINE}.  (The
-@code{REG_EXTENDED} flag is on by default, and there is not
-presently any way to turn it off.)  We plan to include support for these
-flags in the near future.
+The @var{flag} arguments change the behavior of the compiled regexp.
+The following flags may be supplied:
+
+@table @code
+@item regexp/icase
+Consider uppercase and lowercase letters to be the same when matching.
+
+@item regexp/newline
+If a newline appears in the target string, then permit the @samp{^} and
+@samp{$} operators to match immediately after or immediately before the
+newline, respectively.  Also, the @samp{.} and @samp{[^...]} operators
+will never match a newline character.  The intent of this flag is to
+treat the target string as a buffer containing many lines of text, and
+the regular expression as a pattern that may match a single one of those
+lines.
+
+@item regexp/basic
+Compile a basic (``obsolete'') regexp instead of the extended
+(``modern'') regexps that are the default.  Basic regexps do not
+consider @samp{|}, @samp{+} or @samp{?} to be special characters, and
+require the @samp{@{...@}} and @samp{(...)} metacharacters to be
+backslash-escaped (@pxref{Backslash Escapes}).  There are several other
+differences between basic and extended regular expressions, but these
+are the most significant.
+
+@item regexp/extended
+Compile an extended regular expression rather than a basic regexp.  This
+is the default behavior; this flag will not usually be needed.  If a
+call to @code{make-regexp} includes both @code{regexp/basic} and
+@code{regexp/extended} flags, the one which comes last will override
+the earlier one.
+@end table
+
 @end defun
 
 @defun regexp-exec regexp str [start]

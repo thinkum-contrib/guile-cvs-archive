@@ -1,3 +1,8 @@
+Fri Jun 27 00:31:25 1997  Tim Pierce  <twp@twp.tezcat.com>
+
+	* scheme.texi (Regexp Functions): Add docs for make-regexp flags
+	regexp/icase, regexp/newline, regexp/basic, regexp/extended.
+
 Mon Jun 23 12:35:57 1997  Tim Pierce  <twpierce@bio-5.bsd.uchicago.edu>
 
 	* appendices.texi (debugger user interface): new text.
