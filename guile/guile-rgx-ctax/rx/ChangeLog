@@ -1,3 +1,9 @@
+Sun Oct 13 08:50:08 1996  Gary Houston  <ghouston@actrix.gen.nz>
+
+	* rxposix.c (rx_regexec): was returning REG_NOMATCH if anchored,
+ 	which breaks REG_NEWLINE.  Instead, if rules->newline_anchor is
+ 	set then search for the next '\n'.
+
 Thu Oct 10 17:50:24 1996  Jim Blandy  <jimb@totoro.cyclic.com>
 
 	* Makefile.in (headers): Include rgx.h in the distribution.

@@ -304,7 +304,15 @@ rx_regexec (pmatch, preg, rules, start, end, string)
 	    return stat;
 	}
       if (anchored)
-	return REG_NOMATCH;
+	{
+	  if (rules->newline_anchor)
+	    {
+	      while (x < end && string[x] != '\n')
+		x++;
+	    }
+	  else
+	    return REG_NOMATCH;
+	}
     }
   return REG_NOMATCH;
 }
