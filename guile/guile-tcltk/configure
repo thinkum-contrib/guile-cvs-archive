@@ -610,9 +610,9 @@ test -z "$INSTALL_SCRIPT" && INSTALL_SCRIPT='${INSTALL_PROGRAM}'
 
 . $srcdir/../GUILE-VERSION
 
-PACKAGE=gtcltk-lib
+PACKAGE=$PACKAGE
 
-VERSION=
+VERSION=$VERSION
 
 cat >> confdefs.h <<EOF
 #define VERSION "$VERSION"
