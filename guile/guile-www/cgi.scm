@@ -1,6 +1,6 @@
 ;;; www/cgi.scm --- Common Gateway Interface support for WWW scripts
 
-;; 	Copyright (C) 1997,2001,2002, 2003 Free Software Foundation, Inc.
+;; 	Copyright (C) 1997,2001,2002, 2003, 2004 Free Software Foundation, Inc.
 ;;
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -136,7 +136,7 @@
 		    "application/x-www-form-urlencoded")
        (parse-form (read-raw-form-data)))
   (and cgi-content-length
-       (string-ci=? (make-shared-substring cgi-content-type 0 19)
+       (string-ci=? (substring cgi-content-type 0 19)
 		    "multipart/form-data")
        (parse-form-multipart (read-raw-form-data)))
   (and cgi-query-string
@@ -203,10 +203,10 @@
   ;; Values are URL-encoded, so url:decode must be called on each one.
   (define (get-name pair)
     (let ((p (string-index pair #\=)))
-      (and p (make-shared-substring pair 0 p))))
+      (and p (substring pair 0 p))))
   (define (get-value pair)
     (let ((p (string-index pair #\=)))
-      (and p (url:decode (make-shared-substring pair (+ p 1))))))
+      (and p (url:decode (substring pair (+ p 1))))))
   (for-each (lambda (pair)
 	      (let* ((name (get-name pair))
 		     (value (get-value pair))
@@ -235,21 +235,21 @@
 	    (let ((n-str (string-length str)))
 	      (if (< n-str boundary-len)
 		  #f
-		  (if (string=? boundary (make-shared-substring
+		  (if (string=? boundary (substring
                                           str 0 boundary-len))
 		      n
-		      (find-bound-h (make-shared-substring str 1 n-str)
+		      (find-bound-h (substring str 1 n-str)
                                     (+ n 1))))))
 	  (find-bound-h str 0))
 	(let* ((seg-start (find-bound str))
-	       (seg-length (find-bound (make-shared-substring
+	       (seg-length (find-bound (substring
                                         str (+ seg-start boundary-len)
                                         (string-length str)))))
 	  (if (and seg-start seg-length)
-	      (cons (make-shared-substring
+	      (cons (substring
                      str (+ seg-start boundary-len)
                      (+ seg-start seg-length boundary-len -2))
-		    (make-shared-substring
+		    (substring
                      str (+ seg-start seg-length boundary-len)
                      (string-length str)))
 	      #f)))
@@ -376,8 +376,8 @@
              (str str))
     (let ((pos (string-rindex str ch)))
       (if pos
-	  (loop (cons (make-shared-substring str (+ 1 pos)) fields)
-		(make-shared-substring str 0 pos))
+	  (loop (cons (substring str (+ 1 pos)) fields)
+		(substring str 0 pos))
 	  (cons str fields)))))
 
 ;;; www/cgi.scm ends here
