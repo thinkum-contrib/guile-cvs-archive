@@ -44,6 +44,10 @@
 
 /* Cooperative thread library, based on QuickThreads */
 
+#if HAVE_CONFIG_H
+#  include <config.h>
+#endif
+
 #include <stdio.h>
 
 #ifdef HAVE_UNISTD_H 
@@ -390,7 +394,7 @@ coop_condition_variable_wait_mutex (coop_c *c, coop_m *m)
 int 
 coop_condition_variable_timed_wait_mutex (coop_c *c,
 					  coop_m *m,
-					  const struct timespec *abstime)
+					  const scm_t_timespec *abstime)
 {
   coop_t *old, *t;
 #ifdef ETIMEDOUT
