@@ -256,7 +256,8 @@ Part III: Guile Modules
 Part IV: Guile Scripting
 
 * Guile Scripting::             How to write Guile scripts.
-
+* Command Line Handling::       Command line options and arguments.
+ 
 Part V: Extending Applications Using Guile
 
 * Libguile Intro::              Using Guile as an extension language.
@@ -335,6 +336,7 @@ Indices
 @end iftex
 
 @include scripts.texi
+@include script-getopt.texi
 
 @c Guile as an extension language
 @iftex
