@@ -4,7 +4,7 @@ AUTOMAKE_OPTIONS = foreign
 
 INCLUDES = -I$(srcdir)/../libguile -I$(srcdir)/.. -I../
 
-lib_PROGRAMS = librx.la
+lib_LTLIBRARIES = librx.la
 librx_la_SOURCES = rx.h hashrexp.c inst-rxposix.h rgx.c rgx.h rx.c \
 rx.h rxall.h rxanal.c rxanal.h rxbasic.c rxbasic.h rxbitset.c rxbitset.h \
 rxcontext.h rxcset.c rxcset.h rxdbug.c rxgnucomp.c rxgnucomp.h rxhash.c \
