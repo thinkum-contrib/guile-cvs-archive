@@ -1,5 +1,10 @@
 2000-03-30  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
+	* gtkthreads.c, threads.scm (gtkthreads-update): Disabled.  (Not
+	needed.  The true reason why things didn't get updated was simply
+	that the X queue wasn't flushed.  This can be done with
+	`gdk-flush'.)
+
 	* Makefile.am: Add gtkthreads.x to BUILT_SOURCES.
 
 	* gtkthreads.c, gtkthreads.h (gtkthreads-update): New procedure:
