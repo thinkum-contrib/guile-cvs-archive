@@ -518,6 +518,8 @@ fi
 
 
 
+. $srcdir/../GUILE-VERSION
+
 # Extract the first word of "gcc", so it can be a program name with args.
 set dummy gcc; ac_word=$2
 echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
@@ -608,7 +610,7 @@ else
   # On the NeXT, cc -E runs the code through the compiler's parser,
   # not just through cpp.
   cat > conftest.$ac_ext <<EOF
-#line 612 "configure"
+#line 614 "configure"
 #include "confdefs.h"
 #include <assert.h>
 Syntax Error
@@ -622,7 +624,7 @@ else
   rm -rf conftest*
   CPP="${CC-cc} -E -traditional-cpp"
   cat > conftest.$ac_ext <<EOF
-#line 626 "configure"
+#line 628 "configure"
 #include "confdefs.h"
 #include <assert.h>
 Syntax Error
@@ -835,7 +837,7 @@ test -z "$x_direct_test_library" && x_direct_test_library=Xt
 test -z "$x_direct_test_function" && x_direct_test_function=XtMalloc
 test -z "$x_direct_test_include" && x_direct_test_include=X11/Intrinsic.h
 cat > conftest.$ac_ext <<EOF
-#line 839 "configure"
+#line 841 "configure"
 #include "confdefs.h"
 #include <$x_direct_test_include>
 EOF
@@ -898,7 +900,7 @@ rm -f conftest*
 ac_save_LIBS="$LIBS"
 LIBS="-l$x_direct_test_library $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 902 "configure"
+#line 904 "configure"
 #include "confdefs.h"
 
 int main() { return 0; }
@@ -1017,7 +1019,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lICE  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 1021 "configure"
+#line 1023 "configure"
 #include "confdefs.h"
 
 int main() { return 0; }
@@ -1061,7 +1063,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-ldnet  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 1065 "configure"
+#line 1067 "configure"
 #include "confdefs.h"
 
 int main() { return 0; }
@@ -1096,7 +1098,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-ldnet_stub  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 1100 "configure"
+#line 1102 "configure"
 #include "confdefs.h"
 
 int main() { return 0; }
@@ -1136,7 +1138,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lnsl  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 1140 "configure"
+#line 1142 "configure"
 #include "confdefs.h"
 
 int main() { return 0; }
@@ -1175,7 +1177,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lsocket  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 1179 "configure"
+#line 1181 "configure"
 #include "confdefs.h"
 
 int main() { return 0; }
@@ -1217,7 +1219,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-ldl  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 1221 "configure"
+#line 1223 "configure"
 #include "confdefs.h"
 
 int main() { return 0; }
@@ -1256,7 +1258,7 @@ else
   ac_cv_c_cross=yes
 else
 cat > conftest.$ac_ext <<EOF
-#line 1260 "configure"
+#line 1262 "configure"
 #include "confdefs.h"
 main(){return(0);}
 EOF
@@ -1280,7 +1282,7 @@ if eval "test \"`echo '$''{'ac_cv_header_alloca_h'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 1284 "configure"
+#line 1286 "configure"
 #include "confdefs.h"
 #include <alloca.h>
 int main() { return 0; }
@@ -1312,7 +1314,7 @@ if eval "test \"`echo '$''{'ac_cv_func_alloca'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 1316 "configure"
+#line 1318 "configure"
 #include "confdefs.h"
 
 #ifdef __GNUC__
@@ -1371,7 +1373,7 @@ if eval "test \"`echo '$''{'ac_cv_os_cray'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 1375 "configure"
+#line 1377 "configure"
 #include "confdefs.h"
 #if defined(CRAY) && ! defined(CRAY2)
 webecray
@@ -1400,7 +1402,7 @@ if eval "test \"`echo '$''{'ac_cv_func_$ac_func'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 1404 "configure"
+#line 1406 "configure"
 #include "confdefs.h"
 /* System header to define __stub macros and hopefully few prototypes,
     which can conflict with char $ac_func(); below.  */
@@ -1454,7 +1456,7 @@ else
   ac_cv_c_stack_direction=0
 else
 cat > conftest.$ac_ext <<EOF
-#line 1458 "configure"
+#line 1460 "configure"
 #include "confdefs.h"
 find_stack_direction ()
 {
@@ -1489,6 +1491,7 @@ cat >> confdefs.h <<EOF
 EOF
 
 fi
+
 
 
 trap '' 1 2 15
@@ -1631,6 +1634,7 @@ s%@X_LIBS@%$X_LIBS%g
 s%@X_EXTRA_LIBS@%$X_EXTRA_LIBS%g
 s%@ALLOCA@%$ALLOCA%g
 s%@DL_LIBS@%$DL_LIBS%g
+s%@GUILE_VERSION@%$GUILE_VERSION%g
 
 CEOF
 EOF
