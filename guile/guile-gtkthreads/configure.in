@@ -8,10 +8,22 @@ AC_PROG_CC
 AC_PROG_CPP
 AM_PROG_LIBTOOL
 
-GUILE_FLAGS
+AC_MSG_CHECKING(for gtk)
+gtk-config --libs gthread > /dev/null || {
+  echo "configure: cannot find gtk-config: Is gtk installed?" 1>&2
+  exit 1
+}
+LIBS="`gtk-config --libs gthread` $LIBS"
+AC_MSG_RESULT(yes)
 
-CFLAGS="$CFLAGS $GUILE_CFLAGS"
-LIBS="$GUILE_LDFLAGS $LIBS"
+AC_MSG_CHECKING(for guile-gtk)
+build-guile-gtk cflags > /dev/null || {
+  echo "configure: cannot find build-guile-gtk: Is guile-gtk installed?" 1>&2
+  exit 1
+}
+CFLAGS="`build-guile-gtk cflags` $CFLAGS"
+LIBS="`build-guile-gtk libs` $LIBS"
+AC_MSG_RESULT(yes)
 
 AC_MSG_CHECKING(that Guile is recent enough)
 AC_EGREP_CPP(guile_is_recent_enough,
@@ -38,9 +50,6 @@ case "$GCC" in
     CFLAGS="$CFLAGS -Wall -Wpointer-arith -Wmissing-prototypes" ;;
 esac
 
-CFLAGS="`gtk-config --cflags` $CFLAGS"
-LIBS="$LIBS `gtk-config --libs gthread`"
-
 AC_CACHE_CHECK([for thread_create in GThreadFunctions],
 	       ac_cv_struct_thread_create,
                [AC_TRY_COMPILE([#include <glib.h>],
@@ -50,6 +59,8 @@ AC_CACHE_CHECK([for thread_create in GThreadFunctions],
 if test $ac_cv_struct_thread_create = yes; then
   AC_DEFINE(HAVE_THREAD_CREATE)
 fi
+
+AC_CHECK_FUNCS(sgtk_gdk_threads_enter)
 
 AC_OUTPUT(Makefile)
 
