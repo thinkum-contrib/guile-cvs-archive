@@ -1,3 +1,8 @@
+2001-04-10  Marius Vollmer  <mvo@zagadka.ping.de>
+
+	* core-common.h (jit_die): Define as noop when not defined by the
+	architecture specific core.
+
 2001-04-06  Marius Vollmer  <mvo@zagadka.ping.de>
 
 	* i386/core.h (jit_return): Added.
