@@ -1,3 +1,7 @@
+- Guile 1.4.1
+  - back port ice-9/and-let*.scm naming fix
+
+
 - Guile 1.6
   - document libtool conventions [rlb]
   + write workbook/build/maintainer-dirs.text [ttn]
