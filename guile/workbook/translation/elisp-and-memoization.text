@@ -1,0 +1,260 @@
+
+NJ 2002-11-24 This file records an unresolved conversation about how
+the timing of Guile's memoization and the current implementation of
+Elisp translation result in a behaviour that is different from that of
+Emacs.
+
+
+From: Dirk Herrmann <dirk@sallust.ida.ing.tu-bs.de>
+Subject: Re: bug in syncase
+To: Neil Jerram <neil@ossau.uklinux.net>
+Cc: Guile Development <guile-devel@gnu.org>
+Date: Thu, 21 Nov 2002 18:53:51 +0100 (CET)
+
+Hello Neil,
+
+> ;;; NIL-COND expressions have the form:
+> ;;;
+> ;;; (nil-cond COND VAL COND VAL ... ELSEVAL)
+
+OK, done with that one.
+
+> @fop is used to translate an Elisp application, and is complicated in
+> two ways:
+> 
+> - When the application is translated, we don't know whether the CAR of
+>   the application represents a function or a macro, and therefore
+>   whether the application arguments need to be translated.
+> 
+> - The symbol in the CAR may need to be looked up recursively, for
+>   defalias support.
+> 
+> The Scheme translation code translates (fn arg ...) to (@fop fn
+> (transformer-macro arg ...)). Then, when (@fop ...) is memoized and
+> evaluated,
+> 
+> - scm_m_atfop changes it to (#@apply fnval (transformer-macro arg
+>   ...))  if fnval is a function, or (fnval arg ...) if fnval is a
+>   macro, where fnval is the function or macro obtained from looking up
+>   fn's symbol function slot (recursively if needed)
+> 
+> - remaining evaluation of (#@apply fnval (transformer-macro arg ...))
+>   or (fnval arg ...) is done by the evaluator.
+
+I have some questions about that one:  As you say, scm_m_atfop changes the
+code in one of two ways, depending on the state of fnval at some point in
+time.  Currently, this time is when the code is _executed_.  See the
+following example:
+  (define foo 1)
+  (define (fn) <some code>)
+  (define (bar) (if (= foo 2) (@fop fn (transformer-macro arg ...)))))
+  (bar)
+  (define foo 2)
+  (defmacro fn args <some macro transformer>)
+  (bar)
+In the current implementation, the decision, how the @fop expression
+should be changed, would be taken when foo was set to 2.  In contrast,
+with my memoization phase I would like to perform the transformation
+(including the expansion of the transformer-macro expression) at the point
+where bar gets defined.
+
+In other words:  Are there any statements about _when_ the expansion of
+the @fop macro and the transformer-macro should happen?
+
+Best regards,
+Dirk Herrmann
+
+
+From: Neil Jerram <neil@ossau.uklinux.net>
+Subject: Re: bug in syncase
+To: Dirk Herrmann <dirk@sallust.ida.ing.tu-bs.de>
+Cc: Guile Development <guile-devel@gnu.org>
+Date: 21 Nov 2002 20:22:45 +0000
+
+>>>>> "Dirk" == Dirk Herrmann <dirk@sallust.ida.ing.tu-bs.de> writes:
+
+    Dirk> In the current implementation, the decision, how the @fop
+    Dirk> expression should be changed, would be taken when foo was
+    Dirk> set to 2.  In contrast, with my memoization phase I would
+    Dirk> like to perform the transformation (including the expansion
+    Dirk> of the transformer-macro expression) at the point where bar
+    Dirk> gets defined.
+
+    Dirk> In other words: Are there any statements about _when_ the
+    Dirk> expansion of the @fop macro and the transformer-macro should
+    Dirk> happen?
+
+I would say that there are no statements except that transformed Elisp
+code should behave in the same way as Emacs.
+
+In Emacs:
+
+(setq foo 1)
+1
+(defun fn () 'function-value)
+fn
+(defun bar () (if (= foo 2) (fn)))
+bar
+(bar)
+nil
+(defmacro fn () ''macro-value)
+fn
+(bar)
+nil
+(setq foo 2)
+2
+(bar)
+macro-value
+(defun fn () 'function-value)
+fn
+(bar)
+function-value
+
+In Guile (current unstable CVS):
+
+guile> (use-modules (lang elisp base))
+guile> (define-module (lang elisp base))
+#<directory (lang elisp base) 4033e1f0>
+guile> (setq foo 1)
+1
+guile> (defun fn () 'function-value)
+fn
+guile> (defun bar () (if (= foo 2) (fn)))
+bar
+guile> (bar)
+#nil
+guile> (defmacro fn () ''macro-value)
+guile> (bar)
+#nil
+guile> (setq foo 2)
+2
+guile> (bar)
+macro-value
+guile> (defun fn () 'function-value)
+fn
+guile> (bar)
+macro-value
+
+So Guile as it stands is already wrong in the last result.  It looks
+as though Emacs behaves as though there is no memoization at all.
+
+It strikes me that macros have two meanings that are confused.
+
+1 is to prevent automatic evaluation of arguments.
+
+2 is to gain execution efficiency by expanding/transforming code at
+read time.
+
+Apparently Emacs does 1 but not 2.  I wonder if Guile's macros should
+offer explicit control over which of 1 and 2 should apply.
+
+        Neil
+
+
+From: Dirk Herrmann <dirk@sallust.ida.ing.tu-bs.de>
+Subject: Re: bug in syncase
+To: Neil Jerram <neil@ossau.uklinux.net>
+Cc: Guile Development <guile-devel@gnu.org>
+Date: Sat, 23 Nov 2002 11:53:54 +0100 (CET)
+
+On 21 Nov 2002, Neil Jerram wrote:
+
+> >>>>> "Dirk" == Dirk Herrmann <dirk@sallust.ida.ing.tu-bs.de> writes:
+> 
+>     Dirk> In the current implementation, the decision, how the @fop
+>     Dirk> expression should be changed, would be taken when foo was
+>     Dirk> set to 2.  In contrast, with my memoization phase I would
+>     Dirk> like to perform the transformation (including the expansion
+>     Dirk> of the transformer-macro expression) at the point where bar
+>     Dirk> gets defined.
+> 
+>     Dirk> In other words: Are there any statements about _when_ the
+>     Dirk> expansion of the @fop macro and the transformer-macro should
+>     Dirk> happen?
+> 
+> I would say that there are no statements except that transformed Elisp
+> code should behave in the same way as Emacs.
+> 
+> In Emacs:
+[example deleted]
+> 
+> In Guile (current unstable CVS):
+[example deleted]
+> 
+> So Guile as it stands is already wrong in the last result.  It looks
+> as though Emacs behaves as though there is no memoization at all.
+
+There is a mechanism in scheme that allows to prevent memoization:  eval.
+If it is correct that emacs does not perform memoization, then it might be
+that the whole concept of the @fop memoization is wrong.  Could you check
+whether it is possible to achieve emacs' behaviour by replacing the @fop
+solution by a solution based on eval (or some elisp equivalent of this)?
+I would postpone working on @fop until this is solved - there are still
+enough other things to do for me :-)
+
+Best regards
+Dirk
+
+
+From: Neil Jerram <neil@ossau.uklinux.net>
+Subject: Re: bug in syncase
+To: Dirk Herrmann <dirk@sallust.ida.ing.tu-bs.de>
+Cc: Guile Development <guile-devel@gnu.org>
+Date: 24 Nov 2002 09:25:14 +0000
+
+>>>>> "Dirk" == Dirk Herrmann <dirk@sallust.ida.ing.tu-bs.de> writes:
+
+    Dirk> There is a mechanism in scheme that allows to prevent
+    Dirk> memoization: eval.  If it is correct that emacs does not
+    Dirk> perform memoization, then it might be that the whole concept
+    Dirk> of the @fop memoization is wrong.  Could you check whether
+    Dirk> it is possible to achieve emacs' behaviour by replacing the
+    Dirk> @fop solution by a solution based on eval (or some elisp
+    Dirk> equivalent of this)?  I would postpone working on @fop until
+    Dirk> this is solved - there are still enough other things to do
+    Dirk> for me :-)
+
+Is this a blocking problem for you?  If it isn't, I'd say that we
+don't particularly have to solve this problem now.  It is only
+relevant in the pathological scenario where a symbol previously
+defined as a function becomes a macro, and vice versa, so it's a low
+priority bug.  (For example, much lower priority than the odd
+behaviour of array?.)
+
+(So we don't lose the details, I'll add a file
+translation/elisp-and-memoization.text to the workbook shortly.)
+
+For when we do solve it, here are two considerations.
+
+- I dislike explicit uses of eval, so would prefer not to have to use
+  such an approach.
+
+- Looking at the analogous example in Scheme, have we agreed
+  (definitively) that Guile should _not_ detect the redefinition and
+  rememoize accordingly?
+
+Regards,
+        Neil
+
+
+From: Marius Vollmer <mvo@zagadka.ping.de>
+Subject: Re: bug in syncase
+To: Neil Jerram <neil@ossau.uklinux.net>
+Cc: Dirk Herrmann <dirk@sallust.ida.ing.tu-bs.de>,
+	Guile Development <guile-devel@gnu.org>
+Date: 23 Nov 2002 14:01:18 +0100
+
+Neil Jerram <neil@ossau.uklinux.net> writes:
+
+> So Guile as it stands is already wrong in the last result.  It looks
+> as though Emacs behaves as though there is no memoization at all.
+
+Does Emacs behave like this even when the code is compiled?
+
+-- 
+GPG: D5D4E405 - 2F9B BCCC 8527 692A 04E3  331E FAF8 226A D5D4 E405
+
+
+NJ: Marius's question has not yet been answered.
+
+
