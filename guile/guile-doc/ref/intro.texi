@@ -141,11 +141,11 @@ script, instead of soliciting the user for input from the terminal.
 There are more elaborate things to do here; see @ref{The Meta Argument}
 
 @item
-Then should appear a newline.
+Follow this with a newline.
 
 @item
-The second line should contain only the characters @samp{!#} --- just
-like the top of the file, but reversed.
+The second line of the script should contain only the characters
+@samp{!#} --- just like the top of the file, but reversed.
 
 @item
 The rest of the file should be a series of arbitrary Scheme definitions
@@ -197,25 +197,27 @@ recognizing the switches described below.  For examples, see
 
 @table @code
 
-@item -s @var{script} @var{arg ...}
+@item -s @var{script} @var{arg...}
 Read and evaluate Scheme source code from the file @var{script}, as the
 @code{load} function would.  After loading @var{script}, exit.  Any
-command-line arguments following @var{script} become the script's
-arguments; the @code{command-line} function returns a list of strings
-of the form @code{(@var{script} @var{arg...})}.
+command-line arguments @var{arg...} following @var{script} become the
+script's arguments; the @code{command-line} function returns a list of
+strings of the form @code{(@var{script} @var{arg...})}.
 
-@item -c @var{expr} @var{arg ...}
+@item -c @var{expr} @var{arg...}
 Evaluate @var{expr} as Scheme code, and then exit.  Any command-line
-arguments following @var{expr} become command-line arguments; the
+arguments @var{arg...} following @var{expr} become command-line arguments; the
 @code{command-line} function returns a list of strings of the form
 @code{(@var{guile} @var{arg...})}, where @var{guile} is the path of the
 Guile executable.
 
-@item -- @var{arg ...}
+@item -- @var{arg...}
 Run interactively, prompting the user for expressions and evaluating
-them.  As for @code{-c}, the @code{command-line} function returns a list
-of strings of the form @code{(@var{guile} @var{arg...})}, where
-@var{guile} is the path of the Guile executable.
+them.  Any command-line arguments @var{arg...} following the @code{--}
+become command-line arguments for the interactive session; the
+@code{command-line} function returns a list of strings of the form
+@code{(@var{guile} @var{arg...})}, where @var{guile} is the path of the
+Guile executable.
 
 @item -l @var{file}
 Load Scheme source code from @var{file}, and continue processing
