@@ -7,7 +7,9 @@
 
 	* goops.scm (compute-get-n-set): Use `assert-bound' in the class
 	allocation getters.
-
+	(make-get): Use `assert-bound' for versions of Guile which don't
+	have boundness check in eval.c.
+	
 1999-12-15  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* goops.c (scm_compute_applicable_methods): Bugfix: An accessor is
