@@ -1,7 +1,7 @@
 ;;;; lib.scm --- utility functions for running benchmarks
 ;;;; Jim Blandy <jimb@red-bean.com> --- April 1999
 
-(define-module (benchmark lib)
+(define-module (benchmarks lib)
   #:use-module (ice-9 format))
 (export start-log end-log
 	log-text log-data

@@ -1,17 +1,17 @@
 ;;;; ports.scm --- some naive benchmarks for Guile's I/O ports
 ;;;; Jim Blandy <jimb@red-bean.com> --- April 1999
 
-(define-module (benchmark port)
-  #:use-module (benchmark lib))
-(export port-run)
+(define-module (benchmarks ports)
+  #:use-module (benchmarks lib))
+(export ports-run)
 
-(define data-dir "/home/jimb/guile/src/modules/modules/benchmark")
+(define data-dir "/home/jimb/guile/src/modules/modules/benchmarks")
 
 ;;; This file contains one really big s-expression.
-(define data-file-1 (in-vicinity data-dir "port-data-1"))
+(define data-file-1 (in-vicinity data-dir "ports-data-1"))
 
 ;;; This file contains a lot of lines, of lengths typical of English text.
-(define data-file-2 (in-vicinity data-dir "port-data-2"))
+(define data-file-2 (in-vicinity data-dir "ports-data-2"))
 
 (define (read-sexp) 
   (time-accumulate
@@ -102,14 +102,13 @@
 ;;; The total GC time increases by a factor of eight.  I don't really
 ;;; know what's going on here.
 ;;;
-;;; Maybe what this means is that my whole benchmarking approach is
+;;; Maybe what this means is that this whole benchmarking approach is
 ;;; wrong --- I should start a separate Guile process for each test,
 ;;; and try to calibrate for startup time.  But in that case, how does
 ;;; the framework know how much time Guile spent in GC?
 
-(define (port-run)
+(define (ports-run)
   (benchmark-title "ports" 4)
-
   (read-sexp)
   (write-sexp)
   (read-lines)
