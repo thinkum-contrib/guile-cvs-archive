@@ -1,3 +1,8 @@
+2000-07-31  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* scm.texi (Relationship between Scheme and C functions):
+	Expand.  (Contributed by Thien-Thi Nguyen <ttn@gnu.org>.)
+
 2000-07-30  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* scheme.texi (Association Lists): New, more complete
