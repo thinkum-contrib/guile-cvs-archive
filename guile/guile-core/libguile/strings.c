@@ -39,6 +39,9 @@ static int debugme = 0;
 SCM scm_sys_debug_strings (void);
 SCM scm_sys_string_dump (SCM str);
 
+static SCM debug_buf = SCM_BOOL_F;
+
+
 SCM_DEFINE (scm_sys_debug_strings, "%debug-strings", 0, 0, 0,
 	    (), "")
 #define FUNC_NAME s_scm_sys_debug_strings
@@ -50,7 +53,15 @@ SCM_DEFINE (scm_sys_debug_strings, "%debug-strings", 0, 0, 0,
 
 
 /* Stringbufs 
+ *
+ * XXX - keeping an accurate refcount seems to be quite tricky, so we
+ * just keep score of whether a stringbuf might be shared, not wether
+ * it definitely is.  The refcount is either 1 for a guaranteed
+ * unshared stringbuf, or 2 for a possibly shared one.
  */
+
+#define ACCURATE_REFCOUNTS
+#define ACCURATE_GC_REFCOUNTS
 
 #define STRINGBUF_TAG           scm_tc7_stringbuf
 #define STRINGBUF_REFCOUNT(buf) ((size_t)(SCM_CELL_WORD_3 (buf)))
@@ -77,7 +88,9 @@ make_stringbuf (size_t len)
 SCM
 scm_i_stringbuf_mark (SCM buf)
 {
+#ifdef ACCURATE_GC_REFCOUNTS
   SET_STRINGBUF_REFCOUNT (buf, 0);
+#endif
   return SCM_BOOL_F;
 }
 
@@ -93,7 +106,13 @@ static void
 stringbuf_ref (SCM buf)
 {
   scm_i_plugin_mutex_lock (&stringbuf_refcount_mutex);
+#ifdef ACCURATE_REFCOUNTS
   SET_STRINGBUF_REFCOUNT (buf, STRINGBUF_REFCOUNT (buf) + 1);
+#else
+  SET_STRINGBUF_REFCOUNT (buf, 2);
+#endif
+  if (buf == debug_buf)
+    fprintf (stderr, "ss: %u\n", STRINGBUF_REFCOUNT (debug_buf));
   scm_i_plugin_mutex_unlock (&stringbuf_refcount_mutex);
 }
 
@@ -206,16 +225,37 @@ scm_i_string_mark (SCM str)
     return SH_STRING_STRING (str);
   else
     {
+#ifdef ACCURATE_GC_REFCOUNTS
       SCM buf = STRING_STRINGBUF (str);
       scm_gc_mark (buf);
-      SET_STRINGBUF_REFCOUNT(buf, STRINGBUF_REFCOUNT(buf) + 1);
+      SET_STRINGBUF_REFCOUNT (buf, STRINGBUF_REFCOUNT(buf) + 1);
       return SCM_BOOL_F;
+#else
+      return STRING_STRINGBUF (str);
+#endif
+    }
+}
+
+void
+scm_i_string_gc_hook (int what)
+{
+  static size_t before;
+
+  if (SCM_NIMP (debug_buf))
+    {
+      if (what == 0)
+	before = STRINGBUF_REFCOUNT (debug_buf);
+      else if (before != STRINGBUF_REFCOUNT (debug_buf))
+	fprintf (stderr, "gc: %u -> %u\n",
+		 before, STRINGBUF_REFCOUNT (debug_buf));
     }
 }
 
 void
 scm_i_string_free (SCM str)
 {
+  if (STRING_STRINGBUF (str) == debug_buf)
+    fprintf (stderr, "freeing %p\n", str);
 }
 
 /* Debugging
@@ -243,6 +283,7 @@ SCM_DEFINE (scm_sys_string_dump, "%string-dump", 1, 0, 0,
       fprintf (stderr, "  chars:  %p\n", STRINGBUF_CHARS (buf));
       fprintf (stderr, "  length: %u\n", STRINGBUF_LENGTH (buf));
       fprintf (stderr, "  refcnt: %u\n", STRINGBUF_REFCOUNT (buf));
+      debug_buf = buf;
     }
   return SCM_UNSPECIFIED;
 }
@@ -296,7 +337,11 @@ scm_i_string_writable_chars (SCM str)
 	      STRINGBUF_CHARS (buf) + STRING_START (str), len);
 
       scm_i_thread_put_to_sleep ();
+#ifdef ACCURATE_REFCOUNTS
       SET_STRINGBUF_REFCOUNT (buf, STRINGBUF_REFCOUNT (buf) - 1);
+#endif
+      if (buf == debug_buf)
+	fprintf (stderr, "cw: %u\n", STRINGBUF_REFCOUNT (buf));
       SET_STRING_STRINGBUF (str, new_buf);
       start -= STRING_START (str);
       SET_STRING_START (str, 0);
@@ -693,7 +738,7 @@ scm_take_locale_string (char *str)
   SCM buf, res;
 
   buf = scm_double_cell (STRINGBUF_TAG, (scm_t_bits) str,
-			 (scm_t_bits) len, 0);
+			 (scm_t_bits) len, (scm_t_bits) 1);
   res = scm_double_cell (STRING_TAG,
 			 SCM_UNPACK (buf),
 			 (scm_t_bits) 0, (scm_t_bits) len);
