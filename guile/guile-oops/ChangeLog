@@ -1,3 +1,22 @@
+1998-11-23  Mikael Djurfeldt  <mdj@barbara.nada.kth.se>
+
+	* goops/goops.scm: Removed module workaround; Added :use-module on
+	the module itself to load object code (which was what the
+	workaround did);  Export public primitives defined by the object
+	code.
+
+	* goops.h: Added declaration of scm_init_goops_goops_module.
+
+	* goops.c: Use new C level module interface <libguile/modules.h>
+	to define and get bindings in the correct module.  (Now the full
+	MOP should work!)
+
+	* guile-oops.c: Call scm_init_goops_goops_module instead of
+	scm_init_goops in order to postpone module creation until
+	requested.
+	
+	* configure.in: Use aggressive warning messages if CC=gcc.
+
 1998-11-22  Mikael Djurfeldt  <mdj@barbara.nada.kth.se>
 
 	* goops.c: Added #include <libguile/modules.h>
