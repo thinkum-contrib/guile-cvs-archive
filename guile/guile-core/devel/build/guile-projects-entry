@@ -1,4 +1,4 @@
-;;; $Date$
+;;; MAINTAINERS: Send this <guile-projects@glug.org>.
 ((name "guile")
  (category "Core")
  (keywords "Extension Language " "Scheme " "Interpreter")
