@@ -244,7 +244,7 @@ scm_mb_get_func (const unsigned char *p)
     }
   else if (lead < 0x9A)
     {
-      unsigned char set = load;
+      unsigned char set = lead;
       unsigned char pos_hi = p[1] & 0x7f;
       unsigned char pos_lo = p[2] & 0x7f;
 
@@ -417,7 +417,7 @@ scm_mb_count (const unsigned char *p, int len)
 scm_char_t
 scm_mb_walk (const unsigned char **pp)
 {
-  const unsigned char *p = *p;
+  const unsigned char *p = *pp;
   scm_char_t c = scm_mb_get (p);
   *pp = p + scm_mb_len (*p);
   return c;
@@ -540,7 +540,7 @@ scm_mb_multibyte_to_fixed (const unsigned char *p, int len, int *result_len)
   buf = scm_must_malloc (len * sizeof (*buf), "scm_mb_multibyte_to_fixed");
   buf_len = 0;
 
-  while (p < len)
+  while (p < end)
     {
       scm_char_t c = scm_mb_get (p);
       if (c < 0)
@@ -574,10 +574,7 @@ scm_mb_fixed_to_multibyte (const scm_char_t *fixed, int len, int *result_len)
   buf = scm_must_malloc (buf_size + 1, "scm_mb_fixed_to_multibyte");
   p = buf;
   for (i = 0; i < len; i++)
-    {
-      scm_mb_put (fixed[i], p);
-      p += scm_mb_len (*p);
-    }
+    p += scm_mb_put (fixed[i], p);
 
   /* Was the size we computed actually correct?  */
   if (p != buf + buf_size)

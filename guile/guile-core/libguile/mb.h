@@ -98,8 +98,8 @@ extern int scm_mb_len_char_func (scm_char_t c);
 #define scm_mb_boundary_p(p) (*(p) < 0xA0)
 
 /* Round P to the previous/next character boundary.  */
-extern unsigned char *scm_mb_floor (const unsigned char *p);
-extern unsigned char *scm_mb_ceiling (const unsigned char *p);
+extern const unsigned char *scm_mb_floor (const unsigned char *p);
+extern const unsigned char *scm_mb_ceiling (const unsigned char *p);
 
 
 /* Multibyte string functions.  */
@@ -111,13 +111,14 @@ extern int scm_mb_count (const unsigned char *p, int len);
 extern scm_char_t scm_mb_walk (const unsigned char **pp);
 
 /* Return the address of the character before P.  */
-extern unsigned char *scm_mb_prev (const unsigned char *p);
+extern const unsigned char *scm_mb_prev (const unsigned char *p);
 
 /* Return the address of the character after P.  */
-extern unsigned char *scm_mb_next (const unsigned char *p);
+extern const unsigned char *scm_mb_next (const unsigned char *p);
 
 /* Return the location of the I'th character in LEN bytes at P.  */
-extern unsigned char *scm_mb_index (const unsigned char *p, int len, int i);
+extern const unsigned char *scm_mb_index (const unsigned char *p, int len,
+					  int i);
 
 /* A cache of information about the positions of characters in
    strings.  Initialize all elements to zero before using.  */
@@ -132,9 +133,9 @@ struct scm_mb_cache {
   ((i) <= (cache)->character && (cache)->character == (cache)->byte	\
    ? &(p)[(i)]								\
    : scm_mb_index_cached_func ((p), (len), (i), (cache)))
-extern unsigned char *scm_mb_index_cached_func (const unsigned char *p,
-						int len, int i, 
-						struct scm_mb_cache *cache);
+extern const unsigned char *scm_mb_index_cached_func (const unsigned char *p,
+						      int len, int i, 
+						      struct scm_mb_cache *cache);
 
 /* Convert a multibyte string to an array of scm_char_t's.
    The caller is responsible for freeing the result.  */

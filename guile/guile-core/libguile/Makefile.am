@@ -105,15 +105,18 @@ modinclude_DATA = scmconfig.h
 bin_SCRIPTS = guile-snarf
 
 check_ldadd = libguile.la ${THREAD_LIBS_LOCAL}
-check_PROGRAMS = gh_test_c gh_test_repl
+check_PROGRAMS = gh_test_c gh_test_repl check_mb
 gh_test_c_SOURCES = gh_test_c.c
 gh_test_c_LDADD = ${check_ldadd}
 gh_test_repl_SOURCES = gh_test_repl.c
 gh_test_repl_LDADD = ${check_ldadd}
+check_mb_SOURCES = check_mb.c
+check_mb_LDADD = ${check_ldadd}
 
 check-local:
 	echo '(+ 1 2 3)' | GUILE_LOAD_PATH=${top_srcdir}:.. ./gh_test_c; echo
 	echo '(+ 1 2 3)' | GUILE_LOAD_PATH=${top_srcdir}:.. ./gh_test_repl; echo
+	GUILE_LOAD_PATH=${top_srcdir}:.. ./check_mb
 
 EXTRA_DIST = ChangeLog-gh ChangeLog-scm ChangeLog-threads dynl-dl.c \
     dynl-dld.c dynl-shl.c dynl-vms.c DYNAMIC-LINKING cpp_signal.c cpp_errno.c \
