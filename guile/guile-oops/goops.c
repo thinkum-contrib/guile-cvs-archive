@@ -1098,6 +1098,28 @@ test_slot_existence (SCM class, SCM obj, SCM slot_name)
   return SCM_BOOL_F;
 }
 
+/* The current libguile logand doesn't handle bignums.
+ * This (primitive) version handles them up to 32 bits.
+ */
+
+SCM_PROC1 (s_sys_logand, "%logand", scm_tc7_asubr, scm_sys_logand);
+
+static SCM
+scm_sys_logand (SCM n1, SCM n2)
+{
+  if (SCM_UNBNDP (n2))
+    {
+      if (SCM_UNBNDP (n1))
+	return SCM_MAKINUM (-1);
+      return n1;
+    }
+  {
+    unsigned long u1 = scm_num2ulong (n1, (char *) 1, s_sys_logand);
+    unsigned long u2 = scm_num2ulong (n2, (char *) 2, s_sys_logand);
+    return scm_ulong2num (u1 & u2);
+  }
+}
+
 		/* ======================================== */
 
 SCM_PROC (s_slot_ref_using_class, "slot-ref-using-class", 3, 0, 0, scm_slot_ref_using_class);
