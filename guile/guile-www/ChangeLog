@@ -1,3 +1,7 @@
+2001-11-21  Thien-Thi Nguyen  <ttn@glug.org>
+
+	* wwwcat: Fix typo.  Thanks to Ralf Mattes.
+
 2001-11-18  Thien-Thi Nguyen  <ttn@glug.org>
 
 	* configure.in: Bump to version 1.0.1 for release.
