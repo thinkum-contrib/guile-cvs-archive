@@ -1,3 +1,8 @@
+2004-01-24  Kevin Ryde  <user42@zip.com.au>
+
+	* http.scm (http:user-agent): Use "/" as per rfc1945 sec 3.7.
+	* doc/guile-www.texi (http): Describe http:user-agent.
+
 2004-01-09  Kevin Ryde  <user42@zip.com.au>
 
 	* cgi.scm, http.scm: Use substring instead of make-shared-substring,
