@@ -14,7 +14,7 @@
 
 
 - Guile 1.6 (branched: only modify items according to ../build/release.txt)
-  - document libtool conventions [rlb]
+  + document libtool conventions [rlb]
   + write workbook/build/maintainer-dirs.text [ttn]
   + write guile-core/am/maintainer-dirs [ttn]
   +R merge HEAD and branch_release-1-6 TODO files into this one [ttn]
@@ -31,13 +31,13 @@
   + show news on guile webpage [ttn]
   + write build/bugs-triage.text [ttn]
   + complete build/stability.text [ttn]
-  - make sure all bugs have required headers
-  - fix bugs
+  + make sure all bugs have required headers
+  + fix bugs
     + 15 (summary: (expt 0 0) -> 0)
     + string-tokenize-is-wrong
-    - instructions-to-distributors
-    - COPYING-is-wrong
-  - make sure that libltdl has the patch #1 at the end of this file,
+    + instructions-to-distributors
+    + COPYING-is-wrong
+  + make sure that libltdl has the patch #1 at the end of this file,
     or is more recent than 1.4.2d.
 
 - Eventually
