@@ -1,4 +1,4 @@
-/*	Copyright (C) 1995,1996,1997,1998,1999 Free Software Foundation, Inc.
+/*	Copyright (C) 1999 Free Software Foundation, Inc.
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,6 +40,8 @@
  * If you do not wish that, delete this exception notice.  */
 
 /* Headers.  */
+
+#include <stdlib.h>
 
 #include "_scm.h"
 #include "mb.h"
@@ -179,11 +181,11 @@
 
 /* Exceptions.  */
 
-SCM_SYMBOL (text_not_char_boundary, "text:not-char-boundary");
-SCM_SYMBOL (text_bad_encoding,      "text:bad-encoding");
+SCM_GLOBAL_SYMBOL (scm_text_not_char_boundary, "text:not-char-boundary");
+SCM_GLOBAL_SYMBOL (scm_text_bad_encoding,      "text:bad-encoding");
 static const char text_bad_encoding_msg[] =
   "string contains byte sequence which is not a valid character encoding";
-SCM_SYMBOL (text_not_guile_char,    "text:not-guile-char");
+SCM_GLOBAL_SYMBOL (scm_text_not_guile_char,    "text:not-guile-char");
 
 
 
@@ -408,7 +410,7 @@ scm_mb_count (const unsigned char *p, int len)
   return count;
 
  error:
-  scm_error (text_bad_encoding, "scm_mb_count",
+  scm_error (scm_text_bad_encoding, "scm_mb_count",
 	     text_bad_encoding_msg, SCM_EOL, SCM_EOL);
 }
 
@@ -506,7 +508,7 @@ scm_mb_index_cached_func (const unsigned char *p, int len, int i,
       while (byte < len && i > character)
 	{
 	  if (! scm_mb_boundary_p (&p[byte]))
-	    scm_error (text_bad_encoding, "scm_mb_index",
+	    scm_error (scm_text_bad_encoding, "scm_mb_index",
 		       text_bad_encoding_msg, SCM_EOL, SCM_EOL);
 	  byte += scm_mb_len (p[byte]);
 	  character++;
@@ -544,7 +546,7 @@ scm_mb_multibyte_to_fixed (const unsigned char *p, int len, int *result_len)
     {
       scm_char_t c = scm_mb_get (p);
       if (c < 0)
-	scm_error (text_bad_encoding, "scm_mb_multibyte_to_fixed",
+	scm_error (scm_text_bad_encoding, "scm_mb_multibyte_to_fixed",
 		   text_bad_encoding_msg, SCM_EOL, SCM_EOL);
       buf[buf_len++] = c;
       p += scm_mb_len (*p);
