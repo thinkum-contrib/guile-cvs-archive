@@ -1,6 +1,10 @@
 #!/bin/sh
-# Usage: checkout-guile-cvs-module [-l username] module
+# Usage: checkout-guile-cvs-module [-l username] [-t] module
 # If "-l USERNAME" is omitted, user is taken from USER env var.
+# Normally, the effective module name is taken to be "guile/MODULE".
+# Optional arg "-t", parsed after "-l", means MODULE is a top-level
+# module (like "hack") instead of one step down from "guile/";
+# essentially MODULE is not prefixed.
 #
 # Description: Do "cvs co MODULE", placing that directory in cwd.
 
@@ -10,11 +14,18 @@ if [ x"$1" = x-l ] ; then
    user=$2 ; shift ; shift
 fi
 
+p="guile/"                              # -t kills prefix
+if [ x"$1" = x-t ] ; then
+   p="" ; shift
+fi
+
 if [ x"$1" = x ] ; then
    echo usage: $0 '[-l username] module'
    exit 1
 fi
 
-cvs -d :ext:${user}@subversions.gnu.org:/cvsroot/guile co -d $1 guile/$1
+cvs -d :ext:${user}@subversions.gnu.org:/cvsroot/guile co -d $1 $p$1
 
 exit $?
+
+# checkout-guile-cvs-module ends here
