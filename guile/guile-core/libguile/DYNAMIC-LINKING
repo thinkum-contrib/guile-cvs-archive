@@ -101,11 +101,11 @@ Here is my plan with indications of progress.
     scm_init_ice_9_gtcltk_module ();
 
   the TCL/Tk functions are made available in a module called
-  #/ice-9/gtcltk.
+  (ice-9 gtcltk).
 
   When you don't link libgtcltk into your application but put it
   somewhere in your %load-path, it will be linked dynamically upon the
-  first `:use-module #/ice-9/gtcltk'.  Using the %load-path for this
+  first `:use-module (ice-9 gtcltk)'.  Using the %load-path for this
   is probably not very smart.
 
   From boot-9:
@@ -130,7 +130,7 @@ Here is my plan with indications of progress.
 ;; To make your Guile extension into a dynamic linkable module, follow
 ;; these easy steps:
 ;;
-;; - Find a name for your module, like #/ice-9/gtcltk
+;; - Find a name for your module, like (ice-9 gtcltk)
 ;; - Write a function with a name like
 ;;
 ;;     scm_init_ice_9_gtcltk_module
@@ -150,7 +150,7 @@ Here is my plan with indications of progress.
 ;;
 ;;   and put it somewhere in %load-path.
 ;;
-;; - Then you can simply write `:use-module #/ice-9/gtcltk' and it
+;; - Then you can simply write `:use-module (ice-9 gtcltk)' and it
 ;;   will be linked automatically.
 ;;
 ;; This is all very experimental.
