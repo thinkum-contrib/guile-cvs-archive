@@ -39,6 +39,7 @@ otherwise broken by files left behind from other versions.
 
 "up-to-date" means the latest released versions at the time that Guile
 was obtained from CVS.  Sometimes older or newer versions will work.
+(See below for versions to avoid.)
 
 Then you must run the autogen.sh script, as described below.
 
@@ -72,6 +73,14 @@ flex --- a scanner generator.  It's probably not essential to have the
 
 One false move and you will be lost in a little maze of automatically
 generated files, all different.
+
+Here is the authoritative list of tool/version/platform tuples that
+have been known to cause problems, and a short description of the problem.
+
+- automake 1.4-p4 (debian "1:1.4-p4-1.1") all platforms
+  automake "include" facility does not recognize filenames w/ "-".
+
+- (add here.)
 
 
 Sample GDB Initialization File=========================================
