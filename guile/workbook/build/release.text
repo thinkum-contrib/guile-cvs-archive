@@ -366,10 +366,6 @@ Releasing Guile
       www.bowerbird.com.au will be something anyone refers to, but
       Guile does have an entry there.
 
-    - update ./guile-projects-entry and mail to guile-projects@glug.org
-
-    - update webpage news page
-
 * Volunteer Testers
 
   For test builds:
@@ -397,10 +393,6 @@ Releasing Guile
   Perry Metzger <perry@piermont.com>
 
     NetBSD
-
-
-
-
 
 -- 
 Local Variables:
