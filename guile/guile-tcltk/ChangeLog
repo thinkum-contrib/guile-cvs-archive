@@ -1,3 +1,8 @@
+2000-03-22  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* guile-tcl.c, guile-tk.c, guile-tk.h: Removed SCM_P macro
+	invocations.
+
 1999-12-18  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* configure.in: Define SCM_MUTEX_INIT_TWO_ARGS if scm_mutex_init
