@@ -613,6 +613,25 @@
 	  (display ")>" file))
 	(next-method))))
 
+(define-method write-object ((o <method>) file)
+  (let ((meta (class-of o)))
+    (if (and (slot-bound? meta 'name)
+	     (slot-bound? o 'specializers))
+	(begin
+	  (display "#<" file)
+	  (display (class-name meta) file)
+	  (display #\space file)
+	  (display (map* (lambda (spec)
+			   (if (slot-bound? spec 'name)
+			       (slot-ref spec 'name)
+			       spec))
+			 (method-specializers o))
+		   file)
+	  (display #\space file)
+	  (display-address o file)
+	  (display #\> file))
+	(next-method))))
+
 ;; Teach all created classes how to print themselves
 (for-each (lambda (class)
 	    (slot-set! class 'print write-object))
