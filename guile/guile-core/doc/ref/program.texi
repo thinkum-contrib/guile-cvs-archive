@@ -292,8 +292,8 @@ static SCM square_p (SCM shape)
 
   /* Find out if underlying shape exists and is a
      square; return answer as a Scheme boolean. */
-  return SCM_BOOL (guile_shape->c_shape &&
-                   (guile_shape->c_shape->type == DIA_SQUARE));
+  return scm_from_bool (guile_shape->c_shape &&
+                        (guile_shape->c_shape->type == DIA_SQUARE));
 @}
 #undef FUNC_NAME
 @end lisp
@@ -303,13 +303,13 @@ parameter that @code{square_p} receives --- which is a SMOB --- to the
 Scheme-specific structure inside the SMOB, and thence to the underlying
 C structure for the shape.
 
-In this code, @code{SCM_SMOB_DATA} and @code{SCM_BOOL} are macros from
+In this code, @code{SCM_SMOB_DATA} and @code{scm_from_bool} are from
 the standard Guile API.  @code{SCM_VALIDATE_SHAPE} is a macro that you
-should define as part of your SMOB definition: it checks that the passed
-parameter is of the expected type.  This is needed to guard against
-Scheme code using the @code{square?} procedure incorrectly, as in
-@code{(square? "hello")}; Scheme's latent typing means that usage errors
-like this must be caught at run time.
+should define as part of your SMOB definition: it checks that the
+passed parameter is of the expected type.  This is needed to guard
+against Scheme code using the @code{square?} procedure incorrectly, as
+in @code{(square? "hello")}; Scheme's latent typing means that usage
+errors like this must be caught at run time.
 
 Having written the C code for your primitives, you need to make them
 available as Scheme procedures by calling the @code{scm_c_define_gsubr}
