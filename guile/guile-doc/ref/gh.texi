@@ -271,7 +271,7 @@ of type @code{SCM}) and return values of type @code{SCM}.
 @node C to Scheme
 @section C to Scheme
 
-@deftypefun SCM gh_bool (int @var{x})
+@deftypefun SCM gh_bool2scm (int @var{x})
 Returns @code{#f} if @var{x} is zero, @code{#t} otherwise.
 @end deftypefun
 
