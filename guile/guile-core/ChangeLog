@@ -1,3 +1,9 @@
+Wed Oct 22 16:06:38 1997  Jim Blandy  <jimb@totoro.red-bean.com>
+
+	* configure.in: Check for the readline library, and the termcap
+	library (on which readline relies).
+	* configure: Regenerated.
+
 1997-10-02  Marius Vollmer  <mvo@zagadka.ping.de>
 
 	Make dynamic linking work on Dec Unix. (Thanks to Clark McGrew)

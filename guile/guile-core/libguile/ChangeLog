@@ -1,3 +1,13 @@
+Wed Oct 22 16:13:47 1997  Jim Blandy  <jimb@totoro.red-bean.com>
+
+	Readline support, from Daniel Risacher.
+	* readline.c, readline.h: New files.
+	* init.c: #include "readline.h".
+	(scm_boot_guile_1): Call scm_init_readline, if we have it.
+	* Makefile.am (libguile_la_SOURCES): Include readline.c.
+	* Makefile.in: Regenerated.
+	* scmconfig.h.in: Regenerated, after change to ../configure.
+
 Tue Oct  7 09:37:24 1997  Mark Galassi  <rosalia@cygnus.com>
 
 	* gh_data.c (gh_bool2scm): new function which replaces
