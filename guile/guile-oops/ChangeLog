@@ -5,6 +5,9 @@
 	(write-readably <pair>): Bugfix: Consider bindings when computing
 	properness of a list.
 	(restore, write-readably <object>): New restore syntax.
+	Added support for excluded references.
+	Fixed multiple top-level references to same object.
+	Fixed printing of literals.
 
 2000-04-13  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
