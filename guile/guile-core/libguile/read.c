@@ -86,16 +86,16 @@ scm_input_error (char const *function,
   SCM string_port = scm_open_output_string ();
   SCM string = SCM_EOL;
   scm_simple_format (string_port,
-		     scm_makfrom0str ("~A:~S:~S: ~A"),
+		     scm_from_locale_string ("~A:~S:~S: ~A"),
 		     scm_list_4 (fn,
 				 scm_from_int (SCM_LINUM (port) + 1),
 				 scm_from_int (SCM_COL (port) + 1),
-				 scm_makfrom0str (message)));
+				 scm_from_locale_string (message)));
     
   string = scm_get_output_string (string_port);
   scm_close_output_port (string_port);
   scm_error_scm (scm_from_locale_symbol ("read-error"),
-		 scm_makfrom0str (function),
+		 scm_from_locale_string (function),
 		 string,
 		 arg,
 		 SCM_BOOL_F);
@@ -141,7 +141,7 @@ SCM_DEFINE (scm_read, "read", 0, 1, 0,
     return SCM_EOF_VAL;
   scm_ungetc (c, port);
 
-  tok_buf = scm_allocate_string (30);
+  tok_buf = scm_c_make_string (30, SCM_UNDEFINED);
   return scm_lreadr (&tok_buf, port, &copy);
 }
 #undef FUNC_NAME

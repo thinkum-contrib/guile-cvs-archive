@@ -337,7 +337,7 @@ SCM_DEFINE (scm_object_to_string, "object->string", 1, 1, 0,
   if (!SCM_UNBNDP (printer))
     SCM_VALIDATE_PROC (2, printer);
 
-  str = scm_allocate_string (0);
+  str = scm_c_make_string (0, SCM_UNDEFINED);
   port = scm_mkstrport (SCM_INUM0, str, SCM_OPN | SCM_WRTNG, FUNC_NAME);
 
   if (SCM_UNBNDP (printer))
@@ -431,7 +431,7 @@ SCM
 scm_c_read_string (const char *expr)
 {
   SCM port = scm_mkstrport (SCM_INUM0,
-			    scm_makfrom0str (expr),
+			    scm_from_locale_string (expr),
 			    SCM_OPN | SCM_RDNG,
 			    "scm_c_read_string");
   SCM form;
@@ -448,13 +448,13 @@ scm_c_read_string (const char *expr)
 SCM
 scm_c_eval_string (const char *expr)
 {
-  return scm_eval_string (scm_makfrom0str (expr));
+  return scm_eval_string (scm_from_locale_string (expr));
 }
 
 SCM
 scm_c_eval_string_in_module (const char *expr, SCM module)
 {
-  return scm_eval_string_in_module (scm_makfrom0str (expr), module);
+  return scm_eval_string_in_module (scm_from_locale_string (expr), module);
 }
 
 

@@ -1106,7 +1106,8 @@ scm_init_print ()
   scm_gc_register_root (&print_state_pool);
   scm_gc_register_root (&scm_print_state_vtable);
   vtable = scm_make_vtable_vtable (scm_nullstr, SCM_INUM0, SCM_EOL);
-  layout = scm_make_struct_layout (scm_makfrom0str (SCM_PRINT_STATE_LAYOUT));
+  layout =
+    scm_make_struct_layout (scm_from_locale_string (SCM_PRINT_STATE_LAYOUT));
   type = scm_make_struct (vtable, SCM_INUM0, scm_list_1 (layout));
   scm_set_struct_vtable_name_x (type, scm_from_locale_symbol ("print-state"));
   scm_print_state_vtable = type;

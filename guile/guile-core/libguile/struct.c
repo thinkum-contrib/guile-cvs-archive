@@ -799,7 +799,7 @@ scm_init_struct ()
 {
   scm_struct_table
     = scm_permanent_object (scm_make_weak_key_hash_table (scm_from_int (31)));
-  required_vtable_fields = scm_makfrom0str ("prsrpw");
+  required_vtable_fields = scm_from_locale_string ("prsrpw");
   scm_permanent_object (required_vtable_fields);
   scm_c_define ("vtable-index-layout", scm_from_int (scm_vtable_index_layout));
   scm_c_define ("vtable-index-vtable", scm_from_int (scm_vtable_index_vtable));

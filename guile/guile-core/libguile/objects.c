@@ -478,15 +478,15 @@ SCM_DEFINE (scm_make_subclass_object, "make-subclass-object", 2, 0, 0,
 void
 scm_init_objects ()
 {
-  SCM ms = scm_makfrom0str (SCM_METACLASS_STANDARD_LAYOUT);
+  SCM ms = scm_from_locale_string (SCM_METACLASS_STANDARD_LAYOUT);
   SCM mt = scm_make_vtable_vtable (ms, SCM_INUM0,
 				   scm_list_3 (SCM_BOOL_F, SCM_EOL, SCM_EOL));
   
-  SCM os = scm_makfrom0str (SCM_METACLASS_OPERATOR_LAYOUT);
+  SCM os = scm_from_locale_string (SCM_METACLASS_OPERATOR_LAYOUT);
   SCM ot = scm_make_vtable_vtable (os, SCM_INUM0,
 				   scm_list_3 (SCM_BOOL_F, SCM_EOL, SCM_EOL));
   
-  SCM es = scm_makfrom0str (SCM_ENTITY_LAYOUT);
+  SCM es = scm_from_locale_string (SCM_ENTITY_LAYOUT);
   SCM el = scm_make_struct_layout (es);
   SCM et = scm_make_struct (mt, SCM_INUM0,
 			    scm_list_4 (el, SCM_BOOL_F, SCM_EOL, SCM_EOL));

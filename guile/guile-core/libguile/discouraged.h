@@ -120,6 +120,18 @@ SCM_API SCM scm_mem2symbol (const char *mem, size_t len);
 SCM_API SCM scm_mem2uninterned_symbol (const char *mem, size_t len);
 SCM_API SCM scm_str2symbol (const char *str);
 
+SCM_API SCM scm_take_str (char *s, size_t len);
+SCM_API SCM scm_take0str (char *s);
+SCM_API SCM scm_mem2string (const char *src, size_t len);
+SCM_API SCM scm_str2string (const char *src);
+SCM_API SCM scm_makfrom0str (const char *src);
+SCM_API SCM scm_makfrom0str_opt (const char *src);
+
+/* Discouraged because scm_c_make_string has a better name and is more
+   consistent with make-string.
+ */
+SCM_API SCM scm_allocate_string (size_t len);
+
 void scm_i_init_discouraged (void);
 
 #endif /* SCM_ENABLE_DISCOURAGED == 1 */

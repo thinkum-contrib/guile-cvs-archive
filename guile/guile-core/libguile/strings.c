@@ -34,41 +34,62 @@
 /* {Strings}
  */
 
-static int debugme = 0;
-
-SCM scm_sys_debug_strings (void);
-SCM scm_sys_string_dump (SCM str);
-SCM scm_sys_symbol_dump (SCM str);
-
-SCM_DEFINE (scm_sys_debug_strings, "%debug-strings", 0, 0, 0,
-	    (), "")
-#define FUNC_NAME s_scm_sys_debug_strings
-{
-  debugme = 1;
-  return SCM_UNSPECIFIED;
-}
-#undef FUNC_NAME
-
 
 /* Stringbufs 
  *
  * XXX - keeping an accurate refcount during GC seems to be quite
  * tricky, so we just keep score of whether a stringbuf might be
- * shared, not wether it definitely is.
+ * shared, not wether it definitely is.  
  *
+ * The scheme I (mvo) tried to keep an accurate reference count would
+ * recount all strings that point to a stringbuf during the mark-phase
+ * of the GC.  This was done since one cannot access the stringbuf of
+ * a string when that string is freed (in order to decrease the
+ * reference count).  The memory of the stringbuf might have been
+ * reused already for something completely different.
+ *
+ * This recounted worked for a small number of threads beating on
+ * cow-strings, but it failed randomly with more than 10 threads, say.
+ * I couldn't figure out what went wrong, so I used the conservative
+ * approach implemented below.
+ * 
  * A stringbuf needs to know its length, but only so that it can be
  * reported when the stringbuf is freed.
+ *
+ * Stringbufs (and strings) are not stored very compactly: a stringbuf
+ * has room for about 2*sizeof(scm_t_bits)-1 bytes additional
+ * information.  As a compensation, the code below is made more
+ * complicated by storing small strings inline in the double cell of a
+ * stringbuf.  So we have fixstrings and bigstrings...
  */
 
 #define STRINGBUF_F_SHARED      0x100
+#define STRINGBUF_F_INLINE      0x200
 
 #define STRINGBUF_TAG           scm_tc7_stringbuf
 #define STRINGBUF_SHARED(buf)   (SCM_CELL_WORD_0(buf) & STRINGBUF_F_SHARED)
-#define STRINGBUF_CHARS(buf)    ((char *)SCM_CELL_WORD_1(buf))
-#define STRINGBUF_LENGTH(buf)   (SCM_CELL_WORD_2(buf))
+#define STRINGBUF_INLINE(buf)   (SCM_CELL_WORD_0(buf) & STRINGBUF_F_INLINE)
+
+#define STRINGBUF_OUTLINE_CHARS(buf)   ((char *)SCM_CELL_WORD_1(buf))
+#define STRINGBUF_OUTLINE_LENGTH(buf)  (SCM_CELL_WORD_2(buf))
+#define STRINGBUF_INLINE_CHARS(buf)    ((char *)SCM_CELL_OBJECT_LOC(buf,1))
+#define STRINGBUF_INLINE_LENGTH(buf)   (((size_t)SCM_CELL_WORD_0(buf))>>16)
+
+#define STRINGBUF_CHARS(buf)  (STRINGBUF_INLINE (buf) \
+                               ? STRINGBUF_INLINE_CHARS (buf) \
+                               : STRINGBUF_OUTLINE_CHARS (buf))
+#define STRINGBUF_LENGTH(buf) (STRINGBUF_INLINE (buf) \
+                               ? STRINGBUF_INLINE_LENGTH (buf) \
+                               : STRINGBUF_OUTLINE_LENGTH (buf))
+
+#define STRINGBUF_MAX_INLINE_LEN (3*sizeof(scm_t_bits))
 
 #define SET_STRINGBUF_SHARED(buf) \
-  (SCM_SET_CELL_WORD_0 ((buf), scm_tc7_stringbuf | STRINGBUF_F_SHARED))
+  (SCM_SET_CELL_WORD_0 ((buf), SCM_CELL_WORD_0 (buf) | STRINGBUF_F_SHARED))
+
+#if SCM_DEBUG
+static size_t lenhist[1001];
+#endif
 
 static SCM
 make_stringbuf (size_t len)
@@ -80,10 +101,25 @@ make_stringbuf (size_t len)
      can be dropped.
   */
 
-  char *mem = scm_gc_malloc (len+1, "string");
-  mem[len] = '\0';
-  return scm_double_cell (STRINGBUF_TAG, (scm_t_bits) mem,
-			  (scm_t_bits) len, (scm_t_bits) 0);
+#if SCM_DEBUG
+  if (len < 1000)
+    lenhist[len]++;
+  else
+    lenhist[1000]++;
+#endif
+
+  if (len <= STRINGBUF_MAX_INLINE_LEN-1)
+    {
+      return scm_double_cell (STRINGBUF_TAG | STRINGBUF_F_INLINE | (len << 16),
+			      0, 0, 0);
+    }
+  else
+    {
+      char *mem = scm_gc_malloc (len+1, "string");
+      mem[len] = '\0';
+      return scm_double_cell (STRINGBUF_TAG, (scm_t_bits) mem,
+			      (scm_t_bits) len, (scm_t_bits) 0);
+    }
 }
 
 SCM
@@ -95,7 +131,9 @@ scm_i_stringbuf_mark (SCM buf)
 void
 scm_i_stringbuf_free (SCM buf)
 {
-  scm_gc_free (STRINGBUF_CHARS (buf), STRINGBUF_LENGTH (buf) + 1, "string");
+  if (!STRINGBUF_INLINE (buf))
+    scm_gc_free (STRINGBUF_OUTLINE_CHARS (buf),
+		 STRINGBUF_OUTLINE_LENGTH (buf) + 1, "string");
 }
 
 SCM_MUTEX (stringbuf_write_mutex);
@@ -218,37 +256,6 @@ scm_i_string_free (SCM str)
 {
 }
 
-/* Debugging
- */
-
-SCM_DEFINE (scm_sys_string_dump, "%string-dump", 1, 0, 0,
-	    (SCM str),
-	    "")
-#define FUNC_NAME s_scm_sys_string_dump
-{
-  SCM_VALIDATE_STRING (1, str);
-  fprintf (stderr, "%p:\n", str);
-  fprintf (stderr, " start: %u\n", STRING_START (str));
-  fprintf (stderr, " len:   %u\n", STRING_LENGTH (str));
-  if (IS_SH_STRING (str))
-    {
-      fprintf (stderr, " string: %p\n", SH_STRING_STRING (str));
-      fprintf (stderr, "\n");
-      scm_sys_string_dump (SH_STRING_STRING (str));
-    }
-  else
-    {
-      SCM buf = STRING_STRINGBUF (str);
-      fprintf (stderr, " buf:   %p\n", buf);
-      fprintf (stderr, "  chars:  %p\n", STRINGBUF_CHARS (buf));
-      fprintf (stderr, "  length: %u\n", STRINGBUF_LENGTH (buf));
-      fprintf (stderr, "  shared: %u\n", STRINGBUF_SHARED (buf));
-    }
-  return SCM_UNSPECIFIED;
-}
-#undef FUNC_NAME
-
-
 /* Internal accessors
  */
 
@@ -261,13 +268,15 @@ scm_i_string_length (SCM str)
 const char *
 scm_i_string_chars (SCM str)
 {
+  SCM buf;
   size_t start = STRING_START(str);
   if (IS_SH_STRING (str))
     {
       str = SH_STRING_STRING (str);
       start += STRING_START (str);
     }
-  return STRINGBUF_CHARS (STRING_STRINGBUF (str)) + start;
+  buf = STRING_STRINGBUF (str);
+  return STRINGBUF_CHARS (buf) + start;
 }
 
 char *
@@ -325,18 +334,6 @@ scm_i_string_stop_writing (void)
 
 #define SYMBOL_STRINGBUF SCM_CELL_OBJECT_1
 
-#if 0
-SCM
-scm_i_make_symbol (const char *name, size_t len,
-		   unsigned long hash, SCM props)
-{
-  SCM buf = make_stringbuf (len);
-  memcpy (STRINGBUF_CHARS (buf), name, len);
-  return scm_double_cell (scm_tc7_symbol, SCM_UNPACK (buf),
-			  (scm_t_bits) hash, SCM_UNPACK (props));
-}
-#endif
-
 SCM
 scm_i_make_symbol (SCM name, unsigned long hash, SCM props)
 {
@@ -379,7 +376,8 @@ scm_i_symbol_length (SCM sym)
 const char *
 scm_i_symbol_chars (SCM sym)
 {
-  return STRINGBUF_CHARS (SYMBOL_STRINGBUF (sym));
+  SCM buf = SYMBOL_STRINGBUF (sym);
+  return STRINGBUF_CHARS (buf);
 }
 
 SCM
@@ -405,6 +403,42 @@ scm_i_symbol_substring (SCM sym, size_t start, size_t end)
 			  (scm_t_bits)start, (scm_t_bits) end - start);
 }
 
+/* Debugging
+ */
+
+#if SCM_DEBUG
+
+SCM scm_sys_string_dump (SCM);
+SCM scm_sys_symbol_dump (SCM);
+SCM scm_sys_stringbuf_hist (void);
+
+SCM_DEFINE (scm_sys_string_dump, "%string-dump", 1, 0, 0,
+	    (SCM str),
+	    "")
+#define FUNC_NAME s_scm_sys_string_dump
+{
+  SCM_VALIDATE_STRING (1, str);
+  fprintf (stderr, "%p:\n", str);
+  fprintf (stderr, " start: %u\n", STRING_START (str));
+  fprintf (stderr, " len:   %u\n", STRING_LENGTH (str));
+  if (IS_SH_STRING (str))
+    {
+      fprintf (stderr, " string: %p\n", SH_STRING_STRING (str));
+      fprintf (stderr, "\n");
+      scm_sys_string_dump (SH_STRING_STRING (str));
+    }
+  else
+    {
+      SCM buf = STRING_STRINGBUF (str);
+      fprintf (stderr, " buf:   %p\n", buf);
+      fprintf (stderr, "  chars:  %p\n", STRINGBUF_CHARS (buf));
+      fprintf (stderr, "  length: %u\n", STRINGBUF_LENGTH (buf));
+      fprintf (stderr, "  flags: %x\n", (SCM_CELL_WORD_0 (buf) & 0x300));
+    }
+  return SCM_UNSPECIFIED;
+}
+#undef FUNC_NAME
+
 SCM_DEFINE (scm_sys_symbol_dump, "%symbol-dump", 1, 0, 0,
 	    (SCM sym),
 	    "")
@@ -423,6 +457,22 @@ SCM_DEFINE (scm_sys_symbol_dump, "%symbol-dump", 1, 0, 0,
   return SCM_UNSPECIFIED;
 }
 #undef FUNC_NAME
+
+SCM_DEFINE (scm_sys_stringbuf_hist, "%stringbuf-hist", 0, 0, 0,
+	    (void),
+	    "")
+#define FUNC_NAME s_scm_sys_string_dump
+{
+  int i;
+  for (i = 0; i < 1000; i++)
+    if (lenhist[i])
+      fprintf (stderr, " %3d: %u\n", i, lenhist[i]);
+  fprintf (stderr, ">999: %u\n", lenhist[1000]);
+  return SCM_UNSPECIFIED;
+}
+#undef FUNC_NAME
+
+#endif
 
 
 
@@ -475,87 +525,6 @@ SCM_DEFINE (scm_string, "string", 0, 0, 1,
 }
 #undef FUNC_NAME
 
-
-/* converts C scm_array of strings to SCM scm_list of strings. */
-/* If argc < 0, a null terminated scm_array is assumed. */
-SCM 
-scm_makfromstrs (int argc, char **argv)
-{
-  int i = argc;
-  SCM lst = SCM_EOL;
-  if (0 > i)
-    for (i = 0; argv[i]; i++);
-  while (i--)
-    lst = scm_cons (scm_from_locale_string (argv[i]), lst);
-  return lst;
-}
-
-
-/* This function must only be applied to memory obtained via malloc,
-   since the GC is going to apply `free' to it when the string is
-   dropped.
-
-   Also, s[len] must be `\0', since we promise that strings are
-   null-terminated.  Perhaps we could handle non-null-terminated
-   strings by claiming they're shared substrings of a string we just
-   made up.  */
-SCM
-scm_take_str (char *s, size_t len)
-#define FUNC_NAME "scm_take_str"
-{
-  SCM answer = scm_from_locale_stringn (s, len);
-  free (s);
-  return answer;
-}
-#undef FUNC_NAME
-
-
-/* `s' must be a malloc'd string.  See scm_take_str.  */
-SCM
-scm_take0str (char *s)
-{
-  return scm_take_locale_string (s);
-}
-
-
-SCM 
-scm_mem2string (const char *src, size_t len)
-{
-  return scm_from_locale_stringn (src, len);
-}
-
-
-SCM
-scm_str2string (const char *src)
-{
-  return scm_from_locale_string (src);
-}
-
-
-SCM 
-scm_makfrom0str (const char *src)
-{
-  if (!src) return SCM_BOOL_F;
-  return scm_from_locale_string (src);
-}
-
-
-SCM 
-scm_makfrom0str_opt (const char *src)
-{
-  return scm_makfrom0str (src);
-}
-
-
-SCM
-scm_allocate_string (size_t len)
-#define FUNC_NAME "scm_allocate_string"
-{
-  return scm_i_make_string (len, NULL);
-}
-#undef FUNC_NAME
-
-
 SCM_DEFINE (scm_make_string, "make-string", 1, 1, 0,
             (SCM k, SCM chr),
 	    "Return a newly allocated string of\n"
@@ -564,20 +533,26 @@ SCM_DEFINE (scm_make_string, "make-string", 1, 1, 0,
 	    "of the @var{string} are unspecified.")
 #define FUNC_NAME s_scm_make_string
 {
-  size_t i = scm_to_size_t (k);
+  return scm_c_make_string (scm_to_size_t (k), chr);
+}
+#undef FUNC_NAME
+
+SCM
+scm_c_make_string (size_t len, SCM chr)
+#define FUNC_NAME NULL
+{
   char *dst;
-  SCM res = scm_i_make_string (i, &dst);
+  SCM res = scm_i_make_string (len, &dst);
 
   if (!SCM_UNBNDP (chr))
     {
-      SCM_VALIDATE_CHAR (2, chr);
-      memset (dst, SCM_CHAR (chr), i);
+      SCM_VALIDATE_CHAR (0, chr);
+      memset (dst, SCM_CHAR (chr), len);
     }
 
   return res;
 }
 #undef FUNC_NAME
-
 
 SCM_DEFINE (scm_string_length, "string-length", 1, 0, 0, 
 	    (SCM string),
@@ -855,6 +830,20 @@ scm_to_locale_stringbuf (SCM str, char *buf, size_t max_len)
   memcpy (buf, scm_i_string_chars (str), (len > max_len)? max_len : len);
   scm_remember_upto_here_1 (str);
   return len;
+}
+
+/* converts C scm_array of strings to SCM scm_list of strings. */
+/* If argc < 0, a null terminated scm_array is assumed. */
+SCM 
+scm_makfromstrs (int argc, char **argv)
+{
+  int i = argc;
+  SCM lst = SCM_EOL;
+  if (0 > i)
+    for (i = 0; argv[i]; i++);
+  while (i--)
+    lst = scm_cons (scm_from_locale_string (argv[i]), lst);
+  return lst;
 }
 
 /* Return a newly allocated array of char pointers to each of the strings

@@ -225,14 +225,14 @@ SCM_DEFINE (scm_read_line, "%read-line", 0, 1, 0,
 	{
 	  term = SCM_MAKE_CHAR ('\n');
 	  s[slen-1] = '\0';
-	  line = scm_take_str (s, slen-1);
+	  line = scm_take_locale_stringn (s, slen-1);
 	  SCM_INCLINE (port);
 	}
       else
 	{
 	  /* Fix: we should check for eof on the port before assuming this. */
 	  term = SCM_EOF_VAL;
-	  line = scm_take_str (s, slen);
+	  line = scm_take_locale_stringn (s, slen);
 	  SCM_COL (port) += slen;
 	}
     }

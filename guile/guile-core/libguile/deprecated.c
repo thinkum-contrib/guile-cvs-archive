@@ -179,7 +179,7 @@ SCM_DEFINE (scm_registered_modules, "c-registered-modules", 0, 0, 0,
 
   res = SCM_EOL;
   for (md = registered_mods; md; md = md->link)
-    res = scm_cons (scm_cons (scm_makfrom0str (md->module_name),
+    res = scm_cons (scm_cons (scm_from_locale_string (md->module_name),
 			      scm_from_ulong ((unsigned long) md->init_func)),
 		    res);
   return res;
@@ -379,17 +379,17 @@ SCM
 scm_makstr (size_t len, int dummy)
 {
   scm_c_issue_deprecation_warning
-    ("'scm_makstr' is deprecated.  Use 'scm_allocate_string' instead.");
-  return scm_allocate_string (len);
+    ("'scm_makstr' is deprecated.  Use 'scm_c_make_string' instead.");
+  return scm_c_make_string (len, SCM_UNDEFINED);
 }
 
 SCM 
 scm_makfromstr (const char *src, size_t len, int dummy SCM_UNUSED)
 {
   scm_c_issue_deprecation_warning ("`scm_makfromstr' is deprecated. "
-				   "Use `scm_mem2string' instead.");
+				   "Use `scm_from_locale_stringn' instead.");
 
-  return scm_mem2string (src, len);
+  return scm_from_locale_stringn (src, len);
 }
 
 SCM

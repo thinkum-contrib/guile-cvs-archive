@@ -275,7 +275,9 @@ filltime (struct tm *bd_time, int zoff, const char *zname)
   SCM_VECTOR_SET (result,7, scm_from_int (bd_time->tm_yday));
   SCM_VECTOR_SET (result,8, scm_from_int (bd_time->tm_isdst));
   SCM_VECTOR_SET (result,9, scm_from_int (zoff));
-  SCM_VECTOR_SET (result,10, zname ? scm_makfrom0str (zname) : SCM_BOOL_F);
+  SCM_VECTOR_SET (result,10, (zname 
+			      ? scm_from_locale_string (zname)
+			      : SCM_BOOL_F));
   return result;
 }
 
@@ -672,7 +674,7 @@ SCM_DEFINE (scm_strftime, "strftime", 2, 0, 0,
 #endif
     }
 
-  result = scm_mem2string (tbuf + 1, len - 1);
+  result = scm_from_locale_stringn (tbuf + 1, len - 1);
   free (tbuf);
   free (myfmt);
   return result;

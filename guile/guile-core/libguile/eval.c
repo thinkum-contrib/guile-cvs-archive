@@ -254,7 +254,7 @@ syntax_error (const char* const, const SCM, const SCM) SCM_NORETURN;
 static void 
 syntax_error (const char* const msg, const SCM form, const SCM expr)
 {
-  const SCM msg_string = scm_makfrom0str (msg);
+  SCM msg_string = scm_from_locale_string (msg);
   SCM filename = SCM_BOOL_F;
   SCM linenr = SCM_BOOL_F;
   const char *format;

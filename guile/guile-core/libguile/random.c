@@ -328,7 +328,7 @@ rstate_free (SCM rstate)
  * Scheme level interface.
  */
 
-SCM_GLOBAL_VARIABLE_INIT (scm_var_random_state, "*random-state*", scm_seed_to_random_state (scm_makfrom0str ("URL:http://stat.fsu.edu/~geo/diehard.html")));
+SCM_GLOBAL_VARIABLE_INIT (scm_var_random_state, "*random-state*", scm_seed_to_random_state (scm_from_locale_string ("URL:http://stat.fsu.edu/~geo/diehard.html")));
 
 SCM_DEFINE (scm_random, "random", 1, 1, 0, 
             (SCM n, SCM state),

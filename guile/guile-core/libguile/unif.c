@@ -169,7 +169,7 @@ scm_make_uve (long k, SCM prot)
   else if (SCM_CHARP (prot) && (SCM_CHAR (prot) == '\0'))
     return make_uve (scm_tc7_byvect, k, sizeof (char));
   else if (SCM_CHARP (prot))
-    return scm_allocate_string (sizeof (char) * k);
+    return scm_c_make_string (sizeof (char) * k, SCM_UNDEFINED);
   else if (SCM_I_INUMP (prot))
     return make_uve (SCM_I_INUM (prot) > 0 ? scm_tc7_uvect : scm_tc7_ivect,
 		     k,

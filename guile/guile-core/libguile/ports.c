@@ -727,7 +727,7 @@ SCM_DEFINE (scm_port_mode, "port-mode", 1, 0, 0,
     strcpy (modes, "w");
   if (SCM_CELL_WORD_0 (port) & SCM_BUF0)
     strcat (modes, "0");
-  return scm_mem2string (modes, strlen (modes));
+  return scm_from_locale_string (modes);
 }
 #undef FUNC_NAME
 

@@ -130,7 +130,7 @@ get_documented_option_setting (const scm_t_option options[], unsigned int n)
 
   for (i = 0; i != n; ++i)
     {
-      SCM ls = scm_cons (scm_str2string (options[i].doc), SCM_EOL);
+      SCM ls = scm_cons (scm_from_locale_string (options[i].doc), SCM_EOL);
       switch (options[i].type)
 	{
 	case SCM_OPTION_BOOLEAN:

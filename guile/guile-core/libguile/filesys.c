@@ -863,7 +863,7 @@ SCM_DEFINE (scm_readdir, "readdir", 1, 0, 0,
     if (errno != 0)
       SCM_SYSERROR;
 
-    return (rdent ? scm_mem2string (rdent->d_name, NAMLEN (rdent))
+    return (rdent ? scm_from_locale_stringn (rdent->d_name, NAMLEN (rdent))
             : SCM_EOF_VAL);
   }
 }
@@ -977,7 +977,7 @@ SCM_DEFINE (scm_getcwd, "getcwd", 0, 0, 0,
       errno = save_errno;
       SCM_SYSERROR;
     }
-  result = scm_mem2string (wd, strlen (wd));
+  result = scm_from_locale_stringn (wd, strlen (wd));
   free (wd);
   return result;
 }
@@ -1601,7 +1601,7 @@ scm_init_filesys ()
   scm_set_smob_free (scm_tc16_dir, scm_dir_free);
   scm_set_smob_print (scm_tc16_dir, scm_dir_print);
 
-  scm_dot_string = scm_permanent_object (scm_makfrom0str ("."));
+  scm_dot_string = scm_permanent_object (scm_from_locale_string ("."));
   
 #ifdef O_RDONLY
   scm_c_define ("O_RDONLY", scm_from_long (O_RDONLY));

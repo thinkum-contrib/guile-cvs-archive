@@ -757,8 +757,8 @@ create_basic_classes (void)
   /* SCM slots_of_class = build_class_class_slots (); */
 
   /**** <scm_class_class> ****/
-  SCM cs = scm_makfrom0str (SCM_CLASS_CLASS_LAYOUT
-			    + 2 * scm_vtable_offset_user);
+  SCM cs = scm_from_locale_string (SCM_CLASS_CLASS_LAYOUT
+				   + 2 * scm_vtable_offset_user);
   SCM name = scm_from_locale_symbol ("<class>");
   scm_class_class = scm_permanent_object (scm_make_vtable_vtable (cs,
 								  SCM_INUM0,

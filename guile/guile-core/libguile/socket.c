@@ -163,7 +163,7 @@ SCM_DEFINE (scm_inet_ntoa, "inet-ntoa", 1, 0, 0,
   SCM answer;
   addr.s_addr = htonl (SCM_NUM2ULONG (1, inetid));
   s = inet_ntoa (addr);
-  answer = scm_mem2string (s, strlen (s));
+  answer = scm_from_locale_string (s);
   return answer;
 }
 #undef FUNC_NAME
@@ -453,7 +453,7 @@ SCM_DEFINE (scm_inet_ntop, "inet-ntop", 2, 0, 0,
     scm_to_ipv6 (addr6, address);
   if (inet_ntop (af, &addr6, dst, sizeof dst) == NULL)
     SCM_SYSERROR;
-  return scm_makfrom0str (dst);
+  return scm_from_locale_string (dst);
 }
 #undef FUNC_NAME
 #endif
@@ -1000,8 +1000,7 @@ scm_addr_vector (const struct sockaddr *address, int addr_size,
 	if (addr_size <= offsetof (struct sockaddr_un, sun_path))
 	  SCM_VECTOR_SET(result, 1, SCM_BOOL_F);
 	else
-	  SCM_VECTOR_SET(result, 1, scm_mem2string (nad->sun_path,
-						    strlen (nad->sun_path)));
+	  SCM_VECTOR_SET(result, 1, scm_from_locale_string (nad->sun_path));
       }
       break;
 #endif

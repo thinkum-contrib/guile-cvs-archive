@@ -71,7 +71,7 @@ scm_set_program_arguments (int argc, char **argv, char *first)
 {
   scm_progargs = scm_makfromstrs (argc, argv);
   if (first)
-    scm_progargs = scm_cons (scm_makfrom0str (first), scm_progargs);
+    scm_progargs = scm_cons (scm_from_locale_string (first), scm_progargs);
 }
 
 
