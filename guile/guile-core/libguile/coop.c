@@ -1,4 +1,4 @@
-/*	Copyright (C) 1995, 1996, 1997, 1998, 1999 Free Software Foundation, Inc.
+/*	Copyright (C) 1995, 1996, 1997, 1998, 1999, 2000 Free Software Foundation, Inc.
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -373,7 +373,7 @@ coop_condition_variable_timed_wait_mutex (coop_c *c,
 					  const struct timespec *abstime)
 {
   coop_t *old, *t;
-  int res = ETIME;
+  int res = ETIMEDOUT;
 
   /* coop_mutex_unlock (m); */
   t = coop_qget (&(m->waiting));
