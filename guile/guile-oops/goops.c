@@ -2103,46 +2103,6 @@ unlock_cache_mutex (void *m)
 }
 #endif
 
-#ifdef USE_THREADS
-
-/* *fixme* memoize-method! should be rewritten so that the following
- * isn't needed.
- *
- * (#@dispatch args N-SPECIALIZED #((TYPE1 ... ENV FORMALS FORM1 ...) ...) GF)
- * (#@dispatch args N-SPECIALIZED HASHSET MASK
- *             #((TYPE1 ... ENV FORMALS FORM1 ...) ...)
- *             GF)
- */
-
-static SCM
-copy_tail (SCM cache)
-{
-  SCM old = SCM_CADR (cache);
-  SCM z;
-  int i = SCM_LENGTH (old);
-  SCM *m = scm_must_malloc (i * sizeof (SCM), "memoize-method!");
-  while (--i >= 0)
-    m[i] = SCM_VELTS (old)[i];
-  SCM_NEWCELL (z);
-  SCM_SETCHARS (z, m);
-  SCM_SETLENGTH (z, SCM_LENGTH (old), scm_tc7_vector);
-  return SCM_LIST3 (SCM_CAR (cache), z, SCM_CADDR (cache));
-}
-
-static SCM
-copy_cache (SCM cache)
-{
-  cache = SCM_CDDR (cache);
-  return scm_cons2 (SCM_IM_DISPATCH,
-		    scm_sym_args,
-		    SCM_NIMP (SCM_CADR (cache))
-		    ? copy_tail (cache)
-		    : scm_cons2 (SCM_CAR (cache),
-				 SCM_CADR (cache),
-				 copy_tail (SCM_CDDR (cache))));
-}
-#endif
-
 static SCM
 call_memoize_method (void *a)
 {
@@ -2156,28 +2116,7 @@ call_memoize_method (void *a)
   if (SCM_NIMP (cmethod))
     return cmethod;
   /*fixme* Use scm_apply */
-#ifdef USE_THREADS
-  {
-    /* memoize-method! mutates the expression passed as third arg.
-     * But in a threaded system another thread might be dispatching on
-     * this expression in eval.c, so we have to pass a copy instead,
-     * and replace the cache atomically afterwards.
-     *
-     * `memoize-method!' probably should have been written in
-     * functional style.  At least, it should construct a new cache
-     * instead of mutating the old.
-     */
-    SCM new_cache = copy_cache (x);
-    SCM res = CALL_GF3 ("memoize-method!", gf, SCM_CDDR (args), new_cache);
-    /* Patch in the last part of the new cache into the old---there should
-     * always exist only one cache per GF.
-     */
-    SCM_SETCDR (SCM_CDR (x), SCM_CDDR (new_cache));
-    return res;
-  }
-#else
   return CALL_GF3 ("memoize-method!", gf, SCM_CDDR (args), x);
-#endif
 }
 
 static SCM
