@@ -23,7 +23,7 @@ You can hack whatever you want, thank GNU.
 However, to see what others have indicated as their interest (and avoid
 potential wasteful duplication of effort), see file TODO.  Note that
 the version you find may be out of date; a CVS checkout is recommended:
-see below for details (see also file SNAPSHOTS).
+see below for details (see also the files ANON-CVS and SNAPSHOTS).
 
 It's also a good idea to join the guile-devel@gnu.org mailing list.
 See http://www.gnu.org/software/guile/mail/mail.html for more info.
@@ -35,16 +35,21 @@ When Guile is obtained from CVS, a few extra steps must be taken
 before the usual configure, make, make install.  You will need to have
 up-to-date versions of the tools listed below, correctly installed.
 i.e., they must be found in the current PATH and not shadowed or
-otherwise broken by files left behind from older versions.
+otherwise broken by files left behind from other versions.
 
 "up-to-date" means the latest released versions at the time that Guile
-was obtained from CVS.  Sometimes older versions will work.
+was obtained from CVS.  Sometimes older or newer versions will work.
 
 Then you must run the autogen.sh script, as described below.
 
 In case of problems, it may be worth getting a fresh copy of Guile
 from CVS: synchronisation problems have been known to occur
 occasionally.
+
+The same procedure can be used to regenerate the files in released
+versions of Guile.  In that case the headers of the original generated
+files (e.g., configure, Makefile.in, ltmain.sh) can be used to
+identify which tool versions may be required.
 
 Autoconf --- a system for automatically generating `configure'
 	scripts from templates which list the non-portable features a
@@ -151,7 +156,7 @@ Either set your CVSROOT environment variable to that, or give it as
 the value of the global -d option to CVS when you check out a working
 directory.
 
-For more information on SSH, see http://www.cs.hut.fi/ssh.
+For more information on SSH, see http://www.openssh.com.
 
 The Guile sources live in several modules:
 
