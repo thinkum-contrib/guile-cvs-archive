@@ -1695,10 +1695,11 @@ that simulate ports in software.  @dfn{Soft ports} and @dfn{string
 ports} are two interesting and powerful examples of this technique.
 
 @menu
-* File Ports::                  
-* Soft Ports::                  
-* String Ports::                
-* Extended I/O (fseek and line read/write)::  
+* File Ports::
+* Soft Ports::
+* String Ports::
+* Extended I/O (fseek and line read/write)::
+* Closing Ports::
 @end menu
 
 @node File Ports
@@ -1709,11 +1710,28 @@ Open the file whose name is @var{string}, and return a port
 representing that file.  Whether an input or output port is
 allocated is determined by the @var{modes} string.  This is
 interpreted in the traditional Unix manner: use @samp{r} for
-reading, @samp{w} for writing, and @samp{a} for appending.  See
-the @code{stdio} documentation for your system for more details on
-how to specify I/O modes.
+reading, @samp{w} for writing, and @samp{a} for appending.  In
+addition, @samp{0} can be used to specifiy an unbuffered port.
 
-If a file cannot be opened, @code{open-file} returns @code{#f}.
+See
+the @code{stdio} documentation for your system for more
+I/O mode options.
+
+If a file cannot be opened, @code{open-file} throws an exception.
+@end defun
+
+@defun open-input-file string
+A procedure required by R4RS, equivalent to
+@smalllisp
+(open-file @var{string} "r")
+@end smalllisp
+@end defun
+
+@defun open-output-file string
+A procedure required by R4RS, equivalent to
+@smalllisp
+(open-file @var{string} "w")
+@end smalllisp
 @end defun
 
 @defun port-mode port
@@ -1795,6 +1813,29 @@ really closely related to other string port functions.  It just
 happens to appear in strports.c because it uses a string port to
 read from the string. -twp]
 @end defun
+
+@node Closing Ports
+@section Closing Ports
+The following procedures return @code{#t} if they successfully
+close a port or @code{#f} if it was already
+closed.  They can also raise exceptions if an error occurs: some
+errors arising from writing output may be delayed until close.
+See also @ref{ports vs file descriptors, close}, for a procedure
+which can close file descriptors.
+
+@deffn procedure close-port port
+Close the specified port object.
+@end deffn
+
+@deffn procedure close-input-port port
+Close the specified input port object.  This procedure is required by 
+R4RS.
+@end deffn
+
+@deffn procedure close-output-port port
+Close the specified output port object.  This procedure is required by 
+R4RS.
+@end deffn
 
 @node Extended I/O (fseek and line read/write)
 @section Extended I/O (fseek and line read/write)
@@ -2642,7 +2683,7 @@ make them available.
 
 @menu
 * conventions::
-* ports vs. file descriptors::  
+* ports vs file descriptors::  
 * file system::
 * user database::
 * time::
@@ -2719,8 +2760,8 @@ in the data passed by the exception.  Accessing the
 global errno value directly would be unreliable due to
 continuations, interrupts or multiple threads.
 
-@node ports vs. file descriptors
-@section ports vs. file descriptors
+@node ports vs file descriptors
+@section ports vs file descriptors
 
 Conventions largely follow those of scsh, @ref{The Scheme shell (scsh)}.
 
@@ -2790,17 +2831,7 @@ side effect the revealed count of @var{port} is incremented.
 Returns a new port based on the file descriptor @var{fdes} with
 modes given by the string @var{modes}.  The revealed count of the port
 is initialized to zero.  The modes string is the same as that accepted
-by @code{open-file}.
-@end deffn
-
-@findex fflush
-@deffn procedure force-output [port]
-Flush the specified output port, or the current output port if @var{port}
-is omitted.  The return value is unspecified.
-@end deffn
-
-@deffn procedure flush-all-ports
-Flush all open output ports.  The return value is unspecified.
+by @ref{File Ports, open-file}.
 @end deffn
 
 @defun fdes->ports fdes
@@ -2810,16 +2841,14 @@ underlying file descriptor, without changing their revealed counts.
 
 @defun fdes->inport fdes
 Returns an existing input port which has @var{fdes} as its underlying file
-descriptor, if one exists, without changing its revealed count.
-Otherwise, returns a new input port created with
-fdopen and sets its revealed count to 1.
+descriptor, if one exists, and increments its revealed count.
+Otherwise, returns a new input port with a revealed count of 1.
 @end defun
 
 @defun fdes->outport fdes
 Returns an existing output port which has @var{fdes} as its underlying file
-descriptor, if one exists, without changing its revealed count.
-Otherwise, returns a new output port created with
-fdopen and sets its revealed count to 1.
+descriptor, if one exists, and increments its revealed count.
+Otherwise, returns a new output port with a revealed count of 1.
 @end defun
 
 @defun primitive-move->fdes port fdes
@@ -2844,6 +2873,24 @@ The return value is unspecified.
 Decrements the revealed count for a port.
 @end deffn
 
+@findex fflush
+@deffn procedure force-output [port]
+Flush the specified output port, or the current output port if @var{port}
+is omitted.  The return value is unspecified.
+@end deffn
+
+@deffn procedure flush-all-ports
+Flush all open output ports.  The return value is unspecified.
+@end deffn
+
+@deffn procedure close port/fd
+Similar to close-port (@pxref{Closing Ports, close-port}),
+but also works on file descriptors.  A side
+effect of closing a file descriptor is that any ports using that file
+descriptor are moved to a different file descriptor and have
+their revealed counts set to zero.
+@end deffn
+
 @deffn procedure pipe
 Creates a pipe which can be used for communication.  The return value
 is a pair in which the CAR contains an input port and the CDR an
@@ -2854,16 +2901,63 @@ Alternatively a new unbuffered output port can be created using
 @code{duplicate-port} with an appropriate mode string.
 @end deffn
 
+The next group of procedures perform a @code{dup2}
+system call, if @var{newfd} (an
+integer) is supplied, otherwise a @code{dup}.  The file descriptor to be
+duplicated can be supplied as an integer or contained in a port.  The
+type of value returned varies depending on which procedure is used.
+
+All procedures also have the side effect when performing @code{dup2} that any
+ports using @var{newfd} are moved to a different file descriptor and have
+their revealed counts set to zero.
+
+@deffn procedure dup->fdes port/fd [newfd]
+Returns an integer file descriptor.
+@end deffn
+
+@deffn procedure dup->inport port/fd [newfd]
+Returns a new input port using the new file descriptor.
+@end deffn
+
+@deffn procedure dup->outport port/fd [newfd]
+Returns a new output port using the new file descriptor.
+@end deffn
+
+@deffn procedure dup port/fd [newfd]
+Returns a new port if @var{port/fd} is a port, with the same mode as the
+supplied port, otherwise returns an integer file descriptor.
+@end deffn
+
+@deffn procedure dup->port port/fd mode [newfd]
+Returns a new port using the new file descriptor.  @var{mode} supplies a 
+mode string for the port (@pxref{File Ports, open-file}).
+@end deffn
+
+@deffn procedure primitive-dup port/fd
+Performs a dup system call on the file descriptor @var{fd}, or the file
+descriptor underlying @var{port} and returns a new integer file descriptor.
+@end deffn
+
+@deffn procedure primitive-dup2 port/fd newfd
+Performs a @code{dup2} system call on the file descriptor @var{fd}, or the file
+descriptor underlying @var{port}, using @var{newfd} (an integer) as the target
+file descriptor.  Any ports using @var{newfd} are moved to a different file
+descriptor and have their revealed counts set to zero.  The value
+returned is @var{newfd}.
+@end deffn
+
 @deffn procedure duplicate-port port modes
 Returns a new port which is opened on a duplicate of the file
 descriptor underlying @var{port}, with mode string @var{modes}
-as for @code{open-file}.  The two ports
+as for @ref{File Ports, open-file}.  The two ports
 will share a file position and file status flags.
 
 Unexpected behaviour can result if both ports are subsequently used
 and the original and/or duplicate ports are buffered.
 The mode string can include @code{0} to obtain an unbuffered duplicate
 port.
+
+This procedure is equivalent to @code{(dup->port @var{port} @var{modes})}.
 @end deffn
 
 @deffn procedure redirect-port old-port new-port
@@ -2877,6 +2971,9 @@ The return value is unspecified.
 
 Unexpected behaviour can result if both ports are subsequently used
 and the original and/or duplicate ports are buffered.
+
+This procedure does not have any side effects on other ports or
+revealed counts.
 @end deffn
 
 @deffn procedure port-mode port
@@ -2895,7 +2992,7 @@ which are not needed in the new process.
 
 @deffn procedure freopen filename modes port
 Reopen @var{port} on the specified @var{filename}
-with mode string @var{modes} as for @code{open-file}.
+with mode string @var{modes} as for @ref{File Ports, open-file}.
 @end deffn
 
 @deffn procedure fcntl port command value
@@ -3610,10 +3707,23 @@ Modifies the environment of the current process, which is
 also the default environment inherited by child processes.
 
 If @var{string} is of the form @code{NAME=VALUE} then it will be written
-directly into the environment, replacing any existing variable with
+directly into the environment, replacing any existing environment string
+with
 name matching @code{NAME}.  If @var{string} does not contain an equal
-sign, then any existing variable with name matching @var{string} will
+sign, then any existing string with name matching @var{string} will
 be removed.
+
+The return value is unspecified.
+@end deffn
+
+@deffn procedure setenv name value
+Modifies the environment of the current process, which is
+also the default environment inherited by child processes.
+
+If @var{value} is @code{#f}, then @var{name} is removed from the
+environment.  Otherwise, the string @var{name}=@var{value} is added
+to the environment, replacing any existing string with name matching
+@var{name}.
 
 The return value is unspecified.
 @end deffn
@@ -3802,8 +3912,8 @@ Closes the pipe created by @code{open-pipe}, then waits for the process
 to terminate and returns its status value, as for the @code{system}
 procedure.
 
-@code{close-port} can also be used to close a pipe, but doesn't return
-the status.
+@code{close-port} (@pxref{Closing Ports, close-port}) can also be used to
+close a pipe, but doesn't return the status.
 @end deffn
 
 @node networking
@@ -4025,7 +4135,7 @@ Socket ports can be created using @code{socket} and @code{socketpair}.
 The ports are initially unbuffered, to
 makes reading and writing to the same port more reliable.  Buffered
 ports can be obtained with
-@code{duplicate-port}, @xref{ports vs. file descriptors}.
+@code{duplicate-port}, @xref{ports vs file descriptors}.
 
 These procedures convert Internet addresses
 and port values between "host" order and "network" order as required.  The
