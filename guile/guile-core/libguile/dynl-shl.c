@@ -41,6 +41,10 @@
  * whether to permit this exception to apply to your modifications.
  * If you do not wish that, delete this exception notice.  */
 
+/* Software engineering face-lift by Greg J. Badros, 11-Dec-1999,
+   gjb@cs.washington.edu, http://www.cs.washington.edu/homes/gjb */
+
+
 /* "dynl.c" dynamically link&load object files.
    Author: Aubrey Jaffer
    Modified for libguile by Marius Vollmer */
@@ -50,10 +54,7 @@
 #include <string.h>
 
 static void *
-sysdep_dynl_link (fname, flags, subr)
-     const char *fname;
-     int flags;
-     const char *subr;
+sysdep_dynl_link (const char *fname,int flags,const char *subr)
 {
     shl_t shl;
     
@@ -70,9 +71,7 @@ sysdep_dynl_link (fname, flags, subr)
 }
 
 static void
-sysdep_dynl_unlink (handle, subr)
-     void *handle;
-     const char *subr;
+sysdep_dynl_unlink (void *handle,const char *subr)
 {
   if (shl_unload ((shl_t) handle))
     {
@@ -82,10 +81,7 @@ sysdep_dynl_unlink (handle, subr)
 }
 
 static void *
-sysdep_dynl_func (symb, handle, subr)
-     const char *symb;
-     void *handle;
-     const char *subr;
+sysdep_dynl_func (const char *symb,void *handle,const char *subr)
 {
     int status, i;
     struct shl_symbol *sym;

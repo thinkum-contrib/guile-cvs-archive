@@ -41,16 +41,18 @@
  * whether to permit this exception to apply to your modifications.
  * If you do not wish that, delete this exception notice.  */
 
+/* Software engineering face-lift by Greg J. Badros, 11-Dec-1999,
+   gjb@cs.washington.edu, http://www.cs.washington.edu/homes/gjb */
+
+
 /* "dynl.c" dynamically link&load object files.
    Author: Aubrey Jaffer
    Modified for libguile by Marius Vollmer */
 
 #include "dld.h"
 
-static void listundef SCM_P ((void));
-
 static void
-listundefs ()
+listundefs (void)
 {
     int i;
     char **undefs = dld_list_undefined_sym();
@@ -64,10 +66,7 @@ listundefs ()
 }
 
 static void *
-sysdep_dynl_link (fname, int flags, subr)
-     const char *fname;
-     int flags;
-     const char *subr;
+sysdep_dynl_link (const char *fname,int flags,const char *subr)
 {
     int status;
 
@@ -81,9 +80,7 @@ sysdep_dynl_link (fname, int flags, subr)
 }
 
 static void
-sysdep_dynl_unlink (handle, subr)
-     void *handle;
-     const char *subr;
+sysdep_dynl_unlink (void *handle,const char *subr)
 {
     int status;
 
@@ -96,10 +93,7 @@ sysdep_dynl_unlink (handle, subr)
 }
 
 static void *
-sysdep_dynl_func (symb, handle, subr)
-     const char *symb;
-     void *handle;
-     const char *subr;
+sysdep_dynl_func (const char *symb,void *handle,const char *subr)
 {
     void *func;
 
