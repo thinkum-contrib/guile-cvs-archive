@@ -256,11 +256,8 @@ SCM_GLOBAL_SYMBOL (scm_memory_alloc_key, "memory-allocation-error");
 void
 scm_memory_error (const char *subr)
 {
-  scm_error (scm_memory_alloc_key,
-	     subr,
-	     "Memory allocation error",
-	     SCM_BOOL_F,
-	     SCM_BOOL_F);
+  fprintf (stderr, "FATAL: memory error in %s\n", subr);
+  abort ();
 }
 
 SCM_GLOBAL_SYMBOL (scm_misc_error_key, "misc-error");
