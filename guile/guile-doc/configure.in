@@ -1,3 +1,13 @@
 AC_INIT(Makefile.in)
 AM_INIT_AUTOMAKE(guile-doc, 1.4)
+
+AC_ARG_ENABLE(html,
+  [  --enable-html           build HTML documentation as well as Info],
+  if test "$enable_html" = "" || test "$enable_html" = y || test "$enable_html" = yes; then
+    html_enabled=yes
+  fi)
+AM_CONDITIONAL(HTML, test x$html_enabled = xyes)
+
+AC_PATH_PROG(TEXI2HTML, texi2html, true)
+
 AC_OUTPUT(Makefile ref/Makefile tutorial/Makefile sources/Makefile)

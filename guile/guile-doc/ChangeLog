@@ -1,3 +1,11 @@
+2001-01-26  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* configure.in, Makefile.am, ref/Makefile.am,
+	tutorial/Makefile.am: Clean up Makefile.am's and support
+	(configurable) building of HTML documentation in addition to
+	Info.  Thanks to Steve Tell for the patch on which these changes
+	were based.
+
 2000-10-14  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* sources/data-rep.texi: Merged a lot of changes from

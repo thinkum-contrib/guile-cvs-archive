@@ -4,14 +4,15 @@ AUTOMAKE_OPTIONS = gnu
 
 info_TEXINFOS = guile-tut.texi
 
-guile_tut_TEXINFOS = guile-tut.texi
+# Optionally support building an HTML version of the tutorial.
 
-## Just a convenience var; no special significance.
-#dist_texis = guile-ref.texi ci.texi pi.texi vi.texi ti.texi
+if HTML
 
-## FIXME: for now we just omit ../guile-user/more-resources.texi from
-## the dependencies.  We don't want to try to put it into the
-## distribution.
-#guile_programmer_TEXINFOS = $(dist_texis)
+htmldir = $(prefix)/html/guile-$(VERSION)
 
-#EXTRA_DIST = $(dist_texis)
+html_DATA = guile-tut_toc.html $(shell ls guile-tut_*.html 2>/dev/null)
+
+guile-tut_toc.html: guile-tut.texi
+	$(TEXI2HTML) -split_chapter guile-tut.texi
+
+endif
