@@ -1,5 +1,6 @@
 summary: (expt 0 0) -> 0
 reported: rlb, 2001-03-21
+tags: release-critical-1.6
 
 According to R5RS (expt 0 0) -> 1
 
