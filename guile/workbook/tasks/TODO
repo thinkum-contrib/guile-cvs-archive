@@ -37,6 +37,8 @@
     + string-tokenize-is-wrong
     - instructions-to-distributors
     - COPYING-is-wrong
+  - make sure that libltdl has the patch #1 at the end of this file,
+    or is more recent than 1.4.2d.
 
 - Eventually
   - consider (and likely code) guile using pkg-config
@@ -141,6 +143,23 @@
     scm_must_realloc, scm_must_free, scm_done_malloc, scm_done_free,
     scm_must_strndup, scm_must_strdup.
   - change return types of smob and port free functions to void
+
+
+Patches:
+
+#1 - fixes bug in libltdl 1.4.2d (and earlier)
+
+--- ltdl.c~     Fri Apr 26 19:58:44 2002
++++ ltdl.c      Tue Jun 18 21:31:18 2002
+@@ -2276,7 +2276,7 @@
+      lt_ptr ignored;
+ {
+   lt_dlhandle  *handle = (lt_dlhandle *) data;
+-  int          found   = access (filename, R_OK);
++  int          found   = !access (filename, F_OK);
+ 
+   /* Bail out if file cannot be read...  */
+   if (!found)
 
 
 
