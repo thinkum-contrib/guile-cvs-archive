@@ -272,7 +272,7 @@
 	      ((not (list? (supers exp)))
 	       (goops-error "malformed superclass list: %S" (supers exp)))
 	      (else
-	       (let ((slot-defs '(())))
+	       (let ((slot-defs (cons #f '())))
 		 (do ((slots (slots exp) (cdr slots))
 		      (defs slot-defs (cdr defs)))
 		     ((or (null? slots)
@@ -896,12 +896,6 @@
 		 (cons (compute-slot-init-function s)
 		       g-n-s))))
        slots))
-
-(define (fold ls proc init)
-  (if (null? ls)
-      init
-      (proc (car ls)
-	    (fold (cdr ls) proc init))))
 
 ;;; compute-cpl
 ;;;
