@@ -59,6 +59,10 @@
 #define SCM_UNPACK(x) x
 #endif
 
+#ifndef SCM_TOP_LEVEL_LOOKUP_CLOSURE
+#define SCM_TOP_LEVEL_LOOKUP_CLOSURE SCM_CDR (scm_top_level_lookup_closure_var)
+#endif
+
 /*
  * scm_class_class
  */
