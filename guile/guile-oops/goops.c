@@ -1502,7 +1502,7 @@ apply_generic_0 (SCM gf)
   /*fixme* Should be made tail-recursive!  Methods are closures in goops. */
   return scm_apply (SCM_METHOD (SCM_CAR (methods))->procedure,
 		    SCM_LIST1 (SCM_FASTMETHODP (SCM_CAR (methods))
-			       ? SCM_UNDEFINED
+			       ? SCM_BOOL_F
 			       : scm_make_next_method (SCM_CDR (methods),
 						       SCM_EOL,
 						       gf)),
@@ -1524,7 +1524,7 @@ apply_generic_1 (SCM gf, SCM arg1)
     return SCM_UNSPECIFIED;
   return scm_apply (SCM_METHOD (SCM_CAR (methods))->procedure,
 		    SCM_LIST2 (SCM_FASTMETHODP (SCM_CAR (methods))
-			       ? SCM_UNDEFINED
+			       ? SCM_BOOL_F
 			       : scm_make_next_method (SCM_CDR (methods),
 						       args,
 						       gf),
@@ -1547,7 +1547,7 @@ apply_generic_2 (SCM gf, SCM arg1, SCM arg2)
     return SCM_UNSPECIFIED;
   return scm_apply (SCM_METHOD (SCM_CAR (methods))->procedure,
 		    SCM_LIST3 (SCM_FASTMETHODP (SCM_CAR (methods))
-			       ? SCM_UNDEFINED
+			       ? SCM_BOOL_F
 			       : scm_make_next_method (SCM_CDR (methods),
 						       args,
 						       gf),
@@ -1571,7 +1571,7 @@ apply_generic_3 (SCM gf, SCM arg1, SCM rest)
     return SCM_UNSPECIFIED;
   return scm_apply (SCM_METHOD (SCM_CAR (methods))->procedure,
 		    scm_cons (SCM_FASTMETHODP (SCM_CAR (methods))
-			      ? SCM_UNDEFINED
+			      ? SCM_BOOL_F
 			      : scm_make_next_method (SCM_CDR (methods),
 						      args,
 						      gf),

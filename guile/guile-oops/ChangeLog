@@ -1,3 +1,10 @@
+1998-12-01  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* goops.c (apply_generic_0, apply_generic_1, apply_generic_2,
+	apply_generic_3): Pass SCM_BOOL_F instead of SCM_UNDEFINED as
+	next-method argument.  Otherwise scm_apply will get the wrong
+	impression of number of arguments.
+
 1998-11-27  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* Makefile.am (subpkgdata_DATA): Added goops/describe.scm.
