@@ -17,6 +17,7 @@ library and initialize it explicitely.
 [ttn: This decision to drop support applies to guile-1.6.x;
       guile-1.4.x continues to support this.]
 
+[mvo: However, it is not clear yet that there will be a 1.4.x series.]
 
 Here is more about why "this has been found to be to tricky".  It is
 about the way it was done, not about why it can't possible at all.
@@ -46,6 +47,16 @@ come from standard locations or are referenced by multiple names
       actually can be recast as an argument for providing access and
       appropriate supporting protocol to `lt_dlsetsearchpath'.]
 
+[mvo: Whatever additional tricks libltdl does, they do not apply to ld
+      or ld.so.  Shared libraries are not only used at run-time (via
+      lt_dlopen, say), but also at link-time (by ld) and load-time (by
+      ld.so, or whatsitcalledonyourplatform).  It might very well be
+      possible to design something that is more advanced than
+      'load-extension' and plays well with lt_dlopen, ld, and ld.so,
+      but limiting us to the very simple things that 'load-extension'
+      does now gives us (at least, me) good confidence that it will
+      work fairly portably.]
+
 Additionally, module boundaries are not necessarily language
 boundaries.  That is, a module can be a mix of Scheme and C (and one
 file might want to provide more than one module).  Therefore, we need
@@ -56,6 +67,11 @@ a good way to load shared libraries independently from modules anyway.
       already provided and stable mechanisms.  There is no spec for it,
       including failure modes.  There are plans to change its interface
       incompatibly.  Its registry is opaque (and redundant).]
+
+[mvo: It is deliberate that 'load-extension' adds very little over
+      dynamic-link/dynamic-call.  I don't know of any plans to change
+      its interface incompatibly.  You can ignore the registry.  It is
+      there for people who want to statically link extensions.]
 
 Restricting module system operations and autoloading to Scheme code
 only provided an immediate and significant simplification, without
@@ -70,3 +86,6 @@ to understand.
       of this is available w/ guile-1.6.x if configured w/ the
       "--disable-deprecated" option.  None of this is available
       in HEAD at this time (2002-05-21).]
+
+[mvo: Yes, "much hassle" is a subjective term.  But there are no
+      complaints (besides yours) about it.]
