@@ -385,10 +385,10 @@ coop_condition_variable_init (c)
 }
 
 #ifdef __STDC__
-int 
+static int 
 coop_condition_variable_wait (coop_c *c)
 #else
-int 
+static int 
 coop_condition_variable_wait (c)
      coop_c *c;
 #endif
