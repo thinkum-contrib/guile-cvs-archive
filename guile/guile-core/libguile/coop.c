@@ -422,7 +422,13 @@ coop_condition_variable_timed_wait_mutex (coop_c *c,
 					  const struct timespec *abstime)
 {
   coop_t *old, *t;
+#ifdef ETIMEDOUT
   int res = ETIMEDOUT;
+#elif defined (WSAETIMEDOUT)
+  int res = WSAETIMEDOUT;
+#else
+  int res = 0;
+#endif
 
   /* coop_mutex_unlock (m); */
   t = coop_qget (&(m->waiting));
@@ -842,7 +848,6 @@ scm_thread_usleep (unsigned long usec)
 {
   /* We're so cheap.  */
   scm_thread_sleep (usec / 1000000);
-  struct timeval timeout;
   return 0;  /* Maybe we should calculate actual time slept,
 		but this is faster... :) */
 }
