@@ -1,3 +1,12 @@
+Thu Jan  2 13:42:33 1997  Marius Vollmer  <mvo@zagadka.ping.de>
+
+ 	* configure.in: Replaced AC_PROG_RANLIB with AM_PROG_LIBTOOL.
+	* Makefile.am: Made librx into a libtool library.
+	* PLUGIN/guile.config: Removed "-L ../rx" from xtra_cflags.  Set
+ 	libtool_libs to indicate that rx is a libtool library.  See
+ 	guile/ChangeLog for details.
+	* .cvsignore: ignore "*.lo", the libtool library objects.
+	
 Mon Dec  9 17:21:03 1996  Tom Tromey  <tromey@cygnus.com>
 
 	* Makefile.am (.c.x): Use guile-snarf.
