@@ -1,3 +1,0 @@
-directory for building / releasing / managing / processing
-
-files in "dist-files" are symlinked to in guile-core/autogen.sh, q.v.
