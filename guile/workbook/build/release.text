@@ -149,6 +149,15 @@ Releasing Guile
           branch_release-1-6.  (Add exact command here next time I do
           it.)
 
+        - Add a release specific section to workbook/tasks/TODO,
+          if there's not one already, i.e. for Guile 1.6, we would
+          have:
+
+    Guile 1.6 (branched: only modify items according to ../build/release.txt)
+
+          if the section already exists, just add the "(branched:
+          ...)" notice.
+
         - Change the version numbers in GUILE-VERSION and README on
           the main branch to reflect the new unstable version
           i.e. 1.7.0, if you're currently creating the 1.6.X branch.

@@ -34,11 +34,12 @@
   - make sure all bugs have required headers
   - fix bugs
     + 15 (summary: (expt 0 0) -> 0)
-    - string-tokenize-is-wrong
+    + string-tokenize-is-wrong
     - instructions-to-distributors
     - COPYING-is-wrong
 
 - Eventually
+  - consider (and likely code) guile using pkg-config
   + also show bidi set-difference counts in api-diff [ttn]
   - write goops test cases in C
   - scan ideas web page and link to implementations
