@@ -1,5 +1,8 @@
 summary: named-let transform evaluates initvalue in the wrong scope
 reported-by: agj@alum.mit.edu, 2001-09-21
+affects: HEAD branch_release-1-6 branch_release-1-4
+see-also-dir: 4.stuff
+test-case: named-let-xform.scm
 fixed: Dirk Herrmann, 2001-11-17, guile-core, HEAD
 
 currently:
