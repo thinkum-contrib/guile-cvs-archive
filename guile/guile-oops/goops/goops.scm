@@ -814,11 +814,14 @@
 (define-method initialize ((generic <generic>) initargs)
   (let ((previous-definition (get-keyword #:default initargs #f)))
     (next-method)
-    (set-object-procedure! generic
-			   apply-generic-0
-			   apply-generic-1
-			   apply-generic-2
-			   apply-generic-3)
+    (if (eq? (class-of generic) <generic>)
+	;; Primitive apply-generic-<n> for direct instances of <generic>
+	(set-object-procedure! generic
+			       apply-generic-0
+			       apply-generic-1
+			       apply-generic-2
+			       apply-generic-3)
+	(set-object-procedure! apply-generic))
     (slot-set! generic 'name    (get-keyword #:name initargs '???))
     (slot-set! generic 'methods (if (is-a? previous-definition <procedure>)
 				    (list (make <method>
