@@ -28,7 +28,7 @@
 
 (define-module (oop goops)
   :use-module (oop goopscore)
-  :no-backtrace
+  ;:no-backtrace
   )
 
 (export			  ; Define the exported symbols of this file
@@ -184,12 +184,12 @@
   (case keyword
     ((#:getter #:setter)
      (if (defined? exp env)
-	 `(define ,exp (ensure-generic ,exp))
-	 `(define ,exp (make-generic))))
+	 `(define ,exp (ensure-generic ,exp ',exp))
+	 `(define ,exp (make-generic ',exp))))
     ((#:accessor)
      (if (defined? exp env)
-	 `(define ,exp (ensure-accessor ,exp))
-	 `(define ,exp (make-accessor))))
+	 `(define ,exp (ensure-accessor ,exp ',exp))
+	 `(define ,exp (make-accessor ',exp))))
     (else #f)))
 
 ;;; This code should be implemented in C.
@@ -209,7 +209,9 @@
 		     (if (pair? (car slots))
 			 (do ((options (cdar slots) (cddr options))
 			      (definitions definitions
-				(cond ((define-class-pre-definition
+				(cond ((not (symbol? (cadr options)))
+				       definitions)
+				      ((define-class-pre-definition
 					 (car options)
 					 (cadr options)
 					 env)
@@ -217,8 +219,7 @@
 					    (cons definition definitions)))
 				      (else definitions))))
 			     ((not (and (pair? options)
-					(pair? (cdr options))
-					(symbol? (cadr options))))
+					(pair? (cdr options))))
 			      definitions))
 			 definitions)))
 		  ((not (pair? slots)) (reverse definitions)))))
@@ -335,7 +336,7 @@
 
 (define (make-generic . name)
   (let ((name (and (pair? name) (car name))))
-    (make <generic>) #:name name))
+    (make <generic> #:name name)))
 
 (define (ensure-generic old-definition . name)
   (let ((name (and (pair? name) (car name))))
@@ -869,27 +870,29 @@
 		       g-n-s))))
        slots))
 
+(define (fold ls proc init)
+  (if (null? ls)
+      init
+      (proc (car ls)
+	    (fold (cdr ls) proc init))))
+
 ;;; compute-cpl
 ;;;
 (define (compute-cpl class)
-  
-  (define (filter-cpl class)
-    (let ((res  '()))
-      (for-each (lambda (item)
-		  (if (not (or (eq? item <object>) 
-			       (eq? item <top>) 
-			       (member item res)))
-		   (set! res (cons item res))))
-	      class)
-      res))
+  (letrec ((res  (list <object> <top>))
 
-  (let* ((supers   (slot-ref class 'direct-supers))
-	 (big-list (apply append
-			  (cons class supers)
-			  (map compute-cpl supers))))
-    (reverse (cons <top>
-		   (cons <object>
-			 (filter-cpl big-list))))))
+	   (traverse
+	    (lambda (class)
+	      (if (memq class res)
+		  '()
+		  (begin
+		    (set! res (cons class res))
+		    (cons class
+			  (apply append!
+				 (map traverse
+				      (slot-ref class 'direct-supers)))))))))
+    
+    (traverse class)))
 
 ;;; compute-get-n-set
 ;;;
