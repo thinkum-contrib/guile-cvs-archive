@@ -123,6 +123,18 @@
       (if cc
 	  (string-append (closure->tcl-name v) " " cc)
 	  (closure->tcl-name v))))
+   ((null? v) "{}")
+   ((list? v)
+    (apply string-append
+	   (reverse (cons "}"
+			  (let loop ((ls (cdr v))
+				     (res (list (->tcl-arg-string (car v))
+						"{")))
+			    (if (null? ls)
+				res
+				(loop (cdr ls)
+				      (cons (->tcl-arg-string (car ls))
+					    (cons " " res)))))))))
    (else "")))
 
 (define (tcl-args args)
@@ -473,7 +485,8 @@
 	    (begin-thread
 	     (error-catching-loop
 	      (lambda ()
-		(if (= (tk-num-main-windows) 0)
+		(if (or (tk-loop?)
+			(= (tk-num-main-windows) 0))
 		    (throw 'quit))
 		(tk-main-loop))))))
 
