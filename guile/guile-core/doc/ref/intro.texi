@@ -1,5 +1,6 @@
 @c $Id$
 
+
 @page
 @node What is Guile?
 @chapter What is Guile?
@@ -49,6 +50,7 @@ Tcl and Perl by translating them to Scheme code.  This means that users
 can program applications which use Guile in the language of their
 choice, rather than having the tastes of the application's author
 imposed on them.
+
 
 @page
 @node Whirlwind Tour
@@ -582,6 +584,7 @@ guile> (exit)
 $
 @end example
 
+
 @node Writing Extensions for Guile
 @section Writing Extensions for Guile
 
@@ -623,6 +626,7 @@ by Guile.
 @menu
 * A Sample Guile Extension::
 @end menu
+
 
 @node A Sample Guile Extension
 @subsection A Sample Guile Extension
@@ -688,6 +692,7 @@ environment variable.
 To see how these Guile extensions via shared libraries relate to the
 module system, see below @xref{Intro to Modules and Extensions}.
 
+
 @node Guile Modules
 @section Guile Modules
 
@@ -701,12 +706,12 @@ anyway.  Guile will provide reasonable backwards compatibility.)
 Details on the module system beyond this introductory material can be found in
 @xref{Modules}.
 
-
 @menu
 * Intro to Using Guile Modules::
 * Intro to Writing New Modules::
 * Intro to Modules and Extensions::
 @end menu
+
 
 @node Intro to Using Guile Modules
 @subsection Intro to Using Existing Modules
