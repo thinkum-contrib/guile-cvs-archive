@@ -1,3 +1,30 @@
+* Add downstream slot to <generic>
+
+* <extended-generic> with upstream slot
+
+* (define-extended-generic NAME #:extend GF1 | (list GF2 GF3))
+  <=> (define NAME (make-extended-generic GF1 | (list GF2 GF3)))
+
+* Change generic-function-methods to take upstream/downstream into account
+
+* Ditto for %invalidate-method-cache
+
+* Introduce slot option indicating whether to merge slots or not
+  default = don't merge
+
+* Remove slot-ref/set!
+
+* Generate accessor by default.
+
+* Option to prevent accessor
+
+* Implement apply generic protocol
+
+* New class extended-generic with list of generics slot so that we
+  refer to generics in other modules instead of copying methods
+
+* New special from for definingextending generics and adding methods?
+
 * Update manual with Neil Jerram's work.
 
 * Introduce new syntax (define-method (foo ...) ...)
