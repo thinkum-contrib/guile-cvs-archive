@@ -116,7 +116,7 @@
 #define SCM_VALIDATE_BOOL_COPY(pos, flag, cvar) \
   do { \
     SCM_ASSERT (SCM_BOOLP (flag), flag, pos, FUNC_NAME); \
-    cvar = SCM_TRUE_P (flag) ? 1 : 0; \
+    cvar = SCM_EQ_P (flag, SCM_BOOL_T) ? 1 : 0; \
   } while (0)
 
 #define SCM_VALIDATE_CHAR(pos, scm) SCM_MAKE_VALIDATE (pos, scm, CHARP)
@@ -330,7 +330,7 @@
 
 #define SCM_VALIDATE_PROC(pos, proc) \
   do { \
-    SCM_ASSERT (SCM_TRUE_P (scm_procedure_p (proc)), proc, pos, FUNC_NAME); \
+    SCM_ASSERT (SCM_EQ_P (scm_procedure_p (proc), SCM_BOOL_T), proc, pos, FUNC_NAME); \
   } while (0)
 
 #define SCM_VALIDATE_NULLORCONS(pos, env) \
