@@ -1,3 +1,13 @@
+2000-04-12  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
+
+	* goops.scm (define-method): Added new, alternative, syntax which
+	probably will supercede the old.  [This is added so that people
+	can experiment with it a little.]
+
+	* save.scm: New file.
+
+	* Makefile.am (goops_sources): Added save.scm.
+
 2000-03-23  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* goops.c (wrap_init): Cast second arg to SETCDR to SCM.
