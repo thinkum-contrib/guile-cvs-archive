@@ -337,8 +337,6 @@
 
 #define SCM_VALIDATE_RGXP(pos, a) SCM_MAKE_VALIDATE (pos, a, RGXP)
 
-#define SCM_VALIDATE_OPDIR(pos, port) SCM_MAKE_VALIDATE (pos, port, OPDIRP)
-
 #define SCM_VALIDATE_DIR(pos, port) SCM_MAKE_VALIDATE (pos, port, DIRP)
 
 #define SCM_VALIDATE_PORT(pos, port) SCM_MAKE_VALIDATE (pos, port, PORTP)
@@ -436,6 +434,8 @@
     if (!SCM_RWSTRINGP (str)) \
       scm_misc_error (FUNC_NAME, "argument is a read-only string", str); \
   } while (0)
+
+#define SCM_VALIDATE_OPDIR(pos, port) SCM_MAKE_VALIDATE (pos, port, OPDIRP)
 
 #endif  /* SCM_DEBUG_DEPRECATED == 0 */
 
