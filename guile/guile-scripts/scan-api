@@ -1,0 +1,35 @@
+#!/bin/sh
+# Usage: scan-api guile sofile
+# The output is an alist: ((scheme ...) (C ...))
+
+guile=$1
+sofile=$2
+
+scheme ()
+{
+$guile -c '(use-modules (ice-9 session)) (apropos ".")' \
+    | grep ^.guile \
+    | sed 's/^.*: //g' \
+    | sort \
+    | awk '{print "(" $1 " " "\"" $2 "\"" ")"}'
+}
+
+C ()
+{
+# lowercase => locals
+# A => absolute
+# U => undefined
+nm $sofile \
+    | grep ' [A-Z] ' \
+    | grep -v ' [AU] ' \
+    | sed 's/^........ //g' \
+    | awk '{print "(" $2 " " $1 ")"}' \
+    | sort
+}
+
+echo '('
+echo '(scheme' ; scheme ; echo ') ;; end of scheme'
+echo '(C     ' ; C      ; echo ') ;; end of C'
+echo ')'
+
+# scan-api ends here
