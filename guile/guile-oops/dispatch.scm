@@ -26,13 +26,29 @@
 
 (export memoize-method!)
 
+;;;
+;;; This file implements method memoization.  It will finally be
+;;; implemented on C level in order to obtain fast generic function
+;;; application also during the first pass through the code.
+;;;
+
+;;;
+;;; Constants
+;;;
+
 (define hashsets 8)
 (define hashset-index 10)
 
-(define hash-threshold 4)
-(define initial-hash-size 4) ;must be >= hash-threshold
+(define hash-threshold 3)
+(define initial-hash-size 4) ;must be a power of 2 and >= hash-threshold
 
+(define initial-hash-size-1 (- initial-hash-size 1))
+
+(define the-list-of-#f '(#f))
+
+;;;
 ;;; Method cache
+;;;
 
 ;; (#@dispatch args N-SPECIALIZED #((TYPE1 ... ENV FORMALS FORM1 ...) ...) GF)
 ;; (#@dispatch args N-SPECIALIZED HASHSET MASK
@@ -41,49 +57,25 @@
 
 ;;; Representation
 
-(define (method-cache-hashed? x)
-  (integer? (cadddr x)))
-
-(define max-non-hashed-index (- hash-threshold 2))
-
-(define (passed-hash-threshold? exp)
-  (car (vector-ref (method-cache-entries exp) max-non-hashed-index)))
+;; non-hashed form
 
 (define method-cache-n-specialized caddr)
+
 (define (set-method-cache-n-specialized! exp n)
   (set-car! (cddr exp) n))
+
 (define method-cache-entries cadddr)
 
-(define (method-cache->hashed! exp)
-  (set-cdr! (cddr exp) (cons 0 (cons (- initial-hash-size 1) (cdddr exp))))
-  exp)
-
-(define (n-cache-methods entries)
-  (let ((len (vector-length entries)))
-    (do ((i 0 (+ 1 i)))
-	((or (= i len) (not (car (vector-ref entries i))))
-	 i))))
+(define (set-method-cache-entries! mcache entries)
+  (set-car! (cdddr mcache) entries))
 
 (define (method-cache-n-methods exp)
   (n-cache-methods (method-cache-entries exp)))
 
-(define (cache-methods entries)
-  (do ((i (- (vector-length entries) 1) (- i 1))
-       (methods '() (let ((entry (vector-ref entries i)))
-		      (if (car entry) (cons entry methods) methods))))
-      ((< i 0) methods)))
-
 (define (method-cache-methods exp)
   (cache-methods (method-cache-entries exp)))
 
-(define (method-cache-insert! exp entry)
-  (vector-set! (method-cache-entries exp)
-	       (method-cache-n-methods exp)
-	       entry)
-  )
-
-(define (method-cache-generic-function exp)
-  (list-ref exp (if (method-cache-hashed? exp) 6 4)))
+;; hashed form
 
 (define (set-hashed-method-cache-hashset! exp hashset)
   (set-car! (cdddr exp) hashset))
@@ -97,12 +89,68 @@
 (define (set-hashed-method-cache-entries! exp entries)
   (set-car! (list-cdr-ref exp 5) entries))
 
+;; either form
+
+(define (method-cache-generic-function exp)
+  (list-ref exp (if (method-cache-hashed? exp) 6 4)))
+
+;;; Predicates
+
+(define (method-cache-hashed? x)
+  (integer? (cadddr x)))
+
+(define max-non-hashed-index (- hash-threshold 2))
+
+(define (passed-hash-threshold? exp)
+  (and (> (vector-length (method-cache-entries exp)) max-non-hashed-index)
+       (car (vector-ref (method-cache-entries exp) max-non-hashed-index))))
+
+;;; Converting a method cache to hashed form
+
+(define (method-cache->hashed! exp)
+  (set-cdr! (cddr exp) (cons 0 (cons initial-hash-size-1 (cdddr exp))))
+  exp)
+
+;;;
+;;; Cache entries
+;;;
+
+(define (n-cache-methods entries)
+  (do ((i (- (vector-length entries) 1) (- i 1)))
+      ((or (< i 0) (car (vector-ref entries i)))
+       (+ i 1))))
+
+(define (cache-methods entries)
+  (do ((i (- (vector-length entries) 1) (- i 1))
+       (methods '() (let ((entry (vector-ref entries i)))
+		      (if (car entry) (cons entry methods) methods))))
+      ((< i 0) methods)))
+
+;;;
+;;; Method insertion
+;;;
+
+(define (method-cache-insert! exp entry)
+  (let* ((entries (method-cache-entries exp))
+	 (n (n-cache-methods entries)))
+    (if (>= n (vector-length entries))
+	;; grow cache
+	(let ((new-entries (make-vector (* 2 (vector-length entries))
+					the-list-of-#f)))
+	  (do ((i 0 (+ i 1)))
+	      ((= i n))
+	    (vector-set! new-entries i (vector-ref entries i)))
+	  (vector-set! new-entries n entry)
+	  (set-method-cache-entries! exp new-entries))
+	(vector-set! entries n entry))))
+
 (define (hashed-method-cache-insert! exp entry)
   (let* ((cache (hashed-method-cache-entries exp))
 	 (size (vector-length cache)))
     (let* ((entries (cons entry (cache-methods cache)))
 	   (size (if (<= (length entries) size)
 		     size
+		     ;; larger size required
 		     (let ((new-size (* 2 size)))
 		       (set-hashed-method-cache-mask! exp (- new-size 1))
 		       new-size)))
@@ -110,7 +158,7 @@
 	   (best #f))
       (do ((hashset 0 (+ 1 hashset)))
 	  ((= hashset hashsets))
-	(let* ((test-cache (make-vector size '(#f)))
+	(let* ((test-cache (make-vector size the-list-of-#f))
 	       (misses (cache-try-hash! min-misses hashset test-cache entries)))
 	  (cond ((zero? misses)
 		 (set! min-misses 0)
@@ -124,7 +172,9 @@
       (set-hashed-method-cache-hashset! exp best)
       (set-hashed-method-cache-entries! exp cache))))
 
+;;;
 ;;; Caching
+;;;
 
 (define environment? pair?)
 
@@ -152,25 +202,9 @@
 	   (lambda (key misses)
 	     misses))))
 
-(define method-cache-install!
-  (letrec ((first-n
-	    (lambda (ls n)
-	      (if (or (zero? n) (null? ls))
-		  '()
-		  (cons (car ls) (first-n (cdr ls) (- n 1)))))))
-    (lambda (insert! exp args applicable)
-      (let* ((specializers (method-specializers (car applicable)))
-	     (n-specializers
-	      (if (list? specializers)
-		  (length specializers)
-		  (+ 1 (slot-ref (method-cache-generic-function exp)
-				 'n-specialized)))))
-	(if (> n-specializers (method-cache-n-specialized exp))
-	    (set-method-cache-n-specialized! exp n-specializers))
-	(let ((types (map class-of (first-n args n-specializers))))
-	  (insert! exp (method-entry applicable types)))))))
-
+;;;
 ;;; Memoization
+;;;
 
 (define (memoize-method! gf args exp)
   (if (not (slot-ref gf 'used-by))
@@ -191,6 +225,28 @@
 				  applicable))
 	  (else
 	   (method-cache-install! method-cache-insert! exp args applicable)))))
+
+(define method-cache-install!
+  (letrec ((first-n
+	    (lambda (ls n)
+	      (if (or (zero? n) (null? ls))
+		  '()
+		  (cons (car ls) (first-n (cdr ls) (- n 1)))))))
+    (lambda (insert! exp args applicable)
+      (let* ((specializers (method-specializers (car applicable)))
+	     (n-specializers
+	      (if (list? specializers)
+		  (length specializers)
+		  (+ 1 (slot-ref (method-cache-generic-function exp)
+				 'n-specialized)))))
+	(if (> n-specializers (method-cache-n-specialized exp))
+	    (set-method-cache-n-specialized! exp n-specializers))
+	(let ((types (map class-of (first-n args n-specializers))))
+	  (insert! exp (method-entry applicable types)))))))
+
+;;;
+;;; Method entries
+;;;
 
 (define (method-entry methods types)
   (cond ((assoc types (slot-ref (car methods) 'code-table))
