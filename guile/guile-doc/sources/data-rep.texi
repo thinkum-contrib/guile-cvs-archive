@@ -1020,9 +1020,8 @@ typedef struct scm_smobfuns
 @item mark
 Guile will apply this function to each instance of the new type it
 encounters during garbage collection.  This function is responsible for
-marking the object's cell, and telling the collector about any other
-non-immediate objects the object refers to.  @xref{Garbage Collecting
-Smobs}, for more details.
+telling the collector about any other non-immediate objects the object
+refers to.  @xref{Garbage Collecting Smobs}, for more details.
 
 @item free
 Guile will apply this function to each instance of the new type it could
@@ -1233,33 +1232,18 @@ during which the collector marks live objects, and the @dfn{sweep
 phase}, during which the collector frees all unmarked objects.
 
 The mark bit of a smob lives in its @sc{car}, along with the smob's type
-tag.  When the collector encounters a smob, it uses the smob's type tag
-to find the appropriate @code{mark} function for that smob.  It then
-calls the function, passing it the smob as its only argument.
+tag.  When the collector encounters a smob, it sets the smob's mark bit,
+and uses the smob's type tag to find the appropriate @code{mark}
+function for that smob: the one listed in that smob's
+@code{scm_smobfuns} structure.  It then calls the @code{mark} function,
+passing it the smob as its only argument.
 
-The @code{mark} function's is responsible for marking the smob's cell,
-and any other Scheme objects the smob refers to.  If it does not do so,
-the objects' mark bits will still be clear when the collector begins to
-sweep, and the collector will free them.  If this occurs, it will
-probably break, or at least confuse, any code operating on the smob.
-
-To mark the smob's cell, the @code{mark} function should use this macro:
-
-@deftypefn Macro void SCM_SETGC8MARK (SCM @var{x})
-Set the mark bit on the cell of the smob @var{x}.
-
-This macro affects only @var{x}'s cell; the mark function must still
-take care to mark any other non-immediate objects that @var{x} refers
-to.  You probably should not use this function to mark anything but
-smobs; to mark other datatypes, use the @code{scm_gc_mark} function,
-described below.
-
-(Although all non-immeditate objects have mark bits, different types
-store the mark bits in different places.  The name of this macro comes
-from the location of the mark bit on a smob --- the eighth bit of the
-@sc{car}.)
-@end deftypefn
-
+The @code{mark} function's is responsible for marking any other Scheme
+objects the smob refers to.  If it does not do so, the objects' mark
+bits will still be clear when the collector begins to sweep, and the
+collector will free them.  If this occurs, it will probably break, or at
+least confuse, any code operating on the smob; the smob's @code{SCM}
+values will have become dangling references.
 
 To mark an arbitrary Scheme object, the @code{mark} function may call
 this function:
@@ -1276,15 +1260,11 @@ smob type discussed above:
 SCM
 mark_image (SCM image_smob)
 @{
-  /* Set the mark bit on the smob's cell itself.  */
-  SCM_SETGC8MARK (image_smob);
-
   /* Mark the image's name and update function.  */
-  @{
-    struct image *image = (struct image *) SCM_CDR (image_smob);
-    scm_gc_mark (image->name);
-    scm_gc_mark (image->update_func);
-  @}
+  struct image *image = (struct image *) SCM_CDR (image_smob);
+
+  scm_gc_mark (image->name);
+  scm_gc_mark (image->update_func);
 
   return SCM_BOOL_F;
 @}
@@ -1306,15 +1286,11 @@ the mark phase.  Thus, the code above could also be written as:
 SCM
 mark_image (SCM image_smob)
 @{
-  /* Set the mark bit on the smob's cell itself.  */
-  SCM_SETGC8MARK (image_smob);
-
   /* Mark the image's name and update function.  */
-  @{
-    struct image *image = (struct image *) SCM_CDR (image_smob);
-    scm_gc_mark (image->name);
-    return image->update_func;
-  @}
+  struct image *image = (struct image *) SCM_CDR (image_smob);
+
+  scm_gc_mark (image->name);
+  return image->update_func;
 @}
 @end group
 @end example
@@ -1350,14 +1326,16 @@ free_image (SCM image_smob)
 
 During the sweep phase, the garbage collector will clear the mark bits
 on all live objects.  The code which implements a smob need not do this
-itself.  There is no way for smob code to be notified when collection is
+itself.
+
+There is no way for smob code to be notified when collection is
 complete.
 
 Note that, since a smob's mark bit lives in its @sc{car}, along with the
 smob's type tag, the technique for checking the type of a smob described
 in @ref{Typechecking} will not necessarily work during GC.  If you need
-to find out whether a given object is a smob during GC, use the
-following macro:
+to find out whether a given object is a particular smob type during GC,
+use the following macro:
 
 @deftypefn Macro void SCM_GCTYP16 (SCM @var{x})
 Return the type bits of the smob @var{x}, with the mark bit clear.
@@ -1381,24 +1359,21 @@ no data to mark, other than the cell itself, or smobs whose @sc{cdr} is
 simply an ordinary Scheme object, to be marked recursively.  Guile
 provides some functions to handle these common cases.
 
-@deftypefun SCM scm_mark0 (SCM @var{x})
-Mark the smob @var{x}, assuming that @var{x} refers to no other Scheme
-objects.  This function simply calls @code{SCM_SETGC8MARK}, and returns
-@code{#f}.
-@end deftypefun
+If the smob refers to no other Scheme objects, then no action is
+necessary; the garbage collector has already marked the smob cell
+itself.  In that case, you can use zero as your mark function.
 
 @deftypefun SCM scm_markcdr (SCM @var{x})
-Mark the smob @var{x}, assuming that @var{x}'s @sc{cdr} contains an
-ordinary Scheme object, and @var{x} refers to no other objects.  This
-function simply calls @code{SCM_SETGC8MARK}, and then returns @var{x}'s
-@sc{cdr}.
+Mark the references in the smob @var{x}, assuming that @var{x}'s
+@sc{cdr} contains an ordinary Scheme object, and @var{x} refers to no
+other objects.  This function simply returns @var{x}'s @sc{cdr}.
 @end deftypefun
 
 @deftypefun scm_sizet scm_free0 (SCM @var{x})
 Do nothing; return zero.  This function is appropriate for smobs that
-use either @code{scm_mark0} or @code{scm_markcdr} as their marking
-functions, and refer to no heap storage, including memory managed by
-malloc, other than the smob's header cell.
+use either zero or @code{scm_markcdr} as their marking functions, and
+refer to no heap storage, including memory managed by @code{malloc},
+other than the smob's header cell.
 @end deftypefun
 
 
