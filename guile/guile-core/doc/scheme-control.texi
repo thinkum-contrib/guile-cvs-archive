@@ -602,28 +602,25 @@ expression.
 A @dfn{lazy catch} is used in the same way as a normal @code{catch},
 with @var{key}, @var{thunk} and @var{handler} arguments specifying the
 exception type, normal case code and handler procedure, but differs in
-two important respects.
-
-@itemize @bullet
-@item
-The handler procedure is executed without unwinding the call stack from
-the context of the @code{throw} expression that caused the handler to be
-invoked.
-
-@item
-If the handler returns normally --- i.e. does not @emph{itself} throw an
-exception --- then the @code{throw} expression returns normally to its
-caller with the handler's value.
-@end itemize
+one important respect: the handler procedure is executed without
+unwinding the call stack from the context of the @code{throw} expression
+that caused the handler to be invoked.
 
 @deffn primitive lazy-catch key thunk handler
 This behaves exactly like @code{catch}, except that it does
-not unwind the stack (this is the major difference), and if
-handler returns, its value is returned from the throw.
+not unwind the stack before invoking @var{handler}.
+The @var{handler} procedure is not allowed to return:
+it must throw to another catch, or otherwise exit non-locally.
 @end deffn
 
-The net result is that throwing an exception that is caught by a
-@code{lazy-catch} is @emph{almost} equivalent to calling the
+Typically, @var{handler} should save any desired state associated with
+the stack at the point where the corresponding @code{throw} occurred,
+and then throw an exception itself --- usually the same exception as the
+one it caught.  If @var{handler} is invoked and does @emph{not} throw an
+exception, Guile itself throws an exception with key @code{misc-error}.
+
+Not unwinding the stack means that throwing an exception that is caught
+by a @code{lazy-catch} is @emph{almost} equivalent to calling the
 @code{lazy-catch}'s handler inline instead of each @code{throw}, and
 then omitting the surrounding @code{lazy-catch}.  In other words,
 
@@ -642,37 +639,20 @@ is @emph{almost} equivalent to
 
 @noindent
 But why only @emph{almost}?  The difference is that with
-@code{lazy-catch}, the dynamic context is unwound back to just outside
-the @code{lazy-catch} expression before invoking the handler.  (For an
-introduction to what is meant by dynamic context, @xref{Dynamic Wind}.)
+@code{lazy-catch} (as with normal @code{catch}), the dynamic context is
+unwound back to just outside the @code{lazy-catch} expression before
+invoking the handler.  (For an introduction to what is meant by dynamic
+context, @xref{Dynamic Wind}.)
 
-Then, if the handler @emph{itself} throws an exception, that exception
+Then, when the handler @emph{itself} throws an exception, that exception
 must be caught by some kind of @code{catch} (including perhaps another
-@code{lazy-catch}) higher up the call stack.  On the other hand, if the
-handler returns normally, the dynamic context is wound back to that of
-the @code{throw} expression before passing the handler's return value to
-the continuation of the @code{throw}.
+@code{lazy-catch}) higher up the call stack.
 
-In most cases where @code{lazy-catch} is used, the handler does indeed
-throw another exception, which is caught by a higher-level @code{catch}.
-But this pattern is not mandatory, and it can be useful for the handler
-to return normally.  In the following example, the @code{lazy-catch}
-handler is called twice and the results of the two calls added together.
-
-@lisp
-(lazy-catch 'foo
-            (lambda ()
-              (+ (throw 'foo 1)
-                 (throw 'foo 2)))
-            (lambda args
-              (cadr args)))
-@result{}
-3
-@end lisp
-
-To see the point about dynamic context, consider the case where the
-normal case thunk uses @code{with-fluids} (REFFIXME) to temporarily
-change the value of a fluid:
+The dynamic context also includes @code{with-fluids} blocks (REFFIXME),
+so the effect of unwinding the dynamic context can also be seen in fluid
+variable values.  This is illustrated by the following code, in which
+the normal case thunk uses @code{with-fluids} to temporarily change the
+value of a fluid:
 
 @lisp
 (define f (make-fluid))
