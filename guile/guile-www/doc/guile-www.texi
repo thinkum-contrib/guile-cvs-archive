@@ -20,7 +20,7 @@
 @ifinfo
 This file is the Guile-WWW Modules Reference
 
-Copyright @copyright{} 2001 Free Software Foundation, Inc.
+Copyright @copyright{} 2001,2002 Free Software Foundation, Inc.
 
 Permission is granted to make and distribute verbatim copies of this
 manual provided the copyright notice and this permission notice are
@@ -55,7 +55,7 @@ approved by the Free Software Foundation.
 @c The following two commands start the copyright page.
 @page
 @vskip 0pt plus 1filll
-Copyright @copyright{} 2001 Free Software Foundation, Inc.
+Copyright @copyright{} 2001,2002 Free Software Foundation, Inc.
 
      Permission is granted to make and distribute verbatim copies of
 this manual provided the copyright notice and this permission notice are
@@ -194,11 +194,17 @@ This module exports the following variables and procedures:
     cgi-content-length
     cgi-http-accept-types
     cgi-http-user-agent
+    cgi-http-cookie
    (cgi:init)
    (cgi:values name)
    (cgi:value name)
    (cgi:names)
    (cgi:form-data?)
+   (cgi:uploads name)
+   (cgi:upload name)
+   (cgi:cookies name)
+   (cgi:cookie name)
+   (cgi:make-cookie value #&key path domain expires secure)
 @end example
 
 @c ---------------------------------------------------------------------------
