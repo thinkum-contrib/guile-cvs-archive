@@ -976,11 +976,20 @@ get_slot_value (SCM class, SCM obj, SCM slot_name)
 				     SCM_ENV (code));
 	      /* Evaluate the closure body */
 	      code = SCM_CDR (SCM_CODE (code));
+	    again:
 	      next = code;
 	      while (SCM_NNULLP (next = SCM_CDR (next)))
 		{
-		  if (SCM_NIMP (SCM_CAR (code)))
-		    l = SCM_XEVAL (SCM_CAR (code), env);
+		  if (SCM_IMP (SCM_CAR (code)))
+		    {
+		      if (SCM_ISYMP (SCM_CAR (code)))
+			{
+			  code = scm_m_expand_body (code, env);
+			  goto again;
+			}
+		    }
+		  else
+		    SCM_XEVAL (SCM_CAR (code), env);
 		  code = next;
 		}
 	      return SCM_XEVALCAR (code, env);
@@ -2315,7 +2324,6 @@ scm_make_class (SCM meta, char *s_name, SCM supers, size_t size,
   return class;
 }
 
-SCM_SYMBOL (sym_n, "n");
 SCM_SYMBOL (sym_o, "o");
 SCM_SYMBOL (sym_x, "x");
 
@@ -2340,17 +2348,12 @@ scm_add_slot (SCM class, char *slot_name, SCM slot_class,
     SCM set = scm_make_subr_opt ("goops:set", scm_tc7_subr_2,
 				 setter ? setter : default_setter, 0);
     /*fixme* allow subr getter/setters */
-    SCM getm = scm_closure (SCM_LIST2 (SCM_LIST2 (sym_n, sym_o),
+    SCM getm = scm_closure (SCM_LIST2 (SCM_LIST1 (sym_o),
 				       SCM_LIST2 (get, sym_o)),
 			    SCM_EOL);
-    SCM setm = scm_closure (SCM_LIST2 (SCM_LIST3 (sym_n, sym_o, sym_x),
+    SCM setm = scm_closure (SCM_LIST2 (SCM_LIST2 (sym_o, sym_x),
 				       SCM_LIST3 (set, sym_o, sym_x)),
 			    SCM_EOL);
-    get = scm_closure (SCM_LIST2 (SCM_LIST1 (sym_o), SCM_LIST2 (get, sym_o)),
-		       SCM_EOL);
-    set = scm_closure (SCM_LIST2 (SCM_LIST2 (sym_o, sym_x),
-				  SCM_LIST3 (set, sym_o, sym_x)),
-		       SCM_EOL);
     {
       SCM name = SCM_CAR (scm_intern0 (slot_name));
       SCM aname = SCM_CAR (scm_intern0 (accessor_name));
