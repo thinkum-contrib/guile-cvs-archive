@@ -83,6 +83,9 @@ have been known to cause problems, and a short description of the problem.
 - automake 1.4-p4 (debian "1:1.4-p4-1.1") all platforms
   automake "include" facility does not recognize filenames w/ "-".
 
+- libtool 1.4 uses acconfig.h, which is deprecated by newest autoconf
+  (which constructs the equivalent through 3rd arg of AC_DEFINE forms).
+
 - (add here.)
 
 
