@@ -71,7 +71,7 @@ LIBLOBJS="`echo ${LIBOBJS} | sed 's/\.o/.lo/g'`"
 
 AC_SUBST(LIBLOBJS)
 
-AC_OUTPUT(Makefile versiondat.h debian/libgoops5.links)
+AC_OUTPUT(Makefile versiondat.h debian/Makefile debian/libgoops5.links)
 
 dnl Local Variables:
 dnl comment-start: "dnl "

@@ -2,6 +2,8 @@
 
 AUTOMAKE_OPTIONS = foreign
 
+SUBDIRS = debian
+
 lib_LTLIBRARIES = libgoopscore.la
 bin_PROGRAMS = guile-oops
 
@@ -37,9 +39,11 @@ goops_TEXINFOS = goops-tutorial.texi hierarchy.eps hierarchy.txt
 
 man_MANS = guile-oops.1
 
-miscdocs = ANON-CVS COPYRIGHTS HACKING SNAPSHOTS TAGS TODO mop.text
+miscdocs = \
+	ANON-CVS COPYRIGHTS HACKING SNAPSHOTS TAGS TODO mop.text guile-oops.1
 
-EXTRA_DIST = $(subpkgdata_DATA) $(goops_sources) $(miscdocs) GOOPS-VERSION relpath
+EXTRA_DIST = \
+	$(subpkgdata_DATA) $(goops_sources) $(miscdocs) GOOPS-VERSION relpath
 
 RELPATH = guile -e main -s $(srcdir)/relpath
 
