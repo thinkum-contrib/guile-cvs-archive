@@ -45,7 +45,7 @@
     class-slot-ref class-slot-set! slot-unbound slot-missing 
     slot-definition-name  slot-definition-options slot-definition-allocation
     slot-definition-getter slot-definition-setter slot-definition-accessor
-    slot-definition-init-value
+    slot-definition-init-value slot-definition-init-form
     slot-definition-init-thunk slot-definition-init-keyword 
     slot-init-function class-slot-definition
     method-source
@@ -587,6 +587,9 @@
   ;; can be #f, so we can't use #f as non-value
   (get-keyword #:init-value (cdr s) (make-unbound)))
 
+(define (slot-definition-init-form s)
+  (get-keyword #:init-form (cdr s) (make-unbound)))
+
 (define (slot-definition-init-thunk s)
   (get-keyword #:init-thunk (cdr s) #f))
 
@@ -719,10 +722,7 @@
     g-n-s))
 
 (define (class-slot-ref class slot)
-  (let ((x ((car (class-slot-g-n-s class slot)) #f)))
-    (if (unbound? x)
-	(slot-unbound class slot)
-	x)))
+  ((car (class-slot-g-n-s class slot)) #f))
 
 (define (class-slot-set! class slot value)
   ((cadr (class-slot-g-n-s class slot)) #f value))
@@ -1172,8 +1172,8 @@
 
 (define (make-closure-variable class s)
   (let ((shared-variable (make-unbound)))
-    (list (if (or (get-keyword #:init-value (slot-definition-options s) #f)
-		  (get-keyword #:init-thunk (slot-definition-options s) #f)
+    (list (if (or (unbound? (slot-definition-init-value s))
+		  (unbound? (slot-definition-init-form s))
 		  ;; #:init-form implies #:init-thunk
 		  )
 	      ;; safe not to check boundness
