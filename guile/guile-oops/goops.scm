@@ -49,7 +49,7 @@
     slot-definition-init-thunk slot-definition-init-keyword 
     slot-init-function class-slot-definition
     method-source
-    compute-cpl compute-std-cpl compute-get-n-set
+    compute-cpl compute-std-cpl compute-get-n-set compute-slots
     allocate-instance initialize make-instance make
     no-next-method  no-applicable-method no-method
     change-class update-instance-for-different-class
@@ -1157,6 +1157,9 @@
 
 (define-method compute-get-n-set ((o <object>) s)
   (goops-error "Allocation \"%S\" is unknown" (slot-definition-allocation s)))
+
+(define-method compute-slots ((class <class>))
+  (%compute-slots class))
 
 ;;;
 ;;; {Initialize}
