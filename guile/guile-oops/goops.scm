@@ -42,7 +42,6 @@
     define-accessor make-accessor ensure-accessor
     define-method make-method method add-method!
     object-eqv? object-equal?
-    write-object display-object
     class-slot-ref class-slot-set! slot-unbound slot-missing 
     slot-definition-name  slot-definition-options slot-definition-allocation
     slot-definition-getter slot-definition-setter slot-definition-accessor
@@ -602,16 +601,20 @@
 ;     bound. Otherwise a slot-unbound method will be called and will 
 ;     conduct to an infinite loop.
 
+(enable-primitive-generic! display write)
+
+(define write-object (primitive-generic-generic write))
+
 ;; Write
 (define (display-address o file)
   (display (number->string (object-address o) 16) file))
 
-(define-method write-object (o file)
+(define-method write (o file)
   (display "#<instance " file)
   (display-address o file)
   (display #\> file))
 
-(define-method write-object ((o <object>) file)
+(define-method write ((o <object>) file)
   (let ((class (class-of o)))
     (if (slot-bound? class 'name)
 	(begin
@@ -622,7 +625,7 @@
 	  (display #\> file))
 	(next-method))))
 
-(define-method write-object ((o <foreign-object>) file)
+(define-method write ((o <foreign-object>) file)
   (let ((class (class-of o)))
     (if (slot-bound? class 'name)
 	(begin
@@ -633,7 +636,7 @@
 	  (display #\> file))
 	(next-method))))
 
-(define-method write-object ((class <class>) file)
+(define-method write ((class <class>) file)
   (let ((meta (class-of class)))
     (if (and (slot-bound? class 'name)
 	     (slot-bound? meta 'name))
@@ -647,7 +650,7 @@
 	  (display #\> file))
 	(next-method))))
 
-(define-method write-object ((gf <generic>) file)
+(define-method write ((gf <generic>) file)
   (let ((meta (class-of gf)))
     (if (and (slot-bound? meta 'name)
 	     (slot-bound? gf 'methods))
@@ -664,7 +667,7 @@
 	  (display ")>" file))
 	(next-method))))
 
-(define-method write-object ((o <method>) file)
+(define-method write ((o <method>) file)
   (let ((meta (class-of o)))
     (if (and (slot-bound? meta 'name)
 	     (slot-bound? o 'specializers))
@@ -683,31 +686,8 @@
 	  (display #\> file))
 	(next-method))))
 
-;; Teach all created classes how to print themselves
-(for-each (lambda (class)
-	    (slot-set! class 'print write-object))
-	  (list <top> <object> <class>
-		<procedure-class> <entity-class>
-		<operator-class> <operator-with-setter-class>
-		<entity> <entity-with-setter>
-		<method> <simple-method> <accessor-method>
-		<generic> <generic-with-setter> <primitive-generic>
-		<boolean> <char>
-		<list> <pair> <null>
-		<string> <symbol>
-		<vector>
-		<number> <complex> <real> <integer>
-		<keyword>
-		<unknown>
-		<procedure>
-		<foreign-object> <foreign-class> <foreign-slot>
-		<protected-slot> <opaque-slot> <read-only-slot> <self-slot>
-		<protected-opaque-slot> <protected-read-only-slot>
-		<scm-slot> <int-slot> <float-slot> <double-slot>
-		))
-
 ;; Display (do the same thing as write by default)
-(define-method display-object (o file) 
+(define-method display (o file) 
   (write-object o file))
 
 ;;;
@@ -1208,10 +1188,7 @@
     (%inherit-magic! class supers)
 
     ;; Set the layout slot
-    (%prep-layout! class)
-
-    ;; Set the struct print closure
-    (slot-set! class 'print write-object)))
+    (%prep-layout! class)))
 
 (define object-procedure-tags
   '(utag_closure utag_subr_1 utag_subr_2 utag_subr3 utag_lsubr_2))
