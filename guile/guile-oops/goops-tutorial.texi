@@ -3,7 +3,7 @@
 @c
 @c STk Reference manual (Appendix: An Introduction to STklos)
 @c
-@c Copyright © 1993-1999, 2001 Erick Gallesio - I3S-CNRS/ESSI <eg@unice.fr>
+@c Copyright © 1993-1999 Erick Gallesio - I3S-CNRS/ESSI <eg@unice.fr>
 @c Permission to use, copy, modify, distribute,and license this
 @c software and its documentation for any purpose is hereby granted,
 @c provided that existing copyright notices are retained in all
@@ -763,7 +763,7 @@ Figure@ 3.
 
   (define-method (new-+ (a <number>))  a)
   
-  (define-method (new-+ ) 0)
+  (define-method (new-+) 0)
 
   (define-method (new-+ . args)
     (new-+ (car args) 

@@ -7,11 +7,11 @@
 @paragraphindent 0
 @c %**end of header
 
-@set VERSION 0.2
+@set VERSION 0.3
 
-@dircategory Scheme Programming
+@dircategory The Algorithmic Language Scheme
 @direntry
-* goops: (goops).          The GOOPS reference manual.
+* GOOPS: (goops).               The GOOPS reference manual.
 @end direntry
 
 @macro goops
@@ -1665,21 +1665,17 @@ procedures described in this section may disappear as well.
 
 To add a method to a generic function, use the @code{define-method} form.
 
-@deffn syntax define-method (symbol parameter @dots{}) . body
-Define a method for the generic function or accessor @var{symbol} with
+@deffn syntax define-method (generic parameter @dots{}) . body
+Define a method for the generic function or accessor @var{generic} with
 parameters @var{parameter}s and body @var{body}.
 
-@var{symbol} must be either a symbol for a variable bound to a generic
-function or accessor, or @code{(setter @var{accessor-symbol})}, where
-@var{accessor-symbol} is a symbol for a variable bound to an accessor.
-If the former, @code{define-method} defines a reference method for the
-specified generic function or accessor; if the latter,
-@code{define-method} defines a setter method for the specified accessor.
-The @var{symbol} parameter is subject to these restrictions (rather than
-being allowed to be anything that evaluates to a generic function) so
-that @code{define-method} can construct a call to @code{define-generic}
-or @code{define-accessor} if @var{symbol} is not already defined as a
-generic function.
+@var{generic} is a generic function.  If @var{generic} is a variable
+which is not yet bound to a generic function object, the expansion of
+@code{define-method} will include a call to @code{define-generic}.  If
+@var{generic} is @code{(setter @var{generic-with-setter})}, where
+@var{generic-with-setter} is a variable which is not yet bound to a
+generic-with-setter object, the expansion will include a call to
+@code{define-accessor}.
 
 Each @var{parameter} must be either a symbol or a two-element list
 @code{(@var{symbol} @var{class})}.  The symbols refer to variables in
