@@ -486,14 +486,28 @@ error, described below.
 @c see ftp://ftp.isi.edu/in-notes/iana/assignments/character-sets
 Guile supports at least these encodings:
 @table @samp 
-@item guile
-This is always Guile's current internal multibyte encoding.  The actual
-encoding this name represents may change over time, but you will need to
-use this when converting data between external sources and Guile
-objects.  Currently, this is equivalent to @samp{Emacs-Mule}.
+
 @item US-ASCII
 @sc{US-ASCII}, in the standard one-character-per-byte encoding.
+
 @item ISO-8859-1
+The usual character set for Western European languages, in its usual
+one-character-per-byte encoding.
+
+@item Guile
+Guile's current internal multibyte encoding.  The actual encoding this
+name refers to will change from one version of Guile to the next.  You
+should use this when converting data between external sources and the
+encoding used by Guile objects.
+
+You should @emph{not} use this as the encoding for data presented to the
+outside world, for two reasons.  1) Its meaning will change over time,
+so data written using the @samp{guile} encoding with one version of
+Guile might not be readable with the @samp{guile} encoding in another
+version of Guile.  2) It currently corresponds to @samp{Emacs-Mule},
+which invented for Emacs's internal use, and was never intended to serve
+as an exchange medium.
+
 @item Emacs-Mule
 This is the variable-length encoding for multi-lingual text by GNU
 Emacs, at least through version 20.4.  You probably should not use this
@@ -501,6 +515,12 @@ encoding, as it is designed only for Emacs's internal use.  However, we
 provide it here because it's trivial to support, and some people
 probably do have @samp{emacs-mule}-format files lying around.
 @end table
+
+(At the moment, this list doesn't include any character sets suitable for
+external use that can actually handle multilingual data; this is
+unfortunate, as it encourages users to write data in Emacs-Mule format,
+which nobody but Emacs and Guile understands.  We hope to add support
+for Unicode in UTF-8 soon, which should solve this problem.)
 
 Case is not significant in encoding names.
 
