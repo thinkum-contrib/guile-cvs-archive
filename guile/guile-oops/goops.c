@@ -82,12 +82,35 @@
 #define CALL_GF4(name,a,b,c,d)	(scm_apply (GETVAR (Intern(name)), \
 					    SCM_LIST4 (a, b, c, d), SCM_EOL))
 
-/* #define SCM_CLASS_REDEF(c) SCM_SLOT(c, scm_si_redefined) */
+/* Class redefinition protocol:
+
+   A class is represented by a heap header h1 which points to a
+   malloc:ed memory block m1.
+
+   When a new version of a class is created, a new header h2 and
+   memory block m2 are allocated.  The headers h1 and h2 then switch
+   pointers so that h1 refers to m2 and h2 to m1.  In this way, names
+   bound to h1 will point to the new class at the same time as h2 will
+   be a handle which the GC will us to free m1.
+
+   The `redefined' slot of m1 will be set to point to h1.  An old
+   instance will have it's class pointer (the CAR of the heap header)
+   pointing to m1.  The non-immediate `redefined'-slot in m1 indicates
+   the class modification and the new class pointer can be found via
+   h1.
+*/
+
+#define SCM_CLASS_REDEF(c) SCM_SLOT (c, scm_si_redefined)
+/* The following definition is located in libguile/objects.h:
+#define SCM_OBJ_CLASS_REDEF(x) (SCM_STRUCT_VTABLE_DATA(x)[scm_si_redefined])
+*/
+
 #define TEST_CHANGE_CLASS(obj, class) 					      \
 	{ 								      \
-	  class = SCM_CLASS_OF(obj);					      \
-          if (SCM_CLASS_REDEF(class) != SCM_BOOL_F) 			      \
-	    CALL_GF3("change-object-class", obj, class, SCM_CLASS_REDEF(class)); \
+	  class = SCM_CLASS_OF (obj);					      \
+          if (SCM_OBJ_CLASS_REDEF (obj) != SCM_BOOL_F) 			      \
+	    CALL_GF3 ("change-object-class",				      \
+		      obj, class, SCM_OBJ_CLASS_REDEF (obj));  		      \
 	}
 
 #define NXT_MTHD_METHODS(m)	(SCM_VELTS (m)[1])
@@ -97,18 +120,18 @@
 #define SCM_GOOPS_UNBOUNDP(x) ((x) == scm_goops_the_unbound_value)
 
 static SCM scm_goops_the_unbound_value;
-
-#if 0 /* Used by extended classes */
-static char initialized	     = 0;
-#endif
-
 static SCM scm_goops_lookup_closure;
+
+/* Some classes are defined in libguile/objects.c. */
 static SCM scm_class_top, scm_class_object, scm_class_class;
-static SCM scm_class_generic, scm_class_method;
+static SCM scm_class_entity, scm_class_entity_with_setter;
+static SCM scm_class_generic, scm_class_generic_with_setter, scm_class_method;
 static SCM scm_class_simple_method, scm_class_accessor;
 static SCM scm_class_procedure_class;
-static SCM scm_class_operator_class, scm_class_entity_class;
+static SCM scm_class_operator_class, scm_class_operator_with_setter_class;
+static SCM scm_class_entity_class;
 static SCM scm_class_number, scm_class_list;
+static SCM scm_class_keyword;
 #ifdef USE_TK
 static SCM Widget;
 #endif
@@ -186,8 +209,8 @@ scm_sys_compute_slots (SCM class)
 {
   SCM_ASSERT (SCM_NIMP (class) && CLASSP (class),
 	      class, SCM_ARG1, s_sys_compute_slots);
-  return build_slots_list (SCM_SLOT(class, scm_si_direct_slots),
-			  SCM_SLOT(class, scm_si_cpl));
+  return build_slots_list (SCM_SLOT (class, scm_si_direct_slots),
+			   SCM_SLOT (class, scm_si_cpl));
 }
 
 /******************************************************************************
@@ -311,7 +334,7 @@ scm_sys_initialize_object (SCM obj, SCM initargs)
       /* set slot to provided value */
       scm_slot_set_x(obj, slot_name, slot_value);
     else {
-      /* set slot to its :initform if it exists */
+      /* set slot to its :init-form if it exists */
       tmp = SCM_CAR(SCM_CDR(SCM_CAR(get_n_set)));
       if (tmp != SCM_BOOL_F)
 	set_slot_value_if_unbound(class, obj, slot_name, tmp);
@@ -355,7 +378,7 @@ scm_sys_prep_layout_x (SCM class)
 			  "class object doesn't have enough fields: %S",
 			  SCM_LIST1 (nfields));
 	}
-      strncpy (s, "pruosrpwpopopopo", 16);
+      strncpy (s, "pruosrpwpopopopopo", 16);
     }
   SCM_SLOT (class, scm_si_layout) = SCM_CAR (scm_intern (s, n));
   scm_must_free (s);
@@ -385,7 +408,10 @@ scm_sys_inherit_magic_x (SCM class, SCM dsupers)
       flags |= SCM_CLASS_FLAGS (SCM_CAR (ls));
       ls = SCM_CDR (ls);
     }
-  SCM_SET_CLASS_FLAGS (class, flags & SCM_CLASSF_INHERIT);
+  flags &= SCM_CLASSF_INHERIT;
+  if (!(flags & (SCM_CLASSF_METACLASS | SCM_CLASSF_ENTITY)))
+    flags |= SCM_STRUCTF_LIGHT; /* use light representation of objects */
+  SCM_SET_CLASS_FLAGS (class, flags);
   return SCM_UNSPECIFIED;
 }
 
@@ -452,6 +478,7 @@ create_Top_Object_Class(void)
 		       scm_cons (Intern ("procedure1"),
 		       scm_cons (Intern ("procedure2"),
 		       scm_cons (Intern ("procedure3"),
+		       scm_cons (Intern ("setter"),
 		       scm_cons (Intern ("name"),
 		       scm_cons (Intern ("direct-supers"),
 		       scm_cons (Intern ("direct-slots"),
@@ -463,7 +490,7 @@ create_Top_Object_Class(void)
 		       scm_cons (Intern ("getters-n-setters"),
 		       scm_cons (Intern ("redefined"),
 		       scm_cons (Intern ("environment"),
-				 SCM_EOL)))))))))))))))))));
+				 SCM_EOL))))))))))))))))))));
 
   /**** <scm_class_class> ****/
   SCM cs = scm_makfrom0str (SCM_METACLASS_GOOPS_LAYOUT);
@@ -619,7 +646,7 @@ scm_generic_function_name (SCM obj)
 {
   SCM_ASSERT (SCM_NIMP (obj) && GENERICP (obj),
 	      obj, SCM_ARG1, s_generic_function_name);
-  return scm_slot_ref(obj, Intern ("name"));
+  return scm_procedure_property (obj, scm_i_name);
 }
 
 SCM_PROC (s_generic_function_methods, "generic-function-methods", 1, 0, 0, scm_generic_function_methods);
@@ -974,28 +1001,77 @@ SCM_PROC (s_sys_allocate_instance, "%allocate-instance", 1, 0, 0, scm_sys_alloca
 SCM
 scm_sys_allocate_instance (SCM class)
 {
-  int n, i = 0;
+  int n, i;
   SCM z;
 
   SCM_ASSERT (SCM_NIMP (class) && CLASSP (class),
 	      class, SCM_ARG1, s_sys_allocate_instance);
  
-  z = scm_make_struct (class, SCM_INUM0, SCM_EOL);
+  n = SCM_INUM (SCM_SLOT (class, scm_si_nfields));
   if (SCM_CLASS_FLAGS (class) & SCM_CLASSF_METACLASS)
     {
+      /* allocate class object */
+      z = scm_make_struct (class, SCM_INUM0, SCM_EOL);
       SCM_SLOT (z, scm_si_print) = SCM_GOOPS_UNBOUND;
-      i = 8;
       if (SCM_SUBCLASSP (class, scm_class_entity_class))
 	SCM_SET_CLASS_FLAGS (z, SCM_CLASSF_OPERATOR | SCM_CLASSF_ENTITY);
       else if (SCM_SUBCLASSP (class, scm_class_operator_class))
 	SCM_SET_CLASS_FLAGS (z, SCM_CLASSF_OPERATOR);
+      i = 9;
+    }
+  else
+    {
+      /* allocate instance; optimize for speed */
+      SCM *m;
+      if (SCM_CLASS_FLAGS (class) & SCM_STRUCTF_LIGHT)
+	m = (SCM *) scm_must_malloc (n * sizeof (SCM), "instance");
+      else
+	{
+	  if (SCM_CLASS_FLAGS (class) & SCM_STRUCTF_ENTITY)
+	    {
+	      m = (SCM *) scm_alloc_struct (n,
+					    scm_struct_entity_n_extra_words,
+					    "instance");
+	      m[scm_struct_i_proc + 0] = SCM_BOOL_F;
+	      m[scm_struct_i_proc + 1] = SCM_BOOL_F;
+	      m[scm_struct_i_proc + 2] = SCM_BOOL_F;
+	      m[scm_struct_i_proc + 3] = SCM_BOOL_F;
+	      m[scm_struct_i_setter] = SCM_BOOL_F;
+	    }
+	  else
+	    m = (SCM *) scm_alloc_struct (n,
+					  scm_struct_n_extra_words,
+					  "instance");
+	  m[scm_struct_i_tag] = 0;
+	}
+      SCM_NEWCELL (z);
+      SCM_SETCDR (z, m);
+      SCM_SETCAR (z, (SCM) SCM_STRUCT_DATA (class) + scm_tc3_cons_gloc);
+      i = 0;
     }
 
-  /* Set all the slots except the first to unbound */
-  n = SCM_INUM (SCM_SLOT (class, scm_si_nfields));
+  /* Set all the slots to unbound */
   for (; i < n; i++)
     SCM_SLOT (z, i) = SCM_GOOPS_UNBOUND;
   return z;
+}
+
+SCM_PROC (s_sys_set_object_setter_x, "%set-object-setter!", 2, 0, 0, scm_sys_set_object_setter_x);
+
+SCM
+scm_sys_set_object_setter_x (SCM obj, SCM setter)
+{
+  SCM_ASSERT (SCM_NIMP (obj) && SCM_STRUCTP (obj)
+	      && ((SCM_CLASS_FLAGS (obj) & SCM_CLASSF_OPERATOR)
+		  || SCM_I_ENTITYP (obj)),
+	      obj,
+	      SCM_ARG1,
+	      s_sys_set_object_setter_x);
+  if (SCM_I_ENTITYP (obj))
+    SCM_ENTITY_SETTER (obj) = setter;
+  else
+    SCM_OPERATOR_CLASS (obj)->setter = setter;
+  return SCM_UNSPECIFIED;
 }
 
 /******************************************************************************
@@ -1003,6 +1079,7 @@ scm_sys_allocate_instance (SCM class)
  * %modify-instance (used by change-class to modify in place)
  * 
  ******************************************************************************/
+
 SCM_PROC (s_sys_modify_instance, "%modify-instance", 2, 0, 0, scm_sys_modify_instance);
 
 SCM
@@ -1016,14 +1093,35 @@ scm_sys_modify_instance (SCM old, SCM new)
 	      new, SCM_ARG2, s_sys_modify_instance);
 
   /* Exchange the data contained in old and new. We exchange rather than 
-   * scratch the old value with new to be correct with GC
+   * scratch the old value with new to be correct with GC.
+   * See "Class redefinition protocol above".
    */
+  SCM_REDEFER_INTS;
   tmp = SCM_CAR (old);
   SCM_SETCAR (old, SCM_CAR (new));
   SCM_SETCAR (new, tmp);
   tmp = SCM_CDR (old);
   SCM_SETCDR (old, SCM_CDR (new));
   SCM_SETCDR (new, tmp);
+  SCM_REALLOW_INTS;
+  return SCM_UNSPECIFIED;
+}
+
+SCM_PROC (s_sys_modify_class, "%modify-class", 2, 0, 0, scm_sys_modify_class);
+
+SCM
+scm_sys_modify_class (SCM old, SCM new)
+{
+  SCM_ASSERT (SCM_NIMP (old) && CLASSP (old),
+	      old, SCM_ARG1, s_sys_modify_class);
+  SCM_ASSERT (SCM_NIMP (new) && CLASSP (new),
+	      new, SCM_ARG2, s_sys_modify_class);
+
+  SCM_REDEFER_INTS;
+  scm_sys_modify_instance (old, new);
+  SCM_STRUCT_DATA (old)[scm_vtable_index_vtable] = old;
+  SCM_STRUCT_DATA (new)[scm_vtable_index_vtable] = new;
+  SCM_REALLOW_INTS;
   return SCM_UNSPECIFIED;
 }
 
@@ -1535,14 +1633,11 @@ scm_make (SCM args)
   
   if (class == scm_class_generic)
     {
-      z = scm_make_struct (class,
-			   SCM_INUM0,
-			   SCM_LIST2 (scm_i_get_keyword (scm_makekey (k_name),
-							 args,
-							 len - 1,
-							 Intern ("???"),
-							 s_make),
-				      SCM_EOL));
+      z = scm_make_struct (class, SCM_INUM0, SCM_LIST1 (SCM_EOL));
+      scm_set_procedure_property_x (z, scm_i_name,
+				    scm_get_keyword (scm_makekey (k_name),
+						     args,
+						     SCM_BOOL_F));
       scm_set_object_procedure_x (z, SCM_LIST4 (scm_f_apply_generic_0,
 						scm_f_apply_generic_1,
 						scm_f_apply_generic_2,
@@ -1558,22 +1653,22 @@ scm_make (SCM args)
 	{
 	  SCM_SLOT (z, scm_si_generic_function) =  
 	    scm_i_get_keyword (scm_makekey (k_gf),
-			     args,
-			     len - 1,
-			     SCM_BOOL_F,
-			     s_make);
+			       args,
+			       len - 1,
+			       SCM_BOOL_F,
+			       s_make);
 	  SCM_SLOT (z, scm_si_specializers) =  
 	    scm_i_get_keyword (scm_makekey (k_specializers),
-			     args,
-			     len - 1,
-			     SCM_EOL,
-			     s_make);
+			       args,
+			       len - 1,
+			       SCM_EOL,
+			       s_make);
 	  SCM_SLOT (z, scm_si_procedure) =
 	    scm_i_get_keyword (scm_makekey (k_procedure),
-			     args,
-			     len - 1,
-			     SCM_EOL,
-			     s_make);
+			       args,
+			       len - 1,
+			       SCM_EOL,
+			       s_make);
 	}
       else
 	{
@@ -1662,10 +1757,12 @@ make_stdcls (SCM *var, char *name, SCM meta, SCM super, SCM slots)
 {
    SCM tmp = Intern(name);
    
-   *var = scm_permanent_object (scm_basic_make_class(meta,
-						     tmp,
-						     SCM_LIST1 (super),
-						     slots));
+   *var = scm_permanent_object (scm_basic_make_class (meta,
+						      tmp,
+						      SCM_CONSP (super)
+						      ? super
+						      : SCM_LIST1 (super),
+						      slots));
    DEFVAR(tmp, *var);
 }
 
@@ -1675,8 +1772,7 @@ make_standard_classes (void)
   SCM tmp1 = SCM_LIST3 (Intern("generic-function"), 
 			Intern("specializers"), 
 			Intern("procedure"));
-  SCM tmp2 = SCM_LIST2 (Intern("name"),
-			Intern("methods"));
+  SCM tmp2 = SCM_LIST1 (Intern("methods"));
 
   /* scm_class_generic functions classes */
   make_stdcls (&scm_class_procedure_class, "<procedure-class>",
@@ -1685,6 +1781,9 @@ make_standard_classes (void)
 	       scm_class_class, scm_class_procedure_class, SCM_EOL);
   make_stdcls (&scm_class_operator_class,  "<operator-class>",
 	       scm_class_class, scm_class_procedure_class, SCM_EOL);
+  make_stdcls (&scm_class_operator_with_setter_class,
+	       "<operator-with-setter-class>",
+	       scm_class_class, scm_class_operator_class, SCM_EOL);
   make_stdcls (&scm_class_method,	   "<method>",
 	       scm_class_class, scm_class_object,	   tmp1);
   make_stdcls (&scm_class_simple_method,   "<simple-method>",
@@ -1693,9 +1792,25 @@ make_standard_classes (void)
   make_stdcls (&scm_class_accessor,	   "<accessor-method>",
 	       scm_class_class, scm_class_simple_method,   SCM_EOL);
   SCM_SET_CLASS_FLAGS (scm_class_accessor, SCM_CLASSF_ACCESSOR);
+  make_stdcls (&scm_class_entity,	   "<entity>",
+	       scm_class_entity_class, scm_class_object,   SCM_EOL);
+  make_stdcls (&scm_class_entity_with_setter, "<entity-with-setter>",
+	       scm_class_entity_class, scm_class_entity,   SCM_EOL);
   make_stdcls (&scm_class_generic,	   "<generic>",
-	      scm_class_entity_class, scm_class_object,    tmp2);
+	       scm_class_entity_class, scm_class_entity,   tmp2);
   SCM_SET_CLASS_FLAGS (scm_class_generic, SCM_CLASSF_PURE_GENERIC);
+  make_stdcls (&scm_class_generic_with_setter, "<generic-with-setter>",
+	       scm_class_entity_class,
+	       SCM_LIST2 (scm_class_generic, scm_class_entity_with_setter),
+	       SCM_EOL);
+  /* Patch cpl since compute_cpl doesn't support multiple inheritance. */
+  SCM_SLOT (scm_class_generic_with_setter, scm_si_cpl) =
+    scm_append (SCM_LIST3 (SCM_LIST2 (scm_class_generic_with_setter,
+				      scm_class_generic),
+			   SCM_SLOT (scm_class_entity_with_setter,
+				     scm_si_cpl),
+			   SCM_EOL));
+  SCM_SET_CLASS_FLAGS (scm_class_generic_with_setter, SCM_CLASSF_PURE_GENERIC);
 
   /* Primitive types classes */
   make_stdcls (&scm_class_boolean, 	   "<boolean>",
@@ -1728,70 +1843,81 @@ make_standard_classes (void)
 	       scm_class_class, scm_class_top,		   SCM_EOL);
   make_stdcls (&scm_class_procedure,	   "<procedure>",
 	       scm_class_procedure_class, scm_class_top,   SCM_EOL);
+  make_stdcls (&scm_class_procedure_with_setter, "<procedure-with-setter>",
+	       scm_class_procedure_class, scm_class_procedure, SCM_EOL);
 #ifdef USE_TK
   make_stdcls(&Widget, "<widget>",
 	      scm_class_procedure_class, scm_class_procedure, SCM_EOL);
 #endif
 }
 
-#if 0
-/**
+/**********************************************************************
  *
- * Definition of Extended type classes
+ * Smob classes
  *
- **/
+ **********************************************************************/
 
-SCM STk_make_extended_class(char *name)
+
+static SCM
+make_extended_class (char *type_name)
 {
-  /* 
-   * This function is called when a new extended type is defined and returns 
-   * a new class for it. Furthermore, it defines a global variable for this class.
-   * If Goops is not initialized, it returns SCM_EOL. 
-   * Extended types defined before initialization of Goops will be done
-   * when Goops is inited by "define_extended_type_classes"
-   */
-  if (initialized) {
-    SCM tmp1, tmp2;
-    char buffer[200];
+  SCM class, name;
+  if (type_name)
+    {
+      char buffer[200];
+      sprintf (buffer, "<%s>", type_name);
+      name = Intern (buffer);
+    }
+  else
+    name = SCM_GOOPS_UNBOUND;
 
-    sprintf(buffer, "<%s>", name);
-    tmp1 	= Intern(buffer);
-    tmp2 	= STk_basic_make_class(scm_class_class,
-				       tmp1,
-				       SCM_LIST1 (scm_class_top),
-				       SCM_EOL);
-    DEFVAR(tmp1, tmp2);
-    return tmp2;
-  }
-  return SCM_EOL;
+  class = scm_permanent_object (scm_basic_make_class (scm_class_class,
+						      name,
+						      SCM_LIST1(scm_class_top),
+						      SCM_EOL));
+
+  /* Only define name if doesn't already exist. */
+  if (!SCM_GOOPS_UNBOUNDP (name)
+      && SCM_FALSEP (scm_apply (scm_goops_lookup_closure,
+				SCM_LIST2 (name, SCM_BOOL_F),
+				SCM_EOL)))
+    DEFVAR (name, class);
+  return class;
 }
 
-static void define_extended_type_classes(void)
+static void
+make_smob_classes (void)
 {
-  /* 
-   * This function is called when Goops is initialized. It performs
-   * the definition of classes for extended types defined before Goops
-   * loading
-   */
   int i;
 
-  initialized = 1;
-  for (i = tc_start_extd; ; i++) {
-    char *name = STk_get_extended_name(i);
-    
-    if (!name) return;
-    STk_register_extended_class(STk_make_extended_class(name), i);
-  }
+  scm_smob_class = (SCM *) malloc (255 * sizeof (SCM));
+  for (i = 0; i < 255; ++i)
+    scm_smob_class[i] = 0;
+
+  scm_smob_class[SCM_TC2SMOBNUM (scm_tc16_bigpos)] = scm_class_integer;
+  scm_smob_class[SCM_TC2SMOBNUM (scm_tc16_bigneg)] = scm_class_integer;
+  scm_smob_class[SCM_TC2SMOBNUM (scm_tc16_keyword)] = scm_class_keyword;
+  
+  for (i = 0; i < scm_numsmob; ++i)
+    if (!scm_smob_class[i])
+      scm_smob_class[i] = scm_make_extended_class (SCM_SMOBNAME (i));
 }
 
-static void add_primitive(char *name, int type, void *fct_ptr)
+static SCM
+make_struct_class (void *closure, SCM key, SCM data, SCM prev)
 {
-  STk_add_new_primitive(name, type, fct_ptr);
-  STk_export_symbol(Intern(name), STklos);
+  if (SCM_NFALSEP (SCM_STRUCT_TABLE_NAME (data)))
+    SCM_SET_STRUCT_TABLE_CLASS (data,
+				scm_make_extended_class
+				(SCM_ROCHARS (SCM_STRUCT_TABLE_NAME (data))));
+  return SCM_UNSPECIFIED;
 }
-#endif
 
-/*===========================================================================*/
+static void
+make_struct_classes (void)
+{
+  scm_internal_hash_fold (scm_struct_table, make_struct_class, 0, SCM_BOOL_F);
+}
 
 void
 scm_init_goops (void)
@@ -1826,10 +1952,13 @@ scm_init_goops (void)
     = scm_permanent_object (scm_make_subr (s_apply_generic_3,
 					   scm_tc7_lsubr_2,
 					   apply_generic_3));
+  scm_make_extended_class = make_extended_class;
   scm_change_object_class = change_object_class;
 
   create_Top_Object_Class ();
   make_standard_classes ();
+  make_smob_classes ();
+  make_struct_classes ();
 
   scm_select_module (old_module);
 }
