@@ -1,19 +1,5 @@
-- Guile 1.4.1
-  +R write provisional guile.texi [ttn]
-  + revise guile-snarf for upward compatibility [ttn]
-  + back port ice-9/and-let*.scm naming fix [ttn]
-  + write TODO summarizer [ttn]
-  +R include group membership attributes in guile-api.alist
-    + make scan-api output express Scheme/C as a priori groups [ttn]
-    + add filter hook to update-guile-api.alist [ttn]
-    + write grouping attributes filter [ttn]
-    + add doc/Makefile.am MAINTAINER_MODE rule for guile-api.alist [ttn]
-  +R update (gscripts) api-diff to be group-aware [ttn]
-  + back port auto* tools versioning requirement fixes [ttn]
-  + back port auto* tools usage [ttn]
-  + write maintainer script dist-guile [ttn]
+- Guile 1.4.2
   - fix bugs
-
 
 - Guile 1.6
   - document libtool conventions [rlb]
