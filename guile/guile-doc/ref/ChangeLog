@@ -1,3 +1,8 @@
+1998-01-28  Mark Galassi  <rosalia@nis.lanl.gov>
+
+	* guile-ref.texi: changed @dircategory to "Scheme Programming".
+	It seems to be the consensus.
+
 1998-01-20  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
 
 	* gh.texi (C to Scheme): Added documentation for gh_doubles2scm

@@ -92,7 +92,7 @@
 @c @cropmarks
 @c @end iftex
 
-@dircategory Guile -- GNU extension language
+@dircategory Scheme Programming
 @direntry
 * guile-ref: (guile-ref).  The Guile Reference Manual.
 @end direntry
