@@ -26,6 +26,11 @@
   - Allow the deprecation mechanism to be controlled via a preprocessor
     macro analogous to _GNU_SOURCE. [talk to mvo about this]
   - Properly integrate system asyncs and signals with threads. [mvo]
+  - Handle thread-local data in a better way.  Currently, there are
+    three kinds of thread local data: get/setspecific keyed,
+    root state and fluids.  Instead use only fluids (except possibly
+    in the GC or low-level thread system).  Introduce a copy-on-write
+    mechanism.  Remember to reset thread local data in futures.c!
   - Make (ice-9 format) thread safe.  Other modules as well.
   - Gracefully cope with the situation that gc_os_dep.c doesn't compile.
   - Make 1.8 backwards compatible again with 1.6. [mvo]
