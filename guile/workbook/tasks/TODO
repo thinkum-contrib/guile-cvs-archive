@@ -30,6 +30,10 @@
 
 
 - Eventually
+  - write TODO summarizer
+    - write (scripts read-outline) [ttn]
+    - write summarizer
+    - extend to handle guile-cvs mails
   - determine/document policy on how/why/when of removing things
   - extend render-bugs to harvest (and run?) test cases
   - fix signal-handling + threading
