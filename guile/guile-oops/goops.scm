@@ -428,8 +428,9 @@
 		     (goops-error "bad method name: %S" name))
 		    ((defined? name env)
 		     `(begin
-			(if (not (is-a? ,name <generic-with-setter>))
-			    (define-accessor ,name))
+			;; *fixme* Temporary hack for the current module system
+			(if (not ,name)
+			    (define-generic ,name))
 			(add-method! (setter ,name) (method ,@(cddr exp)))))
 		    (else
 		     `(begin
@@ -439,8 +440,8 @@
 		   (goops-error "bad method name: %S" name))
 		  ((defined? name env)
 		   `(begin
-		      (if (not (or (is-a? ,name <generic>)
-				   (is-a? ,name <primitive-generic>)))
+		      ;; *fixme* Temporary hack for the current module system
+		      (if (not ,name)
 			  (define-generic ,name))
 		      (add-method! ,name (method ,@(cddr exp)))))
 		  (else
@@ -529,6 +530,10 @@
 			#:specializers (list <generic> <method>)
 			#:procedure internal-add-method!))
 
+(define-method add-method! ((proc <procedure>) (m <method>))
+  (enable-primitive-generic! proc)
+  (add-method! proc m))
+
 (define-method add-method! ((pg <primitive-generic>) (m <method>))
   (add-method! (primitive-generic-generic pg) m))
 
@@ -601,10 +606,6 @@
 ;     bound. Otherwise a slot-unbound method will be called and will 
 ;     conduct to an infinite loop.
 
-(enable-primitive-generic! display write)
-
-(define write-object (primitive-generic-generic write))
-
 ;; Write
 (define (display-address o file)
   (display (number->string (object-address o) 16) file))
@@ -613,6 +614,8 @@
   (display "#<instance " file)
   (display-address o file)
   (display #\> file))
+
+(define write-object (primitive-generic-generic write))
 
 (define-method write ((o <object>) file)
   (let ((class (class-of o)))
