@@ -22,11 +22,11 @@ patch's original sources will be closer to what we're working with.
 And it allows us to start testing features earlier.
 
 Nightly snapshots of the Guile Tcl/Tk interface development sources
-are available via anonymous FTP from ftp.cyclic.com, in
+are available via anonymous FTP from ftp.red-bean.com, in
 /pub/guile/guile-tcltk-snap.tar.gz.
 
-Via the web, that's:  ftp://ftp.cyclic.com/pub/guile/guile-tcltk-snap.tar.gz
-For getit, that's:    ftp.cyclic.com:/pub/guile/guile-tcltk-snap.tar.gz
+Via the web, that's:  ftp://ftp.red-bean.com/pub/guile/guile-tcltk-snap.tar.gz
+For getit, that's:    ftp.red-bean.com:/pub/guile/guile-tcltk-snap.tar.gz
 
 
 The latest official Guile release is available via anonymous FTP from
