@@ -2235,7 +2235,7 @@ and returns the contents as a single string.
 @end deffn 
 
 
-@deffn primitive lseek fd/port offset whence
+@deffn primitive seek fd/port offset whence
 Sets the current position of @var{fd/port} to the integer @var{offset},
 which is interpreted according to the value of @var{whence}.
 
@@ -2257,19 +2257,20 @@ If @var{fd/port} is a file descriptor, the underlying system call is
 The value returned is the new position in the file.  This means that
 the current position of a port can be obtained using:
 @smalllisp
-(lseek port 0 SEEK_CUR)
+(seek port 0 SEEK_CUR)
 @end smalllisp
 @end deffn
 
 @deffn primitive fseek fd/port offset whence
-Almost the same as lseek, above, but the return value is unspecified.
+Obsolete.  Almost the same as seek, above, but the return value is
+unspecified.
 @end deffn
 
 @deffn primitive ftell fd/port
 Returns an integer representing the current position of @var{fd/port},
 measured from the beginning.  Equivalent to:
 @smalllisp
-(lseek port 0 SEEK_CUR)
+(seek port 0 SEEK_CUR)
 @end smalllisp
 @end deffn
 
@@ -2283,6 +2284,33 @@ a file name, in which case the truncation occurs at the current port.
 position.
 
 The return value is unspecified.
+@end deffn
+
+@deffn primitive port-mode port
+Returns the port modes associated with the open port @var{port}.  These
+will not necessarily be identical to the modes used when the port was
+opened, since modes such as "append" which are used only during
+port creation are not retained.
+@end deffn
+
+@deffn primitive close-all-ports-except port @dots{}
+Close all open file ports used by the interpreter
+except for those supplied as arguments.  This procedure
+is intended to be used before an exec call to close file descriptors
+which are not needed in the new process.
+@end deffn
+
+@deffn primitive setvbuf port mode [size]
+Set the buffering mode for @var{port}.  @var{mode} can be:
+@table @code
+@item _IONBF
+non-buffered
+@item _IOLBF
+line buffered
+@item _IOFBF
+block buffered, using a newly allocated buffer of @var{size} bytes.
+If @var{size} is omitted, a default size will be used.
+@end table
 @end deffn
 
 @deffn primitive port-column [input-port]
