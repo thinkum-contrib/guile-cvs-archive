@@ -35,6 +35,13 @@
 ;;; Next methods
 ;;;
 
+;;; Temporary solution---return #f if x doesn't refer to `next-method'.
+(define (next-method? x)
+  (and (pair? x)
+       (or (eq? (car x) 'next-method)
+	   (next-method? (car x))
+	   (next-method? (cdr x)))))
+
 (define (make-final-make-next-method method)
   (lambda default-args
     (lambda args
@@ -70,11 +77,7 @@
 	 (src (procedure-source proc))
 	 (formals (source-formals src))
 	 (body (source-body src)))
-    (if (and (pair? (car body))
-	     (source-property (car body) 'standard-accessor-method))
-	(cons (procedure-environment proc)
-	      (cons formals
-		    body))
+    (if (next-method? body)
 	(let ((vcell (cons 'goops:make-next-method #f)))
 	  (set-cdr! vcell
 		    (make-make-next-method
@@ -89,4 +92,8 @@
 				    `(goops:make-next-method ,@formals)
 				    `(apply goops:make-next-method
 					    ,@(improper->proper formals)))))
-	      ,@body))))))
+	      ,@body)))
+	(cons (procedure-environment proc)
+	      (cons formals
+		    body))
+	)))
