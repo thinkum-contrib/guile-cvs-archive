@@ -1,0 +1,12 @@
+dnl Process this file with autoconf to produce configure.
+AC_INIT(README)
+AM_INIT_AUTOMAKE(guile-lightning, 0.0)
+
+AC_PROG_CC
+AM_PROG_LIBTOOL
+AC_PROG_CPP
+
+LIGHTNING_CONFIGURE
+
+AC_OUTPUT(Makefile)
+
