@@ -76,6 +76,7 @@
 #endif
 #include "ioext.h"
 #include "keywords.h"
+#include "lang.h"
 #include "list.h"
 #include "load.h"
 #include "macros.h"
@@ -507,6 +508,7 @@ scm_boot_guile_1 (base, closure)
 #endif
       scm_init_standard_ports ();
       scm_init_dynamic_linking ();
+      scm_init_lang ();
       scm_init_script ();
       initialized = 1;
     }
