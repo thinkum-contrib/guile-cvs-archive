@@ -3,7 +3,7 @@
   + write workbook/build/maintainer-dirs.text [ttn]
   + write guile-core/am/maintainer-dirs [ttn]
   + merge HEAD and branch_release-1-6 TODO files into this one [ttn]
-  - write dist-hook to include TODO snapshot
+  - write dist-hook to include TODO snapshot [ttn]
   - delete HEAD and branch_release-1-6 TODO files
   - convert bug tracking/summarization process [ttn]
     +R define bugs db format (see bugs/README) [mvo]
