@@ -1,3 +1,12 @@
+* Update manual with Neil Jerram's work.
+
+* Introduce new syntax (define-method (foo ...) ...)
+  Announce old syntax as deprecated.
+
+* Extend syntax for `define-generic' so that options can be passed,
+  especially the default and setter options.  Then don't let
+  define-generic automatically pick up default methods any longer.
+
 * Replace compute-get-n-set
 
 * Method compilation:
