@@ -21,6 +21,7 @@
 
 (define-module (oop goops save)
   :use-module (oop goops internal)
+  :use-module (oop goops util)
   )
 
 (export save-objects load-objects restore make-unbound
@@ -328,7 +329,7 @@
 	 (display #\) file))
       (display #\space file)
       (set! infos (cons (object-info ls env) infos))
-      (push-ref! ls) ;*fixme* optimize
+      (push-ref! ls env) ;*fixme* optimize
       (set! (visiting? (car infos)) #t)
       (if (and not-literal?
 	       (literal? (car ls) env))
@@ -402,7 +403,15 @@
     (display "(restore " file)
     (display (class-name class) file)
     (display " (" file)
-    (let ((slotdefs (class-slots class)))
+    (let ((slotdefs
+	   (filter (lambda (slotdef)
+		     (not (or (memq (slot-definition-allocation slotdef)
+				    '(#:class #:each-subclass))
+			      (and (slot-bound? o (slot-definition-name slotdef))
+				   (excluded?
+				    (slot-ref o (slot-definition-name slotdef))
+				    env)))))
+		   (class-slots class))))
       (if (not (null? slotdefs))
 	  (begin
 	    (display (slot-definition-name (car slotdefs)) file)
@@ -414,16 +423,17 @@
     (access-for-each (lambda (name aname get set)
 		       (display #\space file)
 		       (let ((val (get o)))
-			 (if (unbound? val)
-			     (display '(make-unbound) file)
-			     (begin
-			       (if (literal? val env)
-				   (display #\' file))
-			       (write-component val
-						(if aname
-						    `(set! (,aname ,o) ,val)
-						    `(slot-set! ,o ',name ,val))
-						file env)))))
+			 (cond ((unbound? val)
+				(display '(make-unbound) file))
+			       ((excluded? val env))
+			       (else
+				(if (literal? val env)
+				    (display #\' file))
+				(write-component val
+						 (if aname
+						     `(set! (,aname ,o) ,val)
+						     `(slot-set! ,o ',name ,val))
+						 file env)))))
 		     class)
     (display #\) file)))
 
