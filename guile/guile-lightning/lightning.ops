@@ -445,3 +445,5 @@ Mandatory if sizeof(long) != sizeof(int)--don't define them on other systems:
           #define jit_xori_l(d, rs, is)
           #define jit_xorr_l(d, s1, s2)
 
+Peephole control, define if you can use them.
+          #define jit_die(rs)
