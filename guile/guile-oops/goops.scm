@@ -943,8 +943,14 @@
 		  (vector-set! methods index m)
 		  m)))))
 
-(define (make-get index)
-  (local-eval `(lambda (o) (@slot-ref o ,index)) (the-environment)))
+(if (pair? (make-unbound))
+    ;; In previous versions of the evaluator there was
+    ;; no boundness check in @slot-ref.
+    (define (make-get index)
+      (local-eval `(lambda (o) (assert-bound (@slot-ref o ,index) o))
+		  (the-environment)))
+    (define (make-get index)
+      (local-eval `(lambda (o) (@slot-ref o ,index)) (the-environment))))
 
 (define (make-set index)
   (local-eval `(lambda (o v) (@slot-set! o ,index v)) (the-environment)))
