@@ -619,6 +619,8 @@ Unless
 Please think about these issues.  We should try to end up with a
 beautiful and consistent object/module system.
 
+[ttn]
+
 ----------------------------------------------------------------------
 
 Here's a difficult problem in Ior's design:
