@@ -2,17 +2,24 @@
   - document libtool conventions [rlb]
   + write workbook/build/maintainer-dirs.text [ttn]
   + write guile-core/am/maintainer-dirs [ttn]
-  + merge HEAD and branch_release-1-6 TODO files into this one [ttn]
-  - write dist-hook to include TODO snapshot [ttn]
-  - delete HEAD and branch_release-1-6 TODO files
-  - convert bug tracking/summarization process [ttn]
+  +R merge HEAD and branch_release-1-6 TODO files into this one [ttn]
+  + write dist-hook to include TODO snapshot [ttn]
+  - delete HEAD and branch_release-1-6 TODO files [ttn]
+  - convert bug tracking/summarization process
     +R define bugs db format (see bugs/README) [mvo]
     + import current BUGS [mvo]
     - scan mailing list archives for bugs and add them
       + subject: Guile fails tests on Tru64 4.0F [ttn]
       + subject: failed backtrace [ttn]
-      - starting from the oldest [ttn]
-      - starting form the newest
+      + subject: All thread blocked on (accept socket) [ttn]
+      + subject: avoid potential overflow in complex division [ttn]
+      - by date
+        - 2000-06 through 2001-06
+	- 2001-07 through 2001-09 [ttn]
+	- 2001-10 through 2001-12
+	- 2002-01
+	- 2002-02
+	- 2002-03
     - write render-bugs, add to mscripts or guile-tools [evan:ttn]
     - write dist-hook to call render-bugs to create BUGS
     - delete HEAD and branch_release-1-6 BUGS files
