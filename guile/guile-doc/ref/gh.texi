@@ -153,7 +153,7 @@ With this modification, boot-9.scm can be read several times.
 
 Also note that you can use @code{gh_repl} inside @code{gh_enter} if you
 want the program to be controled by a Scheme read--eval--print--loop.
-Invoking @code{gh_repl} will load @file{boot-9.scm}.
+Invoking @code{gh_repl} will load @file{ice-9/boot-9.scm}.
 
 @end deftypefun
 
