@@ -1,10 +1,10 @@
 @node Conventions
 @chapter POSIX Interface Conventions
 
-The low-level interfaces are designed to give Scheme programs access to
-as much functionality as possible from the underlying Unix system.  They
-can be used to implement higher level intefaces such as the Scheme shell
-@ref{The Scheme shell (scsh)}.
+These interfaces provide access to operating system facilities.
+They provide a simple wrapping around the underlying C interfaces
+to make usage from Scheme more convenient.  They are also used
+to implement the Guile port of @ref{The Scheme shell (scsh)}.
 
 Generally there is a single procedure for each corresponding Unix
 facility.  There are some exceptions, such as procedures implemented for
@@ -12,12 +12,9 @@ speed and convenience in Scheme with no primitive Unix equivalent,
 e.g., @code{copy-file}.
 
 The interfaces are intended as far as possible to be portable across
-different versions of Unix, so that Scheme programmers don't need to be
-concerned with implementation differences.  In some cases procedures
-which can't be implemented (or reimplemented) on particular systems may
-become no-ops, or perform limited actions.  In other cases they may
-throw errors.  It should be possible to use the feature system to
-determine what functionality is available.
+different versions of Unix.  In some cases procedures which can't be
+implemented on particular systems may become no-ops, or perform limited
+actions.  In other cases they may throw errors. 
 
 General naming conventions are as follows:
 
@@ -26,13 +23,13 @@ General naming conventions are as follows:
 The Scheme name is often identical to the name of the underlying Unix
 facility.
 @item
-Underscores in Unix names are converted to hyphens.
+Underscores in Unix procedure names are converted to hyphens.
 @item
-Procedures which destructively modify Scheme data gain
-exclaimation marks, e.g., @code{recv!}.
+Procedures which destructively modify Scheme data have exclaimation
+marks appended, e.g., @code{recv!}.
 @item
 Predicates (returning only @code{#t} or @code{#f}) have question marks
-added, e.g., @code{access?}.
+appended, e.g., @code{access?}.
 @item
 Some names are changed to avoid conflict with dissimilar interfaces
 defined by scsh, e.g., @code{primitive-fork}.
@@ -42,14 +39,11 @@ to Scheme variables of the same name (underscores are not replaced
 with hyphens).
 @end itemize
 
-Most of the procedures can be relied on to return a
-well-specified value.  Unexpected conditions are handled by raising
-exceptions.
-
-There are a few procedures which return a special
-value if they don't succeed, e.g., @code{getenv} returns @code{#f}
-if it the requested string is not found in the environment.  These
-cases will be noted in the documentation.
+Unexpected conditions are generally handled by raising exceptions.
+There are a few procedures which return a special value if they don't
+succeed, e.g., @code{getenv} returns @code{#f} if it the requested
+string is not found in the environment.  These cases are noted in
+the documentation.
 
 For ways to deal with exceptions, @ref{Exceptions}.
 
@@ -57,49 +51,52 @@ Errors which the C-library would report by returning a NULL
 pointer or through some other means are reported by raising a
 @code{system-error} exception.
 The value of the Unix @code{errno} variable is available
-in the data passed by the exception.  Accessing the
-global errno value directly would be unreliable due to
-continuations, interrupts or multiple threads.
+in the data passed by the exception. 
 
 @node Ports and File Descriptors
 @chapter Ports and File Descriptors
 
-Conventions largely follow those of scsh, @ref{The Scheme shell (scsh)}.
+Conventions generally follow those of scsh, @ref{The Scheme shell (scsh)}.
 
-Guile ports are currently based on C stdio streams.  Ports can be
-buffered or unbuffered.  Unbuffered ports can be specified by including
-@code{0} in a port mode string.  Note that some system call interfaces
-(e.g., @code{recv!}) will accept ports as arguments, but
-will actually operate directly on the file descriptor underlying the
-port.  Any port buffering is ignored, including the one character buffer
-used to implement @code{peek-char} and @code{unread-char}.
+File ports are implemented using low-level operating system I/O
+facilities, with optional buffering to improve efficiency
+@pxref{File Ports}
 
-File descriptors are generally not useful for Scheme programs; however
-they can be needed when interfacing with foreign code and the Unix
+Note that some procedures (e.g., @code{recv!}) will accept ports as
+arguments, but will actually operate directly on the file descriptor
+underlying the port.  Any port buffering is ignored, including the
+buffer which implements @code{peek-char} and @code{unread-char}.
+
+The @code{force-output} and @code{drain-input} procedures can be used
+to clear the buffers.
+
+Each open file port has an associated operating system file descriptor.
+File descriptors are generally not useful in Scheme programs; however
+they may be needed when interfacing with foreign code and the Unix
 environment.
 
-A file descriptor can be extracted from a port and later converted
-back to a port.  However a file descriptor
-is just an integer, and the garbage collector doesn't recognise it
-as a reference to the port.  If all other references to the port were
-dropped, then it's likely that the garbage collector would free
-the port, with the side-effect of closing the file descriptor
-prematurely.
+A file descriptor can be extracted from a port and a new port can be
+created from a file descriptor.  However a file descriptor is just an
+integer and the garbage collector doesn't recognise it as a reference
+to the port.  If all other references to the port were dropped, then
+it's likely that the garbage collector would free the port, with the
+side-effect of closing the file descriptor prematurely.
 
-To assist the programmer in avoiding this problem,
-each port has an associated "revealed count" which can be used to keep
-track of how many times the underlying file descriptor has been stored
-in other places.  The
-idea is for the programmer to ensure that the revealed count will be
-greater than zero if the file descriptor is needed elsewhere.
+To assist the programmer in avoiding this problem, each port has an
+associated "revealed count" which can be used to keep track of how many
+times the underlying file descriptor has been stored in other places.
+If a port's revealed count is greater than zero, the file descriptor
+will not be closed when the port is gabage collected.  A programmer
+can therefore ensure that the revealed count will be greater than
+zero if the file descriptor is needed elsewhere.
 
-For the simple case where a file descriptor is "imported"
-once to become a port, it does not matter if the file descriptor
-is closed when the port is garbage collected.  There is
-no need to maintain a revealed count.  Likewise when "exporting"
-a file descriptor to the external environment, setting the revealed count
-is not required if the port is kept open while the file descriptor
-is in use.
+For the simple case where a file descriptor is "imported" once to become
+a port, it does not matter if the file descriptor is closed when the
+port is garbage collected.  There is no need to maintain a revealed
+count.  Likewise when "exporting" a file descriptor to the external
+environment, setting the revealed count is not required provided the
+port is kept open (i.e., is pointed to by a live Scheme binding) while
+the file descriptor is in use.
 
 To correspond with traditional Unix behaviour, the three file
 descriptors (0, 1 and 2) are automatically imported when a program
@@ -158,11 +155,11 @@ value @var{fdes} without changing the revealed count of @var{port}.
 Any other ports
 already using this descriptor will be automatically
 shifted to new descriptors and their revealed counts reset to zero.
-The return value is zero if the file descriptor does not need to be
-moved or one if it does.
+The return value is @code{#f} if the file descriptor already had the
+required value or @code{#t} if it was moved.
 @end deffn
 
-@deffn procedure move->fdes port fd
+@deffn procedure move->fdes port fdes
 Moves the underlying file descriptor for @var{port} to the integer
 value @var{fdes} and sets its revealed count to one.  Any other ports
 already using this descriptor will be automatically
@@ -172,16 +169,6 @@ The return value is unspecified.
 
 @deffn procedure release-port-handle port
 Decrements the revealed count for a port.
-@end deffn
-
-@findex fflush
-@deffn primitive force-output [port]
-Flush the specified output port, or the current output port if @var{port}
-is omitted.  The return value is unspecified.
-@end deffn
-
-@deffn primitive flush-all-ports
-Flush all open output ports.  The return value is unspecified.
 @end deffn
 
 @deffn primitive fsync port/fd
@@ -227,11 +214,25 @@ port.
 @end deffn
 
 @deffn primitive close port/fd
-Similar to close-port (@pxref{Closing Ports, close-port}),
+Similar to close-port (@pxref{Generic Port Operations, close-port}),
 but also works on file descriptors.  A side
 effect of closing a file descriptor is that any ports using that file
 descriptor are moved to a different file descriptor and have
 their revealed counts set to zero.
+@end deffn
+
+@deffn primitive unread-char char [port]
+Place @var{char} in @var{port} so that it will be read by the
+next read operation.  If called multiple times, the unread characters
+will be read again in last-in first-out order.  If @var{port} is
+not supplied, the current input port is used.
+@end deffn
+
+@deffn primitive unread-string str [port]
+Place the string @var{str} in @var{port} so that its characters will be
+read in subsequent read operations.  If called multiple times, the
+unread characters will be read again in last-in first-out order.  If
+@var{port} is not supplied, the current-input-port is used.
 @end deffn
 
 @deffn primitive pipe
@@ -329,21 +330,8 @@ non-buffered
 line buffered
 @item _IOFBF
 block buffered, using a newly allocated buffer of @var{size} bytes.
-However if @var{size} is zero or unspecified, the port will be made
-non-buffered.
+If @var{size} is omitted, a default size will be used.
 @end table
-
-This procedure should not be used after I/O has been performed with
-the port.
-
-Ports are usually block buffered by default, with a default buffer size.
-Procedures e.g., @ref{File Ports, open-file}, which accept a
-mode string allow @code{0} to be added to request an unbuffered port.
-@end deffn
-
-@deffn primitive freopen filename modes port
-Reopen @var{port} on the specified @var{filename}
-with mode string @var{modes} as for @ref{File Ports, open-file}.
 @end deffn
 
 @deffn primitive fcntl fd/port command [value]
@@ -565,17 +553,6 @@ The return value is unspecified.
 @findex rename
 @deffn primitive rename-file path-from path-to
 Renames the file specified by @var{path-from} to @var{path-to}.
-The return value is unspecified.
-@end deffn
-
-@findex truncate
-@findex ftruncate
-@deffn primitive truncate-file obj size
-Truncates the file referred to by @var{obj} to at most @var{size} bytes.
-@var{obj} can be a string containing a file name or an integer file
-descriptor or port open for output on the file.  The underlying system
-calls are @code{truncate} and @code{ftruncate}.
-
 The return value is unspecified.
 @end deffn
 
@@ -1319,8 +1296,13 @@ controlling terminal.  The return value is unspecified.
 @node Pipes
 @chapter Pipes
 
-These procedures provide an interface to the @code{popen} and 
-@code{pclose} system routines.
+The following procedures provide an interface to the @code{popen} and 
+@code{pclose} system routines.  The code is in a separate "popen"
+module:
+
+@smalllisp
+(use-modules (ice-9 popen))
+@end smalllisp
 
 @findex popen
 @deffn primitive open-pipe command modes
@@ -1344,7 +1326,8 @@ Closes the pipe created by @code{open-pipe}, then waits for the process
 to terminate and returns its status value, @xref{Processes, waitpid}, for
 information on how to interpret this value.
 
-@code{close-port} (@pxref{Closing Ports, close-port}) can also be used to
+@code{close-port} (@pxref{Generic Port Operations, close-port})
+can also be used to
 close a pipe, but doesn't return the status.
 @end deffn
 
@@ -1983,8 +1966,8 @@ opening brackets occur.
 
 A number of variables can be used to control the behaviour
 of @code{expect} (and @code{expect-strings}).
-By default they are all bound at the top level to
-the value @code{#f}, which produces the default behaviour.
+Most have default top-level bindings to the value @code{#f}, 
+which produces the default behaviour.
 They can be redefined at the
 top level or locally bound in a form enclosing the expect expression.
 
@@ -2003,6 +1986,16 @@ procedure takes a single argument: the accumulated string.
 @item expect-char-proc
 A procedure to be called every time a character is read from the
 port.  The procedure takes a single argument: the character which was read.
+@item expect-strings-compile-flags
+Flags to be used when compiling a regular expression, which are passed
+to @code{make-regexp} @xref{Regexp Functions}.  The default value
+is @code{regexp/newline}.
+@item expect-strings-exec-flags
+Flags to be used when executing a regular expression, which are
+passed to regexp-exec @xref{Regexp Functions}.
+The default value is @code{regexp/noteol}, which prevents @code{$}
+from matching the end of the string while it is still accumulating,
+but still allows it to match after a line break or at the end of file.
 @end table
 
 Here's an example using all of the variables:
@@ -2014,7 +2007,9 @@ Here's an example using all of the variables:
         (lambda (s) (display "Times up!\n")))
       (expect-eof-proc
         (lambda (s) (display "Reached the end of the file!\n")))
-      (expect-char-proc display))
+      (expect-char-proc display)
+      (expect-strings-compile-flags (logior regexp/newline regexp/icase))
+      (expect-strings-exec-flags 0))
    (expect-strings
      ("^nobody"  (display "Got a nobody user\n"))))
 @end smalllisp
@@ -2024,8 +2019,13 @@ Here's an example using all of the variables:
 @code{expect} is used in the same way as @code{expect-strings},
 but tests are specified not as patterns, but as procedures.  The
 procedures are called in turn after each character is read from the
-port, with the value of the accumulated string as the argument.  The
-test is successful if the procedure returns a non-false value.
+port, with two arguments: the value of the accumulated string and
+a flag to indicate whether end-of-file has been reached.  The flag
+will usually be @code{#f}, but if end-of-file is reached, the procedures
+are called an additional time with the final accumulated string and
+@code{#t}.
+
+The test is successful if the procedure returns a non-false value.
 
 If the @code{=>} syntax is used, then if the test succeeds it must return
 a list containing the arguments to be provided to the corresponding
@@ -2041,8 +2041,9 @@ of the file:
         (display "Got a nobody user!\n"))))
 @end smalllisp
 
-The control variables described for @code{expect-strings} can also
-be used with @code{expect}.
+The control variables described for @code{expect-strings} also
+influence the behaviour of @code{expect}, with the exception of 
+variables whose names begin with @code{expect-strings-}.
 @end defmac
 
 

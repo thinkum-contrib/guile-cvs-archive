@@ -1,3 +1,8 @@
+1999-07-25  Gary Houston  <ghouston@easynet.co.uk>
+
+	* scheme.texi, posix.texi: updated for changes in the I/O system
+	and expect macros.
+
 1999-01-25  Mark Galassi  <rosalia@cygnus.com>
 
 	* scheme.texi (General option interface): applied a typo fix.

@@ -455,6 +455,11 @@ it is the environment in which to evaluate @var{exp}.  Otherwise,
 is implicit).
 @end deffn
 
+@deffn primitive eval-string string
+Evaluate @var{string} as the text representation of a Scheme form
+or forms, and return whatever value they produce.
+@end deffn
+
 @deffn primitive defined? sym
 Return @code{#t} if @var{sym} is defined in the top-level environment.
 @end deffn
@@ -1987,9 +1992,8 @@ the user provides a "property table" that is possibly private.]
 @node Ports
 @chapter Ports
 
-Input and output devices in Scheme are represented by @dfn{ports}.
-All input and output in Scheme programs is accomplished by
-operating on a port: characters are read from an input port and
+Sequential input/output in Scheme is represented by operations on a
+@dfn{port}.  Characters can be read from an input port and
 written to an output port.  This chapter explains the operations
 that Guile provides for working with ports.
 
@@ -2001,12 +2005,14 @@ that simulate ports in software.  @dfn{Soft ports} and @dfn{string
 ports} are two interesting and powerful examples of this technique.
 
 @menu
-* File Ports::                  
-* Soft Ports::                  
-* String Ports::                
-* Closing Ports::               
-* Miscellaneous: Port Operations.
-* Extended I/O (fseek and line read/write)::  
+* File Ports:: Ports on an operating system file.
+* String Ports:: Ports on a Scheme string. 
+* Soft Ports:: Ports on arbitrary Scheme procedures.
+* Void Ports:: Ports on nothing at all.
+* Generic Port Operations:: procedures for any type of port: close, flush etc.
+* Extended I/O:: read and write lines or delimited text.
+* C Port Interface:: Using ports from C.
+* Port Implementation:: How to implement a new port type in C.
 @end menu
 
 @node File Ports
@@ -2018,17 +2024,47 @@ to the Unix @code{open} system call.
 
 @deffn primitive open-file string mode
 Open the file whose name is @var{string}, and return a port
-representing that file.  Whether an input or output port is
-allocated is determined by the @var{mode} string.  This is
-interpreted in the traditional Unix manner: use @samp{r} for
-reading, @samp{w} for writing, and @samp{a} for appending.  In
-addition, @samp{0} can be used to specifiy an unbuffered port.
+representing that file.  The attributes of the port are
+determined by the @var{mode} string.  The way in 
+which this is interpreted is similar to C stdio:
 
-See
-the @code{stdio} documentation for your system for more
-I/O mode options.
+The first character must be one of the following:
 
-If a file cannot be opened, @code{open-file} throws an exception.
+@table @samp
+@item r
+Open an existing file for input.
+@item w
+Open a file for output, creating it if it doesn't already exist
+or removing its contents if it does.
+@item a
+Open a file for output, creating it if it doesn't already exist.
+All writes to the port will go to the end of the file.
+The "append mode" can be turned off while the port is in use
+@pxref{Ports and File Descriptors, fcntl}
+@end table
+
+The following additional characters can be appended:
+
+@table @samp
+@item +
+Open the port for both input and output.  E.g., @code{r+}: open
+an existing file for both input and output.
+@item 0
+Create an "unbuffered" port.  In this case input and output operations
+are passed directly to the underlying port implementation without
+additional buffering.  This is likely to slow down I/O operations.
+The buffering mode can be changed while a port is in use
+@pxref{Ports and File Descriptors, setvbuf}
+@item l
+Add line-buffering to the port.  The port output buffer will be
+automatically flushed whenever a newline character is written.
+@end table
+
+In theory we could create read/write ports which were buffered in one
+direction only.  However this isn't included in the current interfaces.
+
+If a file cannot be opened with the access requested,
+@code{open-file} throws an exception.
 @end deffn
 
 @deffn procedure open-input-file filename
@@ -2062,10 +2098,22 @@ source of data, but only the value that is returned by
 @code{port-filename} and reported in diagnostic output.
 @end deffn
 
-@deffn primitive %make-void-port mode
-Create and return a new void port.  The @var{mode} argument describes
-the permissions to use for this port; for a description, see the
-documentation for @code{open-file} in @ref{File Ports}.
+@node String Ports
+@section String Ports
+
+@deffn primitive call-with-output-string proc
+@var{proc} must be a procedure of one argument.  This procedure calls
+@var{proc} with one argument: a (newly created) output port.  When the
+function returns, the string composed of the characters written into the
+port is returned.
+@end deffn
+
+@deffn primitive call-with-input-string string proc
+@var{proc} must be a procedure of one argument.  This procedure calls
+@var{proc} with one argument: an (newly created) input port from which
+@var{string}'s contents may be read.  When @var{proc} returns, the port
+is closed and the value yielded by the procedure @var{proc} is
+returned.
 @end deffn
 
 @node Soft Ports
@@ -2117,61 +2165,40 @@ the port has reached end-of-file.  For example:
 @end example
 @end deffn
 
-@node String Ports
-@section String Ports
+@node Void Ports
+@section Void Ports
 
-@deffn primitive call-with-output-string proc
-@var{proc} must be a procedure of one argument.  This procedure calls
-@var{proc} with one argument: a (newly created) output port.  When the
-function returns, the string composed of the characters written into the
-port is returned.
+This kind of port just causes errors if you try to use it in
+a normal way.
+
+@deffn primitive %make-void-port mode
+Create and return a new void port.  The @var{mode} argument describes
+the input/output modes for this port; for a description, see the
+documentation for @code{open-file} in @ref{File Ports}.
 @end deffn
 
-@deffn primitive call-with-input-string string proc
-@var{proc} must be a procedure of one argument.  This procedure calls
-@var{proc} with one argument: an (newly created) input port from which
-@var{string}'s contents may be read.  When @var{proc} returns, the port
-is closed and the value yielded by the procedure @var{proc} is
-returned.
-@end deffn
+@node Generic Port Operations
+@section Generic Port Operations
 
-@deffn primitive eval-string string
-Evaluate @var{string} as the text representation of a Scheme form
-or forms, and return whatever value they produce.
-[FIXME: figure out where this should go... eval-string is not
-really closely related to other string port functions.  It just
-happens to appear in strports.c because it uses a string port to
-read from the string. -twp]
-@end deffn
-
-@node Closing Ports
-@section Closing Ports
-The following procedures return @code{#t} if they successfully
-close a port or @code{#f} if it was already
-closed.  They can also raise exceptions if an error occurs: some
-errors arising from writing output may be delayed until close.
-See also @ref{Ports and File Descriptors, close}, for a procedure
-which can close file descriptors.
+This section describes port maintainence procedures
+which are not specific to a single port type.
 
 @deffn primitive close-port port
-Close the specified port object.
+Close the specified port object.  Returns @code{#t} if it successfully
+closes a port or @code{#f} if it was already
+closed.  An exception may be raised if an error occurs, for example
+when flushing buffered output.
+See also @ref{Ports and File Descriptors, close}, for a procedure
+which can close file descriptors.
 @end deffn
 
 @deffn primitive close-input-port port
-Close the specified input port object.  This procedure is required by 
-R4RS.
+A wrapper for @code{close-port}.  This procedure is required by R4RS.
 @end deffn
 
 @deffn primitive close-output-port port
-Close the specified output port object.  This procedure is required by 
-R4RS.
+A wrapper for @code{close-port}.  This procedure is required by R4RS.
 @end deffn
-
-@node Port Operations
-@section Port Operations
-
-These procedures obtain and modify information about ports, but are not
-specific to one kind of port.
 
 @deffn primitive current-error-port
 Return the port to which errors and warnings should be sent (the
@@ -2184,6 +2211,78 @@ Return the port to which errors and warnings should be sent (the
 Change the ports returned by @code{current-input-port},
 @code{current-output-port} and @code{current-error-port}, respectively,
 so that they use the supplied @var{port} for input or output.
+@end deffn
+
+@findex fflush
+@deffn primitive force-output [port]
+Flush the specified output port, or the current output port if @var{port}
+is omitted.  The current output buffer contents are passed to the 
+underlying port implementation (e.g., in the case of fports, the
+data will be written to the file and the output buffer will be cleared.)
+It has no effect on an unbuffered port.
+
+The return value is unspecified.
+@end deffn
+
+@deffn primitive flush-all-ports
+Equivalent to calling @code{force-output} on
+all open output ports.  The return value is unspecified.
+@end deffn
+
+@deffn primitive drain-input port
+Drains @var{PORT}'s read buffers (including any pushed-back characters)
+and returns the contents as a single string.
+@end deffn 
+
+
+@deffn primitive lseek fd/port offset whence
+Sets the current position of @var{fd/port} to the integer @var{offset},
+which is interpreted according to the value of @var{whence}.
+
+One of the following variables should be supplied
+for @var{whence}:
+@defvar SEEK_SET
+Seek from the beginning of the file.
+@end defvar
+@defvar SEEK_CUR
+Seek from the current position.
+@end defvar
+@defvar SEEK_END
+Seek from the end of the file.
+@end defvar
+
+If @var{fd/port} is a file descriptor, the underlying system call is
+@code{lseek}.  @var{port} may be a string port.
+
+The value returned is the new position in the file.  This means that
+the current position of a port can be obtained using:
+@smalllisp
+(lseek port 0 SEEK_CUR)
+@end smalllisp
+@end deffn
+
+@deffn primitive fseek fd/port offset whence
+Almost the same as lseek, above, but the return value is unspecified.
+@end deffn
+
+@deffn primitive ftell fd/port
+Returns an integer representing the current position of @var{fd/port},
+measured from the beginning.  Equivalent to:
+@smalllisp
+(lseek port 0 SEEK_CUR)
+@end smalllisp
+@end deffn
+
+@findex truncate
+@findex ftruncate
+@deffn primitive truncate-file obj [size]
+Truncates the object referred to by @var{obj} to at most @var{size} bytes.
+@var{obj} can be a string containing a file name or an integer file
+descriptor or a port.  @var{size} may be omitted if @var{obj} is not
+a file name, in which case the truncation occurs at the current port.
+position.
+
+The return value is unspecified.
 @end deffn
 
 @deffn primitive port-column [input-port]
@@ -2204,13 +2303,11 @@ Set the current column or line number of @var{input-port}, using the
 current input port if none is specified.
 @end deffn
 
-@node Extended I/O (fseek and line read/write)
-@section Extended I/O (fseek and line read/write)
+@node Extended I/O
+@section Extended I/O
 
-
-Extended I/O procedures are available which read or write lines of text,
-read text delimited by a specified set of characters, or report or
-set the current position of a port.
+Extended I/O procedures are available which read or write lines of text
+or read text delimited by a specified set of characters.
 
 @findex fwrite
 @findex fread
@@ -2286,34 +2383,6 @@ is equivalent to:
 @end smalllisp
 @end deffn
 
-@deffn primitive ftell fd/port
-Returns an integer representing the current position of @var{fd/port},
-measured from the beginning.  If @var{fd/port} is a file descriptor,
-the underlying system call is @code{lseek}.
-@end deffn
-
-@findex lseek
-@deffn primitive fseek fd/port offset whence
-Sets the current position of @var{fd/port} to the integer @var{offset},
-which is interpreted according to the value of @var{whence}.
-
-One of the following variables should be supplied
-for @var{whence}:
-@defvar SEEK_SET
-Seek from the beginning of the file.
-@end defvar
-@defvar SEEK_CUR
-Seek from the current position.
-@end defvar
-@defvar SEEK_END
-Seek from the end of the file.
-@end defvar
-
-If @var{fd/port} is a file descriptor the underlying system call is
-@code{lseek}.
-The return value is unspecified.
-@end deffn
-
 Some of the abovementioned I/O functions rely on the following C
 primitives.  These will mainly be of interest to people hacking Guile
 internals.
@@ -2342,6 +2411,14 @@ delimiter may be either a newline or the @var{eof-object}; if
 @code{%read-line} is called at the end of file, it returns the pair
 @code{(#<eof> . #<eof>)}.
 @end deffn
+
+@node C Port Interface
+@section C Port Interface
+This section describes how to use Scheme ports from C.
+
+@node Port Implementation
+@section Port Implementation
+This section describes how to implement a new port type in C.
 
 @page
 @node Bitwise Operations
