@@ -88,7 +88,12 @@
 
   - Investigate performance drop from Dec. 8, 2002 to Dec. 12, 2000.
 
+
 - Eventually
+
+  - pretty-print #:width can lower the allowed width, but cannot
+    increase it, max-expr-width (50) appears to be a hard limit.
+
   - port-line and port-column say they can return #f if the number is
     unknown, but the present code never does that.  Can this be
     dropped from the documenation, or is there a secret plan to use it
