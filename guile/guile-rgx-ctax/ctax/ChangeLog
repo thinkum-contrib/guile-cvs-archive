@@ -1,3 +1,12 @@
+Fri Aug 30 15:28:57 1996  Thomas Morgan  <tmorgan@gnu.ai.mit.edu>
+
+	* Makefile.in (datadir, pkgdatadir, pkgverdatadir, subpkgdatadir,
+	sitedatadir): New definitions.
+	(libparent, libdir, install_path): Replaced by the above.
+	(install): Create the above directories.
+	Put the source files into subpkgdatadir.	
+	(uninstall): Remove the above directories.
+
 Thu Aug  1 02:46:04 1996  Jim Blandy  <jimb@totoro.cyclic.com>
 
 	* Makefile.in: Updated for new dist system.

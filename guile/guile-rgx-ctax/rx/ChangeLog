@@ -1,3 +1,8 @@
+Fri Aug 30 16:05:56 1996  Jim Blandy  <jimb@floss.cyclic.com>
+
+	* Makefile.in (bindir, libdir, includedir, infodir): Use the
+	autoconf-supplied values, instead of deriving them ourselves.
+
 Thu Aug 15 02:07:40 1996  Jim Blandy  <jimb@totoro.cyclic.com>
 
 	* PLUGIN/guile.inits: Add scm_init_rgx here.  The Guile shell

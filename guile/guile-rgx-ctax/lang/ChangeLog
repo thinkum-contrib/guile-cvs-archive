@@ -1,3 +1,11 @@
+Thu Aug 29 23:37:56 1996  Thomas Morgan  <tmorgan@gnu.ai.mit.edu>
+
+	* Makefile.in (datadir, pkgdatadir, pkgverdatadir, subpkgdatadir,
+	sitedatadir): New definitions.
+	(install): Create the above directories.
+	Put the source files into subpkgdatadir.	
+	(uninstall): Remove the above directories.
+
 Tue Aug 20 07:39:24 1996  Mikael Djurfeldt  <mdj@woody.nada.kth.se>
 
 	* grammar.scm (grammar-cache): Renamed weak-hash-table -->
