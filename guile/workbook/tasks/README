@@ -13,7 +13,9 @@ The TODO File
 
 	Maintainers (w/ write privs) indicate ownership by `[USERNAME]'.
 	Use `[ACTUAL-OWNER:MAINTAINER]' to indicate sponsorship, where
-	both elements are usernames.
+	both elements are usernames.  Actually, sponsorship is a form of
+	review so MAINTAINER could be the start of a list of REVIEWERs,
+	using ":" to separate.
 
 	Upon completion, simply change the "-" to a "+", but do not
 	delete the item.  At release time, the "+" entries will be
@@ -51,6 +53,19 @@ How Bugs Fit In
 	special convention for handling or indicating this in TODO.
 
 	[Probably after some discussion this section can be written.]
+
+
+Requesting Review
+
+	Sometimes after a change you'd like someone else to review your
+	work for whatever reason.  Use the "R" flag to indicate this.
+	The reviewer appends :REVIEWER to yours, and after the review
+	either removes the "R" if everything's ok, or leaves it there,
+	indicating further review requested.
+
+	It's a good idea to get something out of the review more than
+	mere approval.  "Peer review process" means different things to
+	everyone, however, so try to cut slack in both directions.
 
 
 Individual TODO Files
