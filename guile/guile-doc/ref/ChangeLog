@@ -1,3 +1,7 @@
+2001-02-28  Gary Houston  <ghouston@arglist.com>
+
+	* expect.texi (Expect): add missing eof? argument in example code.
+
 2001-02-27  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* guile.texi, scheme-data.texi, scheme-ideas.texi: Remove the code

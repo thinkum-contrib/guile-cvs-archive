@@ -131,7 +131,7 @@ of the file:
 @smalllisp
 (let ((expect-port (open-input-file "/etc/passwd")))
   (expect
-     ((lambda (s) (string=? s "fnord!"))
+     ((lambda (s eof?) (string=? s "fnord!"))
         (display "Got a nobody user!\n"))))
 @end smalllisp
 
