@@ -37,7 +37,7 @@ subpkgdata_DATA = tcltk.scm dynlink.scm gtcltk.scm \
 # 	     && $(LN_S) $(libdir)/libgtcltk.la \
 # 	     && $(LN_S) $(libdir)/libgtcltk.so.1))
 
-EXTRA_DIST = license.terms $(subpkgdata_DATA)
+EXTRA_DIST = license.terms $(subpkgdata_DATA) guile-tcltk-aclocal.sh
 
 SUFFIXES = .x
 ## We assume the user has already installed Guile.
