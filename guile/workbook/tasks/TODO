@@ -30,6 +30,7 @@
 
 
 - Eventually
+  - write 1.4-1.6 compatibility header
   - write TODO summarizer
     +R write (scripts read-text-outline) [ttn]
     - write summarizer
