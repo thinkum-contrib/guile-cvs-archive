@@ -1,7 +1,9 @@
 This directory is the Guile bug data base.
 
 It contains one file per bug with a simple, mail-message like format.
-For quick start adding a bug, see TEMPLATE.
+
+[For quick start adding a bug, see TEMPLATE.  Also, remember to add its
+ summary under "fix bugs" under "Eventually" in the TODO file.]
 
 Each bug file starts with a number of header lines in the form
 
