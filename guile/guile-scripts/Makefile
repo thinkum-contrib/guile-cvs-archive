@@ -5,7 +5,8 @@ scripts =					\
 	dist-guile-www				\
 	update-anon-cvs				\
 	update-guile-api.alist			\
-	render-bugs
+	render-bugs				\
+	checkout-hack
 
 # Yes, sometimes people will check in files w/o +x -- that's life.
 
