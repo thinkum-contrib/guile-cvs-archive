@@ -1,5 +1,12 @@
 2000-03-30  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
+	* Makefile.am: Add gtkthreads.x to BUILT_SOURCES.
+
+	* gtkthreads.c, gtkthreads.h (gtkthreads-update): New procedure:
+	Wakes up the main loop so that it begins to handle pending
+	events.  (Ideally this should be performed automatically.)
+	(g_poll): Extended to support waking up.
+
 	* GTKTHREADS-VERSION: Bumped to 0.1.1.
 
 2000-03-29  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>

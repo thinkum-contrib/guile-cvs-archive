@@ -83,7 +83,7 @@ guile_gtkthreads_LDADD = libguilegtkthreads.la
 
 libguilegtkthreads_la_SOURCES = gtkthreads.c gthread-guile.c
 libguilegtkthreads_la_LDFLAGS = -version-info 0:0 -export-dynamic
-BUILT_SOURCES = 
+BUILT_SOURCES = gtkthreads.x
 
 include_HEADERS = 
 
