@@ -1,5 +1,6 @@
 @c $Id$
 
+@page
 @node What is Guile?
 @chapter What is Guile?
 
@@ -49,56 +50,24 @@ can program applications which use Guile in the language of their
 choice, rather than having the tastes of the application's author
 imposed on them.
 
-@node The Guile License
-@chapter The Guile License
 
-The license of Guile consists of the GNU GPL plus a special statement
-giving blanket permission to link with non-free software.  This is the
-license statement as found in any individual file that it applies to:
+@page
+@node Whirlwind Tour
+@chapter A Whirlwind Tour
 
-@quotation
-This program is free software; you can redistribute it and/or modify it
-under the terms of the GNU General Public License as published by the
-Free Software Foundation; either version 2, or (at your option) any
-later version.
+This chapter presents a quick tour of all the ways that Guile can be
+used.
 
-This program is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-General Public License for more details.
-
-You should have received a copy of the GNU General Public License along
-with this software; see the file COPYING.  If not, write to the Free
-Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-02111-1307 USA
-
-As a special exception, the Free Software Foundation gives permission
-for additional uses of the text contained in its release of GUILE.
-
-The exception is that, if you link the GUILE library with other files to
-produce an executable, this does not by itself cause the resulting
-executable to be covered by the GNU General Public License.  Your use of
-that executable is in no way restricted on account of linking the GUILE
-library code into it.
-
-This exception does not however invalidate any other reasons why the
-executable file might be covered by the GNU General Public License.
-
-This exception applies only to the code released by the Free Software
-Foundation under the name GUILE.  If you copy code from other Free
-Software Foundation releases into a copy of GUILE, as the General Public
-License permits, the exception does not apply to the code that you add
-in this way.  To avoid misleading anyone as to the status of such
-modified files, you must delete this exception notice from them.
-
-If you write modifications of your own for GUILE, it is your choice
-whether to permit this exception to apply to your modifications.  If you
-do not wish that, delete this exception notice.
-@end quotation
+@menu
+* Running Guile Interactively::  
+* Guile Scripts::               
+* Linking Programs With Guile::  
+* Writing Guile Modules::       
+@end menu
 
 
 @node Running Guile Interactively
-@chapter Running Guile Interactively
+@section Running Guile Interactively
 
 In its simplest form, Guile acts as an interactive interpreter for the
 Scheme programming language, reading and evaluating Scheme expressions
@@ -125,8 +94,9 @@ $
 @c around among modules, referring to the value of the last expression,
 @c etc. then this section will get longer.]]
 
+
 @node Guile Scripts
-@chapter Guile Scripts
+@section Guile Scripts
 
 Like AWK, Perl, or any shell, Guile can interpret script files.  A Guile
 script is simply a file of Scheme code with some extra information at
@@ -147,8 +117,9 @@ Before we present the details, here is a trivial Guile script:
 * Scripting Examples::          Simple Guile scripts, explained.
 @end menu
 
+
 @node The Top of a Script File
-@section The Top of a Script File
+@subsection The Top of a Script File
 
 The first line of a Guile script must tell the operating system to use
 Guile to evaluate the script, and then tell Guile how to go about doing
@@ -237,7 +208,7 @@ to and including those switches.
 
 
 @node Scripting Examples
-@section Scripting Examples
+@subsection Scripting Examples
 
 To start with, here are some examples of invoking Guile directly:
 
@@ -370,7 +341,7 @@ $ choose 50 100
 
 
 @node Linking Programs With Guile
-@chapter Linking Programs With Guile
+@section Linking Programs With Guile
 
 The Guile interpreter is available as an object library, to be linked
 into applications using Scheme as a configuration or extension
@@ -400,8 +371,9 @@ library, @code{-lm}, as well.
 * A Sample Guile Main Program::  Sources and makefiles.
 @end menu
 
+
 @node Guile Initialization Functions
-@section Guile Initialization Functions
+@subsection Guile Initialization Functions
 
 To initialize Guile, use this function:
 
@@ -464,7 +436,7 @@ making sure Guile's usual initialization files, @file{init.scm} and
 
 
 @node A Sample Guile Main Program
-@section A Sample Guile Main Program
+@subsection A Sample Guile Main Program
 
 Here is @file{simple-guile.c}, source code for a @code{main} and an
 @code{inner_main} function that will produce a complete Guile
@@ -587,46 +559,17 @@ $
 
 
 @node Writing Guile Modules
-@chapter Writing Guile Modules
+@section Writing Guile Modules
+
+[to be written]
 
 
-@node Layout of this Manual
-@chapter Layout of this Manual
-
-This manual assumes you know Scheme, as described in R5RS.  From there,
-it describes:
-@table @b
-
-@item Part I
-how to use Guile interactively and as an interpreter, how to link Guile
-into your own applications, and how to write modules of interpreted and
-compiled code for use with Guile,
-
-@item Part II
-Guile's extensions to the language described in R5RS,
-
-@item Part III
-how to call Guile from C code, and how to add new functions written in C
-to Guile, using C functions which (we hope) will also someday work with
-other Scheme interpreters, allowing you to write C code which will work
-with any of several Scheme systems, and
-
-@item Part IV
-further functions available to the C level which are specific to Guile,
-but provide more thorough access to Guile's internals.
-
-@end table
-
-Finally, the appendices explain how to obtain the latest version of
-Guile, how to install it, where to find modules to work with Guile, and
-how to use the Guile debugger.
-
-
+@page
 @node Reporting Bugs
 @chapter Reporting Bugs
 
 Any problems with the installation should be reported to
-@email{bug-guile@@gnu.org}
+@email{bug-guile@@gnu.org}.
 
 [[how about an explanation of what makes a good bug report?]]
 [[don't complain to us about problems with contributed modules?]]

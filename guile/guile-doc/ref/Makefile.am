@@ -20,7 +20,7 @@ info_TEXINFOS = guile.texi r4rs.texi r5rs.texi goops.texi
 #	contributors.texi	slib.texi		strings.texi \
 #	unix-other.texi		guile-scheme.texi
 
-dist_texis = guile.texi goops.texi intro.texi scheme-intro.texi \
+dist_texis = guile.texi goops.texi preface.texi intro.texi scheme-intro.texi \
 	scheme-ideas.texi scheme-data.texi scheme-procedures.texi \
 	scheme-utility.texi scheme-binding.texi scheme-control.texi \
 	scheme-io.texi scheme-evaluation.texi \

@@ -1,3 +1,19 @@
+2001-01-24  Neil Jerram  <neil@ossau.uklinux.net>
+
+	* intro.texi: Licensing and Layout material moved to
+	preface.texi.
+	(Whirlwind Tour): New chapter as top level for preexisting
+	sections.
+
+	* guile.texi: Various minor changes to improve the structure at
+	the beginning of the reference manual.
+
+	* preface.texi: New file, to split out "prefatory material".
+	Initially with Licensing and Layout material taken from
+	intro.texi.
+
+	* Makefile.am (dist_texis): Add preface.texi.
+
 2001-01-19  Neil Jerram  <neil@ossau.uklinux.net>
 
 	* intro.texi: Change R4RS everywhere to R5RS.

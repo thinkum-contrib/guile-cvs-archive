@@ -65,9 +65,9 @@ program that such constraints should always be obeyed.  In the same
 vein, there is no way to declare the expected type of a procedure's
 return value.
 
-Instead, the types of variables and expressions are only known - in
-general - at run time.  If you @emph{need} to check at some point that a
-value has the expected type, Scheme provides run time procedures that
+Instead, the types of variables and expressions are only known -- in
+general -- at run time.  If you @emph{need} to check at some point that
+a value has the expected type, Scheme provides run time procedures that
 you can invoke to do so.  But equally, it can be perfectly valid for two
 separate invocations of the same procedure to specify arguments with
 different types, and to return values with different types.
@@ -169,7 +169,7 @@ can probably guess what the following @code{set!} example does@dots{}
 (set! x (+ x 1))
 @end lisp
 
-Note: this is not a complete description of @code{define} and
+(Note: this is not a complete description of @code{define} and
 @code{set!}, because we need to introduce some other aspects of Scheme
 before the missing pieces can be filled in.  If, however, you are
 already familiar with the structure of Scheme, you may like to read
@@ -190,7 +190,7 @@ variable.
 @item
 REFFIXME, to read about an alternative form of the @code{set!}  syntax
 that helps with changing a single value in the depths of a compound data
-structure.
+structure.)
 @end itemize
 
 
@@ -551,7 +551,7 @@ a variable name
 @item
 a procedure invocation expression
 @item
-one a Scheme's special syntactic expressions.
+one of Scheme's special syntactic expressions.
 @end itemize
 @end itemize
 

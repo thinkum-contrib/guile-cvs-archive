@@ -198,25 +198,28 @@ by Free Software Foundation.
 @set example-dir doc/examples
 
 @ifinfo
-@node Top, What is Guile?, (dir), (dir)
+@node Top, Guile License, (dir), (dir)
 @top The Guile Reference Manual
+
+This reference manual documents Guile, GNU's Ubiquitous Intelligent
+Language for Extensions.  It describes how to use Guile in many useful
+and interesting ways.
+
+This Info file contains edition 1.0 of the reference manual,
+corresponding to Guile version @value{VERSION}.
 @end ifinfo
 
-This is the reference manual for Guile, GNU's Ubiquitous Intelligent
-Language for Extensions.  It describes how to use Guile in many useful
-and interesting ways.  It corresponds to Guile version @value{VERSION}.
-
 @menu
-Part I: An Introductory Tour
+Preface
 
-* What is Guile?::
-* The Guile License::
-* Running Guile Interactively::
-* Guile Scripts::
-* Linking Programs With Guile::
-* Writing Guile Modules::
-* Layout of this Manual::
-* Reporting Bugs::
+* Guile License::               Conditions for copying and using Guile.
+* Manual Layout::               How to read the rest of this manual.
+
+Part I: Introduction to Guile
+
+* What is Guile?::              And what does it do?
+* Whirlwind Tour::              An introductory whirlwind tour.      
+* Reporting Bugs::              Reporting bugs in Guile or this manual.
 
 Part II: Guile Scheme
 
@@ -295,11 +298,12 @@ Indices
 
 @end menu
 
+@include preface.texi
 
 @c preliminary
 @iftex
 @page
-@unnumbered{Part I: An Introductory Tour}
+@unnumbered{Part I: Introduction to Guile}
 @end iftex
 
 @include intro.texi
