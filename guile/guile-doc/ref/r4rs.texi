@@ -3,7 +3,7 @@
 @setfilename r4rs.info
 @settitle Revised(4) Scheme
 
-@dircategory Guile -- GNU extension language
+@dircategory Programming
 @direntry
 * r4rs: (r4rs).                                 Revised(4) Report on Scheme
 @end direntry

@@ -638,6 +638,27 @@ predicates.
 Returns the raw object length.
 @end deftypefun
 
+@heading Data lookup
+
+For now I just include Tim Pierce's comments from the @file{gh_data.c}
+file; it should be organized into a documentation of the two functions
+here.
+
+@smallexample
+/* Data lookups between C and Scheme
+
+   Look up a symbol with a given name, and return the object to which
+   it is bound.  gh_lookup examines the Guile top level, and
+   gh_module_lookup checks the module namespace specified by the
+   `vec' argument.
+
+   The return value is the Scheme object to which SNAME is bound, or
+   SCM_UNDEFINED if SNAME is not bound in the given context. [FIXME:
+   should this be SCM_UNSPECIFIED?  Can a symbol ever legitimately be
+   bound to SCM_UNDEFINED or SCM_UNSPECIFIED?  What is the difference?
+   -twp] */
+@end smallexample
+
 
 @page
 @node Mixing gh and scm APIs

@@ -751,4 +751,3 @@ $
 
 @node Writing Guile Modules
 @chapter Writing Guile Modules
-
