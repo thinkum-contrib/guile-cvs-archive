@@ -581,27 +581,27 @@ be empty for this to succeed.  The return value is unspecified.
 
 @deffn primitive opendir path
 Open the directory specified by @var{path} and return a directory
-port.
+stream.
 @end deffn
 
-@deffn primitive directory? object
-Returns a boolean indicating whether @var{object} is a directory port
+@deffn primitive directory-stream? object
+Returns a boolean indicating whether @var{object} is a directory stream
 as returned by @code{opendir}.
 @end deffn
 
-@deffn primitive readdir port
-Return (as a string) the next directory entry from the directory port
-@var{port}.  If there is no remaining entry to be read then the
+@deffn primitive readdir stream
+Return (as a string) the next directory entry from the directory stream
+@var{stream}.  If there is no remaining entry to be read then the
 end of file object is returned.
 @end deffn
 
-@deffn primitive rewinddir port
-Reset the directory port @var{port} so that the next call to
+@deffn primitive rewinddir stream
+Reset the directory port @var{stream} so that the next call to
 @code{readdir} will return the first directory entry.
 @end deffn
 
-@deffn primitive closedir port
-Close the directory port @var{port}.
+@deffn primitive closedir stream
+Close the directory stream @var{stream}.
 The return value is unspecified.
 @end deffn
 

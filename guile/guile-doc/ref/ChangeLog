@@ -1,3 +1,7 @@
+1999-09-12  Gary Houston  <ghouston@easynet.co.uk>
+
+	* posix.texi (File System): make that "directory-stream?".
+
 1999-09-11  Gary Houston  <ghouston@easynet.co.uk>
 
 	* posix.texi (File System): added "directory?".
