@@ -132,13 +132,6 @@
     cvar = SCM_STRING_CHARS(str); \
   } while (0)
 
-#define SCM_VALIDATE_RWSTRING(pos, str) \
-  do { \
-    SCM_ASSERT (SCM_STRINGP (str), str, pos, FUNC_NAME); \
-    if (!SCM_RWSTRINGP (str)) \
-      scm_misc_error (FUNC_NAME, "argument is a read-only string", str); \
-  } while (0)
-
 #define SCM_VALIDATE_REAL(pos, z) SCM_MAKE_VALIDATE (pos, z, REALP)
 
 #define SCM_VALIDATE_NUMBER_COPY(pos, z, cvar)	\
@@ -414,6 +407,13 @@
       cvar = NULL; \
     else \
       cvar = SCM_ROCHARS(str); \
+  } while (0)
+
+#define SCM_VALIDATE_RWSTRING(pos, str) \
+  do { \
+    SCM_ASSERT (SCM_STRINGP (str), str, pos, FUNC_NAME); \
+    if (!SCM_RWSTRINGP (str)) \
+      scm_misc_error (FUNC_NAME, "argument is a read-only string", str); \
   } while (0)
 
 #endif  /* SCM_DEBUG_DEPRECATED == 0 */
