@@ -1,8 +1,27 @@
+2001-03-09  Mikael Djurfeldt  <mdj@linnaeus.mit.edu>
+
+	* goops.scm (define-method): Only accept new syntax.
+
+	* Makefile.am (goops_sources): Added old-define-method.scm.
+
+	* old-define-method.scm: New file.
+	
+	* goops-tutorial.texi, goops.texi: Updated to reflext new
+	define-method syntax.
+
+	* NEWS: Updated with some lacking history.
+
+	* save.scm, goops.scm, composite-slot.scm, active-slot.scm:
+	Use new method syntax.
+
+	* configure.in: Don't remove -lqthreads from LIBS until all checks
+	involving linking with libguile has been performed.
+
 2001-03-05  Mikael Djurfeldt  <mdj@linnaeus.mit.edu>
 
 	* THANKS: Flushed.
 
-	* GOOPS-VERSION	(GOOPS_MINOR_VERSION): Bumed to 0.1.
+	* GOOPS-VERSION	(GOOPS_MINOR_VERSION): Bumped to 0.1.
 
 	* Version 1.0 released.
 
@@ -54,7 +73,7 @@
 2000-08-26  Mikael Djurfeldt  <mdj@linnaeus.mit.edu>
 
 	* goops.c (create_basic_classes): Pass a string, not a symbol, to
-	scm_make_vtbale_vtable.
+	scm_make_vtable_vtable.
 
 2000-08-09  Mikael Djurfeldt  <mdj@linnaeus.mit.edu>
 

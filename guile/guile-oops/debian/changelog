@@ -1,3 +1,9 @@
+guile-oops (1.0.2-1) unstable; urgency=high
+
+  * New upstream version.
+
+ -- Mikael Djurfeldt <mdj@linnaeus.mit.edu>  Fri,  9 Mar 2001 20:22:40 -0500
+
 guile-oops (1.0.0-1) unstable; urgency=high
 
   * New upstream version (closes: #87111, #83809).

@@ -1,4 +1,4 @@
-This is release 1.0 of GOOPS, or
+This is release 1.0.2 of GOOPS, or
 Guile Object Oriented Programming System.
 
 Please send bug reports to bug-guile@gnu.org.
@@ -62,7 +62,7 @@ We're now ready to try some basic GOOPS functionality.
 
 Generic functions
 
-  (define-method + ((x <string>) (y <string>))
+  (define-method (+ (x <string>) (y <string>))
     (string-append x y))
 
   (+ 1 2) --> 3
@@ -76,14 +76,14 @@ User-defined types
 
   (use-modules (ice-9 format))
 
-  (define-method write ((obj <2D-vector>) port)
+  (define-method (write (obj <2D-vector>) port)
     (display (format #f "<~S, ~S>" (x-component obj) (y-component obj))
 	     port))
 
   (define v (make <2D-vector> #:x 3 #:y 4))
   v --> <3, 4>
 
-  (define-method + ((x <2D-vector>) (y <2D-vector>))
+  (define-method (+ (x <2D-vector>) (y <2D-vector>))
     (make <2D-vector>
           #:x (+ (x-component x) (x-component y))
           #:y (+ (y-component x) (y-component y))))
@@ -151,10 +151,10 @@ guile-cvs-subscribe-foo=bar.com@sourceware.cygnus.com.
 Obtaining GOOPS ======================================================
 
 The latest official GOOPS release is available via anonymous FTP from
-ftp.gnu.org, as /pub/gnu/guile/guile-oops-1.0.tar.gz.
+ftp.gnu.org, as /pub/gnu/guile/guile-oops-1.0.2.tar.gz.
 
-Via the web, that's:  ftp://ftp.gnu.org/pub/gnu/guile/guile-oops-1.0.tar.gz
-For getit, that's:    ftp.gnu.org:/pub/gnu/guile/guile-oops-1.0.tar.gz
+Via the web, that's:  ftp://ftp.gnu.org/pub/gnu/guile/guile-oops-1.0.2.tar.gz
+For getit, that's:    ftp.gnu.org:/pub/gnu/guile/guile-oops-1.0.2.tar.gz
 
 If you don't already have Guile 1.4 installed on your system, you
 also need to download and install
