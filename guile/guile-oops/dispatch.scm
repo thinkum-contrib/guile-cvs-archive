@@ -222,10 +222,13 @@
 			 compute-applicable-methods)
 		     gf args)))
     (cond ((not applicable)
-	   ;; Mutate arglist to fit no-applicable-method
-	   (set-cdr! args (list (cons (car args) (cdr args))))
-	   (set-car! args gf)
-	   (lookup-create-cmethod no-applicable-method args))
+	   (if (null? args)
+	       (lookup-create-cmethod no-applicable-method (list gf '()))
+	       (begin
+		 ;; Mutate arglist to fit no-applicable-method
+		 (set-cdr! args (list (cons (car args) (cdr args))))
+		 (set-car! args gf)
+		 (lookup-create-cmethod no-applicable-method args))))
 	  ((method-cache-hashed? exp)
 	   (method-cache-install! hashed-method-cache-insert!
 				  exp args applicable))
