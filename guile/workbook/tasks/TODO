@@ -11,7 +11,8 @@
     - write grouping attributes filter
     - add doc/Makefile.am MAINTAINER_MODE rule for guile-api.alist
     - regen guile-api.alist all branches
-  -D update (gscripts) api-diff to be group-aware [ttn]
+  - update (gscripts) api-diff to be group-aware [ttn]
+  - back port auto* tools versioning requirement fixes
 
 
 - Guile 1.6
