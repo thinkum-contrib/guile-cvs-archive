@@ -7,6 +7,7 @@ features, to make it easier to locate the desired sections.
 @printindex cp
 
 
+@page
 @node Procedure Index
 @unnumbered Procedure Index
 
@@ -22,6 +23,7 @@ the Scheme names by a simple transformation described in the section
 @printindex fn
 
 
+@page
 @node Variable Index
 @unnumbered Variable Index
 
@@ -38,6 +40,7 @@ in the section @xref{Transforming Scheme name to C name}.
 @printindex vr
 
 
+@page
 @c Spell out this node fully, because it is the last real node
 @c in the top-level menu.  Leaving off the pointers here causes
 @c spurious makeinfo errors.

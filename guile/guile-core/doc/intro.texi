@@ -50,7 +50,6 @@ can program applications which use Guile in the language of their
 choice, rather than having the tastes of the application's author
 imposed on them.
 
-
 @page
 @node Whirlwind Tour
 @chapter A Whirlwind Tour

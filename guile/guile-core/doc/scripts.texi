@@ -1,4 +1,4 @@
-
+@page
 @node Guile Scripting
 @chapter Guile Scripting
 
