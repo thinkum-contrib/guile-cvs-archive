@@ -1,3 +1,10 @@
+Thu Aug 15 19:04:34 1996  Jim Blandy  <jimb@floss.cyclic.com>
+
+	* configure.in: Check for -ldl; if present, add it to the list of
+ 	libraries Guile should link against.
+	* PLUGIN/guile.config.in (xtra_libs): Here's where it goes, if
+	it's present.
+
 Thu Aug 15 17:25:36 1996  Jim Blandy  <jimb@totoro.cyclic.com>
 
 	Rework the strategy for selectively omitting this subdir from the
