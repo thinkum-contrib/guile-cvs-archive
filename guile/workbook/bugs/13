@@ -1,5 +1,6 @@
 summary: incorrect error reporting after stack overflow
 reported: Panagiotis Vossos <jacbre@internet.gr>, 2002-02-19
+affects: HEAD branch_release-1-6 branch_release-1-4
 
 Panagiotis Vossos sez:
 

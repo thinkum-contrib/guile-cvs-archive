@@ -1,5 +1,6 @@
 summary: strange gc loop caused by trap misuse
 reported: Neil Jerram <neil@ossau.uklinux.net>, 2002-02-03
+affects: HEAD branch_release-1-6 branch_release-1-4
 
 Neil Jerram sez:
 

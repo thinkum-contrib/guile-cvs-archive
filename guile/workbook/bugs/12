@@ -1,5 +1,6 @@
 summary: goops class redefinition not signalling "no such accessor" error
 reported: wawrzin@cs.tu-berlin.de, 2001-12-04
+affects: HEAD branch_release-1-6 branch_release-1-4
 
 Thomas Wawrzinek sez:
 > Running the following script produces some guile output which confueses me:
