@@ -360,7 +360,7 @@ head of any C source file that uses identifiers described in this
 manual.  Once you've compiled your source files, you need to link them
 against the Guile object code library, @code{libguile}.
 
-On most systems, you should not need to do tell the compiler and linker
+On most systems, you should not need to tell the compiler and linker
 explicitly where they can find @file{libguile.h} and @file{libguile}.
 When Guile has been installed in a peculiar way, or when you are on a
 peculiar system, things might not be so easy and you might need to pass
