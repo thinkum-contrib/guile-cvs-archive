@@ -2990,9 +2990,10 @@ then @var{handler} is invoked this way:
 (handler key args ...)
 @end example
 
-@var{key} may be a symbol.  In that case, @var{thunk} takes no
-arguments.  If @var{thunk} returns normally, that is the return value of
-@code{catch}.
+@var{key} is a symbol or #t.
+
+@var{thunk} takes no arguments.  If @var{thunk} returns normally, that
+is the return value of @code{catch}.
 
 Handler is invoked outside the scope of its own @code{catch}.  If
 @var{handler} again throws to the same key, a new handler from further
@@ -3000,20 +3001,14 @@ up the call chain is invoked.
 
 If the key is @code{#t}, then a throw to @emph{any} symbol will match
 this call to @code{catch}.
-
-Key may also be the value @code{#f}.  In that case, @var{thunk} takes
-one argument which will be passed a @dfn{jump buffer object}.  A jump
-buffer object may be used as the key argument to @code{throw} to throw
-to a specific @code{catch} without an intervening search for a symbolic
-key.
 @end deffn
 
 @deffn primitive throw key &rest args ...
 Invoke the catch form matching @var{key}, passing @var{args} to the
 @var{handler}.  
 
-If the key is a symbol it will match catches of the same
-symbol or of #t.
+@var{key} is a symbol.  It will match catches of the same symbol or of
+#t.
 
 If there is no handler at all, an error is signaled.
 @end deffn
