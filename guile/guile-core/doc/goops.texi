@@ -3,6 +3,7 @@
 @c %**start of header
 @setfilename goops.info
 @settitle Goops Manual
+@set goops
 @setchapternewpage odd
 @paragraphindent 0
 @c %**end of header
@@ -39,14 +40,7 @@ are preserved on all copies.
 @titlepage
 @title Goops Manual
 @subtitle For use with GOOPS @value{VERSION}
-@author Christian Lynbech
-@author @email{chl@@tbit.dk}
-@author
-@author Mikael Djurfeldt
-@author @email{djurfeldt@@nada.kth.se}
-@author
-@author Neil Jerram
-@author @email{neil@@ossau.uklinux.net}
+@include AUTHORS
 
 @c  The following two commands
 @c  start the copyright page.

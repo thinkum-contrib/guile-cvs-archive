@@ -2,6 +2,7 @@
 @c %**start of header
 @setfilename guile-tut.info
 @settitle Guile Tutorial
+@set guile-tut
 
 @include version-tutorial.texi
 
@@ -26,10 +27,7 @@
 @title Guile Tutorial
 @subtitle For use with Guile @value{VERSION}
 @subtitle Last updated @value{UPDATED}
-@author Mark Galassi
-@author Cygnus Solutions and
-@author Los Alamos National Laboratory
-@author @email{rosalia@@nis.lanl.gov}
+@include AUTHORS
 
 @page
 @vskip 0pt plus 1filll
