@@ -1,6 +1,6 @@
-# Makefile.in generated automatically by automake 1.2 from Makefile.am
+# Makefile.in generated automatically by automake 1.1p from Makefile.am
 
-# Copyright (C) 1994, 1995, 1996, 1997 Free Software Foundation, Inc.
+# Copyright (C) 1994, 1995, 1996 Free Software Foundation, Inc.
 # This Makefile.in is free software; the Free Software Foundation
 # gives unlimited permission to copy, distribute and modify it.
 
@@ -49,6 +49,10 @@ POST_INSTALL = true
 NORMAL_UNINSTALL = true
 PRE_UNINSTALL = true
 POST_UNINSTALL = true
+ACLOCAL = @ACLOCAL@
+AUTOCONF = @AUTOCONF@
+AUTOHEADER = @AUTOHEADER@
+AUTOMAKE = @AUTOMAKE@
 MAKEINFO = @MAKEINFO@
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@
@@ -71,8 +75,7 @@ info_TEXINFOS = guile-ref.texi r4rs.texi
 #	unix-other.texi		guile-scheme.texi
 
 dist_texis = guile-ref.texi intro.texi scheme.texi gh.texi \
-	scm.texi appendices.texi \
-	ci.texi pi.texi vi.texi ti.texi
+	scm.texi appendices.texi
 
 guile_ref_TEXINFOS = $(dist_texis)
 
@@ -183,7 +186,7 @@ install-info-am: $(INFO_DEPS)
 	@if $(SHELL) -c 'install-info --version | sed 1q | fgrep -s -v -i debian' >/dev/null 2>&1; then \
 	  for file in $(INFO_DEPS); do \
 	    echo " install-info --info-dir=$(infodir) $(infodir)/$$file";\
-	    install-info --info-dir=$(infodir) $(infodir)/$$file || :;\
+	    install-info --info-dir=$(infodir) $(infodir)/$$file; :;\
 	  done; \
 	else : ; fi
 
@@ -264,7 +267,7 @@ uninstall: uninstall-info
 all: Makefile $(INFO_DEPS)
 
 install-strip:
-	$(MAKE) INSTALL_PROGRAM='$(INSTALL_PROGRAM) -s' INSTALL_SCRIPT='$(INSTALL_PROGRAM)' install
+	$(MAKE) INSTALL_PROGRAM='$(INSTALL_PROGRAM) -s' install
 installdirs:
 	$(mkinstalldirs)  $(infodir)
 

@@ -69,8 +69,8 @@ TEXINFO_TEX = $(srcdir)/texinfo.tex
 INFO_DEPS = guile-tut.info
 DVIS = guile-tut.dvi
 TEXINFOS = guile-tut.texi
-DIST_COMMON =  $(guile_tut_TEXINFOS) Makefile.am Makefile.in mdate-sh \
-stamp-vti texinfo.tex version.texi
+DIST_COMMON =  $(guile_tut_TEXINFOS) ChangeLog Makefile.am Makefile.in \
+mdate-sh stamp-vti texinfo.tex version.texi
 
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)

@@ -21,8 +21,7 @@ info_TEXINFOS = guile-ref.texi r4rs.texi
 #	unix-other.texi		guile-scheme.texi
 
 dist_texis = guile-ref.texi intro.texi scheme.texi gh.texi \
-	scm.texi appendices.texi \
-	ci.texi pi.texi vi.texi ti.texi
+	scm.texi appendices.texi
 
 ## FIXME: for now we just omit ../guile-user/more-resources.texi from
 ## the dependencies.  We don't want to try to put it into the

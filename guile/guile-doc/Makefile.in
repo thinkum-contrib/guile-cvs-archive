@@ -1,6 +1,6 @@
-# Makefile.in generated automatically by automake 1.2 from Makefile.am
+# Makefile.in generated automatically by automake 1.1p from Makefile.am
 
-# Copyright (C) 1994, 1995, 1996, 1997 Free Software Foundation, Inc.
+# Copyright (C) 1994, 1995, 1996 Free Software Foundation, Inc.
 # This Makefile.in is free software; the Free Software Foundation
 # gives unlimited permission to copy, distribute and modify it.
 
@@ -49,6 +49,10 @@ POST_INSTALL = true
 NORMAL_UNINSTALL = true
 PRE_UNINSTALL = true
 POST_UNINSTALL = true
+ACLOCAL = @ACLOCAL@
+AUTOCONF = @AUTOCONF@
+AUTOHEADER = @AUTOHEADER@
+AUTOMAKE = @AUTOMAKE@
 MAKEINFO = @MAKEINFO@
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@
@@ -58,8 +62,8 @@ ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_CLEAN_FILES = 
 DIST_COMMON =  README AUTHORS COPYING ChangeLog INSTALL Makefile.am \
-Makefile.in NEWS aclocal.m4 configure configure.in install-sh missing \
-mkinstalldirs
+Makefile.in NEWS THANKS aclocal.m4 configure configure.in install-sh \
+missing mkinstalldirs
 
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
@@ -217,7 +221,7 @@ uninstall: uninstall-recursive
 all: all-recursive all-am
 
 install-strip:
-	$(MAKE) INSTALL_PROGRAM='$(INSTALL_PROGRAM) -s' INSTALL_SCRIPT='$(INSTALL_PROGRAM)' install
+	$(MAKE) INSTALL_PROGRAM='$(INSTALL_PROGRAM) -s' install
 installdirs: installdirs-recursive
 
 
