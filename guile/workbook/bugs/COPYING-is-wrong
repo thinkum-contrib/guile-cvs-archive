@@ -1,0 +1,6 @@
+summary: gensym-creates-accessable-symbols
+reported: rlb, 2002-05-16
+tags: release-critical-1.6
+
+Right now the COPYING file in CVS is just the GPL.  The exception
+clause has been lost somewhere.

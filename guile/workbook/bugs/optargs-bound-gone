@@ -54,3 +54,13 @@ mvo sez:
 > that the bug is fixed at this time.  probably we can find a way to provide
 > `bound?' and yet not use SCM_UNDEFINED.  that would maintain continuation
 > and honor the spirit of the change that introduced the bug (encapsulation).
+
+2002-04-28 mvo sez (explaining how to handle things without bound?):
+
+> You can do this easily when defining such a function.  I.e.
+> 
+>     (define not-provided (cons* 'not-provided))
+> 
+>     (define* (foo :optional (bar not-provided))
+>       (if (eq? not-provided bar)
+>           ...))
