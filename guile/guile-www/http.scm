@@ -123,12 +123,20 @@
 ;;; a Scheme port that may be used to communicate with that server.
 
 (define connection-table '())
-(define (add-open-connection! host tcp-port port)
-  (set! connection-table
-	(assoc-set! connection-table (cons host tcp-port) port)))
-(define (get-open-connection host tcp-port)
-  (assoc-ref connection-table (cons host tcp-port)))
 
+;; FIXME: you can only re-use a connection if the server sends the
+;; Keep-Alive header, I think.  With these definitions, we were trying to
+;; send more requests on connections the server assumed were dead.
+;; (define (add-open-connection! host tcp-port port)
+;;   (set! connection-table
+;; 	(assoc-set! connection-table (cons host tcp-port) port)))
+;; (define (get-open-connection host tcp-port)
+;;   (assoc-ref connection-table (cons host tcp-port)))
+
+(define (add-open-connection! host tcp-port port)
+  #f)
+(define (get-open-connection host tcp-port)
+  #f)
 
 
 ;;; HTTP methods.
@@ -210,24 +218,26 @@
 	;; also cons up a list of response headers
 	(let* ((response-status-line (sans-trailing-whitespace
 				      (read-line sock 'trim)))
-	       (response-headers (let make-header-list ((ln (sans-trailing-whitespace
-							     (read-line sock 'trim)))
-							(hlist '()))
-				   (if (= 0 (string-length ln))
-				       hlist
-				       (make-header-list (sans-trailing-whitespace
-							  (read-line sock 'trim))
-							 (cons (http:header-parse ln)
-							       hlist)))))
-	       (response-status-fields (parse-status-line response-status-line))
+	       (response-headers
+		(let make-header-list ((ln (sans-trailing-whitespace
+					    (read-line sock 'trim)))
+				       (hlist '()))
+		  (if (= 0 (string-length ln))
+		      hlist
+		      (make-header-list (sans-trailing-whitespace
+					 (read-line sock 'trim))
+					(cons (http:header-parse ln)
+					      hlist)))))
+	       (response-status-fields
+		(parse-status-line response-status-line))
 	       (response-version (car response-status-fields))
 	       (response-code    (cadr response-status-fields))
 	       (response-text    (caddr response-status-fields)))
 
 	  ;; signal error if HTTP status is invalid
-;	  (or (http:status-ok? response-code)
-	;      (error 'http-status "HTTP server returned bad status" response-status-line))
-
+	  ;; (or (http:status-ok? response-code)
+	  ;; (error 'http-status "HTTP server returned bad status"
+	  ;;        response-status-line))
 	  ;; Get message body: if Content-Length header was supplied, read
 	  ;; that many chars.  Otherwise, read until EOF
 	  
@@ -235,12 +245,17 @@
 				 "content-length"
 				 response-headers)))
 	    (let ((response-body
-		   (if content-length
+		   (if (and content-length
+			    (not (string-ci=? method "HEAD")))
 		       (read-n-chars (string->number content-length) sock)
 		       (with-output-to-string
 			 (lambda ()
 			   (while (not (eof-object? (peek-char sock)))
 				  (display (read-char sock))))))))
+
+	      ;; FIXME: what about keepalives?
+	      (close-port sock)
+
 	      (http:make-message response-version
 				 response-code
 				 response-text
