@@ -1,3 +1,8 @@
+2000-03-30  Mikael Djurfeldt  <mdj@mdj.nada.kth.se>
+
+	* threads.scm (gtkthreads-handler?, gtkthreads-ensure-handler):
+	New procedures.
+
 2000-03-30  Mikael Djurfeldt  <mdj@thalamus.nada.kth.se>
 
 	* GTKTHREADS-VERSION: Release of 0.1.2.
