@@ -30,7 +30,8 @@
   - Allow the deprecation mechanism to be controlled via a preprocessor
     macro analogous to _GNU_SOURCE. [talk to mvo about this]
   - Properly integrate system asyncs and signals with threads. [mvo]
-  - Make (ice-9 format) thread safe.  Others modules as well.
+  - Make (ice-9 format) thread safe.  Other modules as well.
+  - Gracefully cope with the situation that gc_os_dep.c doesn't compile.
 
 - Eventually
 
