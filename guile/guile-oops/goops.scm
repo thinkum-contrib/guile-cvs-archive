@@ -425,6 +425,7 @@
 	(if (and (pair? name)
 		 (eq? (car name) 'setter)
 		 (pair? (cdr name))
+		 (symbol? (cadr name))
 		 (null? (cddr name)))
 	    (let ((name (cadr name)))
 	      (cond ((not (symbol? name))
@@ -439,7 +440,10 @@
 		     `(begin
 			(define-accessor ,name)
 			(add-method! (setter ,name) (method ,@(cddr exp)))))))
-	    (cond ((not (symbol? name))
+	    (cond ((pair? name)
+		   ;; Convert new syntax to old
+		   `(define-method ,(car name) ,(cdr name) ,@(cddr exp)))
+		  ((not (symbol? name))
 		   (goops-error "bad method name: ~S" name))
 		  ((defined? name env)
 		   `(begin
