@@ -465,14 +465,12 @@ retrieved using the @code{keyword-dash-symbol} procedure.
 @deffn primitive make-keyword-from-dash-symbol symbol
 Make a keyword object from a @var{symbol} that starts with a dash.
 @end deffn
-@c docstring end
 
 @c docstring begin (c-doc-string "keywords.c" "keyword?")
 @c docstring md5 "d4dc84eb8bcf231d1af33b1ead9ea642"
 @deffn primitive keyword? obj
 Returns @code{#t} if the argument @var{obj} is a keyword, else @code{#f}.
 @end deffn
-@c docstring end
 
 @c docstring begin (c-doc-string "keywords.c" "keyword-dash-symbol")
 @c docstring md5 "20f0ff35bdc15dc75f1a0e96efb7aee1"
@@ -480,7 +478,6 @@ Returns @code{#t} if the argument @var{obj} is a keyword, else @code{#f}.
 Return the dash symbol for @var{keyword}.
 This is the inverse of @code{make-keyword-from-dash-symbol}.
 @end deffn
-@c docstring end
 
 
 @page
@@ -514,7 +511,6 @@ up the call chain is invoked.
 If the key is @code{#t}, then a throw to @emph{any} symbol will match
 this call to @code{catch}.
 @end deffn
-@c docstring end
 
 @c docstring begin (c-doc-string "throw.c" "throw")
 @c docstring md5 "c15160c85651ed3a73432d85b0567004"
@@ -527,7 +523,6 @@ Invoke the catch form matching @var{key}, passing @var{args} to the
 
 If there is no handler at all, an error is signaled.
 @end deffn
-@c docstring end
 
 @c begin (scm-doc-string "boot-9.scm" "error")
 @deffn procedure error msg args @dots{}
@@ -552,14 +547,12 @@ containing the Unix @code{errno} value;  If @var{key} is @code{signal} then
 it should be a list containing the Unix signal number; otherwise it
 will usually be @code{#f}.
 @end deffn
-@c docstring end
 
 @c docstring begin (c-doc-string "error.c" "strerror")
 @c docstring md5 "dbc26709ae2f551752989173ae4af9c8"
 @deffn primitive strerror err
 Returns the Unix error message corresponding to @var{err}, an integer.
 @end deffn
-@c docstring end
 
 @c begin (scm-doc-string "boot-9.scm" "false-if-exception")
 @deffn syntax false-if-exception expr
@@ -783,7 +776,6 @@ Open the dynamic library @var{library-file}.  A library handle
 representing the opened library is returned; this handle should be used
 as the @var{lib} argument to the following functions.
 @end deffn
-@c docstring end
 
 @c docstring begin (c-doc-string "dynl.c" "dynamic-object?")
 @c docstring md5 "b7b494344e5623db9305328822a0c47d"
@@ -791,7 +783,6 @@ as the @var{lib} argument to the following functions.
 Return @code{#t} if @var{obj} is a dynamic library handle, or @code{#f}
 otherwise.
 @end deffn
-@c docstring end
 
 @c ARGFIXME dobj/dynobj/library-handle
 @c docstring begin (c-doc-string "dynl.c" "dynamic-unlink")
@@ -805,7 +796,6 @@ argument @var{dynobj} must have been obtained by a call to
 @code{dynamic-link}.  After @code{dynamic-unlink} has been
 called on @var{dynobj}, its content is no longer accessible.
 @end deffn
-@c docstring end
 
 @c ARGFIXME symb/func/function dobj/lib/dynobj
 @c docstring begin (c-doc-string "dynl.c" "dynamic-func")
@@ -825,7 +815,6 @@ the global names in a program, you should @strong{not} include this
 underscore in @var{function}.  Guile knows whether the underscore is
 needed or not and will add it when necessary.
 @end deffn
-@c docstring end
 
 @c ARGFIXME lib-thunk/func/function lib/dobj/dynobj
 @c docstring begin (c-doc-string "dynl.c" "dynamic-call")
@@ -850,7 +839,6 @@ symbol, etc.), look it up in @var{dynobj}; this is equivalent to
 Interrupts are deferred while the C function is executing (with
 @code{SCM_DEFER_INTS}/@code{SCM_ALLOW_INTS}).
 @end deffn
-@c docstring end
 
 @c ARGFIXME func/proc/function dobj/dynobj
 @c docstring begin (c-doc-string "dynl.c" "dynamic-args-call")
@@ -879,7 +867,6 @@ an array of @code{char *}.  The array is passed in @var{argv} and its
 size in @var{argc}.  The return value is converted to a Scheme number
 and returned from the call to @code{dynamic-args-call}.
 @end deffn
-@c docstring end
 
 @c docstring begin (c-doc-string "dynl.c" "c-registered-modules")
 @c docstring md5 "8e0da2e7aeb386b1616cf7c02cfa72fc"
@@ -890,7 +877,6 @@ car is the name of the module, and whose cdr is the function handle
 for that module's initializer function.  The name is the string that
 has been passed to scm_register_module_xxx.
 @end deffn
-@c docstring end
 
 @c docstring begin (c-doc-string "dynl.c" "c-clear-registered-modules")
 @c docstring md5 "cca20d0091f73ddeaeba5c2759b606d1"
@@ -901,7 +887,6 @@ not actually unlink or deallocate these modules, but only destroys the
 records of which modules have been loaded.  It should therefore be used
 only by module bookkeeping operations.
 @end deffn
-@c docstring end
 
 [FIXME: provide a brief example here of writing the C hooks for an
 object code module, and using dynamic-link and dynamic-call to load the
@@ -932,7 +917,6 @@ convention, if a procedure contains more than one expression and the
 first expression is a string constant, that string is assumed to contain
 documentation for that procedure.
 @end deffn
-@c docstring end
 
 @c docstring begin (c-doc-string "macros.c" "procedure->syntax")
 @c docstring md5 "ec8ae60298789340b2a9b804a1b5a70a"
@@ -941,7 +925,6 @@ Returns a @dfn{macro} which, when a symbol defined to this value
 appears as the first symbol in an expression, returns the result
 of applying @var{code} to the expression and the environment.
 @end deffn
-@c docstring end
 
 @c docstring begin (c-doc-string "macros.c" "procedure->macro")
 @c docstring md5 "a1c40e162410c3c5e348352eb0390542"
@@ -961,10 +944,9 @@ The value returned from @var{code} which has been passed to
 (trace @i{foo}) @equiv{} (set! @i{foo} (tracef @i{foo} '@i{foo})).
 @end example
 @end deffn
-@c docstring end
 
 @c docstring begin (c-doc-string "macros.c" "procedure->memoizing-macro")
-@c docstring md5 "fb5a7d909bd38cc0710cd9a2b9fadf35"
+@c docstring md5 "473b9a0ebd73ec006adbebb132b0c086"
 @deffn primitive procedure->memoizing-macro code
 Returns a @dfn{macro} which, when a symbol defined to this value
 appears as the first symbol in an expression, evaluates the result
@@ -980,9 +962,7 @@ The value returned from @var{proc} which has been passed to
 
 (trace @i{foo}) @equiv{} (set! @i{foo} (tracef @i{foo} '@i{foo})).
 @end example
-
 @end deffn
-@c docstring end
 
 @c docstring begin (c-doc-string "macros.c" "macro?")
 @c docstring md5 "03a99145e8620227bc93c8376fbf7dcf"
@@ -990,7 +970,6 @@ The value returned from @var{proc} which has been passed to
 Return @code{#t} if @var{obj} is a regular macro, a memoizing macro or a
 syntax transformer.
 @end deffn
-@c docstring end
 
 @c ARGFIXME m/obj
 @c docstring begin (c-doc-string "macros.c" "macro-type")
@@ -1001,21 +980,18 @@ depending on whether @var{obj} is a syntax tranformer, a regular macro,
 or a memoizing macro, respectively.  If @var{obj} is not a macro,
 @code{#f} is returned.
 @end deffn
-@c docstring end
 
 @c docstring begin (c-doc-string "macros.c" "macro-name")
 @c docstring md5 "2830d8d15e193217236534f1862449f7"
 @deffn primitive macro-name m
 
 @end deffn
-@c docstring end
 
 @c docstring begin (c-doc-string "macros.c" "macro-transformer")
 @c docstring md5 "9966b576b5e63da81cb708d174f936ba"
 @deffn primitive macro-transformer m
 
 @end deffn
-@c docstring end
 
 @c ARGFIXME x/obj
 @c docstring begin (c-doc-string "eval.c" "promise?")
@@ -1024,7 +1000,6 @@ or a memoizing macro, respectively.  If @var{obj} is not a macro,
 Return true if @var{obj} is a promise, i.e. a delayed computation
 (@pxref{Delayed evaluation,,,r4rs.info,The Revised^4 Report on Scheme}).
 @end deffn
-@c docstring end
 
 @c docstring begin (c-doc-string "eval.c" "copy-tree")
 @c docstring md5 "f38abb1b3506d0c1c8f7ace8046a8b05"
@@ -1035,16 +1010,14 @@ contents of both pairs and vectors (since both cons cells and vector
 cells may point to arbitrary objects), and stops recursing when it hits
 any other object.
 @end deffn
-@c docstring end
 
-@c ARGFIXME obj/exp
+@c ARGFIXME environment/environment specifier
 @c docstring begin (c-doc-string "eval.c" "eval")
-@c docstring md5 "a1e1d79d23c65aaffae7c8e7a7904eff"
-@deffn primitive eval obj
+@c docstring md5 "22b65278991681904573206d0b8f937d"
+@deffn primitive eval exp environment
 Evaluate @var{exp}, a list representing a Scheme expression, in the
-top-level environment.
+environment given by @var{environment specifier}.
 @end deffn
-@c docstring end
 
 @c ARGFIXME obj/exp env_thunk/lookup
 @c docstring begin (c-doc-string "eval.c" "eval2")
@@ -1054,7 +1027,6 @@ Evaluate @var{exp}, a Scheme expression, in the environment designated
 by @var{lookup}, a symbol-lookup function.  @code{(eval exp)} is
 equivalent to @code{(eval2 exp *top-level-lookup-closure*)}.
 @end deffn
-@c docstring end
 
 @c docstring begin (c-doc-string "debug.c" "local-eval")
 @c docstring md5 "506ec1178ae3ccf7e095bab2bbcc0d67"
@@ -1064,15 +1036,14 @@ it is the environment in which to evaluate @var{exp}.  Otherwise,
 @var{exp} must be a memoized code object (in which case, its environment
 is implicit).
 @end deffn
-@c docstring end
 
 @c docstring begin (c-doc-string "strports.c" "eval-string")
-@c docstring md5 "215fd32368d85b52459b42ba46f7184f"
+@c docstring md5 "47f435f849663729e311e4fe8b621dd6"
 @deffn primitive eval-string string
 Evaluate @var{string} as the text representation of a Scheme form
 or forms, and return whatever value they produce.
+Evaluation takes place in (interaction-environment).
 @end deffn
-@c docstring end
 
 @c NJFIXME explain [env]
 @c docstring begin (c-doc-string "evalext.c" "defined?")
@@ -1080,7 +1051,6 @@ or forms, and return whatever value they produce.
 @deffn primitive defined? sym [env]
 Return @code{#t} if @var{sym} is defined in the top-level environment.
 @end deffn
-@c docstring end
 
 @c docstring begin (c-doc-string "load.c" "read-and-eval!")
 @c docstring md5 "91657a86ba64aa0ba1b50916c865cc7f"
@@ -1090,7 +1060,6 @@ Read a form from @var{port} (standard input by default), and evaluate it
 is left to be read from @var{port}, an @code{end-of-file} error is
 signalled.
 @end deffn
-@c docstring end
 
 @c ARGFIXME file/filename
 @c docstring begin (c-doc-string "load.c" "primitive-load")
@@ -1103,7 +1072,6 @@ variable @code{%load-hook} is defined, it should be bound to a procedure
 that will be called before any code is loaded.  See documentation for
 @code{%load-hook} later in this section.
 @end deffn
-@c docstring end
 
 @c ARGFIXME file/filename
 @c docstring begin (c-doc-string "load.c" "primitive-load-path")
@@ -1113,7 +1081,6 @@ Search @var{%load-path} for @var{file} and load it into the top-level
 environment.  If @var{file} is a relative pathname and is not found in
 the list of search paths, an error is signalled.
 @end deffn
-@c docstring end
 
 @c ARGFIXME file/filename
 @c docstring begin (c-doc-string "load.c" "%search-load-path")
@@ -1126,7 +1093,6 @@ is an absolute pathname, return its full pathname.  Otherwise, return
 @code{%load-extensions} list; @code{%search-load-path} will try each
 extension automatically.
 @end deffn
-@c docstring end
 
 @defvar %load-hook
 A procedure to be run whenever @code{primitive-load} is called.  If this
@@ -1167,7 +1133,6 @@ The Revised^4 Report on Scheme}).  The cdr field of each list's final
 pair is changed to point to the head of the next list, so no consing is
 performed.  Return a pointer to the mutated list.
 @end deffn
-@c docstring end
 
 @c docstring begin (c-doc-string "list.c" "last-pair")
 @c docstring md5 "252e7462df5507d761011683bd3bab12"
@@ -1175,7 +1140,6 @@ performed.  Return a pointer to the mutated list.
 Return a pointer to the last pair in @var{lst}, signalling an error if
 @var{lst} is circular.
 @end deffn
-@c docstring end
 
 @c NJFIXME explain new_tail
 @c docstring begin (c-doc-string "list.c" "reverse!")
@@ -1193,14 +1157,12 @@ original list was bound now points to the tail.  To ensure that the head
 of the modified list is not lost, it is wise to save the return value of
 @code{reverse!}
 @end deffn
-@c docstring end
 
 @c docstring begin (c-doc-string "list.c" "list-set!")
 @c docstring md5 "151c8e923452e2847db696566f06a8f3"
 @deffn primitive list-set! list k val
 Set the @var{k}th element of @var{list} to @var{val}.
 @end deffn
-@c docstring end
 
 @c docstring begin (c-doc-string "list.c" "list-tail")
 @c docstring md5 "a7a763585d038f1a8f6339284f22e016"
@@ -1213,14 +1175,12 @@ The first element of the list is considered to be element 0.
 think of @code{list-cdr-ref} as accessing the @var{k}th cdr of the list,
 or returning the results of cdring @var{k} times down @var{lst}.
 @end deffn
-@c docstring end
 
 @c docstring begin (c-doc-string "list.c" "list-cdr-set!")
 @c docstring md5 "97838601187b2943d95f89037362c7c0"
 @deffn primitive list-cdr-set! list k val
 Set the @var{k}th cdr of @var{list} to @var{val}.
 @end deffn
-@c docstring end
 
 @c docstring begin (c-doc-string "list.c" "list-head")
 @c docstring md5 "43272096c61c5964cb57b8f7b322090c"
@@ -1228,14 +1188,12 @@ Set the @var{k}th cdr of @var{list} to @var{val}.
 Copy the first @var{k} elements from @var{lst} into a new list, and
 return it.
 @end deffn
-@c docstring end
 
 @c docstring begin (c-doc-string "list.c" "list-copy")
 @c docstring md5 "215f62a5f0dec314262c1b794c4c4973"
 @deffn primitive list-copy lst
 Return a (newly-created) copy of @var{lst}.
 @end deffn
-@c docstring end
 
 @c docstring begin (c-doc-string "list.c" "delq")
 @c docstring md5 "d81022da19ebda54685dfc2bfa35b0da"
@@ -1245,7 +1203,6 @@ This procedure mirrors @code{memq}:
 @code{delq} compares elements of @var{lst} against @var{item} with
 @code{eq?}.
 @end deffn
-@c docstring end
 
 @c docstring begin (c-doc-string "list.c" "delv")
 @c docstring md5 "78f17a903d0ed8b32b4e43c55a830c68"
@@ -1255,7 +1212,6 @@ This procedure mirrors @code{memv}:
 @code{delv} compares elements of @var{lst} against @var{item} with
 @code{eqv?}.
 @end deffn
-@c docstring end
 
 @c docstring begin (c-doc-string "list.c" "delete")
 @c docstring md5 "84885abdb2c572e5930d0ac714a4b3d6"
@@ -1265,7 +1221,6 @@ This procedure mirrors @code{member}:
 @code{delete} compares elements of @var{lst} against @var{item} with
 @code{equal?}.
 @end deffn
-@c docstring end
 
 @c docstring begin (c-doc-string "list.c" "delq!")
 @c docstring md5 "0aff2f2745903b297e81a8270b39000a"
@@ -1279,7 +1234,6 @@ destructive list functions, these functions cannot modify the binding of
 @var{lst}, and so cannot be used to delete the first element of
 @var{lst} destructively.
 @end deffn
-@c docstring end
 
 [FIXME: is there any reason to have the `sloppy' functions available at
 high level at all?  Maybe these docs should be relegated to a "Guile
@@ -1292,7 +1246,6 @@ This procedure behaves like @code{memq}, but does no type or error checking.
 Its use is recommended only in writing Guile internals,
 not for high-level Scheme programs.
 @end deffn
-@c docstring end
 
 @c docstring begin (c-doc-string "list.c" "sloppy-memv")
 @c docstring md5 "466fe289c9fa6f70f2828f05a15ed705"
@@ -1301,7 +1254,6 @@ This procedure behaves like @code{memv}, but does no type or error checking.
 Its use is recommended only in writing Guile internals,
 not for high-level Scheme programs.
 @end deffn
-@c docstring end
 
 @c docstring begin (c-doc-string "list.c" "sloppy-member")
 @c docstring md5 "39b419b393953deb3094acd1684f4e71"
@@ -1310,7 +1262,6 @@ This procedure behaves like @code{member}, but does no type or error checking.
 Its use is recommended only in writing Guile internals,
 not for high-level Scheme programs.
 @end deffn
-@c docstring end
 
 @page
 @node Data Structures
@@ -2395,7 +2346,6 @@ created whose car is @var{key} and whose cdr is @var{value}, and the
 pair is consed onto @var{alist}, and the new list is returned.  This
 function is @emph{not} destructive; @var{alist} is not modified.
 @end deffn
-@c docstring end
 
 @c docstring begin (c-doc-string "alist.c" "assq-set!")
 @c docstring md5 "4af663653c4ecbf50567227397e2227d"
@@ -2411,7 +2361,6 @@ These functions do not attempt to verify the structure of @var{alist},
 and so may cause unusual results if passed an object that is not an
 association list.
 @end deffn
-@c docstring end
 
 @node Retrieving Alist Entries
 @subsubsection Retrieving Alist Entries
@@ -2441,7 +2390,6 @@ cannot be found in @var{alist} (according to whichever equality
 predicate is in use), then @code{#f} is returned.  These functions
 return the entire alist entry found (i.e. both the key and the value).
 @end deffn
-@c docstring end
 
 @code{assq-ref}, @code{assv-ref} and @code{assoc-ref}, on the other
 hand, take an alist and a key and return @emph{just the value} for that
@@ -2471,7 +2419,6 @@ functions are equivalent to
 
 where @var{associator} is one of @code{assq}, @code{assv} or @code{assoc}.
 @end deffn
-@c docstring end
 
 @node Removing Alist Entries
 @subsubsection Removing Alist Entries
@@ -2542,7 +2489,6 @@ after removing the first matching entry that it finds, and so one of the
 Delete the first entry in @var{alist} associated with @var{key}, and return
 the resulting alist.
 @end deffn
-@c docstring end
 
 @node Sloppy Alist Functions
 @subsubsection Sloppy Alist Functions
@@ -2597,7 +2543,6 @@ versions would silently cover up.
 Behaves like @code{assq} but does not do any error checking.
 Recommended only for use in Guile internals.
 @end deffn
-@c docstring end
 
 @c docstring begin (c-doc-string "alist.c" "sloppy-assv")
 @c docstring md5 "be5fec71d63648322da6952af841b230"
@@ -2605,7 +2550,6 @@ Recommended only for use in Guile internals.
 Behaves like @code{assv} but does not do any error checking.
 Recommended only for use in Guile internals.
 @end deffn
-@c docstring end
 
 @c docstring begin (c-doc-string "alist.c" "sloppy-assoc")
 @c docstring md5 "91ff903a097128729a68f2c488f3985c"
@@ -2613,7 +2557,6 @@ Recommended only for use in Guile internals.
 Behaves like @code{assoc} but does not do any error checking.
 Recommended only for use in Guile internals.
 @end deffn
-@c docstring end
 
 @node Alist Example
 @subsubsection Alist Example
@@ -2669,26 +2612,82 @@ In each of the functions that follow, the @var{table} argument
 must be a vector.  The @var{key} and @var{value} arguments may be
 any Scheme object.
 
-@deffn primitive hashq-ref table key [default]
-@deffnx primitive hashv-ref table key [default]
-@deffnx primitive hash-ref table key [default]
+@c ARGFIXME obj/key
+@c docstring begin (c-doc-string "hashtab.c" "hashq-ref")
+@c docstring md5 "28730daf72a064b580d825ae42399e5a"
+@deffn primitive hashq-ref table obj [dflt]
 Look up @var{key} in the hash table @var{table}, and return the
 value (if any) associated with it.  If @var{key} is not found,
 return @var{default} (or @code{#f} if no @var{default} argument is
-supplied).
+supplied).  Uses `eq?' for equality testing.
 @end deffn
 
-@deffn primitive hashq-set! table key value
-@deffnx primitive hashv-set! table key value
-@deffnx primitive hash-set! table key value
+@c ARGFIXME obj/key
+@c docstring begin (c-doc-string "hashtab.c" "hashv-ref")
+@c docstring md5 "b7aaaca404d2ba59d0d275e6d2a15452"
+@deffn primitive hashv-ref table obj [dflt]
+Look up @var{key} in the hash table @var{table}, and return the
+value (if any) associated with it.  If @var{key} is not found,
+return @var{default} (or @code{#f} if no @var{default} argument is
+supplied).  Uses `eqv?' for equality testing.
+@end deffn
+
+@c ARGFIXME obj/key
+@c docstring begin (c-doc-string "hashtab.c" "hash-ref")
+@c docstring md5 "d12924317535d3c282fe3f2b11664ab1"
+@deffn primitive hash-ref table obj [dflt]
+Look up @var{key} in the hash table @var{table}, and return the
+value (if any) associated with it.  If @var{key} is not found,
+return @var{default} (or @code{#f} if no @var{default} argument is
+supplied).  Uses `equal?' for equality testing.
+@end deffn
+
+@c ARGFIXME obj/key
+@c docstring begin (c-doc-string "hashtab.c" "hashq-set!")
+@c docstring md5 "ba8246c129e45df7b00dbfbf897566cf"
+@deffn primitive hashq-set! table obj val
 Find the entry in @var{table} associated with @var{key}, and store
-@var{value} there.
+@var{value} there. Uses `eq?' for equality testing.
 @end deffn
 
-@deffn primitive hashq-remove! table key
-@deffnx primitive hashv-remove! table key
-@deffnx primitive hash-remove! table key
+@c ARGFIXME obj/key
+@c docstring begin (c-doc-string "hashtab.c" "hashv-set!")
+@c docstring md5 "3fbcd49e55650301ad667e93b68988c0"
+@deffn primitive hashv-set! table obj val
+Find the entry in @var{table} associated with @var{key}, and store
+@var{value} there. Uses `eqv?' for equality testing.
+@end deffn
+
+@c ARGFIXME obj/key
+@c docstring begin (c-doc-string "hashtab.c" "hash-set!")
+@c docstring md5 "642e964d21cbfecb9a7d6b13a03f68c0"
+@deffn primitive hash-set! table obj val
+Find the entry in @var{table} associated with @var{key}, and store
+@var{value} there. Uses `equal?' for equality testing.
+@end deffn
+
+@c ARGFIXME obj/key
+@c docstring begin (c-doc-string "hashtab.c" "hashq-remove!")
+@c docstring md5 "f144594e98cde3b238cd3f53dc45ad0f"
+@deffn primitive hashq-remove! table obj
 Remove @var{key} (and any value associated with it) from @var{table}.
+Uses `eq?' for equality tests.
+@end deffn
+
+@c ARGFIXME obj/key
+@c docstring begin (c-doc-string "hashtab.c" "hashv-remove!")
+@c docstring md5 "950b97d209638a2a3275adba8a1a0b08"
+@deffn primitive hashv-remove! table obj
+Remove @var{key} (and any value associated with it) from @var{table}.
+Uses `eqv?' for equality tests.
+@end deffn
+
+@c ARGFIXME obj/key
+@c docstring begin (c-doc-string "hashtab.c" "hash-remove!")
+@c docstring md5 "56b3e6e610cd63ac8b67261a70c9be53"
+@deffn primitive hash-remove! table obj
+Remove @var{key} (and any value associated with it) from @var{table}.
+Uses `equal?' for equality tests.
 @end deffn
 
 The standard hash table functions may be too limited for some
@@ -2706,20 +2705,49 @@ use comfortably.  If you are interested in learning more, see an
 introductory textbook on data structures or algorithms for an
 explanation of how hash tables are implemented.
 
+@c docstring begin (c-doc-string "hash.c" "hashq")
+@c docstring md5 "53e121189ab2d4f5c50128ddc6522c62"
 @deffn primitive hashq key size
-@deffnx primitive hashv key size
-@deffnx primitive hash key size
-Default hash functions for Guile hash tables.  @var{key} is the
-object to be hashed, and @var{size} is the size of the target hash
-table.  Each function returns an integer in the range 0 to
-@var{size}-1.
+Determine a hash value for KEY that is suitable for lookups in
+a hashtable of size SIZE, where eq? is used as the equality
+predicate.  The function returns an integer in the range 0 to
+SIZE - 1.  NOTE that `hashq' may use internal addresses.
+Thus two calls to hashq where the keys are eq? are not
+guaranteed to deliver the same value if the key object gets
+garbage collected in between.  This can happen, for example
+with symbols:  (hashq 'foo n) (gc) (hashq 'foo n) may produce two
+different values, since 'foo will be garbage collected.
 @end deffn
 
-@deffn primitive hashx-ref hasher assoc table key [default]
-@deffnx primitive hashx-set! hasher assoc table key value
-@deffnx primitive hashx-remove! hasher assoc table key
-These behave the same way as the corresponding @code{ref} and
-@code{set!} functions described above, but use @var{hasher} as a
+@c docstring begin (c-doc-string "hash.c" "hashv")
+@c docstring md5 "5781e62397822ae08f8ae5f242e538fd"
+@deffn primitive hashv key size
+Determine a hash value for KEY that is suitable for lookups in
+a hashtable of size SIZE, where eqv? is used as the equality
+predicate.  The function returns an integer in the range 0 to
+SIZE - 1.  NOTE that (hashv key) may use internal addresses.
+Thus two calls to hashv where the keys are eqv? are not
+guaranteed to deliver the same value if the key object gets
+garbage collected in between.  This can happen, for example
+with symbols:  (hashv 'foo n) (gc) (hashv 'foo n) may produce two
+different values, since 'foo will be garbage collected.
+@end deffn
+
+@c docstring begin (c-doc-string "hash.c" "hash")
+@c docstring md5 "ec9576df3988dd1208fc32a46236d821"
+@deffn primitive hash key size
+Determine a hash value for KEY that is suitable for lookups in
+a hashtable of size SIZE, where equal? is used as the equality
+predicate.  The function returns an integer in the range 0 to
+SIZE - 1.
+@end deffn
+
+@c ARGFIXME hash/hasher
+@c docstring begin (c-doc-string "hashtab.c" "hashx-ref")
+@c docstring md5 "9d9eedc81aa8d5ccf7943ba1f4279a79"
+@deffn primitive hashx-ref hash assoc table obj [dflt]
+This behaves the same way as the corresponding @code{ref}
+function, but uses @var{hasher} as a
 hash function and @var{assoc} to compare keys.  @code{hasher} must
 be a function that takes two arguments, a key to be hashed and a
 table size.  @code{assoc} must be an associator function, like
@@ -2729,11 +2757,24 @@ By way of illustration, @code{hashq-ref table key} is equivalent
 to @code{hashx-ref hashq assq table key}.
 @end deffn
 
-@deffn primitive hashq-get-handle table key
-@deffnx primitive hashv-get-handle table key
-@deffnx primitive hash-get-handle table key
-@deffnx primitive hashx-get-handle hasher assoc table key
-These procedures are similar to their @code{-ref} cousins, but return a
+@c docstring begin (c-doc-string "hashtab.c" "hashx-set!")
+@c docstring md5 "0ba43f8c584cc43850a2da2f1c88b036"
+@deffn primitive hashx-set! hash assoc table obj val
+This behaves the same way as the corresponding @code{set!}
+function, but uses @var{hasher} as a
+hash function and @var{assoc} to compare keys.  @code{hasher} must
+be a function that takes two arguments, a key to be hashed and a
+table size.  @code{assoc} must be an associator function, like
+@code{assoc}, @code{assq} or @code{assv}.
+
+By way of illustration, @code{hashq-set! table key} is equivalent
+to @code{hashx-set! hashq assq table key}.
+@end deffn
+
+@c docstring begin (c-doc-string "hashtab.c" "hashq-get-handle")
+@c docstring md5 "0290d4abd6634be8bd15343a32122bee"
+@deffn primitive hashq-get-handle table obj
+This procedure is similar to its @code{-ref} cousin, but returns a
 @dfn{handle} from the hash table rather than the value associated with
 @var{key}.  By convention, a handle in a hash table is the pair which
 associates a key with a value.  Where @code{hashq-ref table key} returns
@@ -2741,13 +2782,72 @@ only a @code{value}, @code{hashq-get-handle table key} returns the pair
 @code{(key . value)}.
 @end deffn
 
+@c docstring begin (c-doc-string "hashtab.c" "hashv-get-handle")
+@c docstring md5 "808640f427ca5b50ebeae3460538a882"
+@deffn primitive hashv-get-handle table obj
+This procedure is similar to its @code{-ref} cousin, but returns a
+@dfn{handle} from the hash table rather than the value associated with
+@var{key}.  By convention, a handle in a hash table is the pair which
+associates a key with a value.  Where @code{hashv-ref table key} returns
+only a @code{value}, @code{hashv-get-handle table key} returns the pair
+@code{(key . value)}.
+@end deffn
+
+@c docstring begin (c-doc-string "hashtab.c" "hash-get-handle")
+@c docstring md5 "6ab362d2e7918010a4226e8824228761"
+@deffn primitive hash-get-handle table obj
+This procedure is similar to its @code{-ref} cousin, but returns a
+@dfn{handle} from the hash table rather than the value associated with
+@var{key}.  By convention, a handle in a hash table is the pair which
+associates a key with a value.  Where @code{hash-ref table key} returns
+only a @code{value}, @code{hash-get-handle table key} returns the pair
+@code{(key . value)}.
+@end deffn
+
+@c docstring begin (c-doc-string "hashtab.c" "hashx-get-handle")
+@c docstring md5 "afafc5a816e0beb95777ae8ce15f22c6"
+@deffn primitive hashx-get-handle hash assoc table obj
+This behaves the same way as the corresponding @code{-get-handle}
+function, but uses @var{hasher} as a
+hash function and @var{assoc} to compare keys.  @code{hasher} must
+be a function that takes two arguments, a key to be hashed and a
+table size.  @code{assoc} must be an associator function, like
+@code{assoc}, @code{assq} or @code{assv}.
+@end deffn
+
+@c docstring begin (c-doc-string "hashtab.c" "hashq-create-handle!")
+@c docstring md5 "c196e03a432d1a2531403cd457d7ee4f"
 @deffn primitive hashq-create-handle! table key init
-@deffnx primitive hashv-create-handle! table key init
-@deffnx primitive hash-create-handle! table key init
-@deffnx primitive hashx-create-handle! hasher assoc table key init
-These functions look up @var{key} in @var{table} and return its handle,
+This function looks up @var{key} in @var{table} and returns its handle.
 If @var{key} is not already present, a new handle is created which
 associates @var{key} with @var{init}.
+@end deffn
+
+@c docstring begin (c-doc-string "hashtab.c" "hashv-create-handle!")
+@c docstring md5 "97c30822f3cb2655bd270d1a5bc39fc3"
+@deffn primitive hashv-create-handle! table key init
+This function looks up @var{key} in @var{table} and returns its handle.
+If @var{key} is not already present, a new handle is created which
+associates @var{key} with @var{init}.
+@end deffn
+
+@c docstring begin (c-doc-string "hashtab.c" "hash-create-handle!")
+@c docstring md5 "46220deb30a49587f95d25b6db9a538e"
+@deffn primitive hash-create-handle! table key init
+This function looks up @var{key} in @var{table} and returns its handle.
+If @var{key} is not already present, a new handle is created which
+associates @var{key} with @var{init}.
+@end deffn
+
+@c docstring begin (c-doc-string "hashtab.c" "hashx-create-handle!")
+@c docstring md5 "5ef6c677afb129fca6f76c725458c6d0"
+@deffn primitive hashx-create-handle! hash assoc table obj init
+This behaves the same way as the corresponding @code{-create-handle}
+function, but uses @var{hasher} as a
+hash function and @var{assoc} to compare keys.  @code{hasher} must
+be a function that takes two arguments, a key to be hashed and a
+table size.  @code{assoc} must be an associator function, like
+@code{assoc}, @code{assq} or @code{assv}.
 @end deffn
 
 @page
@@ -2772,21 +2872,57 @@ eventually, and it will be helpful to know how they work.
 @node String Fun
 @section String Fun
 
+@c docstring begin (c-doc-string "strop.c" "string-index")
+@c docstring md5 "4a4e4236fabe6f52d9941996dd21ff7d"
 @deffn primitive string-index str chr [frm [to]]
 Return the index of the first occurrence of @var{chr} in @var{str}.  The
 optional integer arguments @var{frm} and @var{to} limit the search to
 a portion of the string.  This procedure essentially implements the
 @code{index} or @code{strchr} functions from the C library.
+
+(qdocs:)  Returns the index of @var{char} in @var{str}, or @code{#f} if the
+@var{char} isn't in @var{str}. If @var{frm} is given and not @code{#f},
+it is used as the starting index; if @var{to} is given and not @var{#f},
+it is used as the ending index (exclusive).
+
+@example
+(string-index "weiner" #\e)
+@result{} 1
+
+(string-index "weiner" #\e 2)
+@result{} 4
+
+(string-index "weiner" #\e 2 4)
+@result{} #f
+@end example
 @end deffn
 
+@c docstring begin (c-doc-string "strop.c" "string-rindex")
+@c docstring md5 "c980b9e436090e5ff5e7c637c2086baf"
 @deffn primitive string-rindex str chr [frm [to]]
 Like @code{string-index}, but search from the right of the string rather
 than from the left.  This procedure essentially implements the
 @code{rindex} or @code{strrchr} functions from the C library.
+
+(qdocs:) The same as @code{string-index}, except it gives the rightmost occurance
+of @var{char} in the range [@var{frm}, @var{to}-1], which defaults to
+the entire string.
+
+@example
+(string-rindex "weiner" #\e)
+@result{} 4
+
+(string-rindex "weiner" #\e 2 4)
+@result{} #f
+
+(string-rindex "weiner" #\e 2 5)
+@result{} 4
+@end example
 @end deffn
 
-@deffn primitive substring-move-right! str1 start1 end1 str2 start2
-@deffnx primitive substring-move-left! str1 start1 end1 str2 start2
+@c docstring begin (c-doc-string "strop.c" "substring-move!")
+@c docstring md5 "baaef71083170324992830663771f8c2"
+@deffn primitive substring-move! str1 start1 end1 str2 start2
 Copy the substring of @var{str1} bounded by @var{start1} and @var{end1}
 into @var{str2} beginning at position @var{end2}.
 @code{substring-move-right!} begins copying from the rightmost character
@@ -2805,25 +2941,139 @@ text first, to avoid clobbering your data.  Hence, when @var{str1} and
 are different strings, it does not matter which function you use.
 @end deffn
 
-@deffn primitive vector-move-right! vec1 start1 end1 vec2 start2
-@deffnx primitive vector-move-left! vec1 start1 end1 vec2 start2
-Vector versions of @code{substring-move-right!} and
-@code{substring-move-left!}
+@deffn primitive substring-move-left! str1 start1 end1 str2 start2
+@end deffn
+@deftypefn {C Function} SCM scm_substring_move_left_x (SCM @var{str1}, SCM @var{start1}, SCM @var{end1}, SCM @var{str2}, SCM @var{start2})
+[@strong{Note:} this is only valid if you've applied the strop patch].
+
+Moves a substring of @var{str1}, from @var{start1} to @var{end1}
+(@var{end1} is exclusive), into @var{str2}, starting at
+@var{start2}. Allows overlapping strings.
+
+@example
+(define x (make-string 10 #\a))
+(define y "bcd")
+(substring-move-left! x 2 5 y 0)
+y
+@result{} "aaa"
+
+x
+@result{} "aaaaaaaaaa"
+
+(define y "bcdefg")
+(substring-move-left! x 2 5 y 0)
+y
+@result{} "aaaefg"
+
+(define y "abcdefg")
+(substring-move-left! y 2 5 y 3)
+y
+@result{} "abccccg"
+@end example
+@end deftypefn
+
+@deffn substring-move-right! str1 start1 end1 str2 start2
+@end deffn
+@deftypefn {C Function} SCM scm_substring_move_right_x (SCM @var{str1}, SCM @var{start1}, SCM @var{end1}, SCM @var{str2}, SCM @var{start2})
+[@strong{Note:} this is only valid if you've applied the strop patch, if
+it hasn't made it into the guile tree].
+
+Does much the same thing as @code{substring-move-left!}, except it
+starts moving at the end of the sequence, rather than the beginning.
+@example
+(define y "abcdefg")
+(substring-move-right! y 2 5 y 0)
+y
+@result{} "ededefg"
+
+(define y "abcdefg")
+(substring-move-right! y 2 5 y 3)
+y
+@result{} "abccdeg"
+@end example
+@end deftypefn
+
+@c docstring begin (c-doc-string "vectors.c" "vector-move-left!")
+@c docstring md5 "9df24519200e992ba75e7b0f7c1a95b7"
+@deffn primitive vector-move-left! vec1 start1 end1 vec2 start2
+Vector version of @code{substring-move-left!}.
 @end deffn
 
-@deffn primitive substring-fill! str start end fill-char
+@c docstring begin (c-doc-string "vectors.c" "vector-move-right!")
+@c docstring md5 "541c64a3013e16959ee23f083e0f0ef8"
+@deffn primitive vector-move-right! vec1 start1 end1 vec2 start2
+Vector version of @code{substring-move-right!}.
+@end deffn
+
+@c ARGFIXME fill/fill-char
+@c docstring begin (c-doc-string "strop.c" "substring-fill!")
+@c docstring md5 "70b55ba606fbed9c9ca1d8d5a5f945ad"
+@deffn primitive substring-fill! str start end fill
 Change every character in @var{str} between @var{start} and @var{end} to
 @var{fill-char}.
+
+(qdocs:) Destructively fills @var{str}, from @var{start} to @var{end}, with @var{fill}.
+
+@example
+(define y "abcdefg")
+(substring-fill! y 1 3 #\r)
+y
+@result{} "arrdefg"
+@end example
 @end deffn
 
+@c docstring begin (c-doc-string "strop.c" "string-null?")
+@c docstring md5 "9891a8b4b4b311a4bc4fd8ade81973c0"
 @deffn primitive string-null? str
 Return @code{#t} if @var{str}'s length is nonzero, and @code{#f}
 otherwise.
+
+(qdocs:) Returns @code{#t} if @var{str} is empty, else returns @code{#f}.
+
+@example
+(string-null? "")
+@result{} #t
+
+(string-null? y)
+@result{} #f
+@end example
 @end deffn
 
-@deffn primitive string-upcase! str
-@deffnx primitive string-downcase! str
-Upcase or downcase every character in @code{str}, respectively.
+@c ARGFIXME v/str
+@c docstring begin (c-doc-string "strop.c" "string-upcase!")
+@c docstring md5 "2cc5acd363e41a5de788947011dc1f55"
+@deffn primitive string-upcase! v
+Destructively upcase every character in @code{str}.
+
+(qdocs:) Converts each element in @var{str} to upper case.
+
+@example
+(string-upcase! y)
+@result{} "ARRDEFG"
+
+y
+@result{} "ARRDEFG"
+@end example
+@end deffn
+
+@c ARGFIXME v/str
+@c docstring begin (c-doc-string "strop.c" "string-downcase!")
+@c docstring md5 "0f71eab3778d9e253efc882ccb264d07"
+@deffn primitive string-downcase! v
+Destructively downcase every character in @code{str}.
+
+(qdocs:) Converts each element in @var{str} to lower case.
+
+@example
+y
+@result{} "ARRDEFG"
+
+(string-downcase! y)
+@result{} "arrdefg"
+
+y
+@result{} "arrdefg"
+@end example
 @end deffn
 
 @node Shared Substrings
@@ -2840,7 +3090,10 @@ substring is an object that mostly behaves just like an ordinary
 substring, except that it actually shares storage space with its parent
 string.
 
-@deffn primitive make-shared-substring str start [end]
+@c ARGFIXME frm/start to/end
+@c docstring begin (c-doc-string "strings.c" "make-shared-substring")
+@c docstring md5 "2ce64ce89bf0e295a8e67e01fde2db90"
+@deffn primitive make-shared-substring str [frm [to]]
 Return a shared substring of @var{str}.  The semantics are the same as
 for the @code{substring} function: the shared substring returned
 includes all of the text from @var{str} between indexes @var{start}
@@ -2905,21 +3158,23 @@ and read only strings.  Mutable strings answer @code{#t} to
 @code{string?}  while read only strings may or may not.   All kinds of
 strings, whether or not they are mutable return #t to this:
 
-@deffn primitive read-only-string? OBJ
-Return true of OBJ can be read as a string,
+@c ARGFIXME x/obj
+@c docstring begin (c-doc-string "strings.c" "read-only-string?")
+@c docstring md5 "00ca719e7e89083d3f16e830cb1ffe90"
+@deffn primitive read-only-string? x
+Return true if OBJ can be read as a string,
 
 This illustrates the difference between @code{string?} and
 @code{read-only-string?}:
 
 @example
 (string? "a string") @result{} #t
-(string? 'a-symbol") @result{} #f
+(string? 'a-symbol) @result{} #f
 
 (read-only-string? "a string") @result{} #t
-(read-only-string? 'a-symbol") @result{} #t
+(read-only-string? 'a-symbol) @result{} #t
 @end example
 @end deffn
-
 
 "Read-only" refers to how the string will be used, not how the string is
 permitted to be used.  In particular, all strings are "read-only
@@ -3016,22 +3271,32 @@ closures than for other kinds of objects.  Therefore, when manipulating
 a property list associated with a procedure object, use the
 @code{procedure} functions; otherwise, use the @code{object} functions.
 
+@c docstring begin (c-doc-string "objprop.c" "object-properties")
+@c docstring md5 "8f4a151eb542ef2a8b073f591ef0d8dd"
 @deffn primitive object-properties obj
 @deffnx primitive procedure-properties obj
 Return @var{obj}'s property list.
 @end deffn
 
-@deffn primitive set-object-properties! obj alist
+@c ARGFIXME alist/plist
+@c docstring begin (c-doc-string "objprop.c" "set-object-properties!")
+@c docstring md5 "589ed6bdc6ccadc43c9a75837d7311bb"
+@deffn primitive set-object-properties! obj plist
 @deffnx primitive set-procedure-properties! obj alist
 Set @var{obj}'s property list to @var{alist}.
 @end deffn
 
+@c docstring begin (c-doc-string "objprop.c" "object-property")
+@c docstring md5 "ec85959dcc703130c1402f054bd16fde"
 @deffn primitive object-property obj key
 @deffnx primitive procedure-property obj key
 Return the property of @var{obj} with name @var{key}.
 @end deffn
 
-@deffn primitive set-object-property! obj key value
+@c ARGFIXME val/value
+@c docstring begin (c-doc-string "objprop.c" "set-object-property!")
+@c docstring md5 "79e692acc9f3d3312e67f0e9bbf87ec6"
+@deffn primitive set-object-property! obj key val
 @deffnx primitive set-procedure-property! obj key value
 In @var{obj}'s property list, set the property named @var{key} to
 @var{value}.
@@ -3074,7 +3339,10 @@ The following procedures are used to open file ports.
 See also @ref{Ports and File Descriptors, open}, for an interface
 to the Unix @code{open} system call.
 
-@deffn primitive open-file string mode
+@c ARGFIXME string/filename mode/modes
+@c docstring begin (c-doc-string "fports.c" "open-file")
+@c docstring md5 "5e54300495ca6487c092a8ee33960e8a"
+@deffn primitive open-file filename modes
 Open the file whose name is @var{string}, and return a port
 representing that file.  The attributes of the port are
 determined by the @var{mode} string.  The way in 
@@ -3119,6 +3387,7 @@ If a file cannot be opened with the access requested,
 @code{open-file} throws an exception.
 @end deffn
 
+@c begin (scm-doc-string "r4rs.scm" "open-input-file")
 @deffn procedure open-input-file filename
 Open @var{filename} for input.  Equivalent to
 @smalllisp
@@ -3126,6 +3395,7 @@ Open @var{filename} for input.  Equivalent to
 @end smalllisp
 @end deffn
 
+@c begin (scm-doc-string "r4rs.scm" "open-output-file")
 @deffn procedure open-output-file filename
 Open @var{filename} for output.  Equivalent to
 @smalllisp
@@ -3133,17 +3403,26 @@ Open @var{filename} for output.  Equivalent to
 @end smalllisp
 @end deffn
 
+@c docstring begin (c-doc-string "ports.c" "port-mode")
+@c docstring md5 "cbcb46422ab6eb230fd54bb014026d79"
 @deffn primitive port-mode port
-Return the mode flags from the open @var{port}.
+Returns the port modes associated with the open port @var{port}.  These
+will not necessarily be identical to the modes used when the port was
+opened, since modes such as "append" which are used only during
+port creation are not retained.
 @end deffn
 
-@deffn primitive port-filename [port]
+@c docstring begin (c-doc-string "ports.c" "port-filename")
+@c docstring md5 "0d4492b1ad5b408f73a67a4483c9cda5"
+@deffn primitive port-filename port
 Return the filename associated with @var{port}.  This function returns
 the strings "standard input", "standard output" and "standard error"
 when called on the current input, output and error ports respectively.
 @end deffn
 
-@deffn primitive set-port-filename! [port] filename
+@c docstring begin (c-doc-string "ports.c" "set-port-filename!")
+@c docstring md5 "000176087c3df83a2edc97c01b842b88"
+@deffn primitive set-port-filename! port filename
 Change the filename associated with @var{port}, using the current input
 port if none is specified.  Note that this does not change the port's
 source of data, but only the value that is returned by
@@ -3156,24 +3435,31 @@ source of data, but only the value that is returned by
 The following allow string ports to be opened by analogy to R4R*
 file port facilities:
 
+@c docstring begin (c-doc-string "strports.c" "call-with-output-string")
+@c docstring md5 "6deec0e2965dc973e64dd0454cb920e7"
 @deffn primitive call-with-output-string proc
 Calls the one-argument procedure @var{proc} with a newly created output
 port.  When the function returns, the string composed of the characters
 written into the port is returned.
 @end deffn
 
-@deffn primitive call-with-input-string string proc
+@c ARGFIXME str/string
+@c docstring begin (c-doc-string "strports.c" "call-with-input-string")
+@c docstring md5 "57c9881b5134a0cf096d27e845e5f741"
+@deffn primitive call-with-input-string str proc
 Calls the one-argument procedure @var{proc} with a newly created input
 port from which @var{string}'s contents may be read.  The value yielded
 by the @var{proc} is returned.
 @end deffn
 
+@c begin (scm-doc-string "r4rs.scm" "with-output-to-string")
 @deffn procedure with-output-to-string thunk
 Calls the zero-argument procedure @var{thunk} with the current output
 port set temporarily to a new string port.  It returns a string
 composed of the characters written to the current output.
 @end deffn
 
+@c begin (scm-doc-string "r4rs.scm" "with-input-from-string")
 @deffn procedure with-input-from-string string thunk
 Calls the zero-argument procedure @var{thunk} with the current input
 port set temporarily to a string port opened on the specified
@@ -3196,7 +3482,10 @@ without much difficulty.
 A @dfn{soft-port} is a port based on a vector of procedures capable of
 accepting or delivering characters.  It allows emulation of I/O ports.
 
-@deffn primitive make-soft-port vector modes
+@c ARGFIXME pv/vector
+@c docstring begin (c-doc-string "vports.c" "make-soft-port")
+@c docstring md5 "81e8d424c897ad3a50368a47cc75a026"
+@deffn primitive make-soft-port pv modes
 Returns a port capable of receiving or delivering characters as
 specified by the @var{modes} string (@pxref{File Ports,
 open-file}).  @var{vector} must be a vector of length 6.  Its components
@@ -3235,7 +3524,7 @@ the port has reached end-of-file.  For example:
             (lambda () (display "@@" stdout)))
            "rw"))
 
-(write p p) @result{} #<input-output-soft#\space45d10#\>
+(write p p) @result{} #<input-output: soft 8081e20>
 @end example
 @end deffn
 
@@ -3245,9 +3534,12 @@ the port has reached end-of-file.  For example:
 This kind of port just causes errors if you try to use it in
 a normal way.
 
+@c docstring begin (c-doc-string "ports.c" "%make-void-port")
+@c docstring md5 "4866bfdf696b28a4f5cdeb06eca094b1"
 @deffn primitive %make-void-port mode
-Create and return a new void port.  The @var{mode} argument describes
-the input/output modes for this port; for a description, see the
+Create and return a new void port.  A void port acts like
+/dev/null.  The @var{mode} argument
+specifies the input/output modes for this port: see the
 documentation for @code{open-file} in @ref{File Ports}.
 @end deffn
 
@@ -3257,6 +3549,8 @@ documentation for @code{open-file} in @ref{File Ports}.
 This section describes port maintainence procedures
 which are not specific to a single port type.
 
+@c docstring begin (c-doc-string "ports.c" "close-port")
+@c docstring md5 "57df6bf58a9ac90f2cfa0d455c7fd5fb"
 @deffn primitive close-port port
 Close the specified port object.  Returns @code{#t} if it successfully
 closes a port or @code{#f} if it was already
@@ -3266,23 +3560,43 @@ See also @ref{Ports and File Descriptors, close}, for a procedure
 which can close file descriptors.
 @end deffn
 
+@c docstring begin (c-doc-string "ports.c" "close-input-port")
+@c docstring md5 "3c88ef048827b8142288f8a75a719b43"
 @deffn primitive close-input-port port
-A wrapper for @code{close-port}.  This procedure is required by R4RS.
+Close the specified input port object.  The routine has no effect if
+the file has already been closed.  An exception may be raised if an
+error occurs.  The value returned is unspecified.
+
+See also @ref{Ports and File Descriptors, close}, for a procedure
+which can close file descriptors.
 @end deffn
 
+@c docstring begin (c-doc-string "ports.c" "close-output-port")
+@c docstring md5 "448904bdcf541439f26d3446e83943a8"
 @deffn primitive close-output-port port
-A wrapper for @code{close-port}.  This procedure is required by R4RS.
+Close the specified output port object.  The routine has no effect if
+the file has already been closed.  An exception may be raised if an
+error occurs.  The value returned is unspecified.
+
+See also @ref{Ports and File Descriptors, close}, for a procedure
+which can close file descriptors.
 @end deffn
 
+@c docstring begin (c-doc-string "ports.c" "port-closed?")
+@c docstring md5 "4f1a004d7627e50605933386d457660f"
 @deffn primitive port-closed? port
 Returns @code{#t} if @var{port} is closed or @code{#f} if it is open.
 @end deffn
 
+@c docstring begin (c-doc-string "ports.c" "current-error-port")
+@c docstring md5 "bf76742c32f1b2d0d4e7a5acaa4497fb"
 @deffn primitive current-error-port
 Return the port to which errors and warnings should be sent (the
 @dfn{standard error} in Unix and C terminology).
 @end deffn
 
+@c docstring begin (c-doc-string "ports.c" "set-current-input-port")
+@c docstring md5 "10fe496a3bb33c437c58decb1a3a3eea"
 @deffn primitive set-current-input-port port
 @deffnx primitive set-current-output-port port
 @deffnx primitive set-current-error-port port
@@ -3292,6 +3606,8 @@ so that they use the supplied @var{port} for input or output.
 @end deffn
 
 @findex fflush
+@c docstring begin (c-doc-string "ports.c" "force-output")
+@c docstring md5 "0593e34c2c4872feaa830641e760e018"
 @deffn primitive force-output [port]
 Flush the specified output port, or the current output port if @var{port}
 is omitted.  The current output buffer contents are passed to the 
@@ -3302,18 +3618,24 @@ It has no effect on an unbuffered port.
 The return value is unspecified.
 @end deffn
 
+@c docstring begin (c-doc-string "ports.c" "flush-all-ports")
+@c docstring md5 "949cc3278aef32016a7219e03695f4d1"
 @deffn primitive flush-all-ports
 Equivalent to calling @code{force-output} on
 all open output ports.  The return value is unspecified.
 @end deffn
 
+@c docstring begin (c-doc-string "ports.c" "drain-input")
+@c docstring md5 "5a56448ddac936cec4752dd89c5bb907"
 @deffn primitive drain-input port
 Drains @var{PORT}'s read buffers (including any pushed-back characters)
 and returns the contents as a single string.
-@end deffn 
+@end deffn
 
-
-@deffn primitive seek fd/port offset whence
+@c ARGFIXME object/fd/port
+@c docstring begin (c-doc-string "ports.c" "seek")
+@c docstring md5 "e0070af2bebae1e3de656a06d23112dc"
+@deffn primitive seek object offset whence
 Sets the current position of @var{fd/port} to the integer @var{offset},
 which is interpreted according to the value of @var{whence}.
 
@@ -3339,12 +3661,18 @@ the current position of a port can be obtained using:
 @end smalllisp
 @end deffn
 
-@deffn primitive fseek fd/port offset whence
+@c ARGFIXME object/fd/port
+@c docstring begin (c-doc-string "ioext.c" "fseek")
+@c docstring md5 "2e68437abef90dc6d6980f558c632850"
+@deffn primitive fseek object offset whence
 Obsolete.  Almost the same as seek, above, but the return value is
 unspecified.
 @end deffn
 
-@deffn primitive ftell fd/port
+@c ARGFIXME object/fd/port
+@c docstring begin (c-doc-string "ioext.c" "ftell")
+@c docstring md5 "c06f4f1e78eb5dbce00062ceda2645aa"
+@deffn primitive ftell object
 Returns an integer representing the current position of @var{fd/port},
 measured from the beginning.  Equivalent to:
 @smalllisp
@@ -3354,7 +3682,10 @@ measured from the beginning.  Equivalent to:
 
 @findex truncate
 @findex ftruncate
-@deffn primitive truncate-file obj [size]
+@c ARGFIXME obj/object size/length
+@c docstring begin (c-doc-string "ports.c" "truncate-file")
+@c docstring md5 "a5aed3a36b05abed78b34ce6b71c8637"
+@deffn primitive truncate-file object [length]
 Truncates the object referred to by @var{obj} to at most @var{size} bytes.
 @var{obj} can be a string containing a file name or an integer file
 descriptor or a port.  @var{size} may be omitted if @var{obj} is not
@@ -3364,6 +3695,8 @@ position.
 The return value is unspecified.
 @end deffn
 
+@c docstring begin (c-doc-string "ports.c" "port-mode")
+@c docstring md5 "cbcb46422ab6eb230fd54bb014026d79"
 @deffn primitive port-mode port
 Returns the port modes associated with the open port @var{port}.  These
 will not necessarily be identical to the modes used when the port was
@@ -3371,13 +3704,17 @@ opened, since modes such as "append" which are used only during
 port creation are not retained.
 @end deffn
 
-@deffn primitive close-all-ports-except port @dots{}
+@c docstring begin (c-doc-string "ports.c" "close-all-ports-except")
+@c docstring md5 "cc236f9737a0e718d33eb00106cd33f9"
+@deffn primitive close-all-ports-except . ports
 Close all open file ports used by the interpreter
 except for those supplied as arguments.  This procedure
 is intended to be used before an exec call to close file descriptors
 which are not needed in the new process.
 @end deffn
 
+@c docstring begin (c-doc-string "fports.c" "setvbuf")
+@c docstring md5 "5395a53e279959cd6b364a3411887c0b"
 @deffn primitive setvbuf port mode [size]
 Set the buffering mode for @var{port}.  @var{mode} can be:
 @table @code
@@ -3391,7 +3728,10 @@ If @var{size} is omitted, a default size will be used.
 @end table
 @end deffn
 
-@deffn primitive port-column [input-port]
+@c ARGFIXME port/input-port
+@c docstring begin (c-doc-string "ports.c" "port-column")
+@c docstring md5 "59f674b1d850a3d0ff4e98d1b251f2dc"
+@deffn primitive port-column port
 @deffnx primitive port-line [input-port]
 Return the current column number or line number of @var{input-port},
 using the current input port if none is specified.  If the number is
@@ -3403,8 +3743,11 @@ because lines and column numbers traditionally start with 1, and that is
 what non-programmers will find most natural.)
 @end deffn
 
-@deffn primitive set-port-column! [input-port] column
-@deffnx primitive set-port-line! [input-port] line
+@c ARGFIXME port/input-port
+@c docstring begin (c-doc-string "ports.c" "set-port-column!")
+@c docstring md5 "f1223e46a2e22b01ed06429d062a449b"
+@deffn primitive set-port-column! port column
+@deffnx primitive set-port-column! [input-port] column
 Set the current column or line number of @var{input-port}, using the
 current input port if none is specified.
 @end deffn
@@ -3421,6 +3764,7 @@ Interfaces to @code{read}/@code{fread} and @code{write}/@code{fwrite} are
 also available, as @code{uniform-array-read!} and @code{uniform-array-write!},
 @ref{Uniform Arrays}.
 
+@c begin (scm-doc-string "boot-9.scm" "read-line")
 @deffn procedure read-line [port] [handle-delim]
 Return a line of text from @var{port} if specified, otherwise from the
 value returned by @code{(current-input-port)}.  Under Unix, a line of text
@@ -3446,6 +3790,7 @@ multiple values are returned instead of a pair.
 @end table
 @end deffn
 
+@c begin (scm-doc-string "boot-9.scm" "read-line!")
 @deffn procedure read-line! buf [port]
 Read a line of text into the supplied string @var{buf} and return the
 number of characters added to @var{buf}.  If @var{buf} is filled, then
@@ -3454,6 +3799,7 @@ Read from @var{port} if
 specified, otherwise from the value returned by @code{(current-input-port)}.
 @end deffn
 
+@c begin (scm-doc-string "boot-9.scm" "read-delimited")
 @deffn procedure read-delimited delims [port] [handle-delim]
 Read text until one of the characters in the string @var{delims} is found
 or end-of-file is reached.  Read from @var{port} if supplied, otherwise
@@ -3464,6 +3810,7 @@ NOTE: if the scsh module is loaded then @var{delims} must be an scsh
 char-set, not a string.
 @end deffn
 
+@c begin (scm-doc-string "boot-9.scm" "read-delimited!")
 @deffn procedure read-delimited! delims buf [port] [handle-delim] [start] [end]
 Read text into the supplied string @var{buf} and return the number of
 characters added to @var{buf} (subject to @var{handle-delim}, which takes
@@ -3478,6 +3825,8 @@ NOTE: if the scsh module is loaded then @var{delims} must be an scsh
 char-set, not a string.
 @end deffn
 
+@c docstring begin (c-doc-string "ioext.c" "write-line")
+@c docstring md5 "eff9e2e0ff8b8225018d194b40ce81d3"
 @deffn primitive write-line obj [port]
 Display @var{obj} and a newline character to @var{port}.  If @var{port}
 is not specified, @code{(current-output-port)} is used.  This function
@@ -3493,7 +3842,10 @@ Some of the abovementioned I/O functions rely on the following C
 primitives.  These will mainly be of interest to people hacking Guile
 internals.
 
-@deffn primitive %read-delimited! delims buf gobble? [port [start [end]]]
+@c ARGFIXME gobble/gobble?
+@c docstring begin (c-doc-string "ioext.c" "%read-delimited!")
+@c docstring md5 "52e561c3dc21812ae4f536f27efadca6"
+@deffn primitive %read-delimited! delims buf gobble [port [start [end]]]
 Read characters from @var{port} into @var{buf} until one of the
 characters in the @var{delims} string is encountered.  If @var{gobble?}
 is true, store the delimiter character in @var{buf} as well; otherwise,
@@ -3509,6 +3861,8 @@ the delimiter returned is the @var{eof-object}; if the buffer was filled
 without encountering a delimiter, this value is @var{#f}.
 @end deffn
 
+@c docstring begin (c-doc-string "ioext.c" "%read-line")
+@c docstring md5 "3cc8b6e7b6646441a460b6c6e39df48f"
 @deffn primitive %read-line [port]
 Read a newline-terminated line from @var{port}, allocating storage as
 necessary.  The newline terminator (if any) is removed from the string,
@@ -3726,6 +4080,8 @@ Set using @code{scm_set_port_truncate}.
 @node Bitwise Operations
 @chapter Bitwise Operations
 
+@c docstring begin (c-doc-string "numbers.c" "logand")
+@c docstring md5 "a5e8c2e926e6d7030f8f36b143763b11"
 @deffn primitive logand n1 n2
 Returns the integer which is the bit-wise AND of the two integer
 arguments.
@@ -3737,6 +4093,8 @@ Example:
 @end lisp
 @end deffn
 
+@c docstring begin (c-doc-string "numbers.c" "logior")
+@c docstring md5 "22d86a341b51518e0958d7129c516644"
 @deffn primitive logior n1 n2
 Returns the integer which is the bit-wise OR of the two integer
 arguments.
@@ -3748,6 +4106,8 @@ Example:
 @end lisp
 @end deffn
 
+@c docstring begin (c-doc-string "numbers.c" "logxor")
+@c docstring md5 "6e6e1ef3f6c8d0d19303c0d19d49ea9e"
 @deffn primitive logxor n1 n2
 Returns the integer which is the bit-wise XOR of the two integer
 arguments.
@@ -3759,6 +4119,8 @@ Example:
 @end lisp
 @end deffn
 
+@c docstring begin (c-doc-string "numbers.c" "lognot")
+@c docstring md5 "56635b7a5f96eeec9d2d86c1886f712a"
 @deffn primitive lognot n
 Returns the integer which is the 2s-complement of the integer argument.
 
@@ -3769,9 +4131,13 @@ Example:
 (number->string (lognot #b0) 2)
    @result{} "-1"
 @end lisp
+
 @end deffn
 
-@deffn primitive logtest j k
+@c ARGFIXME j/n1 k/n2
+@c docstring begin (c-doc-string "numbers.c" "logtest")
+@c docstring md5 "6669bd04534157444acc1f382c8d21aa"
+@deffn primitive logtest n1 n2
 @example
 (logtest j k) @equiv{} (not (zero? (logand j k)))
 
@@ -3780,6 +4146,8 @@ Example:
 @end example
 @end deffn
 
+@c docstring begin (c-doc-string "numbers.c" "logbit?")
+@c docstring md5 "2fb07f2f5f5e80c44e6a190f9bea8ca9"
 @deffn primitive logbit? index j
 @example
 (logbit? index j) @equiv{} (logtest (integer-expt 2 index) j)
@@ -3792,9 +4160,19 @@ Example:
 @end example
 @end deffn
 
-@deffn primitive ash int count
-Returns an integer equivalent to
-@code{(inexact->exact (floor (* @var{int} (expt 2 @var{count}))))}.@refill
+@c ARGFIXME n/int cnt/count
+@c docstring begin (c-doc-string "numbers.c" "ash")
+@c docstring md5 "2cbeef97afa475cb12dd77db28331e52"
+@deffn primitive ash n cnt
+The function ash performs an arithmetic shift left by CNT bits
+(or shift right, if CNT is negative).  'Arithmetic' means, that
+the function does not guarantee to keep the bit structure of N,
+but rather guarantees that the result will always be rounded
+towards minus infinity.  Therefore, the results of ash and a
+corresponding bitwise shift will differ if N is negative.
+
+Formally, the function returns an integer equivalent to
+@code{(inexact->exact (floor (* N (expt 2 CNT))))}.@refill
 
 Example:
 @lisp
@@ -3805,6 +4183,8 @@ Example:
 @end lisp
 @end deffn
 
+@c docstring begin (c-doc-string "numbers.c" "logcount")
+@c docstring md5 "b54f80d36c37cd4c14c9c98510840343"
 @deffn primitive logcount n
 Returns the number of bits in integer @var{n}.  If integer is positive,
 the 1-bits in its binary representation are counted.  If negative, the
@@ -3822,6 +4202,8 @@ Example:
 @end lisp
 @end deffn
 
+@c docstring begin (c-doc-string "numbers.c" "integer-length")
+@c docstring md5 "d75b22514bfd2dd9343566a30a7cbe1a"
 @deffn primitive integer-length n
 Returns the number of bits neccessary to represent @var{n}.
 
@@ -3836,6 +4218,8 @@ Example:
 @end lisp
 @end deffn
 
+@c docstring begin (c-doc-string "numbers.c" "integer-expt")
+@c docstring md5 "ac2a2e46bd0010076c5202233b64fd06"
 @deffn primitive integer-expt n k
 Returns @var{n} raised to the non-negative integer exponent @var{k}.
 
@@ -3848,6 +4232,8 @@ Example:
 @end lisp
 @end deffn
 
+@c docstring begin (c-doc-string "numbers.c" "bit-extract")
+@c docstring md5 "a852814ec2bc10e090297e1e2596fdc3"
 @deffn primitive bit-extract n start end
 Returns the integer composed of the @var{start} (inclusive) through
 @var{end} (exclusive) bits of @var{n}.  The @var{start}th bit becomes
@@ -3905,6 +4291,7 @@ This regular expression interface was modeled after that
 implemented by SCSH, the Scheme Shell.  It is intended to be
 upwardly compatible with SCSH regular expressions.
 
+@c begin (scm-doc-string "regex.scm" "string-match")
 @deffn procedure string-match pattern str [start]
 Compile the string @var{pattern} into a regular expression and compare
 it with @var{str}.  The optional numeric argument @var{start} specifies
@@ -3923,7 +4310,10 @@ the same regular expression is used several times (for example, in a
 loop).  For better performance, you can compile a regular expression in
 advance and then match strings against the compiled regexp.
 
-@deffn primitive make-regexp str [flag @dots{}]
+@c ARGFIXME pat/str flags/flag
+@c docstring begin (c-doc-string "regex-posix.c" "make-regexp")
+@c docstring md5 "aee18436bb43ff7b2c21be497749063e"
+@deffn primitive make-regexp pat . flags
 Compile the regular expression described by @var{str}, and return the
 compiled regexp structure.  If @var{str} does not describe a legal
 regular expression, @code{make-regexp} throws a
@@ -3964,14 +4354,20 @@ the earlier one.
 
 @end deffn
 
-@deffn primitive regexp-exec regexp str [start]
+@c ARGFIXME rx/regexp
+@c docstring begin (c-doc-string "regex-posix.c" "regexp-exec")
+@c docstring md5 "1d702fa8d3f54c4578d943c2a1fd6e66"
+@deffn primitive regexp-exec rx str [start [flags]]
 Match the compiled regular expression @var{regexp} against @code{str}.
 If the optional integer @var{start} argument is provided, begin matching
 from that position in the string.  Return a match structure describing
 the results of the match, or @code{#f} if no match could be found.
 @end deffn
 
-@deffn primitive regexp? obj
+@c ARGFIXME x/obj
+@c docstring begin (c-doc-string "regex-posix.c" "regexp?")
+@c docstring md5 "7a7e0941bb34c355bb0b40aafffbeb58"
+@deffn primitive regexp? x
 Return @code{#t} if @var{obj} is a compiled regular expression, or
 @code{#f} otherwise.
 @end deffn
@@ -3979,6 +4375,7 @@ Return @code{#t} if @var{obj} is a compiled regular expression, or
 Regular expressions are commonly used to find patterns in one string and
 replace them with the contents of another string.
 
+@c begin (scm-doc-string "regex.scm" "regexp-substitute")
 @deffn procedure regexp-substitute port match [item@dots{}]
 Write to the output port @var{port} selected contents of the match
 structure @var{match}.  Each @var{item} specifies what should be
@@ -4005,6 +4402,7 @@ the regexp match is written.
 @var{item}s and returns that.
 @end deffn
 
+@c begin (scm-doc-string "regex.scm" "regexp-substitute")
 @deffn procedure regexp-substitute/global port regexp target [item@dots{}]
 Similar to @code{regexp-substitute}, but can be used to perform global
 substitutions on @var{str}.  Instead of taking a match structure as an
@@ -4050,11 +4448,13 @@ return some information about the original target string that was
 matched against a regular expression; we will call that string
 @var{target} for easy reference.
 
+@c begin (scm-doc-string "regex.scm" "regexp-match?")
 @deffn procedure regexp-match? obj
 Return @code{#t} if @var{obj} is a match structure returned by a
 previous call to @code{regexp-exec}, or @code{#f} otherwise.
 @end deffn
 
+@c begin (scm-doc-string "regex.scm" "match:substring")
 @deffn procedure match:substring match [n]
 Return the portion of @var{target} matched by subexpression number
 @var{n}.  Submatch 0 (the default) represents the entire regexp match.
@@ -4062,28 +4462,34 @@ If the regular expression as a whole matched, but the subexpression
 number @var{n} did not match, return @code{#f}.
 @end deffn
 
+@c begin (scm-doc-string "regex.scm" "match:start")
 @deffn procedure match:start match [n]
 Return the starting position of submatch number @var{n}.
 @end deffn
 
+@c begin (scm-doc-string "regex.scm" "match:end")
 @deffn procedure match:end match [n]
 Return the ending position of submatch number @var{n}.
 @end deffn
 
+@c begin (scm-doc-string "regex.scm" "match:prefix")
 @deffn procedure match:prefix match
 Return the unmatched portion of @var{target} preceding the regexp match.
 @end deffn
 
+@c begin (scm-doc-string "regex.scm" "match:suffix")
 @deffn procedure match:suffix match
 Return the unmatched portion of @var{target} following the regexp match.
 @end deffn
 
+@c begin (scm-doc-string "regex.scm" "match:count")
 @deffn procedure match:count match
 Return the number of parenthesized subexpressions from @var{match}.
 Note that the entire regular expression match itself counts as a
 subexpression, and failed submatches are included in the count.
 @end deffn
 
+@c begin (scm-doc-string "regex.scm" "match:string")
 @deffn procedure match:string match
 Return the original @var{target} string.
 @end deffn
@@ -4117,6 +4523,7 @@ by any number of alphabetic characters.  The regular expression
 @samp{\\let\\[A-Za-z]*} would do this: the double backslashes in the
 regexp each match a single backslash in the target string.
 
+@c begin (scm-doc-string "regex.scm" "regexp-quote")
 @deffn procedure regexp-quote str
 Quote each special character found in @var{str} with a backslash, and
 return the resulting string.
@@ -4201,6 +4608,7 @@ guile>
 
 The definitions of @code{regcomp} and @code{regexec} are as follows:
 
+@c NJFIXME not in libguile!
 @deffn primitive regcomp pattern [flags]
 Compile the regular expression pattern using POSIX rules.  Flags is
 optional and should be specified using symbolic names:
@@ -4223,6 +4631,7 @@ operators.  Backslashes in @var{pattern} must be escaped if specified in a
 literal string e.g., @code{"\\(a\\)\\?"}.
 @end deffn
 
+@c NJFIXME not in libguile!
 @deffn primitive regexec regex string [match-pick] [flags]
 
 Match @var{string} against the compiled POSIX regular expression 
@@ -4281,25 +4690,32 @@ e.g., @code{(list #\< 0 1 #\>)}.  The returned substrings share memory with
 Here are some other procedures that might be used when using regular
 expressions:
 
+@c NJFIXME not in libguile!
 @deffn primitive compiled-regexp? obj
 Test whether obj is a compiled regular expression.
 @end deffn
 
+@c NJFIXME not in libguile!
 @deffn primitive regexp->dfa regex [flags]
 @end deffn
 
+@c NJFIXME not in libguile!
 @deffn primitive dfa-fork dfa
 @end deffn
 
+@c NJFIXME not in libguile!
 @deffn primitive reset-dfa! dfa
 @end deffn
 
+@c NJFIXME not in libguile!
 @deffn primitive dfa-final-tag dfa
 @end deffn
 
+@c NJFIXME not in libguile!
 @deffn primitive dfa-continuable? dfa
 @end deffn
 
+@c NJFIXME not in libguile!
 @deffn primitive advance-dfa! dfa string
 @end deffn
 
@@ -4307,6 +4723,9 @@ Test whether obj is a compiled regular expression.
 @page
 @node Dynamic Linking from Marius
 @chapter Dynamic Linking from Marius
+
+@c NJFIXME primitive documentation here duplicates (and is generally
+@c better than) documentation for the same primitives earlier on.
 
 Most modern Unices have something called @dfn{shared libraries}.  This
 ordinarily means that they have the capability to share the executable
@@ -4685,7 +5104,10 @@ anyway).
 [FIXME: this is pasted in from Tom Lord's original guile.texi and should
 be reviewed]
 
-@deffn primitive dynamic-wind in-guard thunk out-guard
+@c ARGFIXME in-guard/thunk1 thunk/thunk2 out-guard/thunk3
+@c docstring begin (c-doc-string "dynwind.c" "dynamic-wind")
+@c docstring md5 "5a7e758c7b25001a47aadfd1c51dd5c4"
+@deffn primitive dynamic-wind thunk1 thunk2 thunk3
 All three arguments must be 0-argument procedures.
 
 @var{in-guard} is called, then @var{thunk}, then @var{out-guard}.
@@ -4778,6 +5200,8 @@ dynamic root.  For example, if you want to apply a procedure, but to
 not allow that procedure to capture the current continuation, calling
 the procedure under a new dynamic root will do the job.
 
+@c docstring begin (c-doc-string "root.c" "call-with-dynamic-root")
+@c docstring md5 "74fe942888f21340a4aaa5c1012492d0"
 @deffn primitive call-with-dynamic-root thunk handler
 Evaluate @var{(thunk)} in a new dynamic context, returning its value.
 
@@ -4809,7 +5233,7 @@ may not do what you expect:
     (lambda (errcode) errcode))))
 @end example
 
-The problem is, on what port will @samp{fnord\n} be displayed?  You
+The problem is, on what port will @samp{fnord} be displayed?  You
 might expect that because of the @code{with-output-to-port} that
 it will be displayed on the port bound to @code{some-port}.  But it
 probably won't -- before evaluating the thunk, dynamic winds are
@@ -4824,6 +5248,8 @@ be under a new dynamic root.)
 @end deffn
 
 
+@c docstring begin (c-doc-string "root.c" "dynamic-root")
+@c docstring md5 "2bb35890a286c045ce6c69d6fc4a8e36"
 @deffn primitive dynamic-root
 Return an object representing the current dynamic root.
 
@@ -4832,6 +5258,7 @@ They are currently represented as numbers, but your code should
 in no way depend on this.
 @end deffn
 
+@c begin (scm-doc-string "boot-9.scm" "quit")
 @deffn procedure quit [exit_val]
 Throw back to the error handler of the current dynamic root.
 
@@ -4852,10 +5279,12 @@ default actions.  Switching to batch mode causes any handlers installed
 from Scheme code to be removed.  An example of where this is useful is
 after forking a new process intended to run non-interactively.
 
+@c begin (scm-doc-string "boot-9.scm" "batch-mode?")
 @deffn procedure batch-mode?
 Returns a boolean indicating whether the interpreter is in batch mode.
 @end deffn
 
+@c begin (scm-doc-string "boot-9.scm" "set-batch-mode?!")
 @deffn procedure set-batch-mode?! arg
 If @var{arg} is true, switches the interpreter to batch mode.
 The @code{#f} case has not been implemented.
@@ -4890,6 +5319,10 @@ executed in a new dynamic root.
 @node Low level thread primitives
 @subsection Low level thread primitives
 
+@c NJFIXME no current mechanism for making sure that these docstrings
+@c are in sync.
+
+@c begin (c-doc-string "threads.c" "call-with-new-thread")
 @deffn primitive call-with-new-thread thunk error-thunk
 Evaluate @var{(thunk)} in a new thread, and new dynamic context,
 returning a new thread object representing the thread.
@@ -4904,26 +5337,31 @@ with-new-thread was evaluated, but not in the callers thread.
 All the evaluation rules for dynamic roots apply to threads.
 @end deffn
 
+@c begin (c-doc-string "threads.c" "join-thread")
 @deffn primitive join-thread thread
 Suspend execution of the calling thread until the target @var{thread}
 terminates, unless the target @var{thread} has already terminated.
 @end deffn
 
+@c begin (c-doc-string "threads.c" "yield")
 @deffn primitive yield
 If one or more threads are waiting to execute, calling yield forces an
 immediate context switch to one of them. Otherwise, yield has no effect.
 @end deffn
 
+@c begin (c-doc-string "threads.c" "make-mutex")
 @deffn primitive make-mutex
 Create a new mutex object.
 @end deffn
 
+@c begin (c-doc-string "threads.c" "lock-mutex")
 @deffn primitive lock-mutex mutex
 Lock @var{mutex}. If the mutex is already locked, the calling thread
 blocks until the mutex becomes available. The function returns when
 the calling thread owns the lock on @var{mutex}.
 @end deffn
 
+@c begin (c-doc-string "threads.c" "unlock-mutex")
 @deffn primitive unlock-mutex mutex
 Unlocks @var{mutex} if the calling thread owns the lock on @var{mutex}.
 Calling unlock-mutex on a mutex not owned by the current thread results
@@ -4934,6 +5372,9 @@ blocked on @var{mutex} is awakened and grabs the mutex lock.
 @node Higher level thread procedures
 @subsection Higher level thread procedures
 
+@c NJFIXME the following doc is a repeat of the previous node!
+
+@c begin (c-doc-string "threads.c" "call-with-new-thread")
 @deffn primitive call-with-new-thread thunk error-thunk
 Evaluate @var{(thunk)} in a new thread, and new dynamic context,
 returning a new thread object representing the thread.
@@ -4948,26 +5389,31 @@ with-new-thread was evaluated, but not in the callers thread.
 All the evaluation rules for dynamic roots apply to threads.
 @end deffn
 
+@c begin (c-doc-string "threads.c" "join-thread")
 @deffn primitive join-thread thread
 Suspend execution of the calling thread until the target @var{thread}
 terminates, unless the target @var{thread} has already terminated.
 @end deffn
 
+@c begin (c-doc-string "threads.c" "yield")
 @deffn primitive yield
 If one or more threads are waiting to execute, calling yield forces an
 immediate context switch to one of them. Otherwise, yield has no effect.
 @end deffn
 
+@c begin (c-doc-string "threads.c" "make-mutex")
 @deffn primitive make-mutex
 Create a new mutex object.
 @end deffn
 
+@c begin (c-doc-string "threads.c" "lock-mutex")
 @deffn primitive lock-mutex mutex
 Lock @var{mutex}. If the mutex is already locked, the calling thread
 blocks until the mutex becomes available. The function returns when
 the calling thread owns the lock on @var{mutex}.
 @end deffn
 
+@c begin (c-doc-string "threads.c" "unlock-mutex")
 @deffn primitive unlock-mutex mutex
 Unlocks @var{mutex} if the calling thread owns the lock on @var{mutex}.
 Calling unlock-mutex on a mutex not owned by the current thread results
@@ -5036,7 +5482,11 @@ To implement a mapping from source code expressions to the procedures
 they constitute a doubly-weak table has to be used.
 
 @section Weak key hashes
-@deffn primitive make-weak-key-hash-table size
+
+@c ARGFIXME k/size
+@c docstring begin (c-doc-string "weaks.c" "make-weak-key-hash-table")
+@c docstring md5 "dc96c22df97b209947c8d5c86fffb2a4"
+@deffn primitive make-weak-key-hash-table k
 @deffnx primitive make-weak-value-hash-table size
 @deffnx primitive make-doubly-weak-hash-table size
 Return a weak hash table with @var{size} buckets. As with any hash
@@ -5045,7 +5495,11 @@ table, choosing a good size for the table requires some caution.
 You can modify weak hash tables in exactly the same way you would modify
 regular hash tables. (@pxref{Hash Tables})
 @end deffn
-@deffn primitive weak-key-hash-table? obj
+
+@c ARGFIXME x/obj
+@c docstring begin (c-doc-string "weaks.c" "weak-key-hash-table?")
+@c docstring md5 "2110c6b32683107ba18034dd51c728d2"
+@deffn primitive weak-key-hash-table? x
 @deffnx primitive weak-value-hash-table? obj
 @deffnx primitive doubly-weak-hash-table? obj
 Return @var{#t} if @var{obj} is the specified weak hash table. Note
@@ -5054,22 +5508,34 @@ hash table.
 @end deffn
 
 @section Weak vectors
+
 Weak vectors are mainly useful in Guile's implementation of weak hash
-tables. 
-@deffn primitive make-weak-vector size [fill]
+tables.
+
+@c ARGFIXME k/size
+@c docstring begin (c-doc-string "weaks.c" "make-weak-vector")
+@c docstring md5 "254e4d88c39f754d6a03f1e0030a8976"
+@deffn primitive make-weak-vector k [fill]
 Return a weak vector with @var{size} elements. If the optional
 argument @var{fill} is given, all entries in the vector will be set to
 @var{fill}. The default value for @var{fill} is the empty list.
 @end deffn
 
-@deffn primitive weak-vector . rest
+@c NJFIXME should vector->list here be list->vector ?
+@c docstring begin (c-doc-string "weaks.c" "weak-vector")
+@c docstring md5 "1286363bbed11579a6871be63b9230af"
+@deffn primitive weak-vector . l
 @deffnx primitive list->weak-vector l
 Construct a weak vector from a list: @code{weak-vector} uses the list of
 its arguments while @code{list->weak-vector} uses its only argument
 @var{l} (a list) to construct a weak vector the same way
 @code{vector->list} would.
 @end deffn
-@deffn primitive weak-vector? obj
+
+@c ARGFIXME x/obj
+@c docstring begin (c-doc-string "weaks.c" "weak-vector?")
+@c docstring md5 "bdec6d089ac6623f3c6d417c09409813"
+@deffn primitive weak-vector? x
 Return @var{#t} if @var{obj} is a weak vector. Note that all weak
 hashes are also weak vectors.
 @end deffn
@@ -5082,15 +5548,21 @@ hashes are also weak vectors.
 [FIXME: this is pasted in from Tom Lord's original guile.texi and should
 be reviewed]
 
+@c docstring begin (c-doc-string "gc.c" "gc")
+@c docstring md5 "be9f224404a39a7f25771a22bbae50a4"
 @deffn primitive gc
 Scans all of SCM objects and reclaims for further use those that are
 no longer accessible.
 @end deffn
 
+@c docstring begin (c-doc-string "gc.c" "gc-stats")
+@c docstring md5 "0bfa4baa08b196081a1e2e9f643c5b80"
 @deffn primitive gc-stats
 Returns an association list of statistics about Guile's current use of storage.  
 @end deffn
 
+@c docstring begin (c-doc-string "gc.c" "object-address")
+@c docstring md5 "4d07671330d333dd45528ecfab84af0e"
 @deffn primitive object-address obj
 Return an integer that for the lifetime of @var{obj} is uniquely
 returned by this function for @var{obj}
@@ -5104,6 +5576,8 @@ It is often useful to have site-specific information about the current
 Guile installation.  This chapter describes how to find out about
 Guile's configuration at run time.
 
+@c docstring begin (c-doc-string "version.c" "version")
+@c docstring md5 "ac4f68fe80951fb8e023fe17291b5ccf"
 @deffn primitive version
 @deffnx primitive major-version
 @deffnx primitive minor-version
@@ -5117,6 +5591,7 @@ version numbers, respectively.
 @end example
 @end deffn
 
+@c NJFIXME not in libguile!
 @deffn primitive libguile-config-stamp
 Return a string describing the date on which @code{libguile} was
 configured.  This is used to determine whether the Guile core
@@ -5124,6 +5599,8 @@ interpreter and the ice-9 runtime have grown out of date with one
 another.
 @end deffn
 
+@c docstring begin (c-doc-string "load.c" "%package-data-dir")
+@c docstring md5 "a05f1d6506b67a689d7e2190269de668"
 @deffn primitive %package-data-dir
 Return the name of the directory where Scheme packages, modules and
 libraries are kept.  On most Unix systems, this will be

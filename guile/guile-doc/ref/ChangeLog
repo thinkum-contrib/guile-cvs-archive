@@ -1,5 +1,14 @@
 2000-08-12  Neil Jerram  <neil@ossau.uklinux.net>
 
+	* scheme.texi: Removed superfluous "@c docstring end" markers -
+	docstring.el now uses "@end deffn" to find the end of the
+	docstring.
+	Added a lot more docstring comments, and synced up docstrings with
+	libguile - all libguile primitives documented in scheme.texi now
+	have docstring comments and are up to date.
+	(Evaluation): Updated docstring for eval and eval-string (now
+	R5RS-compliant).
+
 	* intro.texi (Guile Scripts): Added a couple of blank lines.
 
 2000-08-11  Neil Jerram  <neil@ossau.uklinux.net>
