@@ -13,7 +13,7 @@ libgoops_la_LDFLAGS = -version-info 0:0 -export-dynamic
 BUILT_SOURCES = goops.x
 
 subpkgdatadir = $(datadir)/guile
-subpkgdata_DATA = goops/goops.scm goops/compat.scm
+subpkgdata_DATA = goops/goops.scm goops/compat.scm goops/describe.scm
 
 goopsdir = $(subpkgdatadir)/goops
 
