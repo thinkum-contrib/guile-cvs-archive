@@ -88,105 +88,119 @@
 
 (defun query-sync-doc-strings ()
   (interactive)
-  (while (condition-case nil
-             (progn
-               (query-sync-next-doc-string)
-               t)
-           ((error nil)))))
+  (while (query-sync-next-doc-string))
+  (message "All doc strings processed"))
 
 (defun query-sync-next-doc-string ()
   (interactive)
-  (or (re-search-forward "^@c docstring begin " nil t)
-      (progn
-        (message "All doc strings processed")
-        (error "No more doc strings in this buffer!")))
+  (if (re-search-forward "^@c docstring begin " nil t)
 
-  ;; Evaluate the Lisp expression following begin, which should return
-  ;; the canonical form of the appropriate source file doc string.
-  (let* ((doc-string-spec (read (current-buffer)))
-         (doc-string-info (save-excursion (eval doc-string-spec)))
-         (doc-string-data (nth 0 doc-string-info))
-         (doc-string-canonical-fn (nth 1 doc-string-info))
-         (doc-string-display-fn (nth 2 doc-string-info))
-         (doc-string-replace-fn (nth 3 doc-string-info))
-         (doc-string-undisplay-fn (nth 4 doc-string-info))
-         (source-canonical (save-excursion (funcall doc-string-canonical-fn doc-string-data))))
+      ;; Evaluate the Lisp expression following begin, which should return
+      ;; the canonical form of the appropriate source file doc string.
+      (let* ((doc-string-spec (read (current-buffer)))
+	     (doc-string-info (save-excursion (eval doc-string-spec)))
+	     (doc-string-data (nth 0 doc-string-info))
+	     (doc-string-canonical-fn (nth 1 doc-string-info))
+	     (doc-string-display-fn (nth 2 doc-string-info))
+	     (doc-string-replace-fn (nth 3 doc-string-info))
+	     (doc-string-undisplay-fn (nth 4 doc-string-info))
+	     (source-canonical (save-excursion (funcall doc-string-canonical-fn doc-string-data))))
 
-    ;; Move to the beginning of the following line.
-    (forward-line 1)
-    (let ((manual-beg (point)))
+	;; Move to the beginning of the following line.
+	(forward-line 1)
+	(let ((manual-beg (point)))
 
-      ;; Find the end of the manual doc string.
-      (re-search-forward "^@c docstring end$")
-      (beginning-of-line)
-      (let* ((manual-end (point))
-             (manual-doc (buffer-substring manual-beg manual-end))
-             (manual-doc-parts (split-manual-doc-parts manual-doc))
-             (manual-saved-md5 (nth 0 manual-doc-parts))
-             (manual-offset    (nth 1 manual-doc-parts))
-             (manual-canonical (nth 2 manual-doc-parts)))
+	  ;; Find the end of the manual doc string.
+	  (re-search-forward "^@c docstring end$")
+	  (beginning-of-line)
+	  (let* ((manual-end (point))
+		 (manual-doc (buffer-substring manual-beg manual-end))
+		 (manual-doc-parts (split-manual-doc-parts manual-doc))
+		 (manual-saved-md5 (nth 0 manual-doc-parts))
+		 (manual-offset    (nth 1 manual-doc-parts))
+		 (manual-canonical (nth 2 manual-doc-parts)))
 
-        ;; Display manual and source buffers.
-        (delete-other-windows)
-        (if manual-overlay
-            nil
-          (setq manual-overlay (make-overlay 0 0 (current-buffer)))
-          (overlay-put manual-overlay 'face 'highlight))
-        (move-overlay manual-overlay
-                      (+ manual-beg manual-offset)
-                      manual-end)
-        (save-excursion (funcall doc-string-display-fn doc-string-data))
+	    ;; Display manual and source buffers.
+	    (delete-other-windows)
+	    (if manual-overlay
+		nil
+	      (setq manual-overlay (make-overlay 0 0 (current-buffer)))
+	      (overlay-put manual-overlay 'face 'highlight))
+	    (move-overlay manual-overlay
+			  (+ manual-beg manual-offset)
+			  manual-end)
+	    (save-excursion (funcall doc-string-display-fn doc-string-data))
         
-        ;; Calculate the MD5 digests of the current doc strings from
-        ;; source and reference manual.
-        (let ((source-md5 (md5 source-canonical))
-              (manual-md5 (md5 manual-canonical)))
+	    ;; Calculate the MD5 digests of the current doc strings from
+	    ;; source and reference manual.
+	    (let ((source-md5 (md5 source-canonical))
+		  (manual-md5 (md5 manual-canonical)))
 
-          (cond
+	      (cond
+	   
+	       ;; Case 1: both calculated MD5 digests match the saved
+	       ;; value.
+	       ((and (string-equal source-md5 manual-saved-md5)
+		     (string-equal manual-md5 manual-saved-md5))
+		(message "Doc strings for %s match" 
+			 doc-string-spec))
 
-           ;; Case 1: both calculated MD5 digests match the saved
-           ;; value.
-           ((and (string-equal source-md5 manual-saved-md5)
-                 (string-equal manual-md5 manual-saved-md5))
-            (message "Doc strings for %s are up to date" 
-                     doc-string-spec))
+	       ;; Case 2: source file MD5 digest matches the saved value.
+	       ((string-equal source-md5 manual-saved-md5)
+		(if (y-or-n-p "Copy doc string from reference manual to source file? ")
+		    (progn
+		      (save-excursion
+			(funcall doc-string-replace-fn doc-string-data manual-canonical))
+		      (goto-char manual-beg)
+		      (delete-region manual-beg manual-end)
+		      (insert-manual-doc-parts manual-md5 manual-canonical))))
 
-           ;; Case 2: source file MD5 digest matches the saved value.
-           ((string-equal source-md5 manual-saved-md5)
-            (if (y-or-n-p "Copy doc string from reference manual to source file? ")
-                (progn
-                  (save-excursion
-                    (funcall doc-string-replace-fn doc-string-data manual-canonical))
-                  (goto-char manual-beg)
-                  (delete-region manual-beg manual-end)
-                  (insert-manual-doc-parts manual-md5 manual-canonical))))
+	       ;; Case 3: manual MD5 digest matches the saved value.
+	       ((string-equal manual-md5 manual-saved-md5)
+		(if (y-or-n-p "Copy doc string from source file to reference manual? ")
+		    (progn
+		      (goto-char manual-beg)
+		      (delete-region manual-beg manual-end)
+		      (insert-manual-doc-parts source-md5 source-canonical))))
 
-           ;; Case 3: manual MD5 digest matches the saved value.
-           ((string-equal manual-md5 manual-saved-md5)
-            (if (y-or-n-p "Copy doc string from source file to reference manual? ")
-                (progn
-                  (goto-char manual-beg)
-                  (delete-region manual-beg manual-end)
-                  (insert-manual-doc-parts source-md5 source-canonical))))
+	       ;; Case 4: neither calculated digest matches the saved
+	       ;; value, but they match each other.
+	       ((string-equal source-md5 manual-md5)
+		(if (y-or-n-p "Doc strings match.  Update saved MD5 digest? ")
+		    (progn
+		      (goto-char manual-beg)
+		      (delete-region manual-beg manual-end)
+		      (insert-manual-doc-parts source-md5 source-canonical))))
 
-           ;; Case 4: neither calculated digest matches the saved
-           ;; value, but they match each other.
-           ((string-equal source-md5 manual-md5)
-            (if (y-or-n-p "Doc strings match.  Update saved MD5 digest? ")
-                nil))
+	       ;; Case 5: neither calculated digest matches the saved
+	       ;; value, and they are different.
+	       (t
+		(cond ((y-or-n-p "CONFLICT!  Copy doc string from source file to reference manual? ")
+		       (goto-char manual-beg)
+		       (delete-region manual-beg manual-end)
+		       (insert-manual-doc-parts source-md5 source-canonical))
+		      ((y-or-n-p "CONFLICT!  Copy doc string from reference manual to source file? ")
+		       (save-excursion
+			 (funcall doc-string-replace-fn doc-string-data manual-canonical))
+		       (goto-char manual-beg)
+		       (delete-region manual-beg manual-end)
+		       (insert-manual-doc-parts manual-md5 manual-canonical))
+		      ((y-or-n-p "CONFLICT!  Skip to next docstring? "))
+		      (t
+		       (message "Doc strings for %s are in conflict"
+				doc-string-spec)
+		       (error "Doc strings for %s are in conflict"
+			      doc-string-spec))))
 
-           ;; Case 5: neither calculated digest matches the saved
-           ;; value, and they are different.
-           (t
-            (message "Doc strings for %s are in conflict"
-                     doc-string-spec)
-            (error "Doc strings for %s are in conflict"
-                   doc-string-spec))
+	       ))
 
-           ))
+	    (move-overlay manual-overlay 0 0)
+	    (save-excursion (funcall doc-string-undisplay-fn doc-string-data))))
 
-        (move-overlay manual-overlay 0 0)
-        (save-excursion (funcall doc-string-undisplay-fn doc-string-data))))))
+	t)
+
+    (message "No more doc strings in this buffer!")
+    nil))
 
 
 ;;; {Doc strings from C source files}
@@ -245,7 +259,7 @@
 
           ;; Find the start of the preceding SCM_DEFINE form.
           (save-excursion
-            (if (re-search-backward "SCM_DEFINE" nil t)
+            (if (re-search-backward "^SCM_DEFINE" nil t)
                 (let (def-end)
 
                   ;; Auto-generate a @deffn line from the argument list.
@@ -271,10 +285,10 @@
                       (while (> opt 0)
                         (re-search-forward " *SCM *\\([^,)]+\\)[,)]")
                         (setq deffn
-                              (concat deffn " [ " (buffer-substring (match-beginning 1)
-                                                                    (match-end 1)))
+                              (concat deffn " [" (buffer-substring (match-beginning 1)
+								   (match-end 1)))
                               opttail
-                              (concat opttail " ]")
+                              (concat opttail "]")
                               opt
                               (1- opt)))
                       (setq deffn (concat deffn opttail))
@@ -315,7 +329,7 @@
                               
                               )))))))))
       (or region
-          (error "%s not found!" proc-name))
+          (error "%s not found in %s" proc-name (buffer-file-name)))
       (cons deffn region))))
 
 (defun c-doc-string-canonical (c-doc-string-data)
