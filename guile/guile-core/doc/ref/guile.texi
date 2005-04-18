@@ -341,7 +341,6 @@ available through both Scheme and C interfaces.
 * Value History::               Maintaining a value history in the REPL.
 * Pretty Printing::             Nicely formatting Scheme objects for output.
 * Formatted Output::            The @code{format} procedure.
-* Rx Regexps::                  The Rx regular expression library.
 * File Tree Walk::              Traversing the file system.
 * Queues::                      First-in first-out queuing.
 * Streams::                     Sequences of values.
