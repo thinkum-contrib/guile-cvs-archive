@@ -5,6 +5,26 @@
 - Guile 1.8
   (NOTE: Please update NEWS if appropriate when finishing/removing an item.)
 
+  - Cleanup threading code and document it.  Especially the roles of
+    the different APIs (C low level, Scheme, Plugin) [mvo, mikael]
+
+  + Make (ice-9 format) thread safe.
+  - Other modules as well.
+
+- Guile 1.10.0
+
+  - add support for srfi-30 (multi-line-comments) - follow std *carefully*.
+
+  - Allow the deprecation mechanism to be controlled via a preprocessor
+    macro analogous to _GNU_SOURCE. [talk to mvo about this]
+
+  - consider (and likely use) pkg-config for guile.
+
+  - Remove SCM_STRINGP, SCM_STRING_CHARS and SCM_STRING_LENGTH.
+    Activate read-only strings as per the comment in strings.c
+
+- Eventually
+
   - stime.c should use a mutex on temporary changes to the TZ
     environment variable.  SCM_DEFER_INTS is not designed for such
     things.  scm_getenv and scm_putenv_getenv will need to use this
@@ -23,58 +43,6 @@
       filesystems, stat:dev must be used too.
     - Passing "/" to start from the root directory doesn't work, it
       looks like perhaps trailing slashes are stripped too agressively.
-
-  - consider (and likely use) pkg-config for guile.
-
-  - add support for srfi-30 (multi-line-comments) - follow std *carefully*.
-
-  - Implement scm replacements for all of GH
-
-    We used to have a second API, prefix gh_, that was meant to be
-    easier to use than the native scm_ API and also portable across
-    Scheme implementations.
-
-    We decided that it is better to concentrate on making scm_ easier
-    to use instead of having two APIs, which is confusing.
-
-    However, we still have gh_ functions that have no direkt scm_
-    counterpart.  We need to close that gap so that using the scm_ API
-    instead of the gh_ API is just as easy.
-
-  - Allow the deprecation mechanism to be controlled via a preprocessor
-    macro analogous to _GNU_SOURCE. [talk to mvo about this]
-
-  - Cleanup threading code and document it.  Especially the roles of
-    the different APIs (C low level, Scheme, Plugin) [mvo, mikael]
-
-  - Handle thread-local data in a better way.  Currently, there are
-    three kinds of thread local data: get/setspecific keyed,
-    root state and fluids.  Instead use only fluids (except possibly
-    in the GC or low-level thread system).  Introduce a copy-on-write
-    mechanism.  Remember to reset thread local data in futures.c!
-
-  + Make (ice-9 format) thread safe.
-  - Other modules as well.
-
-  - Gracefully cope with the situation that gc_os_dep.c doesn't compile.
-
-    This is some highly platform dependent code that regularily fails
-    to compile as new versions of operating systems or new
-    architectures appear.
-
-    However, the services provided by gc_os_dep.c are optional.  So it
-    would be good to just ignore it when it can't be compiled instead
-    of letting the whole Guile build fail.
-
-  - Investigate performance drop from Dec. 8, 2002 to Dec. 12, 2000.
-
-
-- Guile 1.10.0
-
-  - Remove SCM_STRINGP, SCM_STRING_CHARS and SCM_STRING_LENGTH.
-    Activate read-only strings as per the comment in strings.c
-
-- Eventually
 
   - procprop.c: instead of using a stand-in value for everything
     except closures, we should find other ways to store the procedure
