@@ -393,7 +393,7 @@ Releasing Guile
           Otherwise use "cvs tag TAG" where 
             for an unstable release TAG should be release_X-oddnumber-Z
             for a stable pre-release TAG should be release_X-evennumber-Z-rcN
-            for an unstable release TAG should be release_X-evennumber-Z
+            for an stable release TAG should be release_X-evennumber-Z
 
           Examples: release_1-5-2, release_1-6-1-rc1, release_1-6-1
 
