@@ -244,7 +244,7 @@ possible and is done by defining @dfn{smobs}.
 
 The @ref{Programming Overview} section of this part contains general
 musings and guidelines about programming with Guile.  It explores
-different ways to design aprogram around Guile, or how to embed Guile
+different ways to design a program around Guile, or how to embed Guile
 into existing programs.
 
 There is also a pedagogical yet detailed explanation of how the data
