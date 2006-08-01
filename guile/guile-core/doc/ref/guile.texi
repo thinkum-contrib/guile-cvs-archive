@@ -305,7 +305,7 @@ available through both Scheme and C interfaces.
 * Options and Config::          Configuration, features and runtime options.
 * Translation::                 Support for translating other languages.
 * Internationalization::        Support for gettext, etc.
-* Debugging::                   Internal debugging interface.
+* Debugging::                   Debugging infrastructure and Scheme interface.
 * GH::                          The deprecated GH interface.
 @end menu
 
