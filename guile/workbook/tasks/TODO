@@ -39,8 +39,8 @@
       (getgroups), or that "root" can read anything, or access control
       lists (on systems which have those).  Just attempting an opendir
       would be simpler and more reliable.
-    - visited?-proc tests only stat:ino, but this is not unique across
-      filesystems, stat:dev must be used too.
+    + visited?-proc tests only stat:ino, but this is not unique across
+      filesystems, stat:dev must be used too.  [fixed]
     - Passing "/" to start from the root directory doesn't work, it
       looks like perhaps trailing slashes are stripped too agressively.
 
