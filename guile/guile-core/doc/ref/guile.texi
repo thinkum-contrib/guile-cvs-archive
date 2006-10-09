@@ -347,6 +347,7 @@ available through both Scheme and C interfaces.
 * File Tree Walk::              Traversing the file system.
 * Queues::                      First-in first-out queuing.
 * Streams::                     Sequences of values.
+* Buffered Input::              Ports made from a reader function.
 * Expect::			Controlling interactive programs with Guile.
 * The Scheme shell (scsh)::     Using scsh interfaces in Guile.
 @end menu
